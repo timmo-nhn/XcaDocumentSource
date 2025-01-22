@@ -1,0 +1,6 @@
+@XcaDocumentSource_HostAddress = http://localhost:5009
+
+GET {{XcaDocumentSource_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

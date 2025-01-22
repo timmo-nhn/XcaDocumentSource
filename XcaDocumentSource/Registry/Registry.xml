@@ -1,0 +1,9 @@
+<Registry>
+    <Document>
+        <UniqueId>12345678</UniqueId>
+        <MediaType>Application/PDF</MediaType>
+        <Size>58000</Size>
+        <Status>urn:oasis:names:tc:ebxml-regrep:StatusType:Approved</Status>
+        <Location>Repository/13116900216/12345678</Location>
+    </Document>
+</Registry>
