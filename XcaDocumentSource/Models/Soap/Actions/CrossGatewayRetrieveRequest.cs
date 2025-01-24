@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.ServiceModel;
 using System.Xml.Serialization;
 
-namespace XcaDocumentSource.Models.Soap.Xds;
+namespace XcaDocumentSource.Models.Soap.XdsTypes;
 
 [EditorBrowsable(EditorBrowsableState.Advanced)]
 [MessageContract(IsWrapped = false)]

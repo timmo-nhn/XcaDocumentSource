@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
 using XcaDocumentSource.Models.Soap;
-using XcaDocumentSource.Services;
 using XcaDocumentSource.Xca;
 
 namespace XcaDocumentSource.Controllers;
@@ -23,9 +21,19 @@ public class RegistryController : ControllerBase
 
     [Consumes("application/soap+xml")]
     [HttpPost("RegistryService")]
-    public async Task<IActionResult> RespondingGatewayService([FromBody] SoapEnvelope xmlBody)
+    public async Task<IActionResult> RegistryService([FromBody] SoapEnvelope soapEnvelope)
     {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+        var action = soapEnvelope.Header.Action;
+        switch (soapEnvelope.Header.Action)
+        {
+            case Constants.Xds.OperationContract.Iti18Action:
+                var b = ";";
+                break;
 
-        return Ok($"Response from Responding Gateway: ");
+            default:
+                return BadRequest("Missing action in SOAP <header> element");
+        }
+        return BadRequest("Missing action in SOAP <header> element");
     }
 }

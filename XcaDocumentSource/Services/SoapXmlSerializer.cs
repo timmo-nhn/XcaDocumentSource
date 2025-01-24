@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System.Text;
+using System.Text.Unicode;
+using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using XcaDocumentSource.Models.Soap;
@@ -21,27 +23,6 @@ public class SoapXmlSerializer
             }
         }
     }
-    public SoapEnvelope DeserializeSoapMessageAsync(Stream xmlStream)
-    {
-        var xmlSerializer = new XmlSerializer(typeof(SoapEnvelope));
-
-        var namespaces = new XmlSerializerNamespaces();
-        namespaces.Add("soap", "http://www.w3.org/2003/05/soap-envelope");
-        namespaces.Add("ns4", "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0");
-        namespaces.Add("ns2", "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0");
-
-        // Deserialize
-        using (var stringReader = new StreamReader(xmlStream))
-        {
-            var soapEnvelope = (SoapEnvelope)xmlSerializer.Deserialize(stringReader);
-            return soapEnvelope;
-        }
-    }
-    public T DeserializeSoapMessage<T>(Stream soapElement) where T : class
-    {
-        var soapElements = XElement.Load(soapElement);
-        return DeserializeSoapMessage<T>(soapElement);
-    }
 
     public string SerializeSoapMessageToXmlString(object soapElement)
     {
@@ -49,10 +30,9 @@ public class SoapXmlSerializer
 
         try
         {
-            var serializer = new XmlSerializer(soapElement.GetType());
-
             using (var stringWriter = new StringWriter())
             {
+                var serializer = new XmlSerializer(soapElement.GetType());
                 serializer.Serialize(stringWriter, soapElement);
                 return stringWriter.ToString();
             }

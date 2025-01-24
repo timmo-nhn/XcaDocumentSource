@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.ServiceModel;
 using System.Xml.Serialization;
-using XcaDocumentSource.Models.Soap.Xds;
+using XcaDocumentSource.Models.Soap.XdsTypes;
 
 namespace XcaDocumentSource.Models.Soap.Actions;
 

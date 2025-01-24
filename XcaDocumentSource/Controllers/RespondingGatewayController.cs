@@ -1,11 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Xml;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 using XcaDocumentSource.Models.Soap;
-using XcaDocumentSource.Models.Soap.Actions;
-using XcaDocumentSource.Models.Soap.Xds;
-using XcaDocumentSource.Services;
 using XcaDocumentSource.Xca;
 
 namespace XcaDocumentSource.Controllers;
@@ -27,33 +21,28 @@ public class RespondingGatewayController : ControllerBase
 
     [Consumes("application/soap+xml")]
     [HttpPost("RespondingGatewayService")]
-    public async Task<IActionResult> CrossGatewayQuery([FromBody] SoapEnvelope xmlBody)
+    public async Task<IActionResult> CrossGatewayQuery([FromBody] SoapEnvelope soapEnvelope)
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-        switch (xmlBody.Header.Action)
+        var action = soapEnvelope.Header.Action;
+        switch (action)
         {
             case Constants.Xds.OperationContract.Iti38Action:
-                var response = await _xcaGateway.RegistryStoredQuery(xmlBody, baseUrl + "/Registry/services/RegistryService");
-                break;
+                // Only change from ITI-38 to ITI-18 is the action in the header
+                soapEnvelope.Header.Action = Constants.Xds.OperationContract.Iti18Action;
+                var response = await _xcaGateway.RegistryStoredQuery(soapEnvelope, baseUrl + "/Registry/services/RegistryService");
+                return Ok(response);
 
             default:
-                return BadRequest("Missing action in SOAP <header> element");
+                if (action != null)
+                {
+
+                    return Ok(soapEnvelope.CreateSoapFault("UnknownAction", $"Unknown action {action}"));
+                }
+                else
+                {
+                    return Ok(soapEnvelope.CreateSoapFault("MissingAction", $"Missing action {action}".Trim(), "fix action m8"));
+                }
         }
-
-        return Ok($"Response from Responding Gateway: ");
     }
-
-    private SoapEnvelope<T>? ConvertToTypedEnvelope<T>(SoapEnvelope request)
-    {
-
-        /*if
-        var newSoap = new SoapEnvelope<T>()
-        {
-            Header = request.Header,
-            Body = (T)request.Body
-        };
-        return newSoap;*/
-        return null; 
-    }
-
 }

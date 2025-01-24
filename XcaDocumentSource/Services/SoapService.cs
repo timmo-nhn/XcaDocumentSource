@@ -21,18 +21,18 @@ namespace XcaDocumentSource.Services
             return soapResult;
         }
 
-        public static SoapRequestResult<SoapEnvelope<Fault>> Fault(Fault fault)
+        public static SoapRequestResult<SoapEnvelope> Fault(Fault fault)
         {
-            var soapFaultEnvelope = new SoapEnvelope<Fault>()
+            var soapFaultEnvelope = new SoapEnvelope()
             {
                 Header = new()
                 {
                     Action = Constants.Soap.Namespaces.AddressingSoapFault
                 },
-                Body = fault
+                Body = new() { Fault = fault }
             };
 
-            var soapResult = new SoapRequestResult<SoapEnvelope<Fault>>
+            var soapResult = new SoapRequestResult<SoapEnvelope>
             {
                 IsSuccess = false,
                 Value = soapFaultEnvelope,

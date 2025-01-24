@@ -1,7 +1,7 @@
 ﻿
 using XcaDocumentSource.Models.Soap;
 using XcaDocumentSource.Models.Soap.Actions;
-using XcaDocumentSource.Models.Soap.Xds;
+using XcaDocumentSource.Models.Soap.XdsTypes;
 using XcaDocumentSource.Services;
 
 namespace XcaDocumentSource.Xca;
