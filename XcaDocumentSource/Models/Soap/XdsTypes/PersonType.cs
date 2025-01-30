@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [XmlInclude(typeof(UserType))]
 [Serializable]

@@ -1,10 +1,8 @@
 ﻿
-using XcaDocumentSource.Models.Soap;
-using XcaDocumentSource.Models.Soap.Actions;
-using XcaDocumentSource.Models.Soap.XdsTypes;
-using XcaDocumentSource.Services;
+using XcaGatewayService.Models.Soap;
+using XcaGatewayService.Services;
 
-namespace XcaDocumentSource.Xca;
+namespace XcaGatewayService.Xca;
 public class XcaGateway
 {
     private readonly SoapService _soapService;
@@ -18,6 +16,13 @@ public class XcaGateway
     public async Task<SoapRequestResult<AdhocQueryResponse>> RegistryStoredQuery(SoapEnvelope request, string endpoint)
     {
         var response = await _soapService.PostSoapRequestAsync<IRegistryStoredQuery, AdhocQueryResponse>(request, endpoint);
+
+        return response;
+    }
+
+    public async Task<SoapRequestResult<RegisterDocumentSetbResponse>> RegisterDocumentSet(SoapEnvelope request, string endpoint)
+    {
+        var response = await _soapService.PostSoapRequestAsync<IRegisterDocumentSetb, RegisterDocumentSetbResponse>(request, endpoint);
 
         return response;
     }

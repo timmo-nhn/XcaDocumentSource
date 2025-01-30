@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaDocumentSource", "XcaDocumentSource\XcaDocumentSource.csproj", "{ADEF8203-9FA8-4F44-8DF6-E07F9CC9A007}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaGatewayService", "XcaDocumentSource\XcaGatewayService.csproj", "{ADEF8203-9FA8-4F44-8DF6-E07F9CC9A007}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B002DEEA-37E0-458F-A553-8FCA8994ECCF} = {B002DEEA-37E0-458F-A553-8FCA8994ECCF}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XdsDocumentSource", "XdsDocumentSource\XdsDocumentSource.csproj", "{B002DEEA-37E0-458F-A553-8FCA8994ECCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{ADEF8203-9FA8-4F44-8DF6-E07F9CC9A007}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADEF8203-9FA8-4F44-8DF6-E07F9CC9A007}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADEF8203-9FA8-4F44-8DF6-E07F9CC9A007}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B002DEEA-37E0-458F-A553-8FCA8994ECCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B002DEEA-37E0-458F-A553-8FCA8994ECCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B002DEEA-37E0-458F-A553-8FCA8994ECCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B002DEEA-37E0-458F-A553-8FCA8994ECCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

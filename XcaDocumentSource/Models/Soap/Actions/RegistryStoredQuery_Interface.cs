@@ -1,7 +1,6 @@
 using System.ServiceModel;
-using XcaDocumentSource.Models.Soap.Actions;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 // ITI-18
 [ServiceContract(Namespace = "urn:ihe:iti:xds-b:2007", ConfigurationName = "DocumentSharing.Xds.IRegistryStoredQuery")]

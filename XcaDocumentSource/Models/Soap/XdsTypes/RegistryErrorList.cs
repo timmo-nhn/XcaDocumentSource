@@ -1,6 +1,8 @@
 using System.Xml.Serialization;
+using XcaGatewayService.Commons;
+using XcaGatewayService.Commons.Enums;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [Serializable]
 [XmlType(AnonymousType = true, Namespace = Constants.Xds.Namespaces.Rs)]
@@ -11,5 +13,4 @@ public partial class RegistryErrorList
 
     [XmlAttribute(AttributeName = "highestSeverity", DataType = "anyURI")]
     public string HighestSeverity;
-
 }

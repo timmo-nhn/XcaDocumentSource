@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using XcaDocumentSource.Models.Soap;
-using XcaDocumentSource.Services;
+using XcaGatewayService.Models.Soap;
+using XcaGatewayService.Services;
 
 public class SoapEnvelopeModelBinderProvider : IModelBinderProvider
 {

@@ -1,8 +1,10 @@
+using Microsoft.Extensions.Localization;
 using System.ComponentModel;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
@@ -22,4 +24,6 @@ public class LocalizedStringType
 
     [XmlAttribute(AttributeName = "value")]
     public string Value;
+
+
 }

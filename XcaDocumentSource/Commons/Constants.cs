@@ -1,4 +1,4 @@
-﻿namespace XcaDocumentSource.Models.Soap;
+﻿namespace XcaGatewayService.Commons;
 public static class Constants
 {
     public static class Soap
@@ -22,6 +22,7 @@ public static class Constants
             public const string Hl7V3 = "urn:hl7-org:v3";
         }
     }
+
     public static class Xds
     {
         public static class Namespaces
@@ -46,6 +47,8 @@ public static class Constants
             public const string Iti43Reply = "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
             public const string Iti41Action = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
             public const string Iti41Reply = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse";
+            public const string Iti42Action = "urn:ihe:iti:2007:RegisterDocumentSet-b";
+            public const string Iti42Reply = "urn:ihe:iti:2007:RegisterDocumentSet-bResponse";
             public const string Iti62Action = "urn:ihe:iti:2010:DeleteDocumentSet";
             public const string Iti62Reply = "urn:ihe:iti:2010:DeleteDocumentSetResponse";
             public const string Iti86Action = "urn:ihe:iti:2017:RemoveDocuments";
@@ -248,6 +251,46 @@ public static class Constants
 
             //Ikke en del av IHEs XDS-profil, men en norsk verdi
             public const string XdsRepresentationBelowMinimumAgeError = "XDSRepresentationBelowMinimumAgeError";
+        }
+    }
+    public static class Hl7
+    {
+        public static class Dtm
+        {
+            public const string DtmYFormat = "yyyy";
+            public const string DtmYmFormat = DtmYFormat + "MM";
+            public const string DtmYmdFormat = DtmYmFormat + "dd";
+            public const string DtmYmdhFormat = DtmYmdFormat + "HH";
+            public const string DtmYmdhmFormat = DtmYmdhFormat + "mm";
+            public const string DtmFormat = DtmYmdhmFormat + "ss"; //yyyyMMddHHmmss
+            public const string DtmLongFormat = DtmFormat + "fff";
+            public const string DtmFhirIsoDateTimeFormat = "yyyy-MM-ddTHH:mm:ssK";
+        }
+
+        public static class Namespaces
+        {
+            public const string Hl7V3 = "urn:hl7-org:v3";
+        }
+
+        public static class Seperator
+        {
+            public const char Amp = '&';
+            public const char Hatt = '^';
+        }
+
+        public static class UniversalIdType
+        {
+            //http://www.hl7.eu/refactored/tab0301.html
+            public const string Iso = "ISO";
+
+            public const string Uuid = "UUID";
+            public const string Guid = "GUID";
+            public const string Dns = "DNS";
+        }
+
+        public static class Pid
+        {
+            public const string PidBase = "PID-";
         }
     }
 

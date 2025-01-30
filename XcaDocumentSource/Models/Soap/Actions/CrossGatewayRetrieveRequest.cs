@@ -1,8 +1,9 @@
 using System.ComponentModel;
 using System.ServiceModel;
 using System.Xml.Serialization;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [EditorBrowsable(EditorBrowsableState.Advanced)]
 [MessageContract(IsWrapped = false)]

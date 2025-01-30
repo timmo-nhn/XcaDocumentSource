@@ -1,10 +1,10 @@
 using System.ServiceModel;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 // ITI-41
 [ServiceContract(Namespace = "urn:ihe:iti:xds-b:2007", ConfigurationName = "DocumentSharing.Xds.IProvideAndRegisterDocumentSetb")]
-public interface ProvideAndRegisterDocumentSetb
+public interface IProvideAndRegisterDocumentSetb
 {
     [OperationContract(Action = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b", ReplyAction = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse")]
     [XmlSerializerFormat(SupportFaults = true)]
@@ -15,6 +15,6 @@ public interface ProvideAndRegisterDocumentSetb
     Task<ProvideAndRegisterDocumentSetbResponse> ProvideAndRegisterDocumentSetbAsync(ProvideAndRegisterDocumentSetbRequest request);
 }
 
-public interface IProvideAndRegisterDocumentSetbChannel : ProvideAndRegisterDocumentSetb, IClientChannel
+public interface IProvideAndRegisterDocumentSetbChannel : IProvideAndRegisterDocumentSetb, IClientChannel
 {
 }

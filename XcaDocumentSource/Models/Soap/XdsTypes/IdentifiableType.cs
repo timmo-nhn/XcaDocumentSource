@@ -1,7 +1,7 @@
 using System.Xml.Serialization;
-using XcaDocumentSource.Models.Soap.XdsTypes;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [XmlInclude(typeof(RegistryObjectType))]
 [XmlInclude(typeof(NotificationType))]
@@ -40,4 +40,26 @@ public partial class IdentifiableType
 
     [XmlAttribute(AttributeName = "home", DataType = "anyURI")]
     public string Home;
+
+    public void AddSlot(SlotType slotType)
+    {
+        Slot = [.. Slot, slotType];
+    }
+    public void AddSlot(string slotName, string[] valueList)
+    {
+        AddSlot(new()
+        {
+            Name = slotName,
+            ValueList = new()
+            {
+                Value = valueList
+            }
+        });
+    }
+
+    public SlotType[] GetSlot(string slotName)
+    {
+        return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
+    }
+
 }

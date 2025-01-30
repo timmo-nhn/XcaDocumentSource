@@ -1,7 +1,7 @@
 using System.Xml.Serialization;
-using XcaDocumentSource.Models.Soap.XdsTypes;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [XmlInclude(typeof(NotificationType))]
 [XmlInclude(typeof(AdhocQueryType))]

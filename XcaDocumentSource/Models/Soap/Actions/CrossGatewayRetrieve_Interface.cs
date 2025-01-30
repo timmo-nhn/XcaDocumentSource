@@ -1,10 +1,10 @@
 using System.ServiceModel;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 // ITI-39
 [ServiceContract(Namespace = "urn:ihe:iti:xds-b:2007", ConfigurationName = "DocumentSharing.Xds.ICrossGatewayRetrieve")]
-public interface CrossGatewayRetrieve
+public interface ICrossGatewayRetrieve
 {
     [OperationContract(Action = "urn:ihe:iti:2007:CrossGatewayRetrieve", ReplyAction = "urn:ihe:iti:2007:CrossGatewayRetrieveResponse")]
     [XmlSerializerFormat(SupportFaults = true)]
@@ -14,6 +14,6 @@ public interface CrossGatewayRetrieve
     Task<CrossGatewayRetrieveResponse> CrossGatewayRetrieveAsync(CrossGatewayRetrieveRequest request);
 }
 
-public interface ICrossGatewayRetrieveChannel : CrossGatewayRetrieve, IClientChannel
+public interface ICrossGatewayRetrieveChannel : ICrossGatewayRetrieve, IClientChannel
 {
 }

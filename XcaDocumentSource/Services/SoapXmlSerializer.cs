@@ -1,14 +1,19 @@
-﻿using System.Text;
-using System.Text.Unicode;
-using System.Xml;
-using System.Xml.Linq;
+﻿using System.Xml;
 using System.Xml.Serialization;
-using XcaDocumentSource.Models.Soap;
 
-namespace XcaDocumentSource.Services;
+namespace XcaGatewayService.Services;
 
 public class SoapXmlSerializer
 {
+    private XmlWriterSettings? _xmlWriterSettings;
+    public SoapXmlSerializer(XmlWriterSettings xmlSettings)
+    {
+        _xmlWriterSettings = xmlSettings;
+    }
+    public SoapXmlSerializer()
+    {
+
+    }
     public async Task<T> DeserializeSoapMessageAsync<T>(Stream xmlStream)
     {
         var serializer = new XmlSerializer(typeof(T));
@@ -24,16 +29,20 @@ public class SoapXmlSerializer
         }
     }
 
-    public string SerializeSoapMessageToXmlString(object soapElement)
+    public string SerializeSoapMessageToXmlString(object soapElement, XmlWriterSettings? settings = null)
     {
         if (soapElement == null) throw new ArgumentNullException(nameof(soapElement));
 
+        settings ??= _xmlWriterSettings;
+
         try
         {
+            var serializer = new XmlSerializer(soapElement.GetType());
+
             using (var stringWriter = new StringWriter())
+            using (var writer = XmlWriter.Create(stringWriter, settings))
             {
-                var serializer = new XmlSerializer(soapElement.GetType());
-                serializer.Serialize(stringWriter, soapElement);
+                serializer.Serialize(writer, soapElement);
                 return stringWriter.ToString();
             }
         }

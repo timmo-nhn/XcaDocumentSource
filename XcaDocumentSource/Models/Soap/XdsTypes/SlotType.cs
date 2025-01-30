@@ -1,6 +1,7 @@
 using System.Xml.Serialization;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
@@ -14,5 +15,10 @@ public partial class SlotType
 
     [XmlAttribute(AttributeName = "slotType", DataType = "anyURI")]
     public string SlotTypeData;
+
+    public string? GetFirstValue()
+    {
+        return ValueList.Value.FirstOrDefault();
+    }
 
 }

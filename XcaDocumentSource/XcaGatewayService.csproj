@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repository\" />
+    <Folder Include="Models\Soap\XdsTypes\Custom\" />
+    <Folder Include="Registry\" />
   </ItemGroup>
 
 </Project>

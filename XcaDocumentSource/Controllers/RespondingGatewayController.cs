@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using XcaDocumentSource.Models.Soap;
-using XcaDocumentSource.Xca;
+using XcaGatewayService.Commons;
+using XcaGatewayService.Extensions;
+using XcaGatewayService.Models.Soap;
+using XcaGatewayService.Xca;
 
-namespace XcaDocumentSource.Controllers;
+namespace XcaGatewayService.Controllers;
 
 [ApiController]
 [Route("XCA/services")]
@@ -24,24 +26,25 @@ public class RespondingGatewayController : ControllerBase
     public async Task<IActionResult> CrossGatewayQuery([FromBody] SoapEnvelope soapEnvelope)
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-        var action = soapEnvelope.Header.Action;
+        var action = soapEnvelope.Header.Action.Trim();
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti38Action:
                 // Only change from ITI-38 to ITI-18 is the action in the header
-                soapEnvelope.Header.Action = Constants.Xds.OperationContract.Iti18Action;
+                soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
                 var response = await _xcaGateway.RegistryStoredQuery(soapEnvelope, baseUrl + "/Registry/services/RegistryService");
                 return Ok(response);
 
             default:
                 if (action != null)
                 {
-
-                    return Ok(soapEnvelope.CreateSoapFault("UnknownAction", $"Unknown action {action}"));
+                    _logger.LogError($"Unknown action {action}");
+                    return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}"));
                 }
                 else
                 {
-                    return Ok(soapEnvelope.CreateSoapFault("MissingAction", $"Missing action {action}".Trim(), "fix action m8"));
+                    _logger.LogError($"Missing action {action}");
+                    return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}"));
                 }
         }
     }

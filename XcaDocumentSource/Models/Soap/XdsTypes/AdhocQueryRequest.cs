@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Xml.Serialization;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [Serializable]
 [XmlType(AnonymousType = true, Namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0")]

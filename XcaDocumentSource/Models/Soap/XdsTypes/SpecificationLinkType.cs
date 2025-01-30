@@ -1,7 +1,8 @@
 using System;
 using System.Xml.Serialization;
+using XcaGatewayService.Commons;
 
-namespace XcaDocumentSource.Models.Soap.XdsTypes;
+namespace XcaGatewayService.Models.Soap;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]

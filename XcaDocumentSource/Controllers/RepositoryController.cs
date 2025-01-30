@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
-using System.Text;
-using XcaDocumentSource.Models.Soap;
-using XcaDocumentSource.Models.Soap.XdsTypes;
-using XcaDocumentSource.Xca;
+using System.Xml;
+using XcaGatewayService.Commons;
+using XcaGatewayService.Extensions;
+using XcaGatewayService.Models.Soap;
+using XcaGatewayService.Services;
+using XcaGatewayService.Xca;
 
-namespace XcaDocumentSource.Controllers;
+namespace XcaGatewayService.Controllers;
 
 [ApiController]
 [Route("Repository/services")]
@@ -14,69 +15,70 @@ public class RepositoryController : ControllerBase
     private readonly ILogger<RegistryController> _logger;
     private readonly HttpClient _httpClient;
     private readonly XcaGateway _xcaGateway;
+    private readonly RepositoryService _repositoryService;
+    private readonly RegistryService _registryService;
 
-    public RepositoryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway)
+    public RepositoryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RepositoryService repositoryService, RegistryService registryService)
     {
         _logger = logger;
         _httpClient = httpClient;
         _xcaGateway = xcaGateway;
+        _repositoryService = repositoryService;
+        _registryService = registryService;
     }
 
     [Consumes("application/soap+xml")]
     [HttpPost("RepositoryService")]
-    public async Task<IActionResult> RepositoryService([FromBody] SoapEnvelope soapEnvelope)
+    public async Task<IActionResult> HandlePostRequest([FromBody] SoapEnvelope soapEnvelope)
     {
+        var xmlSerializerSettings = new XmlWriterSettings() { OmitXmlDeclaration = true, Indent = true, IndentChars = "  " };
+        var xmlSerializer = new SoapXmlSerializer(xmlSerializerSettings);
+
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
         var action = soapEnvelope.Header.Action;
+
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
-                // Hent dokument!!!
+                //_repositoryService.GetFileFromRepository(soapEnvelope);
                 break;
             case Constants.Xds.OperationContract.Iti41Action:
-                var registryObjectList = soapEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
-                var associations = soapEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<AssociationType>().ToArray();
-                var registryPackages = soapEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<RegistryPackageType>().ToArray();
-                var extrinsicObjects = soapEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().ToArray();
-                var documents = soapEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
-                foreach (var extrinsicObject in extrinsicObjects)
+                var uploadResponse = _repositoryService.UploadFileToRepository(soapEnvelope);
+
+                if (!uploadResponse.IsSuccess)
                 {
-
-                    var extrinsicObjectsDocument = documents?.Where(doc => doc.Id == extrinsicObject.Id).FirstOrDefault();
-                    var patientId = extrinsicObject.Slot.FirstOrDefault(s => s.Name == "sourcePatientId")?.ValueList.Value.FirstOrDefault();
-                    var patientIdPart = patientId.Substring(0, patientId.IndexOf("^^^"));
-                    var documentTitle = extrinsicObject.Name.LocalizedString.FirstOrDefault()?.Value;
-
-                    string baseDirectory = AppContext.BaseDirectory;
-                    string repositoryPath = Path.Combine(baseDirectory, "..", "..", "..", "Repository", patientIdPart);
-                    var documentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    if (!Directory.Exists(repositoryPath))
-                    {
-                        Directory.CreateDirectory(repositoryPath);
-                    }
-
-                    // Create a file in the Repository folder
-                    string filePath = Path.Combine(repositoryPath, documentTitle);
-                    System.IO.File.WriteAllBytes(filePath, extrinsicObjectsDocument.Value);
-                    Console.WriteLine($"File successfully written to: {filePath}");
-
+                    return Ok(xmlSerializer.SerializeSoapMessageToXmlString(uploadResponse.Value));
                 }
-                var B = ";;;";
-                break;
+                var iti41Message = uploadResponse.Value;
 
+                soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
+
+                var iti42Message = _registryService.ConvertIti41ToIti42Message(soapEnvelope);
+                if (iti42Message.IsSuccess is false)
+                {
+                    return Ok(xmlSerializer.SerializeSoapMessageToXmlString(iti42Message.Value));
+                }
+
+                var registryResponse = await _xcaGateway.RegisterDocumentSet(iti42Message.Value, baseUrl + "/Registry/services/RegistryService");
+                if (registryResponse.IsSuccess is false)
+                {
+                    return Ok(xmlSerializer.SerializeSoapMessageToXmlString(registryResponse));
+                }
+
+                return Ok(xmlSerializer.SerializeSoapMessageToXmlString(registryResponse));
 
             default:
                 if (action != null)
                 {
-
-                    return Ok(soapEnvelope.CreateSoapFault("UnknownAction", $"Unknown action {action}"));
+                    return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}").Value);
                 }
                 else
                 {
-                    return Ok(soapEnvelope.CreateSoapFault("MissingAction", $"Missing action {action}".Trim(), "fix action m8"));
+                    return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}".Trim()).Value);
                 }
         }
 
         return Ok($"Response from Responding Gateway: ");
     }
+
 }

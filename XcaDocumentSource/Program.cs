@@ -1,9 +1,8 @@
+using XcaGatewayService.Controllers;
+using XcaGatewayService.Services;
+using XcaGatewayService.Xca;
 
-using XcaDocumentSource.Controllers;
-using XcaDocumentSource.Services;
-using XcaDocumentSource.Xca;
-
-namespace XcaDocumentSource
+namespace XcaGatewayService
 {
     public class Program
     {
@@ -11,28 +10,36 @@ namespace XcaDocumentSource
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddHttpClient();
 
             builder.Services.AddControllers(options =>
             {
                 options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
             });
+            //var config = new ConfigurationBuilder()
+            //    .AddJsonFile("appsettings.json", false)
+            //    .Build();
+
+            var xdsConfig = new XdsConfig();
+            //config.Bind("XdsConfiguration", xdsConfig); 
+            builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
 
             builder.Services.AddSingleton<RespondingGatewayController>();
             builder.Services.AddSingleton<RegistryController>();
             builder.Services.AddSingleton<RepositoryController>();
             builder.Services.AddSingleton<XcaGateway>();
             builder.Services.AddSingleton<SoapService>();
+            builder.Services.AddSingleton<RepositoryService>();
+            builder.Services.AddSingleton<RepositoryWrapper>();
+            builder.Services.AddSingleton<RegistryService>();
+            builder.Services.AddSingleton<RegistryWrapper>();
+            builder.Services.AddSingleton(xdsConfig);
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -42,7 +49,6 @@ namespace XcaDocumentSource
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
