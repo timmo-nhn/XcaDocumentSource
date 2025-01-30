@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Server.Kestrel.Transport.NamedPipes;
-using XcaGatewayService.Commons;
-using XcaGatewayService.Commons.Enums;
-using XcaGatewayService.Models.Soap;
-using XcaGatewayService.Services;
+﻿using XcaXds.Commons;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaGatewayService.Extensions
+namespace XcaXds.WebService.Extensions
 {
     public static class SoapExtensions
     {
@@ -53,6 +51,37 @@ namespace XcaGatewayService.Extensions
                     Body = new()
                     {
                         RegistryResponse = message
+                    }
+                }
+            };
+            if (resultEnvelope.Value is SoapEnvelope soapEnvelope)
+            {
+                if (soapEnvelope.Body.RegistryResponse is not null)
+                {
+                    // Base Success property on whether Value...RegistryErrorList has any errors
+                    resultEnvelope.IsSuccess = bool.Equals(false, soapEnvelope.Body.RegistryResponse.RegistryErrorList.RegistryError
+                        .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
+                }
+            }
+
+            //var serializer = new SoapXmlSerializer();
+            //var result = serializer.SerializeSoapMessageToXmlString(envelope);
+            return resultEnvelope;
+        }
+        public static SoapRequestResult<SoapEnvelope> CreateSoapProvideAndRegisterResponse(RegistryResponseType message)
+        {
+            var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
+            {
+                Value = new SoapEnvelope()
+                {
+                    Header = new()
+                    {
+                        Action = Constants.Soap.Namespaces.Addressing,
+                    },
+                    Body = new()
+                    {
+                        
+                        provide = message
                     }
                 }
             };

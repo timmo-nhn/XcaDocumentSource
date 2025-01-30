@@ -1,8 +1,10 @@
-using XcaGatewayService.Controllers;
-using XcaGatewayService.Services;
-using XcaGatewayService.Xca;
+using XcaXds.Commons.Services;
+using XcaXds.Commons.Xca;
+using XcaXds.Source;
+using XcaXds.Source.Services;
+using XcaXds.WebService.Controllers;
 
-namespace XcaGatewayService
+namespace XcaXds.WebService
 {
     public class Program
     {

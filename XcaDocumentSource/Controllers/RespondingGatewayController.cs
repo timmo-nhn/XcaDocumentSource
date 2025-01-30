@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using XcaGatewayService.Commons;
-using XcaGatewayService.Extensions;
-using XcaGatewayService.Models.Soap;
-using XcaGatewayService.Xca;
+using XcaXds.Commons;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Xca;
+using XcaXds.WebService.Extensions;
 
-namespace XcaGatewayService.Controllers;
+namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("XCA/services")]

@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
-using XcaGatewayService.Commons;
-using XcaGatewayService.Extensions;
-using XcaGatewayService.Models.Soap;
-using XcaGatewayService.Services;
-using XcaGatewayService.Xca;
+using System.Xml;
+using XcaXds.Commons;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Services;
+using XcaXds.Commons.Xca;
+using XcaXds.Source.Services;
+using XcaXds.WebService.Extensions;
 
-namespace XcaGatewayService.Controllers;
+namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("Registry/services")]
@@ -31,6 +34,9 @@ public class RegistryController : ControllerBase
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
         var action = soapEnvelope.Header.Action;
         var registryResponse = new RegistryResponseType();
+        var xmlSerializerSettings = new XmlWriterSettings() { OmitXmlDeclaration = true, Indent = true, IndentChars = "  " };
+        var xmlSerializer = new SoapXmlSerializer(xmlSerializerSettings);
+
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
@@ -40,12 +46,13 @@ public class RegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti42Action:
 
                 var registryUploadResponse = _registryService.AppendToRegistry(soapEnvelope);
-               
+
                 if (registryUploadResponse.IsSuccess)
                 {
                     _logger.LogInformation("Registry updated successfully");
                     registryResponse.AddSuccess("Registry updated successfully");
-                    return Ok(SoapExtensions.CreateSoapRegistryResponse(registryResponse));
+                    var responseSoap = SoapExtensions.CreateSoapRegistryResponse(registryResponse);
+                    return Ok(responseSoap);
                 }
                 else
                 {
@@ -54,7 +61,7 @@ public class RegistryController : ControllerBase
                 break;
 
             default:
-                return Ok(SoapExtensions.CreateSoapFault("Missing action in SOAP <header> element","XDSMissingAction").Value);
+                return Ok(SoapExtensions.CreateSoapFault("Missing action in SOAP <header> element", "XDSMissingAction").Value);
         }
         return BadRequest();
     }

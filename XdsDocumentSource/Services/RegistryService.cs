@@ -1,11 +1,12 @@
 ﻿using System.Security.Cryptography;
-using XdsDocumentSource.Commons;
-using XdsDocumentSource.Commons.Enums;
-using XdsDocumentSource.Extensions;
-using XdsDocumentSource.Models.Soap;
-using XdsDocumentSource.Xca;
+using XcaXds.Commons;
+using XcaXds.Commons.Enums;
+using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Xca;
 
-namespace XdsDocumentSource.Services;
+namespace XcaXds.Source.Services;
 
 public class RegistryService
 {
@@ -78,7 +79,7 @@ public class RegistryService
                 assocExtrinsicObject.AddSlot(authorPersonSlot);
             }
 
-            // Preserve headers and stuff form ITI-41, and replace body with a register document set request
+            // Preserve headers and stuff from ITI-41, and replace body with a register document set request
             iti42Message.Body.ProvideAndRegisterDocumentSetRequest = null;
             iti42Message.Body.RegisterDocumentSetRequest = registerDocumentSet;
             iti42Message.SetAction(Constants.Xds.OperationContract.Iti42Action);

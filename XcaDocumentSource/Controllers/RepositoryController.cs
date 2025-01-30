@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Xml;
-using XcaGatewayService.Commons;
-using XcaGatewayService.Extensions;
-using XcaGatewayService.Models.Soap;
-using XcaGatewayService.Services;
-using XcaGatewayService.Xca;
+using XcaXds.Commons;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Services;
+using XcaXds.Commons.Xca;
+using XcaXds.Source.Services;
+using XcaXds.WebService.Extensions;
 
-namespace XcaGatewayService.Controllers;
+namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("Repository/services")]
@@ -26,6 +27,8 @@ public class RepositoryController : ControllerBase
         _repositoryService = repositoryService;
         _registryService = registryService;
     }
+
+    public RegistryService RegistryService => _registryService;
 
     [Consumes("application/soap+xml")]
     [HttpPost("RepositoryService")]
@@ -51,9 +54,7 @@ public class RepositoryController : ControllerBase
                 }
                 var iti41Message = uploadResponse.Value;
 
-                soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
-
-                var iti42Message = _registryService.ConvertIti41ToIti42Message(soapEnvelope);
+                var iti42Message = RegistryService.ConvertIti41ToIti42Message(soapEnvelope);
                 if (iti42Message.IsSuccess is false)
                 {
                     return Ok(xmlSerializer.SerializeSoapMessageToXmlString(iti42Message.Value));

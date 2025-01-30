@@ -1,0 +1,342 @@
+﻿namespace XcaXds.Commons;
+public static class Constants
+{
+    public static class Soap
+    {
+        public static class Namespaces
+        {
+            public const string SoapEnvelope = "http://www.w3.org/2003/05/soap-envelope";
+            public const string Addressing = "http://www.w3.org/2005/08/addressing";
+            public const string AddressingSoapFault = "http://www.w3.org/2005/08/addressing/soap/fault";
+            public const string SecurityUtility = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
+            public const string Xsi = "http://www.w3.org/2001/XMLSchema-instance";
+            public const string Xsd = "http://www.w3.org/2001/XMLSchema";
+            public const string SecurityExt = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
+            public const string Saml2 = "urn:oasis:names:tc:SAML:2.0:assertion";
+            public const string Svs = "urn:ihe:iti:svs:2008";
+            public const string Xdsb = "urn:ihe:iti:xds-b:2007";
+            public const string Query = "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0";
+            public const string Rs = "urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0";
+            public const string Rim = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0";
+            public const string Lcm = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0";
+            public const string Hl7V3 = "urn:hl7-org:v3";
+        }
+    }
+
+    public static class Xds
+    {
+        public static class Namespaces
+        {
+            public const string Xdsb = "urn:ihe:iti:xds-b:2007";
+            public const string Query = "urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0";
+            public const string Rs = "urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0";
+            public const string Rim = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0";
+            public const string Lcm = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0";
+            public const string Svs = "urn:ihe:iti:svs:2008";
+            public const string Hl7V3 = "urn:hl7-org:v3";
+            public const string Rmd = "urn:ihe:iti:rmd:2017";
+        }
+
+        public static class OperationContract
+        {
+            public const string Iti18Action = "urn:ihe:iti:2007:RegistryStoredQuery";
+            public const string Iti18Reply = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+            public const string Iti38Action = "urn:ihe:iti:2007:CrossGatewayQuery";
+            public const string Iti38Reply = "urn:ihe:iti:2007:CrossGatewayQueryResponse";
+            public const string Iti43Action = "urn:ihe:iti:2007:RetrieveDocumentSet";
+            public const string Iti43Reply = "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
+            public const string Iti41Action = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
+            public const string Iti41Reply = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse";
+            public const string Iti42Action = "urn:ihe:iti:2007:RegisterDocumentSet-b";
+            public const string Iti42Reply = "urn:ihe:iti:2007:RegisterDocumentSet-bResponse";
+            public const string Iti62Action = "urn:ihe:iti:2010:DeleteDocumentSet";
+            public const string Iti62Reply = "urn:ihe:iti:2010:DeleteDocumentSetResponse";
+            public const string Iti86Action = "urn:ihe:iti:2017:RemoveDocuments";
+            public const string Iti86Reply = "urn:ihe:iti:2017:RemoveDocumentsResponse";
+        }
+
+        public static class StoredQueries
+        {
+            public const string FindDocuments = "urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d";
+            public const string GetAll = "urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3";
+            public const string GetDocuments = "urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4";
+
+            //Not supported by DIPS
+            public const string FindSubmissionSets = "urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9";
+            public const string FindFolders = "urn:uuid:958f3006-baad-4929-a4de-ff1114824431";
+            public const string GetFolders = "urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4";
+            public const string GetAssociations = "urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155";
+            public const string GetDocumentsAndAssociations = "urn:uuid:bab9529a-4a10-40b3-a01f-f68a615d247a";
+            public const string GetSubmissionSets = "urn:uuid:51224314-5390-4169-9b91-b1980040715a";
+            public const string GetSubmissionSetAndContents = "urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83";
+            public const string GetFolderAndContents = "urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7";
+            public const string GetFoldersForDocument = "urn:uuid:10cae35a-c7f9-4cf5-b61e-fc3278ffb578";
+            public const string GetRelatedDocuments = "urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6";
+            public const string FindDocumentsByReferenceId = "urn:uuid:12941a89-e02e-4be5-967c-ce4bfc8fe492";
+        }
+
+        public static class QueryParamters
+        {
+            public static class DocumentEntry
+            {
+                public const string PatientId = "$XDSDocumentEntryPatientId";
+                public const string ClassCode = "$XDSDocumentEntryClassCode";
+                public const string TypeCode = "$XDSDocumentEntryTypeCode";
+                public const string PracticeSettingCode = "$XDSDocumentEntryPracticeSettingCode";
+                public const string CreationTimeFrom = "$XDSDocumentEntryCreationTimeFrom";
+                public const string CreationTimeTo = "$XDSDocumentEntryCreationTimeTo";
+                public const string ServiceStartTimeFrom = "$XDSDocumentEntryServiceStartTimeFrom";
+                public const string ServiceStartTimeTo = "$XDSDocumentEntryServiceStartTimeTo";
+                public const string ServiceStopTimeFrom = "$XDSDocumentEntryServiceStopTimeFrom";
+                public const string ServiceStopTimeTo = "$XDSDocumentEntryServiceStopTimeTo";
+                public const string HealthcareFacilityTypeCode = "$XDSDocumentEntryHealthcareFacilityTypeCode";
+                public const string EventCodeList = "$XDSDocumentEntryEventCodeList";
+                public const string ConfidentialityCode = "$XDSDocumentEntryConfidentialityCode";
+                public const string AuthorPerson = "$XDSDocumentEntryAuthorPerson";
+                public const string FormatCode = "$XDSDocumentEntryFormatCode";
+                public const string Status = "$XDSDocumentEntryStatus";
+                public const string Type = "$XDSDocumentEntryType";
+                public const string EntryUuid = "$XDSDocumentEntryEntryUUID";
+                public const string UniqueId = "$XDSDocumentEntryUniqueId";
+            }
+
+            public static class Submission
+            {
+                public const string Status = "$XDSSubmissionSetStatus";
+            }
+
+            public static class Folder
+            {
+                public const string Status = "$XDSFolderStatus";
+            }
+
+            public static class General
+            {
+                public const string PatientId = "$patientId";
+            }
+        }
+
+        public static class StatusValues
+        {
+            public const string Submitted = "urn:oasis:names:tc:ebxml-regrep:StatusType:Submitted";
+            public const string Approved = "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved";
+            public const string Deprecated = "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated";
+        }
+
+        public static class ReturnType
+        {
+            public const string LeafClass = "LeafClass";
+            public const string ObjectRef = "ObjectRef";
+        }
+
+        public static class ResponseStatusTypes
+        {
+            public const string Failure = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Failure";
+            public const string Success = "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
+            public const string PartialSuccess = "urn:ihe:iti:2007:ResponseStatusType:PartialSuccess";
+        }
+
+        public static class ErrorSeverity
+        {
+            public const string Warning = "urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Warning";
+            public const string Error = "urn:oasis:names:tc:ebxml-regrep:ErrorSeverityType:Error";
+        }
+
+        public static class Uuids
+        {
+            public static class SubmissionSet
+            {
+                public const string SubmissionSetClassificationNode = "urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd";
+                public const string Author = "urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d";
+                public const string ContentTypeCode = "urn:uuid:aa543740-bdda-424e-8c96-df4873be8500";
+                public const string PatientId = "urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446";
+                public const string SourceId = "urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832";
+                public const string UniqueId = "urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8";
+            }
+
+            public static class DocumentEntry
+            {
+                public const string StableDocumentEntries = "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1";
+                public const string OnDemandDocumentEntries = "urn:uuid:34268e47-fdf5-41a6-ba33-82133c465248";
+                public const string Author = "urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d";
+                public const string ClassCode = "urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a";
+                public const string ConfidentialityCode = "urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f";
+                public const string EventCodeList = "urn:uuid:2c6b8cb7-8b2a-4051-b291-b1ae6a575ef4";
+                public const string FormatCode = "urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d";
+                public const string HealthCareFacilityTypeCode = "urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1";
+                public const string PatientId = "urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427";
+                public const string PracticeSettingCode = "urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead";
+                public const string TypeCode = "urn:uuid:f0306f51-975f-434e-a61c-c59651d33983";
+                public const string UniqueId = "urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab";
+                public const string ReferenceIdList = "urn:ihe:iti:xds:2013:referenceIdList";
+            }
+
+            public static class Folder
+            {
+                public const string FolderClassificationNode = "urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2";
+                public const string CodeList = "urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5";
+                public const string PatientId = "urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a";
+                public const string UniqueId = "urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a";
+                public const string Association = "urn:uuid:abd807a3-4432-4053-87b4-fd82c643d1f3";
+            }
+        }
+
+        public static class ObjectTypes
+        {
+            public const string Classification = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification";
+            public const string Association = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association";
+            public const string RegistryPackage = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage";
+            public const string ExternalIdentifier = "urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier";
+        }
+
+        public static class AssociationType
+        {
+            public const string HasMember = "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember";
+            public const string Replace = "urn:ihe:iti:2007:AssociationType:RPLC";
+            public const string Transformation = "urn:ihe:iti:2007:AssociationType:XFRM";
+            public const string Addendum = "urn:ihe:iti:2007:AssociationType:APND";
+            public const string ReplaceWithTransformation = "urn:ihe:iti:2007:AssociationType:XFRM_RPLC";
+            public const string DigitalSignature = "urn:ihe:iti:2007:AssociationType:signs";
+            public const string SnapshotOfOnDemandDocumentEntry = "urn:ihe:iti:2010:AssociationType:IsSnapshotOf";
+        }
+
+        public static class ExternalIdentifierNames
+        {
+            public const string SubmissionSetPatientId = "XDSSubmissionSet.patientId";
+            public const string SubmissionSetSourceId = "XDSSubmissionSet.sourceId";
+            public const string SubmissionSetUniqueId = "XDSSubmissionSet.uniqueId";
+            public const string DocumentEntryPatientId = "XDSDocumentEntry.patientId";
+            public const string DocumentEntryUniqueId = "XDSDocumentEntry.uniqueId";
+        }
+
+        public static class ClassificationNames
+        {
+            public const string Author = "author";
+            public const string SubmissionSetAuthor = "XDSSubmissionSet.author";
+        }
+
+        public static class SlotNames
+        {
+            public const string AuthorRole = "authorRole";
+            public const string AuthorPerson = "authorPerson";
+            public const string AuthorSpecialty = "authorSpecialty";
+            public const string AuthorInstitution = "authorInstitution";
+            public const string AuthorTelecommunication = "authorTelecommunication";
+            public const string CreationTime = "creationTime";
+            public const string LanguageCode = "languageCode";
+            public const string LegalAuthenticator = "legalAuthenticator";
+            public const string CodingScheme = "codingScheme";
+            public const string SubmissionSetStatus = "SubmissionSetStatus";
+            public const string PreviousVersion = "PreviousVersion";
+            public const string SubmissionTime = "submissionTime";
+            public const string IntendedRecipient = "intendedRecipient";
+            public const string SourcePatientInfo = "sourcePatientInfo";
+            public const string Size = "size";
+            public const string Hash = "hash";
+            public const string RepositoryUniqueId = "repositoryUniqueId";
+            public const string ServiceStartTime = "serviceStartTime";
+            public const string ServiceStopTime = "serviceStopTime";
+            public const string SourcePatientId = "sourcePatientId";
+        }
+
+        public static class ErrorCodes
+        {
+            public const string XdsUnavailableCommunity = "XDSUnavailableCommunity";
+            public const string XdsRepositoryError = "XDSRepositoryError";
+            public const string XdsRegistryError = "XDSRegistryError";
+            public const string XdsRepositoryBusy = "XDSRepositoryBusy";
+            public const string XdsRegistryBusy = "XDSRegistryBusy";
+            public const string XdsDocumentUniqueIdError = "XDSDocumentUniqueIdError";
+            public const string XdsMetadataUpdateError = "XDSMetadataUpdateError";
+
+            //Ikke en del av IHEs XDS-profil, men en norsk verdi
+            public const string XdsRepresentationBelowMinimumAgeError = "XDSRepresentationBelowMinimumAgeError";
+        }
+    }
+    public static class Hl7
+    {
+        public static class Dtm
+        {
+            public const string DtmYFormat = "yyyy";
+            public const string DtmYmFormat = DtmYFormat + "MM";
+            public const string DtmYmdFormat = DtmYmFormat + "dd";
+            public const string DtmYmdhFormat = DtmYmdFormat + "HH";
+            public const string DtmYmdhmFormat = DtmYmdhFormat + "mm";
+            public const string DtmFormat = DtmYmdhmFormat + "ss"; //yyyyMMddHHmmss
+            public const string DtmLongFormat = DtmFormat + "fff";
+            public const string DtmFhirIsoDateTimeFormat = "yyyy-MM-ddTHH:mm:ssK";
+        }
+
+        public static class Namespaces
+        {
+            public const string Hl7V3 = "urn:hl7-org:v3";
+        }
+
+        public static class Seperator
+        {
+            public const char Amp = '&';
+            public const char Hatt = '^';
+        }
+
+        public static class UniversalIdType
+        {
+            //http://www.hl7.eu/refactored/tab0301.html
+            public const string Iso = "ISO";
+
+            public const string Uuid = "UUID";
+            public const string Guid = "GUID";
+            public const string Dns = "DNS";
+        }
+
+        public static class Pid
+        {
+            public const string PidBase = "PID-";
+        }
+    }
+
+    public static class MimeTypes
+    {
+        public const string SevenZip = "application/x-7z-compressed";
+        public const string Acc = "audio/aac";
+        public const string Avi = "video/x-msvideo";
+        public const string Doc = "application/msword";
+        public const string Docm = "application/vnd.ms-word.document.macroEnabled.12";
+        public const string Docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        public const string Gif = "image/gif";
+        public const string Html = "text/html";
+        public const string Jpeg = "image/jpeg";
+        public const string Mp4 = "video/mp4";
+        public const string Mpeg = "video/mpeg";
+        public const string Odp = "application/vnd.oasis.opendocument.presentation";
+        public const string Ods = "application/vnd.oasis.opendocument.spreadsheet";
+        public const string Odt = "application/vnd.oasis.opendocument.text";
+        public const string Oga = "audio/ogg";
+        public const string Ogv = "video/ogg";
+        public const string Pdf = "application/pdf";
+        public const string Png = "image/png";
+        public const string Pps = "application/vnd.ms-powerpoint";
+        public const string Ppsm = "application/vnd.ms-powerpoint.slideshow.macroEnabled.12";
+        public const string Ppt = "application/vnd.ms-powerpoint";
+        public const string Pptm = "application/vnd.ms-powerpoint.presentation.macroEnabled.12";
+        public const string Pptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        public const string Rtf = "application/rtf";
+        public const string Text = "text/plain";
+        public const string Tiff = "image/tiff";
+        public const string Binary = "application/octet-stream";
+        public const string Vsd = "application/vnd.visio";
+        public const string Wav = "audio/x-wav";
+        public const string Weba = "audio/webm";
+        public const string Webm = "video/webm";
+        public const string Webp = "image/webp";
+        public const string Xhtml = "application/xhtml+xml";
+        public const string Xls = "application/vnd.ms-excel";
+        public const string Xlsb = "application/vnd.ms-excel.sheet.binary.macroEnabled.12";
+        public const string Xlsm = "application/vnd.ms-excel.sheet.macroEnabled.12";
+        public const string Xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        public const string Xml = "application/xml";
+        public const string XmlReadable = "text/xml";
+        public const string Zip = "application/zip";
+    }
+
+
+}

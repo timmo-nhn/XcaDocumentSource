@@ -1349,4 +1349,814 @@
       </Name>
     </ExternalIdentifier>
   </ExtrinsicObject>
+  <ExtrinsicObject id="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+    <Slot name="creationTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>20240207023541</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="languageCode" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>nb-NO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStartTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-14T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStopTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-19T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientInfo" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>PID-5|Danser^Line^^^^</Value>
+        <Value>PID-7|19691113</Value>
+        <Value>PID-8|F</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="hash" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>BD2D344B71A07E9FA0BA32800D3D6346B79785D3</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="repositoryUniqueId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2.16.578.1.12.4.5.100.1.2</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="size" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>59061</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="authorPerson" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>Darius Test</Value>
+      </ValueList>
+    </Slot>
+    <Name xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <LocalizedString value="skoert.pdf" />
+    </Name>
+    <Classification id="ebe9c2a7-24f6-4f6e-9b77-9d6246e5deb5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="authorPerson">
+        <ValueList>
+          <Value>Darius Test</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>St. Olavs klinikk</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorRole">
+        <ValueList>
+          <Value>Lege</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="c0527950-121a-40f4-9b81-17a52f755ac0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A00-1" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7ec8a30c-58e6-4527-ba47-03b7aaabf078" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="N" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://terminology.hl7.org/CodeSystem/v3-Confidentiality</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="a132f936-dd5c-4815-8dfe-9de3ea666af0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7046e95d-f373-4788-b584-8ddae94dea55" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="86.211" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.1303</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="70b9fc14-5f38-4737-9cc1-f63286dad030" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.8653</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="d2346943-9c5f-4b44-be7a-f3c93b18a33e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A03-2" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <ExternalIdentifier id="75d0ebb5-c7a1-4cc0-b92b-5f22e67bce76" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="be6788e7-478e-4fe0-8631-ac5c62673220" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="5714bab9-4ca5-4207-b6c8-c848aa96b8d6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
+  <ExtrinsicObject id="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+    <Slot name="creationTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>20240207023541</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="languageCode" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>nb-NO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStartTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-14T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStopTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-19T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientInfo" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>PID-5|Danser^Line^^^^</Value>
+        <Value>PID-7|19691113</Value>
+        <Value>PID-8|F</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="hash" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>BD2D344B71A07E9FA0BA32800D3D6346B79785D3</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="repositoryUniqueId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2.16.578.1.12.4.5.100.1.2</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="size" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>59061</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="authorPerson" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>Darius Test</Value>
+      </ValueList>
+    </Slot>
+    <Name xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <LocalizedString value="skoert.pdf" />
+    </Name>
+    <Classification id="ebe9c2a7-24f6-4f6e-9b77-9d6246e5deb5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="authorPerson">
+        <ValueList>
+          <Value>Darius Test</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>St. Olavs klinikk</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorRole">
+        <ValueList>
+          <Value>Lege</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="c0527950-121a-40f4-9b81-17a52f755ac0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A00-1" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7ec8a30c-58e6-4527-ba47-03b7aaabf078" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="N" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://terminology.hl7.org/CodeSystem/v3-Confidentiality</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="a132f936-dd5c-4815-8dfe-9de3ea666af0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7046e95d-f373-4788-b584-8ddae94dea55" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="86.211" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.1303</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="70b9fc14-5f38-4737-9cc1-f63286dad030" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.8653</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="d2346943-9c5f-4b44-be7a-f3c93b18a33e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A03-2" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <ExternalIdentifier id="75d0ebb5-c7a1-4cc0-b92b-5f22e67bce76" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="be6788e7-478e-4fe0-8631-ac5c62673220" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="5714bab9-4ca5-4207-b6c8-c848aa96b8d6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
+  <ExtrinsicObject id="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+    <Slot name="creationTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>20240207023541</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="languageCode" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>nb-NO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStartTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-14T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStopTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-19T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientInfo" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>PID-5|Danser^Line^^^^</Value>
+        <Value>PID-7|19691113</Value>
+        <Value>PID-8|F</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="hash" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>BD2D344B71A07E9FA0BA32800D3D6346B79785D3</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="repositoryUniqueId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2.16.578.1.12.4.5.100.1.2</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="size" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>59061</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="authorPerson" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>Darius Test</Value>
+      </ValueList>
+    </Slot>
+    <Name xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <LocalizedString value="skoert.pdf" />
+    </Name>
+    <Classification id="ebe9c2a7-24f6-4f6e-9b77-9d6246e5deb5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="authorPerson">
+        <ValueList>
+          <Value>Darius Test</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>St. Olavs klinikk</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorRole">
+        <ValueList>
+          <Value>Lege</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="c0527950-121a-40f4-9b81-17a52f755ac0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A00-1" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7ec8a30c-58e6-4527-ba47-03b7aaabf078" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="N" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://terminology.hl7.org/CodeSystem/v3-Confidentiality</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="a132f936-dd5c-4815-8dfe-9de3ea666af0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7046e95d-f373-4788-b584-8ddae94dea55" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="86.211" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.1303</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="70b9fc14-5f38-4737-9cc1-f63286dad030" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.8653</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="d2346943-9c5f-4b44-be7a-f3c93b18a33e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A03-2" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <ExternalIdentifier id="75d0ebb5-c7a1-4cc0-b92b-5f22e67bce76" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="be6788e7-478e-4fe0-8631-ac5c62673220" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="5714bab9-4ca5-4207-b6c8-c848aa96b8d6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
+  <ExtrinsicObject id="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+    <Slot name="creationTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>20240207023541</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="languageCode" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>nb-NO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStartTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-14T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStopTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-19T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientInfo" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>PID-5|Danser^Line^^^^</Value>
+        <Value>PID-7|19691113</Value>
+        <Value>PID-8|F</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="hash" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>BD2D344B71A07E9FA0BA32800D3D6346B79785D3</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="repositoryUniqueId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2.16.578.1.12.4.5.100.1.2</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="size" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>59061</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="authorPerson" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>Darius Test</Value>
+      </ValueList>
+    </Slot>
+    <Name xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <LocalizedString value="skoert.pdf" />
+    </Name>
+    <Classification id="ebe9c2a7-24f6-4f6e-9b77-9d6246e5deb5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="authorPerson">
+        <ValueList>
+          <Value>Darius Test</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>St. Olavs klinikk</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorRole">
+        <ValueList>
+          <Value>Lege</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="c0527950-121a-40f4-9b81-17a52f755ac0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A00-1" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7ec8a30c-58e6-4527-ba47-03b7aaabf078" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="N" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://terminology.hl7.org/CodeSystem/v3-Confidentiality</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="a132f936-dd5c-4815-8dfe-9de3ea666af0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7046e95d-f373-4788-b584-8ddae94dea55" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="86.211" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.1303</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="70b9fc14-5f38-4737-9cc1-f63286dad030" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.8653</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="d2346943-9c5f-4b44-be7a-f3c93b18a33e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A03-2" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <ExternalIdentifier id="75d0ebb5-c7a1-4cc0-b92b-5f22e67bce76" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="be6788e7-478e-4fe0-8631-ac5c62673220" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="5714bab9-4ca5-4207-b6c8-c848aa96b8d6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
+  <ExtrinsicObject id="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+    <Slot name="creationTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>20240207023541</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="languageCode" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>nb-NO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStartTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-14T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStopTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-19T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientInfo" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>PID-5|Danser^Line^^^^</Value>
+        <Value>PID-7|19691113</Value>
+        <Value>PID-8|F</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="hash" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>BD2D344B71A07E9FA0BA32800D3D6346B79785D3</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="repositoryUniqueId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2.16.578.1.12.4.5.100.1.2</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="size" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>59061</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="authorPerson" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>Darius Test</Value>
+      </ValueList>
+    </Slot>
+    <Name xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <LocalizedString value="skoert.pdf" />
+    </Name>
+    <Classification id="ebe9c2a7-24f6-4f6e-9b77-9d6246e5deb5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="authorPerson">
+        <ValueList>
+          <Value>Darius Test</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>St. Olavs klinikk</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorRole">
+        <ValueList>
+          <Value>Lege</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="c0527950-121a-40f4-9b81-17a52f755ac0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A00-1" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7ec8a30c-58e6-4527-ba47-03b7aaabf078" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="N" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://terminology.hl7.org/CodeSystem/v3-Confidentiality</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="a132f936-dd5c-4815-8dfe-9de3ea666af0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7046e95d-f373-4788-b584-8ddae94dea55" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="86.211" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.1303</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="70b9fc14-5f38-4737-9cc1-f63286dad030" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.8653</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="d2346943-9c5f-4b44-be7a-f3c93b18a33e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A03-2" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <ExternalIdentifier id="75d0ebb5-c7a1-4cc0-b92b-5f22e67bce76" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="be6788e7-478e-4fe0-8631-ac5c62673220" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="5714bab9-4ca5-4207-b6c8-c848aa96b8d6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
+  <ExtrinsicObject id="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+    <Slot name="creationTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>20240207023541</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="languageCode" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>nb-NO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStartTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-14T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="serviceStopTime" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2024-04-19T15:29:47Z</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientInfo" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>PID-5|Danser^Line^^^^</Value>
+        <Value>PID-7|19691113</Value>
+        <Value>PID-8|F</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="hash" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>BD2D344B71A07E9FA0BA32800D3D6346B79785D3</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="repositoryUniqueId" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>2.16.578.1.12.4.5.100.1.2</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="size" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>59061</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="authorPerson" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <ValueList>
+        <Value>Darius Test</Value>
+      </ValueList>
+    </Slot>
+    <Name xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <LocalizedString value="skoert.pdf" />
+    </Name>
+    <Classification id="ebe9c2a7-24f6-4f6e-9b77-9d6246e5deb5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="authorPerson">
+        <ValueList>
+          <Value>Darius Test</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>St. Olavs klinikk</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorRole">
+        <ValueList>
+          <Value>Lege</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="c0527950-121a-40f4-9b81-17a52f755ac0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A00-1" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7ec8a30c-58e6-4527-ba47-03b7aaabf078" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="N" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://terminology.hl7.org/CodeSystem/v3-Confidentiality</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="a132f936-dd5c-4815-8dfe-9de3ea666af0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString />
+      </Name>
+    </Classification>
+    <Classification id="7046e95d-f373-4788-b584-8ddae94dea55" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="86.211" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.1303</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="70b9fc14-5f38-4737-9cc1-f63286dad030" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="4" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.8653</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="d2346943-9c5f-4b44-be7a-f3c93b18a33e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" nodeRepresentation="A03-2" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.578.1.12.4.1.1.9602</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <ExternalIdentifier id="75d0ebb5-c7a1-4cc0-b92b-5f22e67bce76" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="be6788e7-478e-4fe0-8631-ac5c62673220" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="5714bab9-4ca5-4207-b6c8-c848aa96b8d6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:be6788e7-478e-4fe0-8631-ac5c62673220" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
 </Registry>

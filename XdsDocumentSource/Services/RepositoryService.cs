@@ -1,12 +1,11 @@
-﻿using System.Reflection;
-using System.Security.Cryptography;
-using XdsDocumentSource.Commons;
-using XdsDocumentSource.Extensions;
-using XdsDocumentSource.Models.Soap;
-using XdsDocumentSource.Xca;
-using XdsDocumentSource.Commons.Enums;
+﻿using XcaXds.Commons;
+using XcaXds.Commons.Enums;
+using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Xca;
 
-namespace XdsDocumentSource.Services;
+namespace XcaXds.Source.Services;
 
 public class RepositoryService
 {
@@ -60,7 +59,7 @@ public class RepositoryService
             }
             else
             {
-                registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Error while updating repository",$"¨Document: {assocDocument.Id}");
+                registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Error while updating repository", $"¨Document: {assocDocument.Id}");
             }
 
         }
