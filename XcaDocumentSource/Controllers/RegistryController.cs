@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
@@ -51,7 +52,8 @@ public class RegistryController : ControllerBase
                 {
                     _logger.LogInformation("Registry updated successfully");
                     registryResponse.AddSuccess("Registry updated successfully");
-                    var responseSoap = SoapExtensions.CreateSoapRegistryResponse(registryResponse);
+                    
+                    var responseSoap = SoapExtensions.CreateSoapTypedResponse<RegisterDocumentSetbResponse>(new soapregistryResponse);
                     return Ok(responseSoap);
                 }
                 else

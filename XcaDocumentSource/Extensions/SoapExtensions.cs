@@ -33,8 +33,6 @@ namespace XcaXds.WebService.Extensions
                     }
                 }
             };
-            //var serializer = new SoapXmlSerializer();
-            //var result = serializer.SerializeSoapMessageToXmlString(envelope);
             return resultEnvelope;
         }
 
@@ -63,13 +61,26 @@ namespace XcaXds.WebService.Extensions
                         .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
                 }
             }
-
-            //var serializer = new SoapXmlSerializer();
-            //var result = serializer.SerializeSoapMessageToXmlString(envelope);
             return resultEnvelope;
         }
-        public static SoapRequestResult<SoapEnvelope> CreateSoapProvideAndRegisterResponse(RegistryResponseType message)
+        public static SoapRequestResult<SoapEnvelope> CreateSoapTypedResponse<T>(SoapEnvelope message)
         {
+            // Get property of SoapBody which matches T
+            var propertyInfo = typeof(SoapBody).GetProperties()
+                .FirstOrDefault(p => p.PropertyType == typeof(T));
+
+            if (propertyInfo != null && propertyInfo.CanWrite)
+            {
+                var bodyProperty = message.Body.GetType().GetProperty(propertyInfo.Name);
+
+                if (bodyProperty != null)
+                {
+                    var value = bodyProperty.GetValue(message.Body);
+
+                    propertyInfo.SetValue(resultEnvelope.Value.Body, value);
+                }
+            }
+
             var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
             {
                 Value = new SoapEnvelope()
@@ -78,45 +89,18 @@ namespace XcaXds.WebService.Extensions
                     {
                         Action = Constants.Soap.Namespaces.Addressing,
                     },
-                    Body = new()
-                    {
-                        
-                        provide = message
-                    }
+                    Body = new SoapBody()
                 }
             };
-            if (resultEnvelope.Value is SoapEnvelope soapEnvelope)
+
+            // Check if the value was successfully set and if RegistryResponse is set
+            if (resultEnvelope.Value.Body.RegistryResponse != null)
             {
-                if (soapEnvelope.Body.RegistryResponse is not null)
-                {
-                    // Base Success property on whether Value...RegistryErrorList has any errors
-                    resultEnvelope.IsSuccess = bool.Equals(false, soapEnvelope.Body.RegistryResponse.RegistryErrorList.RegistryError
-                        .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
-                }
+                resultEnvelope.IsSuccess = !resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList?.RegistryError
+                    .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error) ?? true;
             }
 
-            //var serializer = new SoapXmlSerializer();
-            //var result = serializer.SerializeSoapMessageToXmlString(envelope);
             return resultEnvelope;
         }
-
-        //public static SoapEnvelope CreateRegistryResponse()
-        //{
-        //    var registryResponse = new SoapEnvelope()
-        //    {
-        //        Header = new()
-        //        {
-        //            Action = Constants.Soap.Namespaces.Addressing,
-        //        },
-        //        Body = new()
-        //        {
-        //            RegistryResponse = new() { Status = ResponseStatusType.Success.ToString(), ResponseSlotList = [new() { }] }
-        //        }
-        //    };
-        //    //var serializer = new SoapXmlSerializer();
-        //    //var result = serializer.SerializeSoapMessageToXmlString(envelope);
-        //    return registryResponse;
-        //}
-
     }
 }
