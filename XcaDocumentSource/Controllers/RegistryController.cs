@@ -52,8 +52,16 @@ public class RegistryController : ControllerBase
                 {
                     _logger.LogInformation("Registry updated successfully");
                     registryResponse.AddSuccess("Registry updated successfully");
-                    
-                    var responseSoap = SoapExtensions.CreateSoapTypedResponse<RegisterDocumentSetbResponse>(new soapregistryResponse);
+
+                    var responseEnvelope = new SoapEnvelope()
+                    {
+                        Header = new()
+                        {
+                            Action = GetResponseAction(soapEnvelope.Header.Action),
+                        }
+                    };
+
+                    var responseSoap = SoapExtensions.CreateSoapTypedResponse<RegisterDocumentSetbResponse>(registryResponse);
                     return Ok(responseSoap);
                 }
                 else

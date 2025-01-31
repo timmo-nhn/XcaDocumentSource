@@ -63,8 +63,20 @@ namespace XcaXds.WebService.Extensions
             }
             return resultEnvelope;
         }
-        public static SoapRequestResult<SoapEnvelope> CreateSoapTypedResponse<T>(SoapEnvelope message)
+
+
+
+        public static SoapEnvelope CreateSoapTypedResponse<T>(SoapEnvelope message)
         {
+            var resultEnvelope = new SoapEnvelope()
+            {
+                Header = new()
+                {
+                    Action = Constants.Soap.Namespaces.Addressing,
+                },
+                Body = new SoapBody()
+            };
+
             // Get property of SoapBody which matches T
             var propertyInfo = typeof(SoapBody).GetProperties()
                 .FirstOrDefault(p => p.PropertyType == typeof(T));
@@ -77,27 +89,8 @@ namespace XcaXds.WebService.Extensions
                 {
                     var value = bodyProperty.GetValue(message.Body);
 
-                    propertyInfo.SetValue(resultEnvelope.Value.Body, value);
+                    propertyInfo.SetValue(resultEnvelope.Body, value);
                 }
-            }
-
-            var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
-            {
-                Value = new SoapEnvelope()
-                {
-                    Header = new()
-                    {
-                        Action = Constants.Soap.Namespaces.Addressing,
-                    },
-                    Body = new SoapBody()
-                }
-            };
-
-            // Check if the value was successfully set and if RegistryResponse is set
-            if (resultEnvelope.Value.Body.RegistryResponse != null)
-            {
-                resultEnvelope.IsSuccess = !resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList?.RegistryError
-                    .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error) ?? true;
             }
 
             return resultEnvelope;

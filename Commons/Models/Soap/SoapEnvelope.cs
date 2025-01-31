@@ -74,6 +74,9 @@ public class SoapHeader
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
     public string Action { get; set; }
 
+    [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
+    public string RelatesTo { get; set; }
+
     [XmlElement("MessageID", Namespace = Constants.Soap.Namespaces.Addressing)]
     public string MessageId { get; set; }
 

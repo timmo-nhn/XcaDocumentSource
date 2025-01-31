@@ -68,6 +68,12 @@ namespace XcaXds.Commons.Extensions
             return resultEnvelope;
         }
 
+
+        public static string GetResponseAction(string action)
+        {
+
+        }
+
         //public static SoapEnvelope CreateRegistryResponse()
         //{
         //    var registryResponse = new SoapEnvelope()
