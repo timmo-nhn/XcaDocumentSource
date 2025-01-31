@@ -296,6 +296,8 @@ public static class Constants
 
     public static class MimeTypes
     {
+        public const string SoapXml = "application/soap+xml";
+        public const string XopXml = "application/xop+xml";
         public const string SevenZip = "application/x-7z-compressed";
         public const string Acc = "audio/aac";
         public const string Avi = "video/x-msvideo";

@@ -32,11 +32,10 @@ namespace XcaXds.Commons.Extensions
                     }
                 }
             };
-            //var serializer = new SoapXmlSerializer();
-            //var result = serializer.SerializeSoapMessageToXmlString(envelope);
+
             return resultEnvelope;
         }
-        
+
         public static SoapRequestResult<SoapEnvelope> CreateSoapRegistryResponse(RegistryResponseType message)
         {
             var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
@@ -63,15 +62,44 @@ namespace XcaXds.Commons.Extensions
                 }
             }
 
-            //var serializer = new SoapXmlSerializer();
-            //var result = serializer.SerializeSoapMessageToXmlString(envelope);
             return resultEnvelope;
         }
+
+        //public static SoapEnvelope CreateSoapTypedResponse<T>(SoapEnvelope message) where T: class
+        //{
+        //    var resultEnvelope = new SoapEnvelope()
+        //    {
+        //        Header = new()
+        //        {
+        //            Action = Constants.Soap.Namespaces.Addressing,
+        //        },
+        //        Body = new SoapBody()
+        //    };
+
+        //    // Get property of SoapBody which matches T
+        //    var propertyInfo = typeof(SoapBody).GetProperties()
+        //        .FirstOrDefault(p => p.PropertyType == typeof(T));
+
+        //    if (propertyInfo != null && propertyInfo.CanWrite)
+        //    {
+        //        var bodyProperty = message.Body.GetType().GetProperty(propertyInfo.Name);
+
+        //        if (bodyProperty != null)
+        //        {
+        //            var value = bodyProperty.GetValue(message.Body);
+
+        //            propertyInfo.SetValue(resultEnvelope.Body, value);
+        //        }
+        //    }
+
+        //    return resultEnvelope;
+        //}
+
 
 
         public static string GetResponseAction(string action)
         {
-
+            throw new NotImplementedException();
         }
 
         //public static SoapEnvelope CreateRegistryResponse()

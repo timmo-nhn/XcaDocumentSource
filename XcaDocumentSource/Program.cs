@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Formatters;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source;
@@ -17,13 +18,15 @@ namespace XcaXds.WebService
             builder.Services.AddControllers(options =>
             {
                 options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
-            });
-            //var config = new ConfigurationBuilder()
-            //    .AddJsonFile("appsettings.json", false)
-            //    .Build();
+
+                options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
+                options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
+            })
+            .AddXmlSerializerFormatters();
+
 
             var xdsConfig = new XdsConfig();
-            //config.Bind("XdsConfiguration", xdsConfig); 
+
             builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
 
             builder.Services.AddSingleton<RespondingGatewayController>();

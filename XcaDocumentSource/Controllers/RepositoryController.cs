@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Xml;
+using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
-using XcaXds.WebService.Extensions;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -60,26 +60,33 @@ public class RepositoryController : ControllerBase
                     return Ok(xmlSerializer.SerializeSoapMessageToXmlString(iti42Message.Value));
                 }
 
-                var registryResponse = await _xcaGateway.RegisterDocumentSet(iti42Message.Value, baseUrl + "/Registry/services/RegistryService");
-                if (registryResponse.IsSuccess is false)
+                var registryResponse = await _xcaGateway.RegisterDocumentSetb(iti42Message.Value, baseUrl + "/Registry/services/RegistryService");
+                
+                var responseEnvelope = new SoapEnvelope()
                 {
-                    return Ok(xmlSerializer.SerializeSoapMessageToXmlString(registryResponse));
-                }
+                    Header = new()
+                    {
+                        Action = soapEnvelope.GetCorrespondingResponseAction(),
+                        RelatesTo = soapEnvelope.Header.MessageId
+                    },
+                    Body = new()
+                    {
+                        RegisterDocumentSetResponse = registryResponse.Value
+                    }
+                };
 
-                return Ok(xmlSerializer.SerializeSoapMessageToXmlString(registryResponse));
-
-            default:
-                if (action != null)
-                {
-                    return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}").Value);
-                }
-                else
-                {
-                    return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}".Trim()).Value);
-                }
+                return Ok(responseEnvelope);
         }
 
-        return Ok($"Response from Responding Gateway: ");
+        if (action != null)
+        {
+            return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}").Value);
+        }
+        else
+        {
+            return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}".Trim()).Value);
+        }
+
     }
 
 }

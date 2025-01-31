@@ -1,0 +1,106 @@
+<!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
+<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+    xmlns:a="http://www.w3.org/2005/08/addressing"
+    xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <s:Header>
+        <a:Action s:mustUnderstand="1">urn:ihe:iti:2007:RetrieveDocumentSet</a:Action>
+        <a:MessageID>urn:uuid:a2b2a7de-0d0c-4dbc-b343-85ac02a745c5</a:MessageID>
+        <a:ReplyTo>
+            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>
+        </a:ReplyTo>
+        <a:To s:mustUnderstand="1">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti43</a:To>
+        <o:Security s:mustUnderstand="1"
+            xmlns:o="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <u:Timestamp u:Id="_0">
+                <u:Created>2019-05-10T07:22:56.765Z</u:Created>
+                <u:Expires>2019-05-10T07:27:56.765Z</u:Expires>
+            </u:Timestamp>
+            <saml:Assertion ID="_d72f1016-7438-4754-ba93-e9cad659819c" IssueInstant="2019-05-10T07:22:56.533Z" Version="2.0"
+                xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+                <saml:Issuer>sikkerhet.helsenorge.no</saml:Issuer>
+                <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+                    <SignedInfo>
+                        <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+                        <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+                        <Reference URI="#_d72f1016-7438-4754-ba93-e9cad659819c">
+                            <Transforms>
+                                <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+                                <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+                            </Transforms>
+                            <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+                            <DigestValue>Kj7/8RM1IspD8CDuC5R2du/Cm8zWOVDTgav9v+VhURs=</DigestValue>
+                        </Reference>
+                    </SignedInfo>
+                    <SignatureValue>vyKykJtLITxsnXWpgcVfJd78WzQG7oll8LmpyZGoNyL+L43wJowoJL54BBzDpZMewDVXzumTVxjBiJe1EC7+xQQzQkgt1J2MiDxFbIXOMkT3Q+Hv+NXlPZ4Dr0Wbt5DP5TsKn4os98zpTL5vkyf+xjtQekKjJbbIu4n3zQLITCpPcG2Ippqu07n89mUvC8Xp8yH85vdr3rILzkqHtgYzSvMICvqGGt6+npzPDKFn2pJtRUgq7zLLaidT+thgJaDQyjtHkO3dw/Jkkjz9X3CBkDyPohgqw1pv6EwRLYAmkypAJYJWRLPKHsUhHrXfBLbmL9v3zFtF2nD5+WWwE9pGXA==</SignatureValue>
+                    <KeyInfo>
+                        <X509Data>
+                            <X509Certificate>MIIFIzCCBAugAwIBAgILAUI9LXlZ+viLGWIwDQYJKoZIhvcNAQELBQAwUTELMAkGA1UEBhMCTk8xHTAbBgNVBAoMFEJ1eXBhc3MgQVMtOTgzMTYzMzI3MSMwIQYDVQQDDBpCdXlwYXNzIENsYXNzIDMgVGVzdDQgQ0EgMzAeFw0xNzA1MDgxMDUzMzdaFw0yMDA1MDgyMTU5MDBaMIGIMQswCQYDVQQGEwJOTzEhMB8GA1UECgwYRElSRUtUT1JBVEVUIEZPUiBFLUhFTFNFMRswGQYDVQQLDBJoZWxzZW5vcmdlLm5vIFRFU1QxJTAjBgNVBAMMHEhlbHNlbm9yZ2Uubm8gU2lra2VyaGV0IFRFU1QxEjAQBgNVBAUTCTkxNTkzMzE0OTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAO6CSeYWxwt7OnyfQ2XAPKFMoYU6F727IRrrBjpSgZa16k9opcPqfx1OVEDsrjoBw88G1vhtpu5hEa8mSlH0y/ccsnD7vhZ2q0TLPS51LzOXjfukt+0SpSV30lalPAZ61+Qhgok6vi8LCXt0BBJIO3lahf6iTbwukMxwpcTzeKVhpLw9vU73yU++Mw2f91T6iW+62JP9NtSyaT7jJ5KpZkTGx2QFTHEFUA/PX12To6X1C6HqoKjgXzePZJE4D69WbzwWXN93Nj713BTHA4ZRixISGDvL0NgSrbGXPP3PKlIZS8oKB07l6JQaxeSuesyDnFPZpTGnE4pl/CXFQ5gKlzkCAwEAAaOCAcIwggG+MAkGA1UdEwQCMAAwHwYDVR0jBBgwFoAUP671eAuSo3AgNV9a+vckoFIB8EEwHQYDVR0OBBYEFBehpcMyRVShJxmIahVgtwTdPGOgMA4GA1UdDwEB/wQEAwIGQDAWBgNVHSAEDzANMAsGCWCEQgEaAQADAjCBuwYDVR0fBIGzMIGwMDegNaAzhjFodHRwOi8vY3JsLnRlc3Q0LmJ1eXBhc3Mubm8vY3JsL0JQQ2xhc3MzVDRDQTMuY3JsMHWgc6Bxhm9sZGFwOi8vbGRhcC50ZXN0NC5idXlwYXNzLm5vL2RjPUJ1eXBhc3MsZGM9Tk8sQ049QnV5cGFzcyUyMENsYXNzJTIwMyUyMFRlc3Q0JTIwQ0ElMjAzP2NlcnRpZmljYXRlUmV2b2NhdGlvbkxpc3QwgYoGCCsGAQUFBwEBBH4wfDA7BggrBgEFBQcwAYYvaHR0cDovL29jc3AudGVzdDQuYnV5cGFzcy5uby9vY3NwL0JQQ2xhc3MzVDRDQTMwPQYIKwYBBQUHMAKGMWh0dHA6Ly9jcnQudGVzdDQuYnV5cGFzcy5uby9jcnQvQlBDbGFzczNUNENBMy5jZXIwDQYJKoZIhvcNAQELBQADggEBABl4W1eqo4LN70unW7jr6YVPDDdTMaZv4A9e8V2B7YRLKKzWqKNhwj+B4dE//hlFi0uTbI877BEC+WQqcXF7VNfC3XeK4ySQqnIaX9XxfkJa8NzMojlz4Jwyk0r/aUjw652p1Ao72OxvSIWjgJBaLqMXnnLvTF2mhMBLarZ30MBpPcgRmcJgiZ5HslQnuGzmJK2/ByE9EC0AMczfdtHIVou3qy1wa5tXHGhBFiHyCCGZcwteN1RizSC80J319t7INVW/piXVWRKL7NuOL4CqUoM/JPhVYwlv9DGKJgAC3V7Gk5sMqyjCThzlHZamOAJvjYhtveVz9DkpqyGQDvAYskc=</X509Certificate>
+                        </X509Data>
+                    </KeyInfo>
+                </Signature>
+                <saml:Subject>
+                    <saml:NameID SPProvidedID="29019900248">29019900248</saml:NameID>
+                    <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer" />
+                </saml:Subject>
+                <saml:Conditions NotBefore="2019-05-10T07:22:56.533Z" NotOnOrAfter="2019-05-10T07:42:56.533Z">
+                    <saml:AudienceRestriction>
+                        <saml:Audience>https://xds-web.test.nhn.no/</saml:Audience>
+                    </saml:AudienceRestriction>
+                </saml:Conditions>
+                <saml:AttributeStatement>
+                    <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:subjectid">
+                        <saml:AttributeValue>Karoline Matre</saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization">
+                        <saml:AttributeValue>Norsk Helsenett</saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization-id">
+                        <saml:AttributeValue>
+                            <id xmlns="urn:hl7-org:v3" xsi:type="II" extension="994598759" root="2.16.578.1.12.4.1.4.101" assigningAuthorityName="Brønnøysundregistrene" displayable="false"/>
+                        </saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="urn:ihe:iti:xca:2010:homeCommunityId">
+                        <saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.2</saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="urn:oasis:names:tc:xspa:2.0:subject:npi">
+                        <saml:AttributeValue>29019900248</saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="urn:ihe:iti:xua:2017:subject:provider-identifier">
+                        <saml:AttributeValue>
+                            <id xmlns="urn:hl7-org:v3" type="II" extension="29019900248" root="2.16.578.1.12.4.1.4.1" displayable="false" />
+                        </saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
+                        <saml:AttributeValue>
+                            <PurposeOfUse xmlns="urn:hl7-org:v3" type="CE" code="13" codeSystem="1.0.14265.1" codeSystemName="ISO 14265 Classification of Purposes for processing personal health information" displayName="Subject of care uses"/>
+                        </saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="urn:oasis:names:tc:xacml:2.0:resource:resource-id">
+                        <saml:AttributeValue>29019900248^^^&amp;amp;2.16.578.1.12.4.1.4.1&amp;amp;ISO</saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="SecurityLevel">
+                        <saml:AttributeValue>4</saml:AttributeValue>
+                    </saml:Attribute>
+                    <saml:Attribute Name="Scope">
+                        <saml:AttributeValue>innsynregisterbruk,innsynregisterinnhold,innsynpasientjournal</saml:AttributeValue>
+                    </saml:Attribute>
+                </saml:AttributeStatement>
+                <saml:AuthnStatement AuthnInstant="2019-05-10T07:22:56.549Z" SessionNotOnOrAfter="2019-05-10T07:42:56.549Z">
+                    <saml:AuthnContext>
+                        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</saml:AuthnContextClassRef>
+                    </saml:AuthnContext>
+                </saml:AuthnStatement>
+            </saml:Assertion>
+        </o:Security>
+    </s:Header>
+    <s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <RetrieveDocumentSetRequest xmlns="urn:ihe:iti:xds-b:2007">
+            <DocumentRequest>
+                <HomeCommunityId>2.16.578.1.12.4.1.2.5604</HomeCommunityId>
+                <RepositoryUniqueId>2.16.578.1.12.4.3.1.5.20.1</RepositoryUniqueId>
+                <DocumentUniqueId>^105085430</DocumentUniqueId>
+            </DocumentRequest>
+        </RetrieveDocumentSetRequest>
+    </s:Body>
+</s:Envelope>

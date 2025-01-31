@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Xca;
-using XcaXds.WebService.Extensions;
 
 namespace XcaXds.WebService.Controllers;
 

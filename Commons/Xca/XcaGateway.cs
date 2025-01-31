@@ -21,7 +21,7 @@ public class XcaGateway
         return response;
     }
 
-    public async Task<SoapRequestResult<RegisterDocumentSetbResponse>> RegisterDocumentSet(SoapEnvelope request, string endpoint)
+    public async Task<SoapRequestResult<RegisterDocumentSetbResponse>> RegisterDocumentSetb(SoapEnvelope request, string endpoint)
     {
         var response = await _soapService.PostSoapRequestAsync<IRegisterDocumentSetb, RegisterDocumentSetbResponse>(request, endpoint);
 

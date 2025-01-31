@@ -1,13 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Xml;
+using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons;
+using XcaXds.Commons.Enums;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
-using XcaXds.WebService.Extensions;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -29,6 +30,7 @@ public class RegistryController : ControllerBase
     }
 
     [Consumes("application/soap+xml")]
+    [Produces("application/soap+xml")]
     [HttpPost("RegistryService")]
     public async Task<IActionResult> RegistryService([FromBody] SoapEnvelope soapEnvelope)
     {
@@ -57,22 +59,50 @@ public class RegistryController : ControllerBase
                     {
                         Header = new()
                         {
-                            Action = GetResponseAction(soapEnvelope.Header.Action),
+                            Action = soapEnvelope.GetCorrespondingResponseAction(),
+                            RelatesTo = soapEnvelope.Header.MessageId
+                        },
+                        Body = new() 
+                        { 
+                            RegisterDocumentSetResponse = new() 
+                            {
+                                RegistryResponse = registryResponse 
+                            }
                         }
                     };
 
-                    var responseSoap = SoapExtensions.CreateSoapTypedResponse<RegisterDocumentSetbResponse>(registryResponse);
-                    return Ok(responseSoap);
+                    return Ok(responseEnvelope);
                 }
                 else
                 {
                     _logger.LogError("Error while updating registry", registryUploadResponse.Value.Body.Fault);
+                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError,"Error while updating registry " + registryUploadResponse.Value.Body.Fault, "XDS Registry");
+                    
+                    var responseEnvelope = new SoapEnvelope()
+                    {
+                        Header = new()
+                        {
+                            Action = soapEnvelope.GetCorrespondingResponseAction(),
+                            RelatesTo = soapEnvelope.Header.MessageId
+                        },
+                        Body = new()
+                        {
+                            RegisterDocumentSetResponse = new()
+                            {
+                                RegistryResponse = registryResponse
+                            }
+                        }
+                    };
+                    return Ok(responseEnvelope);
                 }
-                break;
-
-            default:
-                return Ok(SoapExtensions.CreateSoapFault("Missing action in SOAP <header> element", "XDSMissingAction").Value);
         }
-        return BadRequest();
+        if (action != null)
+        {
+            return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}").Value);
+        }
+        else
+        {
+            return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}".Trim()).Value);
+        }
     }
 }

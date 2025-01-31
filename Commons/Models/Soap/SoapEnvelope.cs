@@ -25,6 +25,35 @@ public class SoapEnvelope
     {
         Header.Action = action;
     }
+    public string GetCorrespondingResponseAction()
+    {
+        return Header.Action switch
+        {
+            Constants.Xds.OperationContract.Iti18Action => Constants.Xds.OperationContract.Iti18Reply,
+            Constants.Xds.OperationContract.Iti41Action => Constants.Xds.OperationContract.Iti41Reply,
+            Constants.Xds.OperationContract.Iti42Action => Constants.Xds.OperationContract.Iti42Reply,
+            Constants.Xds.OperationContract.Iti43Action => Constants.Xds.OperationContract.Iti43Reply,
+            Constants.Xds.OperationContract.Iti38Action => Constants.Xds.OperationContract.Iti38Reply,
+            Constants.Xds.OperationContract.Iti62Action => Constants.Xds.OperationContract.Iti62Reply,
+            Constants.Xds.OperationContract.Iti86Action => Constants.Xds.OperationContract.Iti86Reply,
+            _ => string.Empty
+        };
+    }
+
+    public string GetCorrespondingRequestAction()
+    {
+        return Header.Action switch
+        {
+            Constants.Xds.OperationContract.Iti18Reply => Constants.Xds.OperationContract.Iti18Action,
+            Constants.Xds.OperationContract.Iti41Reply => Constants.Xds.OperationContract.Iti41Action,
+            Constants.Xds.OperationContract.Iti42Reply => Constants.Xds.OperationContract.Iti42Action,
+            Constants.Xds.OperationContract.Iti43Reply => Constants.Xds.OperationContract.Iti43Action,
+            Constants.Xds.OperationContract.Iti38Reply => Constants.Xds.OperationContract.Iti38Action,
+            Constants.Xds.OperationContract.Iti62Reply => Constants.Xds.OperationContract.Iti62Action,
+            Constants.Xds.OperationContract.Iti86Reply => Constants.Xds.OperationContract.Iti86Action,
+            _ => string.Empty
+        };
+    }
 }
 
 
@@ -75,7 +104,7 @@ public class SoapHeader
     public string Action { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
-    public string RelatesTo { get; set; }
+    public string? RelatesTo { get; set; }
 
     [XmlElement("MessageID", Namespace = Constants.Soap.Namespaces.Addressing)]
     public string MessageId { get; set; }
