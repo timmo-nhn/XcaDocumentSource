@@ -64,7 +64,7 @@ public class RegistryController : ControllerBase
                         },
                         Body = new() 
                         { 
-                            RegisterDocumentSetResponse = new() 
+                            RegisterDocumentSetbResponse = new() 
                             {
                                 RegistryResponse = registryResponse 
                             }
@@ -87,7 +87,7 @@ public class RegistryController : ControllerBase
                         },
                         Body = new()
                         {
-                            RegisterDocumentSetResponse = new()
+                            RegisterDocumentSetbResponse = new()
                             {
                                 RegistryResponse = registryResponse
                             }

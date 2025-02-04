@@ -77,10 +77,10 @@ public partial class SoapBody
     public ProvideAndRegisterDocumentSetbResponse? ProvideAndRegisterDocumentSetResponse { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
-    public RegisterDocumentSetRequestType? RegisterDocumentSetRequest { get; set; }
+    public RegisterDocumentSetbRequest? RegisterDocumentSetbRequest { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
-    public RegisterDocumentSetbResponse? RegisterDocumentSetResponse { get; set; }
+    public RegisterDocumentSetbResponse? RegisterDocumentSetbResponse { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
     public RetrieveDocumentSetResponseType? RetrieveDocumentSetResponse { get; set; }

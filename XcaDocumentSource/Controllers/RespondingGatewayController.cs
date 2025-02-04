@@ -22,6 +22,7 @@ public class RespondingGatewayController : ControllerBase
     }
 
     [Consumes("application/soap+xml")]
+    [Produces("application/soap+xml")]
     [HttpPost("RespondingGatewayService")]
     public async Task<IActionResult> CrossGatewayQuery([FromBody] SoapEnvelope soapEnvelope)
     {

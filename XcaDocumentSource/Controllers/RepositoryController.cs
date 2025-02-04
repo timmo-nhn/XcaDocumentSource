@@ -31,6 +31,7 @@ public class RepositoryController : ControllerBase
     public RegistryService RegistryService => _registryService;
 
     [Consumes("application/soap+xml")]
+    [Produces("application/soap+xml")]
     [HttpPost("RepositoryService")]
     public async Task<IActionResult> HandlePostRequest([FromBody] SoapEnvelope soapEnvelope)
     {
@@ -71,7 +72,7 @@ public class RepositoryController : ControllerBase
                     },
                     Body = new()
                     {
-                        RegisterDocumentSetResponse = registryResponse.Value
+                        RegisterDocumentSetbResponse = registryResponse.Value
                     }
                 };
 

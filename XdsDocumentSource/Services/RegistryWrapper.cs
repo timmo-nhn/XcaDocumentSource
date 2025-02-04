@@ -57,8 +57,8 @@ public class RegistryWrapper
 
     public bool UpdateDocumentRegistry(RegistryWrapper registryContent)
     {
-        var soapXml = new SoapXmlSerializer();
-        var registryObjectString = soapXml.SerializeSoapMessageToXmlString(registryContent, new XmlWriterSettings() { OmitXmlDeclaration = true, Indent = true, IndentChars = "  " });
+        var soapXml = new SoapXmlSerializer(XmlSettings.Soap);
+        var registryObjectString = soapXml.SerializeSoapMessageToXmlString(registryContent);
         if (File.Exists(_registryFile))
         {
             File.WriteAllText(_registryFile, registryObjectString);

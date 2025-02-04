@@ -14,9 +14,9 @@ public class XcaGateway
         _soapService = soapInvoker;
     }
 
-    public async Task<SoapRequestResult<AdhocQueryResponse>> RegistryStoredQuery(SoapEnvelope request, string endpoint)
+    public async Task<SoapRequestResult<RegistryStoredQueryResponse>> RegistryStoredQuery(SoapEnvelope request, string endpoint)
     {
-        var response = await _soapService.PostSoapRequestAsync<IRegistryStoredQuery, AdhocQueryResponse>(request, endpoint);
+        var response = await _soapService.PostSoapRequestAsync<IRegistryStoredQuery, RegistryStoredQueryResponse>(request, endpoint);
 
         return response;
     }

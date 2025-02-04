@@ -3,6 +3,7 @@ using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Xca;
 
@@ -81,8 +82,11 @@ public class RegistryService
 
             // Preserve headers and stuff from ITI-41, and replace body with a register document set request
             iti42Message.Body.ProvideAndRegisterDocumentSetRequest = null;
-            iti42Message.Body.RegisterDocumentSetRequest = registerDocumentSet;
+            
+            iti42Message.Body.RegisterDocumentSetbRequest = new RegisterDocumentSetbRequest() { RegisterDocumentSetRequest = registerDocumentSet };
+            
             iti42Message.SetAction(Constants.Xds.OperationContract.Iti42Action);
+            
             // Switch from SubmissionSet UUIDs to XdsDocumentEntry UUIDs
             foreach (var classification in assocExtrinsicObject.Classification)
             {
@@ -100,7 +104,7 @@ public class RegistryService
         var registryResponse = new RegistryResponseType();
         var registryContent = _registryWrapper.GetDocumentRegistryContent();
 
-        var extrinsicObjects = envelope.Body.RegisterDocumentSetRequest.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().ToList();
+        var extrinsicObjects = envelope.Body.RegisterDocumentSetbRequest.RegisterDocumentSetRequest.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().ToList();
         // list spread to combine both lists
         registryContent.ExtrinsicObjects = [.. registryContent.ExtrinsicObjects, .. extrinsicObjects];
 

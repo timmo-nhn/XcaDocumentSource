@@ -1,7 +1,13 @@
-﻿using System.Xml;
+﻿using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Services;
+
+public enum XmlSettings
+{
+    Soap
+}
 
 public class SoapXmlSerializer
 {
@@ -10,9 +16,13 @@ public class SoapXmlSerializer
     {
         _xmlWriterSettings = xmlSettings;
     }
+    public SoapXmlSerializer(XmlSettings xmlSettings)
+    {
+        _xmlWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
+    }
     public SoapXmlSerializer()
     {
-
+        
     }
     public async Task<T> DeserializeSoapMessageAsync<T>(Stream xmlStream)
     {
