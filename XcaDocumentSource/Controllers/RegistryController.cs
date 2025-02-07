@@ -53,7 +53,7 @@ public class RegistryController : ControllerBase
                 if (registryUploadResponse.IsSuccess)
                 {
                     _logger.LogInformation("Registry updated successfully");
-                    registryResponse.AddSuccess("Registry updated successfully");
+                    registryResponse.SetSuccess();
 
                     var responseEnvelope = new SoapEnvelope()
                     {
@@ -64,10 +64,7 @@ public class RegistryController : ControllerBase
                         },
                         Body = new() 
                         { 
-                            RegisterDocumentSetbResponse = new() 
-                            {
-                                RegistryResponse = registryResponse 
-                            }
+                            RegistryResponse = registryResponse 
                         }
                     };
 
@@ -77,23 +74,11 @@ public class RegistryController : ControllerBase
                 {
                     _logger.LogError("Error while updating registry", registryUploadResponse.Value.Body.Fault);
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError,"Error while updating registry " + registryUploadResponse.Value.Body.Fault, "XDS Registry");
-                    
-                    var responseEnvelope = new SoapEnvelope()
-                    {
-                        Header = new()
-                        {
-                            Action = soapEnvelope.GetCorrespondingResponseAction(),
-                            RelatesTo = soapEnvelope.Header.MessageId
-                        },
-                        Body = new()
-                        {
-                            RegisterDocumentSetbResponse = new()
-                            {
-                                RegistryResponse = registryResponse
-                            }
-                        }
-                    };
-                    return Ok(responseEnvelope);
+
+                    registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value.Body.RegistryResponse.RegistryErrorList.RegistryError];
+
+                    var responseEnvelope = SoapExtensions.CreateSoapRegistryResponse(registryResponse, fault: true);
+                    return Ok(responseEnvelope.Value);
                 }
         }
         if (action != null)

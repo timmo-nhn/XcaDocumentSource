@@ -42,8 +42,10 @@ public class SoapEnvelopeModelBinder : IModelBinder
 
         try
         {
-            var xmlSerializer = new SoapXmlSerializer();
+            var xmlSerializer = new SoapXmlSerializer(XmlSettings.Soap);
+
             var soapEnvelope = await xmlSerializer.DeserializeSoapMessageAsync<SoapEnvelope>(xmlContent);
+            var soapstring = xmlSerializer.SerializeSoapMessageToXmlString(soapEnvelope);
 
             bindingContext.Result = ModelBindingResult.Success(soapEnvelope);
         }

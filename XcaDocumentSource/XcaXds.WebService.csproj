@@ -16,4 +16,8 @@
     <ProjectReference Include="..\XdsDocumentSource\XcaXds.Source.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CustomMultipartContent\" />
+  </ItemGroup>
+
 </Project>

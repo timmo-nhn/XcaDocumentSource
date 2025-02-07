@@ -6,12 +6,12 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Xdsb)]
 public class DocumentRequestType
 {
-    [XmlElement(Order = 0)]
-    public string HomeCommunityId;
+    [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb, Order = 0)]
+    public string? HomeCommunityId;
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb, Order = 1)]
-    public string RepositoryUniqueId;
+    public string? RepositoryUniqueId;
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb, Order = 2)]
-    public string DocumentUniqueId;
+    public string? DocumentUniqueId;
 }

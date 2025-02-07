@@ -1,7 +1,13 @@
-using System.Xml;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
@@ -18,25 +24,24 @@ public class RepositoryController : ControllerBase
     private readonly XcaGateway _xcaGateway;
     private readonly RepositoryService _repositoryService;
     private readonly RegistryService _registryService;
+    private readonly XdsConfig _xdsConfig;
 
-    public RepositoryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RepositoryService repositoryService, RegistryService registryService)
+    public RepositoryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RepositoryService repositoryService, RegistryService registryService, XdsConfig xdsConfig)
     {
         _logger = logger;
         _httpClient = httpClient;
         _xcaGateway = xcaGateway;
         _repositoryService = repositoryService;
         _registryService = registryService;
+        _xdsConfig = xdsConfig;
     }
 
-    public RegistryService RegistryService => _registryService;
-
     [Consumes("application/soap+xml")]
-    [Produces("application/soap+xml")]
+    [Produces("application/soap+xml",["application/xop+xml","application/octet-stream"])]
     [HttpPost("RepositoryService")]
     public async Task<IActionResult> HandlePostRequest([FromBody] SoapEnvelope soapEnvelope)
     {
-        var xmlSerializerSettings = new XmlWriterSettings() { OmitXmlDeclaration = true, Indent = true, IndentChars = "  " };
-        var xmlSerializer = new SoapXmlSerializer(xmlSerializerSettings);
+        var xmlSerializer = new SoapXmlSerializer(XmlSettings.Soap);
 
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
         var action = soapEnvelope.Header.Action;
@@ -44,39 +49,58 @@ public class RepositoryController : ControllerBase
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
-                //_repositoryService.GetFileFromRepository(soapEnvelope);
-                break;
-            case Constants.Xds.OperationContract.Iti41Action:
-                var uploadResponse = _repositoryService.UploadFileToRepository(soapEnvelope);
 
-                if (!uploadResponse.IsSuccess)
+                var documentFetchResponse = _repositoryService.GetContentFromRepository(soapEnvelope);
+
+                if (documentFetchResponse.IsSuccess)
                 {
-                    return Ok(xmlSerializer.SerializeSoapMessageToXmlString(uploadResponse.Value));
+                    return Ok(documentFetchResponse.Value);
                 }
-                var iti41Message = uploadResponse.Value;
+                break;
 
-                var iti42Message = RegistryService.ConvertIti41ToIti42Message(soapEnvelope);
+            case Constants.Xds.OperationContract.Iti41Action:
+
+                var iti42Message = _registryService.CopyIti41ToIti42Message(soapEnvelope);
                 if (iti42Message.IsSuccess is false)
                 {
-                    return Ok(xmlSerializer.SerializeSoapMessageToXmlString(iti42Message.Value));
+                    return Ok(iti42Message.Value);
                 }
 
-                var registryResponse = await _xcaGateway.RegisterDocumentSetb(iti42Message.Value, baseUrl + "/Registry/services/RegistryService");
-                
+                var registerDocumentSetResponse = await _xcaGateway.RegisterDocumentSetb(iti42Message.Value, baseUrl + "/Registry/services/RegistryService");
+
+                if (registerDocumentSetResponse.IsSuccess is false)
+                {
+                    return Ok(registerDocumentSetResponse.Value);
+                }
+
                 var responseEnvelope = new SoapEnvelope()
                 {
                     Header = new()
                     {
+                        MessageId = Guid.NewGuid().ToString(),
                         Action = soapEnvelope.GetCorrespondingResponseAction(),
                         RelatesTo = soapEnvelope.Header.MessageId
                     },
                     Body = new()
                     {
-                        RegisterDocumentSetbResponse = registryResponse.Value
+                        RegistryResponse = registerDocumentSetResponse.Value?.Body.RegistryResponse
                     }
                 };
 
-                return Ok(responseEnvelope);
+                if (iti42Message.IsSuccess is false)
+                {
+                    return Ok(responseEnvelope);
+                }
+
+                var uploadResponse = _repositoryService.UploadContentToRepository(soapEnvelope);
+
+                if (!uploadResponse.IsSuccess)
+                {
+                    return Ok(uploadResponse.Value);
+                }
+
+
+                return Ok(responseEnvelope);                
         }
 
         if (action != null)

@@ -20,6 +20,7 @@ public static class Constants
             public const string Rim = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0";
             public const string Lcm = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0";
             public const string Hl7V3 = "urn:hl7-org:v3";
+            public const string XopInclude = "http://www.w3.org/2004/08/xop/include";
         }
     }
 
@@ -43,6 +44,8 @@ public static class Constants
             public const string Iti18Reply = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
             public const string Iti38Action = "urn:ihe:iti:2007:CrossGatewayQuery";
             public const string Iti38Reply = "urn:ihe:iti:2007:CrossGatewayQueryResponse";
+            public const string Iti39Action = "urn:ihe:iti:2007:CrossGatewayRetrieve";
+            public const string Iti39Reply = "urn:ihe:iti:2007:CrossGatewayRetrieveResponse";
             public const string Iti43Action = "urn:ihe:iti:2007:RetrieveDocumentSet";
             public const string Iti43Reply = "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
             public const string Iti41Action = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
@@ -272,7 +275,7 @@ public static class Constants
             public const string Hl7V3 = "urn:hl7-org:v3";
         }
 
-        public static class Seperator
+        public static class Separator
         {
             public const char Amp = '&';
             public const char Hatt = '^';
@@ -297,6 +300,7 @@ public static class Constants
     public static class MimeTypes
     {
         public const string SoapXml = "application/soap+xml";
+        public const string MultipartRelated = "multipart/related";
         public const string XopXml = "application/xop+xml";
         public const string SevenZip = "application/x-7z-compressed";
         public const string Acc = "audio/aac";

@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
 [Serializable]
-[XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
+[XmlType("ExternalIdentifier",Namespace = Constants.Xds.Namespaces.Rim)]
 public class ExternalIdentifierType : RegistryObjectType
 {
     [XmlAttribute(AttributeName = "registryObject", DataType = "anyURI")]

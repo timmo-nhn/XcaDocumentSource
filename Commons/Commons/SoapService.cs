@@ -1,8 +1,13 @@
-﻿using System.Net;
+﻿using System.Data.SqlTypes;
+using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Text;
 using System.Xml;
+using System.Xml.Serialization;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Services;
 
@@ -17,33 +22,29 @@ public class SoapService
         _serviceProvider = serviceProvider;
     }
 
-    public object? GetImplementationOf<TInterface>()
+    public async Task<SoapRequestResult<SoapEnvelope>> PostSoapRequestAsync<TResult>(SoapEnvelope request, string endpoint)
     {
-        return _serviceProvider.GetService(typeof(TInterface)); // Returns the registered implementation
-    }
-
-
-    public async Task<SoapRequestResult<TResult>> PostSoapRequestAsync<TInterface, TResult>(SoapEnvelope request, string endpoint)
-    {
-        var soapBodyType = typeof(SoapBody);
-        var properties = soapBodyType.GetProperties();
-
-        var matchingProperty = properties
-            .FirstOrDefault(p => p.PropertyType.Name.Contains(typeof(TInterface).Name, StringComparison.OrdinalIgnoreCase));
-
-        var body = request.Body;
-
+        // PostSoapRequestAsync<IRegisterDocumentSetb, RegistryResponseType>
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
-        var soapString = sxmls.SerializeSoapMessageToXmlString(body);
 
+        var soapString = sxmls.SerializeSoapMessageToXmlString(request);
 
-        using (var message = Message.CreateMessage(MessageVersion.Soap12WSAddressing10, request.Header.Action,soapString))
+        var requestContent = new StringContent(soapString, Encoding.UTF8, Constants.MimeTypes.SoapXml);
+
+        var response = await _httpClient.PostAsync(endpoint, requestContent);
+
+        if (response.IsSuccessStatusCode)
         {
-            var hmm = message.GetBody<SoapBody>();
+            var content = await response.Content.ReadAsStreamAsync();
+
+            var soapResponse = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(content);
+            var success = soapResponse.Header.Action is not Constants.Soap.Namespaces.AddressingSoapFault;
+            return new SoapRequestResult<SoapEnvelope>() { Value = soapResponse, IsSuccess = success };
         }
 
         return null;
     }
+
 
     private static object GetRequestPayload<TInterface, TResult>(SoapEnvelope request)
     {
@@ -68,81 +69,4 @@ public class SoapService
         // Now invoke the SOAP method with the correct extracted request payload
         return requestPayload;
     }
-
-    //public async Task<SoapRequestResult<TResponse>> PostSoapRequestAsync<TContract, TResponse>(object soapEnvelope, string endpointUrl)
-    //    where TResponse : class
-    //{
-    //    if (endpointUrl == null)
-    //    {
-    //        throw new ArgumentNullException(nameof(endpointUrl));
-    //    }
-
-    //    if (soapEnvelope == null)
-    //    {
-    //        throw new ArgumentNullException(nameof(soapEnvelope));
-    //    }
-
-    //    var soapXmlSerializer = new SoapXmlSerializer();
-    //    var soapString = soapXmlSerializer.SerializeSoapMessageToXmlString(soapEnvelope);
-
-    //    var request = new HttpRequestMessage();
-    //    request.RequestUri = new Uri(endpointUrl);
-    //    request.Method = HttpMethod.Post;
-
-    //    request.Content = new StringContent(soapString, Encoding.UTF8, "application/soap+xml");
-    //    var response = await _httpClient.SendAsync(request);
-
-    //    var responseContent = await response.Content.ReadAsStreamAsync();
-
-    //    var responseXml = await soapXmlSerializer.DeserializeSoapMessageAsync<SoapEnvelope>(responseContent);
-
-    //    var bodyType = typeof(SoapBody);
-
-    //    var matchingProperty = bodyType.GetProperties()
-    //        .FirstOrDefault(p => p.PropertyType == typeof(TResponse));
-
-    //    if (matchingProperty != null)
-    //    {
-    //        var value = matchingProperty.GetValue(responseXml.Body);
-
-    //        if (value != null)
-    //        {
-    //            return SoapRequestResult<TResponse>.Success(value as TResponse);
-    //        }
-    //    }
-
-    //    var fault = responseXml.Body.Fault;
-    //    var faultResponse = MapFaultToResponse<TResponse>(fault);
-
-    //    return null;
-    //}
-
-    //private TResponse MapFaultToResponse<TResponse>(Fault fault) where TResponse : class
-    //{
-    //    // This is where you map the Fault object to a TResponse type
-    //    // For instance, if TResponse is expected to be a registry response, return a dummy instance or a default one
-    //    // You might want to map the fault message into the fields of TResponse, or even return a custom error response
-    //    if (typeof(TResponse) == typeof(RegistryResponseType))
-    //    {
-    //        var registryResponse = new RegistryResponseType()
-    //        {
-    //            RegistryErrorList = new RegistryErrorList()
-    //            {
-    //                RegistryError = 
-    //                [
-    //                    new RegistryErrorType()
-    //                    {
-    //                        CodeContext = fault.Code?.Value,
-    //                        Value = fault.Reason?.Text // Or any other meaningful mapping
-    //                    }
-    //                ]
-    //            }
-    //        };
-
-    //        // For other response types, you can choose to return a default or error state.
-    //        // This is just an example; adjust this mapping as per your actual response types
-    //        return registryResponse as TResponse;
-    //    }
-    //    return default;
-    //}
 }

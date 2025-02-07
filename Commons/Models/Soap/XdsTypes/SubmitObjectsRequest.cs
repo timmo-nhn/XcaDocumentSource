@@ -1,8 +1,13 @@
+using System.Runtime.Serialization;
+using System.ServiceModel;
 using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
 [Serializable]
+[KnownType(typeof(RegistryPackageType))]
+[KnownType(typeof(ExtrinsicObjectType))]
+[KnownType(typeof(AssociationType))]
 [XmlType(AnonymousType = true, Namespace = Constants.Xds.Namespaces.Lcm)]
 public class SubmitObjectsRequest : RegistryRequestType
 {

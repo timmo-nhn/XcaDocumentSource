@@ -11,6 +11,7 @@ public interface IRegistryStoredQuery
     [XmlSerializerFormat(SupportFaults = true)]
     [ServiceKnownType(typeof(RegistryResponseType))]
     [ServiceKnownType(typeof(RegistryRequestType))]
+    [ServiceKnownType(typeof(RegistryPackageType))]
     RegistryStoredQueryResponse RegistryStoredQuery(RegistryStoredQueryRequest request);
 
     [OperationContract(Action = "urn:ihe:iti:2007:RegistryStoredQuery", ReplyAction = "urn:ihe:iti:2007:RegistryStoredQueryResponse")]

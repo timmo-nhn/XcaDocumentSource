@@ -16,14 +16,19 @@ public partial class DocumentResponseType
     public string DocumentUniqueId;
 
     [XmlElement(Order = 3)]
-    public string NewRepositoryUniqueId;
+    public string? NewRepositoryUniqueId;
 
     [XmlElement(Order = 4)]
-    public string NewDocumentUniqueId;
+    public string? NewDocumentUniqueId;
 
     [XmlElement(ElementName = "mimeType", Order = 5)]
-    public string MimeType;
+    public string? MimeType;
 
     [XmlElement(DataType = "base64Binary", Order = 6)]
-    public byte[] Document;
+    public byte[]? Document;
+
+    [XmlElement("Include", Namespace = Constants.Soap.Namespaces.XopInclude, Order =7)]
+    public IncludeType? Include { get; set; }
+
+
 }

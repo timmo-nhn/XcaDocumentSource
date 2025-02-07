@@ -1,4 +1,7 @@
-﻿using XcaXds.Commons.Models.Soap;
+﻿using System.Net.Http.Headers;
+using System.Text;
+using XcaXds.Commons.Models;
+using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
@@ -8,22 +11,28 @@ public class XcaGateway
 {
     private readonly SoapService _soapService;
 
-
     public XcaGateway(SoapService soapInvoker)
     {
         _soapService = soapInvoker;
     }
 
-    public async Task<SoapRequestResult<RegistryStoredQueryResponse>> RegistryStoredQuery(SoapEnvelope request, string endpoint)
+    public async Task<SoapRequestResult<SoapEnvelope>> RegistryStoredQuery(SoapEnvelope request, string endpoint)
     {
-        var response = await _soapService.PostSoapRequestAsync<IRegistryStoredQuery, RegistryStoredQueryResponse>(request, endpoint);
+        var response = await _soapService.PostSoapRequestAsync<SoapEnvelope>(request, endpoint);
 
         return response;
     }
 
-    public async Task<SoapRequestResult<RegisterDocumentSetbResponse>> RegisterDocumentSetb(SoapEnvelope request, string endpoint)
+    public async Task<SoapRequestResult<SoapEnvelope>> RegisterDocumentSetb(SoapEnvelope request, string endpoint)
     {
-        var response = await _soapService.PostSoapRequestAsync<IRegisterDocumentSetb, RegisterDocumentSetbResponse>(request, endpoint);
+        var response = await _soapService.PostSoapRequestAsync<SoapEnvelope>(request, endpoint);
+
+        return response;
+    }
+
+    public async Task<SoapRequestResult<SoapEnvelope>> RetrieveDocumentSet(SoapEnvelope request, string endpoint)
+    {
+        var response = await _soapService.PostSoapRequestAsync<SoapEnvelope>(request, endpoint);
 
         return response;
     }

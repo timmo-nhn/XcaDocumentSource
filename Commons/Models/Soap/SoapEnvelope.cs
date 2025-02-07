@@ -9,6 +9,8 @@ namespace XcaXds.Commons.Models.Soap;
 [XmlInclude(typeof(RegistryStoredQueryRequest))]
 [XmlInclude(typeof(ProvideAndRegisterDocumentSetbRequest))]
 [XmlInclude(typeof(RegisterDocumentSetbRequest))]
+[XmlInclude(typeof(SubmitObjectsRequest))]
+[XmlInclude(typeof(RegistryResponseType))]
 [XmlInclude(typeof(RetrieveDocumentSetResponseType))]
 [XmlInclude(typeof(RetrieveDocumentSetbResponse))]
 [XmlInclude(typeof(RetrieveDocumentSetbRequest))]
@@ -56,13 +58,12 @@ public class SoapEnvelope
     }
 }
 
-
 [Serializable]
 [XmlType(AnonymousType = true, Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
 public partial class SoapBody
 {
-    [XmlAttribute(AttributeName = "type", Namespace = Constants.Soap.Namespaces.Xsi)]
-    public string? Type { get; set; }
+    [SoapAttribute("type", Namespace = Constants.Soap.Namespaces.Xsi)]
+    public string? XsiType { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Query)]
     public AdhocQueryRequest? AdhocQueryRequest { get; set; }
@@ -119,7 +120,7 @@ public class SoapHeader
     public SoapFaultTo? FaultTo { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.SecurityExt)]
-    public Security Security { get; set; }
+    public Security? Security { get; set; }
 }
 
 

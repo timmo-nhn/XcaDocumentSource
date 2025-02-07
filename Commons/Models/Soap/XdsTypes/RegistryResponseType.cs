@@ -48,10 +48,14 @@ public partial class RegistryResponseType
         RegistryErrorList.RegistryError = [.. RegistryErrorList.RegistryError, error];
     }
 
-    public void AddSuccess(string codeContext)
+    public void AddPartialSuccess(string codeContext)
     {
-        RegistryErrorList ??= new() { RegistryError = [] };
-        Status = Constants.Xds.ResponseStatusTypes.Success;
+        Status = Constants.Xds.ResponseStatusTypes.PartialSuccess;
         ResponseSlotList = [new SlotType() { ValueList = new() { Value = [codeContext] } }];
+    }
+
+    public void SetSuccess()
+    {
+        Status = Constants.Xds.ResponseStatusTypes.Success;
     }
 }

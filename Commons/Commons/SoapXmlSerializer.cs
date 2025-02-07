@@ -28,11 +28,34 @@ public class SoapXmlSerializer
     {
         var serializer = new XmlSerializer(typeof(T));
 
-        // Wrap the synchronous deserialization in an asynchronous context
         using (var streamReader = new StreamReader(xmlStream))
         {
             var xmlContent = await streamReader.ReadToEndAsync();
-            using (var stringReader = new StringReader(xmlContent))
+
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xmlContent);
+
+            var namespaceManager = new XmlNamespaceManager(xmlDoc.NameTable);
+            namespaceManager.AddNamespace("s", Constants.Soap.Namespaces.SoapEnvelope);
+            namespaceManager.AddNamespace("p7", Constants.Soap.Namespaces.Xsi);
+
+            var bodyElement = xmlDoc.SelectSingleNode("//s:Body", namespaceManager);
+
+
+            if (bodyElement == null)
+            {
+                bodyElement = xmlDoc.SelectSingleNode("//Body");
+            }
+
+            if (bodyElement != null && bodyElement.Attributes["type", "http://www.w3.org/2001/XMLSchema-instance"] != null)
+            {
+                bodyElement.Attributes.RemoveNamedItem("type", "http://www.w3.org/2001/XMLSchema-instance");
+                Console.WriteLine("Removed 'type' attribute.");
+            }
+
+            var modifiedXmlContent = xmlDoc.OuterXml;
+
+            using (var stringReader = new StringReader(modifiedXmlContent))
             {
                 return (T)serializer.Deserialize(stringReader);
             }

@@ -1,4 +1,5 @@
 using System.ServiceModel;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Models.Soap.Actions;
 
@@ -8,8 +9,8 @@ public interface IRetrieveDocumentSet
 {
     [OperationContract(Action = "urn:ihe:iti:2007:RetrieveDocumentSet", ReplyAction = "urn:ihe:iti:2007:RetrieveDocumentSetResponse")]
     [XmlSerializerFormat(SupportFaults = true)]
-    RetrieveDocumentSetbResponse RetrieveDocumentSet(RetrieveDocumentSetbRequest request);
+    SoapEnvelope RetrieveDocumentSet(DocumentRequestType[] request);
 
     [OperationContract(Action = "urn:ihe:iti:2007:RetrieveDocumentSet", ReplyAction = "urn:ihe:iti:2007:RetrieveDocumentSetResponse")]
-    Task<RetrieveDocumentSetbResponse> RetrieveDocumentSetAsync(RetrieveDocumentSetbRequest request);
+    Task<RetrieveDocumentSetResponseType> RetrieveDocumentSetAsync(DocumentRequestType[] request);
 }

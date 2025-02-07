@@ -1,4 +1,5 @@
 using System.Xml.Serialization;
+using XcaXds.Commons.Extensions;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -11,4 +12,29 @@ public partial class RetrieveDocumentSetResponseType
 
     [XmlElement("DocumentResponse", Order = 1)]
     public DocumentResponseType[] DocumentResponse;
+
+    public void AddDocument(byte[] document, string home, string repoId, string docId, string? mimeType = null)
+    {
+        if (document == null || home == null || repoId == null || docId == null)
+        {
+            return;
+        }
+        if (mimeType == null) 
+        {
+            mimeType = StringExtensions.GetMimetypeFromMagicNumber(document);
+        }
+        var documentResponse = new DocumentResponseType()
+        {
+            Document = document,
+            DocumentUniqueId = docId,
+            HomeCommunityId = home,
+            RepositoryUniqueId = repoId,
+            MimeType = mimeType
+        };
+
+        DocumentResponse ??= [];
+        DocumentResponse = [.. DocumentResponse, documentResponse];
+    }
+
+
 }

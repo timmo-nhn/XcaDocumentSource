@@ -1,22 +1,16 @@
-using System.ComponentModel;
 using System.ServiceModel;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.Commons.Models.Soap.Actions;
-
-[EditorBrowsable(EditorBrowsableState.Advanced)]
-[MessageContract(IsWrapped = false)]
-public partial class RegisterDocumentSetbRequest
+[MessageContract(IsWrapped = false)]  
+public class RegisterDocumentSetbRequest
 {
-    [MessageBodyMember(Namespace = Constants.Xds.Namespaces.Xdsb, Order = 0)]
-    public RegisterDocumentSetRequestType RegisterDocumentSetRequest;
+    [MessageBodyMember(Namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0", Order = 0)]
+    public SubmitObjectsRequest SubmitObjectsRequest { get; set; }
 
-    public RegisterDocumentSetbRequest()
-    {
-    }
+    public RegisterDocumentSetbRequest() { }
 
-    public RegisterDocumentSetbRequest(RegisterDocumentSetRequestType RegisterDocumentSetRequest)
+    public RegisterDocumentSetbRequest(SubmitObjectsRequest submitObjectsRequest)
     {
-        RegisterDocumentSetRequest = RegisterDocumentSetRequest;
+        SubmitObjectsRequest = submitObjectsRequest;
     }
 }

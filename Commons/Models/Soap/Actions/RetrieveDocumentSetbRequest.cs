@@ -6,13 +6,15 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Models.Soap.Actions;
 
-[EditorBrowsable(EditorBrowsableState.Advanced)]
+[Serializable()]
+[DesignerCategory("code")]
+[XmlType(AnonymousType = true, Namespace = "urn:ihe:iti:xds-b:2007")]
 [MessageContract(IsWrapped = false)]
 public partial class RetrieveDocumentSetbRequest
 {
+    [XmlElement]
     [MessageBodyMember(Namespace = Constants.Xds.Namespaces.Xdsb, Order = 0)]
-    [XmlArrayItem("DocumentRequest", IsNullable = false)]
-    public DocumentRequestType[] RetrieveDocumentSetRequest;
+    public DocumentRequestType[] DocumentRequest;
 
     public RetrieveDocumentSetbRequest()
     {
@@ -20,6 +22,6 @@ public partial class RetrieveDocumentSetbRequest
 
     public RetrieveDocumentSetbRequest(DocumentRequestType[] retrieveDocumentSetRequest)
     {
-        RetrieveDocumentSetRequest = retrieveDocumentSetRequest;
+        DocumentRequest = retrieveDocumentSetRequest;
     }
 }

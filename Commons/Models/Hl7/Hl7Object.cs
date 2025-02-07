@@ -16,7 +16,7 @@ public abstract class Hl7Object
 
     public string Serialize()
     {
-        return Serialize(Constants.Hl7.Seperator.Hatt);
+        return Serialize(Constants.Hl7.Separator.Hatt);
     }
     private string Serialize(char seperator)
     {
@@ -27,12 +27,12 @@ public abstract class Hl7Object
             if (item.Property.PropertyType == typeof(Hd))
             {
                 var hd = (Hd)item.Property.GetGetMethod().Invoke(this, null);
-                stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Seperator.Amp) : string.Empty) + seperator);
+                stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + seperator);
             }
             else if (item.Property.PropertyType == typeof(Sad))
             {
                 var sad = (Sad)item.Property.GetGetMethod().Invoke(this, null);
-                stringBuilder.Append((sad != null ? sad.Serialize(Constants.Hl7.Seperator.Amp) : string.Empty) + seperator);
+                stringBuilder.Append((sad != null ? sad.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + seperator);
             }
             else
             {
@@ -66,9 +66,9 @@ public abstract class Hl7Object
 
     public static T Parse<T>(string s) where T : Hl7Object, new()
     {
-        return Parse<T>(s, Constants.Hl7.Seperator.Hatt);
+        return Parse<T>(s, Constants.Hl7.Separator.Hatt);
     }
-    private static T Parse<T>(string s, char seperator) where T : Hl7Object, new()
+    private static T Parse<T>(string s, char separator) where T : Hl7Object, new()
     {
         if (s == null)
         {
@@ -77,12 +77,12 @@ public abstract class Hl7Object
 
         var output = new T();
 
-        if (seperator == Constants.Hl7.Seperator.Amp)
+        if (separator == Constants.Hl7.Separator.Amp)
         {
             s = HttpUtility.HtmlDecode(s);
         }
 
-        var parts = s.Split(seperator);
+        var parts = s.Split(separator);
 
         foreach (var item in GetHl7Properties(output))
         {
@@ -100,11 +100,11 @@ public abstract class Hl7Object
 #pragma warning disable IDE0045 // Convert to conditional expression
             if (item.Property.PropertyType == typeof(Hd))
             {
-                obectValue = new object[] { Parse<Hd>(value, Constants.Hl7.Seperator.Amp) };
+                obectValue = new object[] { Parse<Hd>(value, Constants.Hl7.Separator.Amp) };
             }
             else if (item.Property.PropertyType == typeof(Sad))
             {
-                obectValue = new object[] { Parse<Sad>(value, Constants.Hl7.Seperator.Amp) };
+                obectValue = new object[] { Parse<Sad>(value, Constants.Hl7.Separator.Amp) };
             }
             else
             {
