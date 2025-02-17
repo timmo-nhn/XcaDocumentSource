@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -49,16 +50,35 @@ public class RepositoryController : ControllerBase
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
-
                 var documentFetchResponse = _repositoryService.GetContentFromRepository(soapEnvelope);
-
-                if (documentFetchResponse.IsSuccess)
+                if (documentFetchResponse.IsSuccess is false)
                 {
                     return Ok(documentFetchResponse.Value);
                 }
-                break;
+
+                if (_xdsConfig.MultipartResponseForIti43 is true)
+                {
+                    var multipartContent = _repositoryService.ConvertToMultipartResponse(documentFetchResponse.Value);
+
+                    var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = multipartContent
+                    };
+
+                    return new ContentResult
+                    {
+                        StatusCode = (int)HttpStatusCode.OK,
+                        Content = responseMessage.Content.ReadAsStringAsync().Result, // Read content as string
+                        ContentType = Constants.MimeTypes.MultipartRelated
+                    };
+                }
+                return Ok(documentFetchResponse.Value);
 
             case Constants.Xds.OperationContract.Iti41Action:
+                if (soapEnvelope.Body.RegisterDocumentSetbRequest?.SubmitObjectsRequest.RegistryObjectList.Length == 0)
+                {
+                    return Ok(SoapExtensions.CreateSoapFault("soapenv:Receiver", $"Unknown").Value);
+                }
 
                 var iti42Message = _registryService.CopyIti41ToIti42Message(soapEnvelope);
                 if (iti42Message.IsSuccess is false)
@@ -103,14 +123,7 @@ public class RepositoryController : ControllerBase
                 return Ok(responseEnvelope);                
         }
 
-        if (action != null)
-        {
-            return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}").Value);
-        }
-        else
-        {
-            return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}".Trim()).Value);
-        }
+        return BadRequest(SoapExtensions.CreateSoapFault($"The [action] cannot be processed at the receiver", detail: action, faultReason: "UnknownAction").Value);
 
     }
 

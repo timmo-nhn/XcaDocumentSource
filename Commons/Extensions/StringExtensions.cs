@@ -52,6 +52,4 @@ public static class StringExtensions
             _ => input.All(b => b >= 32 && b <= 126) ? "text/plain" : "application/octet-stream",
         };
     }
-
-
 }

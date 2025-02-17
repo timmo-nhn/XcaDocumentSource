@@ -1,12 +1,26 @@
 ﻿using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons;
+using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 
 namespace XcaXds.Source;
 
 [XmlRoot("Registry")]
+public class DocumentRegistry
+{
+    public DocumentRegistry()
+    {
+        RegistryObjectList = [];
+    }
+
+    [XmlElement("RegistryPackage", typeof(RegistryPackageType), Namespace = Constants.Soap.Namespaces.Rim)]
+    [XmlElement("ExtrinsicObject", typeof(ExtrinsicObjectType), Namespace = Constants.Soap.Namespaces.Rim)]
+    [XmlElement("Association", typeof(AssociationType), Namespace = Constants.Soap.Namespaces.Rim)]
+    public List<IdentifiableType> RegistryObjectList { get; set; }
+}
+
 public class RegistryWrapper
 {
     internal string _registryPath;
@@ -19,39 +33,18 @@ public class RegistryWrapper
         _registryFile = Path.Combine(_registryPath, "Registry.xml");
     }
 
-    [XmlElement("RegistryPackage", typeof(RegistryPackageType), Namespace = Constants.Soap.Namespaces.Rim)]
-    [XmlElement("ExtrinsicObject", typeof(ExtrinsicObjectType), Namespace = Constants.Soap.Namespaces.Rim)]
-    [XmlElement("Association", typeof(AssociationType), Namespace = Constants.Soap.Namespaces.Rim)]
-    public List<IdentifiableType> RegistryObjectList { get; set; }
-
-    public RegistryWrapper? GetDocumentRegistryContent()
+    public DocumentRegistry? GetDocumentRegistryContent()
     {
-        if (!Directory.Exists(_registryPath))
-        {
-            Directory.CreateDirectory(_registryPath);
-        }
-
+        CheckIfRegistryFileExists();
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
-        var emptyRegistryPlaceHolder = new RegistryWrapper() { RegistryObjectList = [] };
-
-        if (!File.Exists(_registryFile))
-        {
-            File.WriteAllText(_registryFile, sxmls.SerializeSoapMessageToXmlString(emptyRegistryPlaceHolder));
-        }
-
         var registryFileContent = File.ReadAllText(_registryFile);
 
-        if (string.IsNullOrWhiteSpace(registryFileContent))
-        {
-            File.WriteAllText(_registryFile, sxmls.SerializeSoapMessageToXmlString(emptyRegistryPlaceHolder));
-            registryFileContent = File.ReadAllText(_registryFile);
-        }
         try
         {
-            var serializer = new XmlSerializer(typeof(RegistryWrapper));
+            var serializer = new XmlSerializer(typeof(DocumentRegistry));
             using (var stringReader = new StringReader(registryFileContent))
             {
-                var registryObject = (RegistryWrapper)serializer.Deserialize(stringReader);
+                var registryObject = (DocumentRegistry)serializer.Deserialize(stringReader);
                 return registryObject;
             }
         }
@@ -61,16 +54,57 @@ public class RegistryWrapper
         }
     }
 
-    public bool UpdateDocumentRegistry(RegistryWrapper registryContent)
+    public SoapRequestResult<string> UpdateDocumentRegistry(DocumentRegistry registryContent)
     {
+        CheckIfRegistryFileExists();
         var soapXml = new SoapXmlSerializer(XmlSettings.Soap);
-        var registryObjectString = soapXml.SerializeSoapMessageToXmlString(registryContent);
-        if (File.Exists(_registryFile))
+        var srr = new SoapRequestResult<string>();
+        try
         {
-            File.WriteAllText(_registryFile, registryObjectString);
-            return true;
+            var registrySerializerResult = soapXml.SerializeSoapMessageToXmlString(registryContent);
+            if (registrySerializerResult.IsSuccess)
+            {
+                if (File.Exists(_registryFile))
+                {
+                    File.WriteAllText(_registryFile, registrySerializerResult.Content);
+                    return srr.Success("Updated OK");
+                }
+                return srr.Fault("Registry file not foud");
+            }
+            return srr.Fault(registrySerializerResult.Content);
         }
-        return false;
+        catch (Exception ex)
+        {
+            return srr.Fault(ex.Message);
+        }
+
+    }
+
+    private void CheckIfRegistryFileExists()
+    {
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var emptyRegistryPlaceHolder = new DocumentRegistry() { RegistryObjectList = [] };
+
+        if (!Directory.Exists(_registryPath))
+        {
+            Directory.CreateDirectory(_registryPath);
+        }
+
+        if (!File.Exists(_registryFile))
+        {
+            File.Create(_registryFile).Close();
+            var content = sxmls.SerializeSoapMessageToXmlString(emptyRegistryPlaceHolder);
+            try
+            {
+                File.WriteAllText(_registryFile, content.Content);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
     }
 
     //public RegistryWrapper? GetRegistryContentForPatient(string patientId)

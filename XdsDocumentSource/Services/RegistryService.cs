@@ -2,9 +2,9 @@
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Hl7;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Xca;
 
@@ -22,8 +22,8 @@ public class RegistryService
 
     public SoapRequestResult<SoapEnvelope> CopyIti41ToIti42Message(SoapEnvelope iti41Message)
     {
-        var iti42Message = new SoapEnvelope() 
-        { 
+        var iti42Message = new SoapEnvelope()
+        {
             Header = iti41Message.Header,
             Body = new() { RegisterDocumentSetbRequest = new() { SubmitObjectsRequest = new() } }
         };
@@ -86,7 +86,7 @@ public class RegistryService
                 assocExtrinsicObject.AddSlot(authorPersonSlot);
             }
 
-            
+
             // Switch from SubmissionSet UUIDs to XdsDocumentEntry UUIDs
             foreach (var classification in assocExtrinsicObject.Classification)
             {
@@ -99,6 +99,7 @@ public class RegistryService
         }
         return new SoapRequestResult<SoapEnvelope>() { IsSuccess = true, Value = iti42Message };
     }
+
     public SoapRequestResult<SoapEnvelope> AppendToRegistry(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();
@@ -108,20 +109,19 @@ public class RegistryService
 
         if (DuplicateUuidsExist(registryContent.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
         {
-            registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and registry {string.Join(", ",duplicateIds)}", "XDS Registry");
+            registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and registry {string.Join(", ", duplicateIds)}", "XDS Registry");
             return SoapExtensions.CreateSoapRegistryResponse(registryResponse);
 
         }
 
-
         // list spread to combine both lists
         registryContent.RegistryObjectList = [.. registryContent.RegistryObjectList, .. submissionRegistryObjects];
 
-        var registryUpdatedOk = _registryWrapper.UpdateDocumentRegistry(registryContent);
+        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistry(registryContent);
 
-        if (registryUpdatedOk)
+        if (registryUpdateResult.IsSuccess)
         {
-            registryResponse.SetSuccess();
+            registryResponse.SetStatusCode();
             return SoapExtensions.CreateSoapRegistryResponse(registryResponse);
         }
         registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Error while updating registry");
@@ -130,37 +130,82 @@ public class RegistryService
 
     public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope)
     {
-        var adhocQueryRequest = soapEnvelope.Body.AdhocQueryRequest;
-        var patientId = adhocQueryRequest.AdhocQuery.GetSlot(Constants.Xds.QueryParamters.DocumentEntry.PatientId).FirstOrDefault()?.GetFirstValue();
-        var patient = Hl7Object.Parse<Xcn>(patientId.Trim('\''));
-
-        if (patient.PersonIdentifier == null) return null;
-
-        var registryContent = _registryWrapper.GetDocumentRegistryContent();
         var registryResponse = new RegistryResponseType();
 
+        var adhocQueryRequest = soapEnvelope.Body.AdhocQueryRequest;
+        var patientId = adhocQueryRequest?.AdhocQuery
+            .GetSlot(Constants.Xds.QueryParamters.DocumentEntry.PatientId)
+            .FirstOrDefault()?
+            .GetFirstValue()?
+            .Trim('\'');
+        var patient = Hl7Object.Parse<Cx>(patientId.Trim('\''));
 
-        switch (adhocQueryRequest.AdhocQuery.Id)
+        if (patient == null)
         {
-            case Constants.Xds.StoredQueries.FindDocuments:
-                var patientIdValue = registryContent.RegistryObjectList.OfType<ExtrinsicObjectType>()
-                    .SelectMany(eo => eo.ExternalIdentifier)
-                    .FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId)?
-                    .Value;
-
-                var patientRegistryObjects = registryContent.RegistryObjectList.OfType<ExtrinsicObjectType>()
-                    .Where(eo => eo.ExternalIdentifier
-                    .Any(ei => ei.Value == patientIdValue))
-                    .ToList();
-
-
-
-                break;
-
+            registryResponse.AddError(XdsErrorCodes.XDSPatientIdDoesNotMatch, $"Missing or malformed patient ID {patientId}".Trim());
+            return SoapExtensions.CreateSoapRegistryResponse(registryResponse);
         }
 
+        var registryContent = _registryWrapper.GetDocumentRegistryContent();
 
-        throw new NotImplementedException();
+        var filteredElements = new List<IdentifiableType>();
+
+        // Each "SlotType" in the AdhocQuery is treated as AND,
+        // whilst the values in each slots valuelist is treated as OR
+        // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.5
+
+        switch (adhocQueryRequest?.AdhocQuery.Id)
+        {
+            case Constants.Xds.StoredQueries.FindDocuments:
+                var searchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
+
+                var registryFindDocumentsResult = registryContent.RegistryObjectList
+                    .OfType<ExtrinsicObjectType>()
+                    .ByPatientId(searchParameters.XdsDocumentEntryPatientId)
+                    .ByDocumentEntryClassCode(searchParameters.XdsDocumentEntryClassCode)
+                    .ByDocumentEntryTypeCode(searchParameters.XdsDocumentEntryTypeCode)
+                    .ByDocumentEntryPracticeSettingCode(searchParameters.XdsDocumentEntryPracticeSettingCode)
+                    .ByDocumentEntryCreationTimeFrom(searchParameters.XdsDocumentEntryCreationTimeFrom)
+                    .ByDocumentEntryCreationTimeTo(searchParameters.XdsDocumentEntryCreationTimeTo)
+                    .ByDocumentEntryServiceStartTimeFrom(searchParameters .XdsDocumentEntryServiceStartTimeFrom)
+                    .ByDocumentEntryServiceStartTimeTo(searchParameters.XdsDocumentEntryServiceStartTimeTo)
+                    .ByDocumentEntryServiceStopTimeFrom(searchParameters.XdsDocumentEntryServiceStoptimeFrom)
+                    .ByDocumentEntryServiceStopTimeTo(searchParameters.XdsDocumentEntryServiceStoptimeTo)
+                    .ByDocumentEntryHealthcareFacilityTypeCode(searchParameters.XdsDocumentEntryHealthcareFacilityTypeCode)
+                    .ByDocumentEntryEventCodeList(searchParameters.XdsDocumentEntryEventCodeList)
+                    .ByDocumentEntryConfidentialityCode(searchParameters.XdsDocumentEntryConfidentialityCode)
+                    .ByDocumentEntryAuthorPerson(searchParameters.XdsDocumentEntryAuthorPerson)
+                    .ByDocumentFormatCode(searchParameters .XdsDocumentEntryFormatCode)
+                    .ByDocumentEntryStatus(searchParameters.XdsDocumentEntryStatus)
+                    .ByDocumentEntryType(searchParameters.XdsDocumentEntryType)
+                    .ToList();
+                filteredElements = [.. registryFindDocumentsResult];
+                break;
+
+            case Constants.Xds.StoredQueries.FindSubmissionSets:
+                break;
+            
+            case Constants.Xds.StoredQueries.GetAssociations:
+                break;
+        }
+
+        registryResponse.SetStatusCode();
+
+        var responseEnvelope = new SoapEnvelope()
+        {
+            Header = new()
+            {
+                Action = soapEnvelope.GetCorrespondingResponseAction(),
+                RelatesTo = soapEnvelope.Header.MessageId
+            },
+            Body = new()
+            {
+                RegistryResponse = registryResponse,
+                AdhocQueryResponse = new() { RegistryObjectList = [.. filteredElements] }
+            }
+        };
+        return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
+        
     }
 
     public bool DuplicateUuidsExist(List<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)

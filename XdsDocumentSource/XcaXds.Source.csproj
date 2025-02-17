@@ -11,4 +11,8 @@
     <ProjectReference Include="..\Commons\XcaXds.Commons.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository\" />
+  </ItemGroup>
+
 </Project>

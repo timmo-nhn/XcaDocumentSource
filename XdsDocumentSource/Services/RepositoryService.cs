@@ -70,7 +70,7 @@ public class RepositoryService
 
             if (repositoryUpdateOk)
             {
-                registryResponse.SetSuccess();
+                registryResponse.SetStatusCode();
             }
             else
             {
@@ -86,10 +86,10 @@ public class RepositoryService
         var registryResponse = new RegistryResponseType();
         var retrieveResponse = new RetrieveDocumentSetResponseType();
         var documentRequests = iti43envelope.Body.RetrieveDocumentSetRequest?.DocumentRequest;
-        if (documentRequests.Length == 0)
+        if (documentRequests == null || documentRequests?.Length == 0)
         {
             registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RetrieveDocumentSetRequest", "XDS Repository");
-            SoapExtensions.CreateSoapRegistryResponse(registryResponse);
+            return SoapExtensions.CreateSoapRegistryResponse(registryResponse);
         }
 
         foreach (var document in documentRequests)
@@ -98,10 +98,15 @@ public class RepositoryService
             var repoId = document.RepositoryUniqueId;
             var home = document.HomeCommunityId;
 
+            if (home != _xdsConfig.HomeCommunityId || string.IsNullOrEmpty(home))
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSMissingHomeCommunityId, $"Missing or unknown HomecommunityID {home}".Trim(), "XDS Repository");
+                continue;
+            }
             if (repoId != _xdsConfig.RepositoryUniqueId)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}","XDS Repository");
-                return SoapExtensions.CreateSoapRegistryResponse(registryResponse);
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}".Trim(),"XDS Repository");
+                continue;
             }
             var file = _repositoryWrapper.GetDocumentFromRepository(home, repoId, docId);
 
@@ -112,7 +117,7 @@ public class RepositoryService
         }
 
 
-        registryResponse.SetSuccess();
+        registryResponse.SetStatusCode();
         retrieveResponse.RegistryResponse = registryResponse;
 
         var documentResponse = new RetrieveDocumentSetbResponse() 
@@ -169,7 +174,7 @@ public class RepositoryService
         }
         var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
 
-        multipart.Add(new StringContent(soapString, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        multipart.Add(new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
 
         return multipart;

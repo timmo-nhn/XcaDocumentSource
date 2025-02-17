@@ -6,7 +6,7 @@ namespace XcaXds.Commons.Extensions;
 
 public static class SoapExtensions
 {
-    public static SoapRequestResult<SoapEnvelope> CreateSoapFault(string fault, string faultCode, string? subCode = null)
+    public static SoapRequestResult<SoapEnvelope> CreateSoapFault(string faultCode, string? subCode = null, string? detail = null, string? faultReason = null)
     {
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
         {
@@ -23,12 +23,13 @@ public static class SoapExtensions
                         Code = new()
                         {
                             Value = faultCode,
-                            Subcode = subCode != null ? new() { Value = subCode } : null
+                            Subcode = string.IsNullOrWhiteSpace(detail) ? null : new() { Value = subCode }
                         },
                         Reason = new()
                         {
-                            Text = fault
-                        }
+                            Text = string.IsNullOrEmpty(faultReason) ? "soapenv:Reciever" : faultReason
+                        },
+                        Detail = string.IsNullOrWhiteSpace(detail) ? null : new Detail() { Value = new() { Action = detail } }
                     }
                 }
             }
@@ -37,38 +38,32 @@ public static class SoapExtensions
         return resultEnvelope;
     }
 
-    public static SoapRequestResult<SoapEnvelope> CreateSoapRegistryResponse(RegistryResponseType message, bool fault = false)
+    public static SoapRequestResult<SoapEnvelope> CreateSoapRegistryResponse(RegistryResponseType message)
     {
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
         {
             Value = new SoapEnvelope()
             {
-                Header = new()
-                {
-                    Action = fault is true ? Constants.Soap.Namespaces.AddressingSoapFault: Constants.Soap.Namespaces.Addressing,
-                },
+                Header = new(),
                 Body = new()
                 {
                     RegistryResponse = message
                 }
             }
         };
-        if (resultEnvelope.Value is SoapEnvelope soapEnvelope)
+        if (resultEnvelope.Value.Body.RegistryResponse is not null)
         {
-            if (soapEnvelope.Body.RegistryResponse is not null)
+            // Base Success property on whether Value...RegistryErrorList has any errors
+            if (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList is null)
             {
-                // Base Success property on whether Value...RegistryErrorList has any errors
-                if (soapEnvelope.Body.RegistryResponse.RegistryErrorList is null)
-                {
-                    resultEnvelope.IsSuccess = true;
-                }
-                else
-                {
-                    var isSuccess = bool.Equals(false, soapEnvelope.Body.RegistryResponse.RegistryErrorList.RegistryError
-                    .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
-
-                    resultEnvelope.IsSuccess = isSuccess;
-                }
+                resultEnvelope.IsSuccess = true;
+            }
+            else
+            {
+                var isSuccess = bool.Equals(false, resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList.RegistryError
+                .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
+                resultEnvelope.Value.Header.Action = isSuccess is true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
+                resultEnvelope.IsSuccess = isSuccess;
             }
         }
 
@@ -134,22 +129,6 @@ public static class SoapExtensions
         throw new NotImplementedException();
     }
 
-    //public static SoapEnvelope CreateRegistryResponse()
-    //{
-    //    var registryResponse = new SoapEnvelope()
-    //    {
-    //        Header = new()
-    //        {
-    //            Action = Constants.Soap.Namespaces.Addressing,
-    //        },
-    //        Body = new()
-    //        {
-    //            RegistryResponse = new() { Status = ResponseStatusType.Success.ToString(), ResponseSlotList = [new() { }] }
-    //        }
-    //    };
-    //    //var serializer = new SoapXmlSerializer();
-    //    //var result = serializer.SerializeSoapMessageToXmlString(envelope);
-    //    return registryResponse;
-    //}
+
 
 }

@@ -8,14 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Extensions\Extensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Extensions\Extensions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
 	<PackageReference Include="System.ServiceModel.Http" Version="8.1.1" />
 	<PackageReference Include="System.ServiceModel.Primitives" Version="8.1.1" />
   </ItemGroup>

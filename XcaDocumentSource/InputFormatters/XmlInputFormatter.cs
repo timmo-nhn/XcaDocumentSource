@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using System.Text;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 
@@ -24,10 +27,14 @@ public class SoapEnvelopeModelBinder : IModelBinder
         {
             throw new ArgumentNullException(nameof(bindingContext));
         }
+        var sxmls = new SoapXmlSerializer();
 
         var request = bindingContext.HttpContext.Request;
+        var response = bindingContext.HttpContext.Response;
+
         if (!request.ContentType?.Contains("xml") ?? true)
         {
+            await CreateStatus500SoapError("InvalidContentType", "The request content type is not XML.", response);
             bindingContext.Result = ModelBindingResult.Failed();
             return;
         }
@@ -36,23 +43,36 @@ public class SoapEnvelopeModelBinder : IModelBinder
 
         if (xmlContent is null)
         {
+            await CreateStatus500SoapError("EmptyRequestBody", "The request body is empty", response);
             bindingContext.Result = ModelBindingResult.Failed();
             return;
         }
 
         try
         {
-            var xmlSerializer = new SoapXmlSerializer(XmlSettings.Soap);
-
-            var soapEnvelope = await xmlSerializer.DeserializeSoapMessageAsync<SoapEnvelope>(xmlContent);
-            var soapstring = xmlSerializer.SerializeSoapMessageToXmlString(soapEnvelope);
+            var soapEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(xmlContent);
 
             bindingContext.Result = ModelBindingResult.Success(soapEnvelope);
         }
         catch (Exception ex)
         {
-            bindingContext.ModelState.AddModelError(bindingContext.ModelName, $"Invalid XML: {ex.Message}");
+            await CreateStatus500SoapError(ex.Message, "Serialization error", response);
             bindingContext.Result = ModelBindingResult.Failed();
+            return;
         }
     }
+
+    public async Task CreateStatus500SoapError(string message, string code, HttpResponse response)
+    {
+        var sxmls = new SoapXmlSerializer();
+        var soapFault = SoapExtensions.CreateSoapFault(message, code).Value;
+        var soapFaultXml = sxmls.SerializeSoapMessageToXmlString(soapFault).Content;
+
+        response.StatusCode = StatusCodes.Status500InternalServerError;
+        response.ContentType = "application/soap+xml";
+        response.ContentLength = Encoding.UTF8.GetByteCount(soapFaultXml);
+
+        await response.Body.WriteAsync(Encoding.UTF8.GetBytes(soapFaultXml));
+    }
+
 }

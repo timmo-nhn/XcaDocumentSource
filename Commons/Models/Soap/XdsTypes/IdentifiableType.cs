@@ -60,5 +60,4 @@ public partial class IdentifiableType
     {
         return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
     }
-
 }

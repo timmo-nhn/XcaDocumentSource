@@ -33,6 +33,7 @@ public static class Constants
             public const string Rs = "urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0";
             public const string Rim = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0";
             public const string Lcm = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0";
+            public const string Xsd = "urn:oasis:names:tc:ebxml-regrep:xsd:3.0";
             public const string Svs = "urn:ihe:iti:svs:2008";
             public const string Hl7V3 = "urn:hl7-org:v3";
             public const string Rmd = "urn:ihe:iti:rmd:2017";
@@ -105,6 +106,12 @@ public static class Constants
 
             public static class Submission
             {
+                public const string PatientId = "$XDSSubmissionSetPatientId";
+                public const string SourceId = "$XDSSubmissionSetSourceId";
+                public const string SubmissionTimeFrom = "$XDSSubmissionSetSubmissionTimeFrom";
+                public const string SubmissionTimeTo = "$XDSSubmissionSetSubmissionTimeTo";
+                public const string AuthorPerson = "$XDSSubmissionSetAuthorPerson";
+                public const string ContentType = "$XDSSubmissionSetContentType";
                 public const string Status = "$XDSSubmissionSetStatus";
             }
 
@@ -112,10 +119,33 @@ public static class Constants
             {
                 public const string Status = "$XDSFolderStatus";
             }
+            public static class Associations
+            {
+                public const string Uuid = "$uuid";
+                public const string HomeCommunityId = "$homeCommunityId";
+            }
 
             public static class General
             {
                 public const string PatientId = "$patientId";
+            }
+
+            public static class GetAll
+            {
+                public const string PatientId = "$patientId";
+                public const string DocumentEntryStatus = "$XDSDocumentEntryStatus";
+                public const string SubmissionSetStatus = "$XDSSubmissionSetStatus";
+                public const string FolderStatus = "$XDSFolderStatus";
+                public const string DocumentEntryFormatCode = "$XDSDocumentEntryFormatCode";
+                public const string DocumentEntryConfidentialityCode = "$XDSDocumentEntryConfidentialityCode";
+                public const string DocumentEntryType = "$XDSDocumentEntryType";
+                public const string HomeCommunityId = "$homeCommunityId";
+            }
+
+            public static class GetDocuments
+            {
+                public const string XdsDocumentEntryUuid = "$XDSDocumentEntryEntryUUID";
+                public const string XdsDocumentEntryUniqueId = "$XDSDocumentEntryUniqueId";
             }
         }
 

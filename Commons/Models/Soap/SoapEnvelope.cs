@@ -10,6 +10,7 @@ namespace XcaXds.Commons.Models.Soap;
 [XmlInclude(typeof(ProvideAndRegisterDocumentSetbRequest))]
 [XmlInclude(typeof(RegisterDocumentSetbRequest))]
 [XmlInclude(typeof(SubmitObjectsRequest))]
+[XmlInclude(typeof(IdentifiableType))]
 [XmlInclude(typeof(RegistryResponseType))]
 [XmlInclude(typeof(RetrieveDocumentSetResponseType))]
 [XmlInclude(typeof(RetrieveDocumentSetbResponse))]
@@ -36,6 +37,7 @@ public class SoapEnvelope
             Constants.Xds.OperationContract.Iti42Action => Constants.Xds.OperationContract.Iti42Reply,
             Constants.Xds.OperationContract.Iti43Action => Constants.Xds.OperationContract.Iti43Reply,
             Constants.Xds.OperationContract.Iti38Action => Constants.Xds.OperationContract.Iti38Reply,
+            Constants.Xds.OperationContract.Iti39Action => Constants.Xds.OperationContract.Iti39Reply,
             Constants.Xds.OperationContract.Iti62Action => Constants.Xds.OperationContract.Iti62Reply,
             Constants.Xds.OperationContract.Iti86Action => Constants.Xds.OperationContract.Iti86Reply,
             _ => string.Empty
@@ -51,6 +53,7 @@ public class SoapEnvelope
             Constants.Xds.OperationContract.Iti42Reply => Constants.Xds.OperationContract.Iti42Action,
             Constants.Xds.OperationContract.Iti43Reply => Constants.Xds.OperationContract.Iti43Action,
             Constants.Xds.OperationContract.Iti38Reply => Constants.Xds.OperationContract.Iti38Action,
+            Constants.Xds.OperationContract.Iti39Reply => Constants.Xds.OperationContract.Iti39Action,
             Constants.Xds.OperationContract.Iti62Reply => Constants.Xds.OperationContract.Iti62Action,
             Constants.Xds.OperationContract.Iti86Reply => Constants.Xds.OperationContract.Iti86Action,
             _ => string.Empty
@@ -84,10 +87,10 @@ public partial class SoapBody
     public RegisterDocumentSetbResponse? RegisterDocumentSetbResponse { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
-    public RetrieveDocumentSetResponseType? RetrieveDocumentSetResponse { get; set; }
+    public RetrieveDocumentSetbRequest? RetrieveDocumentSetRequest { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
-    public RetrieveDocumentSetbRequest? RetrieveDocumentSetRequest { get; set; }
+    public RetrieveDocumentSetResponseType? RetrieveDocumentSetResponse { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Rs)]
     public RegistryResponseType? RegistryResponse { get; set; }
@@ -178,6 +181,9 @@ public class Fault
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
     public Reason Reason { get; set; }
+
+    [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
+    public Detail? Detail { get; set; }
 }
 
 [Serializable]
@@ -190,6 +196,23 @@ public class Code
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
     public Subcode? Subcode { get; set; }
 }
+
+[Serializable]
+[XmlType(AnonymousType = true)]
+public class Detail
+{
+    [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
+    public ProblemAction Value { get; set; }
+}
+
+[Serializable]
+[XmlType(AnonymousType = true)]
+public class ProblemAction
+{
+    [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
+    public string Action { get; set; }
+}
+
 
 [Serializable]
 [XmlType(AnonymousType = true)]

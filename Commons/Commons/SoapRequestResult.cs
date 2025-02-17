@@ -7,7 +7,8 @@ public class SoapRequestResult<T>
     public T? Value { get; set; }
     public Fault? FaultResult { get; set; }
 
-    public static SoapRequestResult<T> Success(T result)
+
+    public SoapRequestResult<T> Success(T result)
     {
         var soapResult = new SoapRequestResult<T>
         {
@@ -18,22 +19,12 @@ public class SoapRequestResult<T>
         return soapResult;
     }
 
-    public static SoapRequestResult<SoapEnvelope> Fault(Fault fault)
+    public SoapRequestResult<T> Fault(T fault)
     {
-        var soapFaultEnvelope = new SoapEnvelope()
-        {
-            Header = new()
-            {
-                Action = Constants.Soap.Namespaces.AddressingSoapFault
-            },
-            Body = new() { Fault = fault }
-        };
-
-        var soapResult = new SoapRequestResult<SoapEnvelope>
+        var soapResult = new SoapRequestResult<T>
         {
             IsSuccess = false,
-            Value = soapFaultEnvelope,
-            FaultResult = fault
+            Value = fault,
         };
 
         return soapResult;

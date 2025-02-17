@@ -1,10 +1,9 @@
-using System.Xml;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
@@ -43,7 +42,11 @@ public class RegistryController : ControllerBase
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
-                _registryService.RegistryStoredQuery(soapEnvelope);
+                var registryQueryResponse = _registryService.RegistryStoredQuery(soapEnvelope);
+                if (registryQueryResponse.IsSuccess)
+                {
+                    return Ok(registryQueryResponse.Value);
+                }
                 break;
 
             case Constants.Xds.OperationContract.Iti42Action:
@@ -53,7 +56,7 @@ public class RegistryController : ControllerBase
                 if (registryUploadResponse.IsSuccess)
                 {
                     _logger.LogInformation("Registry updated successfully");
-                    registryResponse.SetSuccess();
+                    registryResponse.SetStatusCode();
 
                     var responseEnvelope = new SoapEnvelope()
                     {
@@ -62,9 +65,9 @@ public class RegistryController : ControllerBase
                             Action = soapEnvelope.GetCorrespondingResponseAction(),
                             RelatesTo = soapEnvelope.Header.MessageId
                         },
-                        Body = new() 
-                        { 
-                            RegistryResponse = registryResponse 
+                        Body = new()
+                        {
+                            RegistryResponse = registryResponse
                         }
                     };
 
@@ -73,21 +76,15 @@ public class RegistryController : ControllerBase
                 else
                 {
                     _logger.LogError("Error while updating registry", registryUploadResponse.Value.Body.Fault);
-                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError,"Error while updating registry " + registryUploadResponse.Value.Body.Fault, "XDS Registry");
+                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry " + registryUploadResponse.Value.Body.Fault, "XDS Registry");
 
                     registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value.Body.RegistryResponse.RegistryErrorList.RegistryError];
 
-                    var responseEnvelope = SoapExtensions.CreateSoapRegistryResponse(registryResponse, fault: true);
+                    var responseEnvelope = SoapExtensions.CreateSoapRegistryResponse(registryResponse);
                     return Ok(responseEnvelope.Value);
                 }
         }
-        if (action != null)
-        {
-            return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}").Value);
-        }
-        else
-        {
-            return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}".Trim()).Value);
-        }
+
+        return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
     }
 }

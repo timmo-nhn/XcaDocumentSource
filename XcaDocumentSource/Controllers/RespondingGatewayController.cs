@@ -69,15 +69,6 @@ public class RespondingGatewayController : ControllerBase
                 return Ok(iti39Response.Value);
         }
 
-        if (action != null)
-        {
-            _logger.LogError($"Unknown action {action}");
-            return Ok(SoapExtensions.CreateSoapFault("UnknownAction", $"Unknown action {action}"));
-        }
-        else
-        {
-            _logger.LogError($"Missing action {action}");
-            return Ok(SoapExtensions.CreateSoapFault("MissingAction", $"Missing action {action}"));
-        }
+        return BadRequest(SoapExtensions.CreateSoapFault("UnknownAction", $"The [action] cannot be processed at the receiver", detail: action).Value);
     }
 }

@@ -54,8 +54,8 @@ public partial class RegistryResponseType
         ResponseSlotList = [new SlotType() { ValueList = new() { Value = [codeContext] } }];
     }
 
-    public void SetSuccess()
+    public void SetStatusCode()
     {
-        Status = Constants.Xds.ResponseStatusTypes.Success;
+        Status = RegistryErrorList?.RegistryError?.Length > 0 ? Constants.Xds.ResponseStatusTypes.PartialSuccess : Constants.Xds.ResponseStatusTypes.Success;
     }
 }
