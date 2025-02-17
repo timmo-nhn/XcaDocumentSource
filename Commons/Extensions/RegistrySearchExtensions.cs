@@ -85,7 +85,8 @@ public static class RegistrySearchExtensions
     /// |------------------------------------|-----------------------------------------------|-----|------|
     /// | $XDSDocumentEntryCreationTimeFrom  | Lower value of XDSDocumentEntry.creationTime  | O   | -    |
     /// </summary>
-    public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryCreationTimeFrom(this IEnumerable<ExtrinsicObjectType> source, string creationTimeFrom)
+    public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryCreationTimeFrom(
+        this IEnumerable<ExtrinsicObjectType> source, string creationTimeFrom)
     {
         if (string.IsNullOrWhiteSpace(creationTimeFrom)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(creationTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -101,7 +102,8 @@ public static class RegistrySearchExtensions
     /// |------------------------------------|-----------------------------------------------|-----|------|
     /// | $XDSDocumentEntryCreationTimeTo    | Upper value of XDSDocumentEntry.creationTime  | O   | -    |
     /// </summary>
-    public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryCreationTimeTo(this IEnumerable<ExtrinsicObjectType> source, string creationTimeFrom)
+    public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryCreationTimeTo(
+       this IEnumerable<ExtrinsicObjectType> source, string creationTimeFrom)
     {
         if (string.IsNullOrWhiteSpace(creationTimeFrom)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(creationTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -238,7 +240,10 @@ public static class RegistrySearchExtensions
         this IEnumerable<ExtrinsicObjectType> source, string[] authorPersons)
     {
         if (authorPersons.Length == 0) return source; // Optional field, return everything if not specified
-        throw new NotImplementedException();
+        return source.Where(eo => eo.Classification
+            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.Author)
+            .Select(cf => cf.GetSlot(Constants.Xds.SlotNames.AuthorPerson).First().GetFirstValue())
+            .Any(author => authorPersons.Contains(author)));
     }
 
     /// <summary>
@@ -266,7 +271,6 @@ public static class RegistrySearchExtensions
         if (statuses.Length == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
         return source.Where(eo => statuses.Contains(eo.Status));
     }
-
 
     /// <summary>
     /// | Parameter Name (ITI-18) | Attribute                   | Opt | Mult |

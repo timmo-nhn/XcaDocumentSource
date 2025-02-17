@@ -160,23 +160,57 @@ public class RegistryService
                 var searchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
 
                 var registryFindDocumentsResult = registryContent.RegistryObjectList
-                    .OfType<ExtrinsicObjectType>()
-                    .ByPatientId(searchParameters.XdsDocumentEntryPatientId)
-                    .ByDocumentEntryClassCode(searchParameters.XdsDocumentEntryClassCode)
-                    .ByDocumentEntryTypeCode(searchParameters.XdsDocumentEntryTypeCode)
-                    .ByDocumentEntryPracticeSettingCode(searchParameters.XdsDocumentEntryPracticeSettingCode)
-                    .ByDocumentEntryCreationTimeFrom(searchParameters.XdsDocumentEntryCreationTimeFrom)
-                    .ByDocumentEntryCreationTimeTo(searchParameters.XdsDocumentEntryCreationTimeTo)
-                    .ByDocumentEntryServiceStartTimeFrom(searchParameters .XdsDocumentEntryServiceStartTimeFrom)
-                    .ByDocumentEntryServiceStartTimeTo(searchParameters.XdsDocumentEntryServiceStartTimeTo)
-                    .ByDocumentEntryServiceStopTimeFrom(searchParameters.XdsDocumentEntryServiceStoptimeFrom)
-                    .ByDocumentEntryServiceStopTimeTo(searchParameters.XdsDocumentEntryServiceStoptimeTo)
-                    .ByDocumentEntryHealthcareFacilityTypeCode(searchParameters.XdsDocumentEntryHealthcareFacilityTypeCode)
-                    .ByDocumentEntryEventCodeList(searchParameters.XdsDocumentEntryEventCodeList)
-                    .ByDocumentEntryConfidentialityCode(searchParameters.XdsDocumentEntryConfidentialityCode)
-                    .ByDocumentEntryAuthorPerson(searchParameters.XdsDocumentEntryAuthorPerson)
-                    .ByDocumentFormatCode(searchParameters .XdsDocumentEntryFormatCode)
-                    .ByDocumentEntryStatus(searchParameters.XdsDocumentEntryStatus)
+                    .OfType<ExtrinsicObjectType>();
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByPatientId(searchParameters.XdsDocumentEntryPatientId);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryClassCode(searchParameters.XdsDocumentEntryClassCode);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryTypeCode(searchParameters.XdsDocumentEntryTypeCode);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryPracticeSettingCode(searchParameters.XdsDocumentEntryPracticeSettingCode);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryCreationTimeFrom(searchParameters.XdsDocumentEntryCreationTimeFrom);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryCreationTimeTo(searchParameters.XdsDocumentEntryCreationTimeTo);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryServiceStartTimeFrom(searchParameters.XdsDocumentEntryServiceStartTimeFrom);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryServiceStartTimeTo(searchParameters.XdsDocumentEntryServiceStartTimeTo);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryServiceStopTimeFrom(searchParameters.XdsDocumentEntryServiceStoptimeFrom);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryServiceStopTimeTo(searchParameters.XdsDocumentEntryServiceStoptimeTo);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryHealthcareFacilityTypeCode(searchParameters.XdsDocumentEntryHealthcareFacilityTypeCode);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryEventCodeList(searchParameters.XdsDocumentEntryEventCodeList);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryConfidentialityCode(searchParameters.XdsDocumentEntryConfidentialityCode);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryAuthorPerson(searchParameters.XdsDocumentEntryAuthorPerson);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentFormatCode(searchParameters.XdsDocumentEntryFormatCode);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
+                    .ByDocumentEntryStatus(searchParameters.XdsDocumentEntryStatus);
+
+                registryFindDocumentsResult = registryFindDocumentsResult
                     .ByDocumentEntryType(searchParameters.XdsDocumentEntryType)
                     .ToList();
                 filteredElements = [.. registryFindDocumentsResult];
