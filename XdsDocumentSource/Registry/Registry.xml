@@ -45,13 +45,13 @@
         <LocalizedString value="XDSSubmissionSet.sourceId" />
       </Name>
     </ExternalIdentifier>
-    <ExternalIdentifier id="b8175e95-9987-4ada-b545-67299c32ff92" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="4e934106-8ae6-4e07-8815-71ce12a0cb07" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="13116900216^^^^^^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO">
+    <ExternalIdentifier id="b8175e95-9987-4ada-b545-67299c32ff92" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="4e934106-8ae6-4e07-8815-71ce12a0cb07" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
       <Name>
         <LocalizedString value="XDSSubmissionSet.patientId" />
       </Name>
     </ExternalIdentifier>
   </RegistryPackage>
-  <ExtrinsicObject id="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/xml" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+  <ExtrinsicObject id="extObject-twoConfidentialityCodes" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/xml" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
     <Slot name="creationTime">
       <ValueList>
         <Value>20250206141356</Value>
@@ -64,7 +64,7 @@
     </Slot>
     <Slot name="sourcePatientId">
       <ValueList>
-        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO</Value>
+        <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
       </ValueList>
     </Slot>
     <Slot name="serviceStartTime">
@@ -102,7 +102,7 @@
     <Name>
       <LocalizedString value="test 123" />
     </Name>
-    <Classification id="47f72122-01af-4fdc-9aac-3528a7ed952e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="">
+    <Classification id="47f72122-01af-4fdc-9aac-3528a7ed952e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="">
       <Slot name="authorPerson">
         <ValueList>
           <Value>502116685^GEIRAAS^BENEDIKTE^^^^^^&amp;urn:oid:2.16.578.1.12.4.1.4.4&amp;ISO</Value>
@@ -116,7 +116,7 @@
         </ValueList>
       </Slot>
     </Classification>
-    <Classification id="299a55b7-0466-4a85-ba5a-6ea0442677b1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="">
+    <Classification id="299a55b7-0466-4a85-ba5a-6ea0442677b1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="">
       <Slot name="authorInstitution">
         <ValueList>
           <Value>Finnmarkssykehuset HF</Value>
@@ -124,7 +124,7 @@
         </ValueList>
       </Slot>
     </Classification>
-    <Classification id="eb031e63-9ba6-4a55-90ed-308e39cad7f8" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+    <Classification id="eb031e63-9ba6-4a55-90ed-308e39cad7f8" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
       <Slot name="codingScheme">
         <ValueList>
           <Value>http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode</Value>
@@ -134,7 +134,7 @@
         <LocalizedString value="urn:ihe:iti:xds:2017:mimeTypeSufficient" />
       </Name>
     </Classification>
-    <Classification id="161ad02a-5797-4526-8be9-a6bd696ad2d5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="86.211">
+    <Classification id="161ad02a-5797-4526-8be9-a6bd696ad2d5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="86.211">
       <Slot name="codingScheme">
         <ValueList>
           <Value>2.16.578.1.12.4.1.1.1303</Value>
@@ -144,7 +144,7 @@
         <LocalizedString value="86.211" />
       </Name>
     </Classification>
-    <Classification id="f2db7879-aed7-4757-bdc6-624f4d0675ad" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="4">
+    <Classification id="f2db7879-aed7-4757-bdc6-624f4d0675ad" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="4">
       <Slot name="codingScheme">
         <ValueList>
           <Value>2.16.578.1.12.4.1.1.8653</Value>
@@ -154,7 +154,7 @@
         <LocalizedString value="4" />
       </Name>
     </Classification>
-    <Classification id="ee748ec0-7265-431f-9cce-ff3901548508" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="A00-1">
+    <Classification id="ee748ec0-7265-431f-9cce-ff3901548508" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="A00-1">
       <Slot name="codingScheme">
         <ValueList>
           <Value>2.16.578.1.12.4.1.1.9602</Value>
@@ -164,7 +164,7 @@
         <LocalizedString value="Epikriser og sammenfatninger" />
       </Name>
     </Classification>
-    <Classification id="81a47ff0-3d30-4572-94a4-e71069925df6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="A01-2">
+    <Classification id="81a47ff0-3d30-4572-94a4-e71069925df6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="A01-2">
       <Slot name="codingScheme">
         <ValueList>
           <Value>2.16.578.1.12.4.1.1.9602</Value>
@@ -174,7 +174,7 @@
         <LocalizedString value="Kriseplan" />
       </Name>
     </Classification>
-    <Classification id="76626fbe-8828-4b6a-bc64-9d4f8ccddec0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" nodeRepresentation="NORN_DUP">
+    <Classification id="76626fbe-8828-4b6a-bc64-9d4f8ccddec0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="NORN_DUP">
       <Slot name="codingScheme">
         <ValueList>
           <Value>2.16.578.1.12.4.1.1.9603</Value>
@@ -184,18 +184,28 @@
         <LocalizedString value="Nektet, duplikat" />
       </Name>
     </Classification>
-    <ExternalIdentifier id="97662f6d-7271-4ef8-b9ca-9fd054527c06" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="3d76ed25-e5f2-49d0-b4c3-05f01e29effe">
+    <Classification id="11111111-8828-4b6a-bc64-9d4f8ccddec0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="extObject-twoConfidentialityCodes" nodeRepresentation="N">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>2.16.840.1.113883.5.25</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString value="Clinical-Staff" />
+      </Name>
+    </Classification>
+    <ExternalIdentifier id="97662f6d-7271-4ef8-b9ca-9fd054527c06" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="extObject-twoConfidentialityCodes" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="extObject-twoConfidentialityCodes">
       <Name>
         <LocalizedString value="XDSDocumentEntry.uniqueId" />
       </Name>
     </ExternalIdentifier>
-    <ExternalIdentifier id="df0a5ea1-d5ae-4a26-b1f0-abc0e33ff04a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^^^^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO">
+    <ExternalIdentifier id="df0a5ea1-d5ae-4a26-b1f0-abc0e33ff04a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="extObject-twoConfidentialityCodes" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
       <Name>
         <LocalizedString value="XDSDocumentEntry.patientId" />
       </Name>
     </ExternalIdentifier>
   </ExtrinsicObject>
-  <Association id="b72bf235-45aa-4d2e-9e60-7856f57cb23d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association" associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="4e934106-8ae6-4e07-8815-71ce12a0cb07" targetObject="3d76ed25-e5f2-49d0-b4c3-05f01e29effe" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+  <Association id="b72bf235-45aa-4d2e-9e60-7856f57cb23d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association" associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="4e934106-8ae6-4e07-8815-71ce12a0cb07" targetObject="extObject-twoConfidentialityCodes" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
     <Slot name="SubmissionSetStatus">
       <ValueList>
         <Value>Original</Value>

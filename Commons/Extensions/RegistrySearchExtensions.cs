@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Extensions;
@@ -16,7 +18,7 @@ namespace XcaXds.Commons.Extensions;
 ///
 /// Opt(Optionality):   [R]=Required, [O]=Optional
 /// Mult(Multiple):     [-]=zero or one, [M]=zero or many
-/// When a property has Mult value M, the method input is a string array. If not, its just string
+/// When a property has Mult value [M], the method input is a string array. If not ([-]), its just string
 ///
 /// -- Example --
 /// | Parameter Name (ITI-18)      | Attribute                   | Opt | Mult |
@@ -39,45 +41,48 @@ public static class RegistrySearchExtensions
     }
 
     /// <summary>
-    /// | Parameter Name (ITI-18)      | Attribute                   | Opt | Mult |
-    /// |------------------------------|-----------------------------|-----|------|
-    /// | $XDSDocumentEntryClassCode   | XDSDocumentEntry.classCode  | O   | M    |
+    /// | Parameter Name (ITI-18)       | Attribute                   | Opt | Mult |
+    /// |-------------------------------|-----------------------------|-----|------|
+    /// | $XDSDocumentEntryClassCode(1) | XDSDocumentEntry.classCode  | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryClassCode(
-        this IEnumerable<ExtrinsicObjectType> source, string[] classCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> classCodes)
     {
-        if (classCodes.Length == 0) return source; // Optional field, return everything if not specified
+        if (classCodes == null || classCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
-            .Any(co => classCodes.Contains(co.NodeRepresentation)));
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .All(co => classCodes.Any(cc => cc.Contains(co))));
     }
 
     /// <summary>
     /// | Parameter Name (ITI-18)      | Attribute                   | Opt | Mult |
     /// |------------------------------|-----------------------------|-----|------|
-    /// | $XDSDocumentEntryTypeCode    | XDSDocumentEntry.typeCode   | O   | M    |
+    /// | $XDSDocumentEntryTypeCode(1) | XDSDocumentEntry.typeCode   | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryTypeCode(
-        this IEnumerable<ExtrinsicObjectType> source, string[] typeCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> typeCodes)
     {
-        if (typeCodes.Length == 0) return source; // Optional field, return everything if not specified
+        if (typeCodes == null || typeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.TypeCode)
-            .Any(co => typeCodes.Contains(co.NodeRepresentation)));
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .All(co => typeCodes.Any(cc => cc.Contains(co))));
     }
 
     /// <summary>
-    /// | Parameter Name (ITI-18)               | Attribute                             | Opt | Mult |
-    /// |---------------------------------------|---------------------------------------|-----|------|
-    /// | $XDSDocumentEntryPracticeSettingCode  | XDSDocumentEntry.practiceSettingCode  | O   | M    |
+    /// | Parameter Name (ITI-18)                 | Attribute                             | Opt | Mult |
+    /// |-----------------------------------------|---------------------------------------|-----|------|
+    /// | $XDSDocumentEntryPracticeSettingCode(1) | XDSDocumentEntry.practiceSettingCode  | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryPracticeSettingCode(
-        this IEnumerable<ExtrinsicObjectType> source, string[] practiceSettingCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> practiceSettingCodes)
     {
-        if (practiceSettingCodes.Length == 0) return source; // Optional field, return everything if not specified
+        if (practiceSettingCodes == null || practiceSettingCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
-            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode)
-            .Any(co => practiceSettingCodes.Contains(co.NodeRepresentation)));
+            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .All(co => practiceSettingCodes.Any(cc => cc.Contains(co))));
     }
 
     /// <summary>
@@ -189,12 +194,13 @@ public static class RegistrySearchExtensions
     /// | $XDSDocumentEntryHealthcareFacilityTypeCode | XDSDocumentEntry.healthcareFacilityTypeCode | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryHealthcareFacilityTypeCode(
-        this IEnumerable<ExtrinsicObjectType> source, string[] healthcareFacilityTypeCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> healthcareFacilityTypeCodes)
     {
-        if (healthcareFacilityTypeCodes.Length == 0) return source;
+        if (healthcareFacilityTypeCodes == null || healthcareFacilityTypeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
-            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode)
-            .Any(co => healthcareFacilityTypeCodes.Contains(co.NodeRepresentation)));
+            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .All(hcfTypeCode => healthcareFacilityTypeCodes.Any(hcfTypeCodes => hcfTypeCodes.Contains(hcfTypeCode))));
     }
 
     /// <summary>
@@ -203,13 +209,24 @@ public static class RegistrySearchExtensions
     /// | $XDSDocumentEntryEventCodeList | XDSDocumentEntry.eventCodeList | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryEventCodeList(
-        this IEnumerable<ExtrinsicObjectType> source, string[] eventCodeList)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> eventCodeList)
     {
-        if (eventCodeList.Length == 0) return source;
+        if (eventCodeList == null || eventCodeList.Count == 0) return source; // Optional field, return everything if not specified
 
-        return source.Where(eo => eo.Classification
-            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.EventCodeList)
-            .Any(co => eventCodeList.Contains(co.NodeRepresentation)));
+        return source.Where(eo =>
+        {
+            // Get all the confidentiality codes for the current ExtrinsicObject (eo)
+            var eventCodesForExtrinsicObject = eo.Classification
+                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.EventCodeList)
+                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+                .ToArray(); // Collect all confidentiality codes into an array
+
+            // Check if all groups match (AND logic for groups)
+            return eventCodeList.All(singleEventCodeList =>
+                // OR logic inside each group: does any code from the group match any of the extracted confidentiality codes?
+                singleEventCodeList.Any(eventCode => eventCodesForExtrinsicObject.Contains(eventCode))
+            );
+        });
     }
 
     /// <summary>
@@ -218,17 +235,24 @@ public static class RegistrySearchExtensions
     /// | $XDSDocumentEntryConfidentialityCode | XDSDocumentEntry.confidentialityCode | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryConfidentialityCode(
-        this IEnumerable<ExtrinsicObjectType> source, string[] confidentialityCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> confidentialityGroups)
     {
-        if (confidentialityCodes.Length == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo => eo.Classification
-            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
-            .Select(cf =>
-            {
-                var ccode = cf.NodeRepresentation + "^^" + cf.GetSlot("codingScheme").First().GetFirstValue();
-                return ccode;
-            })
-            .Any(code => confidentialityCodes.Contains(code)));
+        if (confidentialityGroups == null || confidentialityGroups.Count == 0) return source; // Optional field, return everything if not specified
+
+        return source.Where(eo =>
+        {
+            // Get all the confidentiality codes for the current ExtrinsicObject (eo)
+            var confidentialityCodesForExtrinsicObject = eo.Classification
+                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
+                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+                .ToArray(); // Collect all confidentiality codes into an array
+
+            // Check if all groups match (AND logic for groups)
+            return confidentialityGroups.All(singleConfidentialityGroup =>
+                // OR logic inside each group: does any code from the group match any of the extracted confidentiality codes?
+                singleConfidentialityGroup.Any(confCode => confidentialityCodesForExtrinsicObject.Contains(confCode))
+            );
+        });
     }
 
     /// <summary>
@@ -237,13 +261,24 @@ public static class RegistrySearchExtensions
     /// | $XDSDocumentEntryAuthorPerson | XDSDocumentEntry.author | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryAuthorPerson(
-        this IEnumerable<ExtrinsicObjectType> source, string[] authorPersons)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> authorPersons)
     {
-        if (authorPersons.Length == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo => eo.Classification
-            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.Author)
-            .Select(cf => cf.GetSlot(Constants.Xds.SlotNames.AuthorPerson).First().GetFirstValue())
-            .Any(author => authorPersons.Contains(author)));
+        if (authorPersons == null || authorPersons.Count == 0) return source; // Optional field, return everything if not specified
+
+        return source.Where(eo =>
+        {
+            // Get all the author persons for the current ExtrinsicObject (eo)
+            var authorsFromExtrinsicObject = eo.Classification
+                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.Author)
+                .SelectMany(cf => cf.GetSlot(Constants.Xds.SlotNames.AuthorPerson)
+                    .Select(s => s.GetFirstValue()))
+                .ToArray(); // Collect all author persons into an array
+
+            // Check if all groups match (AND logic for groups)
+            return authorPersons.All(authorPersonGroup =>
+                // OR logic inside each group
+                authorPersonGroup.Any(authorPerson => authorsFromExtrinsicObject.Contains(authorPerson)));
+        });
     }
 
     /// <summary>
@@ -252,12 +287,23 @@ public static class RegistrySearchExtensions
     /// | $XDSDocumentEntryFormatCode | XDSDocumentEntry.formatCode | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentFormatCode(
-        this IEnumerable<ExtrinsicObjectType> source, string[] formatCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> formatCodes)
     {
-        if (formatCodes.Length == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
-        return source.Where(eo => eo.Classification
-            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.FormatCode)
-            .Any(co => formatCodes.Contains(co.NodeRepresentation)));
+        if (formatCodes == null || formatCodes.Count == 0) return source; // Optional field, return everything if not specified
+        return source.Where(eo =>
+        {
+            // Get all the author persons for the current ExtrinsicObject (eo)
+            var formatCodesFromExtrinsicObject = eo.Classification
+                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.FormatCode)
+                .SelectMany(cf => cf.GetSlot(Constants.Xds.SlotNames.CodingScheme)
+                    .Select(s => s.GetFirstValue()))
+                .ToArray(); // Collect all author persons into an array
+
+            // Check if all groups match (AND logic for groups)
+            return formatCodes.All(formatCodeGroup =>
+                // OR logic inside each group
+                formatCodeGroup.Any(formatCode => formatCodesFromExtrinsicObject.Contains(formatCode)));
+        });
     }
 
     /// <summary>
@@ -266,10 +312,13 @@ public static class RegistrySearchExtensions
     /// | $XDSDocumentEntryStatus | XDSDocumentEntry.availabilityStatus | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryStatus(
-        this IEnumerable<ExtrinsicObjectType> source, string[] statuses)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> statuses)
     {
-        if (statuses.Length == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
-        return source.Where(eo => statuses.Contains(eo.Status));
+        if (statuses == null || statuses.Count == 0) return source; // Optional field, return everything if not specified
+
+        return source.Where(eo =>
+            statuses.All(group => group.Any(status => status == eo.Status)) // AND logic for groups, OR logic inside groups
+        );
     }
 
     /// <summary>
@@ -278,12 +327,22 @@ public static class RegistrySearchExtensions
     /// | $XDSDocumentEntryType   | XDSDocumentEntry.objectType | O   | M    |
     /// </summary>
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryType(
-        this IEnumerable<ExtrinsicObjectType> source, string[] typeCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]> typeCodes)
     {
-        if (typeCodes.Length == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
-        return source.Where(eo => eo.Classification
-            .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.TypeCode)
-            .Any(co => typeCodes.Contains(co.NodeRepresentation)));
+        if (typeCodes == null || typeCodes.Count == 0) return source; // Optional field, return everything if not specified
+        return source.Where(eo =>
+        {
+            var typeCodesFromExtrinsicObject = eo.Classification
+                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.FormatCode)
+                .SelectMany(cf => cf.GetSlot(Constants.Xds.SlotNames.CodingScheme)
+                    .Select(s => s.GetFirstValue()))
+                .ToArray(); // Collect all author persons into an array
+
+            // Check if all groups match (AND logic for groups)
+            return typeCodes.All(typeCodeGroup =>
+                // OR logic inside each group
+                typeCodeGroup.Any(typeCode => typeCodesFromExtrinsicObject.Contains(typeCode)));
+        });
     }
 
     public static string[] GetValues(this SlotType[] slotTypes, bool codeMultipleValues = true)
@@ -297,6 +356,20 @@ public static class RegistrySearchExtensions
             .SelectMany(slot => slot.GetValues(codeMultipleValues) ?? [])
             .ToArray();
     }
+
+    public static List<string[]> GetValuesGrouped(this SlotType[] slotTypes, bool codeMultipleValues = true)
+    {
+        if (slotTypes == null || slotTypes.Length == 0)
+        {
+            return new List<string[]>();
+        }
+
+        return slotTypes
+            .Select(slot => slot.GetValues(codeMultipleValues) ?? Array.Empty<string>())
+            .Where(values => values.Length > 0)
+            .ToList();
+    }
+
 }
 
 public class SearchCodedValues

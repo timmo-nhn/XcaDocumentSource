@@ -16,14 +16,16 @@ public partial class SlotType
     [XmlAttribute(AttributeName = "slotType", DataType = "anyURI")]
     public string SlotTypeData;
 
-    public string? GetFirstValue(bool sanitize = true)
+    public string? GetFirstValue(bool trim = true)
     {
         var firstValue = ValueList?.Value?.FirstOrDefault();
 
         if (!string.IsNullOrWhiteSpace(firstValue))
         {
-            if (sanitize)
+            if (trim)
             {
+                firstValue = firstValue.Split("','").FirstOrDefault();
+
                 return firstValue.Trim().Trim(['(', ')']).Trim('\'');
             }
             return firstValue;
