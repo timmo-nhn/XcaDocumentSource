@@ -66,7 +66,7 @@ public class RepositoryController : ControllerBase
                     return new ContentResult
                     {
                         StatusCode = (int)HttpStatusCode.OK,
-                        Content = responseMessage.Content.ReadAsStringAsync().Result, // Read content as string
+                        Content = responseMessage.Content.ReadAsStringAsync().Result,
                         ContentType = Constants.MimeTypes.MultipartRelated
                     };
                 }
@@ -82,8 +82,7 @@ public class RepositoryController : ControllerBase
 
 
             case Constants.Xds.OperationContract.Iti41Action:
-                _logger.LogInformation($"Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
-                if (soapEnvelope.Body.RegisterDocumentSetbRequest?.SubmitObjectsRequest.RegistryObjectList.Length == 0)
+                if (soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Length == 0)
                 {
                     responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Receiver", $"Unknown").Value;
                 }
@@ -92,7 +91,9 @@ public class RepositoryController : ControllerBase
 
                 if (iti42Message.IsSuccess is false)
                 {
-                    responseEnvelope = iti42Message.Value;
+                    responseEnvelope.Body ??= new();
+                    responseEnvelope.Body.RegistryResponse = iti42Message.Value.Body.RegistryResponse;
+                    responseEnvelope.Header = iti42Message.Value.Header;
                     break;
                 }
 

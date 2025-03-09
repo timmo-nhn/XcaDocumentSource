@@ -22,7 +22,6 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlInclude(typeof(AssociationType))]
 [XmlInclude(typeof(ExternalIdentifierType))]
 [XmlInclude(typeof(ClassificationType))]
-//[XmlInclude(typeof(ProvideAndRegisterDocumentSetbRequest))]
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]

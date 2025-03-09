@@ -81,7 +81,7 @@ public class RegistryController : ControllerBase
                 else
                 {
                     _logger.LogError("Error while updating registry", registryUploadResponse.Value?.Body.Fault);
-                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry " + registryUploadResponse.Value?.Body.Fault, "XDS Registry");
+                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
 
                     registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList.RegistryError];
 
@@ -108,7 +108,7 @@ public class RegistryController : ControllerBase
         }
         requestTimer.Stop();
         _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
-
+        registryResponse.EvaluateStatusCode();
         return Ok(responseEnvelope);
     }
 }

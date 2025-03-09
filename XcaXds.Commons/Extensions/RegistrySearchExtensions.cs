@@ -38,7 +38,7 @@ public static class FindDocuments
     /// |------------------------------|-----------------------------|-----|------|
     /// | $XDSDocumentEntryPatientId   | XDSDocumentEntry.patientId  | R   | —    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryPatientId(
-        this IEnumerable<ExtrinsicObjectType> source, string patientId)
+        this IEnumerable<ExtrinsicObjectType> source, string? patientId)
     {
         if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
         return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
@@ -50,7 +50,7 @@ public static class FindDocuments
     /// |-------------------------------|-----------------------------|-----|------|
     /// | $XDSDocumentEntryClassCode(1) | XDSDocumentEntry.classCode  | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryClassCode(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> classCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? classCodes)
     {
         if (classCodes == null || classCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
@@ -63,7 +63,7 @@ public static class FindDocuments
     /// |------------------------------|-----------------------------|-----|------|
     /// | $XDSDocumentEntryTypeCode(1) | XDSDocumentEntry.typeCode   | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryTypeCode(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> typeCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? typeCodes)
     {
         if (typeCodes == null || typeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
@@ -76,7 +76,7 @@ public static class FindDocuments
     /// |-----------------------------------------|---------------------------------------|-----|------|
     /// | $XDSDocumentEntryPracticeSettingCode(1) | XDSDocumentEntry.practiceSettingCode  | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryPracticeSettingCode(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> practiceSettingCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? practiceSettingCodes)
     {
         if (practiceSettingCodes == null || practiceSettingCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
@@ -89,7 +89,7 @@ public static class FindDocuments
     /// |------------------------------------|-----------------------------------------------|-----|------|
     /// | $XDSDocumentEntryCreationTimeFrom  | Lower value of XDSDocumentEntry.creationTime  | O   | -    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryCreationTimeFrom(
-        this IEnumerable<ExtrinsicObjectType> source, string creationTimeFrom)
+        this IEnumerable<ExtrinsicObjectType> source, string? creationTimeFrom)
     {
         if (string.IsNullOrWhiteSpace(creationTimeFrom)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(creationTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -104,7 +104,7 @@ public static class FindDocuments
     /// |------------------------------------|-----------------------------------------------|-----|------|
     /// | $XDSDocumentEntryCreationTimeTo    | Upper value of XDSDocumentEntry.creationTime  | O   | -    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryCreationTimeTo(
-       this IEnumerable<ExtrinsicObjectType> source, string creationTimeFrom)
+       this IEnumerable<ExtrinsicObjectType> source, string? creationTimeFrom)
     {
         if (string.IsNullOrWhiteSpace(creationTimeFrom)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(creationTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -120,7 +120,7 @@ public static class FindDocuments
     /// |---------------------------------------|---------------------------------------------------|-----|------|
     /// | $XDSDocumentEntryServiceStartTimeFrom | Lower value of XDSDocumentEntry.serviceStartTime  | O   | -    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryServiceStartTimeFrom(
-        this IEnumerable<ExtrinsicObjectType> source, string startTimeFrom)
+        this IEnumerable<ExtrinsicObjectType> source, string? startTimeFrom)
     {
         if (string.IsNullOrWhiteSpace(startTimeFrom)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(startTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -135,7 +135,7 @@ public static class FindDocuments
     /// |-------------------------------------|--------------------------------------------------|-----|------|
     /// | $XDSDocumentEntryServiceStartTimeTo | Upper value of XDSDocumentEntry.serviceStartTime | O   | —    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryServiceStartTimeTo(
-        this IEnumerable<ExtrinsicObjectType> source, string startTimeTo)
+        this IEnumerable<ExtrinsicObjectType> source, string? startTimeTo)
     {
         if (string.IsNullOrWhiteSpace(startTimeTo)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(startTimeTo, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -150,7 +150,7 @@ public static class FindDocuments
     /// |--------------------------------------|--------------------------------------------------|-----|------|
     /// | $XDSDocumentEntryServiceStopTimeFrom | Lower value of XDSDocumentEntry.serviceStartTime | O   | —    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryServiceStopTimeFrom(
-        this IEnumerable<ExtrinsicObjectType> source, string stopTimeFrom)
+        this IEnumerable<ExtrinsicObjectType> source, string? stopTimeFrom)
     {
         if (string.IsNullOrWhiteSpace(stopTimeFrom)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(stopTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -165,7 +165,7 @@ public static class FindDocuments
     /// |------------------------------------|-------------------------------------------------|-----|------|
     /// | $XDSDocumentEntryServiceStopTimeTo | Upper value of XDSDocumentEntry.serviceStopTime | O   | —    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryServiceStopTimeTo(
-        this IEnumerable<ExtrinsicObjectType> source, string stopTimeTo)
+        this IEnumerable<ExtrinsicObjectType> source, string? stopTimeTo)
     {
         if (string.IsNullOrWhiteSpace(stopTimeTo)) return source;  // Optional field, return everything if not specified
         var dateTime = DateTime.ParseExact(stopTimeTo, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
@@ -180,7 +180,7 @@ public static class FindDocuments
     /// |---------------------------------------------------|---------------------------------------------|-----|------|
     /// | $XDSDocumentEntryHealthcareFacilityTypeCode(1)(3) | XDSDocumentEntry.healthcareFacilityTypeCode | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryHealthcareFacilityTypeCode(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> healthcareFacilityTypeCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? healthcareFacilityTypeCodes)
     {
         if (healthcareFacilityTypeCodes == null || healthcareFacilityTypeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
@@ -193,7 +193,7 @@ public static class FindDocuments
     /// |--------------------------------------|--------------------------------|-----|------|
     /// | $XDSDocumentEntryEventCodeList(1)(3) | XDSDocumentEntry.eventCodeList | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryEventCodeList(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> eventCodeList)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? eventCodeList)
     {
         if (eventCodeList == null || eventCodeList.Count == 0) return source; // Optional field, return everything if not specified
 
@@ -215,7 +215,7 @@ public static class FindDocuments
     /// |--------------------------------------------|--------------------------------------|-----|------|
     /// | $XDSDocumentEntryConfidentialityCode(1)(3) | XDSDocumentEntry.confidentialityCode | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryConfidentialityCode(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> confidentialityGroups)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? confidentialityGroups)
     {
         if (confidentialityGroups == null || confidentialityGroups.Count == 0) return source; // Optional field, return everything if not specified
 
@@ -237,7 +237,7 @@ public static class FindDocuments
     /// |--------------------------------------|-------------------------|-----|------|
     /// | $XDSDocumentEntryAuthorPerson (3)(4) | XDSDocumentEntry.author | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryAuthorPerson(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> authorPersons)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? authorPersons)
     {
         if (authorPersons == null || authorPersons.Count == 0) return source; // Optional field, return everything if not specified
 
@@ -269,7 +269,7 @@ public static class FindDocuments
     /// |--------------------------------|-----------------------------|-----|------|
     /// | $XDSDocumentEntryFormatCode(1) | XDSDocumentEntry.formatCode | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentFormatCode(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> formatCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? formatCodes)
     {
         if (formatCodes == null || formatCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo =>
@@ -290,7 +290,7 @@ public static class FindDocuments
     /// |-------------------------|-------------------------------------|-----|------|
     /// | $XDSDocumentEntryStatus | XDSDocumentEntry.availabilityStatus | R   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryStatus(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> statuses)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? statuses)
     {
         if ( statuses.Count == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
 
@@ -303,7 +303,7 @@ public static class FindDocuments
     /// |---------------------------|-----------------------------|-----|------|
     /// | $XDSDocumentEntryType     | XDSDocumentEntry.objectType | O   | M    |
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryType(
-        this IEnumerable<ExtrinsicObjectType> source, List<string[]> typeCodes)
+        this IEnumerable<ExtrinsicObjectType> source, List<string[]>? typeCodes)
     {
         if (typeCodes == null || typeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo =>
@@ -338,7 +338,7 @@ public static class FindSubmissionSets
     /// |----------------------------|----------------------------|-----|------|
     /// | $XDSSubmissionSetSourceId  | XDSSubmissionSet.sourceId  | O   | M    |
     public static IEnumerable<RegistryPackageType> BySubmissionSetSourceId(
-        this IEnumerable<RegistryPackageType> source, List<string[]> sourceIdLists)
+        this IEnumerable<RegistryPackageType> source, List<string[]>? sourceIdLists)
     {
         if (sourceIdLists == null || sourceIdLists.Count == 0) return source;
 
@@ -409,7 +409,7 @@ public static class FindSubmissionSets
     /// |-------------------------------------|----------------------------------|-----|------|
     /// | $XDSSubmissionSetContentType (1)(3) | XDSSubmissionSet.contentTypeCode | O   | M    |
     public static IEnumerable<RegistryPackageType> BySubmissionSetContentType(
-        this IEnumerable<RegistryPackageType> source, List<string[]> healthcareFacilityTypeCodes)
+        this IEnumerable<RegistryPackageType> source, List<string[]>? healthcareFacilityTypeCodes)
     {
         if (healthcareFacilityTypeCodes == null || healthcareFacilityTypeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
@@ -419,13 +419,19 @@ public static class FindSubmissionSets
     }
 }
 
+public static class FindFolders
+{
+
+}
+
+
 public static class GetAssociations
 {
     /// | Parameter Name (ITI-18) | Attribute        | Opt | Mult |
     /// |-------------------------|------------------|-----|------|
     /// | $uuid                   | None             | R   | M    |
     public static IEnumerable<AssociationType> ByUuid(
-        this IEnumerable<AssociationType> source, List<string[]> uuidList)
+        this IEnumerable<AssociationType> source, List<string[]>? uuidList)
     {
         if (uuidList == null || uuidList.Count == 0) return Enumerable.Empty<AssociationType>(); // Required field, return nothing if not specified
         return source.Where(assoc => uuidList.Any(uuids => uuids.Contains(assoc.SourceObject) || uuids.Contains(assoc.TargetObject)));

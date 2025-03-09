@@ -36,8 +36,13 @@ public class RegistryService
         var registryResponse = new RegistryResponseType();
         var registryContent = _registryWrapper.GetDocumentRegistryContent();
 
-        var submissionRegistryObjects = envelope.Body.RegisterDocumentSetbRequest?.SubmitObjectsRequest.RegistryObjectList.ToList();
+        var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
+        if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
+        {
+            registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Empty or invalid Registry objects in RegistryObjectList", "XDS Registry");
+            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
 
+        }
         if (DuplicateUuidsExist(registryContent.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
         {
             registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and registry {string.Join(", ", duplicateIds)}", "XDS Registry");
@@ -78,55 +83,40 @@ public class RegistryService
 
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryPatientId(findDocumentsSearchParameters.XdsDocumentEntryPatientId);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryClassCode(findDocumentsSearchParameters.XdsDocumentEntryClassCode);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryTypeCode(findDocumentsSearchParameters.XdsDocumentEntryTypeCode);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryPracticeSettingCode(findDocumentsSearchParameters.XdsDocumentEntryPracticeSettingCode);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryCreationTimeFrom(findDocumentsSearchParameters.XdsDocumentEntryCreationTimeFrom);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryCreationTimeTo(findDocumentsSearchParameters.XdsDocumentEntryCreationTimeTo);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryServiceStartTimeFrom(findDocumentsSearchParameters.XdsDocumentEntryServiceStartTimeFrom);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryServiceStartTimeTo(findDocumentsSearchParameters.XdsDocumentEntryServiceStartTimeTo);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryServiceStopTimeFrom(findDocumentsSearchParameters.XdsDocumentEntryServiceStoptimeFrom);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryServiceStopTimeTo(findDocumentsSearchParameters.XdsDocumentEntryServiceStoptimeTo);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryHealthcareFacilityTypeCode(findDocumentsSearchParameters.XdsDocumentEntryHealthcareFacilityTypeCode);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryEventCodeList(findDocumentsSearchParameters.XdsDocumentEntryEventCodeList);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryConfidentialityCode(findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryAuthorPerson(findDocumentsSearchParameters.XdsDocumentEntryAuthorPerson);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentFormatCode(findDocumentsSearchParameters.XdsDocumentEntryFormatCode);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryStatus(findDocumentsSearchParameters.XdsDocumentEntryStatus);
-
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryType(findDocumentsSearchParameters.XdsDocumentEntryType)
                     .ToList();
+
 
                 if (findDocumentsSearchParameters.XdsDocumentEntryPatientId == null)
                 {
@@ -137,7 +127,21 @@ public class RegistryService
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
 
-                filteredElements = [.. registryFindDocumentEntriesResult];
+                switch (adhocQueryRequest.ResponseOption.ReturnType)
+                {
+                    case ResponseOptionTypeReturnType.ObjectRef:
+                        // Only return the unique identifiers and HomeCommunityId
+                        var objectRefs = registryFindDocumentEntriesResult
+                            .Select(eo => new ObjectRefType() { Id = eo.Id }).ToList();
+                        filteredElements = [.. objectRefs];
+                        break;
+                    case ResponseOptionTypeReturnType.LeafClass:
+                        filteredElements = [.. registryFindDocumentEntriesResult];
+                        break;
+
+                    default:
+                        break;
+                }
 
                 break;
 
@@ -238,18 +242,19 @@ public class RegistryService
 
     public SoapRequestResult<SoapEnvelope> CopyIti41ToIti42Message(SoapEnvelope iti41Message)
     {
+        var registryResponse = new RegistryResponseType();
+
         var iti42Message = new SoapEnvelope()
         {
             Header = iti41Message.Header,
-            Body = new() { RegisterDocumentSetbRequest = new() { SubmitObjectsRequest = new() } }
+            Body = new() { RegisterDocumentSetRequest = new() { SubmitObjectsRequest = new() } }
         };
 
-        iti42Message.Body.RegisterDocumentSetbRequest.SubmitObjectsRequest = iti41Message.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest;
+        iti42Message.Body.RegisterDocumentSetRequest.SubmitObjectsRequest = iti41Message.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest;
         iti42Message.SetAction(Constants.Xds.OperationContract.Iti42Action);
 
-        var registryResponse = new RegistryResponseType();
 
-        var registryObjectList = iti42Message.Body.RegisterDocumentSetbRequest?.SubmitObjectsRequest.RegistryObjectList;
+        var registryObjectList = iti42Message.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
 
         var associations = registryObjectList.OfType<AssociationType>().ToArray();
         //var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
@@ -259,12 +264,18 @@ public class RegistryService
 
         foreach (var association in associations)
         {
-            var assocDocument = documents.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
+            var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
 
-            if (assocExtrinsicObject is null || assocDocument is not null)
+            if (assocExtrinsicObject is null && assocDocument is not null)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSMissingDocumentMetadata, $"Missing document metadata for document with ID {assocDocument.Id}", "XDS Registry");
+                registryResponse.AddError(XdsErrorCodes.XDSMissingDocumentMetadata, $"Missing document metadata for document with ID {assocDocument?.Id}", "XDS Registry");
+                continue;
+            }
+            if (assocExtrinsicObject is null || assocDocument is null)
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSMissingDocument, $"Missing document for association {association.Id}", "XDS Registry");
+                continue;
             }
 
             // Home attribute on extrinsicobject
@@ -313,7 +324,8 @@ public class RegistryService
                 };
             }
         }
-        return new SoapRequestResult<SoapEnvelope>() { IsSuccess = true, Value = iti42Message };
+        iti42Message.Body.RegistryResponse = registryResponse;
+        return SoapExtensions.CreateSoapResultResponse(iti42Message);
     }
 
     public bool DuplicateUuidsExist(List<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)

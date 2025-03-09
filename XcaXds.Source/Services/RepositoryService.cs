@@ -44,38 +44,48 @@ public class RepositoryService
 
         foreach (var association in associations)
         {
-            var assocDocument = documents.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
+            var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
+            if (assocExtrinsicObject == null)
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "ExtrinsicObject Missing", "SubmitObjectsRequest");
+            }
+            if (assocDocument == null)
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Document missing", "SubmitObjectsRequest");
+            }
 
             var patientId = assocExtrinsicObject?.Slot?.FirstOrDefault(s => s.Name == "sourcePatientId")?.ValueList.Value.FirstOrDefault();
             if (patientId == null)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSRegistryBusy, "Patient ID missing", "ExtrinsicObject");
-                return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Patient ID missing", "ExtrinsicObject");
             }
 
-            var patientIdPart = patientId.Substring(0, patientId.IndexOf("^^^"));
+            var patientIdPart = patientId?.Substring(0, patientId.IndexOf("^^^"));
             var xdsDocumentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.Name.GetFirstValue() == Constants.Xds.ExternalIdentifierNames.DocumentEntryUniqueId)?.Value;
 
             if (xdsDocumentEntryUniqueId == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Document unique ID missing", "ExtrinsicObject");
-                return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
-            }
-
-            xdsDocumentEntryUniqueId = assocDocument.Id.NoUrn();
-
-            var repositoryUpdateOk = _repositoryWrapper.StoreDocument(xdsDocumentEntryUniqueId, assocDocument.Value, patientIdPart);
-
-            if (repositoryUpdateOk)
-            {
-                registryResponse.EvaluateStatusCode();
             }
             else
             {
-                registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                xdsDocumentEntryUniqueId = assocDocument.Id.NoUrn();
+
+                var repositoryUpdateOk = _repositoryWrapper.StoreDocument(xdsDocumentEntryUniqueId, assocDocument.Value, patientIdPart);
+
+                if (repositoryUpdateOk)
+                {
+                }
+                else
+                {
+                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                }
+
             }
+
         }
+        registryResponse.EvaluateStatusCode();
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
 
     }

@@ -42,6 +42,18 @@ public class RespondingGatewayController : ControllerBase
 
         switch (action)
         {
+            case Constants.Xds.OperationContract.Iti38ActionAsync:
+                var responseUrl = soapEnvelope.Header.ReplyTo?.Address;
+
+                soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
+
+
+                var iti38AsyncResponse = await _xcaGateway.RegistryStoredQuery(soapEnvelope, baseUrl + "/Registry/services/RegistryService");
+                iti38AsyncResponse.Value.SetAction(Constants.Xds.OperationContract.Iti38ReplyAsync);
+
+                return Accepted(SoapExtensions.CreateAsyncAcceptedMessage(soapEnvelope));
+
+
             case Constants.Xds.OperationContract.Iti38Action:
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
@@ -50,6 +62,14 @@ public class RespondingGatewayController : ControllerBase
 
                 responseEnvelope = iti38Response.Value;
                 break;
+
+
+
+
+            case Constants.Xds.OperationContract.Iti39ActionAsync:
+
+                break;
+
 
             case Constants.Xds.OperationContract.Iti39Action:
                 // Only change from ITI-39 to ITI-43 is the action in the header
@@ -91,7 +111,7 @@ public class RespondingGatewayController : ControllerBase
 
         requestTimer.Stop();
         _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
-
+        
         return Ok(responseEnvelope);
     }
 }

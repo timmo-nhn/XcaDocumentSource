@@ -42,34 +42,50 @@ public static class Constants
         public static class OperationContract
         {
             public const string Iti18Action = "urn:ihe:iti:2007:RegistryStoredQuery";
+            public const string Iti18ActionAsync = "urn:ihe:iti:2007:RegistryStoredQueryAsync";
             public const string Iti18Reply = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
+            public const string Iti18ReplyAsync = "urn:ihe:iti:2007:RegistryStoredQueryResponseAsync";
             public const string Iti38Action = "urn:ihe:iti:2007:CrossGatewayQuery";
+            public const string Iti38ActionAsync = "urn:ihe:iti:2007:CrossGatewayQueryAsync";
             public const string Iti38Reply = "urn:ihe:iti:2007:CrossGatewayQueryResponse";
+            public const string Iti38ReplyAsync = "urn:ihe:iti:2007:CrossGatewayQueryResponseAsync";
             public const string Iti39Action = "urn:ihe:iti:2007:CrossGatewayRetrieve";
+            public const string Iti39ActionAsync = "urn:ihe:iti:2007:CrossGatewayRetrieveAsync";
             public const string Iti39Reply = "urn:ihe:iti:2007:CrossGatewayRetrieveResponse";
+            public const string Iti39ReplyAsync = "urn:ihe:iti:2007:CrossGatewayRetrieveResponseAsync";
             public const string Iti43Action = "urn:ihe:iti:2007:RetrieveDocumentSet";
+            public const string Iti43ActionAsync = "urn:ihe:iti:2007:RetrieveDocumentSetAsync";
             public const string Iti43Reply = "urn:ihe:iti:2007:RetrieveDocumentSetResponse";
+            public const string Iti43ReplyAsync = "urn:ihe:iti:2007:RetrieveDocumentSetResponseAsync";
             public const string Iti41Action = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b";
+            public const string Iti41ActionAsync = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bAsync";
             public const string Iti41Reply = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse";
+            public const string Iti41ReplyAsync = "urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponseAsync";
             public const string Iti42Action = "urn:ihe:iti:2007:RegisterDocumentSet-b";
+            public const string Iti42ActionAsync = "urn:ihe:iti:2007:RegisterDocumentSet-bAsync";
             public const string Iti42Reply = "urn:ihe:iti:2007:RegisterDocumentSet-bResponse";
+            public const string Iti42ReplyAsync = "urn:ihe:iti:2007:RegisterDocumentSet-bResponseAsync";
             public const string Iti62Action = "urn:ihe:iti:2010:DeleteDocumentSet";
+            public const string Iti62ActionAsync = "urn:ihe:iti:2010:DeleteDocumentSetAsync";
             public const string Iti62Reply = "urn:ihe:iti:2010:DeleteDocumentSetResponse";
+            public const string Iti62ReplyAsync = "urn:ihe:iti:2010:DeleteDocumentSetResponseAsync";
             public const string Iti86Action = "urn:ihe:iti:2017:RemoveDocuments";
+            public const string Iti86ActionAsync = "urn:ihe:iti:2017:RemoveDocumentsAsync";
             public const string Iti86Reply = "urn:ihe:iti:2017:RemoveDocumentsResponse";
+            public const string Iti86ReplyAsync = "urn:ihe:iti:2017:RemoveDocumentsResponseAsync";
         }
 
         public static class StoredQueries
         {
             public const string FindDocuments = "urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d";
             public const string GetAll = "urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3";
-            public const string GetDocuments = "urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4";
-
-            //Not supported by DIPS
-            public const string FindSubmissionSets = "urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9";
-            public const string FindFolders = "urn:uuid:958f3006-baad-4929-a4de-ff1114824431";
             public const string GetFolders = "urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4";
             public const string GetAssociations = "urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155";
+            public const string FindSubmissionSets = "urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9";
+
+            //Not natively supported by XcaDocumentSource
+            public const string FindFolders = "urn:uuid:958f3006-baad-4929-a4de-ff1114824431";
+            public const string GetDocuments = "urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4";
             public const string GetDocumentsAndAssociations = "urn:uuid:bab9529a-4a10-40b3-a01f-f68a615d247a";
             public const string GetSubmissionSets = "urn:uuid:51224314-5390-4169-9b91-b1980040715a";
             public const string GetSubmissionSetAndContents = "urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83";

@@ -56,16 +56,23 @@ public partial class RegistryResponseType
 
     public void EvaluateStatusCode()
     {
-        Status = RegistryErrorList?.RegistryError?.Length > 0
-            ? Constants.Xds.ResponseStatusTypes.PartialSuccess
-            : Constants.Xds.ResponseStatusTypes.Success ?? Constants.Xds.ResponseStatusTypes.Success;
-
         if (RegistryErrorList?.RegistryError?.Length > 0)
         {
             var highestSeverity = RegistryErrorList.RegistryError
                 .MaxBy(error => GetSeverityLevel(error.Severity));
 
             RegistryErrorList.HighestSeverity = highestSeverity?.Severity ?? Constants.Xds.ErrorSeverity.Error;
+        }
+
+        if (RegistryErrorList?.RegistryError?.Length > 0 && RegistryErrorList.HighestSeverity == Constants.Xds.ErrorSeverity.Error)
+        {
+            Status = Constants.Xds.ResponseStatusTypes.Failure;
+        }
+        else
+        {
+            Status = RegistryErrorList?.RegistryError?.Length > 0
+                ? Constants.Xds.ResponseStatusTypes.PartialSuccess
+                : Constants.Xds.ResponseStatusTypes.Success ?? Constants.Xds.ResponseStatusTypes.Success;
         }
     }
     private int GetSeverityLevel(string severity)

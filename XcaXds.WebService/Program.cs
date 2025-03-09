@@ -46,15 +46,6 @@ namespace XcaXds.WebService
                 };
             });
 
-            //builder.Services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-            // .ConfigureApiBehaviorOptions(options =>
-            // {
-            //     options.InvalidModelStateResponseFactory = actionContext =>
-            //     {
-            //         return SoapFaultErrorResponseFactory.CreateErrorResponse(actionContext);
-            //     };
-            // });
-
 
             var xdsConfig = new XdsConfig();
 
@@ -82,15 +73,6 @@ namespace XcaXds.WebService
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            app.Use(async (context, next) =>
-            {
-                Console.WriteLine($"Incoming Request Content-Type: {context.Request.ContentType}");
-                await next();
-            });
-
-
-
 
             app.UseHttpsRedirection();
 
