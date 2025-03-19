@@ -38,6 +38,29 @@ public class RegistryWrapper
         EnsureRegistryFileExists();
     }
 
+    public async Task<DocumentRegistry> GetDocumentRegistryContentAsync()
+    {
+        EnsureRegistryFileExists();
+
+        lock (_lock)
+        {
+            try
+            {
+                using (var reader = new StreamReader(_registryFile))
+                {
+                    var serializer = new XmlSerializer(typeof(DocumentRegistry));
+
+                    return (DocumentRegistry)serializer.Deserialize(reader);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new DocumentRegistry();
+            }
+        }
+    }
+
     public DocumentRegistry GetDocumentRegistryContent()
     {
         EnsureRegistryFileExists();

@@ -1,0 +1,61 @@
+﻿@page "/Documentlist"
+@inject HttpClient Http
+@rendermode InteractiveServer
+
+@using XcaXds.Frontend.Components.EbRimComponents;
+@using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Services;
+@using XcaXds.Commons;
+
+
+<PageTitle>Document List</PageTitle>
+
+<h1>Hello, world!</h1>
+
+<textarea rows="5" cols="120" @bind="soapEnvelope"></textarea>
+
+<button class="btn btn-primary" @onclick="SendSoapRequest">Click me</button>
+@if (RegistryObjectList != null)
+{
+    @foreach (var item in RegistryObjectList)
+    {
+        continue;
+        // <RegistryObjectComponent RegistryObject=@item />
+    }
+}
+
+
+
+
+@code {
+    private string soapEnvelope;
+    private IdentifiableType[] RegistryObjectList;
+
+    private async Task SendSoapRequest()
+    {
+        if (soapEnvelope == null)
+        {
+            return;
+        }
+
+        var content = new StringContent(soapEnvelope, System.Text.Encoding.UTF8, "application/soap+xml");
+
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+
+
+        var response = await Http.PostAsync("https://localhost:7176/Registry/services/RegistryService", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var responseStream = await response.Content.ReadAsStreamAsync();
+            var responseMessage = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+
+            // RegistryObjectList = responseMessage.Body.AdhocQueryResponse.RegistryObjectList.ToList();
+        }
+        else
+        {
+        }
+    }
+}

@@ -1,0 +1,33 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Services
+@using XcaXds.Frontend.Components.EbRimComponents;
+
+
+<div class="ebrim-card">
+    <div class="ebrim-header">
+        <i class="bi bi-tag"></i> @ExtrinsicObject.Name
+    </div>
+    <div class="ebrim-body">
+        <ul>
+            @foreach (var slotType in ExtrinsicObject.Slot)
+            {
+                <SlotComponent Slot=slotType />
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ExtrinsicObjectType ExtrinsicObject { get; set; } = default!;
+    public string ExtrinsicObjectString { get; set; }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+    //     ExtrinsicObjectString = sxmls.SerializeSoapMessageToXmlString(ExtrinsicObject).Content;
+    // }
+}

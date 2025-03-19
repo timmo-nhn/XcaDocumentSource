@@ -1,0 +1,23 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+
+<div class="ebrim-card">
+    <div class="ebrim-header">
+        <i class="bi bi-tag"></i> Classification: @Classification.ClassifiedObject
+    </div>
+    <div class="ebrim-body">
+        <ul>
+            @foreach (var slot in Classification.Slot)
+            {
+                <SlotComponent Slot=slot />
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ClassificationType Classification { get; set; } = default!;
+}

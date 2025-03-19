@@ -7,6 +7,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Xca;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 namespace XcaXds.Source.Services;
 
@@ -31,7 +32,7 @@ public class RegistryService
     private DocumentRegistry DocumentRegistry => _documentRegistry;
 
 
-    public SoapRequestResult<SoapEnvelope> AppendToRegistry(SoapEnvelope envelope)
+    public async Task<SoapRequestResult<SoapEnvelope>> AppendToRegistryAsync(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();
         var registryContent = _registryWrapper.GetDocumentRegistryContent();
@@ -43,11 +44,14 @@ public class RegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
 
         }
+
         if (DuplicateUuidsExist(registryContent.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
         {
-            registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and registry {string.Join(", ", duplicateIds)}", "XDS Registry");
+            registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}", "XDS Registry");
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
+
+
 
         // list spread to combine both lists
         registryContent.RegistryObjectList = [.. registryContent.RegistryObjectList, .. submissionRegistryObjects];
@@ -65,7 +69,7 @@ public class RegistryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope)
+    public async Task<SoapRequestResult<SoapEnvelope>> RegistryStoredQueryAsync(SoapEnvelope soapEnvelope)
     {
         var registryResponse = new RegistryResponseType();
 
@@ -127,21 +131,6 @@ public class RegistryService
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
 
-                switch (adhocQueryRequest.ResponseOption.ReturnType)
-                {
-                    case ResponseOptionTypeReturnType.ObjectRef:
-                        // Only return the unique identifiers and HomeCommunityId
-                        var objectRefs = registryFindDocumentEntriesResult
-                            .Select(eo => new ObjectRefType() { Id = eo.Id }).ToList();
-                        filteredElements = [.. objectRefs];
-                        break;
-                    case ResponseOptionTypeReturnType.LeafClass:
-                        filteredElements = [.. registryFindDocumentEntriesResult];
-                        break;
-
-                    default:
-                        break;
-                }
 
                 break;
 
@@ -192,7 +181,73 @@ public class RegistryService
                 filteredElements = [.. registryGetAssociationsResult];
 
                 break;
+
+            case Constants.Xds.StoredQueries.GetFolders:
+                var getFoldersParameters = RegistryStoredQueryParameters.GetFoldersParameters(adhocQueryRequest.AdhocQuery);
+
+                var registryGetFoldersResult = DocumentRegistry.RegistryObjectList
+                    .OfType<RegistryPackageType>();
+
+                registryGetFoldersResult = registryGetFoldersResult
+                    .ByXdsFolderUniqueId(getFoldersParameters.XdsFolderUniqueId);
+
+                registryGetFoldersResult = registryGetFoldersResult
+                    .ByXdsFolderEntryUuid(getFoldersParameters.XdsFolderEntryUuid);
+
+                // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.6
+                // Return an XDSStoredQueryParamNumber error if both parameters are specified
+                if (getFoldersParameters.XdsFolderUniqueId?.Count != 0 && getFoldersParameters.XdsFolderEntryUuid?.Count != 0)
+                {
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
+                }
+
+                filteredElements = [.. registryGetFoldersResult];
+
+                break;
+
+
+            case Constants.Xds.StoredQueries.GetFolderAndContents:
+                var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
+
+                var registryGetFoldersAndDocumentsResult = DocumentRegistry.RegistryObjectList.OfType<IdentifiableType>();
+
+                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                    .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
+
+                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                    .ByXdsFolderEntryUuid(getFoldersAndContentsParameters.XdsFolderEntryUuid);
+
+                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                    .ByXdsDocumentEntryFormatCode(getFoldersAndContentsParameters.XdsDocumentEntryFormatCode);
+
+
+                // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
+                // Return an XDSStoredQueryParamNumber error if both parameters are specified
+                if (getFoldersAndContentsParameters.XdsFolderUniqueId != null || getFoldersAndContentsParameters.XdsFolderUniqueId != null)
+                {
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
+                }
+
+                filteredElements = [.. registryGetFoldersAndDocumentsResult];
+
+                break;
         }
+
+        switch (adhocQueryRequest.ResponseOption.ReturnType)
+        {
+            case ResponseOptionTypeReturnType.ObjectRef:
+                // Only return the unique identifiers and HomeCommunityId
+                var objectRefs = filteredElements
+                    .Select(eo => new ObjectRefType() { Id = eo.Id }).ToList();
+                filteredElements = [.. objectRefs];
+                break;
+            case ResponseOptionTypeReturnType.LeafClass:
+                break;
+
+            default:
+                break;
+        }
+
 
         registryResponse.EvaluateStatusCode();
 
@@ -213,10 +268,9 @@ public class RegistryService
             }
         };
         return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
-
     }
 
-    public SoapRequestResult<SoapEnvelope> DeleteDocumentSet(SoapEnvelope soapEnvelope)
+    public async Task<SoapRequestResult<SoapEnvelope>> DeleteDocumentSetAsync(SoapEnvelope soapEnvelope)
     {
         var registryResponse = new RegistryResponseType();
         var removeObjectsRequest = soapEnvelope.Body.RemoveObjectsRequest;

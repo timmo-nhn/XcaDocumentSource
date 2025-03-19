@@ -16,6 +16,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Source", "XcaXds.Sou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Commons", "XcaXds.Commons\XcaXds.Commons.csproj", "{F78BEC81-CA21-4566-9B35-7729F14E6D60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Tests", "XcaXds.Tests\XcaXds.Tests.csproj", "{2DD7BA98-5441-48EA-879E-F103E65957E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Frontend", "XcaXds.Frontend\XcaXds.Frontend.csproj", "{9C18D988-5621-487A-901B-4AC247E62CD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +41,14 @@ Global
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DD7BA98-5441-48EA-879E-F103E65957E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DD7BA98-5441-48EA-879E-F103E65957E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DD7BA98-5441-48EA-879E-F103E65957E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DD7BA98-5441-48EA-879E-F103E65957E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C18D988-5621-487A-901B-4AC247E62CD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C18D988-5621-487A-901B-4AC247E62CD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C18D988-5621-487A-901B-4AC247E62CD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C18D988-5621-487A-901B-4AC247E62CD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

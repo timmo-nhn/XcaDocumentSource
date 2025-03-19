@@ -1,0 +1,26 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Services
+@using XcaXds.Frontend.Components.EbRimComponents;
+
+
+<div class="ebrim-card">
+    <div class="ebrim-header">
+        <i class="bi bi-tag"></i> @RegistryPackage.Name
+    </div>
+    <div class="ebrim-body">
+        <ul>
+            @foreach (var slot in RegistryPackage.Slot)
+            {
+                <SlotComponent Slot=slot />
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RegistryPackageType RegistryPackage { get; set; } = default!;
+}

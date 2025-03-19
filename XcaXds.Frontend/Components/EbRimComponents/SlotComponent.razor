@@ -1,0 +1,23 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+
+<div class="ebrim-card">
+    <div class="ebrim-header">
+        <i class="bi bi-tag"></i> @Slot.Name
+    </div>
+    <div class="ebrim-body">
+        <ul>
+            @foreach (var value in Slot.ValueList.Value)
+            {
+                <li><i class="bi bi-check-circle"></i> @value</li>
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public SlotType Slot { get; set; } = default!;
+}

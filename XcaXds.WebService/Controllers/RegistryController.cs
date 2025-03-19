@@ -47,7 +47,7 @@ public class RegistryController : ControllerBase
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
-                var registryQueryResponse = _registryService.RegistryStoredQuery(soapEnvelope);
+                var registryQueryResponse = await _registryService.RegistryStoredQueryAsync(soapEnvelope);
 
                 responseEnvelope = registryQueryResponse.Value;
                 responseEnvelope.Header = new()
@@ -60,7 +60,7 @@ public class RegistryController : ControllerBase
                 break;
 
             case Constants.Xds.OperationContract.Iti42Action:
-                var registryUploadResponse = _registryService.AppendToRegistry(soapEnvelope);
+                var registryUploadResponse = await _registryService.AppendToRegistryAsync(soapEnvelope);
 
                 if (registryUploadResponse.IsSuccess)
                 {
@@ -90,7 +90,7 @@ public class RegistryController : ControllerBase
                 break;
 
             case Constants.Xds.OperationContract.Iti62Action:
-                var deleteDocumentSetResponse = _registryService.DeleteDocumentSet(soapEnvelope);
+                var deleteDocumentSetResponse = await _registryService.DeleteDocumentSetAsync(soapEnvelope);
                 if (deleteDocumentSetResponse.IsSuccess)
                 {
                     responseEnvelope.Header ??= new();

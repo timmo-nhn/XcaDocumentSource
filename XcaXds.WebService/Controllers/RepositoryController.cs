@@ -48,7 +48,7 @@ public class RepositoryController : ControllerBase
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
-                var documentFetchResponse = _repositoryService.GetContentFromRepository(soapEnvelope);
+                var documentFetchResponse = await _repositoryService.GetContentFromRepository(soapEnvelope);
                 if (documentFetchResponse.IsSuccess is false)
                 {
                     break;
@@ -97,7 +97,7 @@ public class RepositoryController : ControllerBase
                     break;
                 }
 
-                var repositoryDocumentExists = _repositoryService.CheckIfDocumentExistsInRepository(soapEnvelope);
+                var repositoryDocumentExists = await _repositoryService.CheckIfDocumentExistsInRepository(soapEnvelope);
 
                 if (repositoryDocumentExists.IsSuccess is false)
                 {
@@ -113,7 +113,7 @@ public class RepositoryController : ControllerBase
                     break;
                 }
 
-                var documentUploadResponse = _repositoryService.UploadContentToRepository(soapEnvelope);
+                var documentUploadResponse = await _repositoryService.UploadContentToRepository(soapEnvelope);
 
                 if (documentUploadResponse.IsSuccess is false)
                 {
@@ -132,7 +132,7 @@ public class RepositoryController : ControllerBase
                 break;
 
             case Constants.Xds.OperationContract.Iti86Action:
-                var removeDocumentsResponse = _repositoryService.RemoveDocuments(soapEnvelope);
+                var removeDocumentsResponse = await _repositoryService.RemoveDocuments(soapEnvelope);
                 if (removeDocumentsResponse.IsSuccess)
                 {
                     responseEnvelope = removeDocumentsResponse.Value;

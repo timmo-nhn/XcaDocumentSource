@@ -1,0 +1,30 @@
+﻿@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Services
+@using XcaXds.Frontend.Components.EbRimComponents;
+
+
+<div class="ebrim-card">
+    <h3>@RegistryObject?.Name</h3>
+    <p>@RegistryObject?.Description</p>
+
+    <div class="ebrim-header">
+        <strong>Status:</strong> @RegistryObject?.Status
+    </div>
+
+    <div class="ebrim-body">
+        @if (RegistryObject?.Classification != null)
+        {
+            @foreach (var slot in RegistryObject.Slot)
+            {
+                <SlotComponent Slot=slot />
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public RegistryObjectType RegistryObject { get; set; }
+}

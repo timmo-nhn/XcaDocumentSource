@@ -30,7 +30,7 @@ public partial class IdentifiableType
 {
 
     [XmlElement("Slot", Order = 0)]
-    public SlotType[] Slot;
+    public SlotType[]? Slot;
 
 
     [XmlAttribute(AttributeName = "id", DataType = "anyURI")]

@@ -26,7 +26,7 @@ public class RepositoryService
         _xcaGateway = xcaGateway;
         _repositoryWrapper = repositoryWrapper;
     }
-    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(SoapEnvelope iti41Envelope)
+    public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope)
     {
         var registryObjectList = iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
 
@@ -90,7 +90,7 @@ public class RepositoryService
 
     }
 
-    public SoapRequestResult<SoapEnvelope> CheckIfDocumentExistsInRepository(SoapEnvelope iti41Envelope)
+    public async Task<SoapRequestResult<SoapEnvelope>> CheckIfDocumentExistsInRepository(SoapEnvelope iti41Envelope)
     {
         var registryResponse = new RegistryResponseType();
         var documents = iti41Envelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
@@ -110,7 +110,7 @@ public class RepositoryService
     }
 
 
-    public SoapRequestResult<SoapEnvelope> GetContentFromRepository(SoapEnvelope iti43envelope)
+    public async Task<SoapRequestResult<SoapEnvelope>> GetContentFromRepository(SoapEnvelope iti43envelope)
     {
         var registryResponse = new RegistryResponseType();
         var retrieveResponse = new RetrieveDocumentSetResponseType();
@@ -172,6 +172,43 @@ public class RepositoryService
         return resultEnvelope;
     }
 
+
+    public async Task<SoapRequestResult<SoapEnvelope>> RemoveDocuments(SoapEnvelope soapEnvelope)
+    {
+        var registryResponse = new RegistryResponseType();
+        var removeDocuments = soapEnvelope.Body.RemoveDocumentsRequest.DocumentRequest;
+
+        foreach (var document in removeDocuments)
+        {
+            if (_xdsConfig.HomeCommunityId == document.HomeCommunityId && 
+                _xdsConfig.RepositoryUniqueId == document.RepositoryUniqueId)
+            {
+                if (document.DocumentUniqueId is null)
+                {
+                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {document.DocumentUniqueId}".Trim());
+                    continue;
+                }
+
+                // Try to remove current document
+                var removeResult = _repositoryWrapper.DeleteSingleDocument(document.DocumentUniqueId);
+
+                if (removeResult is false)
+                {
+                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found {document.DocumentUniqueId}".Trim());
+                    continue;
+                }
+            }
+            else
+            {
+                registryResponse.AddWarning(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing RepositoryId or HomeCommunityId {document.RepositoryUniqueId}".Trim());
+                continue;
+            }
+
+        }
+        registryResponse.EvaluateStatusCode();
+        return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+    }
+    
     public MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
     {
         var documents = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
@@ -209,41 +246,5 @@ public class RepositoryService
 
 
         return multipart;
-    }
-
-    public SoapRequestResult<SoapEnvelope> RemoveDocuments(SoapEnvelope soapEnvelope)
-    {
-        var registryResponse = new RegistryResponseType();
-        var removeDocuments = soapEnvelope.Body.RemoveDocumentsRequest.DocumentRequest;
-
-        foreach (var document in removeDocuments)
-        {
-            if (_xdsConfig.HomeCommunityId == document.HomeCommunityId && 
-                _xdsConfig.RepositoryUniqueId == document.RepositoryUniqueId)
-            {
-                if (document.DocumentUniqueId is null)
-                {
-                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {document.DocumentUniqueId}".Trim());
-                    continue;
-                }
-
-                // Try to remove current document
-                var removeResult = _repositoryWrapper.DeleteSingleDocument(document.DocumentUniqueId);
-
-                if (removeResult is false)
-                {
-                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found {document.DocumentUniqueId}".Trim());
-                    continue;
-                }
-            }
-            else
-            {
-                registryResponse.AddWarning(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing RepositoryId or HomeCommunityId {document.RepositoryUniqueId}".Trim());
-                continue;
-            }
-
-        }
-        registryResponse.EvaluateStatusCode();
-        return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 }

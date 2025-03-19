@@ -135,6 +135,23 @@ public static class Constants
             {
                 public const string Status = "$XDSFolderStatus";
             }
+
+            public static class GetFolders
+            {
+                public const string XdsFolderEntryUuid = "$XDSFolderEntryUUID";
+                public const string XdsFolderUniqueId = "$XDSFolderUniqueId";
+            }
+
+            public static class GetFolderAndContents
+            {
+                public const string XdsFolderEntryUuid = "$XDSFolderEntryUUID";
+                public const string XdsFolderUniqueId = "$XDSFolderUniqueId";
+                public const string XdsDocumentEntryFormatCode = "$XDSDocumentEntryFormatCode";
+                public const string XdsDocumentEntryConfidentialityCode = "$XDSDocumentEntryConfidentialityCode";
+                public const string XdsDocumentEntryType = "$XDSDocumentEntryType";
+                public const string homeCommunityId = "$XDSDocumentEntryFormatCode";
+            }
+
             public static class Associations
             {
                 public const string Uuid = "$uuid";

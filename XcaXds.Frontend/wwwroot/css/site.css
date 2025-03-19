@@ -1,0 +1,33 @@
+﻿.ebrim-card {
+    background: var(--bs-light);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.ebrim-card:hover {
+    transform: scale(1.02);
+}
+
+.ebrim-header {
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ebrim-body ul {
+    padding-left: 20px;
+}
+
+.ebrim-body li {
+    list-style: none;
+    padding: 5px 0;
+}
+
+.ebrim-body i {
+    color: var(--bs-primary);
+}

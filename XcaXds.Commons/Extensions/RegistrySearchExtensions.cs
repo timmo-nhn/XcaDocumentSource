@@ -1,7 +1,12 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Immutable;
+using System.Data;
+using System.Globalization;
+using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
-using System.Xml.Serialization;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using static XcaXds.Commons.Constants.Xds.QueryParamters;
+using static XcaXds.Commons.Constants.Xds.Uuids;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -252,7 +257,7 @@ public static class FindDocuments
 
             return authorPersons.All(authorPersonGroup =>
                 authorPersonGroup.Any(authorPersonListFromInput =>
-                    authorsFromExtrinsicObject.Any(author => 
+                    authorsFromExtrinsicObject.Any(author =>
                     {
                         var authorRegexPattern = Regex.Escape(authorPersonListFromInput)
                             .Replace("%", ".*") // [%]: Matches any string
@@ -272,17 +277,16 @@ public static class FindDocuments
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? formatCodes)
     {
         if (formatCodes == null || formatCodes.Count == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo =>
+        return source.Where(rp =>
         {
-            // Get all the author persons for the current ExtrinsicObject (eo)
-            var formatCodesFromExtrinsicObject = eo.Classification
-                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.FormatCode)
-                .SelectMany(cf => cf.GetSlot(Constants.Xds.SlotNames.CodingScheme)
-                    .Select(s => s.GetFirstValue()))
-                .ToArray(); 
+            var formatCodesFromRegistryPackage = rp.Classification
+                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.FormatCode);
 
-            return formatCodes.All(formatCodeGroup =>
-                formatCodeGroup.Any(formatCode => formatCodesFromExtrinsicObject.Contains(formatCode)));
+            return formatCodes.Any(formatCodeGroup =>
+                formatCodeGroup.Any(formatCode =>
+                    formatCodesFromRegistryPackage.Any(ct => formatCode == ct.NodeRepresentation)
+                )
+            );
         });
     }
 
@@ -292,7 +296,7 @@ public static class FindDocuments
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryStatus(
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? statuses)
     {
-        if ( statuses.Count == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
+        if (statuses.Count == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
 
         return source.Where(eo =>
             statuses.All(group => group.Any(status => status == eo.Status)) // AND logic for groups, OR logic inside groups
@@ -305,20 +309,15 @@ public static class FindDocuments
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryType(
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? typeCodes)
     {
-        if (typeCodes == null || typeCodes.Count == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo =>
-        {
-            var typeCodesFromExtrinsicObject = eo.Classification
-                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.FormatCode)
-                .SelectMany(cf => cf.GetSlot(Constants.Xds.SlotNames.CodingScheme)
-                    .Select(s => s.GetFirstValue()))
-                .ToArray(); 
+        // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.6.2
+        // If no value is specified for DocumentEntryType, the value requesting only Stable Document Entries shall be assumed.
 
-            return typeCodes.All(typeCodeGroup =>
-                typeCodeGroup.Any(typeCode => typeCodesFromExtrinsicObject.Contains(typeCode)));
-        });
+        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries.NoUrn()))); ;
+
+        return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType.NoUrn())));
     }
 }
+
 
 public static class FindSubmissionSets
 {
@@ -329,7 +328,7 @@ public static class FindSubmissionSets
         this IEnumerable<RegistryPackageType> source, string? patientId)
     {
         if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<RegistryPackageType>();  // Required field, return nothing if not specified
-        return source.Where(eo => eo.ExternalIdentifier.Any(ei => 
+        return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
             ei.IdentificationScheme == Constants.Xds.Uuids.SubmissionSet.PatientId &&
             ei.Value.Contains(patientId)));
     }
@@ -342,10 +341,12 @@ public static class FindSubmissionSets
     {
         if (sourceIdLists == null || sourceIdLists.Count == 0) return source;
 
-        return source.Where(eo => eo.ExternalIdentifier
+        return source.Where(rp => rp.ExternalIdentifier
             .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.SubmissionSet.SourceId)
             .Any(extId => sourceIdLists.Any(sourceIdArray => sourceIdArray.Contains(extId.Value))));
     }
+
+
 
     /// | Parameter Name (ITI-18)             | Attribute                                    | Opt | Mult |
     /// |-------------------------------------|----------------------------------------------|-----|------|
@@ -394,14 +395,14 @@ public static class FindSubmissionSets
                     .Select(s => s.GetFirstValue()))
                 .ToArray();
 
-                return authorsFromExtrinsicObject.Any(author =>
-                {
-                    var authorRegexPattern = Regex.Escape(authorPerson)
-                        .Replace("%", ".*") // [%]: Matches any string (.*)
-                        .Replace("_", "."); // [_]: Matches any single chararcter (.)
+            return authorsFromExtrinsicObject.Any(author =>
+            {
+                var authorRegexPattern = Regex.Escape(authorPerson)
+                    .Replace("%", ".*") // [%]: Matches any string (.*)
+                    .Replace("_", "."); // [_]: Matches any single chararcter (.)
 
-                    return Regex.IsMatch(author, $"^{authorRegexPattern}$");
-                });
+                return Regex.IsMatch(author, $"^{authorRegexPattern}$");
+            });
         });
     }
 
@@ -418,12 +419,6 @@ public static class FindSubmissionSets
             .Any(hcfTypeCode => healthcareFacilityTypeCodes.Any(hcfTypeCodes => hcfTypeCodes.Contains(hcfTypeCode))));
     }
 }
-
-public static class FindFolders
-{
-
-}
-
 
 public static class GetAssociations
 {
@@ -448,8 +443,137 @@ public static class GetAssociations
     }
 }
 
+public static class GetFolders
+{
+    // Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified.
+    // This transaction shall return an XDSStoredQueryParamNumber error if both parameters are specified
+
+    /// | Parameter Name (ITI-18)    | Attribute           | Opt | Mult |
+    /// |----------------------------|---------------------|-----|------|
+    /// | $XDSFolderEntryUUID        | XDSFolder.entryUUID | O   | -    |
+    public static IEnumerable<RegistryPackageType> ByXdsFolderEntryUuid(
+    this IEnumerable<RegistryPackageType> source, List<string[]>? entryUuidList)
+    {
+        if (entryUuidList == null || entryUuidList.Count == 0) return source;
+        return source.Where(rp => entryUuidList.Any(uuids => uuids.Contains(rp.Id)));
+    }
+
+    /// | Parameter Name (ITI-18)   | Attribute           | Opt | Mult |
+    /// |---------------------------|---------------------|-----|------|
+    /// | $XDSFolderUniqueId        | XDSFolder.entryUUID | O   | -    |
+    public static IEnumerable<RegistryPackageType> ByXdsFolderUniqueId(
+    this IEnumerable<RegistryPackageType> source, List<string[]>? uniqueIdList)
+    {
+        if (uniqueIdList == null || uniqueIdList.Count == 0) return source;
+        return source.Where(eo => eo.ExternalIdentifier
+            .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.Folder.UniqueId)
+            .Any(extId => uniqueIdList.Any(sourceIdArray => sourceIdArray.Contains(extId.Value))));
+    }
+}
+
+public static class GetFolderAndContents
+{
+    /// | Parameter Name (ITI-18)    | Attribute           | Opt | Mult |
+    /// |----------------------------|---------------------|-----|------|
+    /// | $XDSFolderEntryUUID        | XDSFolder.entryUUID | O   | -    |
+    public static IEnumerable<IdentifiableType> ByXdsFolderEntryUuid(
+        this IEnumerable<IdentifiableType> source, string? entryUuid)
+    {
+        if (entryUuid == null) return source;
+
+        var folders = source.GetFolder(entryUuid);
+
+        var contentRelatedToFolder = source.GetContentRelatingToFolders(folders);
+
+        return contentRelatedToFolder;
+    }
+
+    /// | Parameter Name (ITI-18)   | Attribute           | Opt | Mult |
+    /// |---------------------------|---------------------|-----|------|
+    /// | $XDSFolderUniqueId        | XDSFolder.entryUUID | O   | -    |
+    public static IEnumerable<IdentifiableType> ByXdsFolderUniqueId(
+        this IEnumerable<IdentifiableType> source, string? uniqueId)
+    {
+        if (uniqueId == null) return source;
+        return source.OfType<RegistryPackageType>().Where(eo => eo.ExternalIdentifier
+            .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.Folder.UniqueId)
+            .Any(extId => uniqueId == extId.Id));
+    }
+
+    /// | Parameter Name (ITI-18)     | Attribute                   | Opt | Mult |
+    /// |-----------------------------|-----------------------------|-----|------|
+    /// | $XDSDocumentEntryFormatCode | XDSDocumentEntry.formatCode | O   | M    |
+    public static IEnumerable<IdentifiableType> ByXdsDocumentEntryFormatCode(
+        this IEnumerable<IdentifiableType> source, List<string[]>? formatCodes)
+    {
+        if (formatCodes == null || formatCodes.Count == 0) return source; // Optional field, return everything if not specified
+
+        return source;
+    }
+
+    /// | Parameter Name (ITI-18)                  | Attribute                            | Opt | Mult |
+    /// |------------------------------------------|--------------------------------------|-----|------|
+    /// | $XDSDocumentEntryConfidentialityCode (3) | XDSDocumentEntry.confidentialityCode | O   | M    |
+    public static IEnumerable<RegistryPackageType> ByXdsDocumentEntryConfidentialityCode(
+        this IEnumerable<RegistryPackageType> source, List<string[]>? confidentialityGroups)
+    {
+        if (confidentialityGroups == null || confidentialityGroups.Count == 0) return source; // Optional field, return everything if not specified
+
+        return source;
+    }
+
+    public static IEnumerable<RegistryPackageType> ByXdsDocumentEntryType(
+        this IEnumerable<RegistryPackageType> source, List<string[]>? typeCodes)
+    {
+        // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.6.2
+        // If no value is specified for DocumentEntryType, the value requesting only Stable Document Entries shall be assumed
+        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries.NoUrn()))); ;
+        return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType.NoUrn())));
+    }
+
+}
 public static class Commons
 {
+    /// <summary>
+    /// Returns:
+    /// Folder identified
+    /// DocumentEntries linked to the Folder by HasMember Associations(DocumentEntries shall pass the above rules)
+    /// The HasMember Associations identified in the previous rule
+    /// </summary>
+    public static IEnumerable<IdentifiableType> GetContentRelatingToFolders(
+        this IEnumerable<IdentifiableType> source, IEnumerable<IdentifiableType> folders)
+    {
+
+        var folderAssociations = source.OfType<AssociationType>()
+            .Where(aso => folders.Any(fol => aso.TargetObject == fol.Id)).ToList();
+
+        var associationsBySource = source.OfType<AssociationType>()
+            .GroupBy(a => a.SourceObject)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var allRelatedAssociations = folderAssociations
+            .SelectMany(folderAssoc => associationsBySource.TryGetValue(folderAssoc.SourceObject, out var related)
+                ? related
+                : Enumerable.Empty<AssociationType>())
+            .ToList();
+
+        // HasMember Associations for DocumentEntries linked to the Folder
+        var allTargetObjects = allRelatedAssociations
+            .Where(asoc => asoc.AssociationTypeData == Constants.Xds.AssociationType.HasMember)
+            .Select(a => a.TargetObject).Distinct().ToList();
+
+        var documentEntries = source.Where(ro => allTargetObjects.Contains(ro.Id)).ToList();
+
+        return documentEntries.Concat(folderAssociations);
+    }
+
+
+    public static IEnumerable<IdentifiableType> GetFolder(this IEnumerable<IdentifiableType> source, string entryUuid)
+    {
+        return source.OfType<RegistryPackageType>().Where(rp =>
+            rp.Classification.Any(cl => cl.ClassificationNode == Constants.Xds.Uuids.Folder.FolderClassificationNode && rp.Id == entryUuid));
+    }
+
     public static string[] GetValues(this SlotType[] slotTypes, bool codeMultipleValues = true)
     {
         if (slotTypes == null || slotTypes.Length == 0)
@@ -474,9 +598,4 @@ public static class Commons
             .Where(values => values.Length > 0)
             .ToList();
     }
-}
-
-public class SearchCodedValues
-{
-
 }

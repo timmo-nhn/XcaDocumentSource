@@ -594,4 +594,305 @@
       </ValueList>
     </Slot>
   </Association>
+  <RegistryPackage id="RegistryPackageFolder01" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+    <Slot name="submissionTime">
+      <ValueList>
+        <Value>20041225235050</Value>
+      </ValueList>
+    </Slot>
+    <Name>
+      <LocalizedString value="Physical" />
+    </Name>
+    <Description>
+      <LocalizedString value="Annual physical" />
+    </Description>
+    <Classification classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d" classifiedObject="RegistryPackageFolder01" classificationNode="urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2" />
+    <Classification id="cl08" classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d" classifiedObject="RegistryPackageFolder01">
+      <Slot name="authorPerson">
+        <ValueList>
+          <Value>Sherry Dopplemeyer</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>Cleveland Clinic</Value>
+          <Value>Berea Community</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorRole">
+        <ValueList>
+          <Value>Pry Surgon</Value>
+        </ValueList>
+      </Slot>
+      <Slot name="authorSpecialty">
+        <ValueList>
+          <Value>Orthopedic</Value>
+        </ValueList>
+      </Slot>
+    </Classification>
+    <Classification id="cl09" classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="RegistryPackageFolder01" nodeRepresentation="History and Physical">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>Connect-a-thon contentTypeCodes</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString value="History and Physical" />
+      </Name>
+    </Classification>
+    <Classification id="eb031e63-9ba6-4a55-90ed-308e39cad7f8" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="ExtrinsicObject01" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+      <Slot name="codingScheme">
+        <ValueList>
+          <Value>http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode</Value>
+        </ValueList>
+      </Slot>
+      <Name>
+        <LocalizedString value="urn:ihe:iti:xds:2017:mimeTypeSufficient" />
+      </Name>
+    </Classification>
+    <ExternalIdentifier id="urn:uuid:9eda40e5-2686-4398-b7e8-73e21b9f751b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="urn:uuid:7eb8bab0-2b0b-4d7b-ad41-7ef322916212" identificationScheme="urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a" value="1.3.6.1.4.1.12559.11.1.2.2.1.1.3.480">
+      <Name>
+        <LocalizedString value="XDSFolder.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="ei04" registryObject="RegistryPackageFolder01" identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" value="3670984664">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.sourceId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="ei05" registryObject="RegistryPackageFolder01" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="SELF-5^^^&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </RegistryPackage>
+  <RegistryPackage id="FT_RegistryPackageFolder01" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+    <Slot name="lastUpdateTime">
+      <ValueList>
+        <Value>20250310101346</Value>
+      </ValueList>
+    </Slot>
+    <Name>
+      <LocalizedString value="XDS Folder 1" />
+    </Name>
+    <Classification id="urn:uuid:e34d77fe-acb7-42b5-b413-3ae5779d4411" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:1ba97051-7806-41a8-a48b-8fce7af683c5" classifiedObject="FT_RegistryPackageFolder01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:f1343633-42ef-41a1-8fad-93abb1f90678" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classifiedObject="FT_RegistryPackageFolder01" classificationNode="urn:uuid:d9d542f3-6cc4-48b6-8870-ea235fbc94c2" />
+    <ExternalIdentifier id="urn:uuid:f592d90c-dd1b-4190-b278-d44559317c44" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_RegistryPackageFolder01" identificationScheme="urn:uuid:75df8f67-9973-4fbe-a900-df66cefecc5a" value="1.3.6.1.4.1.12559.11.11.9.1.165058">
+      <Name>
+        <LocalizedString value="XDSFolder.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="0b8cddff-109a-4b33-93f1-eced15ac2881" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_RegistryPackageFolder01" identificationScheme="urn:uuid:f64ffdf0-4b97-4e06-b79f-a52b38ec2f8a" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+      <Name>
+        <LocalizedString value="XDSFolder.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </RegistryPackage>
+  <RegistryPackage id="FT_SubmissionSet01" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+    <Slot name="submissionTime">
+      <ValueList>
+        <Value>20250310101346</Value>
+      </ValueList>
+    </Slot>
+    <Name>
+      <LocalizedString value="XDS Submission Set" />
+    </Name>
+    <Classification id="urn:uuid:7d8892c2-f016-47eb-bb5a-fe7ed0d2b15f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="FT_SubmissionSet01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:28533e31-084c-4cf4-b10a-9052cbaa8443" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classifiedObject="FT_SubmissionSet01" classificationNode="urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd" />
+    <ExternalIdentifier id="urn:uuid:b51b301b-1684-4416-bdfc-bdd74a6cc56b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_SubmissionSet01" identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" value="1.3.6.1.4.1.21367.2012.2.1.1">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.sourceId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="urn:uuid:f81c9b62-61f3-4eea-9b6a-054aff9baf59" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_SubmissionSet01" identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" value="1.3.6.1.4.1.12559.11.1.2.2.1.1.4.165057">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="7123956e-60fa-4ca6-888d-2a3ef7eb7230" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_SubmissionSet01" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </RegistryPackage>
+  <RegistryPackage id="FT_SubmissionSet02" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+    <Slot name="submissionTime">
+      <ValueList>
+        <Value>20250310101346</Value>
+      </ValueList>
+    </Slot>
+    <Name>
+      <LocalizedString value="XDS Submission Set" />
+    </Name>
+    <Classification id="urn:uuid:7d8892c2-f016-47eb-bb5a-fe7ed0d2b15f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="FT_SubmissionSet01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:28533e31-084c-4cf4-b10a-9052cbaa8443" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classifiedObject="FT_SubmissionSet01" classificationNode="urn:uuid:a54d6aa5-d40d-43f9-88c5-b4633d873bdd" />
+    <ExternalIdentifier id="urn:uuid:b51b301b-1684-4416-bdfc-bdd74a6cc56b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_SubmissionSet01" identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" value="1.3.6.1.4.1.21367.2012.2.1.1">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.sourceId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="urn:uuid:f81c9b62-61f3-4eea-9b6a-054aff9baf59" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_SubmissionSet01" identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" value="1.3.6.1.4.1.12559.11.1.2.2.1.1.4.165057">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="7123956e-60fa-4ca6-888d-2a3ef7eb7230" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_SubmissionSet01" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="">
+      <Name>
+        <LocalizedString value="XDSSubmissionSet.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </RegistryPackage>
+  <ExtrinsicObject id="FT_DocumentEntry01" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+    <Slot name="languageCode">
+      <ValueList>
+        <Value>en-us</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="creationTime">
+      <ValueList>
+        <Value>20250310101338</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId">
+      <ValueList>
+        <Value />
+      </ValueList>
+    </Slot>
+    <Name>
+      <LocalizedString value="XDSDocument Entry 1" />
+    </Name>
+    <Classification id="urn:uuid:aa1f9db7-652f-4855-8548-9d1775761e4a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="FT_DocumentEntry01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:df86bf5b-7a75-4bba-98eb-c71eab2c623d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="FT_DocumentEntry01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:698e59e3-83b4-4bb3-bbf2-5077329f2941" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="FT_DocumentEntry01" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:5df6323b-47c6-4424-bc88-5b377a18750f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="FT_DocumentEntry01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:74f894ee-71c4-4c98-b7f7-9df20187d8eb" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="FT_DocumentEntry01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:f8323e27-5419-49ea-afec-3443de4afe36" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="FT_DocumentEntry01">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <ExternalIdentifier id="urn:uuid:728e322c-d033-40ea-ab05-164b8445a511" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_DocumentEntry01" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="1.3.6.1.4.1.12559.11.11.9.1.165059">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="78fc7538-c83f-4441-9895-627c8e529f75" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_DocumentEntry01" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
+    <ExtrinsicObject id="FT_DocumentEntry02" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+    <Slot name="languageCode">
+      <ValueList>
+        <Value>en-us</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="creationTime">
+      <ValueList>
+        <Value>20250310101338</Value>
+      </ValueList>
+    </Slot>
+    <Slot name="sourcePatientId">
+      <ValueList>
+        <Value />
+      </ValueList>
+    </Slot>
+    <Name>
+      <LocalizedString value="XDSDocument Entry 1" />
+    </Name>
+    <Classification id="urn:uuid:aa1f9db7-652f-4855-8548-9d1775761e4a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="FT_DocumentEntry02">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:df86bf5b-7a75-4bba-98eb-c71eab2c623d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="FT_DocumentEntry02">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:698e59e3-83b4-4bb3-bbf2-5077329f2941" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="FT_DocumentEntry02" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:5df6323b-47c6-4424-bc88-5b377a18750f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="FT_DocumentEntry02">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:74f894ee-71c4-4c98-b7f7-9df20187d8eb" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="FT_DocumentEntry02">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <Classification id="urn:uuid:f8323e27-5419-49ea-afec-3443de4afe36" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="FT_DocumentEntry02">
+      <Slot name="codingScheme">
+        <ValueList />
+      </Slot>
+      <Name />
+    </Classification>
+    <ExternalIdentifier id="urn:uuid:728e322c-d033-40ea-ab05-164b8445a511" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_DocumentEntry02" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="1.3.6.1.4.1.12559.11.11.9.1.165059">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.uniqueId" />
+      </Name>
+    </ExternalIdentifier>
+    <ExternalIdentifier id="78fc7538-c83f-4441-9895-627c8e529f75" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="FT_DocumentEntry02" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="">
+      <Name>
+        <LocalizedString value="XDSDocumentEntry.patientId" />
+      </Name>
+    </ExternalIdentifier>
+  </ExtrinsicObject>
+
+  <Association id="FT_ASS01_SSFD" associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="FT_SubmissionSet01" targetObject="FT_RegistryPackageFolder01" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" />
+  <Association id="FT_ASS02_SSFD" associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="FT_SubmissionSet02" targetObject="FT_RegistryPackageFolder01" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" />
+  <Association id="FT_ASS03_SSDE" associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="FT_SubmissionSet01" targetObject="FT_DocumentEntry01" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" />
+  <Association id="TF_ASS04_SSDE" associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="FT_SubmissionSet02" targetObject="FT_DocumentEntry02" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" />
+
 </Registry>

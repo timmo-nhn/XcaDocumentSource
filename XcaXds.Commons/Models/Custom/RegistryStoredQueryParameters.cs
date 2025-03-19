@@ -75,6 +75,28 @@ public static class RegistryStoredQueryParameters
             HomeCommunityId = adhocQuery.GetSlot(Constants.Xds.QueryParamters.Associations.HomeCommunityId).FirstOrDefault()?.GetFirstValue(),
         };
     }
+
+    public static GetFolders GetFoldersParameters(AdhocQueryType adhocQuery)
+    {
+        return new GetFolders()
+        {
+            XdsFolderEntryUuid = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolders.XdsFolderEntryUuid).GetValuesGrouped(),
+            XdsFolderUniqueId = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolders.XdsFolderUniqueId).GetValuesGrouped()
+        };
+    }
+
+    public static GetFolderAndContents GetFolderAndContentsParameters(AdhocQueryType adhocQuery)
+    {
+        return new GetFolderAndContents()
+        {
+            XdsFolderEntryUuid = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolderAndContents.XdsFolderEntryUuid).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderUniqueId = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolderAndContents.XdsFolderUniqueId).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryFormatCode = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolderAndContents.XdsDocumentEntryFormatCode).GetValuesGrouped(),
+            XdsDocumentEntryConfidentialityCode = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolderAndContents.XdsDocumentEntryConfidentialityCode).GetValuesGrouped(),
+            XdsDocumentEntryType = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolderAndContents.XdsDocumentEntryType).GetValuesGrouped(),
+            homeCommunityId = adhocQuery.GetSlot(Constants.Xds.QueryParamters.GetFolderAndContents.homeCommunityId).FirstOrDefault()?.GetFirstValue(),
+        };
+    }
 }
 
 
@@ -135,4 +157,20 @@ public class GetAssociations
     public List<string[]> Uuid { get; set; }
     public string? HomeCommunityId { get; set; }
 
+}
+
+public class GetFolders
+{
+    public List<string[]>? XdsFolderEntryUuid { get; set; }
+    public List<string[]>? XdsFolderUniqueId { get; set; }
+}
+
+public class GetFolderAndContents
+{
+    public string? XdsFolderEntryUuid { get; set; }
+    public string? XdsFolderUniqueId { get; set; }
+    public List<string[]>? XdsDocumentEntryFormatCode { get; set; }
+    public List<string[]>? XdsDocumentEntryConfidentialityCode { get; set; }
+    public List<string[]>? XdsDocumentEntryType { get; set; }
+    public string? homeCommunityId { get; set; }
 }
