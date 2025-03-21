@@ -1,0 +1,64 @@
+﻿@using Microsoft.AspNetCore.Components
+@inject IJSRuntime JS
+
+<div class="resizable-container" style="--init-width:@InitWidth; --min-width:@MinWidth;">
+    <div class="pane left-pane" style="width:@InitWidth;">
+        @LeftContent
+    </div>
+    <div class="resizer"></div>
+    <div class="pane right-pane">
+        @RightContent
+    </div>
+</div>
+
+<style>
+    .resizable-container {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        border: 1px solid #ccc;
+    }
+
+    .pane {
+        height: 100%;
+    }
+
+    .left-pane {
+        width: 50%;
+        background: lightgray;
+    }
+
+    .right-pane {
+        flex-grow: 1;
+        overflow: auto;
+        background: lightgray;
+    }
+
+    .resizer {
+        width: 5px;
+        cursor: ew-resize;
+        background: darkgray;
+        position: relative;
+    }
+</style>
+
+@code {
+    [Parameter] 
+    public RenderFragment LeftContent { get; set; } = default!;
+    [Parameter]
+    public RenderFragment RightContent { get; set; } = default!;
+
+    [Parameter] 
+    public string InitWidth { get; set; }
+    [Parameter] 
+    public string MinWidth { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("resizablePanes.init");
+        }
+    }
+
+}

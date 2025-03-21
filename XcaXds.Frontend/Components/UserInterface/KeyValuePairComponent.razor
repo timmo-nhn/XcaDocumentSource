@@ -1,0 +1,45 @@
+﻿<div>
+    @foreach (var pair in KeyValuePairs.Select((pair, index) => new { pair, index }))
+    {
+        <div class="form-group">
+            <InputText class="form-control mb-2" @bind="pair.pair.Key" @onchange="OnKeyValueChanged" placeholder="Key" />
+            <InputText class="form-control mb-2" @bind="pair.pair.Value" @onchange="OnKeyValueChanged" placeholder="Value" />
+            @if (KeyValuePairs.Count > 1)
+            {
+                <button class="btn btn-danger" @onclick="() => RemoveKeyValuePair(pair.index)">Remove</button>
+            }
+        </div>
+    }
+
+    <button class="btn btn-primary mt-2" @onclick="AddKeyValuePair">Add New Key-Value Pair</button>
+</div>
+
+@code {
+    [Parameter] 
+    public List<KeyValuePair<string, string>> KeyValuePairs { get; set; } = new();
+
+    [Parameter] 
+    public EventCallback<List<KeyValuePair<string, string>>> KeyValuePairsChanged { get; set; }
+
+    private void OnKeyValueChanged()
+    {
+        // Trigger an update to propagate changes to the parent
+        KeyValuePairsChanged.InvokeAsync(KeyValuePairs);
+    }
+
+    private void AddKeyValuePair()
+    {
+        KeyValuePairs.Add(new KeyValuePair<string, string>("", ""));
+        OnKeyValueChanged();
+    }
+
+    private void RemoveKeyValuePair(int index)
+    {
+        if (KeyValuePairs.Count > 1)
+        {
+            KeyValuePairs.RemoveAt(index);
+            OnKeyValueChanged();
+        }
+    }
+}
+

@@ -31,13 +31,13 @@
 <hr />
 <Card>
     <CardHeader>Search</CardHeader>
-    <CardBody  Style="display: flex; flex-direction: row; gap: 20px;">
-        <ResizeablePaneComponent>
+    <CardBody>
+        <ResizeablePane InitWidth="30%">
             <LeftContent>
-                <Card Style="flex: 1;">
+                <Card Style="flex: 1;min-width: 100%">
                     <CardHeader>Parameters</CardHeader>
-                    <CardBody>
-                        <Dropdown Style="min-width: 250px;" Color="DropdownColor.Secondary">
+                    <CardBody Style="padding:10px;">
+                        <Dropdown Style="min-width: 100%" Color="DropdownColor.Secondary">
                             <DropdownToggleButton>@(adhocQueryInput.Key ?? "Select Stored Query type...")</DropdownToggleButton>
                             <DropdownMenu>
                                 <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = new()'>None</DropdownItem>
@@ -49,7 +49,7 @@
                         </Dropdown>
                         @if (adhocQueryInput.Key is not null)
                         {
-                            <TextInput @bind-Value="@storedQueryQueryType" onchange="@AddStoredQuery" Placeholder="Stored Query Parameter"/>
+                            <KeyValuePairComponent KeyValuePairs="keyValuePairs" KeyValuePairsChanged="OnKeyValuePairsChanged" />
                         }
                     </CardBody>
                 </Card>
@@ -62,12 +62,9 @@
                     </CardBody>
                 </Card>
             </RightContent>
-        </ResizeablePaneComponent>
-
+        </ResizeablePane>
     </CardBody>
 </Card>
-
-
 
 <Button @ref="sendRequestButton" class="btn btn-primary" @onclick="SendSoapRequest"><Icon Name="IconName.Envelope" /> Send SOAP-Request</Button>
 
@@ -82,7 +79,9 @@
     private string backendUrl;
     private string requestMessage;
     private SoapEnvelope ResponseEnvelope;
+
     private string storedQueryQueryType;
+    
     private KeyValuePair<string,string> adhocQueryInput = new();
     private Dictionary<string, string> storedQueryTypes = typeof(Constants.Xds.StoredQueries).GetAsDictionary();
 
@@ -92,10 +91,13 @@
     List<ToastMessage> messages = new();
     private Modal stackTraceModal = default!;
     private Exception modalException = new();
+    private List<KeyValuePair<string, string>> keyValuePairs = new List<KeyValuePair<string, string>>();
 
-    private async Task AddStoredQuery()
+
+
+    private void CheckChanged()
     {
-
+        requestMessage = $"Last change {DateTime.Now}";
     }
 
     private async Task SendSoapRequest()
@@ -163,6 +165,16 @@
 
         }
         sendRequestButton.HideLoading();
-
     }
+    private void OnKeyValuePairsChanged(List<KeyValuePair<string, string>> updatedKeyValuePairs)
+    {
+        keyValuePairs = updatedKeyValuePairs;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        keyValuePairs.Add(new KeyValuePair<string, string>("", ""));
+    }
+
 }

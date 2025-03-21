@@ -1,29 +1,57 @@
-﻿window.resizable = {
-    startResize: function (element, onResize) {
-        var initialX = 0;
-        var initialWidth = 0;
-        var resizeHandler;
+﻿window.resizablePanes = {
+    init: function () {
+        // Select all resizable components on the page
+        const containers = document.querySelectorAll(".resizable-container");
 
-        element.addEventListener('mousedown', function (e) {
-            initialX = e.clientX;
-            initialWidth = element.getBoundingClientRect().width;
+        containers.forEach(container => {
+            const resizer = container.querySelector(".resizer");
+            const leftPane = container.querySelector(".left-pane");
+            const rightPane = container.querySelector(".right-pane");
 
-            resizeHandler = function (e) {
-                var width = Math.max(100, initialWidth + e.clientX - initialX); // Minimum width is 100px
-                onResize(width);
-            };
+            let isResizing = false;
+            let minWidth = parseInt(getComputedStyle(container).getPropertyValue("--min-width"));
 
-            document.addEventListener('mousemove', resizeHandler);
-            document.addEventListener('mouseup', function () {
-                document.removeEventListener('mousemove', resizeHandler);
-            });
+            function startResize(event) {
+                isResizing = true;
+                document.addEventListener("mousemove", resize);
+                document.addEventListener("mouseup", stopResize);
+            }
+
+            function resize(event) {
+                let containerOffset = container.getBoundingClientRect().left;
+                let adjustedOffset = event.clientX - containerOffset;
+
+                if (adjustedOffset < minWidth) adjustedOffset = minWidth;
+
+                leftPane.style.width = adjustedOffset + "px";
+                rightPane.style.width = `calc(100% - ${adjustedOffset}px)`;
+            }
+            function toggle(event) {
+                let containerOffset = container.getBoundingClientRect().left;
+                let adjustedOffset = event.clientX - containerOffset;
+
+                if (adjustedOffset < minWidth) adjustedOffset = minWidth;
+                if (leftPane.style.width == "0px" || leftPane.style.width == "1px" || leftPane.style.width == "2px" || leftPane.style.width == "3px") {
+                    leftPane.style.width = 250 + "px";
+                }
+                else {
+                    leftPane.style.width = 0 + "px";
+                }
+
+                rightPane.style.width = `calc(100% - ${adjustedOffset}px)`;
+            }
+            function stopResize() {
+                isResizing = false;
+                document.removeEventListener("mousemove", resize);
+                document.removeEventListener("mouseup", stopResize);
+            }
+
+            resizer.addEventListener("mousedown", startResize);
+            resizer.addEventListener("dblclick", toggle);
         });
     }
 };
 
-window.getContainerWidth = (element) => {
-    if (element) {
-        return element.getBoundingClientRect().width;
-    }
-    return 0;
-};
+window.addEventListener("load", () => {
+    window.resizablePanes.init();
+});
