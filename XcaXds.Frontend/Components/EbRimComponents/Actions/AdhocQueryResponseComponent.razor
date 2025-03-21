@@ -4,15 +4,16 @@
 
 <div class="ebrim-card">
     <div class="ebrim-header">
-        SOAP-Envelope
+     AdhocQueryResponse
     </div>
     <div class="ebrim-body">
-        <SoapHeaderComponent SoapHeader=SoapEnvelope.Header />
-        <SoapBodyComponent SoapBody=SoapEnvelope.Body />
+        <ul>
+            <IdentifiableTypeComponent identifiableType=AdhocQueryResponse.RegistryObjectList />
+        </ul>
     </div>
 </div>
 
 @code {
     [Parameter]
-    public SoapEnvelope SoapEnvelope { get; set; } = default!;
+    public AdhocQueryResponse AdhocQueryResponse { get; set; } = default!;
 }

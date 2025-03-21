@@ -1,0 +1,24 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+
+<div class="ebrim-card international-string-type-card">
+    <div class="ebrim-header international-string-type-header">
+        InternationalString
+    </div>
+    <div class="ebrim-body">
+            @if (InternationalStringType != null && InternationalStringType.LocalizedString != null && InternationalStringType.LocalizedString.Length != 0)
+            {
+                @foreach (var item in InternationalStringType.LocalizedString)
+                {
+                    <p>@item.Value (@item.Charset)</p>
+                }      
+            }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public InternationalStringType InternationalStringType { get; set; } = default!;
+}

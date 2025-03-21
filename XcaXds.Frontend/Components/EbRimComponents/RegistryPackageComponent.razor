@@ -6,21 +6,44 @@
 @using XcaXds.Frontend.Components.EbRimComponents;
 
 
-<div class="ebrim-card">
-    <div class="ebrim-header">
-        <i class="bi bi-tag"></i> @RegistryPackage.Name
+<div class="ebrim-card registry-package-card">
+    <div class="ebrim-header registry-package-header">
+        RegistryPackage
     </div>
+    <i class="bi bi-tag"></i>Name: <strong>@RegistryPackage.Name.LocalizedString.FirstOrDefault().Value</strong>
+        <p><i class="bi bi-tag"></i> @RegistryPackage.ObjectType</p>
     <div class="ebrim-body">
         <ul>
-            @foreach (var slot in RegistryPackage.Slot)
+            @if (RegistryPackage.Classification != null && RegistryPackage.Classification.Length != 0)
             {
-                <SlotComponent Slot=slot />
+                @foreach (var classification in RegistryPackage.Classification)
+                {
+                    <ClassificationComponent Classification=classification />
+                }                
             }
+
+            @if (RegistryPackage.ExternalIdentifier != null && RegistryPackage.ExternalIdentifier.Length != 0)
+            {
+                @foreach (var externalIdentifier in RegistryPackage.ExternalIdentifier)
+                {
+                    <ExternalIdentifierComponent ExternalIdentifier=externalIdentifier />
+                }                
+            }
+
+            @if (RegistryPackage.Slot != null && RegistryPackage.Slot.Length != 0)
+            {
+                @foreach (var slot in RegistryPackage.Slot)
+                {
+                    <SlotComponent Slot=slot />
+                }
+            }
+            <InternationalStringTypeComponent InternationalStringType=RegistryPackage.Name />
         </ul>
     </div>
 </div>
 
+
 @code {
     [Parameter]
-    public RegistryPackageType RegistryPackage { get; set; } = default!;
+    public RegistryPackageType RegistryPackage { get; set; } = default!;    
 }

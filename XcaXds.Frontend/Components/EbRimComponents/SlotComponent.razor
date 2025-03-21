@@ -3,15 +3,21 @@
 @using XcaXds.Commons.Models.Soap.XdsTypes;
 @using XcaXds.Commons.Models.Soap;
 
-<div class="ebrim-card">
-    <div class="ebrim-header">
-        <i class="bi bi-tag"></i> @Slot.Name
+@inherits BaseXmlSerializableComponent<SlotType>
+
+<div class="ebrim-card slot-card">
+    <div class="ebrim-header slot-header">
+        Slot
     </div>
+    <i class="bi bi-tag"></i>@Slot.Name
     <div class="ebrim-body">
         <ul>
-            @foreach (var value in Slot.ValueList.Value)
+            @if (Slot.ValueList.Value != null && Slot.ValueList.Value.Length != 0)
             {
-                <li><i class="bi bi-check-circle"></i> @value</li>
+                @foreach (var value in Slot.ValueList.Value)
+                {
+                    <li><i class="bi bi-check-circle"></i> @value</li>
+                }                
             }
         </ul>
     </div>
@@ -20,4 +26,12 @@
 @code {
     [Parameter]
     public SlotType Slot { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        if (Slot == null)
+        {
+            Slot = Data;
+        }
+    }
 }

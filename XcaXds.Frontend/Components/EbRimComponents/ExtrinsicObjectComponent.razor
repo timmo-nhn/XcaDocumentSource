@@ -6,16 +6,31 @@
 @using XcaXds.Frontend.Components.EbRimComponents;
 
 
-<div class="ebrim-card">
-    <div class="ebrim-header">
-        <i class="bi bi-tag"></i> @ExtrinsicObject.Name
+<div class="ebrim-card extrinsic-object-card">
+    <div class="ebrim-header extrinsic-object-header">
+        @ExtrinsicObject.Name.LocalizedString.FirstOrDefault().Value
     </div>
-    <div class="ebrim-body">
+    <div class="ebrim-body"> 
+        <ul>
+            <li><i class="bi bi-tag"></i> @ExtrinsicObject.Status</li>
+            <li><i class="bi bi-tag"></i> @ExtrinsicObject.MimeType</li>
+            <li><i class="bi bi-tag"></i> @ExtrinsicObject.ObjectType</li>
+            <li><i class="bi bi-tag"></i> @ExtrinsicObject.Home</li>
+        </ul>
         <ul>
             @foreach (var slotType in ExtrinsicObject.Slot)
             {
                 <SlotComponent Slot=slotType />
             }
+            @foreach (var classification in ExtrinsicObject.Classification)
+            {
+                <ClassificationComponent Classification=classification />
+            }
+            @foreach (var externalIdentifier in ExtrinsicObject.ExternalIdentifier)
+            {
+                <ExternalIdentifier ExtIdentifier=externalIdentifier />
+            }
+            <InternationalStringTypeComponent InternationalStringType=ExtrinsicObject.Name />
         </ul>
     </div>
 </div>
@@ -23,6 +38,7 @@
 @code {
     [Parameter]
     public ExtrinsicObjectType ExtrinsicObject { get; set; } = default!;
+
     public string ExtrinsicObjectString { get; set; }
 
     // protected override async Task OnInitializedAsync()

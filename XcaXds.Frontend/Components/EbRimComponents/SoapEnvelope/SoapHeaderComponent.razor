@@ -1,0 +1,22 @@
+﻿@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+
+<div class="ebrim-card">
+    <div class="ebrim-header">
+        Header
+    </div>
+    <div class="ebrim-body">
+        <ul>
+            <li>To: @SoapHeader.To</li>
+            <li>Action: @SoapHeader.Action</li>
+            <li>RelatesTo: @SoapHeader.RelatesTo</li>
+            <li>MessageId: @SoapHeader.MessageId</li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public SoapHeader SoapHeader { get; set; } = default!;
+}

@@ -1,6 +1,9 @@
-﻿namespace XcaXds.Commons;
+﻿using System.Reflection;
+
+namespace XcaXds.Commons;
 public static class Constants
 {
+
     public static class Soap
     {
         public static class Namespaces
@@ -78,26 +81,27 @@ public static class Constants
         public static class StoredQueries
         {
             public const string FindDocuments = "urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d";
+            public const string FindSubmissionSets = "urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9";
+            public const string GetAssociations = "urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155";
             public const string GetAll = "urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3";
             public const string GetFolders = "urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4";
-            public const string GetAssociations = "urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155";
-            public const string FindSubmissionSets = "urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9";
+            public const string GetFolderAndContents = "urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7";
 
             //Not natively supported by XcaDocumentSource
-            public const string FindFolders = "urn:uuid:958f3006-baad-4929-a4de-ff1114824431";
-            public const string GetDocuments = "urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4";
-            public const string GetDocumentsAndAssociations = "urn:uuid:bab9529a-4a10-40b3-a01f-f68a615d247a";
-            public const string GetSubmissionSets = "urn:uuid:51224314-5390-4169-9b91-b1980040715a";
-            public const string GetSubmissionSetAndContents = "urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83";
-            public const string GetFolderAndContents = "urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7";
-            public const string GetFoldersForDocument = "urn:uuid:10cae35a-c7f9-4cf5-b61e-fc3278ffb578";
-            public const string GetRelatedDocuments = "urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6";
-            public const string FindDocumentsByReferenceId = "urn:uuid:12941a89-e02e-4be5-967c-ce4bfc8fe492";
+
+            //public const string FindFolders = "urn:uuid:958f3006-baad-4929-a4de-ff1114824431";
+            //public const string GetDocuments = "urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4";
+            //public const string GetDocumentsAndAssociations = "urn:uuid:bab9529a-4a10-40b3-a01f-f68a615d247a";
+            //public const string GetSubmissionSets = "urn:uuid:51224314-5390-4169-9b91-b1980040715a";
+            //public const string GetSubmissionSetAndContents = "urn:uuid:e8e3cb2c-e39c-46b9-99e4-c12f57260b83";
+            //public const string GetFoldersForDocument = "urn:uuid:10cae35a-c7f9-4cf5-b61e-fc3278ffb578";
+            //public const string GetRelatedDocuments = "urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6";
+            //public const string FindDocumentsByReferenceId = "urn:uuid:12941a89-e02e-4be5-967c-ce4bfc8fe492";
         }
 
         public static class QueryParamters
         {
-            public static class DocumentEntry
+            public static class FindDocuments
             {
                 public const string PatientId = "$XDSDocumentEntryPatientId";
                 public const string ClassCode = "$XDSDocumentEntryClassCode";
@@ -120,7 +124,7 @@ public static class Constants
                 public const string UniqueId = "$XDSDocumentEntryUniqueId";
             }
 
-            public static class Submission
+            public static class FindSubmissionSets
             {
                 public const string PatientId = "$XDSSubmissionSetPatientId";
                 public const string SourceId = "$XDSSubmissionSetSourceId";
@@ -408,4 +412,26 @@ public static class Constants
     }
 
 
+}
+
+public static class ConstantsExtensions
+{
+    public static Dictionary<string, string> GetAsDictionary(this Type type)
+    {
+        var constants = new Dictionary<string, string>();
+
+        // Get all static fields of the class
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic);
+
+        foreach (var field in fields)
+        {
+            // Ensure that the field is a constant (it should be a static readonly or const field)
+            if (field.IsLiteral && !field.IsInitOnly)
+            {
+                constants.Add(field.Name, (string)field.GetValue(null));
+            }
+        }
+
+        return constants;
+    }
 }

@@ -223,7 +223,7 @@ public class RegistryService
 
                 // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
                 // Return an XDSStoredQueryParamNumber error if both parameters are specified
-                if (getFoldersAndContentsParameters.XdsFolderUniqueId != null || getFoldersAndContentsParameters.XdsFolderUniqueId != null)
+                if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
                 }

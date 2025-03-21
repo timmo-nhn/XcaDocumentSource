@@ -1,0 +1,31 @@
+﻿@using XcaXds.Commons.Services
+@typeparam T
+
+<button class="btn btn-sm btn-outline-primary" @onclick="ShowXml">View as XML</button>
+
+@if (!string.IsNullOrEmpty(XmlString))
+{
+    <pre>@XmlString</pre>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public T? Data { get; set; } = default!;
+
+    public string XmlString { get; private set; } = string.Empty;
+
+    private void ShowXml()
+    {
+        var serializer = new SoapXmlSerializer(XmlSettings.Soap);
+        var result = serializer.SerializeSoapMessageToXmlString(Data);
+
+        if (result.IsSuccess)
+        {
+            XmlString = result.Content;
+        }
+        else
+        {
+            XmlString = $"<Error>Failed to serialize</Error>";
+        }
+    }
+}

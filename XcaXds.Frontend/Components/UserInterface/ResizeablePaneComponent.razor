@@ -1,0 +1,63 @@
+﻿
+<div class="resizable-container" @ref="containerRef">
+    <div class="resizable-pane" style="width: @LeftWidth + 'px';" @key="LeftKey">
+        @LeftContent
+    </div>
+
+    <div class="resizer" @ref="resizerRef"></div>
+
+    <div class="resizable-pane" style="width: @RightWidth + 'px';" @key="RightKey">
+        @RightContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment LeftContent { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment RightContent { get; set; } = default!;
+
+    [Parameter]
+    public double InitialLeftWidth { get; set; } = 300; // Default initial width for left pane
+
+    [Parameter]
+    public double MinWidth { get; set; } = 100; // Minimum width for left pane
+
+    private double LeftWidth { get; set; }
+    private double RightWidth { get; set; }
+    private string LeftKey => $"LeftPane_{LeftWidth}";
+    private string RightKey => $"RightPane_{RightWidth}";
+
+    private ElementReference containerRef;
+    private ElementReference resizerRef;
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Get the container width after the first render
+            var containerWidth = await GetContainerWidthAsync();
+            LeftWidth = InitialLeftWidth;
+            RightWidth = containerWidth - LeftWidth;
+
+            await JS.InvokeVoidAsync("resizable.startResize", resizerRef, DotNetObjectReference.Create(this));
+        }
+    }
+
+    private async Task<double> GetContainerWidthAsync()
+    {
+        // Use JS interop to get the width of the container
+        return await JS.InvokeAsync<double>("getContainerWidth", containerRef);
+    }
+
+    [JSInvokable]
+    public async Task OnResize(double newLeftWidth)
+    {
+        LeftWidth = Math.Max(MinWidth, newLeftWidth);
+        RightWidth = (await GetContainerWidthAsync()) - LeftWidth;
+        StateHasChanged();
+    }
+}

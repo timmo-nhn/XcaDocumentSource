@@ -1,0 +1,41 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Services
+@using XcaXds.Frontend.Components.EbRimComponents;
+
+@inherits BaseXmlSerializableComponent<AssociationType>
+
+<div class="ebrim-card association-card">
+    <div class="ebrim-header association-header">
+        Association
+    </div>
+        Id @Association.Id
+        SourceObject: @Association.SourceObject
+        TargetObject: @Association.TargetObject
+    <div class="ebrim-body">
+        <ul>
+            @if (Association.Slot != null && Association.Slot.Length != 0)
+            {
+                @foreach (var slot in Association.Slot)
+                {
+                    <SlotComponent Data=slot />
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public AssociationType Association { get; set; } = default!;
+    protected override void OnInitialized()
+    {
+        if (Association == null)
+        {
+            Association = Data;
+        }
+    }
+
+}

@@ -1,0 +1,27 @@
+﻿@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Frontend.Components.EbRimComponents.Actions;
+
+<div class="envelope">
+    <div class="envelope-header">
+    Body
+    </div>
+    <div class="ebrim-body">
+        <ul>
+            @if (SoapBody.AdhocQueryResponse != null)
+            {
+                <AdhocQueryResponseComponent AdhocQueryResponse=SoapBody.AdhocQueryResponse />
+            }
+            @if (SoapBody.Fault != null)
+            {
+                <SoapFaultResponseComponent SoapFault=SoapBody.Fault />
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public SoapBody SoapBody { get; set; } = default!;
+}

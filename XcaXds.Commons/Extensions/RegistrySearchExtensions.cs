@@ -497,7 +497,7 @@ public static class GetFolderAndContents
         if (uniqueId == null) return source;
         return source.OfType<RegistryPackageType>().Where(eo => eo.ExternalIdentifier
             .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.Folder.UniqueId)
-            .Any(extId => uniqueId == extId.Id));
+            .Any(extId => uniqueId == extId.Value));
     }
 
     /// | Parameter Name (ITI-18)     | Attribute                   | Opt | Mult |

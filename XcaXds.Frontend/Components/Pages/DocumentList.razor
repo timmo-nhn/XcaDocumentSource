@@ -1,7 +1,7 @@
 ﻿@page "/Documentlist"
 @inject HttpClient Http
 @rendermode InteractiveServer
-
+@using XcaXds.Frontend.Components.UserInterface;
 @using XcaXds.Frontend.Components.EbRimComponents;
 @using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope;
 @using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -9,53 +9,160 @@
 @using XcaXds.Commons.Services;
 @using XcaXds.Commons;
 
+@using BlazorBootstrap.Components;
 
 <PageTitle>Document List</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Get Document Registry Content</h1>
 
-<textarea rows="5" cols="120" @bind="soapEnvelope"></textarea>
+<Toasts class="p-3" Messages="messages" />
 
-<button class="btn btn-primary" @onclick="SendSoapRequest">Click me</button>
-@if (RegistryObjectList != null)
+<Modal @ref="stackTraceModal" title="@modalException.Source" Size="ModalSize.Large">
+    <BodyTemplate><code>@modalException.StackTrace</code></BodyTemplate>
+</Modal>
+
+
+<Card>
+    <CardHeader>Connected Backend</CardHeader>
+    <CardBody>
+        <TextInput @bind-Value="@backendUrl" Placeholder="https://localhost:7176/Registry/services/RegistryService" />
+    </CardBody>
+</Card>
+<hr />
+<Card>
+    <CardHeader>Search</CardHeader>
+    <CardBody  Style="display: flex; flex-direction: row; gap: 20px;">
+        <ResizeablePaneComponent>
+            <LeftContent>
+                <Card Style="flex: 1;">
+                    <CardHeader>Parameters</CardHeader>
+                    <CardBody>
+                        <Dropdown Style="min-width: 250px;" Color="DropdownColor.Secondary">
+                            <DropdownToggleButton>@(adhocQueryInput.Key ?? "Select Stored Query type...")</DropdownToggleButton>
+                            <DropdownMenu>
+                                <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = new()'>None</DropdownItem>
+                                @foreach (var queryType in storedQueryTypes)
+                                {
+                                    <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = queryType'>@queryType.Key (@queryType.Value)</DropdownItem>
+                                }
+                            </DropdownMenu>
+                        </Dropdown>
+                        @if (adhocQueryInput.Key is not null)
+                        {
+                            <TextInput @bind-Value="@storedQueryQueryType" onchange="@AddStoredQuery" Placeholder="Stored Query Parameter"/>
+                        }
+                    </CardBody>
+                </Card>
+            </LeftContent>
+            <RightContent>
+                <Card Style="flex: 2;">
+                    <CardHeader>Request</CardHeader>
+                    <CardBody>
+                        <code><TextAreaInput Style="white-space: nowrap; width: 100%; height:768px; resize: none;" @bind-Value="@requestMessage" Rows="3" /></code>
+                    </CardBody>
+                </Card>
+            </RightContent>
+        </ResizeablePaneComponent>
+
+    </CardBody>
+</Card>
+
+
+
+<Button @ref="sendRequestButton" class="btn btn-primary" @onclick="SendSoapRequest"><Icon Name="IconName.Envelope" /> Send SOAP-Request</Button>
+
+@if (ResponseEnvelope != null)
 {
-    @foreach (var item in RegistryObjectList)
-    {
-        continue;
-        // <RegistryObjectComponent RegistryObject=@item />
-    }
+    <SoapEnvelopeComponent soapEnvelope=ResponseEnvelope />
 }
 
 
-
-
 @code {
-    private string soapEnvelope;
-    private IdentifiableType[] RegistryObjectList;
+    // User input/output
+    private string backendUrl;
+    private string requestMessage;
+    private SoapEnvelope ResponseEnvelope;
+    private string storedQueryQueryType;
+    private KeyValuePair<string,string> adhocQueryInput = new();
+    private Dictionary<string, string> storedQueryTypes = typeof(Constants.Xds.StoredQueries).GetAsDictionary();
+
+
+    // BootstrapBlazor UI components
+    private Button sendRequestButton = default!;
+    List<ToastMessage> messages = new();
+    private Modal stackTraceModal = default!;
+    private Exception modalException = new();
+
+    private async Task AddStoredQuery()
+    {
+
+    }
 
     private async Task SendSoapRequest()
     {
-        if (soapEnvelope == null)
-        {
-            return;
-        }
+        sendRequestButton.ShowLoading("🔥 Sending Request...");
 
-        var content = new StringContent(soapEnvelope, System.Text.Encoding.UTF8, "application/soap+xml");
+        if (string.IsNullOrEmpty(requestMessage))
+        {
+            sendRequestButton.HideLoading();
+            messages.Add(
+                new ToastMessage
+                {
+                    Type = ToastType.Dark,
+                    AutoHide = true,
+                    Title = "No Envelope Content"
+                });
+            return;
+
+        }
 
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
+        try
+        {
+            var soapRequest = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(requestMessage);
+            if (soapRequest.Body.AdhocQueryRequest is not null && adhocQueryInput.Value is not null)
+            {
+                soapRequest.Body.AdhocQueryRequest.AdhocQuery.Id = adhocQueryInput.Value;
+            }
+        }
+        catch (Exception ex)
+        {
+            sendRequestButton.HideLoading();
+            modalException = ex;
+            messages.Add(
+                new ToastMessage
+                {
+                    Type = ToastType.Danger,
+                    Title = modalException.Message,
+                    AutoHide = true,
+                    Content = @<div>@modalException.Source <button class="btn btn-sm link-primary mt-2" @onclick=@stackTraceModal.ShowAsync>Show stack trace</button></div>,
+                });
+            return;
+        }
 
-        var response = await Http.PostAsync("https://localhost:7176/Registry/services/RegistryService", content);
+        if (string.IsNullOrEmpty(backendUrl))
+        {
+            backendUrl = "https://localhost:7176/Registry/services/RegistryService";
+        }
+
+        var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
+        var response = await Http.PostAsync($"{backendUrl}", content);
 
         if (response.IsSuccessStatusCode)
         {
             var responseStream = await response.Content.ReadAsStreamAsync();
-            var responseMessage = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
 
             // RegistryObjectList = responseMessage.Body.AdhocQueryResponse.RegistryObjectList.ToList();
         }
         else
         {
+            var responseStream = await response.Content.ReadAsStreamAsync();
+            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+
         }
+        sendRequestButton.HideLoading();
+
     }
 }

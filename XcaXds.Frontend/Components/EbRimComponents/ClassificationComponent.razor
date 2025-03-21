@@ -3,15 +3,27 @@
 @using XcaXds.Commons.Models.Soap.XdsTypes;
 @using XcaXds.Commons.Models.Soap;
 
-<div class="ebrim-card">
-    <div class="ebrim-header">
-        <i class="bi bi-tag"></i> Classification: @Classification.ClassifiedObject
+<div class="ebrim-card classification-card">
+    <div class="ebrim-header classification-header">
+        Classification
     </div>
+    @Classification.ClassifiedObject
+    @if (Classification.ClassificationNode != null)
+    {
+        <div><i class="bi bi-tag"></i> Classification: @Classification.ClassificationNode</div>
+    }
     <div class="ebrim-body">
         <ul>
-            @foreach (var slot in Classification.Slot)
+            @if (Classification.Slot != null && Classification.Slot.Length != 0)
             {
-                <SlotComponent Slot=slot />
+                @foreach (var slot in Classification.Slot)
+                {
+                    <SlotComponent Slot=slot />
+                }                
+            }
+            @if (Classification.Name != null && Classification.Name.LocalizedString != null)
+            {
+                <InternationalStringTypeComponent InternationalStringType=Classification.Name />
             }
         </ul>
     </div>

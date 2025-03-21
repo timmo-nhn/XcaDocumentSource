@@ -1,33 +1,116 @@
 ﻿.ebrim-card {
-    background: var(--bs-light);
     border-radius: 10px;
     padding: 15px;
+    padding-left:30px;
     margin-bottom: 10px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
+    position: relative;
+    overflow:hidden;
 }
 
-.ebrim-card:hover {
-    transform: scale(1.02);
+.ebrim-body {
+    padding: 0px;
 }
 
 .ebrim-header {
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    color: white;
+    padding: 5px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 25px;
+    min-height:150px;
+    transform: rotate(-180deg);
 }
 
-.ebrim-body ul {
-    padding-left: 20px;
+.border-around {
+    border: 2px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    display: inline-block;
+    width: 100%;
 }
 
-.ebrim-body li {
-    list-style: none;
-    padding: 5px 0;
+
+.soapfault-card {
+    background: #ECEFF1;
 }
 
-.ebrim-body i {
-    color: var(--bs-primary);
+.soapfault-header {
+    background: #D01E1E;
+}
+
+
+.association-card {
+    background: #FFEBEE;
+}
+
+.association-header {
+    background: #D32F2F;
+}
+
+.classification-card {
+    background: #E3F2FD;
+}
+
+.classification-header {
+    background: #1976D2;
+}
+
+.external-identifier-card {
+    background: #E8F5E9;
+}
+
+.external-identifier-header {
+    background: #388E3C;
+}
+
+.extrinsic-object-card {
+    background: #FFF3E0;
+}
+
+.extrinsic-object-header {
+    background: #F57C00;
+}
+
+.identifiable-type-card {
+    background: #F3E5F5;
+}
+
+.identifiable-type-header {
+    background: #7B1FA2;
+}
+
+.international-string-type-card {
+    background: #FBE9E7;
+}
+
+.international-string-type-header {
+    background: #E64A19;
+}
+
+.registry-package-card {
+    background: #ECEFF1;
+}
+
+.registry-package-header {
+    background: #455A64;
+}
+
+.slot-card {
+    background: #E1F5FE;
+}
+
+.slot-header {
+    background: #0288D1;
 }
