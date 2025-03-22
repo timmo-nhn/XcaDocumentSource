@@ -8,7 +8,7 @@
 @using XcaXds.Commons.Models.Soap;
 @using XcaXds.Commons.Services;
 @using XcaXds.Commons;
-
+@using XcaXds.Frontend.Models;
 @using BlazorBootstrap.Components;
 
 <PageTitle>Document List</PageTitle>
@@ -43,13 +43,15 @@
                                 <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = new()'>None</DropdownItem>
                                 @foreach (var queryType in storedQueryTypes)
                                 {
-                                    <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = queryType'>@queryType.Key (@queryType.Value)</DropdownItem>
+                                    <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = queryType'>
+                                        @queryType.Key (@queryType.Value)
+                                    </DropdownItem>
                                 }
                             </DropdownMenu>
                         </Dropdown>
                         @if (adhocQueryInput.Key is not null)
                         {
-                            <KeyValuePairComponent KeyValuePairs="keyValuePairs" KeyValuePairsChanged="OnKeyValuePairsChanged" />
+                            <KeyValuePairComponent KeyValuePairs="keyValuePairs" />
                         }
                     </CardBody>
                 </Card>
@@ -91,7 +93,7 @@
     List<ToastMessage> messages = new();
     private Modal stackTraceModal = default!;
     private Exception modalException = new();
-    private List<KeyValuePair<string, string>> keyValuePairs = new List<KeyValuePair<string, string>>();
+    private List<KeyValueEntry> keyValuePairs = new();
 
 
 
@@ -166,15 +168,8 @@
         }
         sendRequestButton.HideLoading();
     }
-    private void OnKeyValuePairsChanged(List<KeyValuePair<string, string>> updatedKeyValuePairs)
+    private void OnKeyValuePairsChanged(List<KeyValueEntry> updatedKeyValuePairs)
     {
         keyValuePairs = updatedKeyValuePairs;
     }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        keyValuePairs.Add(new KeyValuePair<string, string>("", ""));
-    }
-
 }

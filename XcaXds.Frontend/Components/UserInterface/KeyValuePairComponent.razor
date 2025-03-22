@@ -1,36 +1,34 @@
-﻿<div>
+﻿@using XcaXds.Frontend.Models;
+
+<div>
     @foreach (var pair in KeyValuePairs.Select((pair, index) => new { pair, index }))
     {
-        <div class="form-group">
-            <InputText class="form-control mb-2" @bind="pair.pair.Key" @onchange="OnKeyValueChanged" placeholder="Key" />
-            <InputText class="form-control mb-2" @bind="pair.pair.Value" @onchange="OnKeyValueChanged" placeholder="Value" />
-            @if (KeyValuePairs.Count > 1)
-            {
+            <div class="form-group">
+                <InputText class="form-control mb-2" @bind-Value="pair.pair.Key" @onblur="AddKeyValuePair" placeholder="Key" />
+                <InputText class="form-control mb-2" @bind-Value="pair.pair.Value" @onblur="AddKeyValuePair" placeholder="Value" />
                 <button class="btn btn-danger" @onclick="() => RemoveKeyValuePair(pair.index)">Remove</button>
-            }
-        </div>
+            </div>
     }
-
-    <button class="btn btn-primary mt-2" @onclick="AddKeyValuePair">Add New Key-Value Pair</button>
+    <button class="btn btn-primary" @onclick="AddKeyValuePair">Add</button>
 </div>
 
 @code {
-    [Parameter] 
-    public List<KeyValuePair<string, string>> KeyValuePairs { get; set; } = new();
 
-    [Parameter] 
-    public EventCallback<List<KeyValuePair<string, string>>> KeyValuePairsChanged { get; set; }
+
+    [Parameter]
+    public List<KeyValueEntry> KeyValuePairs { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<KeyValueEntry>> KeyValuePairsChanged { get; set; }
 
     private void OnKeyValueChanged()
     {
-        // Trigger an update to propagate changes to the parent
         KeyValuePairsChanged.InvokeAsync(KeyValuePairs);
     }
 
     private void AddKeyValuePair()
     {
-        KeyValuePairs.Add(new KeyValuePair<string, string>("", ""));
-        OnKeyValueChanged();
+        KeyValuePairs.Add(new KeyValueEntry()); // Mutable object
     }
 
     private void RemoveKeyValuePair(int index)
@@ -38,8 +36,11 @@
         if (KeyValuePairs.Count > 1)
         {
             KeyValuePairs.RemoveAt(index);
-            OnKeyValueChanged();
         }
     }
-}
 
+    protected override void OnInitialized()
+    {
+        KeyValuePairs.Add(new KeyValueEntry()); // Start with one empty entry
+    }
+}
