@@ -57,7 +57,9 @@
 </style>
 
 @code {
-    public XdsConfig xdsConfig { get; set; } = new();
+    
+    [Parameter]
+    public XdsConfig XdsConfig { get; set; }
 
     [Parameter]
     public List<DocumentRequestValuesInput> ListValueInputs { get; set; }
@@ -76,9 +78,17 @@
         var entry = ListValueInputs.FirstOrDefault(e => e.Id == documentRequest.Id);
         if (entry == null || entry.DocumentRequest == null) return;
 
+
+
         entry.DocumentRequest.DocumentUniqueId = documentRequest.DocumentRequest.DocumentUniqueId;
         entry.DocumentRequest.RepositoryUniqueId = documentRequest.DocumentRequest.RepositoryUniqueId;
         entry.DocumentRequest.HomeCommunityId = documentRequest.DocumentRequest.HomeCommunityId;
+
+        if (!string.IsNullOrWhiteSpace(entry.DocumentRequest.DocumentUniqueId))
+        {
+            entry.DocumentRequest.RepositoryUniqueId = string.IsNullOrWhiteSpace(entry.DocumentRequest.RepositoryUniqueId) ? XdsConfig.RepositoryUniqueId : entry.DocumentRequest.RepositoryUniqueId;
+            entry.DocumentRequest.HomeCommunityId = string.IsNullOrWhiteSpace(entry.DocumentRequest.HomeCommunityId) ? XdsConfig.HomeCommunityId : entry.DocumentRequest.HomeCommunityId;
+        }
 
         if (entry.DocumentRequest == null || string.IsNullOrWhiteSpace(documentRequest.DocumentRequest.DocumentUniqueId)) return;
 

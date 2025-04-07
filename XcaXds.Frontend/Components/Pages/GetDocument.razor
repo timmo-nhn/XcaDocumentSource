@@ -47,7 +47,7 @@
                 <Card Style="flex: 1;min-width: 100%">
                     <CardHeader Style="white-space: nowrap;">Parameters</CardHeader>
                     <CardBody Style="padding:10px;">
-                        <DocumentRequestValueInputComponent ListValueInputs="@valuesInput" OnValueListChanged="@OnValueListsChanged" />
+                        <DocumentRequestValueInputComponent ListValueInputs="@valuesInput" XdsConfig="xdsConfig" OnValueListChanged="@OnValueListsChanged" />
                         <hr />
                         <Button @onclick=CreateSoapEnvelopeWithVariables Style="min-width: 100%" Color="ButtonColor.Success">To Request <Icon Name="IconName.EnvelopeArrowUp" /></Button>
                     </CardBody>
@@ -84,7 +84,7 @@
 
     private XdsConfig xdsConfig;
 
-    
+
     private bool _initialized = false; // JS Interop 
 
 
@@ -143,10 +143,6 @@
             {
                 continue;
             }
-
-
-            pair.DocumentRequest.RepositoryUniqueId ??= xdsConfig.RepositoryUniqueId;
-            pair.DocumentRequest.HomeCommunityId ??= xdsConfig.HomeCommunityId;
 
             if (string.IsNullOrEmpty(pair.DocumentRequest.DocumentUniqueId))
             {
@@ -214,7 +210,7 @@
 
         if (string.IsNullOrEmpty(backendUrl))
         {
-            backendUrl = "https://localhost:7176/Registry/services/RegistryService";
+            backendUrl = inputBackendUrl.Placeholder;
         }
 
         var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
