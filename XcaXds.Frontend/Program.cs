@@ -1,4 +1,5 @@
 using XcaXds.Frontend.Components;
+using XcaXds.Frontend.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddBlazorBootstrap(); 
 builder.Services.AddScoped(sp => new HttpClient());
+builder.Services.AddScoped<ICookie, Cookie>();
 
 var app = builder.Build();
 
@@ -18,9 +20,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-var xdsConfig = new XdsConfig();
-
-builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
 
 
 app.UseHttpsRedirection();

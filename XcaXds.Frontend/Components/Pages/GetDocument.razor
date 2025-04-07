@@ -1,10 +1,14 @@
 ﻿@page "/Document"
 @rendermode InteractiveServer
 
-@inject HttpClient Http
-@inject XdsConfig xdsConfig
+@inject HttpClient httpClient   
+
+@inject ICookie cookie
 
 @using System.Diagnostics.CodeAnalysis
+@using System.Text.Json
+@using BlazorMonaco
+@using BlazorMonaco.Editor
 @using XcaXds.Commons.Models.Custom
 @using XcaXds.Frontend.Components.UserInterface;
 @using XcaXds.Frontend.Components.EbRimComponents;
@@ -15,6 +19,7 @@
 @using XcaXds.Commons;
 @using XcaXds.Commons.Models;
 @using BlazorBootstrap.Components;
+@using XcaXds.Frontend.Cookies
 
 <PageTitle>Document</PageTitle>
 
@@ -77,6 +82,12 @@
     private SoapEnvelope ResponseEnvelope;
     private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
 
+    private XdsConfig xdsConfig;
+
+    
+    private bool _initialized = false; // JS Interop 
+
+
     private List<DocumentRequestValuesInput> valuesInput { get; set; }
 
     // BootstrapBlazor UI components
@@ -86,7 +97,6 @@
     private Exception modalException = new();
     private ConfirmDialog confirmDialog = new();
     private TextInput inputBackendUrl = new();
-
 
     // ==============================================================
     // ================== SOAP-envelope creation ====================
@@ -133,6 +143,7 @@
             {
                 continue;
             }
+
 
             pair.DocumentRequest.RepositoryUniqueId ??= xdsConfig.RepositoryUniqueId;
             pair.DocumentRequest.HomeCommunityId ??= xdsConfig.HomeCommunityId;
@@ -207,7 +218,7 @@
         }
 
         var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
-        var response = await Http.PostAsync($"{backendUrl}", content);
+        var response = await httpClient.PostAsync($"{backendUrl}", content);
 
         if (response.IsSuccessStatusCode)
         {
@@ -233,6 +244,35 @@
         valuesInput = updatedKeyValuePairs;
     }
 
+    // =======================================================
+    // ============= XdsConfig Cookie setting ================
+    // =======================================================
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+
+            string xdsConfigJson = await cookie.GetValue("xdsConfig");
+
+            if (string.IsNullOrWhiteSpace(xdsConfigJson))
+            {
+                var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7176/api/about"));
+                if (response.IsSuccessStatusCode)
+                {
+                    xdsConfigJson = await response.Content.ReadAsStringAsync();
+                }
+            }
+
+            await cookie.SetValue("xdsConfig", xdsConfigJson,1);
+
+            xdsConfig = JsonSerializer.Deserialize<XdsConfig>(xdsConfigJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+
+            StateHasChanged();
+        }
+    }
+    
     // =======================================================
     // ================= Blazor Moncao Editor ================
     // =======================================================
