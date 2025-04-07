@@ -18,6 +18,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+var xdsConfig = new XdsConfig();
+
+builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
+
 
 app.UseHttpsRedirection();
 

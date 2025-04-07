@@ -126,10 +126,11 @@ public class RegistryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XDSDocumentEntryPatientId {findDocumentsSearchParameters.XdsDocumentEntryPatientId}".Trim(), "XDS Registry");
                 }
-                if (findDocumentsSearchParameters.XdsDocumentEntryStatus == null || findDocumentsSearchParameters.XdsDocumentEntryStatus.Count == 0)
+                    if (findDocumentsSearchParameters.XdsDocumentEntryStatus == null || findDocumentsSearchParameters.XdsDocumentEntryStatus.Count == 0)
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
+                filteredElements = [.. registryFindDocumentEntriesResult];
 
 
                 break;
@@ -159,6 +160,28 @@ public class RegistryService
                 }
 
                 filteredElements = [.. registryFindSubmissionSetsResult];
+
+                break;
+
+            case Constants.Xds.StoredQueries.FindFolders:
+                var findFoldersParameters = RegistryStoredQueryParameters.GetFindFoldersParameters(adhocQueryRequest.AdhocQuery);
+
+                var registryFindFoldersResult = DocumentRegistry.RegistryObjectList
+                    .OfType<RegistryPackageType>();
+
+                registryFindFoldersResult = registryFindFoldersResult
+                    .ByXdsFolderPatientId(findFoldersParameters.XdsFolderPatientId);
+
+                if (findFoldersParameters.XdsFolderPatientId == null)
+                {
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XDSDocumentEntryPatientId {findFoldersParameters.XdsFolderPatientId}".Trim(), "XDS Registry");
+                }
+                if (findFoldersParameters.XdsFolderStatus == null || findFoldersParameters.XdsFolderStatus.Count == 0)
+                {
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumessntEntryStatus {string.Join(" ", findFoldersParameters.XdsFolderStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
+                }
+
+                filteredElements = [.. registryFindFoldersResult];
 
                 break;
 
@@ -233,19 +256,26 @@ public class RegistryService
                 break;
         }
 
-        switch (adhocQueryRequest.ResponseOption.ReturnType)
+        if (adhocQueryRequest.ResponseOption != null)
         {
-            case ResponseOptionTypeReturnType.ObjectRef:
-                // Only return the unique identifiers and HomeCommunityId
-                var objectRefs = filteredElements
-                    .Select(eo => new ObjectRefType() { Id = eo.Id }).ToList();
-                filteredElements = [.. objectRefs];
-                break;
-            case ResponseOptionTypeReturnType.LeafClass:
-                break;
+            switch (adhocQueryRequest.ResponseOption.ReturnType)
+            {
+                case ResponseOptionTypeReturnType.ObjectRef:
+                    // Only return the unique identifiers and HomeCommunityId
+                    var objectRefs = filteredElements
+                        .Select(eo => new ObjectRefType() { Id = eo.Id }).ToList();
+                    filteredElements = [.. objectRefs];
+                    break;
+                case ResponseOptionTypeReturnType.LeafClass:
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"ResponseOption was not specified".Trim(), "XDS Registry");
         }
 
 

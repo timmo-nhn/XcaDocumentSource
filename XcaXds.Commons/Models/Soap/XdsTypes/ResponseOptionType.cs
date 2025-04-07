@@ -26,8 +26,8 @@ public class ResponseOptionType
 [XmlType(AnonymousType = true, Namespace = Constants.Xds.Namespaces.Query)]
 public enum ResponseOptionTypeReturnType
 {
+    LeafClass,
     ObjectRef,
     RegistryObject,
-    LeafClass,
     LeafClassWithRepositoryItem
 }

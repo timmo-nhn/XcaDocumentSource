@@ -1,0 +1,402 @@
+﻿@page "/Documentlist"
+@rendermode InteractiveServer
+
+@inject HttpClient Http
+
+@using System.Diagnostics.CodeAnalysis
+@using XcaXds.Frontend.Components.UserInterface;
+@using XcaXds.Frontend.Components.EbRimComponents;
+@using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Services;
+@using XcaXds.Commons;
+@using XcaXds.Commons.Models;
+@using BlazorBootstrap.Components;
+
+<PageTitle>Document List</PageTitle>
+
+<h1>Get Document Registry Content</h1>
+
+<Toasts class="p-3" Messages="messages" />
+<ConfirmDialog @ref="confirmDialog" />
+<Modal @ref="stackTraceModal" title="@modalException.Source" Size="ModalSize.Large">
+    <BodyTemplate><code>@modalException.StackTrace</code></BodyTemplate>
+</Modal>
+
+
+<Card>
+    <CardHeader>Connected Backend</CardHeader>
+    <CardBody>
+        <TextInput @ref="inputBackendUrl" @bind-Value="@backendUrl" Placeholder="https://localhost:7176/Registry/services/RegistryService" />
+    </CardBody>
+</Card>
+<hr />
+<Card>
+    <CardHeader>Search</CardHeader>
+    <CardBody>
+        <ResizeablePane InitWidth="30%">
+            <LeftContent>
+                <Card Style="flex: 1;min-width: 100%">
+                    <CardHeader Style="white-space: nowrap;">Parameters</CardHeader>
+                    <CardBody Style="padding:10px;">
+
+                        <Dropdown Style="min-width: 100%" Color="DropdownColor.Secondary">
+                            <DropdownToggleButton>@(returnType.ToString() ?? "Response Option")</DropdownToggleButton>
+                            <DropdownMenu>
+                                <DropdownItem Type="DropdownItemType.Link" @onclick='() => returnType = ResponseOptionTypeReturnType.LeafClass'>LeafClass</DropdownItem>
+                                <DropdownItem Type="DropdownItemType.Link" @onclick='() => returnType = ResponseOptionTypeReturnType.ObjectRef'>ObjectRef</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
+                        <hr />
+
+                        <Dropdown Style="min-width: 100%" Color="DropdownColor.Secondary">
+                            <DropdownToggleButton>@(adhocQueryInput.Key ?? "Select Stored Query type...")</DropdownToggleButton>
+                            <DropdownMenu>
+                                <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = new()'>None</DropdownItem>
+                                @foreach (var queryType in storedQueryTypes)
+                                {
+                                    <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = queryType'>
+                                        @queryType.Key (@queryType.Value)
+                                    </DropdownItem>
+                                }
+                            </DropdownMenu>
+                        </Dropdown>
+                        <hr />
+
+                        @if (adhocQueryInput.Key is not null)
+                        {
+                            EnterDefaultValuesBasedOnAdhocQuery(adhocQueryInput.Value);
+                            <KeyValuePairComponent KeyValuePairs="keyValuePairs" OnKeyValuePairsChanged=@OnKeyValuePairsChanged DataProvider=@ProvideSlotQueryParametersDataProvider />
+                        }
+                        <hr />
+                        <Button @onclick=CreateSoapEnvelopeWithVariables Style="min-width: 100%" Color="ButtonColor.Success">To Request <Icon Name="IconName.EnvelopeArrowUp" /></Button>
+                    </CardBody>
+                </Card>
+            </LeftContent>
+            <RightContent>
+                <Card Style="flex: 2;">
+                    <CardHeader Style="white-space: nowrap;">Request</CardHeader>
+                    <CardBody Style="padding:0px;padding-top:5px;">
+                        <StandaloneCodeEditor @ref="_editor" Id="sample-code-editor" CssClass="monaco-editor-class" ConstructionOptions="EditorConstructionOptions"
+                        OnDidInit="EditorOnDidInit" />
+                    </CardBody>
+                </Card>
+            </RightContent>
+        </ResizeablePane>
+    </CardBody>
+</Card>
+
+
+<Button @ref="sendRequestButton" class="btn btn-primary" @onclick="SendSoapRequest"><Icon Name="IconName.Envelope" /> Send SOAP-Request</Button>
+
+@if (ResponseEnvelope != null)
+{
+    <SoapEnvelopeComponent soapEnvelope=ResponseEnvelope />
+}
+
+
+
+@code {
+    // User input/output
+    private string backendUrl;
+    private string requestMessage;
+    private SoapEnvelope ResponseEnvelope;
+    private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
+    private ResponseOptionTypeReturnType returnType;
+    private string storedQueryQueryType;
+
+    // Slot Autocomplete
+    private string? slotName;
+    private List<KeyValueEntry>? userInputSlots;
+    private List<KeyValueEntry>? slotQueryParameters;
+
+    // AdhocQuery types
+    private string currentAdhocQuery;
+    private KeyValuePair<string, string> adhocQueryInput = new();
+    private Dictionary<string, string> storedQueryTypes = typeof(Constants.Xds.StoredQueries).GetAsDictionary();
+
+    // BootstrapBlazor UI components
+    private Button sendRequestButton = default!;
+    private List<ToastMessage> messages = new();
+    private Modal stackTraceModal = default!;
+    private Exception modalException = new();
+    private List<KeyValueEntry> keyValuePairs = [new() { } ];
+    private ConfirmDialog confirmDialog = new();
+    private TextInput inputBackendUrl = new();
+
+
+    // ==============================================================
+    // ================== SOAP-envelope creation ====================
+    // ==============================================================
+
+    private async Task CreateSoapEnvelopeWithVariables()
+    {
+        var currentContent = await _editor.GetValue();
+        if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
+        {
+            var confirmation = await confirmDialog.ShowAsync(
+            title: "Editor value differs from Parameters",
+            message1: "This will overwrite the current editor content. This cannot be undone!",
+            message2: "Do you want to proceed?");
+
+            if (!confirmation)
+            {
+                return;
+            }
+        }
+        var soapEnvelope = new SoapEnvelope()
+                {
+                    Header = new()
+                    {
+                        Action = Constants.Xds.OperationContract.Iti18Action,
+                        MessageId = Guid.NewGuid().ToString(),
+                        To = backendUrl ?? inputBackendUrl.Placeholder
+                    },
+                    Body = new()
+                    {
+                        AdhocQueryRequest = new()
+                        {
+                            ResponseOption = new() { ReturnType = returnType },
+                            AdhocQuery = new()
+                            {
+                                Id = adhocQueryInput.Value
+                            }
+                        }
+                    }
+                };
+
+        foreach (var pair in keyValuePairs)
+        {
+            if (string.IsNullOrEmpty(pair.Key) || string.IsNullOrEmpty(pair.Value))
+            {
+                continue;
+            }
+
+            soapEnvelope.Body.AdhocQueryRequest.AdhocQuery.AddSlot(
+            new SlotType()
+                    {
+                        Name = pair.Key,
+                        ValueList = new()
+                        {
+                            Value = [pair.Value]
+                        }
+                    });
+        }
+
+        requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
+
+        await _editor.SetValue(requestMessage);
+    }
+
+    private async Task SendSoapRequest()
+    {
+        sendRequestButton.ShowLoading("🔥 Sending Request...");
+
+        requestMessage = await _editor.GetValue();
+
+
+        if (string.IsNullOrEmpty(requestMessage))
+        {
+            sendRequestButton.HideLoading();
+            messages.Add(
+            new ToastMessage
+                    {
+                        Type = ToastType.Dark,
+                        AutoHide = true,
+                        Title = "No Envelope Content"
+                    });
+            return;
+        }
+
+        try
+        {
+            var soapRequest = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(requestMessage);
+            if (soapRequest.Body.AdhocQueryRequest is not null && adhocQueryInput.Value is not null)
+            {
+                soapRequest.Body.AdhocQueryRequest.AdhocQuery.Id = adhocQueryInput.Value;
+            }
+        }
+        catch (Exception ex)
+        {
+            sendRequestButton.HideLoading();
+            modalException = ex;
+            messages.Add(
+            new ToastMessage
+                    {
+                        Type = ToastType.Danger,
+                        Title = modalException.Message,
+                        AutoHide = true,
+                        Content = @<div>@modalException.Source <button class="btn btn-sm link-primary mt-2" @onclick=@stackTraceModal.ShowAsync>Show stack trace</button></div>,
+                });
+            return;
+        }
+
+        if (string.IsNullOrEmpty(backendUrl))
+        {
+            backendUrl = "https://localhost:7176/Registry/services/RegistryService";
+        }
+
+        var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
+        var response = await Http.PostAsync($"{backendUrl}", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var responseStream = await response.Content.ReadAsStreamAsync();
+            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+
+            // RegistryObjectList = responseMessage.Body.AdhocQueryResponse.RegistryObjectList.ToList();
+        }
+        else
+        {
+            var responseStream = await response.Content.ReadAsStreamAsync();
+            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+        }
+        sendRequestButton.HideLoading();
+    }
+
+    // =============================================
+    // ========== Key Value Pair handling ==========
+    // =============================================
+
+    private void OnKeyValuePairsChanged(List<KeyValueEntry> updatedKeyValuePairs)
+    {
+        keyValuePairs = updatedKeyValuePairs;
+    }
+
+    private async Task<AutoCompleteDataProviderResult<KeyValueEntry>> ProvideSlotQueryParametersDataProvider(AutoCompleteDataProviderRequest<KeyValueEntry> request)
+    {
+        if (slotQueryParameters is null)
+            slotQueryParameters = GetSlotQueryParameters(); // Fetch once
+
+        var filteredCustomers = slotQueryParameters
+            .Where(c => c.Value.Contains(request.Filter.Value ?? "", StringComparison.OrdinalIgnoreCase));
+
+        return await Task.FromResult(new AutoCompleteDataProviderResult<KeyValueEntry>
+        {
+            Data = filteredCustomers
+        });
+    }
+
+
+    private List<KeyValueEntry> GetSlotQueryParameters()
+    {
+        var storedQueryTypes = typeof(Constants.Xds.QueryParamters.FindDocuments).GetAsKeyValuePair();
+
+        // Jank?!
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.FindSubmissionSets).GetAsKeyValuePair()];
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.Folder).GetAsKeyValuePair()];
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.GetFolders).GetAsKeyValuePair()];
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.GetFolderAndContents).GetAsKeyValuePair()];
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.Associations).GetAsKeyValuePair()];
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.General).GetAsKeyValuePair()];
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.GetAll).GetAsKeyValuePair()];
+        storedQueryTypes = [.. storedQueryTypes, .. typeof(Constants.Xds.QueryParamters.GetDocuments).GetAsKeyValuePair()];
+
+        var uniqueStoredQueryTypes = storedQueryTypes
+        .Select(sqt => new KeyValueEntry() { Key = sqt.Key, Value = sqt.Value })
+        .DistinctBy(entry => entry.Value).ToList();
+
+        return uniqueStoredQueryTypes;
+    }
+
+
+    // ==============================================================
+    // ============ Dropdown menu default values ====================
+    // ==============================================================
+
+    private void EnterDefaultValuesBasedOnAdhocQuery(string adhocQuery)
+    {
+        if (currentAdhocQuery == adhocQuery)
+        {
+            // No change in value, just return
+            return;
+        }
+        currentAdhocQuery = adhocQuery;
+
+        keyValuePairs.RemoveAll(e => string.IsNullOrWhiteSpace(e.Key) && string.IsNullOrWhiteSpace(e.Value));
+
+        switch (adhocQuery)
+        {
+            case Constants.Xds.StoredQueries.FindDocuments:
+                var docEntryPatientId = "$XDSDocumentEntryPatientId";
+                var docEntryStatus = "$XDSDocumentEntryStatus";
+
+                keyValuePairs.AddIfNotInList(new KeyValueEntry() { Key = docEntryPatientId, Value = string.Empty });
+                keyValuePairs.AddIfNotInList(new KeyValueEntry() { Key = docEntryStatus, Value = "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" });
+
+                break;
+
+            case Constants.Xds.StoredQueries.FindSubmissionSets:
+                var subSetPatientId = "$XDSSubmissionSetPatientId";
+                var subSetStatus = "$XDSSubmissionSetStatus";
+
+                keyValuePairs.AddIfNotInList(new KeyValueEntry() { Key = subSetPatientId, Value = string.Empty });
+                keyValuePairs.AddIfNotInList(new KeyValueEntry() { Key = subSetStatus, Value = "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" });
+
+                break;
+
+            case Constants.Xds.StoredQueries.FindFolders:
+                var folderPatientId = "$XDSFolderPatientId";
+                var folderStatus = "$XDSFolderStatus";
+
+                keyValuePairs.AddIfNotInList(new KeyValueEntry() { Key = folderPatientId, Value = string.Empty });
+                keyValuePairs.AddIfNotInList(new KeyValueEntry() { Key = folderStatus, Value = "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" });
+
+                break;
+
+            case Constants.Xds.StoredQueries.GetAssociations:
+                var associationUuid = "$uuid";
+                keyValuePairs.Add(new KeyValueEntry() { Key = associationUuid, Value = string.Empty });
+                
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+
+    // =======================================================
+    // ================= Blazor Moncao Editor ================
+    // =======================================================
+    [AllowNull]
+    private StandaloneCodeEditor _editor;
+
+    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+            {
+                Language = "xml",
+                GlyphMargin = true,
+                AutomaticLayout = true,
+                Value = string.Empty
+            };
+    }
+
+    private async Task EditorOnDidInit()
+    {
+        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyH, (args) =>
+    {
+        Console.WriteLine("Ctrl+H : Initial editor command is triggered.");
+    });
+
+        var newDecorations = new ModelDeltaDecoration[]
+    {
+            new() {
+                Range = new BlazorMonaco.Range(3,1,3,1),
+                Options = new ModelDecorationOptions
+                {
+                    IsWholeLine = true,
+                    ClassName = "decorationContentClass",
+                    GlyphMarginClassName = "decorationGlyphMarginClass"
+                }
+            }
+    };
+
+        var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
+        // You can now use '_decorationIds' to change or remove the decorations
+    }
+
+}

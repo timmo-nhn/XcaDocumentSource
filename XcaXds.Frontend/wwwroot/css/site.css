@@ -114,3 +114,16 @@
 .slot-header {
     background: #0288D1;
 }
+
+
+
+/* Blazor monaco editor */
+
+.monaco-editor-class {
+    height: 768px;
+    width: 100%;
+}
+
+.monaco-editor-container {
+    height: 768px;
+}

@@ -311,13 +311,11 @@ public static class FindDocuments
     {
         // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.6.2
         // If no value is specified for DocumentEntryType, the value requesting only Stable Document Entries shall be assumed.
-
-        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries.NoUrn()))); ;
+        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => eo.ObjectType.NoUrn() == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries.NoUrn());
 
         return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType.NoUrn())));
     }
 }
-
 
 public static class FindSubmissionSets
 {
@@ -418,6 +416,23 @@ public static class FindSubmissionSets
             .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .Any(hcfTypeCode => healthcareFacilityTypeCodes.Any(hcfTypeCodes => hcfTypeCodes.Contains(hcfTypeCode))));
     }
+}
+
+public static class FindFolders
+{
+    /// | Parameter Name (ITI-18) | Attribute           | Opt | Mult |
+    /// |-------------------------|---------------------|-----|------|
+    /// | $XDSFolderPatientId     | XDSFolder.patientId | R   | -    |
+    public static IEnumerable<RegistryPackageType> ByXdsFolderPatientId(
+        this IEnumerable<RegistryPackageType> source, string? patientId)
+    {
+        if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<RegistryPackageType>();  // Required field, return nothing if not specified
+        
+        return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
+            ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
+            ei.Value.Contains(patientId)));
+    }
+
 }
 
 public static class GetAssociations

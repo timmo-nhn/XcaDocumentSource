@@ -43,6 +43,19 @@ public static class RegistryStoredQueryParameters
         };
     }
 
+    public static FindFolders GetFindFoldersParameters(AdhocQueryType adhocQuery)
+    {
+        return new FindFolders()
+        {
+
+            XdsFolderPatientId = adhocQuery.GetSlot(Constants.Xds.QueryParamters.FindFoldes.XdsFolderPatientId).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderLastUpdateTimeFrom = adhocQuery.GetSlot(Constants.Xds.QueryParamters.FindFoldes.XdsFolderLastUpdateTimeFrom).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderLastUpdateTimeTo = adhocQuery.GetSlot(Constants.Xds.QueryParamters.FindFoldes.XdsFolderLastUpdateTimeTo).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderCodeList = adhocQuery.GetSlot(Constants.Xds.QueryParamters.FindFoldes.XdsFolderCodeList).GetValuesGrouped(),
+            XdsFolderStatus = adhocQuery.GetSlot(Constants.Xds.QueryParamters.FindFoldes.XdsFolderStatus).GetValuesGrouped(),
+        };
+    }
+
     public static GetAll GetAllParameters(AdhocQueryType adhocQuery)
     {
         return new GetAll()
@@ -131,6 +144,15 @@ public class FindSubmissionSets
     public string? XdsSubmissionSetAuthorPerson { get; set; }
     public List<string[]> XdsSubmissionSetContentType { get; set; }
     public List<string[]> XdsSubmissionSetStatus { get; set; }
+}
+
+public class FindFolders
+{
+    public string? XdsFolderPatientId { get; set; }
+    public string? XdsFolderLastUpdateTimeFrom { get; set; }
+    public string? XdsFolderLastUpdateTimeTo { get; set; }
+    public List<string[]>? XdsFolderCodeList { get; set; }
+    public List<string[]>? XdsFolderStatus { get; set; }
 }
 
 public class GetAll

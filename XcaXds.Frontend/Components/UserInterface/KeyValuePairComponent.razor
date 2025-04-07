@@ -1,46 +1,116 @@
-﻿@using XcaXds.Frontend.Models;
+﻿@using XcaXds.Commons.Models;
 
-<div>
-    @foreach (var pair in KeyValuePairs.Select((pair, index) => new { pair, index }))
-    {
-            <div class="form-group">
-                <InputText class="form-control mb-2" @bind-Value="pair.pair.Key" @onblur="AddKeyValuePair" placeholder="Key" />
-                <InputText class="form-control mb-2" @bind-Value="pair.pair.Value" @onblur="AddKeyValuePair" placeholder="Value" />
-                <button class="btn btn-danger" @onclick="() => RemoveKeyValuePair(pair.index)">Remove</button>
+<div class="keyvalue-container">
+    @if (KeyValuePairs != null && KeyValuePairs.Count != 0)
+    {        
+        @foreach (var pair in KeyValuePairs)
+        {
+            <div class="form-group keyvaluepair">
+                <AutoComplete @bind-Value="pair.Key"
+                              TItem="KeyValueEntry"
+                              DataProvider="DataProvider"
+                              OnChanged="() => OnBlur(pair)"
+                              PropertyName="Value"
+                              Placeholder="Slot Name" />
+
+                <InputText class="form-control mb-2"
+                           @bind-Value="pair.Value"
+                           @onblur="() => OnBlur(pair)"
+                           placeholder="Slot Value" />
+
+                <button class="btn btn-danger" @onclick="() => RemoveKeyValuePair(pair.Id)">
+                    <Icon Name="IconName.DashCircle" />
+                </button>
             </div>
+        }
     }
-    <button class="btn btn-primary" @onclick="AddKeyValuePair">Add</button>
 </div>
+
+<!-- This is for overriding the default width of the KeyValuePairComponent's AutoComplete component -->
+<style>
+    .dropdown-menu.autocomplete-list {
+        min-width: fit-content;
+    }
+    .autocomplete{
+        min-width:200px;
+        width:75%;
+    }
+</style>
+
+
+<style>
+    .keyvalue-container {
+        container-type: inline-size;
+    }
+
+    .keyvaluepair {
+        display: flex;
+        align-items: baseline;
+        padding: 1px;
+        margin: 1px;
+        flex-wrap: nowrap;
+    }
+
+    @@container (max-width: 600px) {
+        .keyvaluepair {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .autocomplete {
+            width: unset;
+        }
+    }
+</style>
 
 @code {
 
+    [Parameter]
+    public List<KeyValueEntry> KeyValuePairs { get; set; }
 
     [Parameter]
-    public List<KeyValueEntry> KeyValuePairs { get; set; } = new();
+    public EventCallback<List<KeyValueEntry>> OnKeyValuePairsChanged { get; set; }
 
     [Parameter]
-    public EventCallback<List<KeyValueEntry>> KeyValuePairsChanged { get; set; }
+    public AutoCompleteDataProviderDelegate<KeyValueEntry> DataProvider { get; set; }
 
-    private void OnKeyValueChanged()
+    private void OnBlur(KeyValueEntry kve)
     {
-        KeyValuePairsChanged.InvokeAsync(KeyValuePairs);
-    }
-
-    private void AddKeyValuePair()
-    {
-        KeyValuePairs.Add(new KeyValueEntry()); // Mutable object
-    }
-
-    private void RemoveKeyValuePair(int index)
-    {
-        if (KeyValuePairs.Count > 1)
+        var entry = KeyValuePairs.FirstOrDefault(e => e.Id == kve.Id);
+        if (entry != null)
         {
-            KeyValuePairs.RemoveAt(index);
+            entry.Key = kve.Key;
+            entry.Value = kve.Value;
         }
+
+        KeyValuePairs.RemoveAll(e => string.IsNullOrWhiteSpace(e.Key) && string.IsNullOrWhiteSpace(e.Value));
+        if (!KeyValuePairs.Any()) KeyValuePairs.Add(new KeyValueEntry());
+
+        if (KeyValuePairs.All(e => !string.IsNullOrWhiteSpace(e.Key) && !string.IsNullOrWhiteSpace(e.Value)))
+        {
+            KeyValuePairs.Add(new KeyValueEntry());
+        }
+
+        OnKeyValuePairsChanged.InvokeAsync(KeyValuePairs);
+        StateHasChanged();
+    }
+
+    private void RemoveKeyValuePair(Guid id)
+    {
+        KeyValuePairs.RemoveAll(e => e.Id == id);
+
+        if (!KeyValuePairs.Any())
+        {
+            KeyValuePairs.Add(new KeyValueEntry());
+        }
+
+        OnKeyValuePairsChanged.InvokeAsync(KeyValuePairs);
+        StateHasChanged();
     }
 
     protected override void OnInitialized()
     {
-        KeyValuePairs.Add(new KeyValueEntry()); // Start with one empty entry
+        KeyValuePairs ??= [new() { }];
     }
 }
+
+

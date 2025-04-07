@@ -8,11 +8,18 @@
 
   <ItemGroup>
 	<PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
+	<PackageReference Include="BlazorMonaco" Version="3.3.0" />
 
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Components\Pages\GetDocument.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
   </ItemGroup>
 
 </Project>

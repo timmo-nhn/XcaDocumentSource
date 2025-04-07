@@ -42,7 +42,14 @@ public partial class IdentifiableType
 
     public void AddSlot(SlotType slotType)
     {
-        Slot = [.. Slot, slotType];
+        if (Slot == null || Slot.Length == 0)
+        {
+            Slot = [slotType];
+        }
+        else
+        {
+            Slot = [.. Slot, slotType];
+        }
     }
     public void AddSlot(string slotName, string[] valueList)
     {
