@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "WebService",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build-webservice",
+        "program": "${workspaceFolder}/XcaXds.WebService/bin/Debug/net8.0/XcaXds.WebService.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/XcaXds.WebService",
+        "stopAtEntry": false,
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      {
+        "name": "Frontend",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build-frontend",
+        "program": "${workspaceFolder}/XcaXds.Frontend/bin/Debug/net8.0/XcaXds.Frontend.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/XcaXds.Frontend",
+        "stopAtEntry": false,
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Run WebService + Frontend",
+        "configurations": ["WebService", "Frontend"]
+      }
+    ]
+  }
+  
