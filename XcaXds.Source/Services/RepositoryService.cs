@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.ServiceModel.Channels;
 using System.Text;
+using PdfSharp.Pdf.Content.Objects;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
@@ -11,6 +12,8 @@ using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 
 namespace XcaXds.Source.Services;
 
@@ -103,8 +106,8 @@ public class RepositoryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Non unique ID in repository {document.Id}".Trim(), "XDS Repository");
                 }
-            }
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+            }
         }
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
@@ -114,8 +117,16 @@ public class RepositoryService
     {
         var registryResponse = new RegistryResponseType();
         var retrieveResponse = new RetrieveDocumentSetResponseType();
-        var documentRequests = iti43envelope.Body.RetrieveDocumentSetRequest?.DocumentRequest;
-        if (documentRequests == null || documentRequests?.Length == 0)
+        var iti43envelopeBody = iti43envelope.Body.RetrieveDocumentSetRequest;
+
+        if (iti43envelopeBody == null)
+        {
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing iti43envelopeBody in RetrieveDocumentSetRequest", "XDS Repository");
+            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+        }
+
+        var documentRequests = iti43envelopeBody.DocumentRequest;
+        if (documentRequests == null || documentRequests.Length == 0)
         {
             registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RetrieveDocumentSetRequest", "XDS Repository");
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
@@ -127,9 +138,14 @@ public class RepositoryService
             var repoId = document.RepositoryUniqueId;
             var home = document.HomeCommunityId;
 
+            if (docId != _xdsConfig.DocumentUniqueId || string.IsNullOrEmpty(docId))
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {docId}".Trim(), "XDS Repository");
+                continue;
+            }
             if (home != _xdsConfig.HomeCommunityId || string.IsNullOrEmpty(home))
             {
-                registryResponse.AddError(XdsErrorCodes.XDSMissingHomeCommunityId, $"Missing or unknown HomecommunityID {home}".Trim(), "XDS Repository");
+                registryResponse.AddError(XdsErrorCodes.XDSMissingHomeCommunityId, $"Missing or unknown HomeCommunityID {home}".Trim(), "XDS Repository");
                 continue;
             }
             if (repoId != _xdsConfig.RepositoryUniqueId)
@@ -138,21 +154,34 @@ public class RepositoryService
                 continue;
             }
             var file = _repositoryWrapper.GetDocumentFromRepository(home, repoId, docId);
-
+            Byte[] renamedFile;
             if (file != null)
-            {
-                retrieveResponse.AddDocument(file, home, repoId, docId);
+            { 
+                var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);
+                if (mimeType == "application/pdf")
+                {
+                  // Create a memory stream from the file bytes
+                  using MemoryStream ms = new(file);
+                  // Open the PDF document from the memory stream
+                  PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
+
+                  // Set the title to the document ID
+                  pdfDoc.Info.Title = docId;
+
+                  // Save the modified document to a new memory stream
+                  using MemoryStream outputStream = new();
+                  pdfDoc.Save(outputStream);
+                  pdfDoc.Close();
+
+                  // Get the modified file bytes and replace the original file variable
+                  renamedFile = outputStream.ToArray();
+                  retrieveResponse.AddDocument(renamedFile, home, repoId, docId, mimeType);
+                }
             }
         }
 
-
         registryResponse.EvaluateStatusCode();
         retrieveResponse.RegistryResponse = registryResponse;
-
-        var documentResponse = new RetrieveDocumentSetbResponse() 
-        {
-            RetrieveDocumentSetResponse = retrieveResponse
-        };
 
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
         {
@@ -176,7 +205,13 @@ public class RepositoryService
     public async Task<SoapRequestResult<SoapEnvelope>> RemoveDocuments(SoapEnvelope soapEnvelope)
     {
         var registryResponse = new RegistryResponseType();
-        var removeDocuments = soapEnvelope.Body.RemoveDocumentsRequest.DocumentRequest;
+        var removeDocuments = soapEnvelope.Body.RemoveDocumentsRequest?.DocumentRequest;
+
+        if (removeDocuments == null || removeDocuments.Length == 0)
+        {
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RemoveDocumentRequest", "XDS Repository");
+            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+        }
 
         foreach (var document in removeDocuments)
         {
@@ -209,16 +244,15 @@ public class RepositoryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
     
-    public MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
+    public static MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
     {
         var documents = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
-
         var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
         multipart.Headers.ContentType = new MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated);
 
-        if (documents != null)
+        if (documents != null && multipart != null)
         {
             foreach (var document in documents)
             {
@@ -232,7 +266,7 @@ public class RepositoryService
                 var documentBytes = document.Document;
                 document.Include = multipartInclude;
                 document.Document = null;
-                Console.WriteLine();
+
 
                 var documentString = Encoding.UTF8.GetString(documentBytes);
 
