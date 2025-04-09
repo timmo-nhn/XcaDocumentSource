@@ -1,5 +1,4 @@
-﻿
-@using XcaXds.Commons.Models;
+﻿@using XcaXds.Commons.Models;
 @using XcaXds.Commons.Models.Soap.XdsTypes;
 @using XcaXds.Commons.Models.Soap;
 
@@ -17,7 +16,14 @@
         }
         else if (DocumentResponse.MimeType == "application/pdf")
         {
-            <PdfViewer Class="mb-3" Url="@string.Format($"data:{DocumentResponse.MimeType};base64,{{0}}", base64Content)" />
+            <iframe 
+              class="mb-3" 
+              src="@($"data:{DocumentResponse.MimeType};headers=filename%3D{DocumentResponse.DocumentUniqueId};base64,{base64Content}")" 
+              name="@DocumentResponse.DocumentUniqueId" 
+              title="@DocumentResponse.DocumentUniqueId" 
+              width="100%" 
+              height="600px">
+            </iframe>
         } 
         else if (DocumentResponse.MimeType == "text/plain")
         {
@@ -43,6 +49,7 @@
 
     protected override void OnParametersSet()
     {
+        Console.WriteLine($"DocumentResponse: {DocumentResponse}");
         if (DocumentResponse?.Document != null)
         {
             base64Content = Convert.ToBase64String(DocumentResponse.Document);

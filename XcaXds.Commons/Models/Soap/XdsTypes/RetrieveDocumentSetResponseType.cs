@@ -19,10 +19,6 @@ public partial class RetrieveDocumentSetResponseType
         {
             return;
         }
-        if (mimeType == null) 
-        {
-            mimeType = StringExtensions.GetMimetypeFromMagicNumber(document);
-        }
         var documentResponse = new DocumentResponseType()
         {
             Document = document,

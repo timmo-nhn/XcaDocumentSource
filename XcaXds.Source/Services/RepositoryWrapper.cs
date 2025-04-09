@@ -30,8 +30,10 @@ public partial class RepositoryWrapper
         foreach (var directory in Directory.GetDirectories(_repositoryPath))
         {
             foreach (var file in Directory.GetFiles(directory))
-            {
+            { 
+                
                 var name = Path.GetFileName(file);
+                
                 if (name.Replace("^", "") == documentUniqueId.Replace("^", ""))
                 {
                     return File.ReadAllBytes(file);
