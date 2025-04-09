@@ -1,0 +1,36 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Services
+@using XcaXds.Frontend.Components.EbRimComponents;
+
+
+<div class="ebrim-card registry-package-card">
+    <div class="ebrim-header registry-package-header">
+        RegistryPackage
+    </div>
+    <i class="bi bi-tag"></i>
+        <p><i class="bi bi-tag"></i></p>
+    <div class="ebrim-body">
+        <p>Highest Severity: @RegErrorList.HighestSeverity</p>
+        @for (int i = 0; i < RegErrorList.RegistryError.Length; i++)
+        {
+            var registryError = RegErrorList.RegistryError[i];
+            <ul>
+                <p>Error @(i + 1)</p>
+                <li>@registryError.Severity</li>
+                <li>@registryError.Location</li>
+                <li>@registryError.Value</li>
+                <li>@registryError.ErrorCode</li>
+                <li>@registryError.CodeContext</li>
+            </ul>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public RegistryErrorList RegErrorList { get; set; } = default!;    
+}

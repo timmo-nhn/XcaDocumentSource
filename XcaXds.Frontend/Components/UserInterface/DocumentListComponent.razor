@@ -1,0 +1,20 @@
+﻿@using XcaXds.Commons.Models.Soap.XdsTypes
+
+<h3>DocumentListComponent</h3>
+
+
+@code {
+    [Parameter]
+    public AdhocQueryResponse adhocQueryResponse { get; set; }
+
+    public List<ExtrinsicObjectType> documentList { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (adhocQueryResponse != null && adhocQueryResponse.RegistryObjectList != null && adhocQueryResponse.RegistryObjectList.Length != 0)
+        {
+            documentList = adhocQueryResponse.RegistryObjectList.OfType<ExtrinsicObjectType>().ToList();
+        }
+    }
+
+}

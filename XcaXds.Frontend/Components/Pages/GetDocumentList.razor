@@ -4,15 +4,16 @@
 @inject HttpClient Http
 
 @using System.Diagnostics.CodeAnalysis
-@using XcaXds.Frontend.Components.UserInterface;
-@using XcaXds.Frontend.Components.EbRimComponents;
-@using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope;
-@using XcaXds.Commons.Models.Soap.XdsTypes;
-@using XcaXds.Commons.Models.Soap;
-@using XcaXds.Commons.Services;
-@using XcaXds.Commons;
-@using XcaXds.Commons.Models;
-@using BlazorBootstrap.Components;
+@using XcaXds.Frontend.Components.UserInterface
+@using XcaXds.Frontend.Components.EbRimComponents
+@using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope
+@using XcaXds.Commons.Models.Soap.XdsTypes
+@using XcaXds.Commons.Models.Soap
+@using XcaXds.Commons.Services
+@using XcaXds.Commons
+@using XcaXds.Commons.Models
+@using BlazorBootstrap.Components
+@using BlazorBootstrap
 
 <PageTitle>Document List</PageTitle>
 
@@ -87,10 +88,10 @@
     </CardBody>
 </Card>
 
-
 <Button @ref="sendRequestButton" class="btn btn-primary" @onclick="SendSoapRequest"><Icon Name="IconName.Envelope" /> Send SOAP-Request</Button>
 
-@if (ResponseEnvelope != null)
+
+@if (ResponseEnvelope is not null)
 {
     <SoapEnvelopeComponent soapEnvelope=ResponseEnvelope />
 }
@@ -105,6 +106,8 @@
     private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
     private ResponseOptionTypeReturnType returnType;
     private string storedQueryQueryType;
+    private HttpResponseMessage soapRequestResponse;
+
 
     // Slot Autocomplete
     private string? slotName;
@@ -238,19 +241,36 @@
         }
 
         var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
-        var response = await Http.PostAsync($"{backendUrl}", content);
+        soapRequestResponse = await Http.PostAsync($"{backendUrl}", content);
 
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var responseStream = await response.Content.ReadAsStreamAsync();
-            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+            if (soapRequestResponse.IsSuccessStatusCode)
+            {
+                var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
+                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
 
-            // RegistryObjectList = responseMessage.Body.AdhocQueryResponse.RegistryObjectList.ToList();
+                // RegistryObjectList = responseMessage.Body.AdhocQueryResponse.RegistryObjectList.ToList();
+            }
+            else
+            {
+                var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
+                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            var responseStream = await response.Content.ReadAsStreamAsync();
-            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+            sendRequestButton.HideLoading();
+            modalException = ex;
+            messages.Add(
+                new ToastMessage
+                {
+                    Type = ToastType.Danger,
+                    Title = modalException.Message,
+                    AutoHide = true,
+                    Content = @<div>@modalException.Source <button class="btn btn-sm link-primary mt-2" @onclick=@stackTraceModal.ShowAsync>Show stack trace</button></div>,
+                });
+            return;
         }
         sendRequestButton.HideLoading();
     }

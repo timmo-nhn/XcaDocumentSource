@@ -7,18 +7,20 @@
     <div class="envelope-header">
     Body
     </div>
-    <div class="ebrim-body">
-        <ul>
-            @if (SoapBody.AdhocQueryResponse != null)
-            {
-                <AdhocQueryResponseComponent AdhocQueryResponse=SoapBody.AdhocQueryResponse />
-            }
-            @if (SoapBody.Fault != null)
-            {
-                <SoapFaultResponseComponent SoapFault=SoapBody.Fault />
-            }
-        </ul>
-    </div>
+    <ul>
+        @if (SoapBody.AdhocQueryResponse != null)
+        {
+            <AdhocQueryResponseComponent AdhocQueryResponse=SoapBody.AdhocQueryResponse />
+        }
+        @if (SoapBody.RetrieveDocumentSetResponse != null)
+        {
+            <RetrieveDocumentSetResponseComponent RetrieveDocumentSet=SoapBody.RetrieveDocumentSetResponse />
+        }
+        @if (SoapBody.Fault != null)
+        {
+            <SoapFaultResponseComponent SoapFault=SoapBody.Fault />
+        }
+    </ul>
 </div>
 
 @code {
