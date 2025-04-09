@@ -109,13 +109,13 @@
           <Value>502116685^GEIRAAS^BENEDIKTE^^^^^^&amp;urn:oid:2.16.578.1.12.4.1.4.4&amp;ISO</Value>
         </ValueList>
       </Slot>
-    <Slot name="authorInstitution">
-      <ValueList>
-        <Value>Finnmarkssykehuset HF</Value>
-        <Value>Finnmarkssykehuset HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974880</Value>
-        <Value>Laboratoriemedisinsk avdeling - FIN^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4211607</Value>
-      </ValueList>
-    </Slot>
+      <Slot name="authorInstitution">
+        <ValueList>
+          <Value>Finnmarkssykehuset HF</Value>
+          <Value>Finnmarkssykehuset HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974880</Value>
+          <Value>Laboratoriemedisinsk avdeling - FIN^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4211607</Value>
+        </ValueList>
+      </Slot>
     </Classification>
     <Classification id="299a55b7-0466-4a85-ba5a-6ea0442677b1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="ExtrinsicObject01" nodeRepresentation="">
       <Slot name="authorInstitution">

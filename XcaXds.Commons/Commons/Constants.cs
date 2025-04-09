@@ -375,6 +375,16 @@ public static class Constants
         }
     }
 
+    public static class Oid
+    {
+        public const string Fnr = "2.16.578.1.12.4.1.4.1";
+        public const string Dnr = "2.16.578.1.12.4.1.4.2";
+        public const string Hnr = "2.16.578.1.12.4.1.4.3";
+        public const string Hpr = "2.16.578.1.12.4.1.4.4";
+        public const string ReshId = "2.16.578.1.12.4.1.4.102";
+        public const string Brreg = "2.16.578.1.12.4.1.4.101";
+
+    }
     public static class MimeTypes
     {
         public const string SoapXml = "application/soap+xml";

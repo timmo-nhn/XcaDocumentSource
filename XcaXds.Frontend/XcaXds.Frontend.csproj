@@ -9,6 +9,7 @@
   <ItemGroup>
 	<PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
 	<PackageReference Include="BlazorMonaco" Version="3.3.0" />
+	<PackageReference Include="HighlightBlazor" Version="0.1.10" />
 
   </ItemGroup>
 

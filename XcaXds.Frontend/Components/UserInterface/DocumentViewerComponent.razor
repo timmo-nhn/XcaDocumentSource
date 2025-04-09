@@ -1,0 +1,52 @@
+﻿
+@using XcaXds.Commons.Models;
+@using XcaXds.Commons.Models.Soap.XdsTypes;
+@using XcaXds.Commons.Models.Soap;
+
+<div class="ebrim-card classification-card">
+    <div class="ebrim-header classification-header">
+        DocumentResponse
+    </div>
+    <div class="ebrim-body">
+        <li>Home: @DocumentResponse.HomeCommunityId</li>
+        <li>Repository: @DocumentResponse.RepositoryUniqueId</li>
+        <li>Document Id: @DocumentResponse.DocumentUniqueId</li>
+        @if (DocumentResponse.MimeType == "application/octet-stream")
+        {
+            
+        }
+        else if (DocumentResponse.MimeType == "application/pdf")
+        {
+            <PdfViewer Class="mb-3" Url="@string.Format($"data:{DocumentResponse.MimeType};base64,{{0}}", base64Content)" />
+        } 
+        else if (DocumentResponse.MimeType == "text/plain")
+        {
+            <p>@System.Text.Encoding.UTF8.GetString(DocumentResponse.Document)</p>
+        }
+        else if (DocumentResponse.MimeType != null && DocumentResponse.MimeType.Contains("image"))
+        {
+            <img base Class="mb-3" src="@($"data:{DocumentResponse.MimeType};base64,{base64Content}")" />
+        } 
+        else 
+        {
+            <h2>Unsupported Mimetype @DocumentResponse.MimeType</h2>
+        }
+
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DocumentResponseType DocumentResponse { get; set; } = default!;
+
+    private string base64Content;
+
+    protected override void OnParametersSet()
+    {
+        if (DocumentResponse?.Document != null)
+        {
+            base64Content = Convert.ToBase64String(DocumentResponse.Document);
+        }
+    }
+
+}

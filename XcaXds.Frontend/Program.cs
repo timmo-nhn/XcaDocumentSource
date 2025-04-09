@@ -1,3 +1,4 @@
+using HighlightBlazor;
 using XcaXds.Frontend.Components;
 using XcaXds.Frontend.Cookies;
 
@@ -6,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddBlazorBootstrap(); 
+builder.Services.AddBlazorBootstrap();
+builder.Services.AddHighlight();
 builder.Services.AddScoped(sp => new HttpClient());
 builder.Services.AddScoped<ICookie, Cookie>();
 

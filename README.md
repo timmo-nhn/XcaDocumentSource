@@ -157,7 +157,7 @@ There is excpected to be a **1:1 relationship** between the **SOAP action** (`<A
 | Assigning Authority | Used in conjunction with metadata. Consists of an unique identifier for the organization or system responsible for governing or producing said data. Also used for defining the format of the data. | `13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO` <br> *Here the **OID** identifies the **assigning authority** for defining what the numbers `13116900216` represent (`<Birth-number>^^^<OID defining birth numbers>`)*  |
 | Code System | A Code System defines a set of coded values that can be used in XDS metadata, such as document types, healthcare facility types, and event codes  | `codeSystem="urn:oid:2.16.578.1.12.4.1.1.9060"` |
 | Code System Name | The name of a specific code system | `codeSystemName="Kategori helsepersonell"` |
-| OID | Object Identifier - Used to identify a single organization or system | `2.16.578.1.12.4.1.` |
+| OID | Object Identifier - Used to identify a single organization or system | `2.16.578.1.12.4.1.7` |
 | TBD |  | `TBD` |
 
 *Table x: terminology used for types in IHE XDS*  

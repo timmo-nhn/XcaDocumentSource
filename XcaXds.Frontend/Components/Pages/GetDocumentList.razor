@@ -1,9 +1,12 @@
 ﻿@page "/Documentlist"
 @rendermode InteractiveServer
 
+@inject IJSRuntime JS
+
 @inject HttpClient Http
 
 @using System.Diagnostics.CodeAnalysis
+@using XcaXds.Commons.Models.Custom
 @using XcaXds.Frontend.Components.UserInterface
 @using XcaXds.Frontend.Components.EbRimComponents
 @using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope
@@ -41,7 +44,6 @@
                 <Card Style="flex: 1;min-width: 100%">
                     <CardHeader Style="white-space: nowrap;">Parameters</CardHeader>
                     <CardBody Style="padding:10px;">
-
                         <Dropdown Style="min-width: 100%" Color="DropdownColor.Secondary">
                             <DropdownToggleButton>@(returnType.ToString() ?? "Response Option")</DropdownToggleButton>
                             <DropdownMenu>
@@ -88,12 +90,13 @@
     </CardBody>
 </Card>
 
-<Button @ref="sendRequestButton" class="btn btn-primary" @onclick="SendSoapRequest"><Icon Name="IconName.Envelope" /> Send SOAP-Request</Button>
+<Button @ref="sendRequestButton" class="btn btn-primary" @onclick="SendRegistryStoredQuerySoapRequest"><Icon Name="IconName.Envelope" /> Send SOAP-Request</Button>
 
 
 @if (ResponseEnvelope is not null)
 {
-    <SoapEnvelopeComponent soapEnvelope=ResponseEnvelope />
+    <DocumentListComponent adhocQueryResponse=ResponseEnvelope.Body.AdhocQueryResponse OnDocumentReferenceClicked="@OpenNewPageRetrieveDocumentSetSoapRequest" />
+    @* <SoapEnvelopeComponent soapEnvelope=ResponseEnvelope /> *@
 }
 
 
@@ -177,14 +180,14 @@
             }
 
             soapEnvelope.Body.AdhocQueryRequest.AdhocQuery.AddSlot(
-            new SlotType()
+                new SlotType()
+                {
+                    Name = pair.Key,
+                    ValueList = new()
                     {
-                        Name = pair.Key,
-                        ValueList = new()
-                        {
-                            Value = [pair.Value]
-                        }
-                    });
+                        Value = [pair.Value]
+                    }
+                });
         }
 
         requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
@@ -192,7 +195,15 @@
         await _editor.SetValue(requestMessage);
     }
 
-    private async Task SendSoapRequest()
+    private async Task OpenNewPageRetrieveDocumentSetSoapRequest(SimplifiedDocumentReference documentReference)
+    {
+        var url = $"ViewDocument?HomeCommunityId={Uri.EscapeDataString(documentReference.HomeCommunityId)}&RepositoryUniqueId={Uri.EscapeDataString(documentReference.RepositoryId)}&DocumentUniqueId={Uri.EscapeDataString(documentReference.DocumentId)}";
+        await JS.InvokeVoidAsync("openPageWithParams", url);
+    }
+
+
+
+    private async Task SendRegistryStoredQuerySoapRequest()
     {
         sendRequestButton.ShowLoading("🔥 Sending Request...");
 
@@ -237,7 +248,7 @@
 
         if (string.IsNullOrEmpty(backendUrl))
         {
-            backendUrl = "https://localhost:7176/Registry/services/RegistryService";
+            backendUrl = inputBackendUrl.Placeholder;
         }
 
         var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");

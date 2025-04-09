@@ -23,6 +23,14 @@
 
                 if (adjustedOffset < minWidth) adjustedOffset = minWidth;
 
+                const leftWidth = parseFloat(adjustedOffset);
+                if (leftWidth < 200) {
+                    leftPane.getElementsByClassName("card-body")[0].style.display = "none";
+
+                } else {
+                    leftPane.getElementsByClassName("card-body")[0].style.display = "";
+                }
+
                 leftPane.style.width = adjustedOffset + "px";
                 rightPane.style.width = `calc(100% - ${adjustedOffset}px)`;
             }
@@ -32,10 +40,14 @@
 
                 if (adjustedOffset < minWidth) adjustedOffset = minWidth;
                 if (leftPane.style.width == "0px" || leftPane.style.width == "1px" || leftPane.style.width == "2px" || leftPane.style.width == "3px") {
-                    leftPane.style.width = 250 + "px";
+                    leftPane.style.width = 350 + "px";
+                    leftPane.getElementsByClassName("card-body")[0].style.display = "";
+
                 }
                 else {
                     leftPane.style.width = 0 + "px";
+                    leftPane.getElementsByClassName("card-body")[0].style.display = "none";
+
                 }
 
                 rightPane.style.width = `calc(100% - ${adjustedOffset}px)`;
