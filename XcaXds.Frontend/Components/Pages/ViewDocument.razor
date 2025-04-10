@@ -95,15 +95,6 @@
                 var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
                 ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
                 StateHasChanged();
-
-                // RegistryObjectList = responseMessage.Body.AdhocQueryResponse.RegistryObjectList.ToList();
-            }
-            else
-            {
-                var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
-                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
-                StateHasChanged();
-
             }
         }
         catch (Exception ex)
