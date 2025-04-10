@@ -1,38 +1,33 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Document Admin</a>
+﻿@using XcaXds.Frontend.Components.UserInterface.Navigation;
+
+<div class="navbar navbar-dark w-100">
+    <div class="d-flex flex-column w-100 align-items-center justify-content-center">
+        <a class="nav-title" href="">
+            <Icon Name="IconName.FileEarmarkMedical" />
+            XDS Document Admin
+        </a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <Icon Name="IconName.HouseDoorFill" />
-                <span>
-                  Home
-                </span>
-            </NavLink>
+<div class="nav-scrollable">
+    <nav class="flex-column text-light">
+        <div class="nav-section">
+            <NavHeader Text="Main" IconName="IconName.ArrowDownRightSquareFill" />
+            <NavElement Text="Home" link="" IconName="IconName.HouseFill" />
+            <NavElement Text="Document Registry" Description="Search document metadata" link="Documentlist" IconName="IconName.ArchiveFill" />
+            <NavElement Text="Document Repository" Description="Retrieve documents" link="Document" IconName="IconName.FolderFill" />
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Documentlist">
-                <Icon Name="IconName.ArchiveFill" />      
-                <span>
-                  Documentlist
-                </span>
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Document">
-                <Icon Name="IconName.FolderFill" />    
-                <span>
-                  Document
-                </span>
-            </NavLink>
+        <div class="nav-section mt-2">
+            <NavHeader Text="Resources" IconName="IconName.InfoCircleFill" />
+            <NavElement Text="XDS Documentation" link="https://profiles.ihe.net/ITI/TF/Volume1/ch-10.html" IconName="IconName.BookHalf" />
+            <NavElement Text="GitHub" link="https://github.com/timmo-nhn/XcaDocumentSource" IconName="IconName.Github" />
         </div>
     </nav>
 </div>
 
+
+@code {
+
+
+
+}
