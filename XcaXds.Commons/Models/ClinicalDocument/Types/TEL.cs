@@ -10,7 +10,7 @@ public class TEL
     public string? Value { get; set; }
 
     [XmlAttribute("use")]
-    public List<string>? Use { get; set; }
+    public string? Use { get; set; }
 
     [XmlElement("useablePeriod")]
     public List<IVL_TS>? UseablePeriod { get; set; } 
