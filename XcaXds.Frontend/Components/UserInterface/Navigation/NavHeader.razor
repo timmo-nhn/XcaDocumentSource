@@ -1,0 +1,35 @@
+@using XcaXds.Commons.Models;
+@using Microsoft.AspNetCore.Components
+
+<h6 class="nav-section-header">
+    <span class="nav-section-icon">
+        <Icon Name="@IconName" />
+    </span>
+    @Text
+</h6>
+
+<style>
+.nav-section-header {
+  color: #adb5bd;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  font-weight: 600;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-section-icon {
+  margin-right: 0.5rem;
+}
+
+</style>
+
+@code {
+    [Parameter] 
+    public string Text { get; set; } = "";
+    
+    [Parameter]
+    public IconName IconName { get; set; }
+}

@@ -31,6 +31,4 @@ public partial class RetrieveDocumentSetResponseType
         DocumentResponse ??= [];
         DocumentResponse = [.. DocumentResponse, documentResponse];
     }
-
-
 }
