@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 
 @inject HttpClient httpClient   
-
 @inject ICookie cookie
 
 @using System.Diagnostics.CodeAnalysis
@@ -10,70 +9,146 @@
 @using BlazorMonaco
 @using BlazorMonaco.Editor
 @using XcaXds.Commons.Models.Custom
-@using XcaXds.Frontend.Components.UserInterface;
-@using XcaXds.Frontend.Components.EbRimComponents;
-@using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope;
-@using XcaXds.Commons.Models.Soap.XdsTypes;
-@using XcaXds.Commons.Models.Soap;
-@using XcaXds.Commons.Services;
-@using XcaXds.Commons;
-@using XcaXds.Commons.Models;
-@using BlazorBootstrap.Components;
+@using XcaXds.Frontend.Components.UserInterface
+@using XcaXds.Frontend.Components.EbRimComponents
+@using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope
+@using XcaXds.Commons.Models.Soap.XdsTypes
+@using XcaXds.Commons.Models.Soap
+@using XcaXds.Commons.Services
+@using XcaXds.Commons
+@using XcaXds.Commons.Models
+@using BlazorBootstrap.Components
 @using XcaXds.Frontend.Cookies
 
-<PageTitle>Document</PageTitle>
+<PageTitle>Document Retrieval</PageTitle>
 
-<h1>Get Document</h1>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><Icon Name="IconName.FileEarmarkArrowDown" /> Document Retrieval</h1>
+            <p class="text-muted">Retrieve documents from the XDS Document Repository</p>
+        </div>
+    </div>
 
-<Toasts class="p-3" Messages="messages" />
-<ConfirmDialog @ref="confirmDialog" />
-<Modal @ref="stackTraceModal" title="@modalException.Source" Size="ModalSize.Large">
-    <BodyTemplate><code>@modalException.StackTrace</code></BodyTemplate>
-</Modal>
+    <Toasts class="p-3" Messages="messages" />
+    <ConfirmDialog @ref="confirmDialog" />
+    <Modal @ref="stackTraceModal" title="Error Details" Size="ModalSize.Large">
+        <BodyTemplate>
+            <div class="alert alert-danger mb-3">
+                <strong>@modalException.Source</strong>
+                <p>@modalException.Message</p>
+            </div>
+            <div class="border p-3 bg-light">
+                <code class="d-block" style="white-space: pre-wrap;">@modalException.StackTrace</code>
+            </div>
+        </BodyTemplate>
+    </Modal>
 
+    <div class="row mb-4">
+        <div class="col">
+            <Card>
+                <CardHeader>
+                    <Icon Name="IconName.Server" /> Repository Endpoint
+                </CardHeader>
+                <CardBody>
+                    <div class="input-group">
+                        <span class="input-group-text"><Icon Name="IconName.Link45Deg" /></span>
+                        <TextInput @ref="inputBackendUrl" @bind-Value="@backendUrl" 
+                            Placeholder="https://localhost:7176/Repository/services/RepositoryService"
+                            Class="form-control" />
+                    </div>
+                </CardBody>
+            </Card>
+        </div>
+    </div>
 
-<Card>
-    <CardHeader>Connected Backend</CardHeader>
-    <CardBody>
-        <TextInput @ref="inputBackendUrl" @bind-Value="@backendUrl" Placeholder="https://localhost:7176/Repository/services/RepositoryService" />
-    </CardBody>
-</Card>
-<hr />
-<Card>
-    <CardHeader>Search</CardHeader>
-    <CardBody>
-        <ResizeablePane InitWidth="30%">
-            <LeftContent>
-                <Card Style="flex: 1;min-width: 100%">
-                    <CardHeader Style="white-space: nowrap;">Parameters</CardHeader>
-                    <CardBody Style="padding:10px;">
-                        <DocumentRequestValueInputComponent ListValueInputs="@valuesInput" XdsConfig="xdsConfig" OnValueListChanged="@OnValueListsChanged" />
-                        <hr />
-                        <Button @onclick=CreateSoapEnvelopeWithVariables Style="min-width: 100%" Color="ButtonColor.Success">To Request <Icon Name="IconName.EnvelopeArrowUp" /></Button>
+    <div class="row mb-4">
+        <div class="col">
+            <Card>
+                <CardHeader>
+                    <Icon Name="IconName.CardList" /> Document Request
+                </CardHeader>
+                <CardBody>
+                    <ResizeablePane InitWidth="30%" MinWidth="200px">
+                        <LeftContent>
+                            <Card Style="height: 100%;">
+                                <CardHeader>
+                                    <Icon Name="IconName.FileEarmarkText" /> Document Parameters
+                                </CardHeader>
+                                <CardBody Class="p-3">
+                                    @if (xdsConfig != null)
+                                    {
+                                        <div class="alert alert-info mb-3">
+                                            <small>
+                                                <strong>Repository Config:</strong><br />
+                                                HomeCommunityId: @(xdsConfig.HomeCommunityId ?? "Not Set")<br />
+                                                RepositoryUniqueId: @(xdsConfig.RepositoryUniqueId ?? "Not Set")
+                                            </small>
+                                        </div>
+                                    }
+                                    
+                                    <DocumentRequestValueInputComponent 
+                                        ListValueInputs="@valuesInput" 
+                                        XdsConfig="xdsConfig" 
+                                        OnValueListChanged="@OnValueListsChanged" />
+                                    
+                                    <hr />
+                                    <Button @onclick="CreateSoapEnvelopeWithVariables" 
+                                           Style="width: 100%" 
+                                           Color="ButtonColor.Success">
+                                        <Icon Name="IconName.CodeSquare" /> Generate Request
+                                    </Button>
+                                </CardBody>
+                            </Card>
+                        </LeftContent>
+                        <RightContent>
+                            <Card Style="height: 100%;">
+                                <CardHeader>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><Icon Name="IconName.EnvelopeAt" /> SOAP Request</span>
+                                    </div>
+                                </CardHeader>
+                                <CardBody Class="p-0 h-100">
+                                    <StandaloneCodeEditor @ref="_editor" 
+                                                        Id="xds-document-editor" 
+                                                        CssClass="" 
+                                                        ConstructionOptions="EditorConstructionOptions"
+                                                        OnDidInit="EditorOnDidInit" />
+                                </CardBody>
+                            </Card>
+                        </RightContent>
+                    </ResizeablePane>
+                </CardBody>
+            </Card>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <Button @ref="sendRequestButton" 
+                   Class="btn btn-primary btn-lg" 
+                   @onclick="SendSoapRequest">
+                <Icon Name="IconName.Send" /> Retrieve Document
+            </Button>
+        </div>
+    </div>
+
+    @if (ResponseEnvelope != null)
+    {
+        <div class="row">
+            <div class="col">
+                <Card>
+                    <CardHeader>
+                        <Icon Name="IconName.FileEarmarkText" /> Document Response
+                    </CardHeader>
+                    <CardBody>
+                        <SoapEnvelopeComponent soapEnvelope="ResponseEnvelope" />
                     </CardBody>
                 </Card>
-            </LeftContent>
-            <RightContent>
-                <Card Style="flex: 2;">
-                    <CardHeader Style="white-space: nowrap;">Request</CardHeader>
-                    <CardBody Style="padding:0px;padding-top:5px;">
-                        <StandaloneCodeEditor @ref="_editor" Id="sample-code-editor" CssClass="monaco-editor-class" ConstructionOptions="EditorConstructionOptions"
-                        OnDidInit="EditorOnDidInit" />
-                    </CardBody>
-                </Card>
-            </RightContent>
-        </ResizeablePane>
-    </CardBody>
-</Card>
-
-
-<Button @ref="sendRequestButton" class="btn btn-primary" @onclick="SendSoapRequest"><Icon Name="IconName.Envelope" /> Send SOAP-Request</Button>
-
-@if (ResponseEnvelope != null)
-{
-    <SoapEnvelopeComponent soapEnvelope=ResponseEnvelope />
-}
-
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     // User input/output
@@ -81,13 +156,8 @@
     private string requestMessage;
     private SoapEnvelope ResponseEnvelope;
     private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
-
     private XdsConfig xdsConfig;
-
-
-    private bool _initialized = false; // JS Interop 
-
-
+    private bool _initialized = false; // JS Interop flag
     private List<DocumentRequestValuesInput> valuesInput { get; set; }
 
     // BootstrapBlazor UI components
@@ -98,9 +168,73 @@
     private ConfirmDialog confirmDialog = new();
     private TextInput inputBackendUrl = new();
 
-    // ==============================================================
-    // ================== SOAP-envelope creation ====================
-    // ==============================================================
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_initialized)
+        {
+            _initialized = true;
+
+            try
+            {
+                // Try to load XDS configuration from cookies
+                string xdsConfigJson = await cookie.GetValue("xdsConfig");
+
+                if (string.IsNullOrWhiteSpace(xdsConfigJson))
+                {
+                    // If not in cookies, try to get from API
+                    var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7176/api/about"));
+                    if (response.IsSuccessStatusCode)
+                    {
+                        xdsConfigJson = await response.Content.ReadAsStringAsync();
+                        
+                        // Save to cookie for future use
+                        await cookie.SetValue("xdsConfig", xdsConfigJson, 1);
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(xdsConfigJson))
+                {
+                    xdsConfig = JsonSerializer.Deserialize<XdsConfig>(xdsConfigJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                    
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Info,
+                        AutoHide = true,
+                        Title = "Configuration Loaded",
+                        Content = @<div>Repository configuration loaded successfully.</div>
+                    });
+                }
+                else
+                {
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Warning,
+                        AutoHide = true,
+                        Title = "Configuration Missing",
+                        Content = @<div>Could not load repository configuration.</div>
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                messages.Add(new ToastMessage
+                {
+                    Type = ToastType.Warning,
+                    AutoHide = true,
+                    Title = "Configuration Error",
+                    Content = @<div>Error loading configuration: @ex.Message</div>
+                });
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        // Initialize document request inputs
+        valuesInput = new List<DocumentRequestValuesInput> { new DocumentRequestValuesInput() };
+    }
 
     private async Task CreateSoapEnvelopeWithVariables()
     {
@@ -108,9 +242,9 @@
         if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
-            title: "Editor value differs from Parameters",
-            message1: "This will overwrite the current editor content. This cannot be undone!",
-            message2: "Do you want to proceed?");
+                title: "Existing Content Will Be Replaced",
+                message1: "This will overwrite the current editor content. This action cannot be undone.",
+                message2: "Do you want to proceed?");
 
             if (!confirmation)
             {
@@ -118,6 +252,22 @@
             }
         }
 
+        // Check if we have any valid document requests
+        if (valuesInput == null || !valuesInput.Any(v => 
+            v.DocumentRequest != null && 
+            !string.IsNullOrWhiteSpace(v.DocumentRequest.DocumentUniqueId)))
+        {
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Warning,
+                AutoHide = true,
+                Title = "Missing Document ID",
+                Content = @<div>Please specify at least one Document Unique ID.</div>
+            });
+            return;
+        }
+
+        // Create the SOAP envelope
         var soapEnvelope = new SoapEnvelope()
         {
             Header = new()
@@ -135,75 +285,73 @@
             }
         };
 
-        if (valuesInput == null) return;
-
-        foreach (var pair in valuesInput)
+        // Add document requests to the envelope
+        foreach (var entry in valuesInput)
         {
-            if (pair.DocumentRequest == null || string.IsNullOrEmpty(pair.DocumentRequest.DocumentUniqueId))
+            if (entry.DocumentRequest == null || string.IsNullOrEmpty(entry.DocumentRequest.DocumentUniqueId))
             {
                 continue;
             }
 
-            if (string.IsNullOrEmpty(pair.DocumentRequest.DocumentUniqueId))
-            {
-                sendRequestButton.HideLoading();
-                messages.Add(
-                    new ToastMessage()
-                    {
-                        Type = ToastType.Warning,
-                        AutoHide = true,
-                        Title = "No Unique ID for document request"
-                    });
-            }
-
+            // Add the document request
             soapEnvelope.Body.RetrieveDocumentSetRequest.AddDocumentRequest(
                 new DocumentRequestType()
                 {
-                    DocumentUniqueId = pair.DocumentRequest.DocumentUniqueId,
-                    HomeCommunityId = pair.DocumentRequest.HomeCommunityId,
-                    RepositoryUniqueId = pair.DocumentRequest.RepositoryUniqueId
+                    DocumentUniqueId = entry.DocumentRequest.DocumentUniqueId,
+                    HomeCommunityId = entry.DocumentRequest.HomeCommunityId,
+                    RepositoryUniqueId = entry.DocumentRequest.RepositoryUniqueId
                 });
         }
 
+        // Serialize the envelope to XML
         requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
 
+        // Set the editor content
         await _editor.SetValue(requestMessage);
+        
+        messages.Add(new ToastMessage
+        {
+            Type = ToastType.Success,
+            AutoHide = true,
+            Title = "Request Generated",
+            Content = @<div>SOAP request has been generated successfully.</div>
+        });
     }
 
     private async Task SendSoapRequest()
     {
-        sendRequestButton.ShowLoading("🔥 Sending Request...");
+        sendRequestButton.ShowLoading("Retrieving document...");
 
         requestMessage = await _editor.GetValue();
 
         if (string.IsNullOrEmpty(requestMessage))
         {
             sendRequestButton.HideLoading();
-            messages.Add(
-            new ToastMessage()
+            messages.Add(new ToastMessage
             {
-                Type = ToastType.Dark,
+                Type = ToastType.Warning,
                 AutoHide = true,
-                Title = "No Envelope Content"
+                Title = "Empty Request",
+                Content = @<div>Please generate a SOAP request before sending.</div>
             });
             return;
         }
 
         try
         {
+            // Validate SOAP request
             var soapRequest = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(requestMessage);
         }
         catch (Exception ex)
         {
             sendRequestButton.HideLoading();
             modalException = ex;
-            messages.Add(
-            new ToastMessage
+            messages.Add(new ToastMessage
             {
                 Type = ToastType.Danger,
-                Title = modalException.Message,
+                Title = "Request Error",
                 AutoHide = true,
-                Content = @<div>@modalException.Source <button class="btn btn-sm link-primary mt-2" @onclick=@stackTraceModal.ShowAsync>Show stack trace</button></div>,
+                Content = @<div>Failed to parse SOAP request: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>
             });
             return;
         }
@@ -213,88 +361,104 @@
             backendUrl = inputBackendUrl.Placeholder;
         }
 
-        var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
-        var response = await httpClient.PostAsync($"{backendUrl}", content);
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var responseStream = await response.Content.ReadAsStreamAsync();
-            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+            // Send the SOAP request
+            var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
+            var response = await httpClient.PostAsync(backendUrl, content);
 
-            // RegistryObjectList = responseMessage.Body.AdhocQueryResponse.RegistryObjectList.ToList();
+            if (response.IsSuccessStatusCode)
+            {
+                var responseStream = await response.Content.ReadAsStreamAsync();
+                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                
+                if (ResponseEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length > 0)
+                {
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Success,
+                        AutoHide = true,
+                        Title = "Document Retrieved",
+                        Content = @<div>Successfully retrieved @ResponseEnvelope.Body.RetrieveDocumentSetResponse.DocumentResponse.Length document(s).</div>
+                    });
+                }
+                else
+                {
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Warning,
+                        AutoHide = true,
+                        Title = "No Documents",
+                        Content = @<div>Request successful, but no documents were returned.</div>
+                    });
+                }
+            }
+            else
+            {
+                var responseStream = await response.Content.ReadAsStreamAsync();
+                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                
+                messages.Add(new ToastMessage
+                {
+                    Type = ToastType.Warning,
+                    AutoHide = true,
+                    Title = "Retrieval Failed",
+                    Content = @<div>Status: @response.StatusCode</div>
+                });
+            }
         }
-        else
+        catch (Exception ex)
         {
-            var responseStream = await response.Content.ReadAsStreamAsync();
-            ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+            sendRequestButton.HideLoading();
+            modalException = ex;
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Danger,
+                Title = "Communication Error",
+                AutoHide = true,
+                Content = @<div>Failed to send request to repository: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>
+            });
+            return;
         }
+        
         sendRequestButton.HideLoading();
     }
 
-    // =============================================
-    // ========== Key Value Pair handling ==========
-    // =============================================
-
-    private void OnValueListsChanged(List<DocumentRequestValuesInput> updatedKeyValuePairs)
+    private void OnValueListsChanged(List<DocumentRequestValuesInput> updatedValuesList)
     {
-        valuesInput = updatedKeyValuePairs;
+        valuesInput = updatedValuesList;
     }
 
-    // =======================================================
-    // ============= XdsConfig Cookie setting ================
-    // =======================================================
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !_initialized)
-        {
-            _initialized = true;
-
-            string xdsConfigJson = await cookie.GetValue("xdsConfig");
-
-            if (string.IsNullOrWhiteSpace(xdsConfigJson))
-            {
-                var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7176/api/about"));
-                if (response.IsSuccessStatusCode)
-                {
-                    xdsConfigJson = await response.Content.ReadAsStringAsync();
-                }
-            }
-
-            await cookie.SetValue("xdsConfig", xdsConfigJson,1);
-
-            xdsConfig = JsonSerializer.Deserialize<XdsConfig>(xdsConfigJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-
-            StateHasChanged();
-        }
-    }
-    
-    // =======================================================
-    // ================= Blazor Moncao Editor ================
-    // =======================================================
+    // Monaco Editor configuration
     [AllowNull]
     private StandaloneCodeEditor _editor;
 
     private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {
         return new StandaloneEditorConstructionOptions
-            {
-                Language = "xml",
-                GlyphMargin = true,
-                AutomaticLayout = true,
-                Value = string.Empty
-            };
+        {
+            Language = "xml",
+            GlyphMargin = true,
+            AutomaticLayout = true,
+            Value = string.Empty,
+            Theme = "vs",
+            Minimap = new EditorMinimapOptions { Enabled = false },
+            ScrollBeyondLastLine = false,
+            RenderLineHighlight = "all",
+            WordWrap = "on"
+        };
     }
 
     private async Task EditorOnDidInit()
     {
-        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyH, (args) =>
-    {
-        Console.WriteLine("Ctrl+H : Initial editor command is triggered.");
-    });
+        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyS, (args) =>
+        {
+            // Custom save command - could trigger SOAP request generation
+            CreateSoapEnvelopeWithVariables();
+        });
 
         var newDecorations = new ModelDeltaDecoration[]
-    {
+        {
             new() {
                 Range = new BlazorMonaco.Range(3,1,3,1),
                 Options = new ModelDecorationOptions
@@ -304,10 +468,8 @@
                     GlyphMarginClassName = "decorationGlyphMarginClass"
                 }
             }
-    };
+        };
 
         var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
-        // You can now use '_decorationIds' to change or remove the decorations
     }
-
 }

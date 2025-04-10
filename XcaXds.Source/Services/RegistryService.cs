@@ -81,7 +81,6 @@ public class RegistryService
         {
             case Constants.Xds.StoredQueries.FindDocuments:
                 var findDocumentsSearchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
-
                 var registryFindDocumentEntriesResult = DocumentRegistry.RegistryObjectList
                     .OfType<ExtrinsicObjectType>();
 
