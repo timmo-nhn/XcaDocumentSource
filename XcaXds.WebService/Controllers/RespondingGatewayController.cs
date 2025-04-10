@@ -85,7 +85,7 @@ public class RespondingGatewayController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43 is true)
                 {
-                    var multipartContent = _repositoryService.ConvertToMultipartResponse(iti39Response.Value);
+                    var multipartContent = RepositoryService.ConvertToMultipartResponse(iti39Response.Value);
 
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {
