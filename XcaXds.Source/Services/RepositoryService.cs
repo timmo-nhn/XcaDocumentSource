@@ -244,7 +244,7 @@ public class RepositoryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
     
-    public static MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
+    public MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
     {
         var documents = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
         var multipart = new MultipartContent("related", Guid.NewGuid().ToString());

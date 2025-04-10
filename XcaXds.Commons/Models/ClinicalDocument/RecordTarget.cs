@@ -10,4 +10,5 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 [XmlType("recordTarget")]
 public class RecordTarget
 {
+
 }

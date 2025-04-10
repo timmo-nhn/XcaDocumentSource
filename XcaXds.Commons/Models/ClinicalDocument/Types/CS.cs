@@ -7,14 +7,8 @@ using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
-public class CE
+public class CS
 {
     [XmlAttribute("code")]
     public string Code { get; set; }
-
-    [XmlAttribute("codeSystem")]
-    public string CodeSystem { get; set; }
-
-    [XmlAttribute("displayName")]
-    public string DisplayName { get; set; }
 }
