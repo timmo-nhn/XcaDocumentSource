@@ -138,7 +138,7 @@ public class RepositoryService
             var repoId = document.RepositoryUniqueId;
             var home = document.HomeCommunityId;
 
-            if (docId != _xdsConfig.DocumentUniqueId || string.IsNullOrEmpty(docId))
+            if (string.IsNullOrEmpty(docId))
             {
                 registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {docId}".Trim(), "XDS Repository");
                 continue;
