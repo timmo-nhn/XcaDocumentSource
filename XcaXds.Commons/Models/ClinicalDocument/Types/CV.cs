@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
+[Serializable]
+[XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class CV : CS
 {
     [XmlAttribute("codeSystem")]
-    public string CodeSystem { get; set; }
+    public string? CodeSystem { get; set; }
 
     [XmlAttribute("displayName")]
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 }

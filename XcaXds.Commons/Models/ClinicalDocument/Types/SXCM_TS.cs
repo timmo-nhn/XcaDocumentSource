@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace XcaXds.Commons.Models.ClinicalDocument;
+namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
-
-[Serializable]
-[XmlType("author", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class Author
+public class SXCM_TS : TS
 {
+    [XmlAttribute("operator")]
+    public string? Operator { get; set; }
 }

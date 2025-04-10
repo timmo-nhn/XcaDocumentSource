@@ -4,8 +4,12 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class CS
+public class ADXP
 {
-    [XmlAttribute("code")]
-    public string? Code { get; set; }
+    [XmlAttribute("partType")]
+    public string? PartType { get; set; }
+
+    [XmlText]
+    public string? Value { get; set; }
+
 }

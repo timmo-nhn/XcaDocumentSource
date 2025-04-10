@@ -3,18 +3,13 @@ using XcaXds.Commons.Models.ClinicalDocument.Types;
 
 namespace XcaXds.Commons.Models.ClinicalDocument;
 
-[Serializable]
-[XmlType("recordTarget", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class RecordTarget
+public class Authenticator
 {
     [XmlAttribute("nullFlavor")]
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "RCT";
-
-    [XmlAttribute("contextControlCode")]
-    public string? ContextControlCode { get; set; } = "OP";
+    public string? TypeCode { get; set; } = "ENT";
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }
@@ -25,6 +20,10 @@ public class RecordTarget
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
-    [XmlElement("patientRole")]
-    public PatientRole PatientRole { get; set; }
+    [XmlElement("time")]
+    public TS Time { get; set; } = new();
+
+    [XmlElement("signatureCode")]
+    public CS SignatureCode { get; set; } = new();
+
 }

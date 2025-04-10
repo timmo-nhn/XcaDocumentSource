@@ -351,6 +351,7 @@ public static class Constants
         public static class Namespaces
         {
             public const string Hl7V3 = "urn:hl7-org:v3";
+            public const string Hl7Sdtc = "urn:hl7-org:sdtc";
         }
 
         public static class Separator

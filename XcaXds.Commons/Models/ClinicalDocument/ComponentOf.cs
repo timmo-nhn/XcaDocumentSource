@@ -1,0 +1,14 @@
+﻿using System.Xml.Serialization;
+
+namespace XcaXds.Commons.Models.ClinicalDocument;
+
+[Serializable]
+[XmlType("componentOf", Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class ComponentOf
+{
+    [XmlAttribute("typeCode")]
+    public string? TypeCode { get; set; } = "COMP";
+
+    [XmlElement("encompassingEncounter")]
+    public EncompassingEncounter EncompassingEncounter { get; set; }
+}

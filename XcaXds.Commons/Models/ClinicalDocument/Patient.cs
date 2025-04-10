@@ -1,0 +1,66 @@
+﻿using System.Xml.Serialization;
+using XcaXds.Commons.Models.ClinicalDocument.Types;
+
+namespace XcaXds.Commons.Models.ClinicalDocument;
+
+[Serializable]
+[XmlType("patient", Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class Patient
+{
+    [XmlAttribute("classCode")]
+    public string? ClassCode { get; set; } = "PSN";
+
+    [XmlAttribute("determinerCode")]
+    public string? DeterminerCode { get; set; } = "INSTANCE";
+
+    [XmlElement("templateId")]
+    public List<II>? TemplateId { get; set; }
+
+    [XmlElement("id")]
+    public II? Id { get; set; }
+
+    [XmlElement("name")]
+    public List<PN>? Name { get; set; }
+
+    [XmlElement("administrativeGenderCode")]
+    public CE? AdministrativeGenderCode { get; set; }
+
+    [XmlElement("birthTime")]
+    public TS? BirthTime { get; set; }
+
+    [XmlElement("sdtcDeceasedInd", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public BL? SdtcDeceasedInd { get; set; }
+
+    [XmlElement("sdtcDeceasedTime", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public TS? sdtcDeceasedTime { get; set; }
+
+    [XmlElement("sdtcMultipleBirthInd", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public BL? SdtcMultipleBirthInd { get; set; }
+
+    [XmlElement("sdtcMultipleBirthOrderNumber", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public BL? SdtcMultipleBirthOrderNumber { get; set; }
+
+    [XmlElement("martialStatusCode")]
+    public CE? MartialStatusCode { get; set; }
+
+    [XmlElement("raceCode")]
+    public CE? RaceCode { get; set; }
+
+    [XmlElement("sdtcRaceCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public List<CE>? SdtcRaceCode { get; set; }
+
+    [XmlElement("ethnicGroupCode")]
+    public CE? EthnicGroupCode { get; set; }
+
+    [XmlElement("sdtcEthnicGroupCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public List<CE>? SdtcEthnicGroupCode { get; set; }
+
+    [XmlElement("guardian")]
+    public List<Guardian>? Guardian { get; set; }
+
+    [XmlElement("birthplace")]
+    public BirthPlace? BirthPlace { get; set; }
+
+    [XmlElement("languageCommunication")]
+    public List<LanguageCommunication>? LanguageCommunication { get; set; }
+}

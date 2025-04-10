@@ -4,8 +4,8 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class CS
+public class BL
 {
-    [XmlAttribute("code")]
-    public string? Code { get; set; }
+    [XmlAttribute("value")]
+    public bool Value { get; set; } = false;
 }

@@ -65,7 +65,7 @@ public class RepositoryService
             }
 
             var patientIdPart = patientId?.Substring(0, patientId.IndexOf("^^^"));
-            var xdsDocumentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.Name.GetFirstValue() == Constants.Xds.ExternalIdentifierNames.DocumentEntryUniqueId)?.Value;
+            var xdsDocumentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
             if (xdsDocumentEntryUniqueId == null)
             {
