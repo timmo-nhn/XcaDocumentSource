@@ -4,7 +4,6 @@ using XcaXds.Commons.Models.ClinicalDocument.Types;
 namespace XcaXds.Commons.Models.ClinicalDocument;
 [Serializable]
 [XmlType("custodianOrganization", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-
 public class CustodianOrganization
 {
     [XmlAttribute("classCode")]

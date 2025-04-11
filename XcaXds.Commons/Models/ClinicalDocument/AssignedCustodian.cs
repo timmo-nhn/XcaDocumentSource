@@ -13,6 +13,6 @@ public class AssignedCustodian
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
-    [XmlElement("custodianOrganization")]
+    [XmlElement("representedCustodianOrganization")]
     public CustodianOrganization CustodianOrganization { get; set; }
 }

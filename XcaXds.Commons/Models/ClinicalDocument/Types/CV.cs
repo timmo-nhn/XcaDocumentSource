@@ -4,7 +4,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class CV : CS
+public class CV : CE
 {
     [XmlAttribute("codeSystem")]
     public string? CodeSystem { get; set; }

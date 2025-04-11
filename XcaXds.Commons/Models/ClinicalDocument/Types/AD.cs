@@ -3,8 +3,8 @@
 namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
-[XmlType("addr", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class AD
+[XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class AD : ANY
 {
     [XmlAttribute("nullFlavor")]
     public string? NullFlavor { get; set; }
@@ -92,8 +92,4 @@ public class AD
 
     [XmlElement("precinct")]
     public List<ADXP>? Precinct { get; set; }
-
-
-    
-
 }

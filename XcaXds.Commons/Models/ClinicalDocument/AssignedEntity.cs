@@ -28,6 +28,9 @@ public class AssignedEntity
     [XmlElement("telecom")]
     public List<TEL>? Telecom { get; set; }
 
+    [XmlElement("assignedPerson")]
+    public Person? AssignedPerson { get; set; }
+
     [XmlElement("representedOrganization")]
     public Organization? Organization { get; set; }
 

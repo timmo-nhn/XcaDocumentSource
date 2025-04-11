@@ -4,7 +4,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class CD
+public class CD : ANY
 {
     [XmlAttribute("code")]
     public string? Code { get; set; }

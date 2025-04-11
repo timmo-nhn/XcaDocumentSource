@@ -20,5 +20,5 @@ public class Place
     public EN? Name { get; set; }
 
     [XmlElement("addr")]
-    public AD? Addr { get; set; }
+    public AD? Address { get; set; }
 }

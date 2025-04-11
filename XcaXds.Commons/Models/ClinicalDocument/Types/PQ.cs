@@ -4,7 +4,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class PQ
+public class PQ : QTY
 {
     [XmlAttribute("unit")]
     public string Unit { get; set; }

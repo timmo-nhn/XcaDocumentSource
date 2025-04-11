@@ -4,8 +4,11 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class EN
+public class EN : ANY
 {
+    [XmlAttribute("user")]
+    public string? Use { get; set; }
+
     [XmlElement("delimiter")]
     public List<ENXP>? Delimiter { get; set; }
 
@@ -21,6 +24,6 @@ public class EN
     [XmlElement("suffix")]
     public List<ENXP>? Suffix { get; set; }
 
-    [XmlElement("xmlText")]
+    [XmlText]
     public string? XmlText { get; set; }
 }

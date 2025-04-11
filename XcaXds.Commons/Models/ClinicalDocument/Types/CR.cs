@@ -4,16 +4,16 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class CR
+public class CR : ANY
 {
     [XmlIgnore]
-    public bool? Inverted { get; set; }
+    private bool? _inverted { get; set; }
 
     [XmlAttribute("inverted")]
-    public string? InvertedAsString
+    public string? Inverted
     {
-        get => Inverted.HasValue ? Inverted.Value.ToString().ToLower() : null;
-        set => Inverted = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
+        get => _inverted.HasValue ? _inverted.Value.ToString().ToLowerInvariant() : null;
+        set => _inverted = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 
     [XmlElement("name")]

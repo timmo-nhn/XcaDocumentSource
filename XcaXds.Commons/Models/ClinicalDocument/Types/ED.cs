@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class ED
+public class ED : ANY
 {
     [XmlAttribute("charset")]
     public string? Charset { get; set; }
@@ -28,15 +28,19 @@ public class ED
     [XmlAttribute("representation")]
     public string? Representation { get; set; }
 
+    [XmlIgnore]
+    private string? _gobb;
+
     [XmlText]
-    public string? DataText { get; set; }
+    public string? Data 
+    { 
+        get => _gobb; 
+        set => _gobb = value; 
+    }
 
-    [XmlElement("data")]
-    public byte[]? DataBinary { get; set; }
+    [XmlElement("reference")]
+    public TEL? Reference { get; set; }
 
-    [XmlAttribute("reference")]
-    public string? Reference { get; set; }
-
-    [XmlAttribute("thumbnail")]
-    public string? Thumbnail { get; set; }
+    [XmlElement("thumbnail")]
+    public ED? Thumbnail { get; set; }
 }

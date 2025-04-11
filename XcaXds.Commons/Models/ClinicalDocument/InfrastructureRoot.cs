@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 
 [Serializable]
 [XmlType("infrastructureRoot", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class InfrastructureRoot
+public class InfrastructureRoot : ANY
 {
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }
@@ -38,4 +38,38 @@ public class Location : InfrastructureRoot
     [XmlElement("healthcareFacility")]
     public HealthcareFacility HealthcareFacility { get; set; } = new();
 
+}
+
+[Serializable]
+[XmlType("referenceRange", Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class ReferenceRange : InfrastructureRoot
+{
+    [XmlAttribute("typeCode")]
+    public string? TypeCode { get; set; } = "REFV";
+
+    [XmlElement("observationRange")]
+    public ObservationRange ObservationRange { get; set; } = new();
+
+}
+
+[Serializable]
+[XmlType("consumable", Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class Consumable : InfrastructureRoot
+{
+    [XmlAttribute("typeCode")]
+    public string? TypeCode { get; set; } = "CSM";
+
+    [XmlElement("manufacturedProduct")]
+    public ManufacturedProduct ManufacturedProduct { get; set; }
+}
+
+[Serializable]
+[XmlType("product", Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class Product : InfrastructureRoot
+{
+    [XmlAttribute("typeCode")]
+    public string? TypeCode { get; set; } = "PRD";
+
+    [XmlElement("manufacturedProduct")]
+    public ManufacturedProduct ManufacturedProduct { get; set; }
 }

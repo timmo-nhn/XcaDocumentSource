@@ -4,7 +4,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class TEL
+public class TEL : ANY
 {
     [XmlAttribute("value")]
     public string? Value { get; set; }

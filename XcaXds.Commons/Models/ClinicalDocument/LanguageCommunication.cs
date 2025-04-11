@@ -16,8 +16,8 @@ public class LanguageCommunication
     [XmlElement("modeCode")]
     public CE? ModeCode { get; set; }
 
-    [XmlElement("proficencyLevelCode")]
-    public CE? ProficencyLevelCode { get; set; }
+    [XmlElement("proficiencyLevelCode")]
+    public CE? ProficiencyLevelCode { get; set; }
 
     [XmlElement("preferenceInd")]
     public BL? PreferenceInd { get; set; }

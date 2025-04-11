@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class TS
+public class TS : ANY
 {
     [XmlIgnore]
     public DateTime EffectiveTime { get; set; }
@@ -20,7 +20,7 @@ public class TS
             {
                 try
                 {
-                    EffectiveTime = DateTime.ParseExact(value, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
+                    EffectiveTime = DateTime.ParseExact(value, Constants.Hl7.Dtm.DtmYmdFormat, CultureInfo.InvariantCulture);
                 }
                 catch (FormatException)
                 {

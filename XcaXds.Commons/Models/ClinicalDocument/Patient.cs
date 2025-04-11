@@ -40,8 +40,11 @@ public class Patient
     [XmlElement("sdtcMultipleBirthOrderNumber", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public BL? SdtcMultipleBirthOrderNumber { get; set; }
 
-    [XmlElement("martialStatusCode")]
-    public CE? MartialStatusCode { get; set; }
+    [XmlElement("maritalStatusCode")]
+    public CE? MaritalStatusCode { get; set; }
+
+    [XmlElement("religiousAffiliationCode")]
+    public CE? ReligiousAffiliationCode { get; set; }
 
     [XmlElement("raceCode")]
     public CE? RaceCode { get; set; }

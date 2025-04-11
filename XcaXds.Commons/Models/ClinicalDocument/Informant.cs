@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 
 [Serializable]
 [XmlType("informant", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class Informant
+public class Informant : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
     public string? typecode { get; set; } = "INF";

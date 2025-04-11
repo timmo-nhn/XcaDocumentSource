@@ -9,7 +9,7 @@ public class Authenticator
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "ENT";
+    public string? TypeCode { get; set; } = "AUTHEN";
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }
@@ -21,9 +21,14 @@ public class Authenticator
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("time")]
-    public TS Time { get; set; } = new();
+    public TS Time { get; set; }
 
     [XmlElement("signatureCode")]
-    public CS SignatureCode { get; set; } = new();
+    public CS SignatureCode { get; set; }
 
+    [XmlElement("sdtcSignatureText", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public ED? SdtcSignatureText { get; set; }
+
+    [XmlElement("assignedEntity")]
+    public AssignedEntity AssignedEntity { get; set; }
 }

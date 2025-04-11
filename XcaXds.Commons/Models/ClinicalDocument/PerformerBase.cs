@@ -2,9 +2,10 @@
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 
 namespace XcaXds.Commons.Models.ClinicalDocument;
+
 [Serializable]
 [XmlType("performer", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class Performer1
+public class PerformerBase
 {
     [XmlAttribute("nullFlavor")]
     public string? NullFlavor { get; set; }
@@ -21,13 +22,42 @@ public class Performer1
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
+    [XmlElement("sdtcFunctionCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    public CE? SdtcFunctionCode { get; set; }
+
     [XmlElement("functionCode")]
     public CD? FunctionCode { get; set; }
 
     [XmlElement("time")]
     public IVL_TS? Time { get; set; }
 
+    [XmlElement("modeCode")]
+    public CE? ModeCode { get; set; }
+
     [XmlElement("assignedEntity")]
     public AssignedEntity AssignedEntity { get; set; }
 
+    public bool ShouldSerializeFunctionCode()
+    {
+        return FunctionCode != null;
+    }
+
+    public bool ShouldSerializeSdtcFunctionCode()
+    {
+        return SdtcFunctionCode != null;
+    }
+}
+
+[Serializable]
+[XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class Performer1 : PerformerBase
+{
+}
+
+[Serializable]
+[XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class Performer2 : PerformerBase
+{
+    [XmlAttribute("typeCode")]
+    public string? TypeCode { get; set; } = "PRF";
 }
