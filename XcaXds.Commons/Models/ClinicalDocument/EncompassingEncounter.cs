@@ -33,9 +33,9 @@ public class EncompassingEncounter
     public CE? DischargeDispositionCode { get; set; }
 
     [XmlElement("responsibleParty")]
-    public InfrastructureRoot? ResponsibleParty { get; set; }
+    public ResponsibleParty? ResponsibleParty { get; set; }
 
-    [XmlElement("encounteredParticipant")]
+    [XmlElement("encounterParticipant")]
     public List<EncounterParticipant> EncounterParticipant { get; set; }
 
     [XmlElement("location")]

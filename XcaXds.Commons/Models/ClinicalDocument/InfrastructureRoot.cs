@@ -35,7 +35,7 @@ public class Location : InfrastructureRoot
     [XmlAttribute("typeCode")]
     public string? TypeCode { get; set; }
 
-    [XmlElement("healthcareFacility")]
+    [XmlElement("healthCareFacility")]
     public HealthcareFacility HealthcareFacility { get; set; } = new();
 
 }

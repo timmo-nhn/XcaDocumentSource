@@ -8,54 +8,29 @@
         DocumentResponse
     </div>
     <div class="ebrim-body">
-        <li>Home: @DocumentResponse.HomeCommunityId</li>
-        <li>Repository: @DocumentResponse.RepositoryUniqueId</li>
-        <li>Document Id: @DocumentResponse.DocumentUniqueId</li>
-        <li>Mimetype: @DocumentResponse.MimeType</li>
+        <li>Home: @documentResponse.HomeCommunityId</li>
+        <li>Repository: @documentResponse.RepositoryUniqueId</li>
+        <li>Document Id: @documentResponse.DocumentUniqueId</li>
+        <li>Mimetype: @documentResponse.MimeType</li>
+        <DocumentViewerComponent DocumentResponse="documentResponse" />
     </div>
 </div>
-@if (DocumentResponse.MimeType == "application/octet-stream")
-{
-    <span>@documentTextContent</span>
-}
-else if (DocumentResponse.MimeType == "application/pdf")
-{
-    <iframe 
-              class="mb-3" 
-              src="@($"data:{DocumentResponse.MimeType};headers=filename%3D{DocumentResponse.DocumentUniqueId};base64,{base64Content}")" 
-              name="@DocumentResponse.DocumentUniqueId" 
-              title="@DocumentResponse.DocumentUniqueId" 
-              width="100%" 
-              height="600px">
-            </iframe>
-} 
-else if (DocumentResponse.MimeType == "text/plain")
-{
-    <p>@System.Text.Encoding.UTF8.GetString(DocumentResponse.Document)</p>
-}
-else if (DocumentResponse.MimeType != null && DocumentResponse.MimeType.Contains("image"))
-{
-    <img base Class="mb-3" src="@($"data:{DocumentResponse.MimeType};base64,{base64Content}")" />
-} 
-else 
-{
-    <span>@documentTextContent</span>
-}
+
 
 @code {
     [Parameter]
-    public DocumentResponseType DocumentResponse { get; set; } = default!;
+    public DocumentResponseType documentResponse { get; set; } = default!;
 
     private string base64Content;
     private string documentTextContent;
 
     protected override void OnParametersSet()
     {
-        Console.WriteLine($"DocumentResponse: {DocumentResponse}");
-        if (DocumentResponse?.Document != null)
+        Console.WriteLine($"DocumentResponse: {documentResponse}");
+        if (documentResponse?.Document != null)
         {
-            base64Content = Convert.ToBase64String(DocumentResponse.Document);
-            documentTextContent = Encoding.UTF8.GetString(DocumentResponse.Document);
+            base64Content = Convert.ToBase64String(documentResponse.Document);
+            documentTextContent = Encoding.UTF8.GetString(documentResponse.Document);
         }
     }
 

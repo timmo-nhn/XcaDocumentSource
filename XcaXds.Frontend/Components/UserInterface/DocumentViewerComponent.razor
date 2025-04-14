@@ -1,52 +1,71 @@
 ﻿
+@using System.Text
+@using System.Xml.Xsl
+@using System.Xml
 @using XcaXds.Commons.Models;
 @using XcaXds.Commons.Models.Soap.XdsTypes;
 @using XcaXds.Commons.Models.Soap;
 
-<div class="ebrim-card classification-card">
-    <div class="ebrim-header classification-header">
-        DocumentResponse
-    </div>
-    <div class="ebrim-body">
-        <li>Home: @DocumentResponse.HomeCommunityId</li>
-        <li>Repository: @DocumentResponse.RepositoryUniqueId</li>
-        <li>Document Id: @DocumentResponse.DocumentUniqueId</li>
-        @if (DocumentResponse.MimeType == "application/octet-stream")
-        {
-            
-        }
-        else if (DocumentResponse.MimeType == "application/pdf")
-        {
-            <PdfViewer Class="mb-3" Url="@string.Format($"data:{DocumentResponse.MimeType};base64,{{0}}", base64Content)" />
-        } 
-        else if (DocumentResponse.MimeType == "text/plain")
-        {
-            <p>@System.Text.Encoding.UTF8.GetString(DocumentResponse.Document)</p>
-        }
-        else if (DocumentResponse.MimeType != null && DocumentResponse.MimeType.Contains("image"))
-        {
-            <img base Class="mb-3" src="@($"data:{DocumentResponse.MimeType};base64,{base64Content}")" />
-        } 
-        else 
-        {
-            <h2>Unsupported Mimetype @DocumentResponse.MimeType</h2>
-        }
-
-    </div>
+<div>
+    @if (DocumentResponse.MimeType == "application/octet-stream")
+    {
+        <span>@htmlOutput</span>
+    }
+    else if (DocumentResponse.MimeType == "application/pdf")
+    {
+        <iframe 
+        class="mb-3" 
+        src="@($"data:{DocumentResponse.MimeType};headers=filename%3D{DocumentResponse.DocumentUniqueId};base64,{base64Content}")" 
+        name="@DocumentResponse.DocumentUniqueId" 
+        title="@DocumentResponse.DocumentUniqueId" 
+        width="100%" 
+        height="600px">
+        </iframe>
+    }
+    else if (DocumentResponse.MimeType == "text/plain")
+    {
+        <p>@System.Text.Encoding.UTF8.GetString(DocumentResponse.Document)</p>
+    }
+    else if (DocumentResponse.MimeType != null && DocumentResponse.MimeType.Contains("image"))
+    {
+        <img base Class="mb-3" src="@($"data:{DocumentResponse.MimeType};base64,{base64Content}")" />
+    }
+    else
+    {
+        <span>@documentTextContent</span>
+    }
 </div>
 
 @code {
     [Parameter]
     public DocumentResponseType DocumentResponse { get; set; } = default!;
 
+    private string htmlOutput;
+
     private string base64Content;
+    private string documentTextContent;
 
     protected override void OnParametersSet()
     {
+        Console.WriteLine($"DocumentResponse: {DocumentResponse}");
         if (DocumentResponse?.Document != null)
         {
             base64Content = Convert.ToBase64String(DocumentResponse.Document);
+            documentTextContent = Encoding.UTF8.GetString(DocumentResponse.Document);
         }
     }
+
+    public async Task Keep()
+    {
+        var xslt = new XslCompiledTransform();
+        xslt.Load("your-transform.xslt");
+
+        using var sw = new StringWriter();
+        using var xw = XmlWriter.Create(sw);
+        xslt.Transform(documentTextContent, xw);
+        htmlOutput = sw.ToString();
+
+    }
+
 
 }

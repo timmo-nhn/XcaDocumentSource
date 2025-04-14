@@ -4,14 +4,14 @@ using XcaXds.Commons.Models.ClinicalDocument.Types;
 namespace XcaXds.Commons.Models.ClinicalDocument;
 
 [Serializable]
-[XmlType("externalProcedure", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class ExternalProcedure : ExternalBase
+[XmlType("consent", Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class Consent
 {
     [XmlAttribute("classCode")]
     public string? ClassCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? MoodCode { get; set; }
+    public string? MoodCodeT { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
@@ -22,7 +22,7 @@ public class ExternalProcedure : ExternalBase
     [XmlElement("code")]
     public CE? Code { get; set; }
 
-    [XmlElement("text")]
-    public ED? Text { get; set; }
+    [XmlElement("statusCode")]
+    public CS StatusCode { get; set; }
 
 }

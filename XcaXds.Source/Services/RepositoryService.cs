@@ -174,9 +174,9 @@ public class RepositoryService
                   pdfDoc.Close();
 
                   // Get the modified file bytes and replace the original file variable
-                  renamedFile = outputStream.ToArray();
-                  retrieveResponse.AddDocument(renamedFile, home, repoId, docId, mimeType);
+                  file = outputStream.ToArray();
                 }
+                retrieveResponse.AddDocument(file, home, repoId, docId, mimeType);
             }
         }
 
