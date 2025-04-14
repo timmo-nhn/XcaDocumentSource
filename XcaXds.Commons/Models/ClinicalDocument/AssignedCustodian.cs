@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class AssignedCustodian
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "ASSIGNED";
+    public string? ClassCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

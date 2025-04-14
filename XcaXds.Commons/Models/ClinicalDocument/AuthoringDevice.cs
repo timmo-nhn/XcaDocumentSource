@@ -9,10 +9,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class AuthoringDevice
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "DEV";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
 
     [XmlElement("manufacturerModelName")]

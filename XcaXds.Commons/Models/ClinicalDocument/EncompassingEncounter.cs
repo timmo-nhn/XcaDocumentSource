@@ -9,10 +9,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class EncompassingEncounter
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "ENC";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? MoodCode { get; set; } = "EVN";
+    public string? MoodCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
@@ -26,7 +26,7 @@ public class EncompassingEncounter
     [XmlElement("effectiveTime")]
     public IVL_TS? EffectiveTime { get; set; }
 
-    [XmlElement("sdtcAdmissionReferralSourceCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("admissionReferralSourceCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public CE? SdtcAdmissionReferralSourceCode { get; set; }
 
     [XmlElement("dischargeDispositionCode")]

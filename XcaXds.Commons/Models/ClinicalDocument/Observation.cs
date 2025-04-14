@@ -1,9 +1,11 @@
-﻿using System.Xml.Serialization;
+﻿using System.Xml;
+using System.Xml.Serialization;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 
 namespace XcaXds.Commons.Models.ClinicalDocument;
 
 [Serializable]
+[XmlRoot("observation", Namespace = Constants.Xds.Namespaces.Hl7V3)]
 [XmlType("observation", Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class Observation : EntryItemBase
 {
@@ -59,8 +61,8 @@ public class Observation : EntryItemBase
     [XmlElement("languageCode")]
     public CS? LanguageCode { get; set; }
 
-    [XmlElement("value", typeof(ANY))]
-    public List<ANY>? Value { get; set; }
+    [XmlElement("value")]
+    public List<ANY> Value { get; set; }
 
     [XmlElement("interpretationCode")]
     public List<CE>? InterpretationCode { get; set; }

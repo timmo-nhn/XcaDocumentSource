@@ -21,10 +21,10 @@ public class CD : ANY
     [XmlAttribute("displayName")]
     public string? DisplayName { get; set; }
 
-    [XmlAttribute("sdtcValueSet", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlAttribute("valueSet", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public string? SdtcValueSet { get; set; }
 
-    [XmlAttribute("sdtcValueSetVersion", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlAttribute("valueSetVersion", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public string? SdtcValueSetVersion { get; set; }
 
     [XmlElement("originalText")]

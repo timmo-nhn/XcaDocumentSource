@@ -11,4 +11,7 @@ public class PQ : QTY
 
     [XmlAttribute("value")]
     public string Value { get; set; }
+
+    [XmlElement("translation")]
+    public List<PQR>? Translation { get; set; }
 }

@@ -11,7 +11,7 @@ public class Entity
     public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

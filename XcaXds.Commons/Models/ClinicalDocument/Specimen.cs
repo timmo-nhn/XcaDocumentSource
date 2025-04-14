@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class Specimen
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "SPC";
+    public string? TypeCode { get; set; }
 
     [XmlElement("specimenRole")]
     public SpecimenRole SpecimenRole { get; set; }

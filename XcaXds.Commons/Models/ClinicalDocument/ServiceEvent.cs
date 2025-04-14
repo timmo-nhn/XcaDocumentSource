@@ -11,7 +11,7 @@ public class ServiceEvent
     public string? classCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? moodCode { get; set; } = "EVN";
+    public string? moodCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

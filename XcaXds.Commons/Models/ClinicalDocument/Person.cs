@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class Person
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "PSN";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId {  get; set; }
@@ -19,6 +19,6 @@ public class Person
     [XmlElement("name")]
     public List<PN>? Name { get; set; }
 
-    [XmlElement("sdtcAsPatientRelationhip",Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("asPatientRelationship",Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<CE>? SdtcAsPatientRelationShip { get; set; }
 }

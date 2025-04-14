@@ -22,7 +22,7 @@ public class PerformerBase
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
-    [XmlElement("sdtcFunctionCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("functionCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public CE? SdtcFunctionCode { get; set; }
 
     [XmlElement("functionCode")]
@@ -59,5 +59,5 @@ public class Performer1 : PerformerBase
 public class Performer2 : PerformerBase
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "PRF";
+    public string? TypeCode { get; set; }
 }

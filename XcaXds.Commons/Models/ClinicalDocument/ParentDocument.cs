@@ -6,10 +6,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class ParentDocument
 {
     [XmlAttribute("classCode")]
-    public string? classCode { get; set; } = "DOCCLIN";
+    public string? classCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? moodCode { get; set; } = "EVN";
+    public string? moodCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

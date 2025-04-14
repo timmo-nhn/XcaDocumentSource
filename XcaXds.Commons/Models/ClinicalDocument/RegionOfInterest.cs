@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class RegionOfInterest : EntryItemBase
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "ROIOVL";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? MoodCode { get; set; } = "EVN";
+    public string? MoodCode { get; set; }
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }

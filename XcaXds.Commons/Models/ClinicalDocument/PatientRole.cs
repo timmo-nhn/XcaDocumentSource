@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class PatientRole
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "PAT";
+    public string? ClassCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
@@ -15,7 +15,7 @@ public class PatientRole
     [XmlElement("id")]
     public List<II> Id { get; set; }
 
-    [XmlElement("sdtcIdentifiedBy", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("identifiedBy", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<IdentifiedBy>? SdtcIdentifiedBy { get; set; }
 
     [XmlElement("addr")]

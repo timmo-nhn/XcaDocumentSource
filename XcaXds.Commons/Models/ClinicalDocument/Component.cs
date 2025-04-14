@@ -56,7 +56,7 @@ public class Component : InfrastructureRoot
 public class ComponentSection : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "COMP";
+    public string? TypeCode { get; set; }
 
     [XmlElement("section", typeof(Section))]
     [XmlElement("component", typeof(Component))]

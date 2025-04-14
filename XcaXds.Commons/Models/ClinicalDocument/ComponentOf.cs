@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class ComponentOf : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "COMP";
+    public string? TypeCode { get; set; }
 
     [XmlElement("encompassingEncounter")]
     public EncompassingEncounter EncompassingEncounter { get; set; }

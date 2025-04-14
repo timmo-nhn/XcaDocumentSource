@@ -11,7 +11,7 @@ public class DocumentationOf
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "DOC";
+    public string? TypeCode { get; set; }
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }

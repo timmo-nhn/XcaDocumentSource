@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class SubjectPerson
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "PSN";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
@@ -19,7 +19,7 @@ public class SubjectPerson
     [XmlElement("name")]
     public List<PN>? Name { get; set; }
 
-    [XmlElement("sdtcDesc", Namespace =Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("desc", Namespace =Constants.Hl7.Namespaces.Hl7Sdtc)]
     public ED? SdtcDesc { get; set; }
 
     [XmlElement("administrativeGenderCode")]
@@ -28,9 +28,9 @@ public class SubjectPerson
     [XmlElement("birthTime")]
     public TS? BirthTime { get; set; }
 
-    [XmlElement("sdtcDeceasedInd")]
+    [XmlElement("deceasedInd")]
     public BL? SdtcDeceasedInd { get; set; }
 
-    [XmlElement("sdtcDeceasedTime")]
+    [XmlElement("deceasedTime")]
     public TS? SdtcDeceasedTime { get; set; }
 }

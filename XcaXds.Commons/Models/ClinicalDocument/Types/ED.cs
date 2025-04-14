@@ -28,19 +28,40 @@ public class ED : ANY
     [XmlAttribute("representation")]
     public string? Representation { get; set; }
 
-    [XmlIgnore]
-    private string? _gobb;
-
     [XmlText]
-    public string? Data 
-    { 
-        get => _gobb; 
-        set => _gobb = value; 
+    public string? Text { get; set; }
+
+    [XmlAnyElement]
+    public XmlElement[]? RawXmlElements { get; set; }
+
+    [XmlIgnore]
+    public string? Data
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(Text))
+                return Text;
+
+            if (RawXmlElements?.Length > 0)
+            {
+                var innerXmls = RawXmlElements.Select(x => x.OuterXml);
+                return string.Join("", innerXmls);
+            }
+
+            return null;
+        }
+        set
+        {
+            Text = value;
+            RawXmlElements = null;
+        }
     }
+
 
     [XmlElement("reference")]
     public TEL? Reference { get; set; }
 
     [XmlElement("thumbnail")]
     public ED? Thumbnail { get; set; }
+
 }

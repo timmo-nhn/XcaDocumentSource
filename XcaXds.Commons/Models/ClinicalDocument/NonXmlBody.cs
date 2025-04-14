@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class NonXmlBody
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "DOCBODY";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? MoodCode { get; set; } = "EVN";
+    public string? MoodCode { get; set; }
 
     [XmlElement("text")]
     public ED Text { get; set; }

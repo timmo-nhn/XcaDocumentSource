@@ -7,10 +7,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class CustodianOrganization
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "ORG";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

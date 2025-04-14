@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class ST : ANY
 {
     [XmlAttribute("representation")]
-    public string? Representation { get; set; } = "TXT";
+    public string? Representation { get; set; }
 
     [XmlAttribute("mediaType")]
-    public string? MediaType { get; set; } = "text/plain";
+    public string? MediaType { get; set; }
 
     [XmlAttribute("language")]
     public string? Language { get; set; }

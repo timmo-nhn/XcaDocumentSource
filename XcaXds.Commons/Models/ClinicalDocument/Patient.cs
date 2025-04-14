@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class Patient
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "PSN";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
@@ -28,16 +28,16 @@ public class Patient
     [XmlElement("birthTime")]
     public TS? BirthTime { get; set; }
 
-    [XmlElement("sdtcDeceasedInd", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("deceasedInd", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public BL? SdtcDeceasedInd { get; set; }
 
-    [XmlElement("sdtcDeceasedTime", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("deceasedTime", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public TS? sdtcDeceasedTime { get; set; }
 
-    [XmlElement("sdtcMultipleBirthInd", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("multipleBirthInd", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public BL? SdtcMultipleBirthInd { get; set; }
 
-    [XmlElement("sdtcMultipleBirthOrderNumber", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("multipleBirthOrderNumber", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public BL? SdtcMultipleBirthOrderNumber { get; set; }
 
     [XmlElement("maritalStatusCode")]
@@ -49,13 +49,13 @@ public class Patient
     [XmlElement("raceCode")]
     public CE? RaceCode { get; set; }
 
-    [XmlElement("sdtcRaceCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("raceCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<CE>? SdtcRaceCode { get; set; }
 
     [XmlElement("ethnicGroupCode")]
     public CE? EthnicGroupCode { get; set; }
 
-    [XmlElement("sdtcEthnicGroupCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("ethnicGroupCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<CE>? SdtcEthnicGroupCode { get; set; }
 
     [XmlElement("guardian")]

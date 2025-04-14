@@ -11,7 +11,7 @@ public class PlayingEntity
     public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
@@ -25,7 +25,7 @@ public class PlayingEntity
     [XmlElement("name")]
     public List<PN>? Name { get; set; }
 
-    [XmlElement("sdtcBirthTime")]
+    [XmlElement("birthTime", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public TS? SdtcBirthTime { get; set; }
 
     [XmlElement("desc")]

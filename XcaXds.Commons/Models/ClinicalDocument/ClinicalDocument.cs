@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class ClinicalDocument
 {
     [XmlAttribute("classCode")]
-    public string? classCode { get; set; } = "DOCCLIN";
+    public string? classCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? moodCode { get; set; } = "EVN";
+    public string? moodCode { get; set; }
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }

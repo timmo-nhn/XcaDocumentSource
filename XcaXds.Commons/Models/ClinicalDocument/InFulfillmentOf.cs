@@ -11,7 +11,7 @@ public class InFulfillmentOf
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "FLFS";
+    public string? TypeCode { get; set; }
 
     [XmlAttribute("contextControlCode")]
     public string? ContextControlCode { get; set; }

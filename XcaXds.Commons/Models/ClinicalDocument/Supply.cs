@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class Supply : EntryItemBase
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "SPLY";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("moodCode")]
     public string? MoodCode { get; set; }

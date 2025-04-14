@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class Informant : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? typecode { get; set; } = "INF";
+    public string? typecode { get; set; }
 
     [XmlAttribute("contextControlCode")]
-    public string? ContextControlCode { get; set; } = "OP";
+    public string? ContextControlCode { get; set; }
 
 
     internal AssignedEntity? _assignedEntity;
@@ -25,16 +25,9 @@ public class Informant : InfrastructureRoot
         set
         {
             if (_relatedEntity != null)
-            {
-                throw new InvalidOperationException("Cannot set AssignedEntity when RelatedEntity is already set.");
-            }
-
-            _assignedEntity = value;
-
-            if (value != null)
-            {
-                _relatedEntity = null;  
-            }
+                _assignedEntity = null;
+            else
+                _assignedEntity = value;
         }
     }
 
@@ -45,18 +38,15 @@ public class Informant : InfrastructureRoot
         set
         {
             if (_assignedEntity != null)
-            {
-                throw new InvalidOperationException("Cannot set RelatedEntity when AssignedEntity is already set.");
-            }
-            
-            _relatedEntity = value;
-
-            if (value != null)
-            {
-                _assignedEntity = null;  
-            }
+                _relatedEntity = null;
+            else
+                _relatedEntity = value;
         }
     }
+
+    public bool ShouldSerializeAssignedEntity() => _assignedEntity != null;
+    public bool ShouldSerializeRelatedEntity() => _relatedEntity != null;
+
 }
 
 

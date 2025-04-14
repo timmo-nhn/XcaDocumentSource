@@ -6,7 +6,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class BirthPlace
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "BIRTHPL";
+    public string? ClassCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

@@ -22,7 +22,7 @@ public class InfrastructureRoot : ANY
 public class ResponsibleParty : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "RESP";
+    public string? TypeCode { get; set; }
 
     [XmlElement("assignedEntity")]
     public AssignedEntity AssignedEntity { get; set; } = new();
@@ -33,7 +33,7 @@ public class ResponsibleParty : InfrastructureRoot
 public class Location : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "LOC";
+    public string? TypeCode { get; set; }
 
     [XmlElement("healthcareFacility")]
     public HealthcareFacility HealthcareFacility { get; set; } = new();
@@ -45,7 +45,7 @@ public class Location : InfrastructureRoot
 public class ReferenceRange : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "REFV";
+    public string? TypeCode { get; set; }
 
     [XmlElement("observationRange")]
     public ObservationRange ObservationRange { get; set; } = new();
@@ -57,7 +57,7 @@ public class ReferenceRange : InfrastructureRoot
 public class Consumable : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "CSM";
+    public string? TypeCode { get; set; }
 
     [XmlElement("manufacturedProduct")]
     public ManufacturedProduct ManufacturedProduct { get; set; }
@@ -68,7 +68,7 @@ public class Consumable : InfrastructureRoot
 public class Product : InfrastructureRoot
 {
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "PRD";
+    public string? TypeCode { get; set; }
 
     [XmlElement("manufacturedProduct")]
     public ManufacturedProduct ManufacturedProduct { get; set; }

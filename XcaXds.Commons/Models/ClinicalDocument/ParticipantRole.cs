@@ -13,7 +13,10 @@ public class ParticipantRole
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
-    [XmlElement("sdtcIdentifiedBy", Namespace=Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("id")]
+    public List<II>? Id { get; set; }
+
+    [XmlElement("identifiedBy", Namespace=Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<IdentifiedBy>? SdtcIdentifiedBy { get; set; }
 
     [XmlElement("code")]

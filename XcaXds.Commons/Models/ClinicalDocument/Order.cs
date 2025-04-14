@@ -11,7 +11,7 @@ public class Order
     public string classCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? moodCode { get; set; } = "RQO";
+    public string? moodCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

@@ -11,7 +11,7 @@ public class Criterion
     public string? ClassCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? MoodCode { get; set; } = "EVN.CRT";
+    public string? MoodCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

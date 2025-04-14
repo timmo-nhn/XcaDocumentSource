@@ -11,10 +11,10 @@ public class LegalAuthenticator
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "LA";
+    public string? TypeCode { get; set; }
 
     [XmlAttribute("contextControlCode")]
-    public string? ContextControlCode { get; set; } = "OP";
+    public string? ContextControlCode { get; set; }
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }
@@ -31,7 +31,7 @@ public class LegalAuthenticator
     [XmlElement("signatureCode")]
     public CS SignatureCode { get; set; }
 
-    [XmlElement("sdtcSignatureText", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("signatureText", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public ED? SdtcSignatureText { get; set; }
 
     [XmlElement("assignedEntity")]

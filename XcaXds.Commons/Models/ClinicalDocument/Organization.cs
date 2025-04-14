@@ -11,10 +11,10 @@ public class Organization
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "ORG";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "INSTANCE";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }

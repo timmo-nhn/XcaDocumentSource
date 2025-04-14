@@ -11,10 +11,10 @@ public class LabeledDrug
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "MMAT";
+    public string? ClassCode { get; set; }
 
     [XmlAttribute("determinerCode")]
-    public string? DeterminerCode { get; set; } = "KIND";
+    public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

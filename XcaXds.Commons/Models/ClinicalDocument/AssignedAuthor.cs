@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class AssignedAuthor
 {
     [XmlAttribute("classCode")]
-    public string? ClassCode { get; set; } = "ASSIGNED";
+    public string? ClassCode { get; set; }
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
@@ -16,7 +16,7 @@ public class AssignedAuthor
     [XmlElement("id")]
     public List<II>? Id { get; set; }
 
-    [XmlElement("sdtcIdentifiedBy", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("identifiedBy", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<IdentifiedBy>? SdtcIdentifiedBy { get; set; }
 
     [XmlElement("code")]

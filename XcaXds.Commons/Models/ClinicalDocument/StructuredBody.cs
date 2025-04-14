@@ -9,10 +9,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class StructuredBody : InfrastructureRoot
 {
     [XmlAttribute("classCode")]
-    public string? classCode { get; set; } = "DOCBODY";
+    public string? classCode { get; set; }
 
     [XmlAttribute("moodCode")]
-    public string? moodCode { get; set; } = "EVN";
+    public string? moodCode { get; set; }
 
     [XmlElement("confidentialityCode")]
     public CE? ConfidentialityCode { get; set; }

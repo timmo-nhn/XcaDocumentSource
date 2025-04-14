@@ -37,7 +37,7 @@ public class Encounter : EntryItemBase
     [XmlElement("effectiveTime")]
     public IVL_TS EffectiveTime { get; set; }
 
-    [XmlElement("sdtcDischargeDispositionCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("dischargeDispositionCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public CE? SdtcDischargeDispositionCode { get; set; }
 
     [XmlElement("subject")]

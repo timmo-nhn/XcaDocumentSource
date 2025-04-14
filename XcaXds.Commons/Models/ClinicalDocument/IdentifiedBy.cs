@@ -9,6 +9,6 @@ public class IdentifiedBy
     [XmlAttribute("typeCode")]
     public string TypeCode { get; set; }
 
-    [XmlElement("sdtcAlternateIdentification", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("alternateIdentification", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public AlternateIdentification SdtcAlternateIdentification { get; set; }
 }

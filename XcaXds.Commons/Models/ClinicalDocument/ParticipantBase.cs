@@ -36,7 +36,7 @@ public class ParticipantBase
     public AssociatedEntity? AssociatedEntity { get; set; }
 
     // Properties specific to Participant2
-    [XmlElement("sdtcFunctionCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("functionCode", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public CE? SdtcFunctionCode { get; set; }
 
     [XmlElement("awarenessCode")]

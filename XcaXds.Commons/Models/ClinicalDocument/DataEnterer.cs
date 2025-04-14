@@ -11,10 +11,10 @@ public class DataEnterer
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; } = "ENT";
+    public string? TypeCode { get; set; }
 
     [XmlAttribute("contextControlCode")]
-    public string? ContextControlCode { get; set; } = "OP";
+    public string? ContextControlCode { get; set; }
 
     [XmlElement("realmCode")]
     public List<CS>? RealmCode { get; set; }
