@@ -1,7 +1,6 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-//http://www.hl7.eu/refactored/dtXCN.html
-public class Xcn : Hl7Object
+public class XCN : Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string PersonIdentifier { get; set; }
@@ -20,5 +19,5 @@ public class Xcn : Hl7Object
     [Hl7(Sequence = 8)]
     public string SourceTable { get; set; } //Type CWE - Not implemented
     [Hl7(Sequence = 9)]
-    public Hd AssigningAuthority { get; set; }
+    public HD AssigningAuthority { get; set; }
 }

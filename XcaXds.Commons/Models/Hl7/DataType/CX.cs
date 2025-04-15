@@ -1,7 +1,6 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-//http://www.hl7.eu/refactored/dtCX.html
-public class Cx : Hl7Object
+public class CX : Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string IdNumber { get; set; }
@@ -10,9 +9,9 @@ public class Cx : Hl7Object
     [Hl7(Sequence = 3)]
     public string CheckDigitScheme { get; set; }
     [Hl7(Sequence = 4)]
-    public Hd AssigningAuthority { get; set; }
+    public HD AssigningAuthority { get; set; }
     [Hl7(Sequence = 5)]
     public string IdentifierTypeCode { get; set; }
     [Hl7(Sequence = 6)]
-    public Hd AssigningFacility { get; set; }
+    public HD AssigningFacility { get; set; }
 }

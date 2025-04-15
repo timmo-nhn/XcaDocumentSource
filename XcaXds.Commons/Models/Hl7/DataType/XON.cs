@@ -1,7 +1,6 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-//http://www.hl7.eu/refactored/dtXON.html
-public class Xon : Hl7Object
+public class XON : Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string OrganizationName { get; set; }
@@ -14,11 +13,11 @@ public class Xon : Hl7Object
     [Hl7(Sequence = 5)]
     public string CheckDigitScheme { get; set; }
     [Hl7(Sequence = 6)]
-    public Hd AssigningAuthority { get; set; }
+    public HD AssigningAuthority { get; set; }
     [Hl7(Sequence = 7)]
     public string IdentifierTypeCode { get; set; }
     [Hl7(Sequence = 8)]
-    public Hd AssigningFacility { get; set; }
+    public HD AssigningFacility { get; set; }
     [Hl7(Sequence = 9)]
     public string NameRepresentationCode { get; set; }
     [Hl7(Sequence = 10)]

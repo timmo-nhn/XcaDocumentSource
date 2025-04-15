@@ -1,6 +1,6 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-public class Hd : Hl7Object
+public class HD : Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string NamespaceId { get; set; }

@@ -1,4 +1,4 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
 public class Hl7Attribute : Attribute
 {

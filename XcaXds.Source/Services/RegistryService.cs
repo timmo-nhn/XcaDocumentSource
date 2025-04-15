@@ -1,13 +1,13 @@
 ﻿using System.Security.Cryptography;
+using Microsoft.Extensions.Logging;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models;
+using XcaXds.Commons.Models.Hl7.Message;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Xca;
-using Microsoft.Extensions.Logging;
-using System.Runtime.CompilerServices;
 
 namespace XcaXds.Source.Services;
 
@@ -125,7 +125,7 @@ public class RegistryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XDSDocumentEntryPatientId {findDocumentsSearchParameters.XdsDocumentEntryPatientId}".Trim(), "XDS Registry");
                 }
-                    if (findDocumentsSearchParameters.XdsDocumentEntryStatus == null || findDocumentsSearchParameters.XdsDocumentEntryStatus.Count == 0)
+                if (findDocumentsSearchParameters.XdsDocumentEntryStatus == null || findDocumentsSearchParameters.XdsDocumentEntryStatus.Count == 0)
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
@@ -411,7 +411,13 @@ public class RegistryService
         return SoapExtensions.CreateSoapResultResponse(iti42Message);
     }
 
-    public bool DuplicateUuidsExist(List<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
+    public SoapRequestResult<SoapEnvelope> PatientDemographicsQueryGetPatientIdentifiersInRegistry(QBP_Q22 findCandidatesQuery)
+    {
+        throw new NotImplementedException();
+    }
+
+
+    private bool DuplicateUuidsExist(List<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
     {
         // Combine both lists into one
         var allObjects = registryObjectList.Concat(submissionRegistryObjects);

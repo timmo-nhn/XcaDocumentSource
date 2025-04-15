@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
 public abstract class Hl7Object
 {
@@ -24,14 +24,14 @@ public abstract class Hl7Object
 
         foreach (var item in GetHl7Properties(this))
         {
-            if (item.Property.PropertyType == typeof(Hd))
+            if (item.Property.PropertyType == typeof(HD))
             {
-                var hd = (Hd)item.Property.GetGetMethod().Invoke(this, null);
+                var hd = (HD)item.Property.GetGetMethod().Invoke(this, null);
                 stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + seperator);
             }
-            else if (item.Property.PropertyType == typeof(Sad))
+            else if (item.Property.PropertyType == typeof(SAD))
             {
-                var sad = (Sad)item.Property.GetGetMethod().Invoke(this, null);
+                var sad = (SAD)item.Property.GetGetMethod().Invoke(this, null);
                 stringBuilder.Append((sad != null ? sad.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + seperator);
             }
             else
@@ -98,13 +98,13 @@ public abstract class Hl7Object
 
             object[] obectValue;
 #pragma warning disable IDE0045 // Convert to conditional expression
-            if (item.Property.PropertyType == typeof(Hd))
+            if (item.Property.PropertyType == typeof(HD))
             {
-                obectValue = new object[] { Parse<Hd>(value, Constants.Hl7.Separator.Amp) };
+                obectValue = new object[] { Parse<HD>(value, Constants.Hl7.Separator.Amp) };
             }
-            else if (item.Property.PropertyType == typeof(Sad))
+            else if (item.Property.PropertyType == typeof(SAD))
             {
-                obectValue = new object[] { Parse<Sad>(value, Constants.Hl7.Separator.Amp) };
+                obectValue = new object[] { Parse<SAD>(value, Constants.Hl7.Separator.Amp) };
             }
             else
             {

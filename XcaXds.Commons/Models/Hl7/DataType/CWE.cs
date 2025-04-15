@@ -1,7 +1,6 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-//http://www.hl7.eu/refactored/dtCWE.html
-public class Cwe: Hl7Object
+public class CWE: Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string Identifier { get; set; }

@@ -1,10 +1,9 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-//http://www.hl7.eu/refactored/dtXAD.html
-public class Xad : Hl7Object
+public class XAD : Hl7Object
 {
     [Hl7(Sequence = 1)]
-    public Sad StreetAddress { get; set; }
+    public SAD StreetAddress { get; set; }
     [Hl7(Sequence = 2)]
     public string OtherDesignation { get; set; }
     [Hl7(Sequence = 3)]

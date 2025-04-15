@@ -32,6 +32,7 @@ namespace XcaXds.WebService
             builder.Services.AddControllers(options =>
             {
                 options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
+                options.InputFormatters.Insert(0, new Hl7InputFormatter());
                 options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
                 options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
             })

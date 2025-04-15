@@ -1,7 +1,6 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-//http://www.hl7.eu/refactored/dtXTN.html
-public class Xtn : Hl7Object
+public class XTN : Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string TelephoneNumber { get; set; }

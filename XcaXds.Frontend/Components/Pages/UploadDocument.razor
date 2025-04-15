@@ -76,19 +76,19 @@
                                 <CardBody Class="p-3">
                                     <div class="mb-3">
                                         <label class="form-label">Creation Time</label>
-                                        <DateInput TValue="DateTime" @bind-Value="creationTime" AutoComplete="true" />
+                                        <DateInput TValue="DateTime" @bind-Value="provideAndRegister.CreationTime" AutoComplete="true" />
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Service Start Time</label>
-                                        <DateInput TValue="DateTime" @bind-Value="serviceStartTime" AutoComplete="true" />
+                                        <DateInput TValue="DateTime" @bind-Value="provideAndRegister.ServiceStartTime" AutoComplete="true" />
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Service Stop Time</label>
-                                        <DateInput TValue="DateTime" @bind-Value="serviceStopTime" AutoComplete="true" />
+                                        <DateInput TValue="DateTime" @bind-Value="provideAndRegister.ServiceStopTime" AutoComplete="true" />
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">source Patient Id</label>
-                                        <TextInput @bind-Value="sourcePatientId"/>
+                                        <TextInput @bind-Value="provideAndRegister.SourcePatientId"/>
                                     </div>
                                     <hr />
                                     <Button @onclick="CreateSoapEnvelopeWithVariables"
@@ -147,10 +147,7 @@
     private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
 
     // Inputs
-    private DateTime creationTime;
-    private DateTime serviceStartTime;
-    private DateTime serviceStopTime;
-    private string sourcePatientId;
+    private SimplifiedProvideAndRegister provideAndRegister;
 
     // BootstrapBlazor UI components
     private Button sendRequestButton = default!;
@@ -252,6 +249,12 @@
         };
 
         var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
+    }
+
+    protected override void OnInitialized()
+    {
+        provideAndRegister ??= new();
+        provideAndRegister.CreationTime = DateTime.Now;
     }
 
 }

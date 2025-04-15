@@ -1,8 +1,6 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
-//http://www.hl7.eu/refactored/dtXPN.html
-//http://www.hl7.eu/refactored/segPID.html
-public class Xpn : Hl7Object
+public class XPN : Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string FamilyName { get; set; }

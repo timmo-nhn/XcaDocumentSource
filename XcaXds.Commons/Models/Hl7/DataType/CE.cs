@@ -1,8 +1,7 @@
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Models.Hl7.DataType;
 
 //IHE XDS documentation describes the CE data type, but the CF data type is similar
-//http://www.hl7.eu/refactored/dtCF.html
-public class Ce: Hl7Object
+public class CE: Hl7Object
 {
     [Hl7(Sequence = 1)]
     public string Identifier { get; set; }
