@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NHapi.Base.Model;
 using XcaXds.Commons.Models.Hl7;
-using XcaXds.Commons.Models.Hl7.Message;
 using XcaXds.Source.Services;
 
 namespace XcaXds.WebService.Controllers;
@@ -23,10 +23,9 @@ public class Hl7MessagingController : ControllerBase
     [Consumes("application/hl7-v2")]
     [Produces("application/hl7-v2")]
     [HttpPost("search-patients")]
-    public async Task<IActionResult> SearchPatient([FromBody]Hl7RawMessage hl7Message)
+    public async Task<IActionResult> SearchPatient([FromBody] AbstractMessage hl7Message)
     {
-        var pdqMessage = new QBP_Q22();
-        _registryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry(pdqMessage);
+        //_registryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry(pdqMessage);
         return Ok();
     }
 }

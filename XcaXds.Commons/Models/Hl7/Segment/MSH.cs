@@ -27,7 +27,7 @@ public class MSH
     public CWE PrincipalLanguageOfMessage { get; set; }
     public AlternateCharacterSetsHandlingSheme AlternateCharacterSetsHandlingSheme { get; set; }
     public EI MessageProfileIdentifier { get; set; }
-    public XON SendingResponsibleOrganization { get;set }
+    public XON SendingResponsibleOrganization { get; set; }
     public XON ReceivingResponsibleOrganization { get; set; }
     public HD SendingNetworkAddress { get; set; }
     public HD ReceivingNetworkAddress { get;set; }

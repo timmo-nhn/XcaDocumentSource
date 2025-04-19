@@ -1,5 +1,16 @@
 # PJD.XcaDocumentSource - XCA Responding Gateway and integrated Document Registry and Repository  
 
+## Solution Documentation
+
+### [⚙️ Technical implementation details](/Docs/TechnicalImplementation.md)
+How **PJD.XcaDocumentSource** solution is structured, and how it can be implemented in a source system, takin in account existing document registries/repositories, and PAP/PDP/PR systems.
+
+### [🧾 Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
+Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
+
+### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
+Desrcribes the lightweight implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
+
 ## Introduction
 This document will describe the Norwegian usage and profilings of the IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.
 Patient Health Records (PHR) facilitates Cross enterprise document sharing between health professionals and between health professionals and citizens in Norway. The main objectives of PHR are:  
@@ -14,7 +25,7 @@ Patient Health Records (PHR) facilitates Cross enterprise document sharing betwe
 This section defines how different elements are formatted and referenced within the documentation.
 
 ### External hyperlinks
-External links are suffixed by an arrow pointing up to the right ( ↗), signifying that the link leads to a website not affiliated or related to Norsk helsenett. Links will follow this format:  `<title> - <domain> ↗`
+External links are suffixed by an arrow pointing up to the right (↗), signifying that the link leads to a website not affiliated or related to Norsk helsenett. Links will follow this format:  `<title> - <domain> ↗`
 **Example:**  
 [External link - example.com ↗](https://www.example.com) 
 
@@ -124,13 +135,3 @@ sequenceDiagram
 ```
 *Figure x: Simplified example on a query of document, each XCA is its own affinity domain, and the response for each domain may be different (ie. some domains reject requests from certain GP-roles)*
 
-## Solution Documentation
-
-## [Technical implementation details](/Docs/TechnicalImplementation.md)
-How **PJD.XcaDocumentSource** solution is structured, and how it can be implemented in a source system, takin in account existing document registries/repositories, and PAP/PDP/PR systems.
-
-## [HL7, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
-Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
-
-## [HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
-Desrcribes the lightweight implementation of HL7 messaging, allowing for Patient Identity lookups and cross-referencing

@@ -1,7 +1,8 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using XcaXds.Commons.Models.Hl7;
-
+using NHapi.Base.Parser;
+using NHapi.Base.Model;
 namespace XcaXds.WebService.InputFormatters;
 
 public class Hl7InputFormatter : TextInputFormatter
@@ -15,7 +16,7 @@ public class Hl7InputFormatter : TextInputFormatter
 
     protected override bool CanReadType(Type type)
     {
-        return typeof(Hl7RawMessage).IsAssignableFrom(type);
+        return typeof(AbstractMessage).IsAssignableFrom(type);
     }
 
     public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
@@ -24,14 +25,20 @@ public class Hl7InputFormatter : TextInputFormatter
         using var reader = new StreamReader(request.Body, encoding);
         var content = await reader.ReadToEndAsync();
 
-        var hl7Serializer = new Hl7MessageSerializer();
+        var hl7Parser = new PipeParser();
+        try
+        {
+            content = content
+                .Replace("\r\n", "\r")
+                .Replace("\n", "\r");
+            var hl7RawMessage = hl7Parser.Parse(content);
+            return await InputFormatterResult.SuccessAsync(hl7RawMessage);
+        }
+        catch (Exception ex)
+        {
 
-        var mossyo = hl7Serializer.Deserialize(content);
-
-        var gobb  = hl7Serializer.Serialize(mossyo);
-
-        var hl7RawMessage = new Hl7RawMessage() { Raw = content };
-        return await InputFormatterResult.SuccessAsync(hl7RawMessage);
+            throw;
+        }
+        return await InputFormatterResult.FailureAsync();
     }
-
 }

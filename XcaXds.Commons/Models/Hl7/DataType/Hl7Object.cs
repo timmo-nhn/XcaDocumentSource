@@ -18,7 +18,8 @@ public abstract class Hl7Object
     {
         return Serialize(Constants.Hl7.Separator.Hatt);
     }
-    private string Serialize(char seperator)
+
+    private string Serialize(char separator)
     {
         var stringBuilder = new StringBuilder();
 
@@ -27,20 +28,20 @@ public abstract class Hl7Object
             if (item.Property.PropertyType == typeof(HD))
             {
                 var hd = (HD)item.Property.GetGetMethod().Invoke(this, null);
-                stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + seperator);
+                stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + separator);
             }
             else if (item.Property.PropertyType == typeof(SAD))
             {
                 var sad = (SAD)item.Property.GetGetMethod().Invoke(this, null);
-                stringBuilder.Append((sad != null ? sad.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + seperator);
+                stringBuilder.Append((sad != null ? sad.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + separator);
             }
             else
             {
-                stringBuilder.Append((string)item.Property.GetGetMethod().Invoke(this, null) + seperator);
+                stringBuilder.Append((string)item.Property.GetGetMethod().Invoke(this, null) + separator);
             }
         }
 
-        var output = Regex.Replace(stringBuilder.ToString(), @"\" + seperator + "+$", string.Empty);
+        var output = Regex.Replace(stringBuilder.ToString(), @"\" + separator + "+$", string.Empty);
         return output;
     }
 
