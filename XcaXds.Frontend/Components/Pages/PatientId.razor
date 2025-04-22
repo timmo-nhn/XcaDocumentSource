@@ -1,4 +1,4 @@
-﻿@page "/Patients"
+﻿@page "/PatientId"
 @rendermode InteractiveServer
 
 @inject HttpClient httpClient 
@@ -69,7 +69,7 @@
                 <CardBody>
                     <ResizeablePane InitWidth="30%" MinWidth="200px">
                         <LeftContent>
-                            <Card Style="height: 100% !important; background-color: white;" Class="h-100">
+                            <Card Style="height: 100% !important; background-color: white;" Class="h-50">
                                 <CardHeader>
                                     <Icon Name="IconName.Sliders" /> Query Options
                                 </CardHeader>
@@ -88,8 +88,8 @@
                                     </div>
                                     <hr />
                                     <Button @onclick="CreatePatientDemographicsQueryRequest"
-                                            Style="width: 100%"
-                                            Color="ButtonColor.Success">
+                                    Style="width: 100%"
+                                    Color="ButtonColor.Success">
                                         <Icon Name="IconName.CodeSquare" /> Generate Request
                                     </Button>
                                 </CardBody>
@@ -99,15 +99,15 @@
                             <Card Style="height: 100%; background-color: white;">
                                 <CardHeader>
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <span><Icon Name="IconName.EnvelopeAt" /> SOAP Request</span>
+                                        <span><Icon Name="IconName.EnvelopeAt" /> HL7 Request</span>
                                     </div>
                                 </CardHeader>
-                                <CardBody Class="p-0 h-100">
+                                <CardBody Class="p-0 h-50">
                                     <StandaloneCodeEditor @ref="_editor"
-                                                          Id="xds-query-editor"
-                                                          CssClass=""
-                                                          ConstructionOptions="EditorConstructionOptions"
-                                                          OnDidInit="EditorOnDidInit" />
+                                    Id="xds-query-editor"
+                                    CssClass=""
+                                    ConstructionOptions="EditorConstructionOptions"
+                                    OnDidInit="EditorOnDidInit" />
                                 </CardBody>
                             </Card>
                         </RightContent>
@@ -157,14 +157,16 @@
 
 
     // Monaco Editor configuration
-    [AllowNull]
+    [AllowNull] 
     private StandaloneCodeEditor _editor;
 
 
     private async Task CreatePatientDemographicsQueryRequest()
     {
-
-
+        var hl7Message =
+        $"MSH|^~\\&|MyApp|SendingFac|YourApp|ReceivingFac|{DateTime.Now.ToString("yyyyMMddhhmm")}||QBP^Q22^QBP_Q22|1337|T|2.5" +
+        $"QPD|IHE PDQ Query|Q1234|@PID.3.1^13116900216~@PID.8^" +
+        $"RCP|I|10^RD";
     }
 
     private async Task SendPatientDemographicsQueryRequest()
@@ -194,7 +196,7 @@
     {
         await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyS, (args) =>
         {
-            // Custom save command - could trigger SOAP request generation
+            // Custom save command - could trigger HL7 request generation
             CreatePatientDemographicsQueryRequest();
         });
 
@@ -216,8 +218,6 @@
 
     protected override void OnInitialized()
     {
-        provideAndRegister ??= new();
-        provideAndRegister.CreationTime = DateTime.Now;
     }
 
 }
