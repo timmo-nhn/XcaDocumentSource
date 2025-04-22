@@ -239,7 +239,7 @@
     private async Task CreateSoapEnvelopeWithVariables()
     {
         var currentContent = await _editor.GetValue();
-        if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
+        if (!string.IsNullOrWhiteSpace(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
                 title: "Existing Content Will Be Replaced",
