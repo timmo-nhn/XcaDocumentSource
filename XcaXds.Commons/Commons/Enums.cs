@@ -2447,4 +2447,51 @@ public static class Hl7
         // This standard is titled "Information Technology - Character Code Structure and Extension Technique". .	
         ISO2022_1994
     }
+
+    public enum ErrorSeverity
+    {
+        // Error	
+        E,
+
+        // Fatal Error	
+        F,
+
+        // Information
+        I,
+
+        // Warning
+        W
+    }
+
+    public enum QueryPriority
+    {
+        // Deferred
+        D,
+
+        // Immediate
+        I
+    }
+
+    public enum ModifyIndicator
+    {
+        // Modified Subscription
+        M,
+
+        // New Subscription
+        N
+    }
+
+    public enum Sequencing
+    {
+        // Ascending
+        A,
+        // Ascending, case insensitive
+        AN,
+        // Descending
+        D,
+        // Descending, case insensitive
+        DN,
+        // None
+        N
+    }
 }

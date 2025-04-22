@@ -9,6 +9,7 @@
 
   <ItemGroup>
 	<PackageReference Include="nhapi" Version="3.2.4" />
+	<PackageReference Include="NHapiTools" Version="2.0.4" />
 	<PackageReference Include="System.ServiceModel.Http" Version="8.1.1" />
 	<PackageReference Include="System.ServiceModel.Primitives" Version="8.1.1" />
   </ItemGroup>

@@ -1,0 +1,223 @@
+﻿@page "/Patients"
+@rendermode InteractiveServer
+
+@inject HttpClient httpClient 
+@inject ICookie cookie
+
+@using System.Diagnostics.CodeAnalysis
+@using System.Text.Json
+@using BlazorMonaco
+@using BlazorMonaco.Editor
+@using XcaXds.Commons.Models.Custom
+@using XcaXds.Frontend.Components.UserInterface
+@using XcaXds.Frontend.Components.EbRimComponents
+@using XcaXds.Frontend.Components.EbRimComponents.SoapEnvelope
+@using XcaXds.Commons.Models.Soap.XdsTypes
+@using XcaXds.Commons.Models.Soap
+@using XcaXds.Commons.Services
+@using XcaXds.Commons
+@using XcaXds.Commons.Models
+@using BlazorBootstrap.Components
+@using XcaXds.Frontend.Cookies
+
+<PageTitle>Patient Identifiers</PageTitle>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><Icon Name="IconName.FileEarmarkText" /> Search Patient Identifiers</h1>
+            <p class="text-muted">Search and Cross-reference patient identifiers - useful for autocompleting identifiers during search and upload of documents and document metadata</p>
+        </div>
+    </div>
+
+    <Toasts class="p-3" Messages="messages" />
+    <ConfirmDialog @ref="confirmDialog" />
+    <Modal @ref="stackTraceModal" title="Error Details" Size="ModalSize.Large">
+        <BodyTemplate>
+            <div class="alert alert-danger mb-3">
+                <strong>@modalException.Source</strong>
+                <p>@modalException.Message</p>
+            </div>
+            <div class="border p-3 bg-light">
+                <code class="d-block" style="white-space: pre-wrap;">@modalException.StackTrace</code>
+            </div>
+        </BodyTemplate>
+    </Modal>
+
+    <div class="row mb-4">
+        <div class="col">
+            <Card>
+                <CardHeader>
+                    <Icon Name="IconName.Server" /> Endpoints
+                </CardHeader>
+                <CardBody>
+                    <div class="input-group">
+                        <span class="input-group-text"><Icon Name="IconName.Link45Deg" /></span>
+                        <TextInput @ref="inputBackendUrl" @bind-Value="@backendUrl" 
+                        Placeholder="https://localhost:7176/Registry/services/RegistryService"
+                        Class="form-control" />
+                    </div>
+                </CardBody>
+            </Card>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col">
+            <Card>
+                <CardHeader>
+                    <Icon Name="IconName.Search" /> Query Parameters
+                </CardHeader>
+                <CardBody>
+                    <ResizeablePane InitWidth="30%" MinWidth="200px">
+                        <LeftContent>
+                            <Card Style="height: 100% !important; background-color: white;" Class="h-100">
+                                <CardHeader>
+                                    <Icon Name="IconName.Sliders" /> Query Options
+                                </CardHeader>
+                                <CardBody Class="p-3">
+                                    <div class="col">
+                                        <CardText> Patient Identifier</CardText>
+                                        <TextInput @bind-Value="patientIdentifier" />
+                                    </div>
+                                    <div class="col">
+                                        <CardText> Patient First Name</CardText>
+                                        <TextInput @bind-Value="patientIdentifierFirstName" />
+                                    </div>
+                                    <div class="col">
+                                        <CardText> Patient Last Name</CardText>
+                                        <TextInput @bind-Value="patientIdentifierLastName" />
+                                    </div>
+                                    <hr />
+                                    <Button @onclick="CreatePatientDemographicsQueryRequest"
+                                            Style="width: 100%"
+                                            Color="ButtonColor.Success">
+                                        <Icon Name="IconName.CodeSquare" /> Generate Request
+                                    </Button>
+                                </CardBody>
+                            </Card>
+                        </LeftContent>
+                        <RightContent>
+                            <Card Style="height: 100%; background-color: white;">
+                                <CardHeader>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><Icon Name="IconName.EnvelopeAt" /> SOAP Request</span>
+                                    </div>
+                                </CardHeader>
+                                <CardBody Class="p-0 h-100">
+                                    <StandaloneCodeEditor @ref="_editor"
+                                                          Id="xds-query-editor"
+                                                          CssClass=""
+                                                          ConstructionOptions="EditorConstructionOptions"
+                                                          OnDidInit="EditorOnDidInit" />
+                                </CardBody>
+                            </Card>
+                        </RightContent>
+                    </ResizeablePane>
+                </CardBody>
+            </Card>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <Button @ref="sendRequestButton" 
+            Class="btn btn-primary btn-lg" 
+            @onclick="SendPatientDemographicsQueryRequest">
+                <Icon Name="IconName.Send" /> Send Query
+            </Button>
+        </div>
+    </div>
+
+    @if (ResponseEnvelope is not null)
+    {
+        <SoapEnvelopeComponent SoapEnvelope="ResponseEnvelope" />
+    }
+
+</div>
+
+@code {
+    // User input/output
+    private string backendUrl;
+    private TextInput inputBackendUrl = new();
+    private string requestMessage;
+
+    private SoapEnvelope ResponseEnvelope;
+    private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
+
+    // Inputs
+    private string patientIdentifier;
+    private string patientIdentifierFirstName;
+    private string patientIdentifierLastName;
+
+    // BootstrapBlazor UI components
+    private Button sendRequestButton = default!;
+    private List<ToastMessage> messages = new();
+    private Modal stackTraceModal = default!;
+    private Exception modalException = new();
+    private ConfirmDialog confirmDialog = new();
+
+
+    // Monaco Editor configuration
+    [AllowNull]
+    private StandaloneCodeEditor _editor;
+
+
+    private async Task CreatePatientDemographicsQueryRequest()
+    {
+
+
+    }
+
+    private async Task SendPatientDemographicsQueryRequest()
+    {
+
+    }
+
+
+    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            Language = "xml",
+            GlyphMargin = true,
+            AutomaticLayout = true,
+            Value = string.Empty,
+            Theme = "vs",
+            Minimap = new EditorMinimapOptions { Enabled = false },
+            ScrollBeyondLastLine = false,
+            RenderLineHighlight = "all",
+            WordWrap = "on"
+        };
+    }
+
+
+    private async Task EditorOnDidInit()
+    {
+        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyS, (args) =>
+        {
+            // Custom save command - could trigger SOAP request generation
+            CreatePatientDemographicsQueryRequest();
+        });
+
+        var newDecorations = new ModelDeltaDecoration[]
+        {
+            new() {
+                Range = new BlazorMonaco.Range(3,1,3,1),
+                Options = new ModelDecorationOptions
+                {
+                    IsWholeLine = true,
+                    ClassName = "decorationContentClass",
+                    GlyphMarginClassName = "decorationGlyphMarginClass"
+                }
+            }
+        };
+
+        var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
+    }
+
+    protected override void OnInitialized()
+    {
+        provideAndRegister ??= new();
+        provideAndRegister.CreationTime = DateTime.Now;
+    }
+
+}

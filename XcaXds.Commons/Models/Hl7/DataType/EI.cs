@@ -2,4 +2,8 @@
 
 public class EI
 {
+    public string EntityIdentifier { get; set; }
+    public string NamespaceId { get; set; }
+    public string UniversalId { get; set; }
+    public string UniversalIdType { get; set; }
 }

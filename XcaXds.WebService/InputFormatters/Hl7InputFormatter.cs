@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using XcaXds.Commons.Models.Hl7;
 using NHapi.Base.Parser;
 using NHapi.Base.Model;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Hl7.Message;
 namespace XcaXds.WebService.InputFormatters;
 
 public class Hl7InputFormatter : TextInputFormatter
@@ -25,7 +27,8 @@ public class Hl7InputFormatter : TextInputFormatter
         using var reader = new StreamReader(request.Body, encoding);
         var content = await reader.ReadToEndAsync();
 
-        var hl7Parser = new PipeParser();
+        var hl7Parser = new PipeParser(new CustomModelClassFactory());
+
         try
         {
             content = content

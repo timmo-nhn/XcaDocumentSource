@@ -9,7 +9,7 @@ How **PJD.XcaDocumentSource** solution is structured, and how it can be implemen
 Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
 
 ### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
-Desrcribes the lightweight implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
+Describes the lightweight implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
 
 ## Introduction
 This document will describe the Norwegian usage and profilings of the IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.

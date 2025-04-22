@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
+using NHapi.Base.Model;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
@@ -11,7 +12,7 @@ using XcaXds.Commons.Xca;
 
 namespace XcaXds.Source.Services;
 
-public class RegistryService
+public partial class RegistryService
 {
     private readonly XdsConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
@@ -410,12 +411,6 @@ public class RegistryService
         iti42Message.Body.RegistryResponse = registryResponse;
         return SoapExtensions.CreateSoapResultResponse(iti42Message);
     }
-
-    public SoapRequestResult<SoapEnvelope> PatientDemographicsQueryGetPatientIdentifiersInRegistry(QBP_Q22 findCandidatesQuery)
-    {
-        throw new NotImplementedException();
-    }
-
 
     private bool DuplicateUuidsExist(List<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
     {

@@ -3,7 +3,7 @@ using NHapi.Model.V23.Segment;
 using XcaXds.Commons.Models.Hl7.Message;
 using XcaXds.Commons.Services;
 
-namespace XcaXds.Commons.Models.Hl7;
+namespace XcaXds.Commons.Commons;
 
 public class Hl7MessageSerializer
 {
