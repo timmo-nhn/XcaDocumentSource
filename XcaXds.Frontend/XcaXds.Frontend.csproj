@@ -17,7 +17,6 @@
 	<PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
 	<PackageReference Include="BlazorMonaco" Version="3.3.0" />
 	<PackageReference Include="HighlightBlazor" Version="0.1.10" />
-	<PackageReference Include="nhapi" Version="3.2.4" />
 
   </ItemGroup>
 

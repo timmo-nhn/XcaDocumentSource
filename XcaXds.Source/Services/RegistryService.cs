@@ -1,6 +1,5 @@
 ﻿using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
-using NHapi.Base.Model;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;

@@ -19,7 +19,7 @@ public abstract class Hl7Object
         return Serialize(Constants.Hl7.Separator.Hatt);
     }
 
-    private string Serialize(char separator)
+    public string Serialize(char separator)
     {
         var stringBuilder = new StringBuilder();
 
@@ -34,6 +34,21 @@ public abstract class Hl7Object
             {
                 var sad = (SAD)item.Property.GetGetMethod().Invoke(this, null);
                 stringBuilder.Append((sad != null ? sad.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + separator);
+            }
+            else if (item.Property.PropertyType == typeof(CX))
+            {
+                var cx = (CX)item.Property.GetGetMethod().Invoke(this, null);
+                stringBuilder.Append((cx != null ? cx.Serialize(Constants.Hl7.Separator.Hatt) : string.Empty) + separator);
+            }
+            else if (item.Property.PropertyType == typeof(XPN))
+            {
+                var xpn = (XPN)item.Property.GetGetMethod().Invoke(this, null);
+                stringBuilder.Append((xpn != null ? xpn.Serialize(Constants.Hl7.Separator.Hatt) : string.Empty) + separator);
+            }
+            else if (item.Property.PropertyType == typeof(DateTime))
+            {
+                var dt = (DateTime)item.Property.GetGetMethod().Invoke(this, null);
+                stringBuilder.Append((dt != DateTime.MinValue ? dt.ToString(Constants.Hl7.Dtm.DtmYmdFormat) : string.Empty) + separator);
             }
             else
             {
@@ -69,6 +84,7 @@ public abstract class Hl7Object
     {
         return Parse<T>(s, Constants.Hl7.Separator.Hatt);
     }
+
     private static T Parse<T>(string s, char separator) where T : Hl7Object, new()
     {
         if (s == null)
