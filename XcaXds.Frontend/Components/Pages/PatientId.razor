@@ -20,6 +20,9 @@
 @using BlazorBootstrap.Components
 @using XcaXds.Frontend.Cookies
 
+@using Efferent.HL7.V2
+@using XcaXds.Commons.Models.Hl7.DataType
+
 <PageTitle>Patient Identifiers</PageTitle>
 <div class="container-fluid">
     <div class="row mb-4">
@@ -53,7 +56,7 @@
                     <div class="input-group">
                         <span class="input-group-text"><Icon Name="IconName.Link45Deg" /></span>
                         <TextInput @ref="inputBackendUrl" @bind-Value="@backendUrl" 
-                        Placeholder="https://localhost:7176/Registry/services/RegistryService"
+                        Placeholder="https://localhost:7176/hl7/search-patients"
                         Class="form-control" />
                     </div>
                 </CardBody>
@@ -79,12 +82,12 @@
                                         <TextInput @bind-Value="patientIdentifier" />
                                     </div>
                                     <div class="col">
-                                        <CardText> Patient First Name</CardText>
-                                        <TextInput @bind-Value="patientIdentifierFirstName" />
-                                    </div>
-                                    <div class="col">
-                                        <CardText> Patient Last Name</CardText>
-                                        <TextInput @bind-Value="patientIdentifierLastName" />
+                                        <CardText> Patient Name</CardText>
+                                        <TextInput @bind-Value="patientIdentifierName" />
+                                        <hr />
+                                        <div class="alert alert-info">
+                                            <Icon Name="IconName.InfoCircle" /> Name Format<br /> <pre style="overflow:hidden;">LastName^FirstName^FurtherNames^Suffix</pre>
+                                        </div>
                                     </div>
                                     <hr />
                                     <Button @onclick="CreatePatientDemographicsQueryRequest"
@@ -126,12 +129,6 @@
             </Button>
         </div>
     </div>
-
-    @if (ResponseEnvelope is not null)
-    {
-        <SoapEnvelopeComponent SoapEnvelope="ResponseEnvelope" />
-    }
-
 </div>
 
 @code {
@@ -145,8 +142,7 @@
 
     // Inputs
     private string patientIdentifier;
-    private string patientIdentifierFirstName;
-    private string patientIdentifierLastName;
+    private string patientIdentifierName;
 
     // BootstrapBlazor UI components
     private Button sendRequestButton = default!;
@@ -163,15 +159,127 @@
 
     private async Task CreatePatientDemographicsQueryRequest()
     {
-        var hl7Message =
-        $"MSH|^~\\&|MyApp|SendingFac|YourApp|ReceivingFac|{DateTime.Now.ToString("yyyyMMddhhmm")}||QBP^Q22^QBP_Q22|1337|T|2.5" +
-        $"QPD|IHE PDQ Query|Q1234|@PID.3.1^13116900216~@PID.8^" +
-        $"RCP|I|10^RD";
+        var currentContent = await _editor.GetValue();
+        if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
+        {
+            var confirmation = await confirmDialog.ShowAsync(
+                title: "Existing Content Will Be Replaced",
+                message1: "This will overwrite the current editor content. This action cannot be undone.",
+                message2: "Do you want to proceed?"
+            );
+
+            if (!confirmation)
+            {
+                return;
+            }
+        }
+
+        var message = new Message();
+
+        message.AddSegmentMSH("MyApp", "SendingFac", "YourApp", "ReceivingFac", "", "QBP^Q22^QBP_Q21","1337","T","2.5");
+
+        var enc = new HL7Encoding();
+
+        var segment = new Segment("QPD", enc);
+
+        segment.AddNewField(new Field(enc) { Value = "IHE PDQ Query" },1);
+        segment.AddNewField(new Field(enc) { Value = "Q1234" },2);
+
+        var patientIdRepeatingField = new Field(enc);
+        patientIdRepeatingField.HasRepetitions = true;
+
+        if (!string.IsNullOrWhiteSpace(patientIdentifier))
+            patientIdRepeatingField.AddRepeatingField(new Field(enc) { Value = $"@PID.3.1^{patientIdentifier}" });
+
+        if (!string.IsNullOrWhiteSpace(patientIdentifierName))
+        {
+
+            var patientXpn = new XPN();
+
+            if (patientIdentifierName.Contains("^"))
+            {
+                patientXpn = Hl7Object.Parse<XPN>(patientIdentifierName);
+            }
+            else
+            {
+                var patientNameParts = patientIdentifierName.Split(" ");
+                patientXpn.FamilyName = string.Join(" ", patientNameParts.TakeLast(patientNameParts.Length - 1));
+                patientXpn.GivenName = patientNameParts.FirstOrDefault();
+            }
+
+            patientIdRepeatingField.AddRepeatingField(new Field(enc) { Value = $"@PID.5^{patientXpn.Serialize()}" });
+        }
+
+        segment.AddNewField(patientIdRepeatingField);
+        message.AddNewSegment(segment);
+
+        var gg = message.SerializeMessage();
+
+
+
+        await _editor.SetValue(gg);
+
     }
 
     private async Task SendPatientDemographicsQueryRequest()
     {
+        sendRequestButton.ShowLoading("Sending request...");
+        messages.Clear();
+        requestMessage = await _editor.GetValue();
 
+        if (string.IsNullOrEmpty(requestMessage))
+        {
+            sendRequestButton.HideLoading();
+            messages.Add(
+        new ToastMessage
+                {
+                    Type = ToastType.Warning,
+                    AutoHide = true,
+                    Title = "Empty Request",
+                    Content = @<div>Please generate a HL7 request before sending.</div>
+                });
+            return;
+        }
+
+
+        if (string.IsNullOrEmpty(backendUrl))
+        {
+            backendUrl = inputBackendUrl.Placeholder;
+        }
+
+        try
+        {
+            var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/hl7-v2");
+            var hl7RequestResponse = await httpClient.PostAsync($"{backendUrl}", content);
+
+            if (hl7RequestResponse.IsSuccessStatusCode)
+            {
+                var responseStream = await hl7RequestResponse.Content.ReadAsStreamAsync();
+
+                messages.Add(new ToastMessage
+                        {
+                            Type = ToastType.Success,
+                            AutoHide = true,
+                            Title = "Query Successful",
+                            Content = @<div>Document registry query completed successfully.</div>
+                    });
+            }
+        }
+        catch (Exception ex)
+        {
+            sendRequestButton.HideLoading();
+            modalException = ex;
+            messages.Add(
+            new ToastMessage
+                    {
+                        Type = ToastType.Danger,
+                        Title = "Communication Error",
+                        AutoHide = true,
+                        Content = @<div>Failed to send request to registry: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>,
+                });
+            return;
+        }
+        sendRequestButton.HideLoading();
     }
 
 

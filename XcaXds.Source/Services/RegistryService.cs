@@ -5,7 +5,6 @@ using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models;
-using XcaXds.Commons.Models.Hl7.Message;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Xca;

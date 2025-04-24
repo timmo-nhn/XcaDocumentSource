@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using NHapi.Base.Model;
-using NHapi.Model.V25.Message;
-using System.ServiceModel.Channels;
-using XcaXds.Commons.Models.Hl7;
-using XcaXds.Commons.Models.Hl7.Message;
+﻿using Efferent.HL7.V2;
+using Microsoft.AspNetCore.Mvc;
 using XcaXds.Source.Services;
 
 namespace XcaXds.WebService.Controllers;
@@ -26,14 +22,14 @@ public class Hl7MessagingController : ControllerBase
     [Consumes("application/hl7-v2")]
     [Produces("application/hl7-v2")]
     [HttpPost("search-patients")]
-    public async Task<IActionResult> SearchPatient([FromBody] AbstractMessage hl7Message)
+    public async Task<IActionResult> SearchPatient([FromBody] Message hl7Message)
     {
 
-        var messageType = hl7Message.GetStructureName();
-        switch (messageType)
+        switch (hl7Message.MessageStructure)
         {
             case "QBP_Q22":
-                _registryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry((QBP_Q22)hl7Message);
+            case "QBP_Q21":
+                _registryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry(hl7Message);
                 break;
 
             default:

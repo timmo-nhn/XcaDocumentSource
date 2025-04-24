@@ -1,10 +1,6 @@
-﻿using System.Text;
+﻿using Efferent.HL7.V2;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using XcaXds.Commons.Models.Hl7;
-using NHapi.Base.Parser;
-using NHapi.Base.Model;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Hl7.Message;
+using System.Text;
 namespace XcaXds.WebService.InputFormatters;
 
 public class Hl7InputFormatter : TextInputFormatter
@@ -18,23 +14,25 @@ public class Hl7InputFormatter : TextInputFormatter
 
     protected override bool CanReadType(Type type)
     {
-        return typeof(AbstractMessage).IsAssignableFrom(type);
+        return typeof(Message).IsAssignableFrom(type);
     }
 
     public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
     {
         var request = context.HttpContext.Request;
+
         using var reader = new StreamReader(request.Body, encoding);
         var content = await reader.ReadToEndAsync();
-
-        var hl7Parser = new PipeParser(new CustomModelClassFactory());
 
         try
         {
             content = content
                 .Replace("\r\n", "\r")
                 .Replace("\n", "\r");
-            var hl7RawMessage = hl7Parser.Parse(content);
+
+            var hl7RawMessage = new Message(content);
+            hl7RawMessage.ParseMessage();
+
             return await InputFormatterResult.SuccessAsync(hl7RawMessage);
         }
         catch (Exception ex)
