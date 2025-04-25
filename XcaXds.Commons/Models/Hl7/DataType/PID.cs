@@ -6,19 +6,19 @@ public class PID : Hl7Object
     public string SetId { get; set; } = string.Empty;
 
     [Hl7(Sequence = 2)]
-    public CX PatientId { get; set; }
+    public CX? PatientId { get; set; }
 
     [Hl7(Sequence = 3)]
-    public CX PatientIdentifier { get; set; }
+    public CX? PatientIdentifier { get; set; }
 
     [Hl7(Sequence = 4)]
-    public CX AlternatePatientId { get; set; }
+    public CX? AlternatePatientId { get; set; }
 
     [Hl7(Sequence = 5)]
-    public XPN PatientName { get; set; }
+    public XPN? PatientName { get; set; }
 
     [Hl7(Sequence = 6)]
-    public XPN MothersMaidenName { get; set; }
+    public XPN? MothersMaidenName { get; set; }
     
     [Hl7(Sequence = 7)]
     public DateTime BirthDate { get; set; }

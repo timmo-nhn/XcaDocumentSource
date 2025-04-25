@@ -105,12 +105,11 @@
                                         <span><Icon Name="IconName.EnvelopeAt" /> HL7 Request</span>
                                     </div>
                                 </CardHeader>
-                                <CardBody Class="p-0 h-50">
-                                    <StandaloneCodeEditor @ref="_editor"
-                                    Id="xds-query-editor"
-                                    CssClass=""
-                                    ConstructionOptions="EditorConstructionOptions"
-                                    OnDidInit="EditorOnDidInit" />
+                                <CardBody Class="p-0" style="height: 400px;">
+                                    <StandaloneCodeEditor @ref="_hl7Editor"
+                                                            ConstructionOptions="EditorConstructionOptions"
+                                                            OnDidInit="EditorOnDidInit" 
+                                                            CssClass="height: 100%;" />
                                 </CardBody>
                             </Card>
                         </RightContent>
@@ -129,6 +128,17 @@
             </Button>
         </div>
     </div>
+
+    @if (HL7ResponseMessage != null && !string.IsNullOrWhiteSpace(HL7ResponseMessage.HL7Message))
+    {
+        <div class="row mb-5">
+            <div class="col">
+            <Hl7MessageComponent Hl7Message="HL7ResponseMessage" />
+            </div>
+        </div>
+    }
+
+
 </div>
 
 @code {
@@ -137,8 +147,7 @@
     private TextInput inputBackendUrl = new();
     private string requestMessage;
 
-    private SoapEnvelope ResponseEnvelope;
-    private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
+    private Message HL7ResponseMessage = null;
 
     // Inputs
     private string patientIdentifier;
@@ -154,12 +163,12 @@
 
     // Monaco Editor configuration
     [AllowNull] 
-    private StandaloneCodeEditor _editor;
+    private StandaloneCodeEditor _hl7Editor;
 
 
     private async Task CreatePatientDemographicsQueryRequest()
     {
-        var currentContent = await _editor.GetValue();
+        var currentContent = await _hl7Editor.GetValue();
         if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
@@ -176,7 +185,7 @@
 
         var message = new Message();
 
-        message.AddSegmentMSH("MyApp", "SendingFac", "YourApp", "ReceivingFac", "", "QBP^Q22^QBP_Q21","1337","T","2.5");
+        message.AddSegmentMSH("Frontend", "FrontendFacility", "Backend", "BackendFacility", "", "QBP^Q22^QBP_Q21","1337","T","2.5");
 
         var enc = new HL7Encoding();
 
@@ -215,7 +224,7 @@
 
         var gg = message.SerializeMessage();
 
-        await _editor.SetValue(gg);
+        await _hl7Editor.SetValue(gg);
 
     }
 
@@ -223,19 +232,19 @@
     {
         sendRequestButton.ShowLoading("Sending request...");
         messages.Clear();
-        requestMessage = await _editor.GetValue();
+        requestMessage = await _hl7Editor.GetValue();
 
         if (string.IsNullOrEmpty(requestMessage))
         {
             sendRequestButton.HideLoading();
             messages.Add(
-        new ToastMessage
-                {
-                    Type = ToastType.Warning,
-                    AutoHide = true,
-                    Title = "Empty Request",
-                    Content = @<div>Please generate a HL7 request before sending.</div>
-                });
+            new ToastMessage
+            {
+                Type = ToastType.Warning,
+                AutoHide = true,
+                Title = "Empty Request",
+                Content = @<div>Please generate a HL7 request before sending.</div>
+            });
             return;
         }
 
@@ -252,7 +261,10 @@
 
             if (hl7RequestResponse.IsSuccessStatusCode)
             {
-                var responseStream = await hl7RequestResponse.Content.ReadAsStreamAsync();
+                var responseStream = await hl7RequestResponse.Content.ReadAsStringAsync();
+                HL7ResponseMessage = new();
+                HL7ResponseMessage.HL7Message = responseStream;
+                HL7ResponseMessage.ParseMessage();
 
                 messages.Add(new ToastMessage
                         {
@@ -300,10 +312,11 @@
 
     private async Task EditorOnDidInit()
     {
-        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyS, (args) =>
+        await _hl7Editor.Layout();
+
+        await _hl7Editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.Enter, async (args) =>
         {
-            // Custom save command - could trigger HL7 request generation
-            CreatePatientDemographicsQueryRequest();
+            await SendPatientDemographicsQueryRequest();
         });
 
         var newDecorations = new ModelDeltaDecoration[]
@@ -319,7 +332,7 @@
             }
         };
 
-        var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
+        var decorationIds = await _hl7Editor.DeltaDecorations(null, newDecorations);
     }
 
     protected override void OnInitialized()

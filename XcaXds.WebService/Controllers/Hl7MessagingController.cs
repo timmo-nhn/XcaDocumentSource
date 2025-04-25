@@ -24,17 +24,19 @@ public class Hl7MessagingController : ControllerBase
     [HttpPost("search-patients")]
     public async Task<IActionResult> SearchPatient([FromBody] Message hl7Message)
     {
+        var responseMessage = new Message();
 
         switch (hl7Message.MessageStructure)
         {
             case "QBP_Q22":
             case "QBP_Q21":
-                _registryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry(hl7Message);
+                responseMessage = _registryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry(hl7Message);
                 break;
 
             default:
                 break;
         }
-        return Ok();
+        var hl7String = responseMessage.SerializeMessage();
+        return Content(hl7String, "application/hl7-v2");
     }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -85,7 +86,7 @@ public abstract class Hl7Object
         return Parse<T>(s, Constants.Hl7.Separator.Hatt);
     }
 
-    private static T Parse<T>(string s, char separator) where T : Hl7Object, new()
+    public static T Parse<T>(string s, char separator) where T : Hl7Object, new()
     {
         if (s == null)
         {
@@ -114,6 +115,8 @@ public abstract class Hl7Object
             }
 
             object[] obectValue;
+            if (value == null) continue;
+
 #pragma warning disable IDE0045 // Convert to conditional expression
             if (item.Property.PropertyType == typeof(HD))
             {
@@ -122,6 +125,18 @@ public abstract class Hl7Object
             else if (item.Property.PropertyType == typeof(SAD))
             {
                 obectValue = new object[] { Parse<SAD>(value, Constants.Hl7.Separator.Amp) };
+            }
+            else if (item.Property.PropertyType == typeof(CX))
+            {
+                obectValue = new object[] { Parse<CX>(value, Constants.Hl7.Separator.Hatt) };
+            }
+            else if (item.Property.PropertyType == typeof(XPN))
+            {
+                obectValue = new object[] { Parse<XPN>(value, Constants.Hl7.Separator.Hatt) };
+            }
+            else if (item.Property.PropertyType == typeof(DateTime) )
+            {
+                obectValue = new object[] { DateTime.ParseExact(value, Constants.Hl7.Dtm.CdaFormats, CultureInfo.InvariantCulture) };
             }
             else
             {

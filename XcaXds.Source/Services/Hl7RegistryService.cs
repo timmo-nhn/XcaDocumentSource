@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Reflection.Metadata;
 using System.Text;
 using Efferent.HL7.V2;
 using XcaXds.Commons;
@@ -25,8 +26,6 @@ public partial class RegistryService
         var patient = new PID();
         patient.PatientIdentifier ??= new();
 
-        var sb = new StringBuilder();
-
 
         for (int i = 0; i < patientFields.Length; i++)
         {
@@ -52,7 +51,7 @@ public partial class RegistryService
                 patient.Gender = value;
             }
         }
-        var hibb = "";
+
 
         var extrinsicObjectPatientIds = _documentRegistry.RegistryObjectList
             .OfType<ExtrinsicObjectType>()
@@ -65,10 +64,10 @@ public partial class RegistryService
             {
                 bool nameMatch = 
                     eop.PatientName != null && patient.PatientName != null &&
-                    !string.IsNullOrEmpty(patient.PatientName.GivenName) &&
-                    eop.PatientName.GivenName?.Contains(patient.PatientName.GivenName) == true ||
-                    !string.IsNullOrEmpty(patient.PatientName.FamilyName) &&
-                    eop.PatientName.FamilyName?.Contains(patient.PatientName.FamilyName) == true;
+                    !string.IsNullOrEmpty(patient.PatientName?.GivenName) &&
+                    eop.PatientName.GivenName?.Contains(patient.PatientName?.GivenName) == true ||
+                    !string.IsNullOrEmpty(patient.PatientName?.FamilyName) &&
+                    eop.PatientName?.FamilyName?.Contains(patient.PatientName?.FamilyName) == true;
 
                 bool birthDateMatch = 
                     eop.BirthDate != DateTime.MinValue && patient.BirthDate != DateTime.MinValue &&
@@ -90,16 +89,31 @@ public partial class RegistryService
         var enc = new HL7Encoding();
 
         var responseMessage = new Message();
-
         responseMessage.Encoding = enc;
 
-        var nog = matchingPatientIds.Select(pid =>
-            new Segment(enc)
+        var reqMsh = findCandidatesQuery.Segments("MSH")[0].GetAllFields();
+
+        responseMessage.AddSegmentMSH
+        (
+            sendingApplication: reqMsh[4].Value, // Sending app becomes receiving app
+            sendingFacility: reqMsh[5].Value, // Sending facility becomes receiving facility
+            receivingApplication: reqMsh[2].Value, // Receiving app becomes sending app
+            receivingFacility: reqMsh[3].Value, // Receiving facility becomes sending facility
+            security: DateTime.Now.ToString(Constants.Hl7.Dtm.DtmYmdFormat),
+            messageType: "RSP^K22^RSP_K21",
+            messageControlID: reqMsh[9].Value, // Message control ÌD
+            processingID: "T", // Processing ID,
+            version: reqMsh[11].Value // HL7 version
+        );
+
+        foreach (var pid in matchingPatientIds)
+        {
+            responseMessage.AddNewSegment(new Segment(enc)
             {
                 Name = "PID",
                 Value = "PID" + pid.Serialize('|')
-            }).ToList();
-
-        throw new NotImplementedException();
+            });
+        }
+        return responseMessage;
     }
 }
