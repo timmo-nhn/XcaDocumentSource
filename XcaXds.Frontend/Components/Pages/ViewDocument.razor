@@ -8,12 +8,25 @@
 @inject NavigationManager Nav
 @inject HttpClient httpClient
 
-<Card>
-    <CardHeader>Connected Backend</CardHeader>
-    <CardBody>
-        <TextInput @ref="inputBackendUrl" @bind-Value="@backendUrl" Placeholder="@backendUrlPlaceholder" />
-    </CardBody>
-</Card>
+   <div class="row mb-4">
+        <div class="col">
+            <Card>
+                <CardHeader>
+                    <Icon Name="IconName.Server" /> Repository Endpoint
+                </CardHeader>
+                <CardBody>
+                    <div class="input-group">
+                        <span class="input-group-text"><Icon Name="IconName.Link45Deg" /></span>
+                        <TextInput @ref="inputBackendUrl" @bind-Value="@backendUrl"
+                            Placeholder="https://localhost:7176/Repository/services/RepositoryService"
+                            Class="form-control" 
+                            Disabled="@true"
+                        />
+                    </div>
+                </CardBody>
+            </Card>
+        </div>
+    </div>
 
 @if (ResponseEnvelope is not null)
 {

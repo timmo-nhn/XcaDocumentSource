@@ -3,6 +3,7 @@
 @using XcaXds.Commons.Models.Soap.XdsTypes
 @using XcaXds.Commons
 @using XcaXds.Commons.Services
+
 @inject IJSRuntime JS
 
 <Grid TItem="SimplifiedDocumentReference"
@@ -15,7 +16,7 @@ Responsive="true" >
         <GridColumn TItem="SimplifiedDocumentReference" HeaderText="Date" PropertyName="Date" SortKeySelector="item => item.Date">
             @context.Date
         </GridColumn>
-        <GridColumn TItem="SimplifiedDocumentReference" HeaderText="Pa" PropertyName="DocumentId" SortKeySelector="item => item.DocumentId">
+        <GridColumn TItem="SimplifiedDocumentReference" HeaderText="DocumentId" PropertyName="DocumentId" SortKeySelector="item => item.DocumentId">
             @context.DocumentId
         </GridColumn>
         <GridColumn TItem="SimplifiedDocumentReference" HeaderText="Id" PropertyName="Id" SortKeySelector="item => item.Id">
@@ -44,12 +45,12 @@ Responsive="true" >
         </GridColumn>
     </GridColumns>
 
-    <GridDetailView TItem="SimplifiedDocumentReference" Context="docRef1">
+    <GridDetailView TItem="SimplifiedDocumentReference" Context="documentReference">
         <div class="mb-2 d-flex flex-row item gap-2 align-items-center">
           <div class="flex-grow-1">
               <h4>Document</h4>
           </div>
-          <ClipboardCopyButton TextToCopy="@docRef1.XmlStringRepresentation"
+          <ClipboardCopyButton TextToCopy="@documentReference.XmlStringRepresentation"
               Color="ButtonColor.Secondary">
 
               <NormalIcon>
@@ -61,14 +62,8 @@ Responsive="true" >
               </ClickedIcon>
 
           </ClipboardCopyButton>
-
-        </div>  
-        <StandaloneCodeEditor @ref="_editor" 
-            Id="xds-response-soap-editor"
-            CssClass="" 
-            ConstructionOptions="EditorConstructionOptions"
-            OnDidInit="() => EditorOnDidInit(docRef1)" 
-        />                        
+        </div>                     
+        @CreateUniqueEditorInstance(documentReference)
     </GridDetailView>
 
 
@@ -101,7 +96,6 @@ Responsive="true" >
             JS.InvokeVoidAsync("copyToClipboard", input);
         }
     }
-    private StandaloneCodeEditor _editor = default!;
 
     private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {
@@ -119,29 +113,39 @@ Responsive="true" >
         };
     }
 
-    private async Task SetEditorXML(string xml)
-    {
-      await _editor.SetValue(xml);
-    }
+ private Dictionary<string, StandaloneCodeEditor> _editorReferences = new Dictionary<string, StandaloneCodeEditor>();
 
-    private async Task EditorOnDidInit(SimplifiedDocumentReference docRef)
+private async void EditorInit(SimplifiedDocumentReference docRef)
+{   
+    // Get the correct editor reference for this specific document
+    if (_editorReferences.TryGetValue(docRef.DocumentId, out var editor))
     {
-        var newDecorations = new ModelDeltaDecoration[]
+        await editor.SetValue(docRef.XmlStringRepresentation);
+    }
+}
+
+private RenderFragment CreateUniqueEditorInstance(SimplifiedDocumentReference docRef)
+{        
+    return builder =>
+    {
+        // Use the document ID as a unique key for this editor
+        string editorKey = docRef.DocumentId;
+        
+        builder.OpenComponent<StandaloneCodeEditor>(0);
+        builder.AddAttribute(1, "Id", editorKey);
+        builder.AddAttribute(2, "CssClass", "w-100 border border-2");
+        builder.AddAttribute(3, "ConstructionOptions", EditorConstructionOptions);
+        builder.AddAttribute(4, "OnDidInit", EventCallback.Factory.Create(this, 
+            () => EditorInit(docRef)));
+        builder.AddComponentReferenceCapture(5, compRef => 
         {
-            new() {
-                Range = new BlazorMonaco.Range(3,1,3,1),
-                Options = new ModelDecorationOptions
-                {
-                    IsWholeLine = true,
-                    ClassName = "decorationContentClass",
-                    GlyphMarginClassName = "decorationGlyphMarginClass"
-                }
-            }
-        };
-
-        var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
-        await SetEditorXML(docRef.XmlStringRepresentation);
-    }
+            // Store the editor reference in our dictionary with the document ID as key
+            _editorReferences[editorKey] = (StandaloneCodeEditor)compRef;
+        });
+        builder.CloseComponent();
+    };
+}
+    
 
     private void OpenDocument(SimplifiedDocumentReference context)
     {
@@ -157,7 +161,6 @@ Responsive="true" >
         if (documentList is null)
         {
             documentList ??= new();
-            Console.WriteLine(adhocQueryResponse);
             var documentReferences = adhocQueryResponse.RegistryObjectList.OfType<ExtrinsicObjectType>();
 
             foreach (var reference in documentReferences)
