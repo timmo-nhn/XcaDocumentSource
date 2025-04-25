@@ -102,14 +102,14 @@
                                                 </DropdownItem>
                                                 <DropdownDivider />
                                                 @foreach (var queryType in storedQueryTypes)
-                                                {
-                                                    <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = queryType'>
-                                                        <span class="me-2"><Icon Name="IconName.FileEarmarkCode" /></span> @queryType.Key
-                                                        <small class="d-block text-muted">@queryType.Value</small>
-                                                    </DropdownItem>
-                                                }
-                                            </DropdownMenu>
-                                        </Dropdown>
+                                    {
+                                        <DropdownItem Type="DropdownItemType.Link" @onclick='() => adhocQueryInput = queryType'>
+                                            <span class="me-2"><Icon Name="IconName.FileEarmarkCode" /></span> @queryType.Key
+                                            <small class="d-block text-muted">@queryType.Value</small>
+                                        </DropdownItem>
+                                    }
+                                </DropdownMenu>
+                            </Dropdown>
                                     </div>
 
                                     <hr />
@@ -298,7 +298,7 @@
 
     private async Task OpenNewPageRetrieveDocumentSetSoapRequest(SimplifiedDocumentReference documentReference)
     {
-        var url = $"ViewDocument?HomeCommunityId={Uri.EscapeDataString(documentReference.HomeCommunityId)}&RepositoryUniqueId={Uri.EscapeDataString(documentReference.RepositoryId)}&DocumentUniqueId={Uri.EscapeDataString(documentReference.DocumentId)}";
+        var url = $"ViewDocument?HomeCommunityId={Uri.EscapeDataString(documentReference.HomeCommunityId)}&RepositoryUniqueId={Uri.EscapeDataString(documentReference.RepositoryId)}&DocumentUniqueId={Uri.EscapeDataString(documentReference.Id)}";
         await JS.InvokeVoidAsync("openPageWithParams", url);
     }
 

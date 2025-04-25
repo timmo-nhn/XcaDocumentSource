@@ -17,6 +17,7 @@ namespace XcaXds.WebService
 
             // Begin builder
             builder.Services.AddHttpClient();
+            builder.WebHost.UseUrls(["https://localhost:7176", "http://localhost:5009"]);
 
             builder.Logging.ClearProviders(); // Clear default logging providers
             builder.Services.AddLogging(logging =>
@@ -63,7 +64,6 @@ namespace XcaXds.WebService
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
             // Begin app
             var app = builder.Build();
             app.UseExceptionHandler("/error");
