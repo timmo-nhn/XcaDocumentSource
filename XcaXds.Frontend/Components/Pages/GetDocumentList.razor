@@ -222,6 +222,11 @@
     private ConfirmDialog confirmDialog = new();
     private TextInput inputBackendUrl = new();
 
+    // Monaco Editor configuration
+    [AllowNull]
+    private StandaloneCodeEditor _editor;
+
+
     protected override void OnInitialized()
     {
         // Set default return type
@@ -489,9 +494,6 @@
         }
     }
 
-    // Monaco Editor configuration
-    [AllowNull]
-    private StandaloneCodeEditor _editor;
 
     private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {

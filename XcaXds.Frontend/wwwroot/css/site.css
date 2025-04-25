@@ -120,11 +120,7 @@
 
 /* Blazor monaco editor */
 
-.monaco-editor-class {
-    height: 768px;
-    width: 100%;
-}
-
-.monaco-editor-container {
-    height: 768px;
+.hl7-editor
+{
+    height:450px;
 }

@@ -65,7 +65,7 @@ public class RepositoryService
             }
 
             var patientIdPart = patientId?.Substring(0, patientId.IndexOf("^^^"));
-            var xdsDocumentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.Name.GetFirstValue() == Constants.Xds.ExternalIdentifierNames.DocumentEntryUniqueId)?.Value;
+            var xdsDocumentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
             if (xdsDocumentEntryUniqueId == null)
             {
@@ -174,9 +174,9 @@ public class RepositoryService
                   pdfDoc.Close();
 
                   // Get the modified file bytes and replace the original file variable
-                  renamedFile = outputStream.ToArray();
-                  retrieveResponse.AddDocument(renamedFile, home, repoId, docId, mimeType);
+                  file = outputStream.ToArray();
                 }
+                retrieveResponse.AddDocument(file, home, repoId, docId, mimeType);
             }
         }
 

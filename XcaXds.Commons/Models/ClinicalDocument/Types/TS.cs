@@ -1,36 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
-public class TS
+[Serializable]
+[XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
+public class TS : ANY
 {
     [XmlIgnore]
-    public DateTime EffectiveTime { get; set; }
+    public DateTimeOffset EffectiveTime { get; set; } = default;
 
+    private string _dateFormat;
+
+    [XmlIgnore]
+    public string? RawEffectiveTimeValue { get; set; }
 
     [XmlAttribute("value")]
-    public string EffectiveTimeValue
+    public string? EffectiveTimeValue
     {
-        get => EffectiveTime.ToString(Constants.Hl7.Dtm.DtmFormat);
+        get
+        {
+            return _dateFormat != null ? EffectiveTime.ToString(_dateFormat) : RawEffectiveTimeValue;
+        }
         set
         {
-            if (!string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value)) return;
+
+            bool matched = false;
+
+            foreach (var dateFormat in Constants.Hl7.Dtm.CdaFormats)
             {
-                try
+                if (DateTimeOffset.TryParseExact(value, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTimeOffset))
                 {
-                    EffectiveTime = DateTime.ParseExact(value, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
-                }
-                catch (FormatException)
-                {
-                    EffectiveTime = default;
+                    _dateFormat = dateFormat;
+                    EffectiveTime = dateTimeOffset;
+                    matched = true;
+                    break;
                 }
             }
+
+            if (!matched)
+            {
+                _dateFormat = null; 
+                RawEffectiveTimeValue = value;
+            }
         }
+    }
+
+    public bool ShouldSerializeEffectiveTimeValue()
+    {
+        // Serialize the value only if a valid date format was found
+        return _dateFormat != null || !string.IsNullOrWhiteSpace(RawEffectiveTimeValue);
     }
 }

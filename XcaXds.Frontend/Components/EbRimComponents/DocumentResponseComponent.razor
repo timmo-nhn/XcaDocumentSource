@@ -8,10 +8,11 @@
         DocumentResponse
     </div>
     <div class="ebrim-body">
-        <li>Home: @DocumentResponse.HomeCommunityId</li>
-        <li>Repository: @DocumentResponse.RepositoryUniqueId</li>
-        <li>Document Id: @DocumentResponse.DocumentUniqueId</li>
-        <li>Mimetype: @DocumentResponse.MimeType</li>
+        <li>Home: @documentResponse.HomeCommunityId</li>
+        <li>Repository: @documentResponse.RepositoryUniqueId</li>
+        <li>Document Id: @documentResponse.DocumentUniqueId</li>
+        <li>Mimetype: @documentResponse.MimeType</li>
+        <DocumentViewerComponent DocumentResponse="documentResponse" />
     </div>
 </div>
 
@@ -45,18 +46,18 @@ else
 
 @code {
     [Parameter]
-    public DocumentResponseType DocumentResponse { get; set; } = default!;
+    public DocumentResponseType documentResponse { get; set; } = default!;
 
     private string base64Content;
     private string documentTextContent;
 
     protected override void OnParametersSet()
     {
-        Console.WriteLine($"DocumentResponse: {DocumentResponse}");
-        if (DocumentResponse?.Document != null)
+        Console.WriteLine($"DocumentResponse: {documentResponse}");
+        if (documentResponse?.Document != null)
         {
-            base64Content = Convert.ToBase64String(DocumentResponse.Document);
-            documentTextContent = Encoding.UTF8.GetString(DocumentResponse.Document);
+            base64Content = Convert.ToBase64String(documentResponse.Document);
+            documentTextContent = Encoding.UTF8.GetString(documentResponse.Document);
         }
     }
 

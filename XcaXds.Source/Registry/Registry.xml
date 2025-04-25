@@ -46,7 +46,7 @@
         <LocalizedString value="XDSSubmissionSet.sourceId" />
       </Name>
     </ExternalIdentifier>
-    <ExternalIdentifier id="b8175e95-9987-4ada-b545-67299c32ff92" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="RegistryPackage01" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="13116900216^^^^^^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO">
+    <ExternalIdentifier id="b8175e95-9987-4ada-b545-67299c32ff92" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="RegistryPackage01" identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="13116900216^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO">
       <Name>
         <LocalizedString value="XDSSubmissionSet.patientId" />
       </Name>
@@ -190,7 +190,7 @@
         <LocalizedString value="XDSDocumentEntry.uniqueId" />
       </Name>
     </ExternalIdentifier>
-    <ExternalIdentifier id="df0a5ea1-d5ae-4a26-b1f0-abc0e33ff04a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="ExtrinsicObject01" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^^^^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO">
+    <ExternalIdentifier id="df0a5ea1-d5ae-4a26-b1f0-abc0e33ff04a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="ExtrinsicObject01" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO">
       <Name>
         <LocalizedString value="XDSDocumentEntry.patientId" />
       </Name>

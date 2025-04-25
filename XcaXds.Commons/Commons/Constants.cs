@@ -346,11 +346,28 @@ public static class Constants
             public const string DtmFormat = DtmYmdhmFormat + "ss"; //yyyyMMddHHmmss
             public const string DtmLongFormat = DtmFormat + "fff";
             public const string DtmFhirIsoDateTimeFormat = "yyyy-MM-ddTHH:mm:ssK";
+
+            public static readonly string[] CdaFormats =
+            [
+                "yyyyMMddHHmmss.FFFFzzz",
+                "yyyyMMddHHmmss.FFFF",
+                "yyyyMMddHHmmsszzz",
+                "yyyyMMddHHmmss",
+                "yyyyMMddHHmm.FFFFzzz",
+                "yyyyMMddHHmm.FFFF",
+                "yyyyMMddHHmmzzz",
+                "yyyyMMdd",
+                "yyyyddMM",
+                "yyyyMM",
+                "yyyy"
+            ];
+
         }
 
         public static class Namespaces
         {
             public const string Hl7V3 = "urn:hl7-org:v3";
+            public const string Hl7Sdtc = "urn:hl7-org:sdtc";
         }
 
         public static class Separator
