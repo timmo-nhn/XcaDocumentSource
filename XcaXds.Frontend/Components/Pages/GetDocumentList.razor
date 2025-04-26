@@ -19,7 +19,7 @@
 
 <PageTitle>Document List</PageTitle>
 
-<div class="container-fluid">
+<div class="w-100 h-100">
     <div class="row mb-4">
         <div class="col">
             <h1><Icon Name="IconName.FileEarmarkText" /> Document Registry Query</h1>
@@ -60,7 +60,7 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col">
+        <div class="col h-100">
             <Card>
                 <CardHeader>
                     <Icon Name="IconName.Search" /> Query Parameters
@@ -72,7 +72,7 @@
                                 <CardHeader>
                                     <Icon Name="IconName.Sliders" /> Query Options
                                 </CardHeader>
-                                <CardBody Class="p-3">
+                                <CardBody Class=" h-100 p-3">
                                     <div class="mb-3">
                                         <label class="form-label">Response Type</label>
                                         <Dropdown Style="width: 100%" Color="DropdownColor.Secondary">
@@ -93,7 +93,7 @@
                                     <div class="mb-3">
                                         <label class="form-label">Query Type</label>
                                         <Dropdown Style="width: 100%" Color="DropdownColor.Secondary">
-                                            <DropdownToggleButton>
+                                            <DropdownToggleButton Style="overflow-x: hidden; position: relative;">
                                                 <Icon Name="IconName.FileEarmark" /> @(adhocQueryInput.Key ?? "Select Stored Query type...")
                                             </DropdownToggleButton>
                                             <DropdownMenu Style="max-height: 300px; overflow-y: auto;">
@@ -144,18 +144,14 @@
                             </Card>
                         </LeftContent>
                         <RightContent>
-                            <Card Style="height: 100%; background-color: white;">
+                            <Card Style="background-color: white;">
                                 <CardHeader>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span><Icon Name="IconName.EnvelopeAt" /> SOAP Request</span>
                                     </div>
                                 </CardHeader>
-                                <CardBody Class="p-0 h-100">
-                                    <StandaloneCodeEditor @ref="_editor" 
-                                                        Id="xds-query-editor" 
-                                                        CssClass="" 
-                                                        ConstructionOptions="EditorConstructionOptions"
-                                                        OnDidInit="EditorOnDidInit" />
+                                <CardBody Class="h-100 p-1">
+                                    <MonacoEditor @ref="_monacoEditorRef" EditorLanguage="xml" EditorId="GetDocumentList" />
                                 </CardBody>
                             </Card>
                         </RightContent>
@@ -203,6 +199,8 @@
     private string storedQueryQueryType;
     private HttpResponseMessage soapRequestResponse;
 
+    private MonacoEditor _monacoEditorRef = default!;
+
     // Slot Autocomplete
     private string? slotName;
     private List<KeyValueEntry>? userInputSlots;
@@ -222,10 +220,6 @@
     private ConfirmDialog confirmDialog = new();
     private TextInput inputBackendUrl = new();
 
-    // Monaco Editor configuration
-    [AllowNull]
-    private StandaloneCodeEditor _editor;
-
 
     protected override void OnInitialized()
     {
@@ -234,8 +228,9 @@
     }
 
     private async Task CreateSoapEnvelopeWithVariables()
-    {
-        var currentContent = await _editor.GetValue();
+    {   
+        
+        string currentContent = await _monacoEditorRef.GetValueAsync();
         if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
@@ -290,8 +285,7 @@
 
         requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
 
-        await _editor.SetValue(requestMessage);
-        
+        await _monacoEditorRef.SetValueAsync(requestMessage);
         messages.Add(new ToastMessage
         {
             Type = ToastType.Success,
@@ -312,7 +306,8 @@
         sendRequestButton.ShowLoading("Sending request...");
         ResponseEnvelope = null;
         messages.Clear();
-        requestMessage = await _editor.GetValue();
+
+        requestMessage = await _monacoEditorRef.GetValueAsync();
 
         if (string.IsNullOrEmpty(requestMessage))
         {
@@ -492,46 +487,5 @@
             default:
                 break;
         }
-    }
-
-
-    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
-    {
-        return new StandaloneEditorConstructionOptions
-        {
-            Language = "xml",
-            GlyphMargin = true,
-            AutomaticLayout = true,
-            Value = string.Empty,
-            Theme = "vs",
-            Minimap = new EditorMinimapOptions { Enabled = false },
-            ScrollBeyondLastLine = false,
-            RenderLineHighlight = "all",
-            WordWrap = "on"
-        };
-    }
-
-    private async Task EditorOnDidInit()
-    {
-        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyS, (args) =>
-        {
-            // Custom save command - could trigger SOAP request generation
-            CreateSoapEnvelopeWithVariables();
-        });
-
-        var newDecorations = new ModelDeltaDecoration[]
-        {
-            new() {
-                Range = new BlazorMonaco.Range(3,1,3,1),
-                Options = new ModelDecorationOptions
-                {
-                    IsWholeLine = true,
-                    ClassName = "decorationContentClass",
-                    GlyphMarginClassName = "decorationGlyphMarginClass"
-                }
-            }
-        };
-
-        var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
     }
 }

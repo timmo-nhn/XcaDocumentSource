@@ -34,6 +34,8 @@
     .right-pane {
         flex-grow: 1;
         overflow: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     .resizer {
@@ -73,7 +75,8 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
+        {   
+            // e
             await JS.InvokeVoidAsync("resizablePanes.init");
         }
     }

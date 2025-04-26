@@ -6,8 +6,6 @@
 
 @using System.Diagnostics.CodeAnalysis
 @using System.Text.Json
-@using BlazorMonaco
-@using BlazorMonaco.Editor
 @using XcaXds.Commons.Models.Custom
 @using XcaXds.Frontend.Components.UserInterface
 @using XcaXds.Frontend.Components.EbRimComponents
@@ -107,11 +105,7 @@
                                     </div>
                                 </CardHeader>
                                 <CardBody Class="p-0 h-100">
-                                    <StandaloneCodeEditor @ref="_editor" 
-                                    Id="xds-query-editor" 
-                                    CssClass="" 
-                                    ConstructionOptions="EditorConstructionOptions"
-                                    OnDidInit="EditorOnDidInit" />
+                                    <MonacoEditor @ref="_monacoEditorRef" EditorLanguage="xml" OnSave=@CreateSoapEnvelopeWithVariables />
                                 </CardBody>
                             </Card>
                         </RightContent>
@@ -135,7 +129,6 @@
     {
         <SoapEnvelopeComponent SoapEnvelope="ResponseEnvelope" />
     }
-
 </div>
 
 @code {
@@ -145,6 +138,8 @@
     private string requestMessage;
     private SoapEnvelope ResponseEnvelope;
     private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
+
+    private MonacoEditor _monacoEditorRef = default!;
 
     // Inputs
     private SimplifiedProvideAndRegister provideAndRegister;
@@ -157,15 +152,14 @@
     private ConfirmDialog confirmDialog = new();
 
 
-    // Monaco Editor configuration
-    [AllowNull]
-    private StandaloneCodeEditor _editor;
-
-
     private async Task CreateSoapEnvelopeWithVariables()
     {
-
-        var currentContent = await _editor.GetValue();
+   // FIXXXX!!
+        // // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //
+        var currentContent = "";
+        @* await _editor.GetValue(); *@
+           // FIXXXX!!
+        // // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //
         if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
@@ -192,8 +186,9 @@
 
 
         requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
-
-        await _editor.SetValue(requestMessage);
+           // FIXXXX!!
+        // // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //
+        @* await _editor.SetValue(requestMessage); *@
 
         messages.Add(new ToastMessage
         {
@@ -209,47 +204,6 @@
 
     }
 
-
-    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
-    {
-        return new StandaloneEditorConstructionOptions
-        {
-            Language = "xml",
-            GlyphMargin = true,
-            AutomaticLayout = true,
-            Value = string.Empty,
-            Theme = "vs",
-            Minimap = new EditorMinimapOptions { Enabled = false },
-            ScrollBeyondLastLine = false,
-            RenderLineHighlight = "all",
-            WordWrap = "on"
-        };
-    }
-
-
-    private async Task EditorOnDidInit()
-    {
-        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyS, (args) =>
-        {
-            // Custom save command - could trigger SOAP request generation
-            CreateSoapEnvelopeWithVariables();
-        });
-
-        var newDecorations = new ModelDeltaDecoration[]
-        {
-            new() {
-                Range = new BlazorMonaco.Range(3,1,3,1),
-                Options = new ModelDecorationOptions
-                {
-                    IsWholeLine = true,
-                    ClassName = "decorationContentClass",
-                    GlyphMarginClassName = "decorationGlyphMarginClass"
-                }
-            }
-        };
-
-        var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
-    }
 
     protected override void OnInitialized()
     {

@@ -6,8 +6,7 @@
 
 @using System.Diagnostics.CodeAnalysis
 @using System.Text.Json
-@using BlazorMonaco
-@using BlazorMonaco.Editor
+
 @using XcaXds.Commons.Models.Custom
 @using XcaXds.Frontend.Components.UserInterface
 @using XcaXds.Frontend.Components.EbRimComponents
@@ -105,11 +104,8 @@
                                         <span><Icon Name="IconName.EnvelopeAt" /> HL7 Request</span>
                                     </div>
                                 </CardHeader>
-                                <CardBody Class="p-0" style="height: 400px;">
-                                    <StandaloneCodeEditor @ref="_hl7Editor"
-                                                            ConstructionOptions="EditorConstructionOptions"
-                                                            OnDidInit="EditorOnDidInit" 
-                                                            CssClass="height: 100%;" />
+                                <CardBody Class="p-0">
+                                    <MonacoEditor @ref="_monacoEditorRef" EditorId="PatientId" EditorLanguage="hl7" />
                                 </CardBody>
                             </Card>
                         </RightContent>
@@ -149,6 +145,8 @@
 
     private Message HL7ResponseMessage = null;
 
+    private MonacoEditor _monacoEditorRef = default!;
+
     // Inputs
     private string patientIdentifier;
     private string patientIdentifierName;
@@ -161,14 +159,12 @@
     private ConfirmDialog confirmDialog = new();
 
 
-    // Monaco Editor configuration
-    [AllowNull] 
-    private StandaloneCodeEditor _hl7Editor;
-
 
     private async Task CreatePatientDemographicsQueryRequest()
-    {
-        var currentContent = await _hl7Editor.GetValue();
+    {      
+        
+        
+        var currentContent = await _monacoEditorRef.GetValueAsync();
         if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
@@ -223,8 +219,8 @@
         message.AddNewSegment(segment);
 
         var gg = message.SerializeMessage();
-
-        await _hl7Editor.SetValue(gg);
+   
+        await _monacoEditorRef.SetValueAsync(gg);
 
     }
 
@@ -232,8 +228,9 @@
     {
         sendRequestButton.ShowLoading("Sending request...");
         messages.Clear();
-        requestMessage = await _hl7Editor.GetValue();
-
+          
+        requestMessage = await _monacoEditorRef.GetValueAsync();
+   
         if (string.IsNullOrEmpty(requestMessage))
         {
             sendRequestButton.HideLoading();
@@ -290,49 +287,6 @@
             return;
         }
         sendRequestButton.HideLoading();
-    }
-
-
-    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
-    {
-        return new StandaloneEditorConstructionOptions
-        {
-            Language = "xml",
-            GlyphMargin = true,
-            AutomaticLayout = true,
-            Value = string.Empty,
-            Theme = "vs",
-            Minimap = new EditorMinimapOptions { Enabled = false },
-            ScrollBeyondLastLine = false,
-            RenderLineHighlight = "all",
-            WordWrap = "on"
-        };
-    }
-
-
-    private async Task EditorOnDidInit()
-    {
-        await _hl7Editor.Layout();
-
-        await _hl7Editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.Enter, async (args) =>
-        {
-            await SendPatientDemographicsQueryRequest();
-        });
-
-        var newDecorations = new ModelDeltaDecoration[]
-        {
-            new() {
-                Range = new BlazorMonaco.Range(3,1,3,1),
-                Options = new ModelDecorationOptions
-                {
-                    IsWholeLine = true,
-                    ClassName = "decorationContentClass",
-                    GlyphMarginClassName = "decorationGlyphMarginClass"
-                }
-            }
-        };
-
-        var decorationIds = await _hl7Editor.DeltaDecorations(null, newDecorations);
     }
 
     protected override void OnInitialized()

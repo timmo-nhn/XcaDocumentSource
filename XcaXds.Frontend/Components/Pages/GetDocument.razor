@@ -6,8 +6,6 @@
 
 @using System.Diagnostics.CodeAnalysis
 @using System.Text.Json
-@using BlazorMonaco
-@using BlazorMonaco.Editor
 @using XcaXds.Commons.Models.Custom
 @using XcaXds.Frontend.Components.UserInterface
 @using XcaXds.Frontend.Components.EbRimComponents
@@ -109,11 +107,7 @@
                                     </div>
                                 </CardHeader>
                                 <CardBody Class="p-0 h-100">
-                                    <StandaloneCodeEditor @ref="_editor" 
-                                                        Id="xds-document-editor" 
-                                                        CssClass="" 
-                                                        ConstructionOptions="EditorConstructionOptions"
-                                                        OnDidInit="EditorOnDidInit" />
+                                    <MonacoEditor @ref="_monacoEditorRef" EditorId="GetDocument" EditorLanguage="xml" OnSave=@CreateSoapEnvelopeWithVariables />
                                 </CardBody>
                             </Card>
                         </RightContent>
@@ -160,6 +154,8 @@
     private bool _initialized = false; // JS Interop flag
     private List<DocumentRequestValuesInput> valuesInput { get; set; }
 
+    private MonacoEditor _monacoEditorRef = default!;
+
     // BootstrapBlazor UI components
     private Button sendRequestButton = default!;
     private List<ToastMessage> messages = new();
@@ -179,11 +175,11 @@
                 // Try to load XDS configuration from cookies
                 string xdsConfigJson = await cookie.GetValue("xdsConfig");
 
-                if (string.IsNullOrWhiteSpace(xdsConfigJson))
+                if (string.IsNullOrWhiteSpace(xdsConfigJson ))
                 {
                     // If not in cookies, try to get from API
-                    var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7176/api/about"));
-                    if (response.IsSuccessStatusCode)
+                    var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7176/api/about/config"));
+                    if (response.IsSuccessStatusCode )
                     {
                         xdsConfigJson = await response.Content.ReadAsStringAsync();
                         
@@ -237,8 +233,10 @@
     }
 
     private async Task CreateSoapEnvelopeWithVariables()
-    {
-        var currentContent = await _editor.GetValue();
+    {   
+
+        string currentContent = await _monacoEditorRef.GetValueAsync();
+        
         if (!string.IsNullOrWhiteSpace(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
@@ -306,9 +304,8 @@
         // Serialize the envelope to XML
         requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
 
-        // Set the editor content
-        await _editor.SetValue(requestMessage);
-        
+        await _monacoEditorRef.SetValueAsync(requestMessage);
+         
         messages.Add(new ToastMessage
         {
             Type = ToastType.Success,
@@ -322,7 +319,8 @@
     {
         sendRequestButton.ShowLoading("Retrieving document...");
 
-        requestMessage = await _editor.GetValue();
+      
+        string requestMessage = await _monacoEditorRef.GetValueAsync();
 
         if (string.IsNullOrEmpty(requestMessage))
         {
@@ -427,49 +425,5 @@
     private void OnValueListsChanged(List<DocumentRequestValuesInput> updatedValuesList)
     {
         valuesInput = updatedValuesList;
-    }
-
-    // Monaco Editor configuration
-    [AllowNull]
-    private StandaloneCodeEditor _editor;
-
-    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
-    {
-        return new StandaloneEditorConstructionOptions
-        {
-            Language = "xml",
-            GlyphMargin = true,
-            AutomaticLayout = true,
-            Value = string.Empty,
-            Theme = "vs",
-            Minimap = new EditorMinimapOptions { Enabled = false },
-            ScrollBeyondLastLine = false,
-            RenderLineHighlight = "all",
-            WordWrap = "on"
-        };
-    }
-
-    private async Task EditorOnDidInit()
-    {
-        await _editor.AddCommand((int)KeyMod.CtrlCmd | (int)KeyCode.KeyS, (args) =>
-        {
-            // Custom save command - could trigger SOAP request generation
-            CreateSoapEnvelopeWithVariables();
-        });
-
-        var newDecorations = new ModelDeltaDecoration[]
-        {
-            new() {
-                Range = new BlazorMonaco.Range(3,1,3,1),
-                Options = new ModelDecorationOptions
-                {
-                    IsWholeLine = true,
-                    ClassName = "decorationContentClass",
-                    GlyphMarginClassName = "decorationGlyphMarginClass"
-                }
-            }
-        };
-
-        var decorationIds = await _editor.DeltaDecorations(null, newDecorations);
     }
 }

@@ -1,0 +1,161 @@
+@inject IJSRuntime JS
+@implements IDisposable
+
+<div id="@EditorContainerId" class="monaco-editor-container">
+    <!-- Monaco will be injected here via JS -->
+</div>
+
+<style>
+    .monaco-editor-container {
+        height: 100%;
+        min-height: 600px;
+        width: 100%;
+        border: 1px solid #ddd;
+        position: relative;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string EditorId { get; set; } = "monaco-editor";
+    
+    private string EditorContainerId => $"{EditorId}-container";
+
+    [Parameter]
+    public string EditorLanguage { get; set; } = "xml";
+    
+
+    [Parameter]
+    public string InitialContent { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> OnContentChanged { get; set; }
+
+    [Parameter]
+    public Func<Task> OnSave { get; set; }
+    
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    private DotNetObjectReference<MonacoEditor> _selfReference;
+    private bool _initialized = false;
+
+    protected override void OnInitialized()
+    {
+        _selfReference = DotNetObjectReference.Create(this);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeEditorAsync ();
+            _initialized = true;
+        }
+        else if (_initialized)
+        {
+            // Check if we need to recreate the editor after hot reload
+            var editorExists = await JS.InvokeAsync<bool>("eval", 
+                "typeof window.monacoInterop !== 'undefined' && " +
+                "typeof window.monacoInterop.editors !== 'undefined' && " + 
+                $"window.monacoInterop.editors['{EditorId}'] !== undefined");
+            
+            if (!editorExists)
+            {
+                Console.WriteLine("Editor lost after hot reload, recreating...");
+                await JS.InvokeVoidAsync("monacoInterop.recreateEditor", 
+                    EditorId, 
+                    EditorContainerId, 
+                    EditorLanguage, 
+                    _selfReference);
+            }
+            else
+            {
+                // Just refresh layout
+                await JS.InvokeVoidAsync("monacoInterop.refreshLayout", EditorId);
+            }
+        }
+    }
+
+    private async Task InitializeEditorAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("monacoInterop.createEditor", 
+                EditorId, 
+                EditorContainerId, 
+                EditorLanguage, 
+                InitialContent,
+                ReadOnly,
+                _selfReference);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing editor: {ex.Message}");
+        }
+    }
+
+    public async Task<string> GetValueAsync()
+    {
+        try
+        {
+            return await JS.InvokeAsync<string>("monacoInterop.getValue", EditorId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting editor value: {ex.Message}");
+            return InitialContent;
+        }
+    }
+
+    public async Task SetValueAsync(string value)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("monacoInterop.setValue", EditorId, value);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error setting editor value: {ex.Message}");
+        }
+    }
+    
+    [JSInvokable]
+    public async Task HandleSave()
+    {
+        if (OnSave != null)
+        {
+            await OnSave.Invoke();
+        }
+    }
+    
+    [JSInvokable]
+    public async Task HandleContentChanged(string newContent)
+    {
+        if (OnContentChanged.HasDelegate)
+        {
+            await OnContentChanged.InvokeAsync(newContent);
+        }
+    }
+
+    public async Task RecreateEditorAsync()
+    {
+        await JS.InvokeVoidAsync("monacoInterop.recreateEditor", 
+            EditorId, 
+            EditorContainerId, 
+            EditorLanguage, 
+            _selfReference);
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            _selfReference?.Dispose();
+        }
+        catch
+        {
+            // Ignore errors during disposal
+        }
+    }
+}

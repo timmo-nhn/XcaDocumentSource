@@ -63,7 +63,7 @@ Responsive="true" >
 
           </ClipboardCopyButton>
         </div>                     
-        @CreateUniqueEditorInstance(documentReference)
+        <MonacoEditor EditorId="@documentReference.DocumentId" EditorLanguage="xml" InitialContent="@documentReference.XmlStringRepresentation" ReadOnly="true" />
     </GridDetailView>
 
 
@@ -96,56 +96,6 @@ Responsive="true" >
             JS.InvokeVoidAsync("copyToClipboard", input);
         }
     }
-
-    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
-    {
-        return new StandaloneEditorConstructionOptions
-        {
-            Language = "xml",
-            GlyphMargin = true,
-            AutomaticLayout = true,
-            Value = string.Empty,
-            Theme = "vs",
-            Minimap = new EditorMinimapOptions { Enabled = false },
-            ScrollBeyondLastLine = false,
-            RenderLineHighlight = "all",
-            WordWrap = "on"
-        };
-    }
-
- private Dictionary<string, StandaloneCodeEditor> _editorReferences = new Dictionary<string, StandaloneCodeEditor>();
-
-private async void EditorInit(SimplifiedDocumentReference docRef)
-{   
-    // Get the correct editor reference for this specific document
-    if (_editorReferences.TryGetValue(docRef.DocumentId, out var editor))
-    {
-        await editor.SetValue(docRef.XmlStringRepresentation);
-    }
-}
-
-private RenderFragment CreateUniqueEditorInstance(SimplifiedDocumentReference docRef)
-{        
-    return builder =>
-    {
-        // Use the document ID as a unique key for this editor
-        string editorKey = docRef.DocumentId;
-        
-        builder.OpenComponent<StandaloneCodeEditor>(0);
-        builder.AddAttribute(1, "Id", editorKey);
-        builder.AddAttribute(2, "CssClass", "w-100 border border-2");
-        builder.AddAttribute(3, "ConstructionOptions", EditorConstructionOptions);
-        builder.AddAttribute(4, "OnDidInit", EventCallback.Factory.Create(this, 
-            () => EditorInit(docRef)));
-        builder.AddComponentReferenceCapture(5, compRef => 
-        {
-            // Store the editor reference in our dictionary with the document ID as key
-            _editorReferences[editorKey] = (StandaloneCodeEditor)compRef;
-        });
-        builder.CloseComponent();
-    };
-}
-    
 
     private void OpenDocument(SimplifiedDocumentReference context)
     {
