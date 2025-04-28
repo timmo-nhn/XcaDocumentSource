@@ -1,20 +1,28 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "build-webservice",
-        "command": "dotnet",
-        "type": "process",
-        "args": ["build", "XcaXds.WebService/XcaXds.WebService.csproj"],
-        "problemMatcher": "$msCompile"
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-webservice",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "XcaXds.WebService/XcaXds.WebService.csproj"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-frontend",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["build", "XcaXds.Frontend/XcaXds.Frontend.csproj"],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-frontend",
+      "type": "shell",
+      "command": "dotnet watch run",
+      "options": {
+        "cwd": "${workspaceFolder}/XcaXds.Frontend"
       },
-      {
-        "label": "build-frontend",
-        "command": "dotnet",
-        "type": "process",
-        "args": ["build", "XcaXds.Frontend/XcaXds.Frontend.csproj"],
-        "problemMatcher": "$msCompile"
-      }
-    ]
-  }
-  
+      "problemMatcher": []
+    }
+  ]
+}
