@@ -61,7 +61,7 @@ public abstract class Hl7Object
         return output;
     }
 
-    private static IEnumerable<PropertyAndAttribute> GetHl7Properties(Hl7Object instance)
+    private static PropertyAndAttribute[] GetHl7Properties(Hl7Object instance)
     {
         var output =
             from property in instance.GetType().GetProperties()

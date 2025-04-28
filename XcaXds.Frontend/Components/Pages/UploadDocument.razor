@@ -131,6 +131,43 @@
     }
 </div>
 
+<!-- This is for overriding the default width of the KeyValuePairComponent's AutoComplete component -->
+<style>
+    .dropdown-menu.autocomplete-list {
+        min-width: fit-content;
+    }
+    .autocomplete{
+        min-width:200px;
+        width:75%;
+    }
+</style>
+
+
+<style>
+    .keyvalue-container {
+        container-type: inline-size;
+    }
+
+    .keyvaluepair {
+        display: flex;
+        align-items: baseline;
+        padding: 1px;
+        margin: 1px;
+        flex-wrap: nowrap;
+    }
+
+    @@container (max-width: 600px) {
+        .keyvaluepair {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .autocomplete {
+            width: unset;
+        }
+    }
+</style>
+
+
 @code {
     // User input/output
     private string backendUrl;
@@ -154,12 +191,7 @@
 
     private async Task CreateSoapEnvelopeWithVariables()
     {
-   // FIXXXX!!
-        // // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //
         var currentContent = "";
-        @* await _editor.GetValue(); *@
-           // FIXXXX!!
-        // // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //
         if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
         {
             var confirmation = await confirmDialog.ShowAsync(
@@ -186,9 +218,7 @@
 
 
         requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
-           // FIXXXX!!
-        // // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //// // //
-        @* await _editor.SetValue(requestMessage); *@
+        // await _editor.SetValue(requestMessage);
 
         messages.Add(new ToastMessage
         {

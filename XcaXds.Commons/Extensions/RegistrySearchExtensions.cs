@@ -48,7 +48,7 @@ public static class FindDocuments
         if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
         return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
             ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
-            ei.Value.Contains(patientId)));
+            ei.Value == patientId));
     }
 
     /// | Parameter Name (ITI-18)       | Attribute                   | Opt | Mult |

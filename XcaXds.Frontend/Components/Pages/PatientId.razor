@@ -161,9 +161,7 @@
 
 
     private async Task CreatePatientDemographicsQueryRequest()
-    {      
-        
-        
+    {
         var currentContent = await _monacoEditorRef.GetValueAsync();
         if (!string.IsNullOrEmpty(currentContent) && currentContent != requestMessage)
         {
@@ -264,12 +262,12 @@
                 HL7ResponseMessage.ParseMessage();
 
                 messages.Add(new ToastMessage
-                        {
-                            Type = ToastType.Success,
-                            AutoHide = true,
-                            Title = "Query Successful",
-                            Content = @<div>Document registry query completed successfully.</div>
-                    });
+                {
+                    Type = ToastType.Success,
+                    AutoHide = true,
+                    Title = "Query Successful",
+                    Content = @<div>HL7 registry query completed successfully.</div>
+                });
             }
         }
         catch (Exception ex)
@@ -278,19 +276,19 @@
             modalException = ex;
             messages.Add(
             new ToastMessage
-                    {
-                        Type = ToastType.Danger,
-                        Title = "Communication Error",
-                        AutoHide = true,
-                        Content = @<div>Failed to send request to registry: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>,
-                });
+            {
+                Type = ToastType.Danger,
+                Title = "Communication Error",
+                AutoHide = true,
+                Content = @<div>Failed to send request to registry: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>,
+            });
             return;
         }
         sendRequestButton.HideLoading();
+        StateHasChanged();
     }
 
     protected override void OnInitialized()
     {
     }
-
 }
