@@ -1,0 +1,14 @@
+﻿@using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
+
+<h3>AssignedPerson</h3>
+@if (AssignedPerson.Name.Count != 0)
+{
+    foreach (var name in AssignedPerson.Name)
+    {
+        <NameComponent Name="name" />
+    }
+}
+@code {
+    [Parameter]
+    public Person AssignedPerson { get; set; }
+}

@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Commons.Models.ClinicalDocument;
+﻿namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 
 public class ExternalBase
 {

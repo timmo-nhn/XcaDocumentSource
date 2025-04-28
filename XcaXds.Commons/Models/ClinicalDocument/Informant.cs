@@ -1,7 +1,7 @@
 ﻿using System.Xml.Serialization;
 using XcaXds.Commons.Enums;
 
-namespace XcaXds.Commons.Models.ClinicalDocument;
+namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 
 [Serializable]
 [XmlType("informant", Namespace = Constants.Xds.Namespaces.Hl7V3)]

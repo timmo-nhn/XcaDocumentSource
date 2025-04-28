@@ -1,4 +1,4 @@
-using XcaXds.Commons.Models.ClinicalDocument;
+using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 using XcaXds.Commons.Services;
 
 namespace XcaXds.Tests;

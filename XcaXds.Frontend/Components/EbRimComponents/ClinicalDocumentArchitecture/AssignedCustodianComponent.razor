@@ -1,0 +1,13 @@
+﻿@using XcaXds.Commons.Models.ClinicalDocumentArchitecture
+<h3>AssignedCustodianComponent</h3>
+<p>
+    
+<span>ID: @AssignedCustodian.CustodianOrganization.Id.FirstOrDefault().Extension</span>
+<span> ^^^ @AssignedCustodian.CustodianOrganization.Id.FirstOrDefault().Root</span>
+</p>
+
+<p>Organization: @AssignedCustodian.CustodianOrganization.Name.XmlText</p>
+@code {
+    [Parameter]
+    public AssignedCustodian AssignedCustodian { get; set; }
+}

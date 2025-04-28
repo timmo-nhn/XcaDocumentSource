@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using XcaXds.Commons.Models.ClinicalDocument.Types;
+using XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 
-namespace XcaXds.Commons.Models.ClinicalDocument;
+namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 
 
 [Serializable]

@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace XcaXds.Commons.Models.ClinicalDocument;
+namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 
 [Serializable]
 [XmlType("identifiedBy", Namespace = Constants.Xds.Namespaces.Hl7V3)]

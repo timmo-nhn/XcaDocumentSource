@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace XcaXds.Commons.Models.ClinicalDocument.Types;
+namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]

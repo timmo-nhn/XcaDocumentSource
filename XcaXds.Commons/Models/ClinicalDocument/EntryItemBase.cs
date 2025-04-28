@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.Metrics;
 using System.Xml.Serialization;
 
-namespace XcaXds.Commons.Models.ClinicalDocument;
+namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 
 [Serializable]
 [XmlInclude(typeof(Act))]

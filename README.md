@@ -11,6 +11,9 @@ Covering the SOAP-message format and the XDS profile and transactions involved i
 ### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
 Describes the lightweight implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
 
+### [🖥️ XDS Admin Front-End](/Docs/XdsAdminFrontEnd.md)
+Documentation of the Admin-GUI which also serves as a practical tool for interacting with the document registry and repository
+
 ## Introduction
 This document will describe the Norwegian usage and profilings of the IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.
 Patient Health Records (PHR) facilitates Cross enterprise document sharing between health professionals and between health professionals and citizens in Norway. The main objectives of PHR are:  

@@ -1,7 +1,10 @@
 @using XcaXds.Commons.Models;
 @using XcaXds.Commons.Models.Soap.XdsTypes;
 @using XcaXds.Commons.Models.Soap;
+@using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 @using System.Text;
+@using XcaXds.Commons.Services;
+@using XcaXds.Frontend.Components.EbRimComponents.ClinicalDocumentArchitecture;
 
 <div class="ebrim-card classification-card">
     <div class="ebrim-header classification-header">
@@ -18,17 +21,24 @@
 
 @if (documentResponse.MimeType == "application/octet-stream")
 {
-    <span>@documentTextContent</span>
+    @if (documentTextContent.Contains("<ClinicalDocument"))
+    {
+        <ClinicalDocumentComponent CdaDocument="clinicalDocument" />
+    }
+    else
+    {
+        <span>@documentTextContent</span>
+    }
 }
 else if (documentResponse.MimeType == "application/pdf")
 {
     <iframe 
-        class="mb-3" 
-        src="@($"data:{documentResponse.MimeType};headers=filename%3D{documentResponse.DocumentUniqueId};base64,{base64Content}")" 
-        name="@documentResponse.DocumentUniqueId" 
-        title="@documentResponse.DocumentUniqueId" 
-        width="100%" 
-        height="600px">
+    class="mb-3" 
+    src="@($"data:{documentResponse.MimeType};headers=filename%3D{documentResponse.DocumentUniqueId};base64,{base64Content}")" 
+    name="@documentResponse.DocumentUniqueId" 
+    title="@documentResponse.DocumentUniqueId" 
+    width="100%" 
+    height="600px">
     </iframe>
 } 
 else if (documentResponse.MimeType == "text/plain")
@@ -48,17 +58,25 @@ else
     [Parameter]
     public DocumentResponseType documentResponse { get; set; } = default!;
 
+    private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
+
     private string base64Content;
     private string documentTextContent;
 
-    protected override void OnParametersSet()
+    private ClinicalDocument clinicalDocument;
+
+    protected async override void OnParametersSet()
     {
         Console.WriteLine($"DocumentResponse: {documentResponse}");
-        if (documentResponse?.Document != null)
+        if (documentResponse?.Document == null) return;
+
+        base64Content = Convert.ToBase64String(documentResponse.Document);
+        documentTextContent = Encoding.UTF8.GetString(documentResponse.Document);
+        if (documentTextContent.Contains("<ClinicalDocument"))
         {
-            base64Content = Convert.ToBase64String(documentResponse.Document);
-            documentTextContent = Encoding.UTF8.GetString(documentResponse.Document);
+            clinicalDocument = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(documentTextContent);
         }
+
     }
 
 }

@@ -1,8 +1,8 @@
 ﻿using System.Xml;
 using System.Xml.Serialization;
-using XcaXds.Commons.Models.ClinicalDocument.Types;
+using XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 
-namespace XcaXds.Commons.Models.ClinicalDocument;
+namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 
 [Serializable]
 [XmlRoot("observation", Namespace = Constants.Xds.Namespaces.Hl7V3)]

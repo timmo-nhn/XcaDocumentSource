@@ -1,0 +1,13 @@
+﻿@using XcaXds.Commons.Models.ClinicalDocumentArchitecture
+<h3>AuthorComponent</h3>
+
+@if (Author.AssignedAuthor != null)
+{
+    <p>Authoring time: @Author.Time.EffectiveTime.ToString("yyyyMMhhddhhhmm")</p>
+    <AssignedAuthorComponent AssignedAuthor="Author.AssignedAuthor" />
+}
+
+@code {
+    [Parameter]
+    public Author Author { get; set; }
+}

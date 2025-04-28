@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Commons.Models.ClinicalDocument.Types;
+﻿namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 
 public class QTY : ANY
 {

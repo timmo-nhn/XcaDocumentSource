@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace XcaXds.Commons.Models.ClinicalDocument.Types;
+namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 
 public class RTO_PQ_PQ : QTY
 {
