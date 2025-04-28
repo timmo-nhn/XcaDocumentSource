@@ -11,23 +11,23 @@
 			<CardBody>
 				<ul class="list-group list-group-flush">
 					<li class="list-group-item">
-						<strong>Gender:</strong>
+						
 						@switch (PatientIdentifier.Gender)
 						{
 							case "F":
-											<span class="ms-2 text-danger"><Icon Name="IconName.GenderFemale" Class="me-1" /> Female</span>
+								<span class="ms-2 text-danger"><Icon Name="IconName.GenderFemale" Class="me-1" /><strong>Gender: </strong>Female</span>
 								break;
 
 							case "M":
-											<span class="ms-2 text-primary"><Icon Name="IconName.GenderMale" Class="me-1" /> Male</span>
+								<span class="ms-2 text-primary"><Icon Name="IconName.GenderMale" Class="me-1" /><strong>Gender: </strong>Male</span>
 								break;
 
 							case "A":
-											<span class="ms-2 text-warning"><Icon Name="IconName.GenderAmbiguous" Class="me-1" /> Ambiguous</span>
+								<span class="ms-2 text-warning"><Icon Name="IconName.GenderAmbiguous" Class="me-1" /><strong>Gender: </strong>Ambiguous</span>
 								break;
 
 							default:
-											<span class="ms-2 text-muted"><Icon Name="IconName.GenderNeuter" Class="me-1" /> Unknown</span>
+								<span class="ms-2 text-muted"><Icon Name="IconName.GenderNeuter" Class="me-1" /><strong>Gender: </strong>Unknown</span>
 								break;
 						}
 					</li>
