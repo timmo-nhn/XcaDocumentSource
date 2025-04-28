@@ -19,6 +19,10 @@
 @if (documentResponse.MimeType == "application/octet-stream")
 {
     <span>@documentTextContent</span>
+    <MonacoEditor EditorId="@documentResponse.DocumentUniqueId" 
+                  InitialContent="@documentTextContent" 
+                  ReadOnly="true" 
+                />
 }
 else if (documentResponse.MimeType == "application/pdf")
 {
@@ -53,10 +57,12 @@ else
 
     protected override void OnParametersSet()
     {
-        Console.WriteLine($"DocumentResponse: {documentResponse}");
+        Console.WriteLine($"DocumentResponse: {documentResponse.MimeType}");
+
         if (documentResponse?.Document != null)
         {
             base64Content = Convert.ToBase64String(documentResponse.Document);
+
             documentTextContent = Encoding.UTF8.GetString(documentResponse.Document);
         }
     }
