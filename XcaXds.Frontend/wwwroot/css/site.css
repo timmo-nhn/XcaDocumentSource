@@ -1,128 +1,116 @@
 ﻿/* XcaXds.Frontend/wwwroot/css/site.css */
 
 .ebrim-card {
-    border-radius: 10px;
-    padding: 15px;
-    padding-left:30px;
-    margin-bottom: 10px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-    position: relative;
-    overflow:hidden;
+  border-radius: 10px;
+  padding: 15px;
+  padding-left: 30px;
+  margin-bottom: 10px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
 .ebrim-body {
-    padding: 0px;
+  padding: 0px;
 }
 
 .ebrim-header {
-    font-weight: bold;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    writing-mode: vertical-rl;
-    text-orientation: sideways;
-    color: white;
-    padding: 5px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 25px;
-    min-height:150px;
-    transform: rotate(-180deg);
+  font-weight: bold;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
+  color: white;
+  padding: 5px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 25px;
+  min-height: 150px;
+  transform: rotate(-180deg);
 }
 
 .border-around {
-    border: 2px solid #ccc;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    display: inline-block;
-    width: 100%;
+  border: 2px solid #ccc;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  display: inline-block;
+  width: 100%;
 }
 
-
-
 .soapfault-card {
-    background: #ECEFF1;
+  background: #eceff1;
 }
 
 .soapfault-header {
-    background: #D01E1E;
+  background: #d01e1e;
 }
 
-
 .association-card {
-    background: #FFEBEE;
+  background: #ffebee;
 }
 
 .association-header {
-    background: #D32F2F;
+  background: #d32f2f;
 }
 
 .classification-card {
-    background: #E3F2FD;
+  background: #e3f2fd;
 }
 
 .classification-header {
-    background: #1976D2;
+  background: #1976d2;
 }
 
 .external-identifier-card {
-    background: #E8F5E9;
+  background: #e8f5e9;
 }
 
 .external-identifier-header {
-    background: #388E3C;
+  background: #388e3c;
 }
 
 .extrinsic-object-card {
-    background: #FFF3E0;
+  background: #fff3e0;
 }
 
 .extrinsic-object-header {
-    background: #F57C00;
+  background: #f57c00;
 }
 
 .identifiable-type-card {
-    background: #F3E5F5;
+  background: #f3e5f5;
 }
 
 .identifiable-type-header {
-    background: #7B1FA2;
+  background: #7b1fa2;
 }
 
 .international-string-type-card {
-    background: #FBE9E7;
+  background: #fbe9e7;
 }
 
 .international-string-type-header {
-    background: #E64A19;
+  background: #e64a19;
 }
 
 .registry-package-card {
-    background: #ECEFF1;
+  background: #eceff1;
 }
 
 .registry-package-header {
-    background: #455A64;
+  background: #455a64;
 }
 
 .slot-card {
-    background: #E1F5FE;
+  background: #e1f5fe;
 }
 
 .slot-header {
-    background: #0288D1;
-}
-
-
-
-/* Blazor monaco editor */
-
-.hl7-editor
-{
-    height:450px;
+  background: #0288d1;
 }
