@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
@@ -34,11 +35,11 @@ public partial class IdentifiableType
 
 
     [XmlAttribute(AttributeName = "id", DataType = "anyURI")]
-    public string Id;
+    public string? Id;
 
 
     [XmlAttribute(AttributeName = "home", DataType = "anyURI")]
-    public string Home;
+    public string? Home;
 
     public void AddSlot(SlotType slotType)
     {
@@ -65,6 +66,7 @@ public partial class IdentifiableType
 
     public SlotType[] GetSlot(string slotName)
     {
+        if (Slot == null) return [new SlotType()];
         return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
     }
 }
