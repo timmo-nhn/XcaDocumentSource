@@ -10,10 +10,4 @@ public class ObjectRefList
     public IdentifiableType[]? ObjectRef;
 }
 
-[XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
-public class RemoveObjectRefType
-{
-    [XmlAttribute("id")]
-    public string? Id { get; set; }
-}
 

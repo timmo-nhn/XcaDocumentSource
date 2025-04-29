@@ -85,7 +85,7 @@ public static class SoapExtensions
                 Body = message.Body
             }
         };
-        resultEnvelope.Value.Header.Action = message.GetCorrespondingResponseAction();
+        resultEnvelope.Value.Header.Action = message.Header.Action;
         resultEnvelope.Value.Header.RelatesTo = message.Header.MessageId;
 
 

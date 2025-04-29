@@ -187,25 +187,25 @@
                             </rim:Slot>
                             <rim:Slot name="authorInstitution">
                                 <rim:ValueList>
-                                    <rim:Value>Cleveland Clinic</rim:Value>
-                                    <rim:Value>Berea Community</rim:Value>
+                                    <rim:Value>Cleveland Clinic Replace document</rim:Value>
+                                    <rim:Value>Berea Community Replace document</rim:Value>
                                 </rim:ValueList>
                             </rim:Slot>
                             <rim:Slot name="authorRole">
                                 <rim:ValueList>
-                                    <rim:Value>Primary Surgon</rim:Value>
+                                    <rim:Value>Primary Surgon Replace document</rim:Value>
                                 </rim:ValueList>
                             </rim:Slot>
                             <rim:Slot name="authorSpecialty">
                                 <rim:ValueList>
-                                    <rim:Value>Orthopedic</rim:Value>
+                                    <rim:Value>Orthopedic Replace document</rim:Value>
                                 </rim:ValueList>
                             </rim:Slot>
                         </rim:Classification>
                         <rim:Classification classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="RegistryPackage_SubmissionSet01" nodeRepresentation="History and Physical" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" >
                             <rim:Slot name="codingScheme">
                                 <rim:ValueList>
-                                    <rim:Value>Connect-a-thon contentTypeCodes</rim:Value>
+                                    <rim:Value>Connect-a-thon contentTypeCodes Replace document</rim:Value>
                                 </rim:ValueList>
                             </rim:Slot>
                             <rim:Name>
@@ -235,7 +235,7 @@
                             </rim:ValueList>
                         </rim:Slot>
                     </rim:Association>
-                    <rim:Association associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:RPLC" sourceObject="ExtrinsicObject_Document001" targetObject="Document01" id="AssociationReplace001" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
+                    <rim:Association associationType="urn:ihe:iti:2007:AssociationType:RPLC" sourceObject="ExtrinsicObject_Document001" targetObject="Document01" id="AssociationReplace001" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
                         <rim:Slot name="SubmissionSetStatus">
                             <rim:ValueList>
                                 <rim:Value>Original</rim:Value>
@@ -245,7 +245,7 @@
                 </rim:RegistryObjectList>
             </lcm:SubmitObjectsRequest>
             <Document id="ExtrinsicObject_Document001"
-                xmlns="urn:ihe:iti:xds-b:2007">ERvY3VtZW50Pg==
+                xmlns="urn:ihe:iti:xds-b:2007">PHJpbTpBc3NvY2lhdGlvbiBhc3NvY2lhdGlvblR5cGU9InVybjpvYXNpczpuYW1lczp0YzplYnhtbC1yZWdyZXA6QXNzb2NpYXRpb25UeXBlOlJQTEMiIHNvdXJjZU9iamVjdD0iRXh0cmluc2ljT2JqZWN0X0RvY3VtZW50MDAxIiB0YXJnZXRPYmplY3Q9IkRvY3VtZW50MDEiIGlkPSJBc3NvY2lhdGlvbjAwMSIgb2JqZWN0VHlwZT0idXJuOm9hc2lzOm5hbWVzOnRjOmVieG1sLXJlZ3JlcDpPYmplY3RUeXBlOlJlZ2lzdHJ5T2JqZWN0OkFzc29jaWF0aW9uIj4NCiAgICA8cmltOlNsb3QgbmFtZT0iU3VibWlzc2lvblNldFN0YXR1cyI+DQogICAgICAgIDxyaW06VmFsdWVMaXN0Pg0KICAgICAgICAgICAgPHJpbTpWYWx1ZT5PcmlnaW5hbDwvcmltOlZhbHVlPg0KICAgICAgICA8L3JpbTpWYWx1ZUxpc3Q+DQogICAgPC9yaW06U2xvdD4NCjwvcmltOkFzc29jaWF0aW9uPg0K
             </Document>
         </xdsb:ProvideAndRegisterDocumentSetRequest>
     </soapenv:Body>

@@ -19,11 +19,11 @@ public partial class RegistryService
     private readonly object _lock = new();
 
 
-    public RegistryService(XdsConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper)
+    public RegistryService(XdsConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<RegistryService> logger)
     {
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
-
+        _logger = logger;
         // Explicitly load the registry upon service creation
         _documentRegistry = _registryWrapper.GetDocumentRegistryContent() ?? new DocumentRegistry();
     }
@@ -39,6 +39,7 @@ public partial class RegistryService
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
         if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
         {
+            _logger.LogError($"Empty or invalid Registry objects in RegistryObjectList");
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Empty or invalid Registry objects in RegistryObjectList", "XDS Registry");
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
 
@@ -46,10 +47,25 @@ public partial class RegistryService
 
         if (DuplicateUuidsExist(registryContent.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
         {
+            _logger.LogError($"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}");
             registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}", "XDS Registry");
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
+        // Support for RPLC option, replacing and deprecating document entries
+        var documentReplaceAssociations = submissionRegistryObjects.OfType<AssociationType>()
+            .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace);
+
+        foreach (var replaceAssociation in documentReplaceAssociations)
+        {
+            var documentId = replaceAssociation.TargetObject;
+            registryContent.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
+
+            if (success) 
+            {
+                _logger.LogInformation($"Deprecating document with id {documentId}"); 
+            }
+        }
 
 
         // list spread to combine both lists
@@ -64,6 +80,7 @@ public partial class RegistryService
             registryResponse.EvaluateStatusCode();
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
+
         registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Error while updating registry");
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
@@ -150,11 +167,13 @@ public partial class RegistryService
 
                 if (findSubmissionSetsParameters.XdsSubmissionSetPatientId == null)
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XDSDocumentEntryPatientId {findSubmissionSetsParameters.XdsSubmissionSetPatientId}".Trim(), "XDS Registry");
+                    _logger.LogError($"Missing or malformed required parameter $XDSDocumentEntryPatientId");
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XdsSubmissionSetPatientId {findSubmissionSetsParameters.XdsSubmissionSetPatientId}".Trim(), "XDS Registry");
                 }
                 if (findSubmissionSetsParameters.XdsSubmissionSetStatus == null || findSubmissionSetsParameters.XdsSubmissionSetStatus.Count == 0)
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumessntEntryStatus {string.Join(" ", findSubmissionSetsParameters.XdsSubmissionSetStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
+                    _logger.LogError($"Missing required parameter $XDSDocumessntEntryStatus");
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XdsSubmissionSetStatus {string.Join(" ", findSubmissionSetsParameters.XdsSubmissionSetStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
 
                 filteredElements = [.. registryFindSubmissionSetsResult];
@@ -172,11 +191,13 @@ public partial class RegistryService
 
                 if (findFoldersParameters.XdsFolderPatientId == null)
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XDSDocumentEntryPatientId {findFoldersParameters.XdsFolderPatientId}".Trim(), "XDS Registry");
+                    _logger.LogError($"Missing required parameter $XDSDocumessntEntryStatus");
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XdsFolderPatientId {findFoldersParameters.XdsFolderPatientId}".Trim(), "XDS Registry");
                 }
                 if (findFoldersParameters.XdsFolderStatus == null || findFoldersParameters.XdsFolderStatus.Count == 0)
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumessntEntryStatus {string.Join(" ", findFoldersParameters.XdsFolderStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
+                    _logger.LogError($"Missing required parameter $XDSDocumessntEntryStatus");
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XdsFolderStatus {string.Join(" ", findFoldersParameters.XdsFolderStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
 
                 filteredElements = [.. registryFindFoldersResult];
@@ -196,7 +217,8 @@ public partial class RegistryService
 
                 if (getAssociationsParameters.Uuid == null || getAssociationsParameters.Uuid.Count == 0)
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"uuid not set".Trim(), "XDS Registry");
+                    _logger.LogError($"Missing required parameter $uuid was not set");
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $uuid not set".Trim(), "XDS Registry");
                 }
 
                 filteredElements = [.. registryGetAssociationsResult];
@@ -219,6 +241,7 @@ public partial class RegistryService
                 // Return an XDSStoredQueryParamNumber error if both parameters are specified
                 if (getFoldersParameters.XdsFolderUniqueId?.Count != 0 && getFoldersParameters.XdsFolderEntryUuid?.Count != 0)
                 {
+                    _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
                 }
 
@@ -246,6 +269,7 @@ public partial class RegistryService
                 // Return an XDSStoredQueryParamNumber error if both parameters are specified
                 if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
                 {
+                    _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
                 }
 
@@ -273,6 +297,7 @@ public partial class RegistryService
         }
         else
         {
+            _logger.LogError($"ResponseOption was not specified, must be either LeafClass or ObjectRef");
             registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"ResponseOption was not specified".Trim(), "XDS Registry");
         }
 
@@ -295,6 +320,7 @@ public partial class RegistryService
                 }
             }
         };
+        _logger.LogInformation($"Registry Stored Query Complete, returned {filteredElements.Count} XDSEntries");
         return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
     }
 

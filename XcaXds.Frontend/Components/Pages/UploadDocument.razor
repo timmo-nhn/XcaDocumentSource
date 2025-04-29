@@ -263,7 +263,7 @@
                 Type = ToastType.Danger,
                 Title = "Request Error",
                 AutoHide = true,
-                Content = @<div>Failed to parse SOAP request: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>
+                Content = @<div>Failed to parse SOAP request: @ex.Message <br/> @ex.InnerException.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>
             });
             return;
         }

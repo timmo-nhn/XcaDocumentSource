@@ -20,6 +20,10 @@
         {
             <SoapFaultResponseComponent SoapFault=SoapBody.Fault />
         }
+        @if (SoapBody.RegistryResponse != null)
+        {
+            <RegistryResponseComponent RegistryResponse=SoapBody.RegistryResponse />
+        }
     </ul>
 </div>
 
