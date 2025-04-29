@@ -111,16 +111,16 @@ public partial class SoapBody
 public class SoapHeader
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
-    public string Action { get; set; }
+    public string? Action { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
     public string? RelatesTo { get; set; }
 
     [XmlElement("MessageID", Namespace = Constants.Soap.Namespaces.Addressing)]
-    public string MessageId { get; set; }
+    public string? MessageId { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
-    public string To { get; set; }
+    public string? To { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
     public SoapReplyTo? ReplyTo { get; set; }
@@ -154,7 +154,7 @@ public class SoapReplyTo
 public class Security
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.SecurityUtility)]
-    public SoapTimestamp Timestamp { get; set; }
+    public SoapTimestamp? Timestamp { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.Saml2)]
     public Assertion? Assertion { get; set; }

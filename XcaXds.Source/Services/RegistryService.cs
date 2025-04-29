@@ -346,6 +346,8 @@ public partial class RegistryService
 
         foreach (var association in associations)
         {
+            if (association.AssociationTypeData is not Constants.Xds.AssociationType.HasMember) continue;
+
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
 

@@ -209,7 +209,7 @@
         {
             Header = new()
             {
-                Action = Constants.Xds.OperationContract.Iti18Action,
+                Action = Constants.Xds.OperationContract.Iti41Action,
                 MessageId = Guid.NewGuid().ToString(),
                 To = backendUrl ?? inputBackendUrl.Placeholder
             },
@@ -231,7 +231,109 @@
 
     private async Task SendProvideAndRegisterDocumentSetRequest()
     {
+        sendRequestButton.ShowLoading("Retrieving document...");
 
+
+        string requestMessage = await _monacoEditorRef.GetValueAsync();
+
+        if (string.IsNullOrEmpty(requestMessage))
+        {
+            sendRequestButton.HideLoading();
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Warning,
+                AutoHide = true,
+                Title = "Empty Request",
+                Content = @<div>Please generate a SOAP request before sending.</div>
+            });
+            return;
+        }
+
+        try
+        {
+            // Validate SOAP request
+            var soapRequest = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(requestMessage);
+        }
+        catch (Exception ex)
+        {
+            sendRequestButton.HideLoading();
+            modalException = ex;
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Danger,
+                Title = "Request Error",
+                AutoHide = true,
+                Content = @<div>Failed to parse SOAP request: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>
+            });
+            return;
+        }
+
+        if (string.IsNullOrEmpty(backendUrl))
+        {
+            backendUrl = inputBackendUrl.Placeholder;
+        }
+
+        try
+        {
+            // Send the SOAP request
+            var content = new StringContent(requestMessage, System.Text.Encoding.UTF8, "application/soap+xml");
+            var response = await httpClient.PostAsync(backendUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseStream = await response.Content.ReadAsStreamAsync();
+                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+
+                if (ResponseEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length > 0)
+                {
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Success,
+                        AutoHide = true,
+                        Title = "Document Retrieved",
+                        Content = @<div>Successfully retrieved @ResponseEnvelope.Body.RetrieveDocumentSetResponse.DocumentResponse.Length document(s).</div>
+                    });
+                }
+                else
+                {
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Warning,
+                        AutoHide = true,
+                        Title = "No Documents",
+                        Content = @<div>Request successful, but no documents were returned.</div>
+                    });
+                }
+            }
+            else
+            {
+                var responseStream = await response.Content.ReadAsStreamAsync();
+                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+
+                messages.Add(new ToastMessage
+                {
+                    Type = ToastType.Warning,
+                    AutoHide = true,
+                    Title = "Retrieval Failed",
+                    Content = @<div>Status: @response.StatusCode</div>
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            sendRequestButton.HideLoading();
+            modalException = ex;
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Danger,
+                Title = "Communication Error",
+                AutoHide = true,
+                Content = @<div>Failed to send request to repository: @ex.Message <button class="btn btn-sm btn-outline-danger mt-2" @onclick=@stackTraceModal.ShowAsync>View Details</button></div>
+            });
+            return;
+        }
+
+        sendRequestButton.HideLoading();
     }
 
 

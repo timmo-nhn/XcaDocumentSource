@@ -81,7 +81,7 @@ public static class SoapExtensions
         {
             Value = new SoapEnvelope()
             {
-                Header = new(),
+                Header = message.Header,
                 Body = message.Body
             }
         };
