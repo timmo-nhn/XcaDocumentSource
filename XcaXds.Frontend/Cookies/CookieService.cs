@@ -34,6 +34,16 @@ public class Cookie : ICookie
         await _jsRuntime.InvokeVoidAsync("cookieFunctions.setCookie", cookieString);
     }
 
+    public async Task AddValue(string key, string value, int? days = null)
+    {
+        var encodedValue = Uri.EscapeDataString(value);
+        var curExp = (days != null && days > 0) ? DateToUTC(days.Value) : _expires;
+
+        var cookieString = $"{key}={encodedValue}; expires={curExp}; path=/";
+
+        await _jsRuntime.InvokeVoidAsync("cookieFunctions.addCookie", cookieString);
+    }
+
     public async Task<string> GetValue(string key, string def = "")
     {
         var allCookies = await _jsRuntime.InvokeAsync<string>("cookieFunctions.getCookies");

@@ -6,6 +6,8 @@
 
 @using System.Diagnostics.CodeAnalysis
 @using System.Text.Json
+@using System.Globalization
+@using Efferent.HL7.V2
 @using XcaXds.Commons.Models.Custom
 @using XcaXds.Frontend.Components.UserInterface
 @using XcaXds.Frontend.Components.EbRimComponents
@@ -86,7 +88,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">source Patient Id</label>
-                                        <TextInput @bind-Value="provideAndRegister.SourcePatientId"/>
+                                        <ComboBox @bind-Value="selectedSourcePatientId" DropdownValues="SourcePatientIds" />
                                     </div>
                                     <hr />
                                     <Button @onclick="CreateSoapEnvelopeWithVariables"
@@ -134,36 +136,36 @@
 <!-- This is for overriding the default width of the KeyValuePairComponent's AutoComplete component -->
 <style>
     .dropdown-menu.autocomplete-list {
-        min-width: fit-content;
+    min-width: fit-content;
     }
     .autocomplete{
-        min-width:200px;
-        width:75%;
+    min-width:200px;
+    width:75%;
     }
 </style>
 
 
 <style>
     .keyvalue-container {
-        container-type: inline-size;
+    container-type: inline-size;
     }
 
     .keyvaluepair {
-        display: flex;
-        align-items: baseline;
-        padding: 1px;
-        margin: 1px;
-        flex-wrap: nowrap;
+    display: flex;
+    align-items: baseline;
+    padding: 1px;
+    margin: 1px;
+    flex-wrap: nowrap;
     }
 
     @@container (max-width: 600px) {
-        .keyvaluepair {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        .autocomplete {
-            width: unset;
-        }
+    .keyvaluepair {
+    flex-direction: column;
+    align-items: stretch;
+    }
+    .autocomplete {
+    width: unset;
+    }
     }
 </style>
 
@@ -180,6 +182,10 @@
 
     // Inputs
     private SimplifiedProvideAndRegister provideAndRegister;
+
+    private List<string> SourcePatientIds = new();
+
+    private string selectedSourcePatientId;
 
     // BootstrapBlazor UI components
     private Button sendRequestButton = default!;
@@ -301,7 +307,7 @@
                         Type = ToastType.Warning,
                         AutoHide = true,
                         Title = "No Documents",
-                        Content = @<div>Request successful, but no documents were returned.</div>
+                        Content = @<div>Request successful, but no document references were returned.</div>
                     });
                 }
             }
@@ -337,10 +343,50 @@
     }
 
 
-    protected override void OnInitialized()
+    protected async override void OnInitialized()
     {
         provideAndRegister ??= new();
         provideAndRegister.CreationTime = DateTime.Now;
-    }
+        provideAndRegister.ServiceStartTime = DateTime.Now.AddDays(-1);
+        provideAndRegister.ServiceStopTime = DateTime.Now;
 
+        // Send HL7 request to patient ID endpoint
+        var hl7Message = $@"MSH|^~\&|Frontend|FrontendFacility|Backend|BackendFacility|" + DateTime.Now.ToString("yyyyMMddHHmmss.FFFF", CultureInfo.InvariantCulture) + "||QBP^Q22^QBP_Q21|1337|T|2.5\nQPD|IHE PDQ Query|Q1234|@PID.3.1^*";
+        var content = new StringContent(hl7Message, System.Text.Encoding.UTF8, "application/hl7-v2");
+        var response = await httpClient.PostAsync("https://localhost:7176/hl7/search-patients", content);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var hl7PatientIds = new Message()
+            {
+                HL7Message = await response.Content.ReadAsStringAsync()
+            };
+
+            hl7PatientIds.ParseMessage();
+
+            var qpdSegments = hl7PatientIds.Segments("PID");
+            foreach (var segment in qpdSegments)
+            {
+                var pidFormatString = segment.Fields(2)?.Value;
+                if (pidFormatString != null && !SourcePatientIds.Contains(pidFormatString))
+                {
+                    SourcePatientIds.Add(segment.Fields(2).Value);
+                }
+            }
+            messages.Add(new ToastMessage
+            {
+                Type = ToastType.Info,
+                AutoHide = true,
+                Title = "Fetched Patient IDs",
+                Content = @<div>Successfully fetched patient Identifiers for autocomplete in forms.</div>
+            });
+        }
+        messages.Add(new ToastMessage
+        {
+            Type = ToastType.Warning,
+            AutoHide = true,
+            Title = "No Documents",
+            Content = @<div>@response.StatusCode</div>
+        });
+    }
 }

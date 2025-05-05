@@ -52,7 +52,7 @@ public partial class RegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        // Support for RPLC option, replacing and deprecating document entries
+        // RPLC option, replacing and deprecating document entries
         var documentReplaceAssociations = submissionRegistryObjects.OfType<AssociationType>()
             .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace);
 

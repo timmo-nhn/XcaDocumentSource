@@ -45,7 +45,7 @@ public class RepositoryController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
-        switch (soapEnvelope.Header.Action)
+       switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
                 var documentFetchResponse = await _repositoryService.GetContentFromRepository(soapEnvelope);

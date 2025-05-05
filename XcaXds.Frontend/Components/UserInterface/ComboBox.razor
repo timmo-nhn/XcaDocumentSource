@@ -1,0 +1,51 @@
+﻿<div class="position-relative">
+
+    <input type="text"
+    class="form-control"
+    @bind="Value"
+    @oninput="FilterOptions"
+    @onfocus="() => ShowDropdown = true"
+    @onblur="()=> Task.Delay(200).ContinueWith(_ => ShowDropdown = false)">
+
+    @if (ShowDropdown && FilteredDropdownValues.Any())
+    {
+        <ul class="dropdown-menu show w-100" style="max-height: 200px; overflow-y: auto;">
+            @foreach (var option in FilteredDropdownValues)
+            {
+                <li>
+                    <a class="dropdown-item" @onclick="() => SelectOption(option)">@option</a>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public string Value { get; set; }
+    
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public List<string> DropdownValues { get; set; } = new();
+
+    private List<string> FilteredDropdownValues = new();
+    private bool ShowDropdown = false;
+
+    private void FilterOptions(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString() ?? "";
+        FilteredDropdownValues = DropdownValues
+            .Where(opt => opt.Contains(input, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private async Task SelectOption(string option)
+    {
+        Value = option;
+        ShowDropdown = false;
+        await ValueChanged.InvokeAsync(Value);
+    }
+}

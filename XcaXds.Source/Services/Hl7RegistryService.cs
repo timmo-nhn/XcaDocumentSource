@@ -1,9 +1,6 @@
 ﻿using System.Globalization;
-using System.Reflection.Metadata;
-using System.Text;
 using Efferent.HL7.V2;
 using XcaXds.Commons;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -19,7 +16,6 @@ public partial class RegistryService
         var patientIds = qpdSegment.GetAllFields().Where(f => f.Value.Contains("PID"));
 
         // QPD|IHE PDQ Query|Q1234|@PID.3.1^131169~@PID.5^Danser^Line
-
 
         var patientFields = patientIds.FirstOrDefault().Value.Split("~");
 
@@ -62,18 +58,18 @@ public partial class RegistryService
         var matchingPatientIds = extrinsicObjectPatientIds
             .Where(eop =>
             {
-                bool nameMatch = 
+                bool nameMatch =
                     eop.PatientName != null && patient.PatientName != null &&
                     !string.IsNullOrEmpty(patient.PatientName?.GivenName) &&
                     eop.PatientName.GivenName?.Contains(patient.PatientName?.GivenName) == true ||
                     !string.IsNullOrEmpty(patient.PatientName?.FamilyName) &&
                     eop.PatientName?.FamilyName?.Contains(patient.PatientName?.FamilyName) == true;
 
-                bool birthDateMatch = 
+                bool birthDateMatch =
                     eop.BirthDate != DateTime.MinValue && patient.BirthDate != DateTime.MinValue &&
                     eop.BirthDate == patient.BirthDate;
 
-                bool genderMatch = 
+                bool genderMatch =
                     !string.IsNullOrEmpty(eop.Gender) &&
                     eop.Gender == patient.Gender;
 
@@ -81,6 +77,12 @@ public partial class RegistryService
                     patient.PatientIdentifier != null &&
                     !string.IsNullOrEmpty(patient.PatientIdentifier.IdNumber) &&
                     eop.PatientIdentifier.IdNumber?.Contains(patient.PatientIdentifier.IdNumber) == true;
+                
+                // Secret wildcard to get all patient identifiers!
+                if (patient.PatientIdentifier?.IdNumber == "*")
+                {
+                    identifierMatch = true;
+                }
 
                 return nameMatch || birthDateMatch || genderMatch || identifierMatch;
             })
