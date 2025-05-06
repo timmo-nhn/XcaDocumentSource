@@ -1,7 +1,7 @@
 # Technical Implementation Details
 
 ## Appsettings.json-file
-The **XcaXds.WebService**-solution has an **appsettings.json**-file (found in `<solution>/XcaXds.WebService/appsettings.json`) which defines parameters which are used by the XcaDocumentSource solution as a whole. The **OIDs** for the **HomecommunityId** and **RepositoryId** is defined and can be changed there if nescesarry.
+The **XcaXds.WebService** solution has an **appsettings.json**-file (found in `<solution>/XcaXds.WebService/appsettings.json`) which defines parameters used by the XcaDocumentSource solution as a whole. The **OIDs** for the **HomecommunityId** and **RepositoryId** is defined and can be changed there if nescesarry.
 
 ## Document Registry/Repository Solution
 The Document Registry/Repository-solution is created to be easily interchangeable with existing Document Source solutions. It is based on a simple file-based Registry and Repository, where the Document Registry is a XML-file with a 1:1 representation of the metadata returned in **ITI-messages**.
@@ -41,6 +41,9 @@ reps --> repw
 
 regw-->regfile
 repw-->repfol
-
-
 ```
+
+#### Default API Routes
+| Endpoint | Method
+|---|---|
+| `<baseurl>/hl7/search-patients` | POST
