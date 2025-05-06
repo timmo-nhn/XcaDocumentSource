@@ -547,28 +547,6 @@ public static class GetFolderAndContents
     }
 }
 
-public static class Associations
-{
-    public static void DeprecateDocumentEntry(
-        this IEnumerable<IdentifiableType> source, string id, out bool success)
-    {
-        success = false;
-        if (id == null) return;
-        var documentEntryToDeprecate = source.OfType<ExtrinsicObjectType>().Where(eo => eo.Id == id);
-
-        if (!documentEntryToDeprecate.Any()) return;
-
-        foreach (var entry in documentEntryToDeprecate)
-        {
-            if (entry.Status != Constants.Xds.StatusValues.Deprecated)
-            {
-                entry.Status = Constants.Xds.StatusValues.Deprecated;
-                success = true;
-            }
-        }
-    }
-}
-
 public static class Commons
 {
     /// <summary>

@@ -37,7 +37,7 @@ There is excpected to be a **1:1 relationship** between the **SOAP action** (`<A
 
 ## Types in IHE XDS  
 There are different types used to contain and structure various pieces when storing and making documents available. It's imperative that the reader familiarizes themself with each type and where they usually reside in a **SOAP-message**.  
-The types can be abstracted to this diagram, showing how Document Sharing Objects contain metadata types, which in turn contains Coded values of Data on specific formats.
+The types can be abstracted to this diagram, showing how Document Sharing Objects contain metadata types, which in turn contains coded values in specific formats.
 
 ```c#
 [Document Sharing Objects]
@@ -191,15 +191,16 @@ This data type is used to specify the name and identifier for an organization.
 Below is an explanation of each field in the **HL7 XCN** data type
 | Field | Type | Value |
 |---|---|---|
-| XCN.1 - Id Number | ST | `123456789` |
-| XCN.2 - Family Name| FN | `NORDMANN` |
-| XCN.3 - Given Name| ST | `OLA` |
-| XCN.4 - Second And Further Given Names Or Initials Thereof | ST | |
-| XCN.5 - Suffix | ST | |
-| XCN.6 - Prefix | ST | |
-| XCN.7 - Degree | IS | |
-| XCN.8 - Source Table | IS | |
-| XCN.9 - Assigning Authority | HD | `&amp;2.16.578.1.12.4.1.4.4&amp;ISO` |
+| XON.1 - Organization Name | ST | `Laboratoriemedisinsk avdeling - FIN` |
+| XON.2 - Organization Name Type Code | FN | |
+| XON.3 - Id Number| ST | |
+| XON.4 - Identifier Check Digit | NM | |
+| XON.5 - Check Digit Scheme | NM | |
+| XON.6 - Assigning Authority | HD | `&amp;2.16.578.1.12.4.1.4.102&amp;ISO` |
+| XON.7 - Identifier Type Code | ID | |
+| XON.8 - Assigning Facility | HD | |
+| XON.9 - Name Representation Code | HD | |
+| XON.10 - Organization Identifier | ST | `4211607` |
 
 *Table x: Explanation of **HL7 XCN** data type*
 
@@ -245,7 +246,7 @@ More on ebXML RegRep [OASIS ebXML RegRep Version 3.0 - docs.oasis-open.org ↗](
 *Example of ExtrinsicObject with `**Stable** objectType and a single **creationTime** Slot*
 
 ```c#
-[ExtrinsicObject (home[1..1]) ]
+[ExtrinsicObject]
     [ClassificationType]        [0..*]
         [SlotType]              [0..*]
     [ExternalIdentifierType]    [0..*]
