@@ -5,6 +5,7 @@ using XcaXds.Commons.Xca;
 using XcaXds.Source;
 using XcaXds.Source.Services;
 using XcaXds.WebService.InputFormatters;
+using XcaXds.WebService.Middleware;
 
 namespace XcaXds.WebService
 {
@@ -65,6 +66,7 @@ namespace XcaXds.WebService
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
             // Begin app
             var app = builder.Build();
             app.UseExceptionHandler("/error");
@@ -74,6 +76,8 @@ namespace XcaXds.WebService
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UsePolicyEnforcementPointMiddleware();
 
             app.UseHttpsRedirection();
 

@@ -175,6 +175,7 @@ public partial class SoapTimestamp
 [XmlType(AnonymousType = true, Namespace = Constants.Soap.Namespaces.SecurityExt)]
 public partial class Assertion
 {
+
 }
 
 

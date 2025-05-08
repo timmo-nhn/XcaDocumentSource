@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.9.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
   </ItemGroup>
 
