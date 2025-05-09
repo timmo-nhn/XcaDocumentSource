@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
 using XcaXds.Commons;
@@ -6,11 +7,13 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
+using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("XCA/services")]
+[UsePolicyEnforcementPoint]
 public class RespondingGatewayController : ControllerBase
 {
     private readonly ILogger<RegistryController> _logger;
@@ -18,14 +21,16 @@ public class RespondingGatewayController : ControllerBase
     private readonly XcaGateway _xcaGateway;
     private readonly XdsConfig _xdsConfig;
     private readonly RepositoryService _repositoryService;
+    private readonly IVariantFeatureManager _featureManager;
 
-    public RespondingGatewayController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsConfig xdsConfig, RepositoryService repositoryService)
+    public RespondingGatewayController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsConfig xdsConfig, RepositoryService repositoryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
         _xcaGateway = xcaGateway;
         _xdsConfig = xdsConfig;
         _repositoryService = repositoryService;
+        _featureManager = featureManager;
     }
 
     [Consumes("application/soap+xml")]
@@ -34,7 +39,7 @@ public class RespondingGatewayController : ControllerBase
     public async Task<IActionResult> CrossGatewayQuery([FromBody] SoapEnvelope soapEnvelope)
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-        var action = soapEnvelope.Header.Action.Trim();
+        var action = soapEnvelope.Header.Action?.Trim();
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();

@@ -449,7 +449,39 @@ public static class Constants
         public const string Zip = "application/zip";
     }
 
+    public static class Xacml
+    {
+        public static class Attribute
+        {
+            public const string ActionId = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+            public const string SubjectId = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+            public const string ResourceId = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+            public const string Role = "urn:oasis:names:tc:xacml:3.0:example:attribute:role";
+        }
 
+        public static class Category
+        {
+            public const string Subject = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+            public const string Resource = "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
+            public const string Action = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+            public const string Environment = "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
+        }
+
+        public static class DataType
+        {
+            public const string String = "http://www.w3.org/2001/XMLSchema#string";
+            public const string Name = "urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name";
+            public const string Uri = "http://www.w3.org/2001/XMLSchema#anyURI";
+            public const string XPath = "urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression";
+            public const string Date = "http://www.w3.org/2001/XMLSchema#date";
+        }
+
+        public static class Namespace
+        {
+            public const string WD17 = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
+
+        }
+    }
 }
 
 public static class ConstantsExtensions

@@ -175,7 +175,7 @@
                 // Try to load XDS configuration from cookies
                 string xdsConfigJson = await cookie.GetValue("xdsConfig");
 
-                if (string.IsNullOrWhiteSpace(xdsConfigJson ))
+                if (string.IsNullOrWhiteSpace(xdsConfigJson))
                 {
                     // If not in cookies, try to get from API
                     var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://localhost:7176/api/about/config"));

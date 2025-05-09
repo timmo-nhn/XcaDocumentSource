@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
 using XcaXds.Commons;
@@ -7,11 +8,13 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
+using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("Repository/services")]
+[UsePolicyEnforcementPoint]
 public class RepositoryController : ControllerBase
 {
     private readonly ILogger<RegistryController> _logger;
@@ -20,8 +23,8 @@ public class RepositoryController : ControllerBase
     private readonly RepositoryService _repositoryService;
     private readonly RegistryService _registryService;
     private readonly XdsConfig _xdsConfig;
-
-    public RepositoryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RepositoryService repositoryService, RegistryService registryService, XdsConfig xdsConfig)
+    private readonly IVariantFeatureManager _featureManager;
+    public RepositoryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RepositoryService repositoryService, RegistryService registryService, XdsConfig xdsConfig, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
@@ -29,6 +32,7 @@ public class RepositoryController : ControllerBase
         _repositoryService = repositoryService;
         _registryService = registryService;
         _xdsConfig = xdsConfig;
+        _featureManager = featureManager;
     }
 
     [Consumes("application/soap+xml")]
@@ -48,6 +52,8 @@ public class RepositoryController : ControllerBase
        switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
+                if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
+
                 var documentFetchResponse = await _repositoryService.GetContentFromRepository(soapEnvelope);
                 if (documentFetchResponse.IsSuccess is false)
                 {
@@ -82,6 +88,8 @@ public class RepositoryController : ControllerBase
 
 
             case Constants.Xds.OperationContract.Iti41Action:
+                if (!await _featureManager.IsEnabledAsync("Iti41ProvideAndRegisterDocumentSet")) return NotFound();
+
                 if (soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Length == 0)
                 {
                     responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Receiver", $"Unknown").Value;

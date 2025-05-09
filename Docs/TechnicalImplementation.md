@@ -13,12 +13,12 @@ A RegistryService is registered with Dependency Injection (DI), which holds an i
 
 ## Registry/Repository Wrapper
 The Registry and RepositoryWrapper-services (at `<solution>/XcaXds.Source/Services/RegistryWrapper.cs`) are wrappers for the actual Registry/Repository Implementation.
-When an implementer wants to connect XcaDocumentSource to their existing Registry/Repostiory solution, it should theoretically only be nescesarry to modify this file to correspond to the structure expected from the existing registry solution, although further modifications may be nescesarry.  
+When an implementer wants to connect XcaDocumentSource to an existing Registry/Repostiory solution, it should theoretically only be nescesarry to modify this file to correspond to the structure expected from the existing registry solution, although further modifications may be nescesarry.  
 The OID for the folder is the Repository-Id as defined in the **appsettings.json**-file and is created automatically when a document is first uploaded.  
-The unique ID of the document is represented as the File-system name of the file.
+The unique ID of the document is represented as the file-system name of the file.
 
 ## Base architecture
-Below is a diagram of the architecture as-is.
+Below is a diagram of the architecture out of the box.
 ```mermaid
 flowchart LR
 
@@ -26,7 +26,7 @@ nhnxca[NHN XCA <br> Initiating Gateway]
 
 subgraph "XcaDocumentSource"
     pep[PEP]
-    xcares[XCA Responding Gateway]
+    xcares[XCA <br> Responding Gateway]
 
     subgraph "Services"
         regep[Registry Endpoint<br><pre>/RegistryService</pre>]
@@ -38,7 +38,7 @@ subgraph "XcaDocumentSource"
     subgraph "Registry/Repository"
         regw[Registry Wrapper]
         repw[Repository Wrapper]
-        subgraph "File System (NTFS)"
+        subgraph "File System"
             regfile[Registry File<br><pre>Registry.xml</pre>]
             repfol[Repository Folder]
         end
@@ -71,7 +71,7 @@ nhnxca[NHN XCA <br> Initiating Gateway]
 
 subgraph "XcaDocumentSource"
     pep[PEP]
-    xcares[XCA Responding Gateway]
+    xcares[XCA <br> Responding Gateway]
     subgraph "Services"
         regep[Registry Endpoint<br><pre>/RegistryService</pre>]
         repep[Repository Endpoint<br><pre>/RepositoryService</pre>]
@@ -82,10 +82,10 @@ subgraph "XcaDocumentSource"
     subgraph "Registry/Repository"
         regw[Registry Wrapper]
         repw[Repository Wrapper]
-        subgraph "Database/etc."
-            regrepdb[(Existing <br>Document Storage <br>Solution)]
-        end
     end
+end
+subgraph "Database/etc."
+    regrepdb[(Existing <br>Document Storage <br>Solution)]
 end
 
 nhnxca--ITI-38/ITI-39-->pep

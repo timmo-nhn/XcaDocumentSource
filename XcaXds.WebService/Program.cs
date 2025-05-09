@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.FeatureManagement;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source;
@@ -66,6 +67,9 @@ namespace XcaXds.WebService
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // Feature Toggle (located in XcaXds.WebService/Appsettings.json)
+            builder.Services.AddFeatureManagement();
 
             // Begin app
             var app = builder.Build();

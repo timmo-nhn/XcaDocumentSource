@@ -371,16 +371,29 @@
             }
             else
             {
-                var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
-                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
-                
-                messages.Add(new ToastMessage
+                if (soapRequestResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    Type = ToastType.Warning,
-                    AutoHide = true,
-                    Title = "Query Returned Non-Success Status",
-                    Content = @<div>Status: @soapRequestResponse.StatusCode</div>
-                });
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Warning,
+                        AutoHide = true,
+                        Title = "Query Returned Non-Success Status",
+                        Content = @<div>Status:@soapRequestResponse</div>
+                    });                    
+                }
+                else
+                {
+                    var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
+                    ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                
+                    messages.Add(new ToastMessage
+                    {
+                        Type = ToastType.Warning,
+                        AutoHide = true,
+                        Title = "Query Returned Non-Success Status",
+                        Content = @<div>Status: @soapRequestResponse.StatusCode</div>
+                    });
+                }
             }
         }
         catch (Exception ex)

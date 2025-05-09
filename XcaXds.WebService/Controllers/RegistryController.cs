@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
+using Microsoft.FeatureManagement.Mvc;
 using System.Diagnostics;
 using System.Xml;
 using XcaXds.Commons;
@@ -9,24 +11,28 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
+using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("Registry/services")]
+[UsePolicyEnforcementPoint]
 public class RegistryController : ControllerBase
 {
     private readonly ILogger<RegistryController> _logger;
     private readonly HttpClient _httpClient;
     private readonly XcaGateway _xcaGateway;
     private readonly RegistryService _registryService;
+    private readonly IVariantFeatureManager _featureManager;
 
-    public RegistryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RegistryService registryService)
+    public RegistryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RegistryService registryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
         _xcaGateway = xcaGateway;
         _registryService = registryService;
+        _featureManager = featureManager;
     }
 
     [Consumes("application/soap+xml")]
@@ -47,6 +53,8 @@ public class RegistryController : ControllerBase
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
+                if (!await _featureManager.IsEnabledAsync("Iti18RegistryStoredQuery")) return NotFound();
+
                 var registryQueryResponse = await _registryService.RegistryStoredQueryAsync(soapEnvelope);
 
                 responseEnvelope = registryQueryResponse.Value;
@@ -60,6 +68,8 @@ public class RegistryController : ControllerBase
                 break;
 
             case Constants.Xds.OperationContract.Iti42Action:
+                if (!await _featureManager.IsEnabledAsync("Iti42RegisterDocumentSet")) return NotFound();
+
                 var registryUploadResponse = await _registryService.AppendToRegistryAsync(soapEnvelope);
 
                 if (registryUploadResponse.IsSuccess)
@@ -90,6 +100,8 @@ public class RegistryController : ControllerBase
                 break;
 
             case Constants.Xds.OperationContract.Iti62Action:
+                if (!await _featureManager.IsEnabledAsync("Iti62DeleteDocumentSet")) return NotFound();
+
                 var deleteDocumentSetResponse = await _registryService.DeleteDocumentSetAsync(soapEnvelope);
                 if (deleteDocumentSetResponse.IsSuccess)
                 {
