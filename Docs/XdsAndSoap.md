@@ -596,8 +596,9 @@ A request with specific search parameters is sent from a Document Requester to t
 #### AdhocQuery Request types  
 An `<AdhocQuery>` request is versatile in the sense that it can query for different types of items in the Document Registry. 
 The example below shows an `<AdhocQueryRequest>` with id `urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d` (`FindDocuments`). Each type of `<AdhocQuery>` has different requirements and optionalities for the slots used in the search.
-> **⚠️ AND/OR semantics** <br> An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata to search for. Each `<Slot>` in the `<AdhocQueryRequest>` works as a **AND-clause**. However, for some slots, the `<Value>` elements in the `<ValueList>` works as an **OR-clause**  
-
+##### AND/OR semantics
+An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata to search for. Each `<Slot>` in the `<AdhocQueryRequest>` works as a **AND-clause**. However, for some slots, the `<Value>` elements in the `<ValueList>` works as an **OR-clause**. It can be thought of like this:  
+*This slot with this value **AND** that slot with this **OR** that value*
 
 #### Example  
 ```xml
@@ -606,15 +607,16 @@ The example below shows an `<AdhocQueryRequest>` with id `urn:uuid:14d4debf-8f97
     <AdhocQuery id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d"
         xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
         <Slot name="$XDSDocumentEntryPatientId">
+        <!-- This slot -->
             <ValueList>
                 <Value>'13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO'</Value>
             </ValueList>
         </Slot>
-        <!-- AND -->
+        <!-- AND that slot -->
         <Slot name="$XDSDocumentEntryStatus">
             <ValueList>
                 <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
-                <!-- OR -->
+                <!-- with this OR that value-->
                 <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:CustomStatus01')</Value>
             </ValueList>
         </Slot>
@@ -623,7 +625,7 @@ The example below shows an `<AdhocQueryRequest>` with id `urn:uuid:14d4debf-8f97
 </AdhocQueryRequest>
 ```
 
-*AdhocQueryRequest with FindDocuments stored query with a slot for patientId And Status*
+*AdhocQueryRequest with FindDocuments stored query with a slot for patientId and two different statuses*
 
 
 ```c#
