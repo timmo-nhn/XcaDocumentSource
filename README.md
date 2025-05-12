@@ -1,30 +1,63 @@
 # PJD.XcaDocumentSource - XCA Responding Gateway and integrated Document Registry and Repository  
 
 ## Introduction/Getting started
-In many healthcare systems, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely designed to communicate with each other, leading to:
+In the healthcare industry, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely designed to communicate with each other, leading to:
 * Data silos where patient records are locked in local systems
 * Manual, error-prone processes for sharing health information
 * Delayed treatment due to lack of access to complete medical histories  
 
-This lack of interoperability results in fragmented care, increased administrative burden, and risk to patient safety.
+This lack of interoperability results in documents having to be shared via manual routines, such as fax-machines, sending as letters or calling the hospitals a patient has previously visited. This results in fragmented care, increased administrative burden, and risk to patient safety.
 
-**PJD.XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as  IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.
+**XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as  IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.
 
-The XcaDocumentSource solution is designed to address this interoperability gap by enabling hospitals and municipalities to share patient health records across organizational and technical boundaries.
+**XcaDocumentSource** is designed to address this interoperability gap by enabling hospitals and municipalities to share patient health records across organizational and technical boundaries by handling the SOAP-implementation, and allowing the implementer to easily modify the solution to for integrating between **XcaDocumentSource** and their own systems.
 
-It does this by implementing key standards defined by the Integrating the Healthcare Enterprise (IHE) initiative, specifically:
+It does this by implementing key standards defined by the Integrating the Healthcare Enterprise (IHE) initiative, as well as other specifications specifically:
 * XDS.b (Cross-Enterprise Document Sharing) – for registering and retrieving clinical documents
-* XCA (Cross-Community Access) – for querying and retrieving documents across different health information exchanges
-* XUA (Cross-Enterprise User Assertion) – for user identity and authorization propagation via SAML
+* XCA (Cross-Community Access) Responding Gateway – for querying and retrieving documents from NHN's XCA  
+* HL7 (Health Level 7) version 2 - for some queries related to patient identity
+* PEP (Policy Enforcement Point) - for access control
 
+### Technical overview
 ```mermaid
 %%{init: {'theme':'dark'}}%%
 
-flowchart
-subgraph "XcaDocumentSource"
-  
+flowchart LR
+subgraph "Norsk Helsenett"
+  nhnxca[NHN XCA<br>Initiating Gateway]
 end
+
+subgraph "Actor systems"
+  subgraph "XcaDocumentSource"
+    resgw[XCA<br>Responding Gateway]
+
+    pep[<br><br>PEP<br><br><br>]
+
+    doclist([Get Document list])
+    document([Get Document])
+  end
+
+  pdp[PDP]
+
+  subgraph "Document storage solution"
+    docstore[(Document<br>store)]
+  end
+end
+
+nhnxca <--SOAP-Request--> resgw
+
+pep<-->pdp
+
+resgw <--> pep
+pep <--> doclist
+
+pep <--> document
+
+doclist <--> docstore
+document <--> docstore
 ```
+*Solution architecture overview*
+
 
 ## Solution Documentation
 
@@ -34,8 +67,14 @@ How **PJD.XcaDocumentSource** solution is structured, and how it can be implemen
 ### [🧾 Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
 Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
 
+### [📨 ITI-messages](/Docs/XdsSoapTransactions.md)
+Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoints, as well as examples.
+
 ### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
 Describes the lightweight implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
+
+### [💠 OIDs (Object Identifiers)](/Docs/Oids.md)
+OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.
 
 ### [🖥️ XDS Admin Front-End](/Docs/XdsAdminFrontEnd.md)
 Documentation of the Admin-GUI which also serves as a practical tool for interacting with the document registry and repository
@@ -69,25 +108,6 @@ The boundaries of an Affinity Domain is not specified, but a logical separation 
 ### Patient identity source  
 This component ensures every patient is given an **unambigous identificator**, for example a local, regional or nationwide population register.
 >**🚩 National Extension**<br> In Norway, a personal identificator is in use (person number), so a dedicated service for handling patient identifications is not required.
-
-
-## Object Identifiers (OID)
->**Note:** For OIDs to effectively work, there must be some level of governance when creating and managing OIDs. Norsk helsenett (NHN) should have a comprehensive overview of the OIDs related to PHR. NHN shall be informed of the OID of a new document source.
-
-OID (Object Identifiers) are unique identifiers for objects or things. **Anything can have an OID, and an OID is nothing more than a set of numbers and dots (.) which make up a hierarchical structure**. In PHR, OIDs are used to unambiguously identify a system or facility. The OIDs might get translated by the systems into the actual URL, which means the URL can change, but the OID stays the same. OIDs are also used in logging. OIDs have a "tree/path"-like structure, and can be represented by its numerical or text variant.  
-More about OIDs on [NHN's Developer portal ↗](https://utviklerportal.nhn.no/informasjonstjenester/pasientens-journaldokumenter-i-kjernejournal/mer-om-tjenesten/oider/) (In Norwegian).  
-
-### Governing Object Identifiers
-Even though OIDs are simply numbers and dots, its the way that its governed and controlled which defines its effectiveness in practice. Having good control over an OID structure leads to effective communication and identification.   
-
->**🔶 Implementation Note x** <br> In **PJD.XcaDocumentSource**, OIDs are used for **RepositoryID** and **HomecommunityID**.
-
-The **Norwegian profile of IHE XDS metadata** defines the use of OIDs for identifying communities. Norsk helsenett (NHN) governs an OID-base and is the primary issuer of an OID to a community. Each Norwegian health region also governs their own OIDbase and can choose to issue their own homecommunity ID.  
-The OID-base which NDE governs has the following OID structure for document sharing:
-* 2.16.578.1.12.4.1.7 – Document sharing root OID
-  * 2.16.578.1.12.4.1.7.1 – Community base OIDs governed by NHN
-    * 2.16.578.1.12.4.1.7.1.1 – National community
-> **⚠️ Alert x:** <br> Historically, this OID-base has belonged to The Norwegian Directorate of eHealth (NDE/e-Helse) for PHR (formely known as Dokumentdeling)
 
 ## Document consuming process
 Below is a diagram showing the process of retrieving the document-list and the document. Each affinity domain has its own XCA, which again has its own registry and repositories.  

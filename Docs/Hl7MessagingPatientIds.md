@@ -13,6 +13,7 @@ The **Efferent.HL7.V2** .NET library is used to serialize/deserialize the HL7-me
 The HL7 implementation is set up to allow for easy scaling of HL7-related messaging, if needed. The HL7 API-controller has a Dependency Injected instance of the document registry service (`RegistryService`), allowing for easy access to document registry resources.  
 The HL7 implementation features its own API-controller (found in `<solution>/XcaXds.WebService/Controllers/Hl7MessagingController.cs`) and endpoints are published under `/hl7` route.  
 An **ASP.NET Inputformatter** is used to serialize the HL7-messages before they are sent to the controller endpoints (found in `<solution>/XcaXds.WebService/InputFormatters/Hl7InputFormatter.cs`). 
+
 #### Default API Routes
 | Endpoint | Method
 |---|---|
