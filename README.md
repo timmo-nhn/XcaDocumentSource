@@ -2,17 +2,14 @@
 
 ## Introduction/Getting started
 In the healthcare industry, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely designed to communicate with each other, leading to:
-* Data silos where patient records are locked in local systems
+* Data silos where patient records are confined in local systems
 * Manual, error-prone processes for sharing health information
 * Delayed treatment due to lack of access to complete medical histories  
 
-This lack of interoperability results in documents having to be shared via manual routines, such as fax-machines, sending as letters or calling the hospitals a patient has previously visited. This results in fragmented care, increased administrative burden, and risk to patient safety.
+This lack of interoperability results in documents having to be shared via manual routines, such as fax-machines, sending as letters via taxi or calling the hospitals a patient has previously visited. This results in fragmented care, increased administrative burden, and risk to patient safety.
 
-**XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as  IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.
-
-**XcaDocumentSource** is designed to address this interoperability gap by enabling hospitals and municipalities to share patient health records across organizational and technical boundaries by handling the SOAP-implementation, and allowing the implementer to easily modify the solution to for integrating between **XcaDocumentSource** and their own systems.
-
-It does this by implementing key standards defined by the Integrating the Healthcare Enterprise (IHE) initiative, as well as other specifications specifically:
+**XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as hospitals and municipalities to share patient health records across organizational and technical boundaries by handling the SOAP-implementation, and allowing the implementer to easily modify the solution to for integrating between **XcaDocumentSource** and their own systems.  
+The implementation is based around the IHE integration profiles based on **XDS** and **XCA** provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context, aswell as **HL7** and **XACML**:
 * XDS.b (Cross-Enterprise Document Sharing) – for registering and retrieving clinical documents
 * XCA (Cross-Community Access) Responding Gateway – for querying and retrieving documents from NHN's XCA  
 * HL7 (Health Level 7) version 2 - for some queries related to patient identity
