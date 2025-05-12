@@ -341,6 +341,8 @@ An `<Association>` is used to bind two or more **types** together in order to cr
 *Cardinality of Classification with notable attributes sourceObject and targetObject*
 
 ```mermaid
+%%{init: {'theme':'dark'}}%%
+
 graph LR
     ex[ExtrinsicObject]
     as[Association]
@@ -594,7 +596,7 @@ A request with specific search parameters is sent from a Document Requester to t
 *Table x: ITI-18 request*
 
 #### AdhocQuery Request types  
-An `<AdhocQuery>` request is versatile in the sense that it can query for different types of items in the Document Registry. 
+An `<AdhocQuery>` request can feature different queries for different types of items in the Document Registry. 
 The example below shows an `<AdhocQueryRequest>` with id `urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d` (`FindDocuments`). Each type of `<AdhocQuery>` has different requirements and optionalities for the slots used in the search.
 ##### AND/OR semantics
 An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata to search for. Each `<Slot>` in the `<AdhocQueryRequest>` works as a **AND-clause**. However, for some slots, the `<Value>` elements in the `<ValueList>` works as an **OR-clause**. It can be thought of like this:  

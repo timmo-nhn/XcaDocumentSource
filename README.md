@@ -1,9 +1,35 @@
 # PJD.XcaDocumentSource - XCA Responding Gateway and integrated Document Registry and Repository  
 
+## Introduction/Getting started
+In many healthcare systems, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely designed to communicate with each other, leading to:
+* Data silos where patient records are locked in local systems
+* Manual, error-prone processes for sharing health information
+* Delayed treatment due to lack of access to complete medical histories  
+
+This lack of interoperability results in fragmented care, increased administrative burden, and risk to patient safety.
+
+**PJD.XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as  IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.
+
+The XcaDocumentSource solution is designed to address this interoperability gap by enabling hospitals and municipalities to share patient health records across organizational and technical boundaries.
+
+It does this by implementing key standards defined by the Integrating the Healthcare Enterprise (IHE) initiative, specifically:
+* XDS.b (Cross-Enterprise Document Sharing) – for registering and retrieving clinical documents
+* XCA (Cross-Community Access) – for querying and retrieving documents across different health information exchanges
+* XUA (Cross-Enterprise User Assertion) – for user identity and authorization propagation via SAML
+
+```mermaid
+%%{init: {'theme':'dark'}}%%
+
+flowchart
+subgraph "XcaDocumentSource"
+  
+end
+```
+
 ## Solution Documentation
 
 ### [⚙️ Technical implementation details](/Docs/TechnicalImplementation.md)
-How **PJD.XcaDocumentSource** solution is structured, and how it can be implemented in a source system, takin in account existing document registries/repositories, and PAP/PDP/PR systems.
+How **PJD.XcaDocumentSource** solution is structured, and how it can be implemented in a source system, taking in account existing document registries/repositories, and PAP/PDP/PR systems.
 
 ### [🧾 Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
 Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
@@ -13,51 +39,6 @@ Describes the lightweight implementation of HL7 messaging, allowing for Patient 
 
 ### [🖥️ XDS Admin Front-End](/Docs/XdsAdminFrontEnd.md)
 Documentation of the Admin-GUI which also serves as a practical tool for interacting with the document registry and repository
-
-## Introduction
-This document will describe the Norwegian usage and profilings of the IHE integration profiles based on XDS, XCA and XUA provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context.
-Patient Health Records (PHR) facilitates Cross enterprise document sharing between health professionals and between health professionals and citizens in Norway. The main objectives of PHR are:  
-
-* Give health professionals necessary access to referrals, discharge summaries and other types of reports (documents) stored in other healthcare enterprises to achieve more effective health care decisions and reduce errors.
-* Reduce the administrative burden and costs of today's collection and delivery of health information.
-* Increase the overview of available health information across enterprises.
-* Enable access to patients to their medical records throughout Norway.
-
-
-## Semantics Used  
-This section defines how different elements are formatted and referenced within the documentation.
-
-### External hyperlinks
-External links are suffixed by an arrow pointing up to the right (↗), signifying that the link leads to a website not affiliated or related to Norsk helsenett. Links will follow this format:  `<title> - <domain> ↗`
-**Example:**  
-[External link - example.com ↗](https://www.example.com) 
-
-### XML-tags  
-Used when referencing something thats part of an XML SOAP-message  
-**Example:**   
-`<xml-tag>`
-
-
-### Normal Quotes  
-Used as an addendum for a section of text  
-**Example:**  
->Quote
-
-### Alert Quote
-When there's something that should be paid extra attention to, or is important to know  
-**Example:**
-> **⚠️ Alert x** <br> Example text
-
-### Implementation Quotes  
-Used to describe an implementation which is notable or specific to **PJD.XcaDocumentSource**  
-**Example:**
->**🔶 Implementation Note x** <br> Example text
-
-### National Extension Quote  
-Used to describe something specific to the **Norwegian** implementation of **IHE XDS/XCA**  
-**Example:**
->**🚩 National Extension x** <br> Example text
-
 
 ## Document sharing - Actors and components  
 The **XDS-architecture** consists of the following actors/components:
@@ -112,6 +93,8 @@ The OID-base which NDE governs has the following OID structure for document shar
 Below is a diagram showing the process of retrieving the document-list and the document. Each affinity domain has its own XCA, which again has its own registry and repositories.  
 When querying for a list of documentr , the Registry is queried, as it holds the metadata and references to the documents in the repository. When retrieving a document, the repository is queried with the ID from the Registry metadata item of interest.
 ```mermaid
+%%{init: {'theme':'dark'}}%%
+
 sequenceDiagram
     actor GP
     participant KJ as EHR/Kjernejournal
@@ -137,4 +120,39 @@ sequenceDiagram
     NHN_XCA->>KJ:Document
 ```
 *Figure x: Simplified example on a query of document, each XCA is its own affinity domain, and the response for each domain may be different (ie. some domains reject requests from certain GP-roles)*
+
+
+## Semantics Used  
+This section defines how different elements are formatted and referenced within the documentation.
+
+### External hyperlinks
+External links are suffixed by an arrow pointing up to the right (↗), signifying that the link leads to a website not affiliated or related to Norsk helsenett. Links will follow this format:  `<title> - <domain> ↗`
+**Example:**  
+[External link - example.com ↗](https://www.example.com) 
+
+### XML-tags  
+Used when referencing something thats part of an XML SOAP-message  
+**Example:**   
+`<xml-tag>`
+
+
+### Normal Quotes  
+Used as an addendum for a section of text  
+**Example:**  
+>Quote
+
+### Alert Quote
+When there's something that should be paid extra attention to, or is important to know  
+**Example:**
+> **⚠️ Alert x** <br> Example text
+
+### Implementation Quotes  
+Used to describe an implementation which is notable or specific to **PJD.XcaDocumentSource**  
+**Example:**
+>**🔶 Implementation Note x** <br> Example text
+
+### National Extension Quote  
+Used to describe something specific to the **Norwegian** implementation of **IHE XDS/XCA**  
+**Example:**
+>**🚩 National Extension x** <br> Example text
 

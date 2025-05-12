@@ -20,6 +20,8 @@ The unique ID of the document is represented as the file-system name of the file
 ## Base architecture
 Below is a diagram of the architecture out of the box.
 ```mermaid
+%%{init: {'theme':'dark'}}%%
+
 flowchart LR
 
 nhnxca[NHN XCA <br> Initiating Gateway]
@@ -65,6 +67,8 @@ repw-->repfol
 ## Example architecture
 Below is an example of how an implementer would have modified Registry and Repository-wrappers to connect to an existing document storage solution.
 ```mermaid
+%%{init: {'theme':'dark'}}%%
+
 flowchart LR
 
 nhnxca[NHN XCA <br> Initiating Gateway]
