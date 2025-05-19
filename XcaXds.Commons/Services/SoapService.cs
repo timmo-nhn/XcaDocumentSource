@@ -6,12 +6,10 @@ namespace XcaXds.Commons.Services;
 public class SoapService
 {
     private readonly HttpClient _httpClient;
-    private readonly IServiceProvider _serviceProvider;
 
-    public SoapService(HttpClient httpClient, IServiceProvider serviceProvider)
+    public SoapService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _serviceProvider = serviceProvider;
     }
 
     public async Task<SoapRequestResult<SoapEnvelope>> PostSoapRequestAsync<TResult>(SoapEnvelope request, string endpoint)

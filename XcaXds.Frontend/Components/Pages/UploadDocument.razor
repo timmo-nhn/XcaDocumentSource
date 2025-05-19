@@ -75,6 +75,10 @@
                                 </CardHeader>
                                 <CardBody Class="p-3">
                                     <div class="mb-3">
+                                        <label class="form-label">Title</label>
+                                        <ComboBox @bind-Value="provideAndRegister.SubmissionTitle" />
+                                    </div>
+                                    <div class="mb-3">
                                         <label class="form-label">Creation Time</label>
                                         <DateInput TValue="DateTime" @bind-Value="provideAndRegister.CreationTime" AutoComplete="true" />
                                     </div>
@@ -88,7 +92,31 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">source Patient Id</label>
-                                        <ComboBox @bind-Value="selectedSourcePatientId" DropdownValues="SourcePatientIds" />
+                                        <ComboBox @bind-Value="provideAndRegister.SourcePatientId" DropdownValues="SourcePatientIds" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Author Department</label>
+                                        <ComboBox @bind-Value="provideAndRegister.ClassificationAuthorInstitution.Department" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Author Institution</label>
+                                        <ComboBox @bind-Value="provideAndRegister.ClassificationAuthorInstitution.Institution" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Author Person</label>
+                                        <ComboBox @bind-Value="provideAndRegister.ClassificationAuthorPerson" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Format Code</label>
+                                        <ComboBox @bind-Value="provideAndRegister.ClassificationFormatCode" DropdownValues="Constants.Xds.CodeValues.IheFormatCodes" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Confidentiality Code</label>
+                                        <ComboBox T="ConceptType"
+                                                  @bind-Value="provideAndRegister.ClassificationConfidentialityCode"
+                                                  Options='Constants.Xds.CodeValues.ConfidentialityCodes
+                                                           .Select(cc => new DropdownItem<ConceptType> { Label = $"{cc.code} - {cc.displayName}", Value = cc })
+                                                           .ToList()' />
                                     </div>
                                     <hr />
                                     <Button @onclick="CreateSoapEnvelopeWithVariables"
@@ -181,11 +209,9 @@
     private MonacoEditor _monacoEditorRef = default!;
 
     // Inputs
-    private SimplifiedProvideAndRegister provideAndRegister;
+    private SimplifiedProvideAndRegister provideAndRegister = new();
 
     private List<string> SourcePatientIds = new();
-
-    private string selectedSourcePatientId;
 
     // BootstrapBlazor UI components
     private Button sendRequestButton = default!;

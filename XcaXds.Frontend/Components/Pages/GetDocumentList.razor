@@ -371,29 +371,31 @@
             }
             else
             {
-                if (soapRequestResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+                messages.Add(new ToastMessage
                 {
-                    messages.Add(new ToastMessage
-                    {
-                        Type = ToastType.Warning,
-                        AutoHide = true,
-                        Title = "Query Returned Non-Success Status",
-                        Content = @<div>Status:@soapRequestResponse</div>
-                    });                    
-                }
-                else
-                {
-                    var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
-                    ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                    Type = ToastType.Warning,
+                    AutoHide = true,
+                    Title = "Query Returned Non-Success Status",
+                    Content = @<div>Status:@soapRequestResponse</div>
+                });                    
+                // if (soapRequestResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+                // {
+                // }
+                // else
+                // {
+                //     var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
+                //     var gobb = await soapRequestResponse.Content.ReadAsStringAsync();
+
+                //     ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
                 
-                    messages.Add(new ToastMessage
-                    {
-                        Type = ToastType.Warning,
-                        AutoHide = true,
-                        Title = "Query Returned Non-Success Status",
-                        Content = @<div>Status: @soapRequestResponse.StatusCode</div>
-                    });
-                }
+                //     messages.Add(new ToastMessage
+                //     {
+                //         Type = ToastType.Warning,
+                //         AutoHide = true,
+                //         Title = "Query Returned Non-Success Status",
+                //         Content = @<div>Status: @soapRequestResponse.StatusCode</div>
+                //     });
+                // }
             }
         }
         catch (Exception ex)

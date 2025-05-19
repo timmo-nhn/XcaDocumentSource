@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 using Efferent.HL7.V2;
 using XcaXds.Commons;
+using XcaXds.Commons.Enums;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Source.Services;

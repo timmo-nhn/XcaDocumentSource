@@ -38,8 +38,7 @@ public class Hl7InputFormatter : TextInputFormatter
         catch (Exception ex)
         {
 
-            throw;
+            return await InputFormatterResult.FailureAsync();
         }
-        return await InputFormatterResult.FailureAsync();
     }
 }

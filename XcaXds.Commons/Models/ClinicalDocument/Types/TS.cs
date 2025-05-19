@@ -13,10 +13,10 @@ public class TS : ANY
     private string _dateFormat;
 
     [XmlIgnore]
-    public string? RawEffectiveTimeValue { get; set; }
+    private string? RawEffectiveTimeValue { get; set; }
 
     [XmlAttribute("value")]
-    public string? EffectiveTimeValue
+    public string? Value
     {
         get
         {

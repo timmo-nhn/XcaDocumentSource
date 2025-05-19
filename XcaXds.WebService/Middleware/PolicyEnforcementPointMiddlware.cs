@@ -1,7 +1,10 @@
-﻿using System.Text;
-using System.Xml;
-using Abc.Xacml.Context;
+﻿using Abc.Xacml.Context;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using System.Diagnostics;
+using System.Net;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
+using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
@@ -13,16 +16,36 @@ namespace XcaXds.WebService.Middleware;
 public class PolicyEnforcementPointMiddlware
 {
     private readonly RequestDelegate _next;
-    private ILogger<PolicyEnforcementPointMiddlware> _logger;
+    private readonly ILogger<PolicyEnforcementPointMiddlware> _logger;
+    private readonly XdsConfig _xdsConfig;
+    private readonly IWebHostEnvironment _env;
 
-    public PolicyEnforcementPointMiddlware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger)
+    public PolicyEnforcementPointMiddlware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger, XdsConfig xdsConfig, IWebHostEnvironment env)
     {
         _logger = logger;
         _next = next;
+        _xdsConfig = xdsConfig;
+        _env = env;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
+        Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "PEP bypass is enabled in production!");
+        
+        // If the request is from localhost and environment is development we can ignore PEP.
+        var requestIsLocal = httpContext.Connection.RemoteIpAddress is not null &&
+              (IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress) ||
+               httpContext.Connection.RemoteIpAddress.ToString() == "::1");
+
+        if (requestIsLocal &&
+            _xdsConfig.IgnorePEPForLocalhostRequests is true &&
+            _env.IsDevelopment() is true)
+        {
+            _logger.LogWarning("Policy Enforcement Point middleware was bypassed for requests from localhost.");
+            await _next(httpContext);
+            return;
+        }
+
         var endpoint = httpContext.GetEndpoint();
         var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
 
@@ -51,6 +74,9 @@ public class PolicyEnforcementPointMiddlware
         var soapEnvelopeObject = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(bodyContent);
 
         var assertion = soapEnvelope.GetElementsByTagName("saml:Assertion");
+
+        var ip = httpContext.Connection.RemoteIpAddress.ToString();
+
 
         if (assertion.Count == 0)
         {

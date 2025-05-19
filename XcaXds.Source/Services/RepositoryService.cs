@@ -106,12 +106,24 @@ public class RepositoryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Non unique ID in repository {document.Id}".Trim(), "XDS Repository");
                 }
-            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
             }
         }
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
+    public async Task<SoapRequestResult<SoapEnvelope>> CheckIfDocumentsAreTooLarge(SoapEnvelope soapEnvelope)
+    {
+        var registryResponse = new RegistryResponseType();
+
+        var oversizedDocuments = soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.Document
+            .Where(doc => doc.Value.Length > _xdsConfig.DocumentUploadSizeLimitKb).ToList();
+
+        if (oversizedDocuments?.Count > 0)
+        {
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Documents submitted are too large!\nIDs: {string.Join(", ", oversizedDocuments.Select(od => od.Id))}", "XDS Repository");
+        }
+        return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+    }
 
     public async Task<SoapRequestResult<SoapEnvelope>> GetContentFromRepository(SoapEnvelope iti43envelope)
     {
@@ -281,4 +293,5 @@ public class RepositoryService
 
         return multipart;
     }
+
 }

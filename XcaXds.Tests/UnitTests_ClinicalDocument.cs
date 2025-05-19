@@ -5,6 +5,12 @@ namespace XcaXds.Tests;
 
 public class UnitTests_ClinicalDocument
 {
+    private readonly CdaTransformerService _transformerService;
+    public UnitTests_ClinicalDocument()
+    {
+        _transformerService = new CdaTransformerService();
+    }
+
     [Fact]
     public async Task SerializeDeserialize()
     {
@@ -24,6 +30,7 @@ public class UnitTests_ClinicalDocument
 
             var docc = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(fileContent);
 
+
             Console.WriteLine(docc.Code);
 
             var doccCDA = sxmls.SerializeSoapMessageToXmlString(docc);
@@ -32,6 +39,30 @@ public class UnitTests_ClinicalDocument
             int file2 = doccCDA.Content.Split("\n").Length;
             int diff = file1 - file2;
             Assert.Equal(diff, 0);
+        }
+    }
+
+    [Fact]
+    public async Task TransformCda()
+    {
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
+
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+
+        foreach (var file in testDataFiles)
+        {
+            var fileContent = string.Empty;
+
+            if (file.Contains("CDA_Level1"))
+            {
+                fileContent = File.ReadAllText(file);
+            }
+            else continue;
+
+            var docc = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(fileContent);
+
+            var registryobjects = _transformerService.TransformCdaDocumentToRegistryObjectList(docc);
+
         }
     }
 }

@@ -30,7 +30,6 @@ public partial class RegistryService
 
     private DocumentRegistry DocumentRegistry => _documentRegistry;
 
-
     public async Task<SoapRequestResult<SoapEnvelope>> AppendToRegistryAsync(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();

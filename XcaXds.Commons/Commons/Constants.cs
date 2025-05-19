@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using XcaXds.Commons.Models;
+using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons;
 public static class Constants
@@ -98,6 +100,28 @@ public static class Constants
             //public const string GetFoldersForDocument = "urn:uuid:10cae35a-c7f9-4cf5-b61e-fc3278ffb578";
             //public const string GetRelatedDocuments = "urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6";
             //public const string FindDocumentsByReferenceId = "urn:uuid:12941a89-e02e-4be5-967c-ce4bfc8fe492";
+        }
+
+        public static class CodeValues
+        {
+            public static List<string> IheFormatCodes =
+            [
+                "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+                "urn:no:ehelse:document:pdf",
+                "urn:no:ehelse:document:text",
+                "urn:no:kith:xmlstds:henvisning",
+                "urn:no:ehelse:document:image",
+            ];
+
+            public static List<ConceptType> ConfidentialityCodes = new()
+            {
+                new() 
+                {
+                    code = "N",
+                    codeSystemName = "2.16.578.1.12.4.1.1.9603",
+                    displayName = "Normal"
+                }
+            };
         }
 
         public static class QueryParamters
@@ -338,13 +362,42 @@ public static class Constants
     {
         public static class Dtm
         {
+
+            /// <summary>
+            /// yyyy
+            /// </summary>
             public const string DtmYFormat = "yyyy";
+
+            /// <summary>
+            /// yyyyMM
+            /// </summary>
             public const string DtmYmFormat = DtmYFormat + "MM";
+
+            /// <summary>
+            /// yyyyMMdd
+            /// </summary>
             public const string DtmYmdFormat = DtmYmFormat + "dd";
+
+            /// <summary>
+            /// yyyyMMddHH
+            /// </summary>
             public const string DtmYmdhFormat = DtmYmdFormat + "HH";
+            
+            /// <summary>
+            /// yyyyMMddHHmm
+            /// </summary>
             public const string DtmYmdhmFormat = DtmYmdhFormat + "mm";
-            public const string DtmFormat = DtmYmdhmFormat + "ss"; //yyyyMMddHHmmss
+            
+            /// <summary>
+            /// yyyyMMddHHmmss
+            /// </summary>
+            public const string DtmFormat = DtmYmdhmFormat + "ss";
+
+            /// <summary>
+            /// yyyyMMddHHmmssfff
+            /// </summary>
             public const string DtmLongFormat = DtmFormat + "fff";
+
             public const string DtmFhirIsoDateTimeFormat = "yyyy-MM-ddTHH:mm:ssK";
 
             public static readonly string[] CdaFormats =

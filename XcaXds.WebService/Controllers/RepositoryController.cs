@@ -3,6 +3,7 @@ using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
 using XcaXds.Commons;
+using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
@@ -93,6 +94,14 @@ public class RepositoryController : ControllerBase
                 if (soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Length == 0)
                 {
                     responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Receiver", $"Unknown").Value;
+                }
+
+                var submittedDocumentsTooLarge = await _repositoryService.CheckIfDocumentsAreTooLarge(soapEnvelope);
+
+                if (submittedDocumentsTooLarge.IsSuccess is false)
+                {
+                    responseEnvelope = submittedDocumentsTooLarge.Value;
+                    break;
                 }
 
                 var iti42Message = _registryService.CopyIti41ToIti42Message(soapEnvelope);

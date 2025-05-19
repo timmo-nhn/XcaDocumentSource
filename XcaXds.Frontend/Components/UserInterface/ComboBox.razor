@@ -1,19 +1,20 @@
-﻿<div class="position-relative">
+﻿@typeparam T
 
+<div class="position-relative">
     <input type="text"
-    class="form-control"
-    @bind="Value"
-    @oninput="FilterOptions"
-    @onfocus="() => ShowDropdown = true"
-    @onblur="()=> Task.Delay(200).ContinueWith(_ => ShowDropdown = false)">
+           class="form-control"
+           value="@InputText"
+           @oninput="OnInput"
+           @onfocus="() => ShowDropdown = true"
+           @onblur="()=> Task.Delay(200).ContinueWith(_ => ShowDropdown = false)">
 
-    @if (ShowDropdown && FilteredDropdownValues.Any())
+    @if (ShowDropdown && FilteredOptions.Any())
     {
         <ul class="dropdown-menu show w-100" style="max-height: 200px; overflow-y: auto;">
-            @foreach (var option in FilteredDropdownValues)
+            @foreach (var item in FilteredOptions)
             {
                 <li>
-                    <a class="dropdown-item" @onclick="() => SelectOption(option)">@option</a>
+                    <a class="dropdown-item" @onclick="() => SelectItem(item)">@item.Label</a>
                 </li>
             }
         </ul>
@@ -21,30 +22,41 @@
 </div>
 
 @code {
+    [Parameter]
+    public T Value { get; set; }
 
     [Parameter]
-    public string Value { get; set; }
-    
-    [Parameter]
-    public EventCallback<string> ValueChanged { get; set; }
+    public EventCallback<T> ValueChanged { get; set; }
 
     [Parameter]
-    public List<string> DropdownValues { get; set; } = new();
+    public List<DropdownItem<T>> Options { get; set; } = new();
 
-    private List<string> FilteredDropdownValues = new();
+    private List<DropdownItem<T>> FilteredOptions = new();
+    private string InputText = "";
     private bool ShowDropdown = false;
 
-    private void FilterOptions(ChangeEventArgs e)
+    protected override void OnInitialized()
     {
-        var input = e.Value?.ToString() ?? "";
-        FilteredDropdownValues = DropdownValues
-            .Where(opt => opt.Contains(input, StringComparison.OrdinalIgnoreCase))
+        if (Value != null)
+        {
+            var match = Options.FirstOrDefault(o => EqualityComparer<T>.Default.Equals(o.Value, Value));
+            InputText = match?.Label ?? "";
+        }
+        FilteredOptions = Options;
+    }
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        InputText = e.Value?.ToString() ?? "";
+        FilteredOptions = Options
+            .Where(opt => opt.Label.Contains(InputText, StringComparison.OrdinalIgnoreCase))
             .ToList();
     }
 
-    private async Task SelectOption(string option)
+    private async Task SelectItem(DropdownItem<T> selectedItem)
     {
-        Value = option;
+        Value = selectedItem.Value;
+        InputText = selectedItem.Label;
         ShowDropdown = false;
         await ValueChanged.InvokeAsync(Value);
     }

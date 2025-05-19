@@ -7,87 +7,90 @@ using XcaXds.Source;
 using XcaXds.Source.Services;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
+using XcaXds.WebService.Startup;
 
-namespace XcaXds.WebService
+namespace XcaXds.WebService;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
 
-            // Begin builder
-            builder.Services.AddHttpClient();
-            builder.WebHost.UseUrls(["https://localhost:7176", "http://localhost:5009"]);
+        // Begin builder
+        builder.Services.AddHttpClient();
+        builder.WebHost.UseUrls(["https://localhost:7176", "http://localhost:5009"]);
 
-            builder.Logging.ClearProviders(); // Clear default logging providers
-            builder.Services.AddLogging(logging =>
-                logging.AddSimpleConsole(options =>
-                {
-                    options.SingleLine = true;
-                    options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
-                    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
-                })
-            );
-
-
-            builder.Services.AddControllers(options =>
+        builder.Logging.ClearProviders(); // Clear default logging providers
+        builder.Services.AddLogging(logging =>
+            logging.AddSimpleConsole(options =>
             {
-                options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
-                options.InputFormatters.Insert(0, new Hl7InputFormatter());
-                options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
-                options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
+                options.SingleLine = true;
+                options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
+                options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
             })
-            .AddXmlSerializerFormatters();
+        );
 
 
-            builder.Services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory = actionContext =>
-                { 
-                    return SoapFaultErrorResponseFactory.CreateErrorResponse(actionContext); 
-                };
-            });
+        builder.Services.AddControllers(options =>
+        {
+            options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
+            options.InputFormatters.Insert(0, new Hl7InputFormatter());
+            options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
+            options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
+        })
+        .AddXmlSerializerFormatters();
 
 
-            var xdsConfig = new XdsConfig();
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = actionContext =>
+            { 
+                return SoapFaultErrorResponseFactory.CreateErrorResponse(actionContext); 
+            };
+        });
 
-            builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
+
+        var xdsConfig = new XdsConfig();
+
+        builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
 
 
-            // Register services
-            builder.Services.AddSingleton<XcaGateway>();
-            builder.Services.AddSingleton<SoapService>();
-            builder.Services.AddSingleton<RepositoryService>();
-            builder.Services.AddSingleton<RepositoryWrapper>();
-            builder.Services.AddSingleton<RegistryService>();
-            builder.Services.AddSingleton<RegistryWrapper>();
-            builder.Services.AddSingleton(xdsConfig);
+        // Register services
+        builder.Services.AddSingleton<XcaGateway>();
+        builder.Services.AddSingleton<SoapService>();
+        builder.Services.AddSingleton<RepositoryService>();
+        builder.Services.AddSingleton<RepositoryWrapper>();
+        builder.Services.AddSingleton<RegistryService>();
+        builder.Services.AddSingleton<RegistryWrapper>();
+        builder.Services.AddSingleton<CdaTransformerService>();
+        builder.Services.AddSingleton(xdsConfig);
+        
+        builder.Services.AddHostedService<AppStartupService>();
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-            // Feature Toggle (located in XcaXds.WebService/Appsettings.json)
-            builder.Services.AddFeatureManagement();
+        // Feature Toggle (located in XcaXds.WebService/Appsettings.json)
+        builder.Services.AddFeatureManagement();
 
-            // Begin app
-            var app = builder.Build();
-            app.UseExceptionHandler("/error");
+        // Begin app
+        var app = builder.Build();
+        app.UseExceptionHandler("/error");
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UsePolicyEnforcementPointMiddleware();
-
-            app.UseHttpsRedirection();
-
-            app.MapControllers();
-
-            app.Run();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        app.UsePolicyEnforcementPointMiddleware();
+
+        app.UseHttpsRedirection();
+
+        app.MapControllers();
+
+        app.Run();
     }
 }

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
@@ -7,6 +6,15 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public partial class SlotType
 {
+    public SlotType(string name, string value)
+    {
+        Name = name;
+        ValueList = new() { Value = [value] };
+    }
+    public SlotType()
+    {
+    }
+
     [XmlElement(Order = 0)]
     public ValueListType ValueList;
 

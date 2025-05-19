@@ -64,7 +64,7 @@ How **PJD.XcaDocumentSource** solution is structured, and how it can be implemen
 ### [🧾 Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
 Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
 
-### [📨 ITI-messages](/Docs/XdsSoapTransactions.md)
+### [📨 ITI-messages](/Docs/XdsTransactions.md)
 Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoints, as well as examples.
 
 ### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
@@ -73,8 +73,13 @@ Describes the lightweight implementation of HL7 messaging, allowing for Patient 
 ### [💠 OIDs (Object Identifiers)](/Docs/Oids.md)
 OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.
 
+## Other Functionality
+
 ### [🖥️ XDS Admin Front-End](/Docs/XdsAdminFrontEnd.md)
 Documentation of the Admin-GUI which also serves as a practical tool for interacting with the document registry and repository
+
+### [📄 CDA To Registry Metadata](/Docs/CdaRegistryMetadata.md)
+Describes the functionality of the CDA to ITI-41/Registry Metadata solution included in XcaDocumentSource.
 
 ## Document sharing - Actors and components  
 The **XDS-architecture** consists of the following actors/components:

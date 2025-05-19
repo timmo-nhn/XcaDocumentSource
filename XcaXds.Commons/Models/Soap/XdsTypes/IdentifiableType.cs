@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
 
@@ -29,6 +30,10 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public partial class IdentifiableType
 {
+    public IdentifiableType()
+    {
+        Id ??= Guid.NewGuid().ToString();
+    }
 
     [XmlElement("Slot", Order = 0)]
     public SlotType[]? Slot;
