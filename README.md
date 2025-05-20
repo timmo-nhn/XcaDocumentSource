@@ -79,7 +79,7 @@ OIDs are important in identifying the different components in the systems involv
 Documentation of the Admin-GUI which also serves as a practical tool for interacting with the document registry and repository
 
 ### [📄 CDA To Registry Metadata](/Docs/CdaRegistryMetadata.md)
-Describes the functionality of the CDA to ITI-41/Registry Metadata solution included in XcaDocumentSource.
+Describes the functionality for converting a CDA document to an ITI-41 message/Registry Metadata and vice-versa.
 
 ## Document sharing - Actors and components  
 The **XDS-architecture** consists of the following actors/components:

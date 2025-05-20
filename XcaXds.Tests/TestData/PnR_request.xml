@@ -1,0 +1,227 @@
+<Envelope xmlns="http://www.w3.org/2003/05/soap-envelope">
+    <Header></Header>
+    <Body>
+        <ProvideAndRegisterDocumentSetRequest xmlns="urn:ihe:iti:xds-b:2007">
+            <SubmitObjectsRequest xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
+                <RegistryObjectList xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                    <ExtrinsicObject id="Document01" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/xml"
+                        xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+                        <Slot name="creationTime">
+                            <ValueList>
+                                <Value>20250206141356</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="languageCode">
+                            <ValueList>
+                                <Value>nb-NO</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="sourcePatientId">
+                            <ValueList>
+                                <Value>13116900216^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="serviceStartTime">
+                            <ValueList>
+                                <Value>20250107151403</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="serviceStopTime">
+                            <ValueList>
+                                <Value>20250122151403</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="sourcePatientInfo">
+                            <ValueList>
+                                <Value>PID-5|Danser^Line</Value>
+                                <Value>PID-7|19691113</Value>
+                                <Value>PID-8|F</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="hash">
+                            <ValueList>
+                                <Value>35A3E0104791D9ACD5A16352ED075F390508CA10</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="repositoryUniqueId">
+                            <ValueList>
+                                <Value>2.16.578.1.12.4.5.100.1.2</Value>
+                            </ValueList>
+                        </Slot>
+                        <Slot name="size">
+                            <ValueList>
+                                <Value>80574</Value>
+                            </ValueList>
+                        </Slot>
+                        <Name>
+                            <LocalizedString value="test 123" />
+                        </Name>
+                        <Classification id="47f72122-01af-4fdc-9aac-3528a7ed952e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="ExtrinsicObject01" nodeRepresentation="">
+                            <Slot name="authorPerson">
+                                <ValueList>
+                                    <Value>502116685^GEIRAAS^BENEDIKTE^^^^^^&amp;urn:oid:2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+                                </ValueList>
+                            </Slot>
+                            <Slot name="authorInstitution">
+                                <ValueList>
+                                    <Value>Finnmarkssykehuset HF</Value>
+                                    <Value>Finnmarkssykehuset HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974880</Value>
+                                    <Value>Laboratoriemedisinsk avdeling - FIN^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4211607</Value>
+                                </ValueList>
+                            </Slot>
+                        </Classification>
+                        <Classification id="299a55b7-0466-4a85-ba5a-6ea0442677b1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="ExtrinsicObject01" nodeRepresentation="">
+                            <Slot name="authorInstitution">
+                                <ValueList>
+                                    <Value>Finnmarkssykehuset HF</Value>
+                                    <Value>Finnmarkssykehuset HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974880</Value>
+                                </ValueList>
+                            </Slot>
+                        </Classification>
+                        <Classification id="eb031e63-9ba6-4a55-90ed-308e39cad7f8" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="ExtrinsicObject01" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+                            <Slot name="codingScheme">
+                                <ValueList>
+                                    <Value>http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode</Value>
+                                </ValueList>
+                            </Slot>
+                            <Name>
+                                <LocalizedString value="urn:ihe:iti:xds:2017:mimeTypeSufficient" />
+                            </Name>
+                        </Classification>
+                        <Classification id="161ad02a-5797-4526-8be9-a6bd696ad2d5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="ExtrinsicObject01" nodeRepresentation="86.211">
+                            <Slot name="codingScheme">
+                                <ValueList>
+                                    <Value>2.16.578.1.12.4.1.1.1303</Value>
+                                </ValueList>
+                            </Slot>
+                            <Name>
+                                <LocalizedString value="86.211" />
+                            </Name>
+                        </Classification>
+                        <Classification id="f2db7879-aed7-4757-bdc6-624f4d0675ad" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" classifiedObject="ExtrinsicObject01" nodeRepresentation="4">
+                            <Slot name="codingScheme">
+                                <ValueList>
+                                    <Value>2.16.578.1.12.4.1.1.8653</Value>
+                                </ValueList>
+                            </Slot>
+                            <Name>
+                                <LocalizedString value="4" />
+                            </Name>
+                        </Classification>
+                        <Classification id="ee748ec0-7265-431f-9cce-ff3901548508" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="ExtrinsicObject01" nodeRepresentation="A00-1">
+                            <Slot name="codingScheme">
+                                <ValueList>
+                                    <Value>2.16.578.1.12.4.1.1.9602</Value>
+                                </ValueList>
+                            </Slot>
+                            <Name>
+                                <LocalizedString value="Epikriser og sammenfatninger" />
+                            </Name>
+                        </Classification>
+                        <Classification id="81a47ff0-3d30-4572-94a4-e71069925df6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" classifiedObject="ExtrinsicObject01" nodeRepresentation="A01-2">
+                            <Slot name="codingScheme">
+                                <ValueList>
+                                    <Value>2.16.578.1.12.4.1.1.9602</Value>
+                                </ValueList>
+                            </Slot>
+                            <Name>
+                                <LocalizedString value="Kriseplan" />
+                            </Name>
+                        </Classification>
+                        <Classification id="76626fbe-8828-4b6a-bc64-9d4f8ccddec0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="ExtrinsicObject01" nodeRepresentation="NORN_DUP">
+                            <Slot name="codingScheme">
+                                <ValueList>
+                                    <Value>2.16.578.1.12.4.1.1.9603</Value>
+                                </ValueList>
+                            </Slot>
+                            <Name>
+                                <LocalizedString value="Nektet, duplikat" />
+                            </Name>
+                        </Classification>
+                        <ExternalIdentifier id="97662f6d-7271-4ef8-b9ca-9fd054527c06" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="ExtrinsicObject01" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="ExtrinsicObject01">
+                            <Name>
+                                <LocalizedString value="XDSDocumentEntry.uniqueId" />
+                            </Name>
+                        </ExternalIdentifier>
+                        <ExternalIdentifier id="df0a5ea1-d5ae-4a26-b1f0-abc0e33ff04a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="ExtrinsicObject01" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.7.3.2.1&amp;ISO">
+                            <Name>
+                                <LocalizedString value="XDSDocumentEntry.patientId" />
+                            </Name>
+                        </ExternalIdentifier>
+                    </ExtrinsicObject>
+                    <RegistryPackage id="SubmissionSet01" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
+                        <Slot name="submissionTime">
+                            <ValueList>
+                                <Value>20041225235050</Value>
+                            </ValueList>
+                        </Slot>
+                        <Name>
+                            <LocalizedString value="Physical"/>
+                        </Name>
+                        <Description>
+                            <LocalizedString value="Annual physical"/>
+                        </Description>
+                        <Classification classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d" classifiedObject="SubmissionSet01" nodeRepresentation="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_11">
+                            <Slot name="authorPerson">
+                                <ValueList>
+                                    <Value>^Dopplemeyer^Sherry^^^</Value>
+                                </ValueList>
+                            </Slot>
+                            <Slot name="authorInstitution">
+                                <ValueList>
+                                    <Value>Cleveland Clinic</Value>
+                                    <Value>Berea Community</Value>
+                                </ValueList>
+                            </Slot>
+                            <Slot name="authorRole">
+                                <ValueList>
+                                    <Value>Primary Surgon</Value>
+                                </ValueList>
+                            </Slot>
+                            <Slot name="authorSpecialty">
+                                <ValueList>
+                                    <Value>Orthopedic</Value>
+                                </ValueList>
+                            </Slot>
+                        </Classification>
+                        <Classification classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="SubmissionSet01" nodeRepresentation="History and Physical" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_12">
+                            <Slot name="codingScheme">
+                                <ValueList>
+                                    <Value>Connect-a-thon contentTypeCodes</Value>
+                                </ValueList>
+                            </Slot>
+                            <Name>
+                                <LocalizedString value="History and Physical"/>
+                            </Name>
+                        </Classification>
+                        <ExternalIdentifier identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" value="1.2009.9.1.2456" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_13" registryObject="SubmissionSet01">
+                            <Name>
+                                <LocalizedString value="XDSSubmissionSet.uniqueId"/>
+                            </Name>
+                        </ExternalIdentifier>
+                        <ExternalIdentifier identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" value="1.3.6.1.4.1.21367.2009.1.2.1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_14" registryObject="SubmissionSet01">
+                            <Name>
+                                <LocalizedString value="XDSSubmissionSet.sourceId"/>
+                            </Name>
+                        </ExternalIdentifier>
+                        <ExternalIdentifier identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="76cc765a442f410^^^&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_15" registryObject="SubmissionSet01">
+                            <Name>
+                                <LocalizedString value="XDSSubmissionSet.patientId"/>
+                            </Name>
+                        </ExternalIdentifier>
+                    </RegistryPackage>
+                    <Association associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="SubmissionSet01" targetObject="Document01" id="ID_1216346_2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
+                        <Slot name="SubmissionSetStatus">
+                            <ValueList>
+                                <Value>Original</Value>
+                            </ValueList>
+                        </Slot>
+                    </Association>
+                </RegistryObjectList>
+            </SubmitObjectsRequest>
+            <Document id="Document01"
+                xmlns="urn:ihe:iti:xds-b:2007">PHJpbTpBc3NvY2lhdGlvbiBhc3NvY2lhdGlvblR5cGU9InVybjpvYXNpczpuYW1lczp0YzplYnhtbC1yZWdyZXA6QXNzb2NpYXRpb25UeXBlOlJQTEMiIHNvdXJjZU9iamVjdD0iRXh0cmluc2ljT2JqZWN0X0RvY3VtZW50MDAxIiB0YXJnZXRPYmplY3Q9IkRvY3VtZW50MDEiIGlkPSJBc3NvY2lhdGlvbjAwMSIgb2JqZWN0VHlwZT0idXJuOm9hc2lzOm5hbWVzOnRjOmVieG1sLXJlZ3JlcDpPYmplY3RUeXBlOlJlZ2lzdHJ5T2JqZWN0OkFzc29jaWF0aW9uIj4NCiAgICA8cmltOlNsb3QgbmFtZT0iU3VibWlzc2lvblNldFN0YXR1cyI+DQogICAgICAgIDxyaW06VmFsdWVMaXN0Pg0KICAgICAgICAgICAgPHJpbTpWYWx1ZT5PcmlnaW5hbDwvcmltOlZhbHVlPg0KICAgICAgICA8L3JpbTpWYWx1ZUxpc3Q+DQogICAgPC9yaW06U2xvdD4NCjwvcmltOkFzc29jaWF0aW9uPg0K
+            </Document>
+        </ProvideAndRegisterDocumentSetRequest>
+    </Body>
+</Envelope>

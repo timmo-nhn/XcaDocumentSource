@@ -30,7 +30,7 @@ public class PolicyEnforcementPointMiddlware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "PEP bypass is enabled in production!");
+        Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! PEP bypass is enabled in production!");
         
         // If the request is from localhost and environment is development we can ignore PEP.
         var requestIsLocal = httpContext.Connection.RemoteIpAddress is not null &&

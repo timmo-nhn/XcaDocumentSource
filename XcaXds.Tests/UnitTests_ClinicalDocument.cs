@@ -1,4 +1,7 @@
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 
 namespace XcaXds.Tests;
@@ -43,7 +46,7 @@ public class UnitTests_ClinicalDocument
     }
 
     [Fact]
-    public async Task TransformCda()
+    public async Task TransformCdaToIti41()
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
@@ -63,6 +66,40 @@ public class UnitTests_ClinicalDocument
 
             var registryobjects = _transformerService.TransformCdaDocumentToRegistryObjectList(docc);
 
+        }
+    }
+
+
+    [Fact]
+    public async Task TransformIti41ToCda()
+    {
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
+
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+
+        foreach (var file in testDataFiles)
+        {
+            var fileContent = string.Empty;
+
+            if (file.Contains("PnR_request"))
+            {
+                using var reader = File.OpenText(file);
+                fileContent = await reader.ReadToEndAsync();
+            }
+            else continue;
+
+            var docc = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(fileContent);
+            try
+            {
+                var registryobjects = _transformerService.TransformProvideAndRegisterRequestToClinicalDocument(docc.Body.ProvideAndRegisterDocumentSetRequest);
+            }
+            catch (Exception)
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                throw;
+            }
         }
     }
 }

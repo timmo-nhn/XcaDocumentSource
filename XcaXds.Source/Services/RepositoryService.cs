@@ -29,6 +29,7 @@ public class RepositoryService
         _xcaGateway = xcaGateway;
         _repositoryWrapper = repositoryWrapper;
     }
+
     public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope)
     {
         var registryObjectList = iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
@@ -84,9 +85,7 @@ public class RepositoryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
                 }
-
             }
-
         }
         registryResponse.EvaluateStatusCode();
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);

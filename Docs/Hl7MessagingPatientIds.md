@@ -1,4 +1,4 @@
-# HL7 Messaging and Patient-Identifiers
+# HL7 Messaging and Patient Identifiers
 The **XcaDocumentSource** solution includes a minimal but scaleable **HL7 V2** implementation with an endpoint for sending and receiving HL7V2 messages according to the [IHE PDQ profile - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume1/ch-8.html). The endpoint is primarily used by **Document Admin** Frontend to find and reference Patient Identifiers from the Document registry. This in order to assist in filling out forms for the frontend, where, for instance, a full **HL7 CX** datatype is required.
 
 ## Patient Demographics Query Implementation

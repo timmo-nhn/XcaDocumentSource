@@ -115,13 +115,14 @@ public static class Constants
 
             public static List<ConceptType> ConfidentialityCodes = new()
             {
-                new() 
+                new()
                 {
                     code = "N",
                     codeSystemName = "2.16.578.1.12.4.1.1.9603",
                     displayName = "Normal"
                 }
             };
+
         }
 
         public static class QueryParamters
@@ -453,6 +454,21 @@ public static class Constants
         public const string Hpr = "2.16.578.1.12.4.1.4.4";
         public const string ReshId = "2.16.578.1.12.4.1.4.102";
         public const string Brreg = "2.16.578.1.12.4.1.4.101";
+
+        public static class CodeSystems
+        {
+            public static class Volven
+            {
+                public const string Gender = "2.16.578.1.12.4.1.1.3101";
+                public const string DocumentType = "2.16.578.1.12.4.1.1.9602";
+                public const string Confidentiality = "2.16.578.1.12.4.1.1.9603";
+            }
+            public static class Hl7
+            {
+                public const string Confidentiality = "2.16.840.1.113883.5.25";
+            }
+        }
+
 
     }
     public static class MimeTypes

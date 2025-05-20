@@ -1,6 +1,6 @@
 ## Transactions In IHE XDS  
 Below are the transactions supported by default by **PJD.XcaDocumentSource**. Each transaction section contains a table defining the properties of the transaction.  
-
+> It is reccomended to read [Xds And Soap](/Docs/XdsAndSoap.md) first, as it gives an introduction to SOAP/ITI messages and the components 
 ### ITI-18 - Registry Stored Query 
 This transaction is used in a dialogue between the Document Requester and the Document Registry to query documents with specific properties.  
 A request with specific search parameters is sent from a Document Requester to the Document Registry, which sends back a list of documents that satisfy the search parameters.
@@ -10,9 +10,9 @@ A request with specific search parameters is sent from a Document Requester to t
 | HTTP action | POST |
 | Short description | Get list of metadata for patient or resource |
 | Endpoint    | /Registry/Services/RegistryService |
-| SOAP request | `<AdhocQueryRequest>` |
+| XML type request | `<AdhocQueryRequest>` |
 | SOAP request action | urn:ihe:iti:2007:RegistryStoredQuery |
-| SOAP response | `<AdhocQueryResponse>`          |
+| XML type response | `<AdhocQueryResponse>`          |
 | SOAP response action | urn:ihe:iti:2007:RegistryStoredQueryResponse |
 
 *Table x: ITI-18 request*
@@ -95,9 +95,9 @@ Internally, the ITI-38 request is transformed into an **ITI-18** request, and se
 | HTTP action | POST |
 | Short description | Get list of metadata for patient or resource |
 | Endpoint | /XCA/Services/RespondingGatewayService |
-| SOAP request | `<AdhocQueryRequest>` |
+| XML type request | `<AdhocQueryRequest>` |
 | SOAP request action | urn:ihe:iti:2007:CrossGatewayQuery |
-| SOAP response | `<AdhocQueryResponse>` |
+| XML type response | `<AdhocQueryResponse>` |
 | SOAP response action | urn:ihe:iti:2007:CrossGatewayQueryResponse |
 
 *Table x: ITI-38 request*
@@ -115,9 +115,9 @@ Internally, the ITI-39 request is transformed into an **ITI-43** request, and se
 | HTTP action | POST |
 | Short description | Get document or set of documents from Repository |
 | Endpoint    | /XCA/Services/RespondingGatewayService |
-| SOAP request | `<RetrieveDocumentSetRequest>` |
+| XML type request | `<RetrieveDocumentSetRequest>` |
 | SOAP request action | urn:ihe:iti:2007:CrossGatewayRetrieve |
-| SOAP response | `<RetrieveDocumentSetResponse>`          |
+| XML type response | `<RetrieveDocumentSetResponse>`          |
 | SOAP response action |rn:ihe:iti:2007:CrossGatewayRetrieveResponse |
 
 *Table x: ITI-39 request*
@@ -136,9 +136,9 @@ However, it's merely a culmination of the types and formats explained earlier in
 | HTTP action | POST |
 | Short description | Get document or set of documents from Repository |
 | Endpoint    | /XCA/Services/RespondingGatewayService |
-| SOAP request | `<ProvideAndRegisterDocumentSetRequest>` |
+| XML type request | `<ProvideAndRegisterDocumentSetRequest>` |
 | SOAP request action | urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-b |
-| SOAP response | `<RegistryResponse>`          |
+| XML type response | `<RegistryResponse>`          |
 | SOAP response action | urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse |
 
 *Table x: ITI-41 request*
@@ -203,9 +203,9 @@ Register Document Set is used to upload metadata to the **Document Registry**. A
 | HTTP action | POST |
 | Short description | Get document or set of documents from Repository |
 | Endpoint    | /Registry/Services/RegistryService |
-| SOAP request | `<RegisterDocumentSetRequest>` |
+| XML type request | `<RegisterDocumentSetRequest>` |
 | SOAP request action | urn:ihe:iti:2007:RegisterDocumentSet-b |
-| SOAP response | `<RegistryReponse>`          |
+| XML type response | `<RegistryReponse>`          |
 | SOAP response action | urn:ihe:iti:2007:RegisterDocumentSet-bResponse |
 
 *Table x: ITI-42 request*
@@ -280,9 +280,9 @@ The Document Consumer must use the following attributes received from `<AdhocQue
 | HTTP action | POST |
 | Short description | Get a document or multiple documents |
 | Endpoint    | /Repository/Services/RepositoryService |
-| SOAP request | `<RetrieveDocumentSetRequest>` |
+| XML type request | `<RetrieveDocumentSetRequest>` |
 | SOAP request action | urn:ihe:iti:2007:RegistryStoredQuery |
-| SOAP response | `<RetrieveDocumentSetResponse>`          |
+| XML type response | `<RetrieveDocumentSetResponse>`          |
 | SOAP response action | urn:ihe:iti:2007:RegistryStoredQueryResponse |
 
 *Table x: ITI-43 request*
@@ -327,9 +327,9 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 | HTTP action | POST |
 | Short description | Remove one or more items from the **Document Registry** by specifying the `Id` of the item(s) to remove |
 | Endpoint    | /Registry/Services/RegistryService |
-| SOAP request | `<RemoveObjectsRequest>` |
+| XML type request | `<RemoveObjectsRequest>` |
 | SOAP request action | urn:ihe:iti:2010:DeleteDocumentSet |
-| SOAP response | `<RegistryResponse>`          |
+| XML type response | `<RegistryResponse>`          |
 | SOAP response action | urn:ihe:iti:2010:DeleteDocumentSetResponse |
 
 *Table x: ITI-62 request*
@@ -365,9 +365,9 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 | HTTP action | POST |
 | Short description | Delete documents |
 | Endpoint    | /Repository/Services/RepositoryService |
-| SOAP request | `<RemoveDocumentsRequest>` |
+| XML type request | `<RemoveDocumentsRequest>` |
 | SOAP request action | urn:ihe:iti:2017:RemoveDocuments |
-| SOAP response | `<RegistryResponse>`          |
+| XML type response | `<RegistryResponse>`          |
 | SOAP response action | urn:ihe:iti:2017:RemoveDocumentsResponse |
 
 *Table x: ITI-86 request*
