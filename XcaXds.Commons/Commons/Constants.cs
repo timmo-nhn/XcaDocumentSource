@@ -329,6 +329,7 @@ public static class Constants
             public const string AuthorInstitution = "authorInstitution";
             public const string AuthorTelecommunication = "authorTelecommunication";
             public const string CreationTime = "creationTime";
+            public const string HomeCommunityId = "homeCommunityId";
             public const string LanguageCode = "languageCode";
             public const string LegalAuthenticator = "legalAuthenticator";
             public const string CodingScheme = "codingScheme";

@@ -66,4 +66,12 @@ public partial class SlotType
 
         return ValueList.Value;
     }
+
+    public void AddValue(string id)
+    {
+        if (id != null)
+        {
+            ValueList.Value = [.. ValueList.Value, id];
+        }
+    }
 }

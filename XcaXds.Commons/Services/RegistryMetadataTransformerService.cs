@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.InteropServices;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -439,7 +440,7 @@ public class RegistryMetadataTransformerService
                 (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
             ?? authorSlotXon.FirstOrDefault();
 
-        if (department != null && department?.IdNumber != organization?.IdNumber)
+        if (department != null && department?.OrganizationIdentifier != organization?.OrganizationIdentifier)
         {
             return new()
             {
@@ -473,7 +474,7 @@ public class RegistryMetadataTransformerService
         if (organization != null)
         {
             authorOrganization.AssigningAuthority = organization?.AssigningAuthority?.UniversalId ?? organization?.AssigningFacility?.UniversalId ?? string.Empty;
-            authorOrganization.Id = organization?.IdNumber ?? string.Empty;
+            authorOrganization.Id = organization?.OrganizationIdentifier ?? string.Empty;
             authorOrganization.OrganizationName = organization?.OrganizationName ?? string.Empty;
             return authorOrganization;
         }
@@ -523,16 +524,16 @@ public class RegistryMetadataTransformerService
     {
         var registryObjectList = new List<IdentifiableType>();
 
-        var extrinsicObject = MapFromDocumentReferenceToExtrinsicObject(documentReference.DocumentEntryMetadata);
-        var registryPackage = MapFromSubmissionSetDtoToRegistryPackage(documentReference.SubmissionSetMetadata);
-        var association = MapFromAssociationDtoToAssociation(documentReference.Association);
+        var extrinsicObject = GetExtrinsicObjectFromDocumentReferenceDto(documentReference.DocumentEntryMetadata);
+        var registryPackage = GetRegistryPackageFromDocumentReferenceDto(documentReference.SubmissionSetMetadata);
+        var association = GetAssociationFromAssociationDto(documentReference.Association);
 
         registryObjectList.Add(extrinsicObject);
 
         return registryObjectList.ToArray();
     }
 
-    private ExtrinsicObjectType MapFromDocumentReferenceToExtrinsicObject(DocumentEntryDto documentEntryMetadata)
+    private ExtrinsicObjectType GetExtrinsicObjectFromDocumentReferenceDto(DocumentEntryDto documentEntryMetadata)
     {
         var extrinsicObject = new ExtrinsicObjectType();
 
@@ -563,16 +564,333 @@ public class RegistryMetadataTransformerService
         return extrinsicObject;
     }
 
+    private void GetSizeSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        if (documentEntryMetadata.Size != null)
+        {
+            extrinsicObject.AddSlot(Constants.Xds.SlotNames.Size, [documentEntryMetadata.Size]);
+        }
+    }
+
+    private void GetRepositoryUniqueIdSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var repositoryUniqueId = documentEntryMetadata.RepositoryUniqueId;
+        if (repositoryUniqueId != null)
+        {
+            extrinsicObject.AddSlot(Constants.Xds.SlotNames.RepositoryUniqueId, [repositoryUniqueId]);
+        }
+    }
+
+    private void GetSourcePatientInfoSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var sourcePatientIdSlot = new SlotType();
+        var sourcePatientInfo = documentEntryMetadata.SourcePatientInfo;
+
+
+        if (sourcePatientInfo?.PatientId != null)
+        {
+            var patientId = new CX()
+            {
+                IdNumber = sourcePatientInfo?.PatientId?.Id,
+                AssigningAuthority = new()
+                {
+                    UniversalId = sourcePatientInfo?.PatientId?.System,
+                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
+                }
+            };
+
+            sourcePatientIdSlot.AddValue($"PID-3|{patientId.Serialize()}");
+        }
+
+
+        if (sourcePatientInfo?.FamilyName != null)
+        {
+            var lastNameParts = sourcePatientInfo.FamilyName?.Split(' ');
+
+            var sourcePatientXcn = new XPN()
+            {
+                GivenName = sourcePatientInfo.GivenName ?? string.Empty,
+                FamilyName = sourcePatientInfo.FamilyName ?? string.Empty,
+            };
+
+            sourcePatientIdSlot.AddValue($"PID-5|{sourcePatientXcn.Serialize()}");
+        }
+
+
+        if (sourcePatientInfo?.BirthTime != null && sourcePatientInfo?.BirthTime.Value != null)
+        {
+            sourcePatientIdSlot.AddValue($"PID-7|{sourcePatientInfo?.BirthTime.Value.ToString(Constants.Hl7.Dtm.DtmYmdFormat)}");
+        }
+
+
+        if (sourcePatientInfo?.Gender != null)
+        {
+            sourcePatientIdSlot.AddValue($"PID-8|{sourcePatientInfo.Gender}");
+        }
+
+    }
+
+    private void GetServiceStopTimeSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var serviceStartTime = documentEntryMetadata.ServiceStopTime;
+        if (serviceStartTime != null)
+        {
+            extrinsicObject.AddSlot(Constants.Xds.SlotNames.ServiceStopTime, [serviceStartTime.Value.ToString()]);
+        }
+    }
+
+    private void GetServiceStartTimeSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var serviceStartTime = documentEntryMetadata.ServiceStartTime;
+        if (serviceStartTime != null)
+        {
+            extrinsicObject.AddSlot(Constants.Xds.SlotNames.ServiceStartTime, [serviceStartTime.Value.ToString()]);
+        }
+    }
+
+    private void GetNameLocalizedStringFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        if (documentEntryMetadata.Title != null)
+        {
+            extrinsicObject.Name.LocalizedString = [new() { Value = documentEntryMetadata.Title }];
+        }
+    }
+
+    private void GetMimeTypeFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        extrinsicObject.MimeType = documentEntryMetadata.MimeType;
+    }
+
+    private void GetLegalAuthenticatorSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var legalAuthenticator = documentEntryMetadata.LegalAuthenticator;
+        if (legalAuthenticator != null)
+        {
+            var lastNameParts = legalAuthenticator.FamilyName?.Split(' ');
+            var middleName = lastNameParts?.FirstOrDefault();
+            var lastName = string.Join(" ", lastNameParts?.Skip(1));
+            var legalAuthXcn = new XCN()
+            {
+                PersonIdentifier = legalAuthenticator.Id,
+                GivenName = legalAuthenticator.GivenName,
+                MiddleName = string.IsNullOrWhiteSpace(middleName) ? null : middleName,
+                FamilyName = lastName,
+                AssigningAuthority = new()
+                {
+                    UniversalId = legalAuthenticator.IdSystem,
+                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
+                }
+            };
+
+            extrinsicObject.AddSlot(Constants.Xds.SlotNames.LegalAuthenticator, [legalAuthXcn.Serialize()]);
+        }
+    }
+
+    private void GetHomeCommunityIdFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var homeCommunityId = documentEntryMetadata.HomeCommunityId;
+        if (homeCommunityId != null)
+        {
+            extrinsicObject.AddSlot(Constants.Xds.SlotNames.HomeCommunityId, [homeCommunityId]);
+        }
+    }
+
+    private void GetHealthCareFacilityTypeCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var healthcareFacilityTypeCode = documentEntryMetadata.HealthCareFacilityTypeCode;
+        var healthcareFacilityTypeCodeClassification = MapToClassification(healthcareFacilityTypeCode);
+
+        if (healthcareFacilityTypeCodeClassification != null)
+        {
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, healthcareFacilityTypeCodeClassification];
+        }
+    }
+
+    private void GetFormatCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var formatCode = documentEntryMetadata.ClassCode;
+        var formatCodeClassification = MapToClassification(formatCode);
+
+        if (formatCodeClassification != null)
+        {
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, formatCodeClassification];
+        }
+    }
+
+    private void GetEventCodeListClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var eventCode = documentEntryMetadata.ClassCode;
+        var eventCodeClassification = MapToClassification(eventCode);
+
+        if (eventCodeClassification != null)
+        {
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, eventCodeClassification];
+        }
+    }
+
+    private void GetConfidentialityCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var confCode = documentEntryMetadata.ConfidentialityCode;
+        var confCodeClassification = MapToClassification(confCode);
+
+        if (confCodeClassification != null)
+        {
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, confCodeClassification];
+        }
+    }
+
+    private ClassificationType MapToClassification(CodedValue? confCode)
+    {
+        if (confCode != null)
+        {
+            return new()
+            {
+                NodeRepresentation = confCode.Code,
+                Name = new() { LocalizedString = [new() { Value = confCode.DisplayName }] },
+                Slot = [new() { Name = Constants.Xds.SlotNames.CodingScheme, ValueList = new() { Value = [confCode.CodeSystem] } }]
+            };
+        }
+
+        return null;
+    }
+
+    private void GetClassCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        var classCodeClassification = new ClassificationType();
+        var classCode = documentEntryMetadata.ClassCode;
+
+        if (classCode != null)
+        {
+            classCodeClassification.NodeRepresentation = classCode.Code;
+            classCodeClassification.Name.LocalizedString = [new() { Value = classCode.Code }];
+            classCodeClassification.AddSlot(Constants.Xds.SlotNames.CodingScheme, [classCode.CodeSystem]);
+        }
+    }
+
+    private void GetHashSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    {
+        if (documentEntryMetadata?.Hash == null) return;
+
+        extrinsicObject.AddSlot(Constants.Xds.SlotNames.Hash, [documentEntryMetadata.Hash]);
+    }
+
     private void GetAuthorClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
-        var classification = new ClassificationType();
+        var authorClassification = new ClassificationType();
 
-        GetAuthorPersonSlotFromDocumentEntryDto(extrinsicObject, documentEntryMetadata);
-        GetAuthorInstitutionSlotFromDocumentEntryDto(extrinsicObject, documentEntryMetadata);
-        GetAuthorRoleSlotFromDocumentEntryDto(extrinsicObject, documentEntryMetadata);
-        GetAuthorSpecialitySlotFromDocumentEntryDto(extrinsicObject, documentEntryMetadata);
+        GetAuthorPersonSlotFromAuthor(authorClassification, documentEntryMetadata);
+        GetAuthorInstitutionSlotFromAuthor(authorClassification, documentEntryMetadata);
+        GetAuthorRoleSlotFromAuthor(authorClassification, documentEntryMetadata);
+        GetAuthorSpecialitySlotFromAuthor(authorClassification, documentEntryMetadata);
 
-        
+        extrinsicObject.Classification = [.. extrinsicObject.Classification, authorClassification];
+    }
+
+    private void GetAuthorSpecialitySlotFromAuthor(ClassificationType classification, Author documentAuthor)
+    {
+        var authorSpeciality = documentAuthor?.Speciality;
+
+        if (authorSpeciality == null) return;
+
+        var authorSpecialityCx = new CX()
+        {
+            IdNumber = authorSpeciality.Code,
+            AssigningAuthority = new HD()
+            {
+                UniversalId = authorSpeciality.CodeSystem,
+                NamespaceId = Constants.Hl7.UniversalIdType.Iso
+            }
+        };
+
+        classification.AddSlot(Constants.Xds.SlotNames.AuthorSpecialty, [authorSpecialityCx.Serialize()]);
+    }
+
+    private void GetAuthorRoleSlotFromAuthor(ClassificationType classification, DocumentEntryDto documentEntryMetadata)
+    {
+        var authorRole = documentEntryMetadata?.Author?.Role;
+        if (authorRole == null) return;
+
+        var authorRoleCx = new CX()
+        {
+            IdNumber = authorRole.Code,
+            AssigningAuthority = new HD()
+            {
+                UniversalId = authorRole.CodeSystem,
+                NamespaceId = Constants.Hl7.UniversalIdType.Iso
+            }
+        };
+
+        classification.AddSlot(Constants.Xds.SlotNames.AuthorRole, [authorRoleCx.Serialize()]);
+    }
+
+    private void GetAuthorInstitutionSlotFromAuthor(ClassificationType classification, DocumentEntryDto documentEntryMetadata)
+    {
+        var authorInstitution = documentEntryMetadata?.Author;
+        if (authorInstitution == null) return;
+
+        var authorInstitutionSlot = new SlotType()
+        {
+            Name = Constants.Xds.SlotNames.AuthorInstitution
+        };
+
+        if (authorInstitution.Organization != null)
+        {
+            var org = new XON()
+            {
+                OrganizationName = authorInstitution.Organization.OrganizationName,
+                OrganizationIdentifier = authorInstitution.Organization.Id,
+                AssigningAuthority = new()
+                {
+                    UniversalId = authorInstitution.Organization.AssigningAuthority,
+                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
+                }
+            };
+
+            authorInstitutionSlot.ValueList.Value = [org.Serialize()];
+        }
+
+        if (authorInstitution.Department != null)
+        {
+            var dpt = new XON()
+            {
+                OrganizationName = authorInstitution.Department.OrganizationName,
+                OrganizationIdentifier = authorInstitution.Department.Id,
+                AssigningAuthority = new()
+                {
+                    UniversalId = authorInstitution.Department.AssigningAuthority,
+                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
+                }
+            };
+
+            authorInstitutionSlot.ValueList.Value = [.. authorInstitutionSlot.ValueList.Value, dpt.Serialize()];
+        }
+
+        classification.AddSlot(authorInstitutionSlot);
+    }
+
+    private void GetAuthorPersonSlotFromAuthor(ClassificationType classification, DocumentEntryDto documentEntryMetadata)
+    {
+        var authorPerson = documentEntryMetadata?.Author?.Person;
+        if (authorPerson != null)
+        {
+            var lastNameParts = authorPerson.LastName?.Split(' ');
+            var middleName = lastNameParts?.FirstOrDefault();
+            var lastName = string.Join(" ", lastNameParts?.Skip(1));
+            var authorXcn = new XCN()
+            {
+                PersonIdentifier = authorPerson.Id,
+                GivenName = authorPerson.FirstName,
+                MiddleName = string.IsNullOrWhiteSpace(middleName) ? null : middleName,
+                FamilyName = lastName,
+                AssigningAuthority = new()
+                {
+                    UniversalId = authorPerson.AssigningAuthority,
+                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
+                }
+            };
+
+            classification.AddSlot(Constants.Xds.SlotNames.AuthorPerson, [authorXcn.Serialize()]);
+        }
     }
 
     private static void GetAvailabilityStatusFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
@@ -627,12 +945,59 @@ public class RegistryMetadataTransformerService
         }
     }
 
-    private RegistryPackageType MapFromSubmissionSetDtoToRegistryPackage(SubmissionSetDto submissionSetMetadata)
+    private RegistryPackageType GetRegistryPackageFromDocumentReferenceDto(SubmissionSetDto submissionSetMetadata)
     {
-        throw new NotImplementedException();
+        var registryPackage = new RegistryPackageType();
+
+        GetAuthorClassificationFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetAvailabilitystatusFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        GetContentTypeCodeFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        GetSubmissionTimeFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetHomeCommunityIdFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        registryPackage.Id = submissionSetMetadata.Id;
+        GetPatientIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetSourceIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetSubmissionTimeFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        GetNameLocalizedStringFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        GetUniqueIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+
+        return registryPackage;
     }
 
-    private AssociationType MapFromAssociationDtoToAssociation(AssociationDto association)
+    private void GetAuthorClassificationFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var authorClassification = new ClassificationType();
+
+        GetAuthorInstitutionSlotFromAuthor(authorClassification, submissionSetMetadata);
+
+        var authorPerson = submissionSetMetadata.Author.Person;
+
+        if (authorPerson != null)
+        {
+            var lastNameParts = authorPerson.LastName?.Split(' ');
+            var middleName = lastNameParts?.FirstOrDefault();
+            var lastName = string.Join(" ", lastNameParts?.Skip(1));
+            var authorXcn = new XCN()
+            {
+                PersonIdentifier = authorPerson.Id,
+                GivenName = authorPerson.FirstName,
+                MiddleName = string.IsNullOrWhiteSpace(middleName) ? null : middleName,
+                FamilyName = lastName,
+                AssigningAuthority = new()
+                {
+                    UniversalId = authorPerson.AssigningAuthority,
+                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
+                }
+            };
+
+            authorClassification.AddSlot(Constants.Xds.SlotNames.AuthorPerson, [authorXcn.Serialize()]);
+        }
+
+
+
+    }
+
+    private AssociationType GetAssociationFromAssociationDto(AssociationDto association)
     {
         throw new NotImplementedException();
     }
