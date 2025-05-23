@@ -45,29 +45,29 @@ public class UnitTests_ClinicalDocument
         }
     }
 
-    [Fact]
-    public async Task TransformCdaToIti41()
-    {
-        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
+    //[Fact]
+    //public async Task TransformCdaToIti41()
+    //{
+    //    var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+    //    var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
-        foreach (var file in testDataFiles)
-        {
-            var fileContent = string.Empty;
+    //    foreach (var file in testDataFiles)
+    //    {
+    //        var fileContent = string.Empty;
 
-            if (file.Contains("CDA_Level1"))
-            {
-                fileContent = File.ReadAllText(file);
-            }
-            else continue;
+    //        if (file.Contains("CDA_Level1"))
+    //        {
+    //            fileContent = File.ReadAllText(file);
+    //        }
+    //        else continue;
 
-            var docc = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(fileContent);
+    //        var docc = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(fileContent);
 
-            var registryobjects = _transformerService.TransformCdaDocumentToRegistryObjectList(docc);
+    //        var registryobjects = _transformerService.TransformCdaDocumentToRegistryObjectList(docc);
 
-        }
-    }
+    //    }
+    //}
 
 
     [Fact]
@@ -89,15 +89,14 @@ public class UnitTests_ClinicalDocument
             else continue;
 
             var docc = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(fileContent);
+
             try
             {
-                var registryobjects = _transformerService.TransformProvideAndRegisterRequestToClinicalDocument(docc.Body.ProvideAndRegisterDocumentSetRequest);
+                var cdaDocument = _transformerService.TransformProvideAndRegisterRequestToClinicalDocument(docc.Body.ProvideAndRegisterDocumentSetRequest.SubmitObjectsRequest.RegistryObjectList, docc.Body.ProvideAndRegisterDocumentSetRequest.Document);
+                var gobb = sxmls.SerializeSoapMessageToXmlString(cdaDocument);
             }
             catch (Exception)
             {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
                 throw;
             }
         }

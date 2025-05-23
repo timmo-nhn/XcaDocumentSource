@@ -28,7 +28,7 @@ public class OrganizationPartOf
     [XmlElement("effectiveTime")]
     public IVL_TS? EffectiveTime { get; set; }
 
-    [XmlElement("organization")]
-    public Organization? Organization { get; set; }
+    [XmlElement("wholeOrganization")]
+    public Organization? WholeOrganization { get; set; }
 
 }

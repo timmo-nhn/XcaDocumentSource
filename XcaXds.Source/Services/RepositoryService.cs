@@ -1,19 +1,15 @@
-﻿using System.Collections.Immutable;
-using System.Net.Http.Headers;
-using System.ServiceModel.Channels;
+﻿using System.Net.Http.Headers;
 using System.Text;
-using PdfSharp.Pdf.Content.Objects;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
 
 namespace XcaXds.Source.Services;
 
@@ -44,12 +40,15 @@ public class RepositoryService
 
         var associations = registryObjectList.OfType<AssociationType>().ToArray();
         var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
+        var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var documents = iti41Envelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
 
         foreach (var association in associations)
         {
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
+            var assocRegistryPackage = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.SourceObject.NoUrn());
+
             if (assocExtrinsicObject == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "ExtrinsicObject Missing", "SubmitObjectsRequest");
@@ -161,31 +160,31 @@ public class RepositoryService
             }
             if (repoId != _xdsConfig.RepositoryUniqueId)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}".Trim(),"XDS Repository");
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}".Trim(), "XDS Repository");
                 continue;
             }
             var file = _repositoryWrapper.GetDocumentFromRepository(home, repoId, docId);
-            Byte[] renamedFile;
+            byte[] renamedFile;
             if (file != null)
-            { 
+            {
                 var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);
                 if (mimeType == "application/pdf")
                 {
-                  // Create a memory stream from the file bytes
-                  using MemoryStream ms = new(file);
-                  // Open the PDF document from the memory stream
-                  PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
+                    // Create a memory stream from the file bytes
+                    using MemoryStream ms = new(file);
+                    // Open the PDF document from the memory stream
+                    PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
 
-                  // Set the title to the document ID
-                  pdfDoc.Info.Title = docId;
+                    // Set the title to the document ID
+                    pdfDoc.Info.Title = docId;
 
-                  // Save the modified document to a new memory stream
-                  using MemoryStream outputStream = new();
-                  pdfDoc.Save(outputStream);
-                  pdfDoc.Close();
+                    // Save the modified document to a new memory stream
+                    using MemoryStream outputStream = new();
+                    pdfDoc.Save(outputStream);
+                    pdfDoc.Close();
 
-                  // Get the modified file bytes and replace the original file variable
-                  file = outputStream.ToArray();
+                    // Get the modified file bytes and replace the original file variable
+                    file = outputStream.ToArray();
                 }
                 retrieveResponse.AddDocument(file, home, repoId, docId, mimeType);
             }
@@ -226,7 +225,7 @@ public class RepositoryService
 
         foreach (var document in removeDocuments)
         {
-            if (_xdsConfig.HomeCommunityId == document.HomeCommunityId && 
+            if (_xdsConfig.HomeCommunityId == document.HomeCommunityId &&
                 _xdsConfig.RepositoryUniqueId == document.RepositoryUniqueId)
             {
                 if (document.DocumentUniqueId is null)
@@ -254,7 +253,7 @@ public class RepositoryService
         registryResponse.EvaluateStatusCode();
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
-    
+
     public MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
     {
         var documents = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;

@@ -14,7 +14,7 @@ public class SimplifiedProvideAndRegister
     public string RepositoryUniqueId { get; set; } = string.Empty;
     public string SubmissionTitle { get; set; } = string.Empty;
     public string ClassificationAuthorPerson { get; set; } = string.Empty;
-    public AuthorInstitution ClassificationAuthorInstitution { get; set; } = new AuthorInstitution();
+    public Author ClassificationAuthorInstitution { get; set; } = new Author();
     public string ClassificationFormatCode { get; set; } = string.Empty;
     public string ClassificationHealthCareFacilityTypeCode { get; set; } = string.Empty;
     public string ClassificationPracticeSettingCode { get; set; } = string.Empty;

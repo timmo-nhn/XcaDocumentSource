@@ -116,13 +116,13 @@ Responsive="true" >
             foreach (var reference in documentReferences)
             {
                 var dateTime = DateTime.MinValue;
-                var dateTimeString = reference.GetSlot(Constants.Xds.SlotNames.CreationTime).FirstOrDefault().GetFirstValue();
+                var dateTimeString = reference.GetSlots(Constants.Xds.SlotNames.CreationTime).FirstOrDefault().GetFirstValue();
                 if (!string.IsNullOrWhiteSpace(dateTimeString))
                 {
                     dateTime = DateTime.ParseExact(dateTimeString, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
                 }
                 var authorInstitutionClassification = reference.Classification.FirstOrDefault(cl => cl.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.Author);
-                var authorInstitution = authorInstitutionClassification?.GetSlot(Constants.Xds.SlotNames.AuthorInstitution).FirstOrDefault()?.GetValues();
+                var authorInstitution = authorInstitutionClassification?.GetSlots(Constants.Xds.SlotNames.AuthorInstitution).FirstOrDefault()?.GetValues();
                 var institution = authorInstitution?.FirstOrDefault(ins => ins.Contains(Constants.Oid.Brreg));
 
                 if (!string.IsNullOrWhiteSpace(institution))
@@ -142,7 +142,7 @@ Responsive="true" >
 
                 var documentId = reference.ExternalIdentifier.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
-                var repositoryId = reference.GetSlot(Constants.Xds.SlotNames.RepositoryUniqueId).FirstOrDefault()?.GetFirstValue();
+                var repositoryId = reference.GetSlots(Constants.Xds.SlotNames.RepositoryUniqueId).FirstOrDefault()?.GetFirstValue();
 
                 var simpleDocRef = new SimplifiedDocumentReference() 
                 {

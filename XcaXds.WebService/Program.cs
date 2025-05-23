@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
+using PdfSharp.Charting;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source;
@@ -19,7 +21,6 @@ public class Program
 
 
         // Begin builder
-        builder.Services.AddHttpClient();
         builder.WebHost.UseUrls(["https://localhost:7176", "http://localhost:5009"]);
 
         builder.Logging.ClearProviders(); // Clear default logging providers
@@ -57,9 +58,14 @@ public class Program
         builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
 
 
+        builder.Services.AddHttpClient<SoapService>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(xdsConfig.TimeoutInSeconds);
+        });
+
         // Register services
         builder.Services.AddSingleton<XcaGateway>();
-        builder.Services.AddSingleton<SoapService>();
+        //builder.Services.AddSingleton<SoapService>();
         builder.Services.AddSingleton<RepositoryService>();
         builder.Services.AddSingleton<RepositoryWrapper>();
         builder.Services.AddSingleton<RegistryService>();
@@ -74,6 +80,7 @@ public class Program
 
         // Feature Toggle (located in XcaXds.WebService/Appsettings.json)
         builder.Services.AddFeatureManagement();
+
 
         // Begin app
         var app = builder.Build();

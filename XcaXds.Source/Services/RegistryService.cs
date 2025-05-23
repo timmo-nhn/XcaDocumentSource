@@ -364,7 +364,7 @@ public partial class RegistryService
         var registryObjectList = iti42Message.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
 
         var associations = registryObjectList.OfType<AssociationType>().ToArray();
-        //var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
+        var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
         var documentEntries = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
         var documents = iti41Message.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
@@ -375,15 +375,16 @@ public partial class RegistryService
 
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
+            var assocRegistryPackage = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.SourceObject.NoUrn());
 
-            if (assocExtrinsicObject is null && assocDocument is not null)
+            if (assocExtrinsicObject is null && assocDocument is not null && assocRegistryPackage is null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSMissingDocumentMetadata, $"Missing document metadata for document with ID {assocDocument?.Id}", "XDS Registry");
                 continue;
             }
-            if (assocExtrinsicObject is null || assocDocument is null)
+            if (assocExtrinsicObject is null || assocDocument is null || assocRegistryPackage is null)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSMissingDocument, $"Missing document for association {association.Id}", "XDS Registry");
+                registryResponse.AddError(XdsErrorCodes.XDSMissingDocument, $"Missing document/sourceobject/targetobject for association {association.Id}", "XDS Registry");
                 continue;
             }
 
@@ -391,13 +392,14 @@ public partial class RegistryService
             if (string.IsNullOrWhiteSpace(assocExtrinsicObject.Home))
             {
                 assocExtrinsicObject.Home = _xdsConfig.HomeCommunityId;
+                assocRegistryPackage.Home = _xdsConfig.HomeCommunityId;
             }
 
             // Document Hash slot
             var documentHash = Convert.ToHexString(SHA1.HashData(assocDocument.Value));
 
             // Check if the submissionset already has a hash, and if its the same as the calculated hash
-            var extrinsicObjectHash = assocExtrinsicObject.GetSlot("Hash").FirstOrDefault()?.GetFirstValue();
+            var extrinsicObjectHash = assocExtrinsicObject.GetSlots("Hash").FirstOrDefault()?.GetFirstValue();
             if (!string.IsNullOrWhiteSpace(extrinsicObjectHash) && extrinsicObjectHash != documentHash)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSNonIdenticalHash, "Document hash was not equal to hash value in extrinsic object", "XDS Registry");

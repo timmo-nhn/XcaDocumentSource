@@ -1,6 +1,7 @@
 ﻿
 public class XdsConfig
 {
+    public int TimeoutInSeconds { get; set; }
     public bool WrapUploadedDocumentInCda { get; set; }
     public bool MultipartResponseForIti43 { get; set; }
     public string HomeCommunityId { get; set; }

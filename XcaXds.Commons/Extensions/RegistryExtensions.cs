@@ -60,7 +60,7 @@ public static class FindDocuments
         if (classCodes == null || classCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
-            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(co => classCodes.Any(cc => cc.Contains(co))));
     }
 
@@ -73,7 +73,7 @@ public static class FindDocuments
         if (typeCodes == null || typeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.TypeCode)
-            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(co => typeCodes.Any(cc => cc.Contains(co))));
     }
 
@@ -86,7 +86,7 @@ public static class FindDocuments
         if (practiceSettingCodes == null || practiceSettingCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
-            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(co => practiceSettingCodes.Any(cc => cc.Contains(co))));
     }
 
@@ -100,7 +100,7 @@ public static class FindDocuments
         var dateTime = DateTime.ParseExact(creationTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.CreationTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.CreationTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt >= dateTime) == true);
     }
@@ -115,7 +115,7 @@ public static class FindDocuments
         var dateTime = DateTime.ParseExact(creationTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.CreationTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.CreationTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt <= dateTime) == true);
     }
@@ -131,7 +131,7 @@ public static class FindDocuments
         var dateTime = DateTime.ParseExact(startTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.ServiceStartTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.ServiceStartTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt >= dateTime) == true);
     }
@@ -146,7 +146,7 @@ public static class FindDocuments
         var dateTime = DateTime.ParseExact(startTimeTo, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.ServiceStartTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.ServiceStartTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt <= dateTime) == true);
     }
@@ -161,7 +161,7 @@ public static class FindDocuments
         var dateTime = DateTime.ParseExact(stopTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.ServiceStopTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.ServiceStopTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt >= dateTime) == true);
     }
@@ -176,7 +176,7 @@ public static class FindDocuments
         var dateTime = DateTime.ParseExact(stopTimeTo, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.ServiceStopTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.ServiceStopTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt <= dateTime) == true);
     }
@@ -190,7 +190,7 @@ public static class FindDocuments
         if (healthcareFacilityTypeCodes == null || healthcareFacilityTypeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
-            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(hcfTypeCode => healthcareFacilityTypeCodes.Any(hcfTypeCodes => hcfTypeCodes.Contains(hcfTypeCode))));
     }
 
@@ -207,7 +207,7 @@ public static class FindDocuments
             // Get all the confidentiality codes for the current ExtrinsicObject (eo)
             var eventCodesForExtrinsicObject = eo.Classification
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.EventCodeList)
-                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
                 .ToArray();
 
             return eventCodeList.All(singleEventCodeList =>
@@ -229,7 +229,7 @@ public static class FindDocuments
             // Get all the confidentiality codes for the current ExtrinsicObject (eo)
             var confidentialityCodesForExtrinsicObject = eo.Classification
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
-                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
                 .ToArray();
 
             return confidentialityGroups.All(singleConfidentialityGroup =>
@@ -251,7 +251,7 @@ public static class FindDocuments
             // Get all the author persons for the current ExtrinsicObject (eo)
             var authorsFromExtrinsicObject = eo.Classification
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.Author)
-                .SelectMany(cf => cf.GetSlot(Constants.Xds.SlotNames.AuthorPerson)
+                .SelectMany(cf => cf.GetSlots(Constants.Xds.SlotNames.AuthorPerson)
                     .Select(s => s.GetFirstValue()))
                 .ToArray();
 
@@ -356,7 +356,7 @@ public static class FindSubmissionSets
         var dateTime = DateTime.ParseExact(submissionTimeFrom, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.SubmissionTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.SubmissionTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt >= dateTime) == true);
     }
@@ -371,7 +371,7 @@ public static class FindSubmissionSets
         var dateTime = DateTime.ParseExact(submissionTimeTo, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
 
         return source.Where(eo =>
-            eo.GetSlot(Constants.Xds.SlotNames.SubmissionTime)?.GetValues()?
+            eo.GetSlots(Constants.Xds.SlotNames.SubmissionTime)?.GetValues()?
             .Select(dt => DateTime.ParseExact(dt, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture))
             .Any(parsedDt => parsedDt <= dateTime) == true);
     }
@@ -389,7 +389,7 @@ public static class FindSubmissionSets
             // Get all the author persons for the current ExtrinsicObject (eo)
             var authorsFromExtrinsicObject = eo.Classification
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.SubmissionSet.Author)
-                .SelectMany(cf => cf.GetSlot(Constants.Xds.SlotNames.AuthorPerson)
+                .SelectMany(cf => cf.GetSlots(Constants.Xds.SlotNames.AuthorPerson)
                     .Select(s => s.GetFirstValue()))
                 .ToArray();
 
@@ -413,7 +413,7 @@ public static class FindSubmissionSets
         if (healthcareFacilityTypeCodes == null || healthcareFacilityTypeCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(eo => eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.SubmissionSet.ContentTypeCode)
-            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlot(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
+            .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .Any(hcfTypeCode => healthcareFacilityTypeCodes.Any(hcfTypeCodes => hcfTypeCodes.Contains(hcfTypeCode))));
     }
 }

@@ -2,11 +2,11 @@
 <h3>AssignedCustodianComponent</h3>
 <p>
     
-<span>ID: @AssignedCustodian.CustodianOrganization.Id.FirstOrDefault().Extension</span>
-<span> ^^^ @AssignedCustodian.CustodianOrganization.Id.FirstOrDefault().Root</span>
+<span>ID: @AssignedCustodian.RepresentedCustodianOrganization.Id.FirstOrDefault().Extension</span>
+<span> ^^^ @AssignedCustodian.RepresentedCustodianOrganization.Id.FirstOrDefault().Root</span>
 </p>
 
-<p>Organization: @AssignedCustodian.CustodianOrganization.Name.XmlText</p>
+<p>Organization: @AssignedCustodian.RepresentedCustodianOrganization.Name.XmlText</p>
 @code {
     [Parameter]
     public AssignedCustodian AssignedCustodian { get; set; }

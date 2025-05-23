@@ -81,6 +81,9 @@ Documentation of the Admin-GUI which also serves as a practical tool for interac
 ### [📄 CDA To Registry Metadata](/Docs/CdaRegistryMetadata.md)
 Describes the functionality for converting a CDA document to an ITI-41 message/Registry Metadata and vice-versa.
 
+## Use case Scenarios for XcaDocumentSource
+
+
 ## Document sharing - Actors and components  
 The **XDS-architecture** consists of the following actors/components:
 

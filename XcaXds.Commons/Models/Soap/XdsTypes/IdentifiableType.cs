@@ -69,9 +69,21 @@ public partial class IdentifiableType
         });
     }
 
-    public SlotType[] GetSlot(string slotName)
+    public SlotType[] GetSlots(string slotName)
     {
         if (Slot == null) return [new SlotType()];
         return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
+    }
+
+    public SlotType? GetFirstSlot(string slotName)
+    {
+        if (Slot == null) return new SlotType();
+        return Slot.FirstOrDefault(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase));
+    }
+
+    public SlotType? GetFirstSlot()
+    {
+        if (Slot?.Length == 0) return new SlotType();
+        return Slot?.FirstOrDefault();
     }
 }

@@ -41,5 +41,5 @@ public class Organization
     public CE? StandardIndustryClassCode { get; set; }
 
     [XmlElement("asOrganizationPartOf")]
-    public OrganizationPartOf? OrganizationPartOf { get; set; }
+    public OrganizationPartOf? AsOrganizationPartOf { get; set; }
 }

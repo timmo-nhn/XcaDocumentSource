@@ -403,6 +403,7 @@ See [4.2.2 Association Types - profiles.ihe.net ↗](https://profiles.ihe.net/IT
 ##### ClassificationSchemes
 | ClassificationScheme  | UUID |
 |---|---|
+|**DocumentEntry (`<ExtrinsicObject>`)**||
 | XDSDocumentEntry.healthcareFacilityTypeCode | urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1 |
 | XDSDocumentEntry.classCode | urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a |
 | XDSDocumentEntry.formatCode | urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d |
@@ -411,7 +412,10 @@ See [4.2.2 Association Types - profiles.ihe.net ↗](https://profiles.ihe.net/IT
 | XDSDocumentEntry.uniqueId | urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab |
 | XDSDocumentEntry.patientId | urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427 |
 | XDSDocumentEntry.contentTypeCode | urn:uuid:aa543740-bdda-424e-8c96-df4873be8500 |
+|**SubmissionSet (`<RegistryPackage>`)**||
 | XDSSubmissionSet.author | urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d |
+| XDSSubmissionSet.patientId | urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446 |
+| XDSSubmissionSet.sourceId | urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832 |
 
 *Table x: Valid ClassificationSchemes for a `<Classification>`*
 

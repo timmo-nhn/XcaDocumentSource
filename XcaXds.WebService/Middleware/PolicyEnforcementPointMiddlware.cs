@@ -160,7 +160,7 @@ public class PolicyEnforcementPointMiddlware
 
         // Example where PEP denied the request; short-circuit the middleware
 
-        if ("pepdenied".Equals("true"))
+        if ("PepResponseStatus".Equals("Deny"))
         {
             var responseEnvelope = SoapExtensions.CreateSoapFault("Access denied").Value;
 
