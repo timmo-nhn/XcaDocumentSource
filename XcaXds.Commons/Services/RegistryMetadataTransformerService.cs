@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.InteropServices;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -34,21 +33,21 @@ public class RegistryMetadataTransformerService
 
     private SubmissionSetDto TransformRegistryPackageToSubmissionSetDto(RegistryPackageType registryPackage)
     {
-        var submissionSet = new SubmissionSetDto();
+        var submissionSetDto = new SubmissionSetDto();
 
-        submissionSet.Author = GetAuthorFromRegistryPackage(registryPackage);
-        submissionSet.AvailabilityStatus = registryPackage.Status;
-        submissionSet.ContentTypeCode = GetContentTypeCodeFromRegistryPackage(registryPackage);
-        submissionSet.HomeCommunityId = registryPackage.Home;
-        submissionSet.Id = registryPackage.Id;
-        submissionSet.PatientId = GetPatientIdFromRegistryPackage(registryPackage);
-        submissionSet.SourceId = GetSourceIdFromRegistryPackage(registryPackage);
-        submissionSet.SubmissionTime = GetSubmissionTimeFromRegistryPackage(registryPackage);
-        submissionSet.Title = GetTitleFromRegistryPackage(registryPackage);
-        submissionSet.UniqueId = GetUniqueIdFromRegistryPackage(registryPackage);
+        submissionSetDto.Author = GetAuthorFromRegistryPackage(registryPackage);
+        submissionSetDto.AvailabilityStatus = registryPackage.Status;
+        submissionSetDto.ContentTypeCode = GetContentTypeCodeFromRegistryPackage(registryPackage);
+        submissionSetDto.HomeCommunityId = registryPackage.Home;
+        submissionSetDto.Id = registryPackage.Id;
+        submissionSetDto.PatientId = GetPatientIdFromRegistryPackage(registryPackage);
+        submissionSetDto.SourceId = GetSourceIdFromRegistryPackage(registryPackage);
+        submissionSetDto.SubmissionTime = GetSubmissionTimeFromRegistryPackage(registryPackage);
+        submissionSetDto.Title = GetTitleFromRegistryPackage(registryPackage);
+        submissionSetDto.UniqueId = GetUniqueIdFromRegistryPackage(registryPackage);
 
 
-        return submissionSet;
+        return submissionSetDto;
     }
 
     private string? GetUniqueIdFromRegistryPackage(RegistryPackageType registryPackage)
@@ -97,15 +96,15 @@ public class RegistryMetadataTransformerService
 
     private CodedValue? GetContentTypeCodeFromRegistryPackage(RegistryPackageType registryPackage)
     {
-        var contentTypeClass = registryPackage.GetFirstClassification(Constants.Xds.Uuids.SubmissionSet.ContentTypeCode);
+        var contentTypeCode = registryPackage.GetFirstClassification(Constants.Xds.Uuids.SubmissionSet.ContentTypeCode);
 
-        if (contentTypeClass != null)
+        if (contentTypeCode != null)
         {
             return new()
             {
-                Code = contentTypeClass?.NodeRepresentation ?? string.Empty,
-                CodeSystem = contentTypeClass?.GetFirstSlot()?.GetFirstValue() ?? string.Empty,
-                DisplayName = contentTypeClass?.Name?.GetFirstValue() ?? string.Empty
+                Code = contentTypeCode?.NodeRepresentation ?? string.Empty,
+                CodeSystem = contentTypeCode?.GetFirstSlot()?.GetFirstValue() ?? string.Empty,
+                DisplayName = contentTypeCode?.Name?.GetFirstValue() ?? string.Empty
             };
         }
         return null;
@@ -698,7 +697,7 @@ public class RegistryMetadataTransformerService
     private void GetHealthCareFacilityTypeCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         var healthcareFacilityTypeCode = documentEntryMetadata.HealthCareFacilityTypeCode;
-        var healthcareFacilityTypeCodeClassification = MapToClassification(healthcareFacilityTypeCode);
+        var healthcareFacilityTypeCodeClassification = MapCodedValueToClassification(healthcareFacilityTypeCode);
 
         if (healthcareFacilityTypeCodeClassification != null)
         {
@@ -709,7 +708,7 @@ public class RegistryMetadataTransformerService
     private void GetFormatCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         var formatCode = documentEntryMetadata.ClassCode;
-        var formatCodeClassification = MapToClassification(formatCode);
+        var formatCodeClassification = MapCodedValueToClassification(formatCode);
 
         if (formatCodeClassification != null)
         {
@@ -720,7 +719,7 @@ public class RegistryMetadataTransformerService
     private void GetEventCodeListClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         var eventCode = documentEntryMetadata.ClassCode;
-        var eventCodeClassification = MapToClassification(eventCode);
+        var eventCodeClassification = MapCodedValueToClassification(eventCode);
 
         if (eventCodeClassification != null)
         {
@@ -731,7 +730,7 @@ public class RegistryMetadataTransformerService
     private void GetConfidentialityCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         var confCode = documentEntryMetadata.ConfidentialityCode;
-        var confCodeClassification = MapToClassification(confCode);
+        var confCodeClassification = MapCodedValueToClassification(confCode);
 
         if (confCodeClassification != null)
         {
@@ -739,7 +738,7 @@ public class RegistryMetadataTransformerService
         }
     }
 
-    private ClassificationType MapToClassification(CodedValue? confCode)
+    private ClassificationType MapCodedValueToClassification(CodedValue? confCode)
     {
         if (confCode != null)
         {
@@ -777,11 +776,14 @@ public class RegistryMetadataTransformerService
     private void GetAuthorClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         var authorClassification = new ClassificationType();
-
-        GetAuthorPersonSlotFromAuthor(authorClassification, documentEntryMetadata);
-        GetAuthorInstitutionSlotFromAuthor(authorClassification, documentEntryMetadata);
-        GetAuthorRoleSlotFromAuthor(authorClassification, documentEntryMetadata);
-        GetAuthorSpecialitySlotFromAuthor(authorClassification, documentEntryMetadata);
+        var author = documentEntryMetadata.Author;
+        if (author != null)
+        {
+            GetAuthorPersonSlotFromAuthor(authorClassification, author);
+            GetAuthorInstitutionSlotFromAuthor(authorClassification, author);
+            GetAuthorRoleSlotFromAuthor(authorClassification, author);
+            GetAuthorSpecialitySlotFromAuthor(authorClassification, author);
+        }
 
         extrinsicObject.Classification = [.. extrinsicObject.Classification, authorClassification];
     }
@@ -805,9 +807,9 @@ public class RegistryMetadataTransformerService
         classification.AddSlot(Constants.Xds.SlotNames.AuthorSpecialty, [authorSpecialityCx.Serialize()]);
     }
 
-    private void GetAuthorRoleSlotFromAuthor(ClassificationType classification, DocumentEntryDto documentEntryMetadata)
+    private void GetAuthorRoleSlotFromAuthor(ClassificationType classification, Author documentAuthor)
     {
-        var authorRole = documentEntryMetadata?.Author?.Role;
+        var authorRole = documentAuthor?.Role;
         if (authorRole == null) return;
 
         var authorRoleCx = new CX()
@@ -823,25 +825,24 @@ public class RegistryMetadataTransformerService
         classification.AddSlot(Constants.Xds.SlotNames.AuthorRole, [authorRoleCx.Serialize()]);
     }
 
-    private void GetAuthorInstitutionSlotFromAuthor(ClassificationType classification, DocumentEntryDto documentEntryMetadata)
+    private void GetAuthorInstitutionSlotFromAuthor(ClassificationType classification, Author author)
     {
-        var authorInstitution = documentEntryMetadata?.Author;
-        if (authorInstitution == null) return;
+        if (author == null) return;
 
         var authorInstitutionSlot = new SlotType()
         {
             Name = Constants.Xds.SlotNames.AuthorInstitution
         };
 
-        if (authorInstitution.Organization != null)
+        if (author.Organization != null)
         {
             var org = new XON()
             {
-                OrganizationName = authorInstitution.Organization.OrganizationName,
-                OrganizationIdentifier = authorInstitution.Organization.Id,
+                OrganizationName = author.Organization.OrganizationName,
+                OrganizationIdentifier = author.Organization.Id,
                 AssigningAuthority = new()
                 {
-                    UniversalId = authorInstitution.Organization.AssigningAuthority,
+                    UniversalId = author.Organization.AssigningAuthority,
                     NamespaceId = Constants.Hl7.UniversalIdType.Iso
                 }
             };
@@ -849,15 +850,15 @@ public class RegistryMetadataTransformerService
             authorInstitutionSlot.ValueList.Value = [org.Serialize()];
         }
 
-        if (authorInstitution.Department != null)
+        if (author.Department != null)
         {
             var dpt = new XON()
             {
-                OrganizationName = authorInstitution.Department.OrganizationName,
-                OrganizationIdentifier = authorInstitution.Department.Id,
+                OrganizationName = author.Department.OrganizationName,
+                OrganizationIdentifier = author.Department.Id,
                 AssigningAuthority = new()
                 {
-                    UniversalId = authorInstitution.Department.AssigningAuthority,
+                    UniversalId = author.Department.AssigningAuthority,
                     NamespaceId = Constants.Hl7.UniversalIdType.Iso
                 }
             };
@@ -868,29 +869,28 @@ public class RegistryMetadataTransformerService
         classification.AddSlot(authorInstitutionSlot);
     }
 
-    private void GetAuthorPersonSlotFromAuthor(ClassificationType classification, DocumentEntryDto documentEntryMetadata)
+    private void GetAuthorPersonSlotFromAuthor(ClassificationType classification, Author author)
     {
-        var authorPerson = documentEntryMetadata?.Author?.Person;
-        if (authorPerson != null)
-        {
-            var lastNameParts = authorPerson.LastName?.Split(' ');
-            var middleName = lastNameParts?.FirstOrDefault();
-            var lastName = string.Join(" ", lastNameParts?.Skip(1));
-            var authorXcn = new XCN()
-            {
-                PersonIdentifier = authorPerson.Id,
-                GivenName = authorPerson.FirstName,
-                MiddleName = string.IsNullOrWhiteSpace(middleName) ? null : middleName,
-                FamilyName = lastName,
-                AssigningAuthority = new()
-                {
-                    UniversalId = authorPerson.AssigningAuthority,
-                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
-                }
-            };
+        var authorPerson = author?.Person;
+        if (authorPerson == null) return;
 
-            classification.AddSlot(Constants.Xds.SlotNames.AuthorPerson, [authorXcn.Serialize()]);
-        }
+        var lastNameParts = authorPerson.LastName?.Split(' ');
+        var middleName = lastNameParts?.FirstOrDefault();
+        var lastName = string.Join(" ", lastNameParts?.Skip(1));
+        var authorXcn = new XCN()
+        {
+            PersonIdentifier = authorPerson.Id,
+            GivenName = authorPerson.FirstName,
+            MiddleName = string.IsNullOrWhiteSpace(middleName) ? null : middleName,
+            FamilyName = lastName,
+            AssigningAuthority = new()
+            {
+                UniversalId = authorPerson.AssigningAuthority,
+                NamespaceId = Constants.Hl7.UniversalIdType.Iso
+            }
+        };
+
+        classification.AddSlot(Constants.Xds.SlotNames.AuthorPerson, [authorXcn.Serialize()]);
     }
 
     private static void GetAvailabilityStatusFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
@@ -950,51 +950,76 @@ public class RegistryMetadataTransformerService
         var registryPackage = new RegistryPackageType();
 
         GetAuthorClassificationFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetAvailabilitystatusFromSubmissionSetDto(registryPackage,submissionSetMetadata);
-        GetContentTypeCodeFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        GetAvailabilitystatusFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetContentTypeCodeFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetSubmissionTimeFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetHomeCommunityIdFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        GetHomeCommunityIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         registryPackage.Id = submissionSetMetadata.Id;
         GetPatientIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetSourceIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetSubmissionTimeFromSubmissionSetDto(registryPackage,submissionSetMetadata);
-        GetNameLocalizedStringFromSubmissionSetDto(registryPackage,submissionSetMetadata);
+        GetSubmissionTimeFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetNameLocalizedStringFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetUniqueIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
 
         return registryPackage;
     }
 
+    private void GetHomeCommunityIdFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var homeCommunityId = submissionSetMetadata.HomeCommunityId;
+        if (homeCommunityId != null)
+        {
+            registryPackage.AddSlot(Constants.Xds.SlotNames.SubmissionTime, [homeCommunityId]);
+        }
+    }
+
+    private void GetPatientIdFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var patientExternalIdentifier = new ExternalIdentifierType();
+
+        submissionSetMetadata.PatientId;
+        patientExternalIdentifier = MapCodedValueToExternalIdentifier(submissionSetMetadata.PatientId);
+    }
+
+    private void GetSubmissionTimeFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var dateValue = submissionSetMetadata.SubmissionTime;
+        if (dateValue != null)
+        {
+            registryPackage.AddSlot(Constants.Xds.SlotNames.SubmissionTime, [dateValue.Value.ToString()]);
+        }
+    }
+
+    private void GetContentTypeCodeFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var contentTypeCode = submissionSetMetadata.ContentTypeCode;
+        if (contentTypeCode == null) return;
+
+        var contentTypeClassification = MapCodedValueToClassification(contentTypeCode);
+
+        registryPackage.Classification = [.. registryPackage.Classification, contentTypeClassification];
+    }
+
+    private void GetAvailabilitystatusFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        if (submissionSetMetadata.AvailabilityStatus != null)
+        {
+            registryPackage.Status = submissionSetMetadata.AvailabilityStatus;
+        }
+    }
+
     private void GetAuthorClassificationFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
     {
         var authorClassification = new ClassificationType();
+        var submissionSetAuthor = submissionSetMetadata.Author;
+        if (submissionSetAuthor == null) return;
 
-        GetAuthorInstitutionSlotFromAuthor(authorClassification, submissionSetMetadata);
+        GetAuthorInstitutionSlotFromAuthor(authorClassification, submissionSetAuthor);
+        GetAuthorPersonSlotFromAuthor(authorClassification, submissionSetAuthor);
+        GetAuthorRoleSlotFromAuthor(authorClassification, submissionSetAuthor);
+        GetAuthorSpecialitySlotFromAuthor(authorClassification, submissionSetAuthor);
 
-        var authorPerson = submissionSetMetadata.Author.Person;
-
-        if (authorPerson != null)
-        {
-            var lastNameParts = authorPerson.LastName?.Split(' ');
-            var middleName = lastNameParts?.FirstOrDefault();
-            var lastName = string.Join(" ", lastNameParts?.Skip(1));
-            var authorXcn = new XCN()
-            {
-                PersonIdentifier = authorPerson.Id,
-                GivenName = authorPerson.FirstName,
-                MiddleName = string.IsNullOrWhiteSpace(middleName) ? null : middleName,
-                FamilyName = lastName,
-                AssigningAuthority = new()
-                {
-                    UniversalId = authorPerson.AssigningAuthority,
-                    NamespaceId = Constants.Hl7.UniversalIdType.Iso
-                }
-            };
-
-            authorClassification.AddSlot(Constants.Xds.SlotNames.AuthorPerson, [authorXcn.Serialize()]);
-        }
-
-
-
+        registryPackage.Classification = [.. registryPackage.Classification, authorClassification];
     }
 
     private AssociationType GetAssociationFromAssociationDto(AssociationDto association)
