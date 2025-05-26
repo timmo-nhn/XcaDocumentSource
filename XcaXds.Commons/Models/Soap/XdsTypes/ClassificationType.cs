@@ -6,6 +6,10 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public partial class ClassificationType : RegistryObjectType
 {
+    public ClassificationType()
+    {
+        ObjectType = Constants.Xds.ObjectTypes.Classification;
+    }
     [XmlAttribute(AttributeName = "classificationScheme", DataType = "anyURI")]
     public string ClassificationScheme;
 

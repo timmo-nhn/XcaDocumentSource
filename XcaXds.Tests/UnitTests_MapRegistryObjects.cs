@@ -1,5 +1,7 @@
-﻿using XcaXds.Commons.Extensions;
+﻿using XcaXds.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
@@ -35,6 +37,20 @@ public class UnitTests_MapRegistryObjects
             var documentReference = regmetaserv.TransformRegistryObjectsToDocumentEntryDto(extrinsicObject, registryPackage, document, association);
 
             var registryObjects = regmetaserv.TransformDocumentEntryDtoToRegistryObjects(documentReference);
+
+            var outputSoap = new SoapEnvelope()
+            { 
+                Header = docc.Header,
+                Body = new()
+                {
+                    ProvideAndRegisterDocumentSetRequest = new()
+                    {
+                        SubmitObjectsRequest = new() { RegistryObjectList = registryObjects }
+                    }
+                }
+            };
+
+            var xmlstring = sxmls.SerializeSoapMessageToXmlString(outputSoap);
 
         }
         catch (Exception)

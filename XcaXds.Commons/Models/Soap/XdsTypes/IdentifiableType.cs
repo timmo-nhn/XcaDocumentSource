@@ -59,6 +59,8 @@ public partial class IdentifiableType
     }
     public void AddSlot(string slotName, string[] valueList)
     {
+
+        Slot ??= [];
         AddSlot(new()
         {
             Name = slotName,

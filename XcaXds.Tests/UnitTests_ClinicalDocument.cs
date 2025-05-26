@@ -1,4 +1,6 @@
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
+using XcaXds.Commons.Models.Custom.DocumentEntryDto;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -73,6 +75,7 @@ public class UnitTests_ClinicalDocument
     [Fact]
     public async Task TransformIti41ToCda()
     {
+
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);

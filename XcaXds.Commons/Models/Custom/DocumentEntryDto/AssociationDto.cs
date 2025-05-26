@@ -7,4 +7,5 @@ public class AssociationDto
     public string? SourceObject { get; set; }
     public string? SubmissionSetStatus { get; set; }
     public string? TargetObject { get; set; }
+    public string Id { get; set; }
 }

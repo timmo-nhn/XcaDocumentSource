@@ -28,5 +28,4 @@ public class DocumentEntryDto
     public CodedValue? TypeCode { get; set; }
     public string? UniqueId { get; set; }
     public string? DocumentUniqueId { get; set; }
-    public string? DocumentEncoding { get; set; }
 }

@@ -12,6 +12,4 @@ public class InternationalStringType
     {
         return LocalizedString.FirstOrDefault()?.Value;
     }
-
-
 }
