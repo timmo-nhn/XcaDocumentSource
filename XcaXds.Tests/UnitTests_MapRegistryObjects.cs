@@ -50,7 +50,7 @@ public class UnitTests_MapRegistryObjects
                 }
             };
 
-            var xmlstring = sxmls.SerializeSoapMessageToXmlString(outputSoap);
+            var xmlstring = sxmls.SerializeSoapMessageToXmlString(outputSoap).Content;
 
         }
         catch (Exception)
