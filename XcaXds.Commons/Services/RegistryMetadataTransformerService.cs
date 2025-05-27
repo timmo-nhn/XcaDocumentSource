@@ -15,7 +15,10 @@ public class RegistryMetadataTransformerService
         documentEntryDto.DocumentEntryMetadata = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject, registryPackage);
         documentEntryDto.SubmissionSetMetadata = TransformRegistryPackageToSubmissionSetDto(registryPackage);
         documentEntryDto.Association = TransformToAssociationDto(association, extrinsicObject, registryPackage);
-        documentEntryDto.DocumentEntryDocument = new() { DocumentId = document.Id, Data = document.Value };
+        if (document?.Value != null)
+        {
+            documentEntryDto.DocumentEntryDocument = new() { DocumentId = document.Id, Data = document.Value };
+        }
 
         return documentEntryDto;
     }
@@ -111,7 +114,6 @@ public class RegistryMetadataTransformerService
         return null;
     }
 
-
     private Author GetAuthorFromRegistryPackage(RegistryPackageType registryPackage)
     {
         var authorClassification = registryPackage.GetFirstClassification(Constants.Xds.Uuids.SubmissionSet.Author);
@@ -196,7 +198,7 @@ public class RegistryMetadataTransformerService
                 PatientId = patientId?.IdNumber == null ? null : new()
                 {
                     Id = patientId.IdNumber,
-                    System = patientId.AssigningFacility.UniversalId ?? patientId.AssigningAuthority.UniversalId,
+                    System = patientId.AssigningFacility?.UniversalId ?? patientId.AssigningAuthority.UniversalId,
                 }
             };
         }
@@ -214,7 +216,7 @@ public class RegistryMetadataTransformerService
         var dateValue = extrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.ServiceStopTime)?.GetFirstValue();
         if (dateValue != null)
         {
-            return DateTime.ParseExact(dateValue, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
+            return DateTime.ParseExact(dateValue, [Constants.Hl7.Dtm.DtmFormat, Constants.Hl7.Dtm.DtmYmdFormat, Constants.Hl7.Dtm.DtmYmdhmFormat], CultureInfo.InvariantCulture);
         }
 
         return null;
@@ -225,7 +227,7 @@ public class RegistryMetadataTransformerService
         var dateValue = extrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.ServiceStartTime)?.GetFirstValue();
         if (dateValue != null)
         {
-            return DateTime.ParseExact(dateValue, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
+            return DateTime.ParseExact(dateValue, [Constants.Hl7.Dtm.DtmFormat, Constants.Hl7.Dtm.DtmYmdFormat, Constants.Hl7.Dtm.DtmYmdhmFormat], CultureInfo.InvariantCulture);
         }
 
         return null;
@@ -347,7 +349,7 @@ public class RegistryMetadataTransformerService
         var dateValue = extrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.CreationTime)?.GetFirstValue();
         if (dateValue != null)
         {
-            return DateTime.ParseExact(dateValue, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture);
+            return DateTime.ParseExact(dateValue, [Constants.Hl7.Dtm.DtmFormat, Constants.Hl7.Dtm.DtmYmdFormat, Constants.Hl7.Dtm.DtmYmdhmFormat], CultureInfo.InvariantCulture);
         }
 
         return null;
@@ -582,6 +584,44 @@ public class RegistryMetadataTransformerService
         GetUniqueIdExternalIdentifierFromDocumentEntryDto(extrinsicObject, documentEntryMetadata);
 
         return extrinsicObject;
+    }
+
+    private RegistryPackageType GetRegistryPackageFromDocumentReferenceDto(SubmissionSetDto submissionSetMetadata)
+    {
+        var registryPackage = new RegistryPackageType()
+        {
+            ObjectType = Constants.Xds.ObjectTypes.RegistryPackage,
+            Classification = [],
+            ExternalIdentifier = []
+        };
+
+        registryPackage.Id = submissionSetMetadata.Id;
+        GetAuthorClassificationFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetAvailabilitystatusFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetContentTypeCodeFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetHomeCommunityIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetPatientIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetSourceIdExternalIdentifierFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetSubmissionTimeSlotFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetTitleNameLocalizedStringFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+        GetUniqueIdExternalIdentifierFromSubmissionSetDto(registryPackage, submissionSetMetadata);
+
+        return registryPackage;
+    }
+
+    private AssociationType GetAssociationFromAssociationDto(AssociationDto association)
+    {
+        var ebRimAssociation = new AssociationType()
+        {
+            ObjectType = Constants.Xds.ObjectTypes.Association,
+            Id = association.Id,
+            AssociationTypeData = association.AssociationType,
+            SourceObject = association.SourceObject,
+            TargetObject = association.TargetObject
+        };
+        ebRimAssociation.AddSlot(Constants.Xds.SlotNames.SubmissionSetStatus, [association.SubmissionSetStatus]);
+
+        return ebRimAssociation;
     }
 
     private void GetUniqueIdExternalIdentifierFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
@@ -820,20 +860,6 @@ public class RegistryMetadataTransformerService
         }
     }
 
-    private ClassificationType MapCodedValueToClassification(string healthCareFacilityTypeCode, CodedValue? confCode)
-    {
-        if (confCode == null) return null;
-
-        return new()
-        {
-            ClassificationScheme = healthCareFacilityTypeCode,
-            NodeRepresentation = confCode.Code,
-            Name = confCode.DisplayName != null ? new() { LocalizedString = [new() { Value = confCode.DisplayName }] } : null,
-            Slot = confCode.CodeSystem != null ? [new() { Name = Constants.Xds.SlotNames.CodingScheme, ValueList = new() { Value = [confCode.CodeSystem] } }] : null
-        };
-
-    }
-
     private void GetClassCodeClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         var classCode = documentEntryMetadata.ClassCode;
@@ -984,7 +1010,7 @@ public class RegistryMetadataTransformerService
         classification.AddSlot(Constants.Xds.SlotNames.AuthorPerson, [authorXcn.Serialize()]);
     }
 
-    private static void GetAvailabilityStatusFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    private void GetAvailabilityStatusFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         if (documentEntryMetadata?.AvailabilityStatus != null)
         {
@@ -992,14 +1018,13 @@ public class RegistryMetadataTransformerService
         }
     }
 
-    private static void GetObjectTypeFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
+    private void GetObjectTypeFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         if (!string.IsNullOrWhiteSpace(documentEntryMetadata?.ObjectType))
         {
             extrinsicObject.ObjectType = documentEntryMetadata.ObjectType;
         }
     }
-
 
     private void GetSourcePatientIdSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
@@ -1032,29 +1057,6 @@ public class RegistryMetadataTransformerService
         {
             extrinsicObject.AddSlot(Constants.Xds.SlotNames.CreationTime, [documentEntryMetadata.CreationTime.Value.ToString(Constants.Hl7.Dtm.DtmFormat)]);
         }
-    }
-
-    private RegistryPackageType GetRegistryPackageFromDocumentReferenceDto(SubmissionSetDto submissionSetMetadata)
-    {
-        var registryPackage = new RegistryPackageType()
-        {
-            ObjectType = Constants.Xds.ObjectTypes.RegistryPackage,
-            Classification = [],
-            ExternalIdentifier = []
-        };
-
-        registryPackage.Id = submissionSetMetadata.Id;
-        GetAuthorClassificationFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetAvailabilitystatusFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetContentTypeCodeFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetHomeCommunityIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetPatientIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetSourceIdExternalIdentifierFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetSubmissionTimeSlotFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetTitleNameLocalizedStringFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetUniqueIdExternalIdentifierFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-
-        return registryPackage;
     }
 
     private void GetUniqueIdExternalIdentifierFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
@@ -1106,6 +1108,47 @@ public class RegistryMetadataTransformerService
         }
     }
 
+    private void GetSubmissionTimeSlotFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var dateValue = submissionSetMetadata.SubmissionTime;
+        if (dateValue != null)
+        {
+            registryPackage.AddSlot(Constants.Xds.SlotNames.SubmissionTime, [dateValue.Value.ToString(Constants.Hl7.Dtm.DtmFormat)]);
+        }
+    }
+
+    private void GetContentTypeCodeFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var contentTypeCode = submissionSetMetadata.ContentTypeCode;
+        if (contentTypeCode == null) return;
+
+        var contentTypeClassification = MapCodedValueToClassification(Constants.Xds.Uuids.SubmissionSet.ContentTypeCode, contentTypeCode);
+
+        registryPackage.Classification = [.. registryPackage.Classification, contentTypeClassification];
+    }
+
+    private void GetAvailabilitystatusFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        if (submissionSetMetadata.AvailabilityStatus != null)
+        {
+            registryPackage.Status = submissionSetMetadata.AvailabilityStatus;
+        }
+    }
+
+    private void GetAuthorClassificationFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    {
+        var authorClassification = new ClassificationType();
+        var submissionSetAuthor = submissionSetMetadata.Author;
+        if (submissionSetAuthor == null) return;
+
+        GetAuthorInstitutionSlotFromAuthor(authorClassification, submissionSetAuthor);
+        GetAuthorPersonSlotFromAuthor(authorClassification, submissionSetAuthor);
+        GetAuthorRoleSlotFromAuthor(authorClassification, submissionSetAuthor);
+        GetAuthorSpecialitySlotFromAuthor(authorClassification, submissionSetAuthor);
+
+        registryPackage.Classification = [.. registryPackage.Classification, authorClassification];
+    }
+    
     private ExternalIdentifierType MapCodedValueToExternalIdentifier(string? externalIdentifierName, string? codedValue)
     {
         if (!string.IsNullOrWhiteSpace(externalIdentifierName) && !string.IsNullOrWhiteSpace(codedValue))
@@ -1148,59 +1191,17 @@ public class RegistryMetadataTransformerService
         };
     }
 
-    private void GetSubmissionTimeSlotFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
+    private ClassificationType MapCodedValueToClassification(string healthCareFacilityTypeCode, CodedValue? confCode)
     {
-        var dateValue = submissionSetMetadata.SubmissionTime;
-        if (dateValue != null)
+        if (confCode == null) return null;
+
+        return new()
         {
-            registryPackage.AddSlot(Constants.Xds.SlotNames.SubmissionTime, [dateValue.Value.ToString(Constants.Hl7.Dtm.DtmFormat)]);
-        }
-    }
-
-    private void GetContentTypeCodeFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
-    {
-        var contentTypeCode = submissionSetMetadata.ContentTypeCode;
-        if (contentTypeCode == null) return;
-
-        var contentTypeClassification = MapCodedValueToClassification(Constants.Xds.Uuids.SubmissionSet.ContentTypeCode, contentTypeCode);
-
-        registryPackage.Classification = [.. registryPackage.Classification, contentTypeClassification];
-    }
-
-    private void GetAvailabilitystatusFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
-    {
-        if (submissionSetMetadata.AvailabilityStatus != null)
-        {
-            registryPackage.Status = submissionSetMetadata.AvailabilityStatus;
-        }
-    }
-
-    private void GetAuthorClassificationFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
-    {
-        var authorClassification = new ClassificationType();
-        var submissionSetAuthor = submissionSetMetadata.Author;
-        if (submissionSetAuthor == null) return;
-
-        GetAuthorInstitutionSlotFromAuthor(authorClassification, submissionSetAuthor);
-        GetAuthorPersonSlotFromAuthor(authorClassification, submissionSetAuthor);
-        GetAuthorRoleSlotFromAuthor(authorClassification, submissionSetAuthor);
-        GetAuthorSpecialitySlotFromAuthor(authorClassification, submissionSetAuthor);
-
-        registryPackage.Classification = [.. registryPackage.Classification, authorClassification];
-    }
-
-    private AssociationType GetAssociationFromAssociationDto(AssociationDto association)
-    {
-        var ebRimAssociation = new AssociationType()
-        {
-            ObjectType = Constants.Xds.ObjectTypes.Association,
-            Id = association.Id,
-            AssociationTypeData = association.AssociationType,
-            SourceObject = association.SourceObject,
-            TargetObject = association.TargetObject
+            ClassificationScheme = healthCareFacilityTypeCode,
+            NodeRepresentation = confCode.Code,
+            Name = confCode.DisplayName != null ? new() { LocalizedString = [new() { Value = confCode.DisplayName }] } : null,
+            Slot = confCode.CodeSystem != null ? [new() { Name = Constants.Xds.SlotNames.CodingScheme, ValueList = new() { Value = [confCode.CodeSystem] } }] : null
         };
-        ebRimAssociation.AddSlot(Constants.Xds.SlotNames.SubmissionSetStatus, [association.SubmissionSetStatus]);
 
-        return ebRimAssociation;
     }
 }

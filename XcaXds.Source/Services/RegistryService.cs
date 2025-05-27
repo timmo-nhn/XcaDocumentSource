@@ -375,7 +375,7 @@ public partial class RegistryService
 
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
-            var assocRegistryPackage = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.SourceObject.NoUrn());
+            var assocRegistryPackage = registryPackages.FirstOrDefault(eo => eo.Id.NoUrn() == association.SourceObject.NoUrn());
 
             if (assocExtrinsicObject is null && assocDocument is not null && assocRegistryPackage is null)
             {

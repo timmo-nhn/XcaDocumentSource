@@ -1,0 +1,142 @@
+{
+    "DocumentEntryMetadata": {
+        "Author": {
+            "Organization": {
+                "Id": "",
+                "OrganizationName": "Parma Community",
+                "AssigningAuthority": ""
+            },
+            "Department": null,
+            "Person": {
+                "Id": null,
+                "FirstName": "Gerald",
+                "LastName": "Smitty",
+                "AssigningAuthority": null
+            },
+            "Role": {
+                "Code": "Attending",
+                "CodeSystem": null,
+                "DisplayName": null
+            },
+            "Speciality": {
+                "Code": "Orthopedic",
+                "CodeSystem": null,
+                "DisplayName": null
+            }
+        },
+        "AvailabilityStatus": null,
+        "ClassCode": {
+            "Code": "History and Physical",
+            "CodeSystem": "Connect-a-thon classCodes",
+            "DisplayName": "History and Physical"
+        },
+        "ConfidentialityCode": {
+            "Code": "1.3.6.1.4.1.21367.2006.7.101",
+            "CodeSystem": "Connect-a-thon confidentialityCodes",
+            "DisplayName": "Clinical-Staff"
+        },
+        "CreationTime": "2005-12-24T00:00:00",
+        "EventCodeList": null,
+        "FormatCode": {
+            "Code": "CDAR2/IHE 1.0",
+            "CodeSystem": "Connect-a-thon formatCodes",
+            "DisplayName": "CDAR2/IHE 1.0"
+        },
+        "Hash": "D48CBB3DEE351EF8F309CE4795BB0B1D95200FDD",
+        "HealthCareFacilityTypeCode": {
+            "Code": "Outpatient",
+            "CodeSystem": "Connect-a-thon\n                                    healthcareFacilityTypeCodes",
+            "DisplayName": "Outpatient"
+        },
+        "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
+        "Id": "Document16",
+        "LanguageCode": "en-us",
+        "LegalAuthenticator": null,
+        "MimeType": "text/plain",
+        "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+        "PatientId": {
+            "Code": "89765a87b",
+            "CodeSystem": "3.4.5",
+            "DisplayName": null
+        },
+        "PracticeSettingCode": {
+            "Code": "General Medicine",
+            "CodeSystem": "Connect-a-thon practiceSettingCodes",
+            "DisplayName": "General Medicine"
+        },
+        "RepositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+        "Size": "438",
+        "ServiceStartTime": "2004-12-23T08:00:00",
+        "ServiceStopTime": "2004-12-23T08:01:00",
+        "SourcePatientInfo": {
+            "PatientId": {
+                "Id": "pid1",
+                "System": "1.2.3"
+            },
+            "GivenName": "John",
+            "FamilyName": "Doe",
+            "BirthTime": "1956-05-27T00:00:00",
+            "Gender": "M"
+        },
+        "Title": "Physical",
+        "TypeCode": {
+            "Code": "34108-1",
+            "CodeSystem": "LOINC",
+            "DisplayName": "Outpatient Evaluation And Management"
+        },
+        "UniqueId": null,
+        "DocumentUniqueId": "1.2009.9.1.2455"
+    },
+    "SubmissionSetMetadata": {
+        "Author": {
+            "Organization": {
+                "Id": "",
+                "OrganizationName": "Berea Community",
+                "AssigningAuthority": ""
+            },
+            "Department": null,
+            "Person": {
+                "Id": null,
+                "FirstName": "Sherry",
+                "LastName": "Dopplemeyer",
+                "AssigningAuthority": null
+            },
+            "Role": {
+                "Code": "Primary Surgon",
+                "CodeSystem": null,
+                "DisplayName": null
+            },
+            "Speciality": {
+                "Code": "Orthopedic",
+                "CodeSystem": null,
+                "DisplayName": null
+            }
+        },
+        "AvailabilityStatus": null,
+        "ContentTypeCode": {
+            "Code": "History and Physical",
+            "CodeSystem": "Connect-a-thon contentTypeCodes",
+            "DisplayName": "History and Physical"
+        },
+        "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
+        "Id": "SubmissionSet16",
+        "PatientId": {
+            "Code": "76cc765a442f410",
+            "CodeSystem": "1.3.6.1.4.1.21367.2005.3.7",
+            "DisplayName": null
+        },
+        "SubmissionTime": "2004-12-25T23:50:50",
+        "Title": "Physical",
+        "UniqueId": "1.2009.9.1.2456",
+        "SourceId": "1.3.6.1.4.1.21367.2009.1.2.1"
+    },
+    "Association": {
+        "AssociationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+        "ObjectType": null,
+        "SourceObject": "SubmissionSet16",
+        "SubmissionSetStatus": "Original",
+        "TargetObject": "Document16",
+        "Id": "Association16"
+    },
+    "DocumentEntryDocument": null
+}

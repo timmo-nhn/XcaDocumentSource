@@ -71,6 +71,7 @@ public class Program
         builder.Services.AddSingleton<RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<CdaTransformerService>();
+        builder.Services.AddSingleton<RegistryMetadataTransformerService>();
         builder.Services.AddSingleton(xdsConfig);
         
         builder.Services.AddHostedService<AppStartupService>();

@@ -16,4 +16,6 @@
     <PackageReference Include="PDFsharp" Version="6.1.1" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+
 </Project>
