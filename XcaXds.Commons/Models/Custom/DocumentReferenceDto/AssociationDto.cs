@@ -1,6 +1,6 @@
 ﻿namespace XcaXds.Commons.Models.Custom.DocumentEntryDto;
 
-public class AssociationDto
+public class AssociationDto : RegistryObjectDto
 {
     public string? AssociationType { get; set; }
     public string? ObjectType { get; set; }

@@ -3,6 +3,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 
@@ -43,29 +44,6 @@ public class RegistryWrapper
         EnsureRegistryFileExists();
     }
 
-    public async Task<DocumentRegistry> GetDocumentRegistryContentAsync()
-    {
-        EnsureRegistryFileExists();
-
-        lock (_lock)
-        {
-            try
-            {
-                using (var reader = new StreamReader(_registryFile))
-                {
-                    var serializer = new XmlSerializer(typeof(DocumentRegistry));
-
-                    return (DocumentRegistry)serializer.Deserialize(reader);
-                }
-            }
-            catch (Exception ex)
-            {
-
-                return new DocumentRegistry();
-            }
-        }
-    }
-
     public DocumentRegistry GetDocumentRegistryContent()
     {
         EnsureRegistryFileExists();
@@ -74,15 +52,24 @@ public class RegistryWrapper
         {
             try
             {
-
                 using (var reader = new StreamReader(_registryFile))
                 {
-                    return JsonSerializer.Deserialize<DocumentRegistry>(reader.ReadToEnd());
+                    var documentEntry = JsonSerializer.Deserialize<DocumentReferenceDto[]>(reader.ReadToEnd());
+
+                    if (documentEntry == null) throw new Exception();
+
+                    var registryObjects = new List<IdentifiableType>();
+
+                    foreach (var item in documentEntry)
+                    {
+                        registryObjects.AddRange(_registryMetadataTransformerService.TransformDocumentEntryDtoToRegistryObjects(item));
+                    }
+                    registryObjects = registryObjects.Where(ro => ro != null).ToList();
+                    return new DocumentRegistry() { RegistryObjectList = registryObjects };
                 }
             }
             catch (Exception ex)
             {
-
                 return new DocumentRegistry();
             }
         }
@@ -101,17 +88,22 @@ public class RegistryWrapper
                 var extrinsicObjects = registryContent.RegistryObjectList.OfType<ExtrinsicObjectType>().ToArray();
                 var registryPackages = registryContent.RegistryObjectList.OfType<RegistryPackageType>().ToArray();
 
+                var documentDtoEntries = new List<DocumentReferenceDto>();
+
                 foreach (var association in associations)
                 {
                     var extrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
                     var registryPackage = registryPackages.FirstOrDefault(rp => rp.Id.NoUrn() == association.SourceObject.NoUrn());
 
-                    var documentEntryDto = _registryMetadataTransformerService.TransformRegistryObjectsToDocumentEntryDto(extrinsicObject, registryPackage, association: association);
-                    using (var reader = new StreamWriter(_registryFile))
-                    {
-                        reader.Write(JsonSerializer.Serialize(documentEntryDto, new JsonSerializerOptions() { WriteIndented = true }));
-                    }
+                    var documentEntryDto = _registryMetadataTransformerService.TransformRegistryObjectsToDocumentEntryDto(extrinsicObject, registryPackage, association, null);
+                    documentDtoEntries.Add(documentEntryDto);
                 }
+
+                using (var reader = new StreamWriter(_registryFile))
+                {
+                    reader.Write(JsonSerializer.Serialize(documentDtoEntries, new JsonSerializerOptions() { WriteIndented = true }));
+                }
+
                 return new SoapRequestResult<string>().Success("Updated OK");
             }
             catch (Exception ex)

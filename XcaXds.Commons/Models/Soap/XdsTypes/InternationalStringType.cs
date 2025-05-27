@@ -10,6 +10,6 @@ public class InternationalStringType
     public LocalizedStringType[] LocalizedString;
     public string? GetFirstValue()
     {
-        return LocalizedString.FirstOrDefault()?.Value;
+        return LocalizedString?.FirstOrDefault()?.Value;
     }
 }

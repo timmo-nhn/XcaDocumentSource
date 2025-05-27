@@ -1,6 +1,6 @@
 ﻿namespace XcaXds.Commons.Models.Custom.DocumentEntryDto;
 
-public class DocumentEntryDto
+public class DocumentEntryDto : RegistryObjectDto
 {
     public Author? Author { get; set; }
     public string? AvailabilityStatus { get; set; }

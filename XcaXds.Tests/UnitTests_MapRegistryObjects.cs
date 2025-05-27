@@ -1,10 +1,13 @@
-﻿using XcaXds.Commons;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
-using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
+using XcaXds.Source;
+using static XcaXds.Commons.Constants.Xds.Uuids;
 
 namespace XcaXds.Tests;
 
@@ -34,12 +37,12 @@ public class UnitTests_MapRegistryObjects
             var registryPackage = registryObjectList.OfType<RegistryPackageType>().FirstOrDefault(eo => eo.Id.NoUrn() == association.SourceObject.NoUrn());
             var document = docc.Body.ProvideAndRegisterDocumentSetRequest.Document.First(doc => doc.Id == extrinsicObject.Id);
 
-            var documentReference = regmetaserv.TransformRegistryObjectsToDocumentEntryDto(extrinsicObject, registryPackage, document, association);
+            var documentReference = regmetaserv.TransformRegistryObjectsToDocumentEntryDto(extrinsicObject, registryPackage, association);
 
             var registryObjects = regmetaserv.TransformDocumentEntryDtoToRegistryObjects(documentReference);
 
             var outputSoap = new SoapEnvelope()
-            { 
+            {
                 Header = docc.Header,
                 Body = new()
                 {
@@ -58,4 +61,42 @@ public class UnitTests_MapRegistryObjects
             throw;
         }
     }
+
+    [Fact]
+    public async Task MapEbRimRegistryObjectsRegistryToJsonDtoRegistry()
+    {
+
+        var rmts = new RegistryMetadataTransformerService();
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        
+
+        var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
+        var testDataFiles = Directory.GetFiles(registryPath);
+        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.xml")));
+
+        var content = await reader.ReadToEndAsync();
+        var registryContent = await sxmls.DeserializeSoapMessageAsync<DocumentRegistry>(content);
+
+        var associations = registryContent.RegistryObjectList.OfType<AssociationType>()
+            .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.HasMember).ToArray();
+        var extrinsicObjects = registryContent.RegistryObjectList.OfType<ExtrinsicObjectType>().ToArray();
+        var registryPackages = registryContent.RegistryObjectList.OfType<RegistryPackageType>().ToArray();
+
+        var documentDtoEntries = new List<DocumentReferenceDto>();
+
+        foreach (var association in associations)
+        {
+            var extrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
+            var registryPackage = registryPackages.FirstOrDefault(rp => rp.Id.NoUrn() == association.SourceObject.NoUrn());
+
+            var documentEntryDto = rmts.TransformRegistryObjectsToDocumentEntryDto(extrinsicObject, registryPackage, association, null);
+            documentDtoEntries.Add(documentEntryDto);
+            
+        }
+
+        var jsonRegistry = JsonSerializer.Serialize(documentDtoEntries, new JsonSerializerOptions() { WriteIndented = true});
+        File.WriteAllText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")),jsonRegistry);
+
+    }
+
 }

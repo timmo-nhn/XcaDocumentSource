@@ -41,7 +41,7 @@ public partial class RegistryService
             if (field.StartsWith("@PID.7"))
             {
                 var value = field.Substring(field.IndexOf('^') + 1);
-                patient.BirthDate = DateTime.ParseExact(value, Constants.Hl7.Dtm.CdaFormats, CultureInfo.InvariantCulture);
+                patient.BirthDate = DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
             }
             if (field.StartsWith("@PID.8"))
             {

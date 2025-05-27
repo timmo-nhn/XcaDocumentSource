@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
-using PdfSharp.Charting;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source;
@@ -47,8 +45,8 @@ public class Program
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = actionContext =>
-            { 
-                return SoapFaultErrorResponseFactory.CreateErrorResponse(actionContext); 
+            {
+                return SoapFaultErrorResponseFactory.CreateErrorResponse(actionContext);
             };
         });
 
@@ -73,7 +71,7 @@ public class Program
         builder.Services.AddSingleton<CdaTransformerService>();
         builder.Services.AddSingleton<RegistryMetadataTransformerService>();
         builder.Services.AddSingleton(xdsConfig);
-        
+
         builder.Services.AddHostedService<AppStartupService>();
 
         builder.Services.AddEndpointsApiExplorer();

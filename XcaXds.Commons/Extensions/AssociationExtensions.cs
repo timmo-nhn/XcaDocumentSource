@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Extensions;
 public static class AssociationExtensions
 {
     /// <summary>
-    /// Deprecate DocumentEntry
+    /// Mark ExtrinsicObject as Deprecated. Will not show up in ITI-18 requests
     /// </summary>
     public static void DeprecateDocumentEntry(
         this IEnumerable<IdentifiableType> source, string id, out bool success)

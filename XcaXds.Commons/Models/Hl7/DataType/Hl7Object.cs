@@ -136,7 +136,7 @@ public abstract class Hl7Object
             }
             else if (item.Property.PropertyType == typeof(DateTime) )
             {
-                obectValue = new object[] { DateTime.ParseExact(value, Constants.Hl7.Dtm.CdaFormats, CultureInfo.InvariantCulture) };
+                obectValue = new object[] { DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture) };
             }
             else
             {

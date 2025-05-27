@@ -28,7 +28,7 @@ public class TS : ANY
 
             bool matched = false;
 
-            foreach (var dateFormat in Constants.Hl7.Dtm.CdaFormats)
+            foreach (var dateFormat in Constants.Hl7.Dtm.AllFormats)
             {
                 if (DateTimeOffset.TryParseExact(value, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTimeOffset))
                 {

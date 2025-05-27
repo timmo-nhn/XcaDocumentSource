@@ -3,7 +3,6 @@ using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
 using XcaXds.Commons;
-using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
@@ -50,7 +49,7 @@ public class RepositoryController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
-       switch (soapEnvelope.Header.Action)
+        switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();

@@ -1,6 +1,6 @@
 ﻿namespace XcaXds.Commons.Models.Custom.DocumentEntryDto;
 
-public class SubmissionSetDto
+public class SubmissionSetDto : RegistryObjectDto
 {
     public Author? Author { get; set; }
     public string? AvailabilityStatus { get; internal set; }

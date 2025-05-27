@@ -402,8 +402,9 @@ public static class Constants
 
             public const string DtmFhirIsoDateTimeFormat = "yyyy-MM-ddTHH:mm:ssK";
 
-            public static readonly string[] CdaFormats =
+            public static readonly string[] AllFormats =
             [
+                "yyyy-MM-ddTHH:mm:ssK",
                 "yyyyMMddHHmmss.FFFFzzz",
                 "yyyyMMddHHmmss.FFFF",
                 "yyyyMMddHHmmsszzz",

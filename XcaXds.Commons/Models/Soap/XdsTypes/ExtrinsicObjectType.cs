@@ -52,7 +52,7 @@ public partial class ExtrinsicObjectType : RegistryObjectType
             if (pidPart.Contains("PID-7"))
             {
                 var value = pidPart.Substring(pidPart.IndexOf("|") + 1);
-                patientPid.BirthDate = DateTime.ParseExact(value, Constants.Hl7.Dtm.CdaFormats, CultureInfo.InvariantCulture);
+                patientPid.BirthDate = DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
             }
             if (pidPart.Contains("PID-8"))
             {

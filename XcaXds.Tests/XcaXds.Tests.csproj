@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
+    <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
   </ItemGroup>
 
   <ItemGroup>

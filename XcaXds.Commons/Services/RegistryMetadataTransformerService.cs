@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Services;
 
 public class RegistryMetadataTransformerService
 {
-    public DocumentReferenceDto TransformRegistryObjectsToDocumentEntryDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, DocumentType document = null, AssociationType association = null)
+    public DocumentReferenceDto TransformRegistryObjectsToDocumentEntryDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType document = null)
     {
         var documentEntryDto = new DocumentReferenceDto();
 
@@ -90,8 +90,8 @@ public class RegistryMetadataTransformerService
 
             return new()
             {
-                Code = patientIdValue.IdNumber,
-                CodeSystem = patientIdValue.AssigningAuthority.UniversalId
+                Code = patientIdValue?.IdNumber,
+                CodeSystem = patientIdValue?.AssigningAuthority?.UniversalId
             };
         }
 
@@ -104,12 +104,7 @@ public class RegistryMetadataTransformerService
 
         if (contentTypeCode != null)
         {
-            return new()
-            {
-                Code = contentTypeCode?.NodeRepresentation ?? string.Empty,
-                CodeSystem = contentTypeCode?.GetFirstSlot()?.GetFirstValue() ?? string.Empty,
-                DisplayName = contentTypeCode?.Name?.GetFirstValue() ?? string.Empty
-            };
+            return MapClassificationToCodedValue(contentTypeCode);
         }
         return null;
     }
@@ -118,19 +113,25 @@ public class RegistryMetadataTransformerService
     {
         var authorClassification = registryPackage.GetFirstClassification(Constants.Xds.Uuids.SubmissionSet.Author);
 
-        var author = new Author();
-        author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
-        author.Department = GetAuthorDepartmentFromClassification(authorClassification);
-        author.Person = GetAuthorPersonFromClassification(authorClassification);
-        author.Role = GetAuthorRoleFromClassificaiton(authorClassification);
-        author.Speciality = GetAuthorSpecialityFromClassification(authorClassification);
+        if (authorClassification != null)
+        {
+            var author = new Author();
+            author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
+            author.Department = GetAuthorDepartmentFromClassification(authorClassification);
+            author.Person = GetAuthorPersonFromClassification(authorClassification);
+            author.Role = GetAuthorRoleFromClassificaiton(authorClassification);
+            author.Speciality = GetAuthorSpecialityFromClassification(authorClassification);
 
-        return author;
+            return author;
+        }
 
+        return null;
     }
 
     private DocumentEntryDto TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryObjects)
     {
+        if (extrinsicObject == null || registryObjects == null) return null;
+
         var documentMetadata = new DocumentEntryDto();
 
         documentMetadata.Author = GetAuthorFromExtrinsicObject(extrinsicObject);
@@ -192,8 +193,8 @@ public class RegistryMetadataTransformerService
             return new()
             {
                 BirthTime = birthTime == null ? null : DateTime.ParseExact(birthTime, Constants.Hl7.Dtm.DtmYmdFormat, CultureInfo.InvariantCulture),
-                FamilyName = name.FamilyName,
-                GivenName = name.GivenName,
+                FamilyName = name?.FamilyName,
+                GivenName = name?.GivenName,
                 Gender = gender ?? "U",
                 PatientId = patientId?.IdNumber == null ? null : new()
                 {
@@ -216,7 +217,7 @@ public class RegistryMetadataTransformerService
         var dateValue = extrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.ServiceStopTime)?.GetFirstValue();
         if (dateValue != null)
         {
-            return DateTime.ParseExact(dateValue, [Constants.Hl7.Dtm.DtmFormat, Constants.Hl7.Dtm.DtmYmdFormat, Constants.Hl7.Dtm.DtmYmdhmFormat], CultureInfo.InvariantCulture);
+            return DateTime.ParseExact(dateValue, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
         }
 
         return null;
@@ -227,7 +228,7 @@ public class RegistryMetadataTransformerService
         var dateValue = extrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.ServiceStartTime)?.GetFirstValue();
         if (dateValue != null)
         {
-            return DateTime.ParseExact(dateValue, [Constants.Hl7.Dtm.DtmFormat, Constants.Hl7.Dtm.DtmYmdFormat, Constants.Hl7.Dtm.DtmYmdhmFormat], CultureInfo.InvariantCulture);
+            return DateTime.ParseExact(dateValue, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
         }
 
         return null;
@@ -259,8 +260,8 @@ public class RegistryMetadataTransformerService
         {
             return new()
             {
-                Code = patIdPid.IdNumber,
-                CodeSystem = patIdPid.AssigningAuthority.UniversalId
+                Code = patIdPid?.IdNumber,
+                CodeSystem = patIdPid?.AssigningAuthority?.UniversalId
             };
         }
 
@@ -349,7 +350,7 @@ public class RegistryMetadataTransformerService
         var dateValue = extrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.CreationTime)?.GetFirstValue();
         if (dateValue != null)
         {
-            return DateTime.ParseExact(dateValue, [Constants.Hl7.Dtm.DtmFormat, Constants.Hl7.Dtm.DtmYmdFormat, Constants.Hl7.Dtm.DtmYmdhmFormat], CultureInfo.InvariantCulture);
+            return DateTime.ParseExact(dateValue, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
         }
 
         return null;
@@ -357,6 +358,7 @@ public class RegistryMetadataTransformerService
 
     private CodedValue GetConfidentialityCodeFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
     {
+
         var confCodeClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
 
         if (confCodeClassification != null)
@@ -371,11 +373,18 @@ public class RegistryMetadataTransformerService
     {
         var classCodeClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ClassCode);
 
-        return MapClassificationToCodedValue(classCodeClassification);
+        if (classCodeClassification != null)
+        {
+            return MapClassificationToCodedValue(classCodeClassification);
+        }
+
+        return null;
     }
 
     private CodedValue MapClassificationToCodedValue(ClassificationType classification)
     {
+        if (classification == null) return null;
+
         return new()
         {
             Code = classification?.NodeRepresentation ?? string.Empty,
@@ -386,50 +395,25 @@ public class RegistryMetadataTransformerService
 
     private Author GetAuthorFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
     {
-
         var authorClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.Author);
 
-        var author = new Author();
-        author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
-        author.Department = GetAuthorDepartmentFromClassification(authorClassification);
-        author.Person = GetAuthorPersonFromClassification(authorClassification);
-        author.Role = GetAuthorRoleFromClassificaiton(authorClassification);
-        author.Speciality = GetAuthorSpecialityFromClassification(authorClassification);
-
-        return author;
-    }
-
-    private AuthorPerson? GetAuthorPersonFromClassification(ClassificationType authorClassification)
-    {
-        var authorPerson = new AuthorPerson();
-
-        var authorPersonXcn = authorClassification
-            .GetSlots(Constants.Xds.SlotNames.AuthorPerson)
-            .GetValues()
-            .Select(asl => Hl7Object.Parse<XCN>(asl)).FirstOrDefault();
-
-        // Resolve whether authorPerson is stored as a simple string or as XCN
-        if (authorPersonXcn.PersonIdentifier != null && authorPersonXcn.GivenName == null)
+        if (authorClassification != null)
         {
-            var nameParts = authorPersonXcn?.PersonIdentifier.Split(' ');
-            authorPerson.FirstName = nameParts?.FirstOrDefault();
-            authorPerson.LastName = string.Join(' ', nameParts.Skip(1));
-            return authorPerson;
+            var author = new Author();
+            author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
+            author.Department = GetAuthorDepartmentFromClassification(authorClassification);
+            author.Person = GetAuthorPersonFromClassification(authorClassification);
+            author.Role = GetAuthorRoleFromClassificaiton(authorClassification);
+            author.Speciality = GetAuthorSpecialityFromClassification(authorClassification);
+            return author;
         }
-        else if (authorPersonXcn != null)
-        {
-            authorPerson.FirstName = authorPersonXcn.GivenName;
-            authorPerson.LastName = authorPersonXcn.FamilyName;
-            authorPerson.Id = authorPersonXcn.PersonIdentifier;
-            authorPerson.AssigningAuthority = authorPersonXcn.AssigningAuthority?.UniversalId;
-            return authorPerson;
-        }
-
         return null;
-    }
 
+    }
     private AuthorOrganization? GetAuthorDepartmentFromClassification(ClassificationType authorClassification)
     {
+        if (authorClassification == null) return null;
+
         var authorOrganization = new AuthorOrganization();
 
         var authorSlotXon = authorClassification
@@ -469,6 +453,8 @@ public class RegistryMetadataTransformerService
 
     private AuthorOrganization? GetAuthorOrganizationFromClassification(ClassificationType authorClassification)
     {
+        if (authorClassification == null) return null;
+
         var authorOrganization = new AuthorOrganization();
 
         var authorSlotXon = authorClassification
@@ -496,19 +482,32 @@ public class RegistryMetadataTransformerService
         return null;
     }
 
-    private CodedValue? GetAuthorSpecialityFromClassification(ClassificationType authorClassification)
+    private AuthorPerson? GetAuthorPersonFromClassification(ClassificationType authorClassification)
     {
-        var authorSpeciality = authorClassification
-            .GetSlots(Constants.Xds.SlotNames.AuthorSpecialty)
+        if (authorClassification == null) return null;
+
+        var authorPerson = new AuthorPerson();
+
+        var authorPersonXcn = authorClassification
+            .GetSlots(Constants.Xds.SlotNames.AuthorPerson)
             .GetValues()
-            .Select(rol => Hl7Object.Parse<CX>(rol)).FirstOrDefault();
-        if (authorSpeciality != null)
+            .Select(asl => Hl7Object.Parse<XCN>(asl)).FirstOrDefault();
+
+        // Resolve whether authorPerson is stored as a simple string or as XCN
+        if (authorPersonXcn.PersonIdentifier != null && authorPersonXcn.GivenName == null)
         {
-            return new()
-            {
-                Code = authorSpeciality?.IdNumber,
-                CodeSystem = authorSpeciality?.AssigningAuthority?.UniversalId,
-            };
+            var nameParts = authorPersonXcn?.PersonIdentifier.Split(' ');
+            authorPerson.FirstName = nameParts?.FirstOrDefault();
+            authorPerson.LastName = string.Join(' ', nameParts.Skip(1));
+            return authorPerson;
+        }
+        else if (authorPersonXcn != null)
+        {
+            authorPerson.FirstName = authorPersonXcn.GivenName;
+            authorPerson.LastName = authorPersonXcn.FamilyName;
+            authorPerson.Id = authorPersonXcn.PersonIdentifier;
+            authorPerson.AssigningAuthority = authorPersonXcn.AssigningAuthority?.UniversalId;
+            return authorPerson;
         }
 
         return null;
@@ -516,6 +515,8 @@ public class RegistryMetadataTransformerService
 
     private CodedValue? GetAuthorRoleFromClassificaiton(ClassificationType classification)
     {
+        if (classification == null) return null;
+
         var authorRole = classification
             .GetSlots(Constants.Xds.SlotNames.AuthorRole)
             .GetValues()
@@ -527,6 +528,26 @@ public class RegistryMetadataTransformerService
             {
                 Code = authorRole?.IdNumber,
                 CodeSystem = authorRole?.AssigningAuthority?.UniversalId,
+            };
+        }
+
+        return null;
+    }
+
+    private CodedValue? GetAuthorSpecialityFromClassification(ClassificationType authorClassification)
+    {
+        if (authorClassification == null) return null;
+
+        var authorSpeciality = authorClassification
+            .GetSlots(Constants.Xds.SlotNames.AuthorSpecialty)
+            .GetValues()
+            .Select(rol => Hl7Object.Parse<CX>(rol)).FirstOrDefault();
+        if (authorSpeciality != null)
+        {
+            return new()
+            {
+                Code = authorSpeciality?.IdNumber,
+                CodeSystem = authorSpeciality?.AssigningAuthority?.UniversalId,
             };
         }
 
@@ -550,6 +571,8 @@ public class RegistryMetadataTransformerService
 
     private ExtrinsicObjectType GetExtrinsicObjectFromDocumentReferenceDto(DocumentEntryDto documentEntryMetadata)
     {
+        if (documentEntryMetadata == null) return null;
+
         var extrinsicObject = new ExtrinsicObjectType()
         {
             Classification = [],
@@ -1148,7 +1171,7 @@ public class RegistryMetadataTransformerService
 
         registryPackage.Classification = [.. registryPackage.Classification, authorClassification];
     }
-    
+
     private ExternalIdentifierType MapCodedValueToExternalIdentifier(string? externalIdentifierName, string? codedValue)
     {
         if (!string.IsNullOrWhiteSpace(externalIdentifierName) && !string.IsNullOrWhiteSpace(codedValue))
@@ -1198,9 +1221,9 @@ public class RegistryMetadataTransformerService
         return new()
         {
             ClassificationScheme = healthCareFacilityTypeCode,
-            NodeRepresentation = confCode.Code,
-            Name = confCode.DisplayName != null ? new() { LocalizedString = [new() { Value = confCode.DisplayName }] } : null,
-            Slot = confCode.CodeSystem != null ? [new() { Name = Constants.Xds.SlotNames.CodingScheme, ValueList = new() { Value = [confCode.CodeSystem] } }] : null
+            NodeRepresentation = confCode?.Code,
+            Name = confCode?.DisplayName != null ? new() { LocalizedString = [new() { Value = confCode.DisplayName }] } : null,
+            Slot = confCode?.CodeSystem != null ? [new() { Name = Constants.Xds.SlotNames.CodingScheme, ValueList = new() { Value = [confCode.CodeSystem] } }] : null
         };
 
     }
