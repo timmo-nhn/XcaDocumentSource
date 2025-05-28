@@ -88,7 +88,7 @@ public class RegistryWrapper
                 var extrinsicObjects = registryContent.RegistryObjectList.OfType<ExtrinsicObjectType>().ToArray();
                 var registryPackages = registryContent.RegistryObjectList.OfType<RegistryPackageType>().ToArray();
 
-                var documentDtoEntries = new List<DocumentReferenceDto>();
+                var documentDtoEntries = new List<RegistryObjectDto>();
 
                 foreach (var association in associations)
                 {

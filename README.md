@@ -61,7 +61,10 @@ document <--> docstore
 ### [⚙️ Technical implementation details](/Docs/TechnicalImplementation.md)
 How **PJD.XcaDocumentSource** solution is structured, and how it can be implemented in a source system, taking in account existing document registries/repositories, and PAP/PDP/PR systems.
 
-### [🧾 Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
+### [🧾 Custom Registry Format](/Docs/RegistryDto.md)
+Describes the custom Registry format which is used to store document entries.
+
+### [🧾 EbRIM Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
 Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
 
 ### [📨 ITI-messages](/Docs/XdsTransactions.md)
@@ -84,9 +87,35 @@ Describes the functionality for converting a CDA document to an ITI-41 message/R
 ## Use case Scenarios for XcaDocumentSource
 
 
+
+## Coding Conventions
+
+The following coding conventions are used in XcaDocumentSource. They are not enforced onto the implementer:
+- Functions are used extensively to break up code and separate concerns. No function should rarely be more than 100 lines.
+  - Functions should have a single purpose (SRP)
+- Service-classes encapsulate functionality related to a single "purpose" or function (interact with registry/repository, transform objects from X to Y format etc.)
+- Naming:
+  - `PascalCase` for classes, methods, and public properties.
+  - `camelCase` for local variables and private fields.
+- File structure: One class per file.
+- Indentation: 4 spaces (no tabs).
+- Uses `async/await` over `Task.ContinueWith`, no `.Result` or `.Wait()`.
+- Avoid abbreviations in names (e.g., `userProfile`, not `usrProf`, can be abbreviated for long variable names).
+
+### Separation of concerns
+The code is divided into clear layers (API/controller, Service, Wrapper, Domain(classes))
+```
+/Controllers
+  - RegistryController.cs
+/Services
+  - RegistryService.cs
+/Repositories
+  - RegistryWrapper.cs
+```
+
+
 ## Document sharing - Actors and components  
 The **XDS-architecture** consists of the following actors/components:
-
 
 ### Document source  
 A document source is typically an **EHR-system** or backend solution which has produced or stores a document which will be shared using the **XDS-solution**.

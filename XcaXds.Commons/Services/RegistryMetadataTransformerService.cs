@@ -23,7 +23,44 @@ public class RegistryMetadataTransformerService
         return documentEntryDto;
     }
 
-    private AssociationDto TransformToAssociationDto(AssociationType association, ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage)
+    public List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IdentifiableType[] registryObjectList)
+    {
+        var listDto = new List<RegistryObjectDto>();
+
+
+        foreach (var registryObject in registryObjectList)
+        {
+            if (registryObject == null) continue;
+
+            if (registryObject is AssociationType association)
+            {
+                listDto.Add(TransformAssociationToAssociationDto(association));
+                continue;
+            }
+
+            if (registryObject is ExtrinsicObjectType extrinsicObject)
+            {
+                listDto.Add(TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject));
+                continue;
+            }
+
+            if (registryObject is RegistryPackageType registryPackage)
+            {
+                listDto.Add(TransformRegistryPackageToSubmissionSetDto(registryPackage));
+                continue;
+            }
+        }
+
+        return listDto;
+    }
+
+
+    private AssociationDto TransformAssociationToAssociationDto(AssociationType association)
+    {
+        return TransformToAssociationDto(association, null, null);
+    }
+
+    private AssociationDto TransformToAssociationDto(AssociationType association, ExtrinsicObjectType extrinsicObject = null, RegistryPackageType registryPackage = null)
     {
         var associationDto = new AssociationDto();
 
@@ -128,9 +165,9 @@ public class RegistryMetadataTransformerService
         return null;
     }
 
-    private DocumentEntryDto TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryObjects)
+    private DocumentEntryDto TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject)
     {
-        if (extrinsicObject == null || registryObjects == null) return null;
+        if (extrinsicObject == null) return null;
 
         var documentMetadata = new DocumentEntryDto();
 
