@@ -1,4 +1,5 @@
-# Document sharing - Actors and components  
+# Document sharing - Actors and components 
+
 The **XDS-architecture** consists of the following actors/components:
 ## Components
 ### Document source  

@@ -57,7 +57,6 @@ document <--> docstore
 
 
 ## Solution Documentation
-
 ### [🌐 Document Sharing overiew - Actors and Components](/Docs/Overview.md)
 Describes the high-level principles of document sharing, and the components involved in the process.
 
@@ -88,20 +87,45 @@ Documentation of the Admin-GUI which also serves as a practical tool for interac
 Describes the functionality for converting a CDA document to an ITI-41 message/Registry Metadata and vice-versa.
 
 ## Use case Scenarios for XcaDocumentSource
+
 ### 1. Municipality Sharing Test Results with National Health Network
-**Scenario**: A municipality’s health department wants to publish lab test results (e.g., COVID-19, bloodwork) from its internal system to the national XCA infrastructure, so they’re available to hospitals and general practitioners (GPs).
+
+#### Scenario: 
+A municipality’s health department wants to publish lab test results (e.g., COVID-19, bloodwork) from its internal system to the national XCA infrastructure, so they’re available to hospitals and general practitioners (GPs).
 
 #### Use Case Flow:
-
-The municipality pushes documents into a local repository or document registry.
-
-The municipality adapts XcaDocumentSource to talk to their local registry or repository. 
-
-GPs can search and retrieve these documents via the national XCA gateway.
+* The municipality pushes documents into a local repository or document registry.
+* The municipality adapts XcaDocumentSource to talk to their local registry or repository. 
+* GPs can search and retrieve these documents via the national XCA gateway.
 
 #### Benefits:
 Eliminates siloed data. Test results are accessible to any authorized healthcare professional in the country.
 
+### 2. Hospital Sharing Discharge Summaries with GPs and Home Care Providers
+
+#### Scenario:
+A hospital wants to make discharge notes and care plans available to the patient’s general practitioner and municipal home care team.
+
+#### Use Case Flow:
+* After discharge, the hospital’s EPR system sends a CDA discharge summary.
+* XcaDocumentSource registers it with the national XCA infrastructure.
+* GPs and municipal care teams query and retrieve the document seamlessly.
+
+#### Benefits:
+Ensures continuity of care and informed follow-up treatment.
+
+### 3. Private Specialist Making Consult Notes Available to Hospitals
+
+#### Scenario:
+A private dermatologist or cardiologist needs to ensure that their consult findings are accessible to the referring hospital or emergency department.
+
+#### Use Case Flow:
+* Specialist uploads or sends consult note (CDA, PDF) to the integration system.
+* Integration with XcaDocumentSource makes the document available with appropriate access rights.
+* Hospitals query using the national gateway and retrieve the documents.
+
+#### Benefit:
+Reduces duplicated effort, supports informed emergency care.
 
 ## Coding Conventions
 
@@ -127,6 +151,69 @@ The code is usually divided into clear layers (API/controller, Service, Wrapper,
 /Repositories
   - RegistryWrapper.cs
 ```
+
+
+## Document sharing - Actors and components  
+The **XDS-architecture** consists of the following actors/components:
+
+### Document source  
+A document source is typically an **EHR-system** or backend solution which has produced or stores a document which will be shared using the **XDS-solution**.
+
+
+### Document consumer  
+A document consumer is typically a **EHR-system** (or citizen portal) which queries the **Document Source** for documents on a given patient.
+
+
+### Document repository
+A document repository is the service responsible for storing or making the document accessible. an **XDS-solution** can consist of one or more document repositories.
+
+
+### Document Registry  
+The Document Registry contains information (metadata) about all archived documents in the XDS area served by this document repository. An XDS site is always served by only one document repository, but a document repository can cover multiple XDS areas.
+In addition to metadata about existing documents, the document register contains pointers to the document archive where the document is stored.
+
+
+### Affinity Domain  
+The concept of an Affinity Domain is, literally and figuratively, central in the realm of sharing health documents. The XDS-profile describes how documents are shared across enterprise boundaries within an Affinity Domain, as well as the rules that make sharing possible. An Affinity Domain has its own unique identifier, known as a **HomeCommunityID**. This ID is used when querying the domain.  
+The boundaries of an Affinity Domain is not specified, but a logical separation within a country is natural. In Norway, this separation is on a **RHF** (Regionalt helseforetak)-level. This level of separation makes it possible for the Affinity Domains to profilings catered towards the needs of both the domain, aswell as the **RHF**.
+
+
+### Patient identity source  
+This component ensures every patient is given an **unambigous identificator**, for example a local, regional or nationwide population register.
+>**🚩 National Extension**<br> In Norway, a personal identificator is in use (person number), so a dedicated service for handling patient identifications is not required.
+
+## Document consuming process
+Below is a diagram showing the process of retrieving the document-list and the document. Each affinity domain has its own XCA, which again has its own registry and repositories.  
+When querying for a list of documentr , the Registry is queried, as it holds the metadata and references to the documents in the repository. When retrieving a document, the repository is queried with the ID from the Registry metadata item of interest.
+```mermaid
+%%{init: {'theme':'dark'}}%%
+
+sequenceDiagram
+    actor GP
+    participant KJ as EHR/Kjernejournal
+    participant NHN_XCA
+    participant HSØ_XCA
+    participant HV_XCA
+    participant HN_XCA
+    GP->>KJ:Login
+    KJ-->>KJ:Select patient
+    KJ-->>KJ:Open PHR-instance
+    KJ->>NHN_XCA:ITI-18
+    NHN_XCA->>HSØ_XCA:ITI-38
+    HSØ_XCA->>NHN_XCA:Response
+    NHN_XCA->>HV_XCA:ITI-38
+    HV_XCA->>NHN_XCA:Response
+    NHN_XCA->>HN_XCA:ITI-38
+    HN_XCA->>NHN_XCA:Response
+    NHN_XCA->>KJ:Document-list
+    GP->>KJ:Opens Document X from HSØ
+    KJ->>NHN_XCA:ITI-43
+    NHN_XCA->>HSØ_XCA:ITI-39
+    HSØ_XCA->>NHN_XCA:Response
+    NHN_XCA->>KJ:Document
+```
+*Figure x: Simplified example on a query of document, each XCA is its own affinity domain, and the response for each domain may be different (ie. some domains reject requests from certain GP-roles)*
+
 
 ## Semantics Used  
 This section defines how different elements are formatted and referenced within the documentation.
