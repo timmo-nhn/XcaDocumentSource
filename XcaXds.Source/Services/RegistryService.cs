@@ -150,7 +150,7 @@ public partial class RegistryService
                 break;
 
             case Constants.Xds.StoredQueries.FindSubmissionSets:
-                registryFindSubmissionSetsResult = FilterRegistryOnSubmissionSets(adhocQueryRequest.AdhocQuery);
+                //registryFindSubmissionSetsResult = FilterRegistryOnSubmissionSets(adhocQueryRequest.AdhocQuery);
                 var findSubmissionSetsParameters = RegistryStoredQueryParameters.GetFindSubmissionSetsParameters(adhocQueryRequest.AdhocQuery);
 
                 var registryFindSubmissionSetsResult = DocumentRegistry.RegistryObjectList

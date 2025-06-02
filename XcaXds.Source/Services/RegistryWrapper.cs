@@ -2,7 +2,6 @@
 using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
@@ -54,17 +53,12 @@ public class RegistryWrapper
             {
                 using (var reader = new StreamReader(_registryFile))
                 {
-                    var documentEntry = JsonSerializer.Deserialize<DocumentReferenceDto[]>(reader.ReadToEnd());
+                    var documentRegistryDtoContent = JsonSerializer.Deserialize<List<RegistryObjectDto>>(reader.ReadToEnd());
 
-                    if (documentEntry == null) throw new Exception();
+                    if (documentRegistryDtoContent == null) throw new Exception();
 
-                    var registryObjects = new List<IdentifiableType>();
+                    var registryObjects = _registryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(documentRegistryDtoContent);
 
-                    foreach (var item in documentEntry)
-                    {
-                        registryObjects.AddRange(_registryMetadataTransformerService.TransformDocumentEntryDtoToRegistryObjects(item));
-                    }
-                    registryObjects = registryObjects.Where(ro => ro != null).ToList();
                     return new DocumentRegistry() { RegistryObjectList = registryObjects };
                 }
             }
@@ -83,25 +77,14 @@ public class RegistryWrapper
         {
             try
             {
-                var associations = registryContent.RegistryObjectList.OfType<AssociationType>()
-                    .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.HasMember).ToArray();
-                var extrinsicObjects = registryContent.RegistryObjectList.OfType<ExtrinsicObjectType>().ToArray();
-                var registryPackages = registryContent.RegistryObjectList.OfType<RegistryPackageType>().ToArray();
+                var registryObjectDtoList = new List<RegistryObjectDto>();
 
-                var documentDtoEntries = new List<RegistryObjectDto>();
-
-                foreach (var association in associations)
-                {
-                    var extrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
-                    var registryPackage = registryPackages.FirstOrDefault(rp => rp.Id.NoUrn() == association.SourceObject.NoUrn());
-
-                    var documentEntryDto = _registryMetadataTransformerService.TransformRegistryObjectsToDocumentEntryDto(extrinsicObject, registryPackage, association, null);
-                    documentDtoEntries.Add(documentEntryDto);
-                }
+                var documentEntryDto = _registryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
+                registryObjectDtoList.AddRange(documentEntryDto);
 
                 using (var reader = new StreamWriter(_registryFile))
                 {
-                    reader.Write(JsonSerializer.Serialize(documentDtoEntries, new JsonSerializerOptions() { WriteIndented = true }));
+                    reader.Write(JsonSerializer.Serialize(registryObjectDtoList, new JsonSerializerOptions() { WriteIndented = true }));
                 }
 
                 return new SoapRequestResult<string>().Success("Updated OK");
