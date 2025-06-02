@@ -1,13 +1,8 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using XcaXds.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Source;
-using static XcaXds.Commons.Constants.Xds.Uuids;
 
 namespace XcaXds.Tests;
 
@@ -63,7 +58,7 @@ public class UnitTests_MapRegistryObjects
     {
         var rmts = new RegistryMetadataTransformerService();
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
-        
+
         var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
         var testDataFiles = Directory.GetFiles(registryPath);
         using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.xml")));
@@ -75,8 +70,8 @@ public class UnitTests_MapRegistryObjects
         var documentDtoEntries = rmts.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
 
 
-        var jsonRegistry = JsonSerializer.Serialize(documentDtoEntries, new JsonSerializerOptions() { WriteIndented = true});
-        File.WriteAllText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")),jsonRegistry);
+        var jsonRegistry = JsonSerializer.Serialize(documentDtoEntries, new JsonSerializerOptions() { WriteIndented = true });
+        File.WriteAllText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")), jsonRegistry);
 
     }
 }
