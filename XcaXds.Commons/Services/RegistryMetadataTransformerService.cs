@@ -8,11 +8,11 @@ namespace XcaXds.Commons.Services;
 
 public class RegistryMetadataTransformerService
 {
-    public DocumentReferenceDto TransformRegistryObjectsToDocumentEntryDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType document = null)
+    public DocumentReferenceDto TransformRegistryObjectsToDocumentReferenceDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType document = null)
     {
         var documentEntryDto = new DocumentReferenceDto();
 
-        documentEntryDto.DocumentEntryMetadata = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject, registryPackage);
+        documentEntryDto.DocumentEntryMetadata = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
         documentEntryDto.SubmissionSetMetadata = TransformRegistryPackageToSubmissionSetDto(registryPackage);
         documentEntryDto.Association = TransformToAssociationDto(association, extrinsicObject, registryPackage);
         if (document?.Value != null)
@@ -23,10 +23,53 @@ public class RegistryMetadataTransformerService
         return documentEntryDto;
     }
 
-    public List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IdentifiableType[] registryObjectList)
+    public List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<RegistryObjectDto> registryObjectDtos)
+    {
+        var registryObjects = new List<IdentifiableType>();
+
+        if (registryObjectDtos == null || registryObjectDtos.Count == 0) return registryObjects;
+
+        foreach (var registryObjectDto in registryObjectDtos)
+        {
+            if (registryObjectDto is AssociationDto associationDto)
+            {
+                var associationType = GetAssociationFromAssociationDto(associationDto);
+                
+                if (associationType == null) continue;
+
+                registryObjects.Add(associationType);
+                continue;
+            }
+
+            if (registryObjectDto is DocumentEntryDto documentEntryDto)
+            {
+                var extrinsicObjectType = GetExtrinsicObjectFromDocumentEntryDto(documentEntryDto);
+                
+                if (extrinsicObjectType == null) continue;
+
+                registryObjects.Add(extrinsicObjectType);
+                continue;
+            }
+
+            if (registryObjectDto is SubmissionSetDto submissionsetDto)
+            {
+                var associationType = GetRegistryPackageFromSubmissionSetDto(submissionsetDto);
+                
+                if (associationType == null) continue;
+
+                registryObjects.Add(associationType);
+                continue;
+            }
+            
+        }
+
+        return registryObjects;
+
+    }
+
+    public List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(List<IdentifiableType> registryObjectList)
     {
         var listDto = new List<RegistryObjectDto>();
-
 
         foreach (var registryObject in registryObjectList)
         {
@@ -119,7 +162,7 @@ public class RegistryMetadataTransformerService
 
     private CodedValue? GetPatientIdFromRegistryPackage(RegistryPackageType registryPackage)
     {
-        var patientIdExtIder = registryPackage.GetFirstExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.PatientId).Value;
+        var patientIdExtIder = registryPackage.GetFirstExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.PatientId)?.Value;
 
         if (patientIdExtIder != null)
         {
@@ -378,7 +421,7 @@ public class RegistryMetadataTransformerService
 
     private string? GetDocumentUniqueIdFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
     {
-        var documentUniqueId = extrinsicObject.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId).Value;
+        var documentUniqueId = extrinsicObject.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
         return documentUniqueId;
     }
 
@@ -531,11 +574,11 @@ public class RegistryMetadataTransformerService
             .Select(asl => Hl7Object.Parse<XCN>(asl)).FirstOrDefault();
 
         // Resolve whether authorPerson is stored as a simple string or as XCN
-        if (authorPersonXcn.PersonIdentifier != null && authorPersonXcn.GivenName == null)
+        if (authorPersonXcn?.PersonIdentifier != null && authorPersonXcn?.GivenName == null)
         {
             var nameParts = authorPersonXcn?.PersonIdentifier.Split(' ');
             authorPerson.FirstName = nameParts?.FirstOrDefault();
-            authorPerson.LastName = string.Join(' ', nameParts.Skip(1));
+            authorPerson.LastName = string.Join(' ', nameParts?.Skip(1));
             return authorPerson;
         }
         else if (authorPersonXcn != null)
@@ -591,12 +634,12 @@ public class RegistryMetadataTransformerService
         return null;
     }
 
-    public IdentifiableType[] TransformDocumentEntryDtoToRegistryObjects(DocumentReferenceDto documentReference)
+    public IdentifiableType[] TransformDocumentReferenceDtoToRegistryObjects(DocumentReferenceDto documentReference)
     {
         var registryObjectList = new List<IdentifiableType>();
 
-        var extrinsicObject = GetExtrinsicObjectFromDocumentReferenceDto(documentReference.DocumentEntryMetadata);
-        var registryPackage = GetRegistryPackageFromDocumentReferenceDto(documentReference.SubmissionSetMetadata);
+        var extrinsicObject = GetExtrinsicObjectFromDocumentEntryDto(documentReference.DocumentEntryMetadata);
+        var registryPackage = GetRegistryPackageFromSubmissionSetDto(documentReference.SubmissionSetMetadata);
         var association = GetAssociationFromAssociationDto(documentReference.Association);
 
         registryObjectList.Add(extrinsicObject);
@@ -606,7 +649,7 @@ public class RegistryMetadataTransformerService
         return registryObjectList.ToArray();
     }
 
-    private ExtrinsicObjectType GetExtrinsicObjectFromDocumentReferenceDto(DocumentEntryDto documentEntryMetadata)
+    private ExtrinsicObjectType GetExtrinsicObjectFromDocumentEntryDto(DocumentEntryDto documentEntryMetadata)
     {
         if (documentEntryMetadata == null) return null;
 
@@ -646,7 +689,7 @@ public class RegistryMetadataTransformerService
         return extrinsicObject;
     }
 
-    private RegistryPackageType GetRegistryPackageFromDocumentReferenceDto(SubmissionSetDto submissionSetMetadata)
+    private RegistryPackageType GetRegistryPackageFromSubmissionSetDto(SubmissionSetDto submissionSetMetadata)
     {
         var registryPackage = new RegistryPackageType()
         {
