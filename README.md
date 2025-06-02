@@ -85,12 +85,24 @@ Documentation of the Admin-GUI which also serves as a practical tool for interac
 Describes the functionality for converting a CDA document to an ITI-41 message/Registry Metadata and vice-versa.
 
 ## Use case Scenarios for XcaDocumentSource
+### 1. Municipality Sharing Test Results with National Health Network
+**Scenario**: A municipality’s health department wants to publish lab test results (e.g., COVID-19, bloodwork) from its internal system to the national XCA infrastructure, so they’re available to hospitals and general practitioners (GPs).
 
+#### Use Case Flow:
+
+The municipality pushes documents into a local repository or document registry.
+
+The municipality adapts XcaDocumentSource to talk to their local registry or repository. 
+
+GPs can search and retrieve these documents via the national XCA gateway.
+
+#### Benefits:
+Eliminates siloed data. Test results are accessible to any authorized healthcare professional in the country.
 
 
 ## Coding Conventions
 
-The following coding conventions are used in XcaDocumentSource. They are not enforced onto the implementer:
+The following coding conventions are used in XcaDocumentSource. They are not enforced onto the implementer but described here for informational purposes:
 - Functions are used extensively to break up code and separate concerns. No function should rarely be more than 100 lines.
   - Functions should have a single purpose (SRP)
 - Service-classes encapsulate functionality related to a single "purpose" or function (interact with registry/repository, transform objects from X to Y format etc.)
@@ -103,7 +115,7 @@ The following coding conventions are used in XcaDocumentSource. They are not enf
 - Avoid abbreviations in names (e.g., `userProfile`, not `usrProf`, can be abbreviated for long variable names).
 
 ### Separation of concerns
-The code is divided into clear layers (API/controller, Service, Wrapper, Domain(classes))
+The code is usually divided into clear layers (API/controller, Service, Wrapper, Domain(classes))
 ```
 /Controllers
   - RegistryController.cs
