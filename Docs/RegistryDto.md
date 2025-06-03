@@ -1,5 +1,4 @@
 # Custom Document Registry Format
-
 To get around the complexities of the metadata standards which ebRIM and IHE ITI infrastructure enforces, a custom data-structure is defined. It is made to correspond to the fields in the IHE Metadata, but does away with generic `<Classification>`, `<ExternalIdentifier>` and `<Slot>` types for simpler, less genric types.
 
 ## RegistryObjectDto overview
@@ -23,9 +22,9 @@ For more info on metadata, see [IHE XDS metadata - git.sarepta.ehelse.no ↗](ht
 %%{init: {'theme':'dark'}}%%
 
 flowchart LR
-as[Association]
-eo[ExtrinsicObject]
-rp[RegistryPackage]
+as[Association<br><pre>&lt;Association id=&quot;123&quot;...&gt;]
+eo[ExtrinsicObject<br><pre>&lt;ExtrinsicObject id=&quot;456&quot;...&gt;]
+rp[RegistryPackage<br><pre>&lt;RegistryPackage id=&quot;789&quot;...&gt;]
 
 style to1 fill:none,stroke:none
 style to2 fill:none,stroke:none
@@ -36,9 +35,9 @@ subgraph "Registry Metadata Transformer Service"
     to3[To/From]
 end
 
-asdto[Association DTO]
-eodto[ExtrinsicObject DTO]
-rpdto[RegistryPackage DTO]
+asdto[Association DTO<br><pre>#123;&quot;association&quot;:#123;&quotid&quot:&quot;123&quot;...#125;]
+eodto[ExtrinsicObject DTO<br><pre>#123;&quot;extrinsicObject&quot;:#123;&quotid&quot:&quot;123&quot;...#125;]
+rpdto[RegistryPackage DTO<br><pre>#123;&quot;ergistryPackage&quot;:#123;&quotid&quot:&quot;123&quot;...#125;]
 
 as <---> to1 <---> asdto
 eo <---> to2 <---> eodto
