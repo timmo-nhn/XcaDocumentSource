@@ -20,6 +20,8 @@ Fields are mandatory or not according to the optionality of the ebRIM metadata, 
 For more info on metadata, see [IHE XDS metadata - git.sarepta.ehelse.no ↗](https://git.sarepta.ehelse.no/publisert/standarder/raw/master/kravdokument/IHS_XDS_metadata/HIS%201169_2016%20IHE%20XDS%20metadata%20-oppdatert.pdf)
 
 ```mermaid
+%%{init: {'theme':'dark'}}%%
+
 flowchart LR
 as[Association]
 eo[ExtrinsicObject]
