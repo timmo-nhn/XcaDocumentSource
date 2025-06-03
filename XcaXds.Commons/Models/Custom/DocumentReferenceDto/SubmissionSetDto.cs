@@ -3,8 +3,7 @@
 public class SubmissionSetDto : RegistryObjectDto
 {
     public Author? Author { get; set; }
-    public string? AvailabilityStatus { get; internal set; }
-    public CodedValue? ContentTypeCode { get; internal set; }
+    public string? AvailabilityStatus { get; set; }
     public string? HomeCommunityId { get; set; }
     public string? Id { get; set; }
     public CodedValue? PatientId { get; set; }

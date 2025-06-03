@@ -1,24 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 
 namespace XcaXds.WebService.InputFormatters;
 
-public class JsonDocumentEntryDtoModelBinderProvider : IModelBinderProvider
+public class DocumentEntryDtoModelBinderProvider : IModelBinderProvider
 {
     public IModelBinder? GetBinder(ModelBinderProviderContext context)
     {
         if (context.Metadata.ModelType == typeof(DocumentEntryDto))
         {
-            return new BinderTypeModelBinder(typeof(JsonDocumentEntryDtoModelBinder));
+            return new BinderTypeModelBinder(typeof(DocumentEntryDtoModelBinder));
         }
 
         return null;
     }
 }
 
-public class JsonDocumentEntryDtoModelBinder : IModelBinder
+public class DocumentEntryDtoModelBinder : IModelBinder
 {
     public async Task BindModelAsync(ModelBindingContext bindingContext)
     {
@@ -30,13 +31,21 @@ public class JsonDocumentEntryDtoModelBinder : IModelBinder
         var request = bindingContext.HttpContext.Request;
         var response = bindingContext.HttpContext.Response;
 
-        if (!request.ContentType?.Contains("xml") ?? true)
+        if (!request.ContentType?.Contains("json") ?? true)
         {
             bindingContext.Result = ModelBindingResult.Failed();
             return;
         }
 
-        JsonSerializer.Deserialize()
+        try
+        {
+            var content = JsonSerializer.Deserialize<DocumentEntryDto>(request.Body);
+            bindingContext.Result = ModelBindingResult.Success(content);
+        }
+        catch (Exception ex)
+        {
+            response.StatusCode = StatusCodes.Status500InternalServerError;
+        }
     }
 }
 

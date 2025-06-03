@@ -34,6 +34,7 @@ public class Program
 
         builder.Services.AddControllers(options =>
         {
+            options.ModelBinderProviders.Insert(0, new DocumentEntryDtoModelBinderProvider());
             options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
             options.InputFormatters.Insert(0, new Hl7InputFormatter());
             options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
