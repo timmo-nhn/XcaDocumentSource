@@ -1,4 +1,4 @@
-# Document sharing - Actors and components 
+# Document sharing Overview - Actors and components 
 
 The **XDS-architecture** consists of the following actors/components:
 ## Components
@@ -57,5 +57,6 @@ sequenceDiagram
     NHN_XCA->>HSØ_XCA:ITI-39
     HSØ_XCA->>NHN_XCA:Response
     NHN_XCA->>KJ:Document
+    KJ->>GP:Displays Document for user
 ```
-*Figure x: Simplified example on a query of document, each XCA is its own affinity domain, and the response for each domain may be different (ie. some domains reject requests from certain GP-roles)*
+*Simplified example on a query of document, each XCA is its own affinity domain, and the response for each domain may be different (ie. some domains reject requests from certain GP-roles)*

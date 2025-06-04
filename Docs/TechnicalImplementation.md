@@ -7,7 +7,7 @@ A RegistryService is registered with Dependency Injection (DI), which holds an i
 > **⚠️ Note!** <br> If the **Registry.xml** file is edited directly by hand, such as using a text-editor, the application must be restarted or "bumped" by uploading or deleting registry objects with an **ITI-message**, thus triggering an update to the DI-instance.
 
 ## Registry/Repository Wrapper
-The Registry and RepositoryWrapper-services (at `<solution>/XcaXds.Source/Services/RegistryWrapper.cs`) are wrappers for the actual Registry/Repository Implementation.
+The Registry and RepositoryWrapper-services (at `<solution>/XcaXds.Source/Services/RegistryWrapper.cs`) are wrappers for the actual Registry/Repository Implementation.  
 When an implementer wants to connect XcaDocumentSource to an existing Registry/Repostiory solution, it should theoretically only be nescesarry to modify this file to correspond to the structure expected from the existing registry solution, although further modifications may be nescesarry.  
 The OID for the folder is the Repository-Id as defined in the **appsettings.json**-file and is created automatically when a document is first uploaded.  
 The unique ID of the document is represented as the file-system name of the file.
@@ -24,11 +24,11 @@ nhnxca[NHN XCA <br> Initiating Gateway]
 
 subgraph "XcaDocumentSource"
     pep[PEP]
-    xcares[XCA <br> Responding Gateway]
+    xcares[XCA<br>Responding Gateway]
 
     subgraph "Services"
-        regep[Registry Endpoint<br><pre>/RegistryService</pre>]
-        repep[Repository Endpoint<br><pre>/RepositoryService</pre>]
+        regep[Registry Endpoint<br><pre>/RegistryService]
+        repep[Repository Endpoint<br><pre>/RepositoryService]
         regs[RegistryService]
         reps[RepositoryService]
     end
@@ -37,15 +37,16 @@ subgraph "XcaDocumentSource"
         regw[Registry Wrapper]
         repw[Repository Wrapper]
         subgraph "File System"
-            regfile[Registry File<br><pre>Registry.xml</pre>]
+            regfile[Registry File<br><pre>Registry.json]
             repfol[Repository Folder]
         end
     end
 end
-nhnxca--ITI-38/ITI-39-->pep
 
-pep-->xcares
-pep<--Access control-->PDP
+nhnxca --ITI-38/ITI-39--> pep
+
+pep --> xcares
+pep <--Access control--> PDP
 
 xcares --Forwards ITI-38--> regep
 xcares --Forwards ITI-39--> repep
@@ -56,7 +57,7 @@ repep --> reps
 regs --> regw
 reps --> repw
 
-regw-->regfile
+regw--Transform to DTO-->regfile
 repw-->repfol
 ```
 *Out-of-the-box solution architecture*
@@ -74,8 +75,8 @@ subgraph "XcaDocumentSource"
     pep[PEP]
     xcares[XCA <br> Responding Gateway]
     subgraph "Services"
-        regep[Registry Endpoint<br><pre>/RegistryService</pre>]
-        repep[Repository Endpoint<br><pre>/RepositoryService</pre>]
+        regep[Registry Endpoint<br><pre>/RegistryService]
+        repep[Repository Endpoint<br><pre>/RepositoryService]
         regs[RegistryService]
         reps[RepositoryService]
     end
@@ -102,7 +103,7 @@ repep --> reps
 
 regs --> regw
 reps --> repw
-regw-->regrepdb
+regw--Transform to DTO-->regrepdb
 repw-->regrepdb
 
 ```
@@ -129,8 +130,8 @@ flowchart LR
 incomingrequest[Incoming Request]
 
 subgraph "External PDP/PAP"
-    pdp 
-    pr
+    pdp[PDP] 
+    pr[PR]
 end
 
 subgraph "XcaDocumentSource"
@@ -146,8 +147,8 @@ subgraph "XcaDocumentSource"
             epx[Endpoint X]
         end
         subgraph "[UsePolicyEnforcementPoint]"
-            regep[Registry Endpoint<br><pre>/RegistryService</pre>]
-            repep[Repository Endpoint<br><pre>/RepositoryService</pre>]
+            regep[Registry Endpoint<br><pre>/RegistryService]
+            repep[Repository Endpoint<br><pre>/RepositoryService]
 
         end
     end

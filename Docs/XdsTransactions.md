@@ -15,7 +15,7 @@ A request with specific search parameters is sent from a Document Requester to t
 | XML type response | `<AdhocQueryResponse>`          |
 | SOAP response action | urn:ihe:iti:2007:RegistryStoredQueryResponse |
 
-*Table x: ITI-18 request*
+*ITI-18 request*
 
 #### AdhocQuery Request types  
 An `<AdhocQuery>` request can feature different queries for different types of items in the Document Registry. 
@@ -71,7 +71,7 @@ An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata
 | GetAssociations | urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155 |
 | FindSubmissionSets | urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9 |
 
-*Table x: Possible Stored Queries in PJD.XcaDocumentSource*
+*Possible Stored Queries in PJD.XcaDocumentSource*
 
 
 #### AdhocQuery Response  
@@ -100,7 +100,7 @@ Internally, the ITI-38 request is transformed into an **ITI-18** request, and se
 | XML type response | `<AdhocQueryResponse>` |
 | SOAP response action | urn:ihe:iti:2007:CrossGatewayQueryResponse |
 
-*Table x: ITI-38 request*
+*ITI-38 request*
 
 More on [ITI-38 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-38.html)  
 
@@ -120,7 +120,7 @@ Internally, the ITI-39 request is transformed into an **ITI-43** request, and se
 | XML type response | `<RetrieveDocumentSetResponse>`          |
 | SOAP response action |rn:ihe:iti:2007:CrossGatewayRetrieveResponse |
 
-*Table x: ITI-39 request*
+*ITI-39 request*
 
 More on [ITI-39 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-39.html)  
 
@@ -141,7 +141,7 @@ However, it's merely a culmination of the types and formats explained earlier in
 | XML type response | `<RegistryResponse>`          |
 | SOAP response action | urn:ihe:iti:2007:ProvideAndRegisterDocumentSet-bResponse |
 
-*Table x: ITI-41 request*
+*ITI-41 request*
 
 
 #### Example  
@@ -208,7 +208,7 @@ Register Document Set is used to upload metadata to the **Document Registry**. A
 | XML type response | `<RegistryReponse>`          |
 | SOAP response action | urn:ihe:iti:2007:RegisterDocumentSet-bResponse |
 
-*Table x: ITI-42 request*
+*ITI-42 request*
 
 
 
@@ -285,7 +285,7 @@ The Document Consumer must use the following attributes received from `<AdhocQue
 | XML type response | `<RetrieveDocumentSetResponse>`          |
 | SOAP response action | urn:ihe:iti:2007:RegistryStoredQueryResponse |
 
-*Table x: ITI-43 request*
+*ITI-43 request*
 
 >**🚩 National Extension**<br> [IHE ITI-TF Vol.3 4.2.3.2.26 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume3/ch-4.2.html#4.2.3.2.26) specifies constraints for a document unique ID. **PJD.XcaDocumentSource, aswell as other document sources in norway, does not enforce these constraints by default** - this falls onto the producing application
 
@@ -332,7 +332,7 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 | XML type response | `<RegistryResponse>`          |
 | SOAP response action | urn:ihe:iti:2010:DeleteDocumentSetResponse |
 
-*Table x: ITI-62 request*
+*ITI-62 request*
 
 
 #### Example  
@@ -370,7 +370,7 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 | XML type response | `<RegistryResponse>`          |
 | SOAP response action | urn:ihe:iti:2017:RemoveDocumentsResponse |
 
-*Table x: ITI-86 request*
+*ITI-86 request*
 
 
 #### Example  

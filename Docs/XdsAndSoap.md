@@ -22,7 +22,19 @@ An **XML SOAP-message** (also known as **SOAP-envelope**) is defined by an enclo
 ```
 *Example SOAP-envelope. Namespaces are omitted for clarity*
 
-There is excpected to be a **1:1 relationship** between the **SOAP action** (`<Action>`-field in the **SOAP-header**) and the content in the request body
+There is excpected to be a **1:1 relationship** between the **SOAP action** (`<Action>`-field in the **SOAP-header**) and the content in the request `<Body>` (`<AdhocQueryRequest>` in this case)
+
+### SOAP-Envelope and `<Body>`-content
+The content of the body might seem like it's related to the SOAP-body itself, but they are not the same. In the example above, the `<AdhocQueryRequest>` XML-part is called the ITI-message, while the rest is the SOAP-envelope. It can be abstracted to this:
+```mermaid
+%%{init: {'theme':'dark'}}%%
+
+flowchart LR
+subgraph "SOAP-envelope"
+  gæbb[ITI-message<br><pre>&lt;AdhocQueryRequest&gt;]
+end
+```
+*ITI-message inside a SOAP-envelope*
 
 ### Terminology in Document sharing
 | Term  | Definition | Example |
@@ -33,7 +45,7 @@ There is excpected to be a **1:1 relationship** between the **SOAP action** (`<A
 | OID | Object Identifier - Used to identify a single organization or system | `2.16.578.1.12.4.1.7` |
 | TBD |  | `TBD` |
 
-*Table x: terminology used for types in IHE XDS*  
+*terminology used for types in IHE XDS*  
 
 ## Types in IHE XDS  
 There are different types used to contain and structure various pieces when storing and making documents available. It's imperative that the reader familiarizes themself with each type and where they usually reside in a **SOAP-message**.  
@@ -62,7 +74,7 @@ The table below describes the different types.
 | MemberOf | `<Association>` |
 | Relationship | `<Association>` |
 
-*Table x: Document Sharing concept correspondence with XML Types*
+*Document Sharing concept correspondence with XML Types*
 
 #### SubmissionSet
 A SubmisisonSet contains the details about all resources related to a specific document. Through Associations, other objects like Folders and DocumentEntries are linked to the submission set.
@@ -103,7 +115,7 @@ Field Separator | `\|` | Separate different HL7 types from one another |
 Component separator | `^` | Separates one component of a HL7 type from another |
 Subcomponent separator | `&` | Separates subcomponents within Component separators |
 
-*Table x: Common separators in HL7 datatypes*
+*Common separators in HL7 datatypes*
 
 ```
 TYPE
@@ -176,7 +188,7 @@ Below is an explanation of each field in the **HL7 XCN** data type
 | XCN.8 - Source Table | IS | |
 | XCN.9 - Assigning Authority | HD | `&amp;2.16.578.1.12.4.1.4.4&amp;ISO` |
 
-*Table x: Explanation of **HL7 XCN** data type*
+*Explanation of **HL7 XCN** data type*
 
 More on XCN datatype: [HL7 v2.6 - XCN - hl7-definition.caristix.com ↗](https://hl7-definition.caristix.com/v2/HL7v2.6/DataTypes/XCN)
 
@@ -202,7 +214,7 @@ Below is an explanation of each field in the **HL7 XCN** data type
 | XON.9 - Name Representation Code | HD | |
 | XON.10 - Organization Identifier | ST | `4211607` |
 
-*Table x: Explanation of **HL7 XCN** data type*
+*Explanation of **HL7 XCN** data type*
 
 
 See [4.2.3.1.7 Metadata Attribute Data types - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume3/ch-4.2.html#4.2.3.1.7) for more information.
@@ -223,7 +235,7 @@ More on ebXML RegRep [OASIS ebXML RegRep Version 3.0 - docs.oasis-open.org ↗](
 | **Usage** | Reference to an uploaded document |
 | **Class Name** | `XcaXds.Commons.Models.Soap.XdsTypes.ExtrinsicObjectType` |
 
-*Table x: Description of `<ExtrinsicObject>`*
+*Description of `<ExtrinsicObject>`*
 
 
 ##### Example  
@@ -269,7 +281,7 @@ More on ebXML RegRep [OASIS ebXML RegRep Version 3.0 - docs.oasis-open.org ↗](
 | **Usage** | Reference to the organization/person who uploaded the document<br>A **Folder** which references other XDS Types |
 | **Class Name** | RegistryPackageType |
 
-*Table x: Description of ExtrinsicObject*
+*Description of ExtrinsicObject*
 
 ##### Example  
 ```xml
@@ -314,7 +326,7 @@ An `<Association>` is used to bind two or more **types** together in order to cr
 | **Usage** | Associate different types with one another |
 | **Class Name** | RegistryPackageType |
 
-*Table x: Description of Association*
+*Description of Association*
 
 ##### Example  
 ```xml
@@ -370,7 +382,7 @@ See [4.2.2 Association Types - profiles.ihe.net ↗](https://profiles.ihe.net/IT
 | **Usage** | Group a set of information entries (eg. multiple `<Slot>`s relating to a document author)  |
 | **Class Name** | ClassificationType |
 
-*Table x: Description of `<Classification>`*
+*Description of `<Classification>`*
 
 
 ##### Example  
@@ -417,7 +429,7 @@ See [4.2.2 Association Types - profiles.ihe.net ↗](https://profiles.ihe.net/IT
 | XDSSubmissionSet.patientId | urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446 |
 | XDSSubmissionSet.sourceId | urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832 |
 
-*Table x: Valid ClassificationSchemes for a `<Classification>`*
+*Valid ClassificationSchemes for a `<Classification>`*
 
 
 #### ExternalIdentifierType (`<ExternalIdentifier>`)  
@@ -431,7 +443,7 @@ Externalidentifiers are identifiers which exist outside the boundaries of the su
 | **Usage** | Reference an identifier which is separate from the Document Registry/Repository or XDS/XCA solution  |
 | **Class Name** | ClassificationType |
 
-*Table x: Description of ExternalIdentifier*
+*Description of ExternalIdentifier*
 
 
 ##### Example  
@@ -467,7 +479,7 @@ Externalidentifiers are identifiers which exist outside the boundaries of the su
 | **Usage** | Generic container of information |
 | **Class Name** | SlotType |
 
-*Table x: Description of Slot*
+*Description of Slot*
 
 
 ##### Example  
@@ -500,7 +512,7 @@ Externalidentifiers are identifiers which exist outside the boundaries of the su
 | **Usage** | Multi-purpose response message structure |
 | **Class Name** | RegistryResponseType |
 
-*Table x: Description of Slot*
+*Description of Slot*
 
 
 ##### Example  
@@ -546,7 +558,7 @@ SOAP faults are error reporting mechanism for errors related to the structure or
 | **Usage** | Generic Fault type for displaying errors related to SOAP-structure |
 | **Class Name** | FaultType |
 
-*Table x: Description of SoapFault*
+*Description of SoapFault*
 
 
 ##### Example  
@@ -576,4 +588,4 @@ The document is classified in the Registry as an attribute in an `<ExtrinsicObje
 | **Stable** | urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1 |
 | **On-Demand** | urn:uuid:34268e47-fdf5-41a6-ba33-82133c465248 |
 
-*Table x: ExtrinsicObject objectType for Stable or On-Demand Document*
+*ExtrinsicObject objectType for Stable or On-Demand Document*
