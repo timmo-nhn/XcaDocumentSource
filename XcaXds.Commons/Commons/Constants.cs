@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using XcaXds.Commons.Models;
-using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons;
@@ -384,12 +383,12 @@ public static class Constants
             /// yyyyMMddHH
             /// </summary>
             public const string DtmYmdhFormat = DtmYmdFormat + "HH";
-            
+
             /// <summary>
             /// yyyyMMddHHmm
             /// </summary>
             public const string DtmYmdhmFormat = DtmYmdhFormat + "mm";
-            
+
             /// <summary>
             /// yyyyMMddHHmmss
             /// </summary>
@@ -587,7 +586,7 @@ public static class ConstantsExtensions
             // Ensure that the field is a constant (it should be a static readonly or const field)
             if (field.IsLiteral && !field.IsInitOnly)
             {
-                constants = [.. constants, new KeyValueEntry() {Key =  field.Name, Value = (string)field.GetValue(null) } ];
+                constants = [.. constants, new KeyValueEntry() { Key = field.Name, Value = (string)field.GetValue(null) }];
             }
         }
 

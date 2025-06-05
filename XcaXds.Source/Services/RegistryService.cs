@@ -16,7 +16,6 @@ public partial class RegistryService
     private readonly RegistryWrapper _registryWrapper;
     private DocumentRegistry _documentRegistry;
     private readonly ILogger<RegistryService> _logger;
-    private readonly object _lock = new();
 
 
     public RegistryService(XdsConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<RegistryService> logger)
@@ -25,7 +24,7 @@ public partial class RegistryService
         _registryWrapper = registryWrapper;
         _logger = logger;
         // Explicitly load the registry upon service creation
-        _documentRegistry = _registryWrapper.GetDocumentRegistryContent() ?? new DocumentRegistry();
+        _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new DocumentRegistry();
     }
 
     private DocumentRegistry DocumentRegistry => _documentRegistry;
@@ -33,7 +32,7 @@ public partial class RegistryService
     public async Task<SoapRequestResult<SoapEnvelope>> AppendToRegistryAsync(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();
-        var registryContent = _registryWrapper.GetDocumentRegistryContent();
+        var registryContent = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
         if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
@@ -74,7 +73,7 @@ public partial class RegistryService
 
         if (registryUpdateResult.IsSuccess)
         {
-            _documentRegistry = _registryWrapper.GetDocumentRegistryContent() ?? new DocumentRegistry();
+            _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new DocumentRegistry();
 
             registryResponse.EvaluateStatusCode();
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
@@ -328,7 +327,7 @@ public partial class RegistryService
     {
         var registryResponse = new RegistryResponseType();
         var removeObjectsRequest = soapEnvelope.Body.RemoveObjectsRequest;
-        var registryContent = _registryWrapper.GetDocumentRegistryContent();
+        var registryContent = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
         var objectRefList = removeObjectsRequest.ObjectRefList.ObjectRef;
 

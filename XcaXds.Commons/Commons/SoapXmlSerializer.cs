@@ -19,14 +19,17 @@ public class SoapXmlSerializerResult
 public class SoapXmlSerializer
 {
     private XmlWriterSettings? _xmlWriterSettings;
+
     public SoapXmlSerializer(XmlWriterSettings xmlSettings)
     {
         _xmlWriterSettings = xmlSettings;
     }
+
     public SoapXmlSerializer(XmlSettings xmlSettings)
     {
         _xmlWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
     }
+
     public SoapXmlSerializer()
     {
 

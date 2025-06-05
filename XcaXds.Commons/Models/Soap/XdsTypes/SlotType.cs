@@ -38,7 +38,7 @@ public partial class SlotType
             }
             return firstValue;
         }
-        return string.Empty;
+        return null;
     }
 
     public string[]? GetValues(bool codeMultipleValues = true)

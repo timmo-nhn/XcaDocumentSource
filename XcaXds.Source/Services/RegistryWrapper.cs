@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
@@ -43,7 +45,33 @@ public class RegistryWrapper
         EnsureRegistryFileExists();
     }
 
-    public DocumentRegistry GetDocumentRegistryContent()
+    public List<RegistryObjectDto> GetDocumentRegistryContentAsDtos()
+    {
+        EnsureRegistryFileExists();
+
+        lock (_lock)
+        {
+            try
+            {
+                using (var reader = new StreamReader(_registryFile))
+                {
+                    var content = reader.ReadToEnd();
+                    var documentRegistryDtoContent = RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(content);
+
+                    if (documentRegistryDtoContent == null) throw new Exception();
+
+                    return documentRegistryDtoContent;
+                }
+            }
+            catch (Exception ex)
+            {
+                return new();
+            }
+        }
+    }
+
+
+    public DocumentRegistry GetDocumentRegistryContentAsRegistryObjects()
     {
         EnsureRegistryFileExists();
 
@@ -84,7 +112,7 @@ public class RegistryWrapper
 
                 using (var reader = new StreamWriter(_registryFile))
                 {
-                    reader.Write(JsonSerializer.Serialize(registryObjectDtoList, new JsonSerializerOptions() { WriteIndented = true }));
+                    reader.Write(RegistryJsonSerializer.Serialize(registryObjectDtoList));
                 }
 
                 return new SoapRequestResult<string>().Success("Updated OK");

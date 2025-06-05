@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Data;
 using System.Globalization;
-using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using static XcaXds.Commons.Constants.Xds.QueryParamters;
-using static XcaXds.Commons.Constants.Xds.Uuids;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -427,7 +423,7 @@ public static class FindFolders
         this IEnumerable<RegistryPackageType> source, string? patientId)
     {
         if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<RegistryPackageType>();  // Required field, return nothing if not specified
-        
+
         return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
             ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
             ei.Value.Contains(patientId)));

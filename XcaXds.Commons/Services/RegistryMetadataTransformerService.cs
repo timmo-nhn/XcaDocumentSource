@@ -23,6 +23,21 @@ public class RegistryMetadataTransformerService
         return documentEntryDto;
     }
 
+    public List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<DocumentEntryDto> registryObjectDtos)
+    {
+        return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
+    }
+
+    public List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<SubmissionSetDto> registryObjectDtos)
+    {
+        return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
+    }
+
+    public List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<AssociationDto> registryObjectDtos)
+    {
+        return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
+    }
+
     public List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<RegistryObjectDto> registryObjectDtos)
     {
         var registryObjects = new List<IdentifiableType>();
@@ -60,11 +75,25 @@ public class RegistryMetadataTransformerService
                 registryObjects.Add(associationType);
                 continue;
             }
-            
         }
 
         return registryObjects;
 
+    }
+
+    public List<DocumentEntryDto> TransformRegistryObjectsToRegistryObjectDtos(List<ExtrinsicObjectType> registryObjectList)
+    {
+        return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<DocumentEntryDto>().ToList();
+    }
+
+    public List<SubmissionSetDto> TransformRegistryObjectsToRegistryObjectDtos(List<RegistryPackageType> registryObjectList)
+    {
+        return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<SubmissionSetDto>().ToList();
+    }
+
+    public List<AssociationDto> TransformRegistryObjectsToRegistryObjectDtos(List<AssociationType> registryObjectList)
+    {
+        return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<AssociationDto>().ToList();
     }
 
     public List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(List<IdentifiableType> registryObjectList)
@@ -162,11 +191,10 @@ public class RegistryMetadataTransformerService
     private CodedValue? GetPatientIdFromRegistryPackage(RegistryPackageType registryPackage)
     {
         var patientIdExtIder = registryPackage.GetFirstExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.PatientId)?.Value;
+        var patientIdValue = Hl7Object.Parse<CX>(patientIdExtIder);
 
-        if (patientIdExtIder != null)
+        if (patientIdValue.IdNumber != null)
         {
-            var patientIdValue = Hl7Object.Parse<CX>(patientIdExtIder);
-
             return new()
             {
                 Code = patientIdValue?.IdNumber,
@@ -267,9 +295,9 @@ public class RegistryMetadataTransformerService
                 FamilyName = name?.FamilyName,
                 GivenName = name?.GivenName,
                 Gender = gender ?? "U",
-                PatientId = patientId?.IdNumber == null ? null : new()
+                PatientId = new()
                 {
-                    Id = srcPatientId.IdNumber ?? patientId.IdNumber,
+                    Id = srcPatientId?.IdNumber ?? patientId?.IdNumber,
                     System = srcPatientId?.AssigningAuthority?.UniversalId ?? srcPatientId?.AssigningFacility?.UniversalId ?? patientId?.AssigningFacility?.UniversalId ?? patientId?.AssigningAuthority?.UniversalId,
                 }
             };
@@ -324,7 +352,7 @@ public class RegistryMetadataTransformerService
 
     private CodedValue? GetPatientIdFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
     {
-        var patientIdExtIder = extrinsicObject.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.PatientId)?.GetFirstSlot()?.GetFirstValue();
+        var patientIdExtIder = extrinsicObject.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.PatientId)?.Value;
         var patIdPid = Hl7Object.Parse<CX>(patientIdExtIder);
 
         if (patIdPid != null)
@@ -456,11 +484,17 @@ public class RegistryMetadataTransformerService
     {
         if (classification == null) return null;
 
+        var classNodeRep = classification?.NodeRepresentation;
+        var classValue = classification?.GetFirstSlot()?.GetFirstValue();
+        var className = classification?.Name?.GetFirstValue();
+
+        if (classNodeRep == null && classValue == null && className == null) return null;
+
         return new()
         {
-            Code = classification?.NodeRepresentation ?? string.Empty,
-            CodeSystem = classification?.GetFirstSlot()?.GetFirstValue() ?? string.Empty,
-            DisplayName = classification?.Name?.GetFirstValue() ?? string.Empty
+            Code = classNodeRep,
+            CodeSystem = classValue,
+            DisplayName = className
         };
     }
 

@@ -73,6 +73,9 @@ public class Program
         builder.Services.AddSingleton<RegistryMetadataTransformerService>();
         builder.Services.AddSingleton(xdsConfig);
 
+        // REST services
+        builder.Services.AddSingleton<RegistryRestfulService>();
+        
         builder.Services.AddHostedService<AppStartupService>();
 
         builder.Services.AddEndpointsApiExplorer();

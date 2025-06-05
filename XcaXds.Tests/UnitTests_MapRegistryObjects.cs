@@ -1,4 +1,6 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.DocumentEntryDto;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
@@ -69,8 +71,8 @@ public class UnitTests_MapRegistryObjects
 
         var documentDtoEntries = rmts.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
 
+        var jsonRegistry = RegistryJsonSerializer.Serialize(documentDtoEntries);
 
-        var jsonRegistry = JsonSerializer.Serialize(documentDtoEntries, new JsonSerializerOptions() { WriteIndented = true });
         File.WriteAllText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")), jsonRegistry);
 
     }
