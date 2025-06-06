@@ -13,7 +13,6 @@ public class RestfulRegistryService
 {
     private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
-    private List<RegistryObjectDto> _documentRegistry;
     private readonly ILogger<XdsRegistryService> _logger;
     private readonly RegistryMetadataTransformerService _metadataTransformerService;
 
@@ -24,8 +23,6 @@ public class RestfulRegistryService
         _registryWrapper = registryWrapper;
         _logger = logger;
         _metadataTransformerService = metadataTransformerService;
-        // Explicitly load the registry upon service creation
-        _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos() ?? new List<RegistryObjectDto>();
     }
 
     public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status)
@@ -55,7 +52,9 @@ public class RestfulRegistryService
         // Add default assigning authority if missing
         patientIdCx.AssigningAuthority ??= new() { UniversalId = Constants.Oid.Fnr, UniversalIdType = Constants.Hl7.UniversalIdType.Iso };
 
-        var patientDocumentReferences = _documentRegistry
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var patientDocumentReferences = documentRegistry
             .OfType<DocumentEntryDto>()
             .ByDocumentEntryPatientId(patientIdCx);
 

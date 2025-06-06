@@ -14,7 +14,6 @@ public partial class XdsRegistryService
 {
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
-    private XmlDocumentRegistry _documentRegistry;
     private readonly ILogger<XdsRegistryService> _logger;
 
 
@@ -23,15 +22,13 @@ public partial class XdsRegistryService
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
         _logger = logger;
-        // Explicitly load the registry upon service creation
-        _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new XmlDocumentRegistry();
     }
-
-    private XmlDocumentRegistry DocumentRegistry => _documentRegistry;
 
     public async Task<SoapRequestResult<SoapEnvelope>> AppendToRegistryAsync(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();
+
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
         if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
@@ -42,7 +39,7 @@ public partial class XdsRegistryService
 
         }
 
-        if (DuplicateUuidsExist(_documentRegistry.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
+        if (DuplicateUuidsExist(documentRegistry.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
         {
             _logger.LogError($"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}");
             registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}", "XDS Registry");
@@ -56,7 +53,7 @@ public partial class XdsRegistryService
         foreach (var replaceAssociation in documentReplaceAssociations)
         {
             var documentId = replaceAssociation.TargetObject;
-            _documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
+            documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
 
             if (success) 
             {
@@ -66,13 +63,13 @@ public partial class XdsRegistryService
 
 
         // list spread to combine both lists
-        _documentRegistry.RegistryObjectList = [.. _documentRegistry.RegistryObjectList, .. submissionRegistryObjects];
+        documentRegistry.RegistryObjectList = [.. documentRegistry.RegistryObjectList, .. submissionRegistryObjects];
 
-        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromXml(_documentRegistry);
+        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromXml(documentRegistry);
 
         if (registryUpdateResult.IsSuccess)
         {
-            _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new XmlDocumentRegistry();
+            documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
             registryResponse.EvaluateStatusCode();
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
