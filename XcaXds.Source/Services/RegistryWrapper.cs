@@ -1,17 +1,15 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.DocumentEntryDto;
+using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 
 namespace XcaXds.Source;
 
 [XmlRoot("Registry")]
-public class DocumentRegistry
+public class XmlDocumentRegistry
 {
     [XmlElement("RegistryPackage", typeof(RegistryPackageType), Namespace = Constants.Soap.Namespaces.Rim)]
     [XmlElement("ExtrinsicObject", typeof(ExtrinsicObjectType), Namespace = Constants.Soap.Namespaces.Rim)]
@@ -20,7 +18,7 @@ public class DocumentRegistry
 
     private readonly object _lock = new();
 
-    public DocumentRegistry()
+    public XmlDocumentRegistry()
     {
         RegistryObjectList = [];
     }
@@ -29,6 +27,7 @@ public class DocumentRegistry
 
 public class RegistryWrapper
 {
+    internal volatile List<RegistryObjectDto> _jsonDocumentRegistry = null;
     internal string _registryPath;
     internal string _registryFile;
     private readonly object _lock = new();
@@ -47,80 +46,63 @@ public class RegistryWrapper
 
     public List<RegistryObjectDto> GetDocumentRegistryContentAsDtos()
     {
-        EnsureRegistryFileExists();
+        if (_jsonDocumentRegistry != null)
+            return _jsonDocumentRegistry;
 
         lock (_lock)
         {
-            try
+            if (_jsonDocumentRegistry == null)
             {
-                using (var reader = new StreamReader(_registryFile))
+                try
                 {
-                    var content = reader.ReadToEnd();
-                    var documentRegistryDtoContent = RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(content);
-
-                    if (documentRegistryDtoContent == null) throw new Exception();
-
-                    return documentRegistryDtoContent;
+                    var json = File.ReadAllText(_registryFile);
+                    _jsonDocumentRegistry =
+                        RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(json) ?? new();
+                }
+                catch (Exception ex)
+                {
+                    _jsonDocumentRegistry = new();
                 }
             }
-            catch (Exception ex)
-            {
-                return new();
-            }
+            return _jsonDocumentRegistry;
         }
     }
 
-
-    public DocumentRegistry GetDocumentRegistryContentAsRegistryObjects()
+    public XmlDocumentRegistry GetDocumentRegistryContentAsRegistryObjects()
     {
-        EnsureRegistryFileExists();
+        var dtoList = GetDocumentRegistryContentAsDtos();
+        var registryObjs = _registryMetadataTransformerService
+                .TransformRegistryObjectDtosToRegistryObjects(dtoList);
 
+        return new XmlDocumentRegistry { RegistryObjectList = registryObjs };
+    }
+
+    public bool UpdateDocumentRegistryWithDtos(List<RegistryObjectDto> registryObjectDtos)
+    {
         lock (_lock)
         {
-            try
-            {
-                using (var reader = new StreamReader(_registryFile))
-                {
-                    var documentRegistryDtoContent = JsonSerializer.Deserialize<List<RegistryObjectDto>>(reader.ReadToEnd());
+            if (registryObjectDtos.Count == 0) return false;
 
-                    if (documentRegistryDtoContent == null) throw new Exception();
-
-                    var registryObjects = _registryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(documentRegistryDtoContent);
-
-                    return new DocumentRegistry() { RegistryObjectList = registryObjects };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new DocumentRegistry();
-            }
+            File.WriteAllText(_registryFile, RegistryJsonSerializer.Serialize(registryObjectDtos));
+            _jsonDocumentRegistry = registryObjectDtos;
+            return true;
         }
     }
 
-    public SoapRequestResult<string> UpdateDocumentRegistry(DocumentRegistry registryContent)
+    public SoapRequestResult<string> UpdateDocumentRegistryFromXml(XmlDocumentRegistry xml)
     {
-        EnsureRegistryFileExists();
-
-        lock (_lock)
+        try
         {
-            try
-            {
-                var registryObjectDtoList = new List<RegistryObjectDto>();
+            var dtoList = _registryMetadataTransformerService
+                .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
 
-                var documentEntryDto = _registryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
-                registryObjectDtoList.AddRange(documentEntryDto);
+            UpdateDocumentRegistryWithDtos(dtoList);
 
-                using (var reader = new StreamWriter(_registryFile))
-                {
-                    reader.Write(RegistryJsonSerializer.Serialize(registryObjectDtoList));
-                }
-
-                return new SoapRequestResult<string>().Success("Updated OK");
-            }
-            catch (Exception ex)
-            {
-                return new SoapRequestResult<string>().Fault($"Error updating registry: {ex.Message}");
-            }
+            return new SoapRequestResult<string>().Success("Updated OK");
+        }
+        catch (Exception ex)
+        {
+            return new SoapRequestResult<string>().Fault($"Error updating registry: {ex.Message}");
         }
     }
 
@@ -138,7 +120,7 @@ public class RegistryWrapper
 
                 using (File.Create(_registryFile)) { }
 
-                UpdateDocumentRegistry(new DocumentRegistry());
+                UpdateDocumentRegistryFromXml(new XmlDocumentRegistry());
             }
         }
     }

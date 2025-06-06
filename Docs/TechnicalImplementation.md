@@ -22,15 +22,22 @@ flowchart LR
 
 nhnxca[NHN XCA <br> Initiating Gateway]
 
+epr[EHR-system]
+
+
 subgraph "XcaDocumentSource"
     pep[PEP]
     xcares[XCA<br>Responding Gateway]
 
     subgraph "Services"
-        regep[Registry Endpoint<br><pre>/RegistryService]
-        repep[Repository Endpoint<br><pre>/RepositoryService]
-        regs[RegistryService]
-        reps[RepositoryService]
+        restep["REST-endpoints<br><pre>/api/rest"]
+        regep[XDS Registry Endpoint<br><pre>/RegistryService]
+        repep[XDS Repository Endpoint<br><pre>/RepositoryService]
+
+        rests["RestfulRegistryService"]
+
+        regs[XdsRegistryService]
+        reps[XdsRepositoryService]
     end
 
     subgraph "Registry/Repository"
@@ -43,9 +50,11 @@ subgraph "XcaDocumentSource"
     end
 end
 
+epr--REST-based requests<br>(CRUD)-->pep--REST-based requests-->restep
+
 nhnxca --ITI-38/ITI-39--> pep
 
-pep --> xcares
+pep --ITI-38/ITI-39--> xcares
 pep <--Access control--> PDP
 
 xcares --Forwards ITI-38--> regep
@@ -54,10 +63,15 @@ xcares --Forwards ITI-39--> repep
 regep --> regs
 repep --> reps
 
+restep --> rests
+
+rests --CRUD--> regw
+
 regs --> regw
 reps --> repw
 
-regw--Transform to DTO-->regfile
+
+regw--XML Transformed to DTO-->regfile
 repw-->repfol
 ```
 *Out-of-the-box solution architecture*
@@ -69,16 +83,23 @@ Below is an example of how an implementer would have modified Registry and Repos
 
 flowchart LR
 
-nhnxca[NHN XCA <br> Initiating Gateway]
+epr[EHR-system]
+
+nhnxca[NHN XCA<br>Initiating Gateway]
 
 subgraph "XcaDocumentSource"
     pep[PEP]
-    xcares[XCA <br> Responding Gateway]
+    xcares[XCA<br>Responding Gateway]
+
     subgraph "Services"
-        regep[Registry Endpoint<br><pre>/RegistryService]
-        repep[Repository Endpoint<br><pre>/RepositoryService]
-        regs[RegistryService]
-        reps[RepositoryService]
+        restep["REST-endpoints<br><pre>/api/rest"]
+        regep[XDS Registry Endpoint<br><pre>/RegistryService]
+        repep[XDS Repository Endpoint<br><pre>/RepositoryService]
+
+        rests["RestfulRegistryService"]
+
+        regs[XdsRegistryService]
+        reps[XdsRepositoryService]
     end
 
     subgraph "Registry/Repository"
@@ -87,8 +108,10 @@ subgraph "XcaDocumentSource"
     end
 end
 subgraph "Database/etc."
-    regrepdb[(Existing <br>Document Storage <br>Solution)]
+    regrepdb[(Existing <br>Document Storage<br>Solution)]
 end
+
+epr--REST-based requests<br>(CRUD)-->pep--REST-based requests-->restep
 
 nhnxca--ITI-38/ITI-39-->pep
 
@@ -100,6 +123,10 @@ xcares --Forwards ITI-39--> repep
 
 regep --> regs
 repep --> reps
+
+restep --> rests
+
+rests --CRUD--> regw
 
 regs --> regw
 reps --> repw
@@ -149,6 +176,7 @@ subgraph "XcaDocumentSource"
         subgraph "[UsePolicyEnforcementPoint]"
             regep[Registry Endpoint<br><pre>/RegistryService]
             repep[Repository Endpoint<br><pre>/RepositoryService]
+            othr["Other endpoints with  [Usepolicyenforcementpoint]"]
 
         end
     end

@@ -8,9 +8,9 @@ public class AppStartupService : IHostedService
     private readonly IHostEnvironment _env;
     private readonly IConfiguration _config;
 
-    private readonly XdsConfig _xdsConfig;
+    private readonly ApplicationConfig _xdsConfig;
 
-    public AppStartupService(ILogger<AppStartupService> logger, IHostEnvironment env, IConfiguration config, XdsConfig xdsConfig)
+    public AppStartupService(ILogger<AppStartupService> logger, IHostEnvironment env, IConfiguration config, ApplicationConfig xdsConfig)
     {
         _logger = logger;
         _env = env;

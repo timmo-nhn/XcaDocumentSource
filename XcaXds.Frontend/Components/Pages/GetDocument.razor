@@ -150,7 +150,7 @@
     private string requestMessage;
     private SoapEnvelope ResponseEnvelope;
     private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
-    private XdsConfig xdsConfig;
+    private ApplicationConfig xdsConfig;
     private bool _initialized = false; // JS Interop flag
     private List<DocumentRequestValuesInput> valuesInput { get; set; }
 
@@ -190,7 +190,7 @@
 
                 if (!string.IsNullOrWhiteSpace(xdsConfigJson))
                 {
-                    xdsConfig = JsonSerializer.Deserialize<XdsConfig>(xdsConfigJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                    xdsConfig = JsonSerializer.Deserialize<ApplicationConfig>(xdsConfigJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
                     
                     messages.Add(new ToastMessage
                     {

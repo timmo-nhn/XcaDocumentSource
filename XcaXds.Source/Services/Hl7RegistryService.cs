@@ -1,15 +1,28 @@
 ﻿using System.Globalization;
 using Efferent.HL7.V2;
+using Microsoft.Extensions.Logging;
 using XcaXds.Commons;
-using XcaXds.Commons.Enums;
+using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Source.Services;
 
-public partial class RegistryService
+public class Hl7RegistryService
 {
+    private readonly ApplicationConfig _appConfig;
+    private readonly RegistryWrapper _registryWrapper;
+    private readonly ILogger<XdsRegistryService> _logger;
+
+
+    public Hl7RegistryService(ApplicationConfig appConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
+    {
+        _appConfig = appConfig;
+        _registryWrapper = registryWrapper;
+        _logger = logger;
+
+    }
+
     public Message PatientDemographicsQueryGetPatientIdentifiersInRegistry(Message findCandidatesQuery)
     {
         var qpdSegment = findCandidatesQuery.Segments("QPD").FirstOrDefault();
@@ -50,10 +63,10 @@ public partial class RegistryService
             }
         }
 
-
-        var extrinsicObjectPatientIds = _documentRegistry.RegistryObjectList
-            .OfType<ExtrinsicObjectType>()
-            .Select(eo => eo.GetPatientIdentifiersFromExtrinsicObject())
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        var extrinsicObjectPatientIds = documentRegistry
+            .OfType<DocumentEntryDto>()
+            .Select(eo => GetPatientIdentifiersFromDocumentEntryDto(eo))
             .ToList();
 
 
@@ -79,7 +92,7 @@ public partial class RegistryService
                     patient.PatientIdentifier != null &&
                     !string.IsNullOrEmpty(patient.PatientIdentifier.IdNumber) &&
                     eop.PatientIdentifier.IdNumber?.Contains(patient.PatientIdentifier.IdNumber) == true;
-                
+
                 // Secret wildcard to get all patient identifiers!
                 if (patient.PatientIdentifier?.IdNumber == "*")
                 {
@@ -119,5 +132,45 @@ public partial class RegistryService
             });
         }
         return responseMessage;
+    }
+
+    private PID GetPatientIdentifiersFromDocumentEntryDto(DocumentEntryDto eo)
+    {
+        throw new NotImplementedException();
+    }
+
+    public PID GetPatientIdentifiersFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
+    {
+        var patientPid = new PID();
+        patientPid.PatientIdentifier ??= new();
+
+        var patientId = extrinsicObject.ExternalIdentifier.FirstOrDefault(x => x.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId)?.Value;
+
+        var sourcePatientInfo = extrinsicObject.Slot?
+        .FirstOrDefault(s => s.Name == Constants.Xds.SlotNames.SourcePatientInfo)?.ValueList?.Value?
+        .ToList() ?? new List<string>();
+
+        patientPid.PatientIdentifier = Hl7Object.Parse<CX>(patientId);
+
+        foreach (var pidPart in sourcePatientInfo)
+        {
+            if (pidPart.Contains("PID-5"))
+            {
+                var value = pidPart.Substring(pidPart.IndexOf("|") + 1);
+                patientPid.PatientName = Hl7Object.Parse<XPN>(value);
+            }
+            if (pidPart.Contains("PID-7"))
+            {
+                var value = pidPart.Substring(pidPart.IndexOf("|") + 1);
+                patientPid.BirthDate = DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
+            }
+            if (pidPart.Contains("PID-8"))
+            {
+                var value = pidPart.Substring(pidPart.IndexOf("|") + 1);
+                patientPid.Gender = value;
+            }
+        }
+        return patientPid;
+
     }
 }

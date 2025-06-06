@@ -15,16 +15,16 @@ namespace XcaXds.WebService.Controllers;
 [ApiController]
 [Route("Repository/services")]
 [UsePolicyEnforcementPoint]
-public class RepositoryController : ControllerBase
+public class XdsRepositoryController : ControllerBase
 {
-    private readonly ILogger<RegistryController> _logger;
+    private readonly ILogger<XdsRegistryController> _logger;
     private readonly HttpClient _httpClient;
     private readonly XcaGateway _xcaGateway;
-    private readonly RepositoryService _repositoryService;
-    private readonly RegistryService _registryService;
-    private readonly XdsConfig _xdsConfig;
+    private readonly XdsRepositoryService _repositoryService;
+    private readonly XdsRegistryService _registryService;
+    private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
-    public RepositoryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RepositoryService repositoryService, RegistryService registryService, XdsConfig xdsConfig, IVariantFeatureManager featureManager)
+    public XdsRepositoryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;

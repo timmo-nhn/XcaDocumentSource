@@ -17,10 +17,10 @@ public class PolicyEnforcementPointMiddlware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<PolicyEnforcementPointMiddlware> _logger;
-    private readonly XdsConfig _xdsConfig;
+    private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
 
-    public PolicyEnforcementPointMiddlware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger, XdsConfig xdsConfig, IWebHostEnvironment env)
+    public PolicyEnforcementPointMiddlware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env)
     {
         _logger = logger;
         _next = next;
@@ -55,7 +55,7 @@ public class PolicyEnforcementPointMiddlware
             return;
         }
 
-        if (httpContext.Request.ContentType.Contains("application/soap+xml") is false)
+        if (httpContext.Request.ContentType?.Contains("application/soap+xml") is false)
         {
             await _next(httpContext);
             return;

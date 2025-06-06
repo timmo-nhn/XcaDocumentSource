@@ -18,15 +18,15 @@ namespace XcaXds.WebService.Controllers;
 [ApiController]
 [Route("Registry/services")]
 [UsePolicyEnforcementPoint]
-public class RegistryController : ControllerBase
+public class XdsRegistryController : ControllerBase
 {
-    private readonly ILogger<RegistryController> _logger;
+    private readonly ILogger<XdsRegistryController> _logger;
     private readonly HttpClient _httpClient;
     private readonly XcaGateway _xcaGateway;
-    private readonly RegistryService _registryService;
+    private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public RegistryController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, RegistryService registryService, IVariantFeatureManager featureManager)
+    public XdsRegistryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsRegistryService registryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;

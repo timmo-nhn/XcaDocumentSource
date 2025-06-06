@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XcaXds.Commons.Models.Custom.DocumentEntryDto;
+namespace XcaXds.Commons.Models.Custom.DocumentEntry;
 
 public class AuthorPerson
 {

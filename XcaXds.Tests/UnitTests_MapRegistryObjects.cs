@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.DocumentEntryDto;
+using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 using XcaXds.Source;
@@ -66,7 +66,7 @@ public class UnitTests_MapRegistryObjects
         using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.xml")));
 
         var content = await reader.ReadToEndAsync();
-        var registryContent = await sxmls.DeserializeSoapMessageAsync<DocumentRegistry>(content);
+        var registryContent = await sxmls.DeserializeSoapMessageAsync<XmlDocumentRegistry>(content);
 
 
         var documentDtoEntries = rmts.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);

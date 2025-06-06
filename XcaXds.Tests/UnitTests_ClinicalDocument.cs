@@ -1,5 +1,5 @@
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
-using XcaXds.Commons.Models.Custom.DocumentEntryDto;
+using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;

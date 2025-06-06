@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using XcaXds.Commons.Models.Custom.DocumentEntryDto;
+using XcaXds.Commons.Models.Custom.DocumentEntry;
 
 namespace XcaXds.Commons.Commons;
 

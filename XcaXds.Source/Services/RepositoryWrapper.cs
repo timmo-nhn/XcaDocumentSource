@@ -1,24 +1,20 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Source;
 
 public partial class RepositoryWrapper
 {
-    private readonly XdsConfig _xdsConfig;
+    private readonly ApplicationConfig _appConfig;
     private readonly string _repositoryPath;
 
     private static readonly Regex SafeFileNameRegex = new(@"^[a-zA-Z0-9\-_\.^]+$", RegexOptions.Compiled);
     private static readonly Regex SafeCharacters = new(@"[^a-zA-Z0-9\-_\.^]+", RegexOptions.Compiled);
 
-    public RepositoryWrapper(XdsConfig xdsConfig)
+    public RepositoryWrapper(ApplicationConfig appConfig)
     {
-        _xdsConfig = xdsConfig;
-        _repositoryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Repository", _xdsConfig.RepositoryUniqueId);
+        _appConfig = appConfig;
+        _repositoryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Repository", _appConfig.RepositoryUniqueId);
     }
 
     public byte[]? GetDocumentFromRepository(string homeCommunityId, string repositoryUniqueId, string documentUniqueId)
@@ -30,10 +26,10 @@ public partial class RepositoryWrapper
         foreach (var directory in Directory.GetDirectories(_repositoryPath))
         {
             foreach (var file in Directory.GetFiles(directory))
-            { 
-                
+            {
+
                 var name = Path.GetFileName(file);
-                
+
                 if (name.Replace("^", "") == documentUniqueId.Replace("^", ""))
                 {
                     return File.ReadAllBytes(file);

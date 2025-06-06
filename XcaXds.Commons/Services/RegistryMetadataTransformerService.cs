@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom.DocumentEntryDto;
+using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -547,9 +547,9 @@ public class RegistryMetadataTransformerService
         {
             return new()
             {
-                AssigningAuthority = department?.AssigningAuthority?.UniversalId ?? department?.AssigningFacility?.UniversalId ?? string.Empty,
-                Id = department?.OrganizationIdentifier ?? string.Empty,
-                OrganizationName = department?.OrganizationName ?? string.Empty
+                AssigningAuthority = department?.AssigningAuthority?.UniversalId ?? department?.AssigningFacility?.UniversalId,
+                Id = department?.OrganizationIdentifier,
+                OrganizationName = department?.OrganizationName
             };
         }
 
@@ -578,9 +578,9 @@ public class RegistryMetadataTransformerService
 
         if (organization != null)
         {
-            authorOrganization.AssigningAuthority = organization?.AssigningAuthority?.UniversalId ?? organization?.AssigningFacility?.UniversalId ?? string.Empty;
-            authorOrganization.Id = organization?.OrganizationIdentifier ?? string.Empty;
-            authorOrganization.OrganizationName = organization?.OrganizationName ?? string.Empty;
+            authorOrganization.AssigningAuthority = organization?.AssigningAuthority?.UniversalId ?? organization?.AssigningFacility?.UniversalId;
+            authorOrganization.Id = organization?.OrganizationIdentifier;
+            authorOrganization.OrganizationName = organization?.OrganizationName;
             return authorOrganization;
         }
 
@@ -839,8 +839,8 @@ public class RegistryMetadataTransformerService
 
             var sourcePatientXcn = new XPN()
             {
-                GivenName = sourcePatientInfo.GivenName ?? string.Empty,
-                FamilyName = sourcePatientInfo.FamilyName ?? string.Empty,
+                GivenName = sourcePatientInfo.GivenName,
+                FamilyName = sourcePatientInfo.FamilyName,
             };
 
             sourcePatientIdSlot.AddValue($"PID-5|{sourcePatientXcn.Serialize()}");

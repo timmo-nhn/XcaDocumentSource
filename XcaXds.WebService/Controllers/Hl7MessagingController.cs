@@ -9,17 +9,17 @@ namespace XcaXds.WebService.Controllers;
 [Route("hl7")]
 public class Hl7MessagingController : ControllerBase
 {
-    private readonly ILogger<RegistryController> _logger;
-    private readonly XdsConfig _xdsConfig;
-    private RegistryService _registryService;
+    private readonly ILogger<XdsRegistryController> _logger;
+    private readonly ApplicationConfig _xdsConfig;
+    private Hl7RegistryService _hl7RegistryService;
     private readonly IVariantFeatureManager _featureManager;
 
 
-    public Hl7MessagingController(ILogger<RegistryController> logger, XdsConfig xdsConfig, RegistryService registryService, IVariantFeatureManager featureManager)
+    public Hl7MessagingController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, Hl7RegistryService registryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
-        _registryService = registryService;
+        _hl7RegistryService = registryService;
         _featureManager = featureManager;
     }
 
@@ -36,7 +36,7 @@ public class Hl7MessagingController : ControllerBase
         {
             case "QBP_Q22":
             case "QBP_Q21":
-                responseMessage = _registryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry(hl7Message);
+                responseMessage = _hl7RegistryService.PatientDemographicsQueryGetPatientIdentifiersInRegistry(hl7Message);
                 break;
 
             default:

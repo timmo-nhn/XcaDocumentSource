@@ -13,13 +13,13 @@ using XcaXds.Commons.Xca;
 
 namespace XcaXds.Source.Services;
 
-public class RepositoryService
+public class XdsRepositoryService
 {
-    private readonly XdsConfig _xdsConfig;
+    private readonly ApplicationConfig _xdsConfig;
     private readonly XcaGateway _xcaGateway;
     private readonly RepositoryWrapper _repositoryWrapper;
 
-    public RepositoryService(XdsConfig xdsConfig, XcaGateway xcaGateway, RepositoryWrapper repositoryWrapper)
+    public XdsRepositoryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RepositoryWrapper repositoryWrapper)
     {
         _xdsConfig = xdsConfig;
         _xcaGateway = xcaGateway;

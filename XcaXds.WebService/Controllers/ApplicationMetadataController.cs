@@ -4,12 +4,12 @@ namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("api")]
-public class XdsMetadataController : ControllerBase
+public class ApplicationMetadataController : ControllerBase
 {
-    private readonly ILogger<RegistryController> _logger;
-    private readonly XdsConfig _xdsConfig;
+    private readonly ILogger<XdsRegistryController> _logger;
+    private readonly ApplicationConfig _xdsConfig;
 
-    public XdsMetadataController(ILogger<RegistryController> logger, XdsConfig xdsConfig)
+    public ApplicationMetadataController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;

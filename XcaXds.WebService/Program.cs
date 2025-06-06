@@ -52,7 +52,7 @@ public class Program
         });
 
 
-        var xdsConfig = new XdsConfig();
+        var xdsConfig = new ApplicationConfig();
 
         builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
 
@@ -65,16 +65,17 @@ public class Program
         // Register services
         builder.Services.AddSingleton<XcaGateway>();
         //builder.Services.AddSingleton<SoapService>();
-        builder.Services.AddSingleton<RepositoryService>();
+        builder.Services.AddSingleton<XdsRepositoryService>();
         builder.Services.AddSingleton<RepositoryWrapper>();
-        builder.Services.AddSingleton<RegistryService>();
+        builder.Services.AddSingleton<XdsRegistryService>();
+        builder.Services.AddSingleton<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<CdaTransformerService>();
         builder.Services.AddSingleton<RegistryMetadataTransformerService>();
         builder.Services.AddSingleton(xdsConfig);
 
         // REST services
-        builder.Services.AddSingleton<RegistryRestfulService>();
+        builder.Services.AddSingleton<RestfulRegistryService>();
         
         builder.Services.AddHostedService<AppStartupService>();
 

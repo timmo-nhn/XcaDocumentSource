@@ -14,16 +14,16 @@ namespace XcaXds.WebService.Controllers;
 [ApiController]
 [Route("XCA/services")]
 [UsePolicyEnforcementPoint]
-public class RespondingGatewayController : ControllerBase
+public class XdsRespondingGatewayController : ControllerBase
 {
-    private readonly ILogger<RegistryController> _logger;
+    private readonly ILogger<XdsRegistryController> _logger;
     private readonly HttpClient _httpClient;
     private readonly XcaGateway _xcaGateway;
-    private readonly XdsConfig _xdsConfig;
-    private readonly RepositoryService _repositoryService;
+    private readonly ApplicationConfig _xdsConfig;
+    private readonly XdsRepositoryService _repositoryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public RespondingGatewayController(ILogger<RegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsConfig xdsConfig, RepositoryService repositoryService, IVariantFeatureManager featureManager)
+    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, ApplicationConfig xdsConfig, XdsRepositoryService repositoryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
@@ -48,6 +48,9 @@ public class RespondingGatewayController : ControllerBase
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti38ActionAsync:
+
+                break;
+
                 var responseUrl = soapEnvelope.Header.ReplyTo?.Address;
 
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);

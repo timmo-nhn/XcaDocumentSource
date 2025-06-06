@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace XcaXds.Commons.Models.Custom.DocumentEntryDto;
+namespace XcaXds.Commons.Models.Custom.DocumentEntry;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName ="$type")]
 [JsonDerivedType(typeof(DocumentEntryDto))]

@@ -10,29 +10,28 @@ using XcaXds.Commons.Xca;
 
 namespace XcaXds.Source.Services;
 
-public partial class RegistryService
+public partial class XdsRegistryService
 {
-    private readonly XdsConfig _xdsConfig;
+    private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
-    private DocumentRegistry _documentRegistry;
-    private readonly ILogger<RegistryService> _logger;
+    private XmlDocumentRegistry _documentRegistry;
+    private readonly ILogger<XdsRegistryService> _logger;
 
 
-    public RegistryService(XdsConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<RegistryService> logger)
+    public XdsRegistryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
     {
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
         _logger = logger;
         // Explicitly load the registry upon service creation
-        _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new DocumentRegistry();
+        _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new XmlDocumentRegistry();
     }
 
-    private DocumentRegistry DocumentRegistry => _documentRegistry;
+    private XmlDocumentRegistry DocumentRegistry => _documentRegistry;
 
     public async Task<SoapRequestResult<SoapEnvelope>> AppendToRegistryAsync(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();
-        var registryContent = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
         if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
@@ -43,7 +42,7 @@ public partial class RegistryService
 
         }
 
-        if (DuplicateUuidsExist(registryContent.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
+        if (DuplicateUuidsExist(_documentRegistry.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
         {
             _logger.LogError($"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}");
             registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}", "XDS Registry");
@@ -57,7 +56,7 @@ public partial class RegistryService
         foreach (var replaceAssociation in documentReplaceAssociations)
         {
             var documentId = replaceAssociation.TargetObject;
-            registryContent.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
+            _documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
 
             if (success) 
             {
@@ -67,13 +66,13 @@ public partial class RegistryService
 
 
         // list spread to combine both lists
-        registryContent.RegistryObjectList = [.. registryContent.RegistryObjectList, .. submissionRegistryObjects];
+        _documentRegistry.RegistryObjectList = [.. _documentRegistry.RegistryObjectList, .. submissionRegistryObjects];
 
-        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistry(registryContent);
+        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromXml(_documentRegistry);
 
         if (registryUpdateResult.IsSuccess)
         {
-            _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new DocumentRegistry();
+            _documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects() ?? new XmlDocumentRegistry();
 
             registryResponse.EvaluateStatusCode();
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
@@ -342,7 +341,7 @@ public partial class RegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistry(registryContent);
+        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromXml(registryContent);
         registryResponse.EvaluateStatusCode();
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }

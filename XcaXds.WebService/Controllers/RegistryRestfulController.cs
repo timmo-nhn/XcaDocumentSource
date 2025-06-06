@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 
@@ -14,27 +15,32 @@ public class RegistryRestfulController : ControllerBase
 {
     private readonly ILogger<RegistryRestfulController> _logger;
     private readonly HttpClient _httpClient;
-    private readonly RegistryRestfulService _registryRestfulService;
+    private readonly RestfulRegistryService _registryRestfulService;
 
-    public RegistryRestfulController(ILogger<RegistryRestfulController> logger, HttpClient httpClient, RegistryRestfulService registryRestfulService)
+    public RegistryRestfulController(ILogger<RegistryRestfulController> logger, HttpClient httpClient, RestfulRegistryService registryRestfulService)
     {
         _logger = logger;
         _httpClient = httpClient;
         _registryRestfulService = registryRestfulService;
     }
 
-    [HttpGet("registry-objects")]
-    public async Task<IActionResult> Get([FromQuery] string? id, [FromQuery] string? status)
+    [HttpGet("document-list")]
+    public async Task<IActionResult> GetDocumentList([FromQuery] string? id, [FromQuery] string? status)
     {
-        if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(status))
-            return BadRequest("Both 'id' and 'status' query parameters are required.");
 
-        var allowedStatuses = new[] { "Approved", "Deprecated" };
-        if (!allowedStatuses.Contains(status))
-            return BadRequest("Status must be one of \"Approved\" or \"Deprecated\".");
+        var entries = _registryRestfulService.GetDocumentListForPatient(id, status);
+        
+        return Ok(entries);
+    }
 
-        var entries = _registryRestfulService.GetDocumentListForPatient(id);
+    [HttpGet("document")]
+    public async Task<IActionResult> GetDocument([FromQuery] string? homecommunity_id, [FromQuery] string? repository_id, [FromQuery] string? document_id)
+    {
+        if (string.IsNullOrWhiteSpace(homecommunity_id) || string.IsNullOrWhiteSpace(repository_id) || string.IsNullOrWhiteSpace(document_id))
+            return BadRequest("Parameters homecommunity_id, repository_id, document_id are required.");
 
+        var entries = _registryRestfulService.GetDocument(homecommunity_id, repository_id, document_id);
+        
         return Ok(entries);
     }
 
