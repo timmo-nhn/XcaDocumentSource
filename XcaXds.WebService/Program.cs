@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.FeatureManagement;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
-using XcaXds.Source;
 using XcaXds.Source.Services;
+using XcaXds.Source.Services.Custom;
+using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Startup;
@@ -56,11 +57,11 @@ public class Program
 
         builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
 
-
         builder.Services.AddHttpClient<SoapService>(client =>
         {
             client.Timeout = TimeSpan.FromSeconds(xdsConfig.TimeoutInSeconds);
         });
+
 
         // Register services
         builder.Services.AddSingleton<XcaGateway>();
@@ -71,9 +72,15 @@ public class Program
         builder.Services.AddSingleton<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<CdaTransformerService>();
-        builder.Services.AddSingleton<IDocumentRegistry, DocumentRegistry>();
+        builder.Services.AddSingleton<IRegistry, Registry>();
+        builder.Services.AddSingleton<IRepository, Repository>();
         builder.Services.AddSingleton<RegistryMetadataTransformerService>();
         builder.Services.AddSingleton(xdsConfig);
+
+        // OpenDips service
+        builder.Services.AddSingleton<OpenDipsClient>();
+        builder.Services.AddSingleton<OpenDipsTokenService>();
+
 
         // REST services
         builder.Services.AddSingleton<RestfulRegistryRepositoryService>();

@@ -6,6 +6,7 @@ using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
+using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
 
@@ -64,7 +65,7 @@ public class RestfulRegistryRepositoryService
                 LinkToDocument = new()
                 {
                     Title = dr.Title,
-                    Url = $"/document?home={dr.HomeCommunityId}&repository={dr.RepositoryUniqueId}&document={dr.UniqueId}"
+                    Url = $"api/rest/document?home={dr.HomeCommunityId}&repository={dr.RepositoryUniqueId}&document={dr.UniqueId}"
                 }
             }).ToList();
 

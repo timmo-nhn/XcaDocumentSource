@@ -1,9 +1,9 @@
 ﻿using XcaXds.Commons.Models.Custom.DocumentEntry;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.Source.Source;
 
 
-public interface IDocumentRegistry
+public interface IRegistry
 {
     List<RegistryObjectDto> ReadRegistry();
     bool WriteRegistry(List<RegistryObjectDto> dtos);

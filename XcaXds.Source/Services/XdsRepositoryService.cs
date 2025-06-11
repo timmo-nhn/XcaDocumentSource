@@ -10,6 +10,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
+using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
 
@@ -96,6 +97,10 @@ public class XdsRepositoryService
         var registryResponse = new RegistryResponseType();
         var documents = iti41Envelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
 
+        var extrinsicObjects = iti41Envelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
+
+
+
         if (documents != null && documents.Length != 0)
         {
             foreach (var document in documents)
@@ -163,8 +168,11 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}".Trim(), "XDS Repository");
                 continue;
             }
+
             var file = _repositoryWrapper.GetDocumentFromRepository(home, repoId, docId);
+            
             byte[] renamedFile;
+            
             if (file != null)
             {
                 var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);

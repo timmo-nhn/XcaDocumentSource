@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using System.Text.Json;
+using XcaXds.Commons.Models.Custom.DocumentEntry;
 
 namespace XcaXds.WebService.InputFormatters;
 

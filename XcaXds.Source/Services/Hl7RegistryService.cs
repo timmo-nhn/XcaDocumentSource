@@ -5,6 +5,7 @@ using XcaXds.Commons;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
 
