@@ -27,7 +27,7 @@ public partial class DocumentResponseType
     [XmlElement(DataType = "base64Binary", Order = 6)]
     public byte[]? Document;
 
-    [XmlElement("Include", Namespace = Constants.Soap.Namespaces.XopInclude, Order =7)]
+    [XmlElement("Include", Namespace = Constants.Soap.Namespaces.XopInclude, Order = 7)]
     public IncludeType? Include { get; set; }
 
 

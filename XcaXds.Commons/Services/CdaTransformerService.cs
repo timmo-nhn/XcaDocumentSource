@@ -1,6 +1,6 @@
-﻿using System.Globalization;
+﻿using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Text;
-using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;

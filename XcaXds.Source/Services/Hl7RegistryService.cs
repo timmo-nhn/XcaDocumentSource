@@ -1,6 +1,6 @@
-﻿using System.Globalization;
-using Efferent.HL7.V2;
+﻿using Efferent.HL7.V2;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using XcaXds.Commons;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Hl7.DataType;

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 
 namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;

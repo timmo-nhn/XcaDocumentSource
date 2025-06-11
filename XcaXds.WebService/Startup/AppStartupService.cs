@@ -8,9 +8,9 @@ public class AppStartupService : IHostedService
     private readonly IHostEnvironment _env;
     private readonly IConfiguration _config;
 
-    private readonly ApplicationConfig _xdsConfig;
+    private readonly XdsConfig _xdsConfig;
 
-    public AppStartupService(ILogger<AppStartupService> logger, IHostEnvironment env, IConfiguration config, ApplicationConfig xdsConfig)
+    public AppStartupService(ILogger<AppStartupService> logger, IHostEnvironment env, IConfiguration config, XdsConfig xdsConfig)
     {
         _logger = logger;
         _env = env;
@@ -58,5 +58,5 @@ public class AppStartupService : IHostedService
         return Task.CompletedTask;
     }
 
-    
+
 }

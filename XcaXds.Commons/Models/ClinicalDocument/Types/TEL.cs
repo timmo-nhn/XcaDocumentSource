@@ -13,5 +13,5 @@ public class TEL : ANY
     public string? Use { get; set; }
 
     [XmlElement("useablePeriod")]
-    public List<IVL_TS>? UseablePeriod { get; set; } 
+    public List<IVL_TS>? UseablePeriod { get; set; }
 }

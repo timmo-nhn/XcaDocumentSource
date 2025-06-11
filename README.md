@@ -1,7 +1,7 @@
 # PJD.XcaDocumentSource - XCA Responding Gateway and integrated Document Registry and Repository  
 
-## Introduction/Getting started
-In the healthcare industry, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely designed to communicate with each other, leading to:
+## Introduction
+In the healthcare industry, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely desig|ned to communicate with each other, leading to:
 * Data silos where patient records are confined in local systems
 * Manual, error-prone processes for sharing health information
 * Delayed treatment due to lack of access to complete medical histories  
@@ -131,7 +131,7 @@ Used when referencing something thats part of an XML SOAP-message
 
 
 ### Normal Quotes  
-Used as an addendum for a section of text  
+Used as an addendum or side-note for a section of text  
 **Example:**  
 >Quote
 

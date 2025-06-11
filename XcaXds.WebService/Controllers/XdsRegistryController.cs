@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
-using Microsoft.FeatureManagement.Mvc;
 using System.Diagnostics;
-using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;

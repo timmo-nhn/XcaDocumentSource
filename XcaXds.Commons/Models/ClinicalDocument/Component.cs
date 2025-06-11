@@ -14,10 +14,10 @@ public class Component : InfrastructureRoot
     private bool? _contextConductionInd;
 
     [XmlAttribute("contextConductionInd")]
-    public string? ContextConductionInd 
-    { 
-        get => _contextConductionInd.HasValue ? _contextConductionInd.ToString().ToLowerInvariant() : null; 
-        set => _contextConductionInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value); 
+    public string? ContextConductionInd
+    {
+        get => _contextConductionInd.HasValue ? _contextConductionInd.ToString().ToLowerInvariant() : null;
+        set => _contextConductionInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 
     [XmlIgnore]
@@ -68,7 +68,7 @@ public class OrganizerComponent : InfrastructureRoot
 {
     [XmlElement("sequenceNumber")]
     public INT? SequenceNumber { get; set; }
-    
+
     [XmlElement("priorityNumber")]
     public INT? PriorityNumber { get; set; }
 

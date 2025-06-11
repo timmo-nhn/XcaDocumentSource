@@ -1,4 +1,5 @@
-﻿namespace XcaXds.Commons.Models.Custom.DocumentEntry;
+﻿
+namespace XcaXds.Commons.Models.Custom.DocumentEntry;
 
 public class DocumentEntryDto : RegistryObjectDto
 {
@@ -12,7 +13,6 @@ public class DocumentEntryDto : RegistryObjectDto
     public string? Hash { get; set; }
     public CodedValue? HealthCareFacilityTypeCode { get; set; }
     public string? HomeCommunityId { get; set; }
-    public string? Id { get; set; }
     public string? LanguageCode { get; set; }
     public LegalAuthenticator? LegalAuthenticator { get; set; }
     public string? MimeType { get; set; }

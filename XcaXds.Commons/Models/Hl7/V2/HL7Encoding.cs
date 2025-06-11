@@ -1,6 +1,4 @@
-using System;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 namespace Efferent.HL7.V2
@@ -59,7 +57,7 @@ namespace Efferent.HL7.V2
             throw new HL7Exception("Segment delimiter not found in message", HL7Exception.BadMessage);
         }
 
-        public  string Encode(string val)
+        public string Encode(string val)
         {
             if (val == null)
                 return PresentButNull;
@@ -83,7 +81,7 @@ namespace Efferent.HL7.V2
                 {
                     continueEncoding = false;
                     // special case <B>
-                    if (val.Length >= i + 3 && val[i+1] == 'B' && val[i+2] == '>')
+                    if (val.Length >= i + 3 && val[i + 1] == 'B' && val[i + 2] == '>')
                     {
                         sb.Append(this.EscapeCharacter);
                         sb.Append('H');
@@ -197,12 +195,12 @@ namespace Efferent.HL7.V2
                     // throw new HL7Exception("Invalid escape sequence in HL7 string");
                     result.Append(this.EscapeCharacter);
 
-                    if (i<encodedValue.Length)
+                    if (i < encodedValue.Length)
                         result.Append(encodedValue[i]);
                     continue;
                 }
 
-                string seq = encodedValue.Substring(i, li-i);
+                string seq = encodedValue.Substring(i, li - i);
                 i = li;
 
                 if (seq.Length == 0)
@@ -235,7 +233,7 @@ namespace Efferent.HL7.V2
                         result.Append("<BR>");
                         break;
                     default:
-                        if (seq[0]=='X')
+                        if (seq[0] == 'X')
                             result.Append(DecodeHexString(seq.Substring(1)));
                         else
                             result.Append(seq);

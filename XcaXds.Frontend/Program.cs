@@ -11,7 +11,7 @@ builder.Services.AddBlazorBootstrap();
 builder.Services.AddHighlight();
 builder.Services.AddScoped(sp => new HttpClient());
 builder.Services.AddScoped<ICookie, Cookie>();
-builder.WebHost.UseUrls(["https://localhost:7213","http://localhost:5220"]);
+builder.WebHost.UseUrls(["https://localhost:7213", "http://localhost:5220"]);
 
 var app = builder.Build();
 

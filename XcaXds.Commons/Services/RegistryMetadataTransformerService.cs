@@ -12,12 +12,12 @@ public class RegistryMetadataTransformerService
     {
         var documentEntryDto = new DocumentReferenceDto();
 
-        documentEntryDto.DocumentEntryMetadata = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
-        documentEntryDto.SubmissionSetMetadata = TransformRegistryPackageToSubmissionSetDto(registryPackage);
+        documentEntryDto.DocumentEntry = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
+        documentEntryDto.SubmissionSet = TransformRegistryPackageToSubmissionSetDto(registryPackage);
         documentEntryDto.Association = TransformToAssociationDto(association, extrinsicObject, registryPackage);
         if (document?.Value != null)
         {
-            documentEntryDto.DocumentEntryDocument = new() { DocumentId = document.Id, Data = document.Value };
+            documentEntryDto.Document = new() { DocumentId = document.Id, Data = document.Value };
         }
 
         return documentEntryDto;
@@ -49,7 +49,7 @@ public class RegistryMetadataTransformerService
             if (registryObjectDto is AssociationDto associationDto)
             {
                 var associationType = GetAssociationFromAssociationDto(associationDto);
-                
+
                 if (associationType == null) continue;
 
                 registryObjects.Add(associationType);
@@ -59,7 +59,7 @@ public class RegistryMetadataTransformerService
             if (registryObjectDto is DocumentEntryDto documentEntryDto)
             {
                 var extrinsicObjectType = GetExtrinsicObjectFromDocumentEntryDto(documentEntryDto);
-                
+
                 if (extrinsicObjectType == null) continue;
 
                 registryObjects.Add(extrinsicObjectType);
@@ -69,7 +69,7 @@ public class RegistryMetadataTransformerService
             if (registryObjectDto is SubmissionSetDto submissionsetDto)
             {
                 var associationType = GetRegistryPackageFromSubmissionSetDto(submissionsetDto);
-                
+
                 if (associationType == null) continue;
 
                 registryObjects.Add(associationType);
@@ -663,8 +663,8 @@ public class RegistryMetadataTransformerService
     {
         var registryObjectList = new List<IdentifiableType>();
 
-        var extrinsicObject = GetExtrinsicObjectFromDocumentEntryDto(documentReference.DocumentEntryMetadata);
-        var registryPackage = GetRegistryPackageFromSubmissionSetDto(documentReference.SubmissionSetMetadata);
+        var extrinsicObject = GetExtrinsicObjectFromDocumentEntryDto(documentReference.DocumentEntry);
+        var registryPackage = GetRegistryPackageFromSubmissionSetDto(documentReference.SubmissionSet);
         var association = GetAssociationFromAssociationDto(documentReference.Association);
 
         registryObjectList.Add(extrinsicObject);

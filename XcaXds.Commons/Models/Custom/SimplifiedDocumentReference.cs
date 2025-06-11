@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace XcaXds.Commons.Models.Custom;
+﻿namespace XcaXds.Commons.Models.Custom;
 
 public class SimplifiedDocumentReference
 {
@@ -18,6 +12,6 @@ public class SimplifiedDocumentReference
     public string ConfidentialityCode { get; set; }
     public string DocumentClassification { get; set; }
     public string DocumentType { get; set; }
-    public string Department {  get; set; }
+    public string Department { get; set; }
     public string Institution { get; set; }
 }

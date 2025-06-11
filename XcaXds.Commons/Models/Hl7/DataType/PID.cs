@@ -19,7 +19,7 @@ public class PID : Hl7Object
 
     [Hl7(Sequence = 6)]
     public XPN? MothersMaidenName { get; set; }
-    
+
     [Hl7(Sequence = 7)]
     public DateTime BirthDate { get; set; }
 

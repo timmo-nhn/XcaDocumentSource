@@ -11,6 +11,7 @@ public class RestfulApiResponse
     public void AddError(string code, string message)
     {
         Success = false;
+        Errors ??= new();
         Errors.Add(new()
         {
             Code = string.IsNullOrWhiteSpace(code) ? null : code,

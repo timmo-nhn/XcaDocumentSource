@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-namespace XcaXds.Commons.Models;
+﻿namespace XcaXds.Commons.Models;
 
 public class KeyValueEntry
 {

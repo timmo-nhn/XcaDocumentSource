@@ -71,12 +71,13 @@ public class Program
         builder.Services.AddSingleton<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<CdaTransformerService>();
+        builder.Services.AddSingleton<IDocumentRegistry, DocumentRegistry>();
         builder.Services.AddSingleton<RegistryMetadataTransformerService>();
         builder.Services.AddSingleton(xdsConfig);
 
         // REST services
-        builder.Services.AddSingleton<RestfulRegistryService>();
-        
+        builder.Services.AddSingleton<RestfulRegistryRepositoryService>();
+
         builder.Services.AddHostedService<AppStartupService>();
 
         builder.Services.AddEndpointsApiExplorer();

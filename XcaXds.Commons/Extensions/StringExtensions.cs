@@ -6,7 +6,7 @@ public static class StringExtensions
     {
         if (string.IsNullOrEmpty(input))
         {
-            return input; 
+            return input;
         }
 
         return input.Replace("urn:uuid:", "");

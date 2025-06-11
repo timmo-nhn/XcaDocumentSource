@@ -2,8 +2,8 @@
 
 public class DocumentReferenceDto
 {
-    public DocumentEntryDto DocumentEntryMetadata { get; set; }
-    public SubmissionSetDto SubmissionSetMetadata { get; set; }
+    public DocumentEntryDto DocumentEntry { get; set; }
+    public SubmissionSetDto SubmissionSet { get; set; }
     public AssociationDto Association { get; set; }
-    public DocumentDto DocumentEntryDocument { get; set; }
+    public DocumentDto Document { get; set; }
 }

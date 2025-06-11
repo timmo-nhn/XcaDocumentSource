@@ -151,7 +151,8 @@ PID
 
 *Example HL7 snippet for PID-type (Formatted)*
 
-When representing a type in **XML**, each `PID`-parts is represented as its own value in an array of strings. Each part is separated into its own `<Value>`-tag
+When representing a type in **XML**, each `PID`-parts is represented as its own value in an array of strings. Each part is separated into its own `<Value>`-tag.
+
 ```xml
 <Slot name="sourcePatientInfo">
     <ValueList>
@@ -276,12 +277,12 @@ More on ebXML RegRep [OASIS ebXML RegRep Version 3.0 - docs.oasis-open.org ↗](
 
 | Property  | Description |
 |---|---|
-| **Name** | ExtrinsicObject |
+| **Name** | RegistryPackage |
 | **Can be found** | Document Registry, AdhocQuery Response |
 | **Usage** | Reference to the organization/person who uploaded the document<br>A **Folder** which references other XDS Types |
 | **Class Name** | RegistryPackageType |
 
-*Description of ExtrinsicObject*
+*Description of RegistryPackage*
 
 ##### Example  
 ```xml

@@ -2,7 +2,6 @@
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Xml;
 using XcaXds.Commons;
@@ -31,7 +30,7 @@ public class PolicyEnforcementPointMiddlware
     public async Task InvokeAsync(HttpContext httpContext)
     {
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! PEP bypass is enabled in production!");
-        
+
         // If the request is from localhost and environment is development we can ignore PEP.
         var requestIsLocal = httpContext.Connection.RemoteIpAddress is not null &&
               (IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress) ||

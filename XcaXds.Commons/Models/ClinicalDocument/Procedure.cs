@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 
 [Serializable]
 [XmlType("procedure", Namespace = Constants.Xds.Namespaces.Hl7V3)]
-public class Procedure : EntryItemBase  
+public class Procedure : EntryItemBase
 {
     [XmlAttribute("classCode")]
     public string? ClassCode { get; set; } = "PROC";

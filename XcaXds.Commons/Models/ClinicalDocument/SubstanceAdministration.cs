@@ -61,7 +61,7 @@ public class SubstanceAdministration : EntryItemBase
 
     [XmlElement("doseQuantity")]
     public IVL_PQ? DoseQuantity { get; set; }
-    
+
     [XmlElement("rateQuantity")]
     public IVL_PQ? RateQuantity { get; set; }
 

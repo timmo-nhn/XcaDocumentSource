@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Metrics;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 
 namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
@@ -15,13 +14,13 @@ public class EntryRelationship : InfrastructureRoot
     private bool? _inversionInd;
 
     [XmlAttribute("inversionInd")]
-    public string? InversionInd 
-    { 
+    public string? InversionInd
+    {
         get => _inversionInd.HasValue ? _inversionInd.ToString().ToLowerInvariant() : null;
-        set => _inversionInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value); 
+        set => _inversionInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 
-    [XmlIgnore] 
+    [XmlIgnore]
     private bool? _contextConductionInd;
 
     [XmlAttribute("contextConductionInd")]
@@ -34,10 +33,10 @@ public class EntryRelationship : InfrastructureRoot
     private bool? _negationInd;
 
     [XmlAttribute("negationInd")]
-    public string? NegationInd 
-    { 
-        get => _negationInd.HasValue ? _negationInd.ToString().ToLowerInvariant() : null; 
-        set => _negationInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value); 
+    public string? NegationInd
+    {
+        get => _negationInd.HasValue ? _negationInd.ToString().ToLowerInvariant() : null;
+        set => _negationInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 
     [XmlElement("sequenceNumber")]

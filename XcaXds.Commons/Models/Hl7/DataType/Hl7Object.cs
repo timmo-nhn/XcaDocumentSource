@@ -134,7 +134,7 @@ public abstract class Hl7Object
             {
                 obectValue = new object[] { Parse<XPN>(value, Constants.Hl7.Separator.Hatt) };
             }
-            else if (item.Property.PropertyType == typeof(DateTime) )
+            else if (item.Property.PropertyType == typeof(DateTime))
             {
                 obectValue = new object[] { DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture) };
             }

@@ -1,11 +1,13 @@
-﻿using System.Security.Cryptography;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
 using XcaXds.Commons;
 using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 
 namespace XcaXds.Source.Services;
@@ -15,10 +17,12 @@ public partial class XdsRegistryService
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly ILogger<XdsRegistryService> _logger;
+    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
 
-    public XdsRegistryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
+    public XdsRegistryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, RegistryMetadataTransformerService registryMetadataTransformerService)
     {
+        _registryMetadataTransformerService = registryMetadataTransformerService;
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
         _logger = logger;
@@ -55,9 +59,9 @@ public partial class XdsRegistryService
             var documentId = replaceAssociation.TargetObject;
             documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
 
-            if (success) 
+            if (success)
             {
-                _logger.LogInformation($"Deprecating document with id {documentId}"); 
+                _logger.LogInformation($"Deprecating document with id {documentId}");
             }
         }
 
@@ -81,6 +85,8 @@ public partial class XdsRegistryService
 
     public async Task<SoapRequestResult<SoapEnvelope>> RegistryStoredQueryAsync(SoapEnvelope soapEnvelope)
     {
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
+
         var registryResponse = new RegistryResponseType();
 
         var adhocQueryRequest = soapEnvelope.Body.AdhocQueryRequest;
@@ -91,7 +97,7 @@ public partial class XdsRegistryService
         {
             case Constants.Xds.StoredQueries.FindDocuments:
                 var findDocumentsSearchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
-                var registryFindDocumentEntriesResult = DocumentRegistry.RegistryObjectList
+                var registryFindDocumentEntriesResult = documentRegistry.RegistryObjectList
                     .OfType<ExtrinsicObjectType>();
 
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
@@ -148,7 +154,7 @@ public partial class XdsRegistryService
                 //registryFindSubmissionSetsResult = FilterRegistryOnSubmissionSets(adhocQueryRequest.AdhocQuery);
                 var findSubmissionSetsParameters = RegistryStoredQueryParameters.GetFindSubmissionSetsParameters(adhocQueryRequest.AdhocQuery);
 
-                var registryFindSubmissionSetsResult = DocumentRegistry.RegistryObjectList
+                var registryFindSubmissionSetsResult = documentRegistry.RegistryObjectList
                     .OfType<RegistryPackageType>();
 
                 registryFindSubmissionSetsResult = registryFindSubmissionSetsResult
@@ -178,7 +184,7 @@ public partial class XdsRegistryService
             case Constants.Xds.StoredQueries.FindFolders:
                 var findFoldersParameters = RegistryStoredQueryParameters.GetFindFoldersParameters(adhocQueryRequest.AdhocQuery);
 
-                var registryFindFoldersResult = DocumentRegistry.RegistryObjectList
+                var registryFindFoldersResult = documentRegistry.RegistryObjectList
                     .OfType<RegistryPackageType>();
 
                 registryFindFoldersResult = registryFindFoldersResult
@@ -202,7 +208,7 @@ public partial class XdsRegistryService
             case Constants.Xds.StoredQueries.GetAssociations:
                 var getAssociationsParameters = RegistryStoredQueryParameters.GetAssociationsParameters(adhocQueryRequest.AdhocQuery);
 
-                var registryGetAssociationsResult = DocumentRegistry.RegistryObjectList
+                var registryGetAssociationsResult = documentRegistry.RegistryObjectList
                     .OfType<AssociationType>();
 
                 registryGetAssociationsResult = registryGetAssociationsResult
@@ -223,7 +229,7 @@ public partial class XdsRegistryService
             case Constants.Xds.StoredQueries.GetFolders:
                 var getFoldersParameters = RegistryStoredQueryParameters.GetFoldersParameters(adhocQueryRequest.AdhocQuery);
 
-                var registryGetFoldersResult = DocumentRegistry.RegistryObjectList
+                var registryGetFoldersResult = documentRegistry.RegistryObjectList
                     .OfType<RegistryPackageType>();
 
                 registryGetFoldersResult = registryGetFoldersResult
@@ -248,7 +254,7 @@ public partial class XdsRegistryService
             case Constants.Xds.StoredQueries.GetFolderAndContents:
                 var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
 
-                var registryGetFoldersAndDocumentsResult = DocumentRegistry.RegistryObjectList.OfType<IdentifiableType>();
+                var registryGetFoldersAndDocumentsResult = documentRegistry.RegistryObjectList.OfType<IdentifiableType>();
 
                 registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
                     .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
@@ -435,12 +441,27 @@ public partial class XdsRegistryService
         return SoapExtensions.CreateSoapResultResponse(iti42Message);
     }
 
+    public SoapRequestResult<string> UpdateDocumentRegistryFromXml(XmlDocumentRegistry xml)
+    {
+        try
+        {
+            var dtoList = _registryMetadataTransformerService
+                .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
+
+            _registryWrapper.SetDocumentRegistryContentWithDtos(dtoList);
+
+            return new SoapRequestResult<string>().Success("Updated OK");
+        }
+        catch (Exception ex)
+        {
+            return new SoapRequestResult<string>().Fault($"Error updating registry: {ex.Message}");
+        }
+    }
+
     private bool DuplicateUuidsExist(List<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
     {
-        // Combine both lists into one
         var allObjects = registryObjectList.Concat(submissionRegistryObjects);
 
-        // Group by ID and find duplicates
         var duplicates = allObjects
             .Where(obj => obj.Id != null)
             .GroupBy(obj => obj.Id)
@@ -452,5 +473,4 @@ public partial class XdsRegistryService
 
         return duplicateIds.Length > 0;
     }
-
 }

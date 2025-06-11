@@ -6,7 +6,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
 [Serializable]
-[XmlType("ExtrinsicObject",Namespace = Constants.Xds.Namespaces.Rim)]
+[XmlType("ExtrinsicObject", Namespace = Constants.Xds.Namespaces.Rim)]
 public partial class ExtrinsicObjectType : RegistryObjectType
 {
     public ExtrinsicObjectType()
@@ -28,5 +28,40 @@ public partial class ExtrinsicObjectType : RegistryObjectType
     [XmlAttribute(AttributeName = "isOpaque")]
     [DefaultValue(false)]
     public bool IsOpaque;
+
+    public PID GetPatientIdentifiersFromExtrinsicObject()
+    {
+        var patientPid = new PID();
+        patientPid.PatientIdentifier ??= new();
+
+        var patientId = this.ExternalIdentifier.FirstOrDefault(x => x.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId)?.Value;
+
+        var sourcePatientInfo = this.Slot?
+        .FirstOrDefault(s => s.Name == Constants.Xds.SlotNames.SourcePatientInfo)?.ValueList?.Value?
+        .ToList() ?? new List<string>();
+
+        patientPid.PatientIdentifier = Hl7Object.Parse<CX>(patientId);
+
+        foreach (var pidPart in sourcePatientInfo)
+        {
+            if (pidPart.Contains("PID-5"))
+            {
+                var value = pidPart.Substring(pidPart.IndexOf("|") + 1);
+                patientPid.PatientName = Hl7Object.Parse<XPN>(value);
+            }
+            if (pidPart.Contains("PID-7"))
+            {
+                var value = pidPart.Substring(pidPart.IndexOf("|") + 1);
+                patientPid.BirthDate = DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
+            }
+            if (pidPart.Contains("PID-8"))
+            {
+                var value = pidPart.Substring(pidPart.IndexOf("|") + 1);
+                patientPid.Gender = value;
+            }
+        }
+        return patientPid;
+
+    }
 
 }

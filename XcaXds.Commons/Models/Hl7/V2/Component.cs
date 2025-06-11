@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Efferent.HL7.V2
 {
     public class Component : MessageElement

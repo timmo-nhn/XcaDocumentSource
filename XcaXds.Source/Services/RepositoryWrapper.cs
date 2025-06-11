@@ -21,13 +21,16 @@ public partial class RepositoryWrapper
     {
         if (!IsValidIdentifier(documentUniqueId)) return null;
 
+        if (_appConfig.HomeCommunityId != homeCommunityId) return null;
+
+        if (repositoryUniqueId.Substring(repositoryUniqueId.LastIndexOf('/') + 1) != _appConfig.RepositoryUniqueId) return null;
+
         if (!Directory.Exists(_repositoryPath)) return null;
 
         foreach (var directory in Directory.GetDirectories(_repositoryPath))
         {
             foreach (var file in Directory.GetFiles(directory))
             {
-
                 var name = Path.GetFileName(file);
 
                 if (name.Replace("^", "") == documentUniqueId.Replace("^", ""))

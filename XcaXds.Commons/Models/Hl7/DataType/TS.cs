@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XcaXds.Commons.Models.Hl7.DataType;
+﻿namespace XcaXds.Commons.Models.Hl7.DataType;
 
 public class TS : Hl7Object
 {

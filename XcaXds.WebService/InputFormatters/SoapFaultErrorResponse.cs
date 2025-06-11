@@ -1,8 +1,6 @@
 ﻿namespace XcaXds.WebService.InputFormatters;
 using Microsoft.AspNetCore.Mvc;
-using XcaXds.Commons.Enums;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 
 

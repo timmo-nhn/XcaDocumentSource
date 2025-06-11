@@ -2,6 +2,6 @@
 
 public class DocumentListResponse : RestfulApiResponse
 {
-    public  Pagination Pagination { get; set; }
+    public Pagination Pagination { get; set; }
     public List<DocumentListEntry> DocumentListEntries { get; set; }
 }

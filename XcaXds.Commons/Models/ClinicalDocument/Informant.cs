@@ -1,5 +1,4 @@
 ﻿using System.Xml.Serialization;
-using XcaXds.Commons.Enums;
 
 namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 

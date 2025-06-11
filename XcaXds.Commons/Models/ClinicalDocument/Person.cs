@@ -14,11 +14,11 @@ public class Person
     public string? DeterminerCode { get; set; }
 
     [XmlElement("templateId")]
-    public List<II>? TemplateId {  get; set; }
+    public List<II>? TemplateId { get; set; }
 
     [XmlElement("name")]
     public List<PN>? Name { get; set; }
 
-    [XmlElement("asPatientRelationship",Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("asPatientRelationship", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<CE>? SdtcAsPatientRelationShip { get; set; }
 }

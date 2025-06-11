@@ -1,6 +1,5 @@
 ﻿using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Extensions;
 

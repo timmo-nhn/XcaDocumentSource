@@ -14,7 +14,7 @@ A municipality’s health department wants to publish lab test results (e.g., CO
 Eliminates siloed data. Test results are accessible to any authorized healthcare professional in the country.
 
 ```mermaid
-%%{init: {'theme':'dark'}}
+%%{init: {'theme':'dark'}}%%
 flowchart LR
 
 nhnxca[NHN<br>Initiating Gateway]

@@ -23,7 +23,7 @@ public class Organization
     public II? TypeId { get; set; }
 
     [XmlElement("templateId")]
-    public List<II>? TemplateId{ get; set; }
+    public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
     public List<II>? Id { get; set; }
@@ -32,10 +32,10 @@ public class Organization
     public List<ON>? Name { get; set; }
 
     [XmlElement("telecom")]
-    public List<TEL>? Telecom {  get; set; }
+    public List<TEL>? Telecom { get; set; }
 
     [XmlElement("addr")]
-    public List<AD>? Address {  get; set; }
+    public List<AD>? Address { get; set; }
 
     [XmlElement("standardIndustryClassCode")]
     public CE? StandardIndustryClassCode { get; set; }

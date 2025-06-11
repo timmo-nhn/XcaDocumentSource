@@ -41,7 +41,7 @@ public class TS : ANY
 
             if (!matched)
             {
-                _dateFormat = null; 
+                _dateFormat = null;
                 RawEffectiveTimeValue = value;
             }
         }

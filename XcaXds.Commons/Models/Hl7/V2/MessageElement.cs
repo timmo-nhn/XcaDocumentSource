@@ -6,7 +6,7 @@ namespace Efferent.HL7.V2
         protected string _value = string.Empty;
 #pragma warning restore CA1051
 
-        public  string Value
+        public string Value
         {
             get
             {
@@ -19,7 +19,7 @@ namespace Efferent.HL7.V2
             }
         }
 
-        public  string UndecodedValue
+        public string UndecodedValue
         {
             get
             {

@@ -1,10 +1,7 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
-using XcaXds.Source;
 
 namespace XcaXds.Tests;
 
@@ -27,7 +24,7 @@ public class UnitTests_MapRegistryObjects
             var documentEntryDto = new DocumentReferenceDto();
             var regmetaserv = new RegistryMetadataTransformerService();
 
-            var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest.SubmitObjectsRequest.RegistryObjectList;
+            var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
 
 
             var documentReference = regmetaserv.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.ToList());

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Efferent.HL7.V2
+﻿namespace Efferent.HL7.V2
 {
     public class HL7Exception : Exception
     {

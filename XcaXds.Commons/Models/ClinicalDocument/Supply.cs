@@ -42,7 +42,7 @@ public class Supply : EntryItemBase
 
     [XmlElement("repeatNumber")]
     public IVL_INT? RepeatNumber { get; set; }
-    
+
     [XmlElement("independentInd")]
     public BL? IndependentInd { get; set; }
 

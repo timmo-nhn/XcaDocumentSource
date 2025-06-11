@@ -23,6 +23,6 @@ public class ObservationRange
     public ED? Text { get; set; }
 
     [XmlElement("value", typeof(ANY))]
-    public ANY? Value { get; set; } 
+    public ANY? Value { get; set; }
 
 }

@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
 

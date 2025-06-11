@@ -35,10 +35,10 @@ public class Act : EntryItemBase
     private bool? _negationInd;
 
     [XmlAttribute("negationInd")]
-    public string? NegationInd 
-    { 
+    public string? NegationInd
+    {
         get => _negationInd.HasValue ? _negationInd.ToString().ToLowerInvariant() : null;
-        set => _negationInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value); 
+        set => _negationInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 
     [XmlElement("text")]
@@ -58,7 +58,7 @@ public class Act : EntryItemBase
 
     [XmlElement("subject")]
     public Subject? Subject { get; set; }
-    
+
     [XmlElement("speciment")]
     public List<Specimen>? Specimen { get; set; }
 

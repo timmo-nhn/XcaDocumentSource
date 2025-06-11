@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace Efferent.HL7.V2
 {
@@ -21,7 +18,7 @@ namespace Efferent.HL7.V2
             {
                 if (_RepetitionList == null)
                     _RepetitionList = [];
-                    
+
                 return _RepetitionList;
             }
             set
@@ -51,7 +48,7 @@ namespace Efferent.HL7.V2
             {
                 var individualFields = _value.Split(this.Encoding.RepeatDelimiter);
                 _RepetitionList = new List<Field>(individualFields.Length);
-                
+
                 for (int index = 0; index < individualFields.Length; index++)
                 {
                     Field field = new Field(individualFields[index], this.Encoding);
@@ -168,14 +165,14 @@ namespace Efferent.HL7.V2
                 throw new HL7Exception("Error removing trailing components - " + ex.Message, ex);
             }
         }
-        
-        public void AddRepeatingField(Field field) 
+
+        public void AddRepeatingField(Field field)
         {
-            if (!this.HasRepetitions) 
+            if (!this.HasRepetitions)
                 throw new HL7Exception("Repeating field must have repetitions (HasRepetitions = true)");
 
-            if (_RepetitionList == null) 
-                _RepetitionList = []; 
+            if (_RepetitionList == null)
+                _RepetitionList = [];
 
             _RepetitionList.Add(field);
         }

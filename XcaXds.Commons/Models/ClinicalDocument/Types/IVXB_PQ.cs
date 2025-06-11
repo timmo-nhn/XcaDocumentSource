@@ -11,9 +11,9 @@ public class IVXB_PQ : PQ
     private bool? _inclusive;
 
     [XmlAttribute("inclusive")]
-    public string? Inclusive 
-    { 
-        get => _inclusive.HasValue ? _inclusive.ToString().ToLowerInvariant() : null; 
-        set => _inclusive = string.IsNullOrEmpty(value) ? null : bool.Parse(value); 
+    public string? Inclusive
+    {
+        get => _inclusive.HasValue ? _inclusive.ToString().ToLowerInvariant() : null;
+        set => _inclusive = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 }

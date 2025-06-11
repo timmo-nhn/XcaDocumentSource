@@ -200,5 +200,5 @@ permitdeny --Permit-->repep
 *Flow-diagram of Policy Enforcement Point*
 
 ## Appsettings.json-file
-The **XcaXds.WebService**-solution has an **appsettings.json**-file (found in `<solution>/XcaXds.WebService/appsettings.json`). The section `XdsConfiguration` defines parameters which are used by the XcaDocumentSource solution as a whole. This also hosts global parameters and settings such as Document size limit and wether to include multipart response when retreiving document.
+The **XcaXds.WebService**-solution has an **appsettings.json**-file (found in `<solution>/XcaXds.WebService/appsettings.json`). The section `XdsConfiguration` defines parameters which are used by the XcaDocumentSource solution as a whole. This also hosts global parameters and settings such as Document size limit and whether to include multipart response when retreiving document.
 The **OIDs** for the **HomecommunityId** and **RepositoryId** is also defined there and can be changed if nescesarry.

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Metrics;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 

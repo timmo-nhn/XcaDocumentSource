@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -583,7 +580,7 @@ namespace Efferent.HL7.V2
 
         public List<Segment> Segments(string segmentName)
         {
-            return getAllSegmentsInOrder().FindAll(o=> o.Name.Equals(segmentName, StringComparison.Ordinal));
+            return getAllSegmentsInOrder().FindAll(o => o.Name.Equals(segmentName, StringComparison.Ordinal));
         }
 
         public Segment DefaultSegment(string segmentName)
@@ -606,24 +603,24 @@ namespace Efferent.HL7.V2
         public void AddSegmentMSH(string sendingApplication, string sendingFacility, string receivingApplication, string receivingFacility,
             string security, string messageType, string messageControlID, string processingID, string version)
         {
-                var dateString = MessageHelper.LongDateWithFractionOfSecond(DateTime.Now);
-                var delim = this.Encoding.FieldDelimiter;
+            var dateString = MessageHelper.LongDateWithFractionOfSecond(DateTime.Now);
+            var delim = this.Encoding.FieldDelimiter;
 
-                string response = "MSH" + this.Encoding.AllDelimiters + delim +
-                    sendingApplication + delim +
-                    sendingFacility + delim +
-                    receivingApplication + delim +
-                    receivingFacility + delim +
-                    this.Encoding.Encode(dateString) + delim +
-                    (security ?? string.Empty) + delim +
-                    messageType + delim +
-                    messageControlID + delim +
-                    processingID + delim +
-                    version + this.Encoding.SegmentDelimiter;
+            string response = "MSH" + this.Encoding.AllDelimiters + delim +
+                sendingApplication + delim +
+                sendingFacility + delim +
+                receivingApplication + delim +
+                receivingFacility + delim +
+                this.Encoding.Encode(dateString) + delim +
+                (security ?? string.Empty) + delim +
+                messageType + delim +
+                messageControlID + delim +
+                processingID + delim +
+                version + this.Encoding.SegmentDelimiter;
 
-                var message = new Message(response);
-                message.ParseMessage();
-                this.AddNewSegment(message.DefaultSegment("MSH"));
+            var message = new Message(response);
+            message.ParseMessage();
+            this.AddNewSegment(message.DefaultSegment("MSH"));
         }
 
         /// <summary>
@@ -918,7 +915,7 @@ namespace Efferent.HL7.V2
             var esc = "\\x" + ((int)this.Encoding.EscapeCharacter).ToString("X2", CultureInfo.InvariantCulture);
             var regex = new Regex(esc + "X([0-9A-Fa-f]*)" + esc);
 
-            for (int i=0; i<message.Length; i++)
+            for (int i = 0; i < message.Length; i++)
             {
                 if (!message[i].Contains(Encoding.EscapeCharacter))
                     continue;
@@ -934,6 +931,6 @@ namespace Efferent.HL7.V2
                         return match.Value;
                 });
             }
-        }        
+        }
     }
 }

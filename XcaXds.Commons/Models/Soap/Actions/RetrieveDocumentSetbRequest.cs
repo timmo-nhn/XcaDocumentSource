@@ -20,12 +20,12 @@ public partial class RetrieveDocumentSetbRequest
     {
     }
 
-    public void AddDocumentRequest (DocumentRequestType documentRequest)
+    public void AddDocumentRequest(DocumentRequestType documentRequest)
     {
         DocumentRequest = DocumentRequest.Append(
-            new DocumentRequestType 
-            { 
-                HomeCommunityId = documentRequest.HomeCommunityId, 
+            new DocumentRequestType
+            {
+                HomeCommunityId = documentRequest.HomeCommunityId,
                 DocumentUniqueId = documentRequest.DocumentUniqueId,
                 RepositoryUniqueId = documentRequest.RepositoryUniqueId,
             }).ToArray();

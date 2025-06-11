@@ -84,7 +84,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti43Action);
                 var iti39Response = await _xcaGateway.RetrieveDocumentSet(soapEnvelope, baseUrl + "/Repository/services/RepositoryService");
                 iti39Response.Value?.SetAction(Constants.Xds.OperationContract.Iti39Reply);
-                
+
                 if (iti39Response.IsSuccess is false)
                 {
                     responseEnvelope = iti39Response.Value;
@@ -103,7 +103,7 @@ public class XdsRespondingGatewayController : ControllerBase
                     return new ContentResult
                     {
                         StatusCode = (int)HttpStatusCode.OK,
-                        Content = responseMessage.Content.ReadAsStringAsync().Result, 
+                        Content = responseMessage.Content.ReadAsStringAsync().Result,
                         ContentType = Constants.MimeTypes.MultipartRelated
                     };
                 }
@@ -119,7 +119,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
         requestTimer.Stop();
         _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
-        
+
         return Ok(responseEnvelope);
     }
 }

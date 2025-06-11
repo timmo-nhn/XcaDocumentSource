@@ -19,7 +19,7 @@ public class SubjectPerson
     [XmlElement("name")]
     public List<PN>? Name { get; set; }
 
-    [XmlElement("desc", Namespace =Constants.Hl7.Namespaces.Hl7Sdtc)]
+    [XmlElement("desc", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public ED? SdtcDesc { get; set; }
 
     [XmlElement("administrativeGenderCode")]
