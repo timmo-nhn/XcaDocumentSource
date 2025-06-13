@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.FeatureManagement;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
+using XcaXds.OpenDipsRegistryRepository.Services;
 using XcaXds.Source.Services;
-using XcaXds.Source.Services.Custom;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -38,8 +39,8 @@ public class Program
             options.ModelBinderProviders.Insert(0, new DocumentEntryDtoModelBinderProvider());
             options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
             options.InputFormatters.Insert(0, new Hl7InputFormatter());
-            options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
-            options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
+            //options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
+            //options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
         })
         .AddXmlSerializerFormatters();
 
@@ -48,7 +49,7 @@ public class Program
         {
             options.InvalidModelStateResponseFactory = actionContext =>
             {
-                return SoapFaultErrorResponseFactory.CreateErrorResponse(actionContext);
+                return ErrorResponseFactory.CreateErrorResponse(actionContext);
             };
         });
 
@@ -72,14 +73,21 @@ public class Program
         builder.Services.AddSingleton<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<CdaTransformerService>();
-        builder.Services.AddSingleton<IRegistry, Registry>();
-        builder.Services.AddSingleton<IRepository, Repository>();
-        builder.Services.AddSingleton<RegistryMetadataTransformerService>();
+        builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
+        builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton(xdsConfig);
 
         // OpenDips service
         builder.Services.AddSingleton<OpenDipsClient>();
         builder.Services.AddSingleton<OpenDipsTokenService>();
+        
+        // Fhir server interfacing service
+        builder.Services.AddSingleton<IFhirEndpointsService, OpenDipsClient>();
+        builder.Services.AddSingleton(provider => 
+        new FhirEndpointsDtoTransformerService(
+            "http://hapi.fhir.org/baseR4",
+            provider.GetService<ILogger<FhirEndpointsDtoTransformerService>>(),
+            provider.GetService<IFhirEndpointsService>()));
 
 
         // REST services

@@ -15,16 +15,14 @@ public class RestfulRegistryRepositoryService
     private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly ILogger<XdsRegistryService> _logger;
-    private readonly RegistryMetadataTransformerService _metadataTransformerService;
     private readonly RepositoryWrapper _repositoryWrapper;
 
-    public RestfulRegistryRepositoryService(ApplicationConfig appConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, RegistryMetadataTransformerService metadataTransformerService, RepositoryWrapper repositoryWrapper)
+    public RestfulRegistryRepositoryService(ApplicationConfig appConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, RepositoryWrapper repositoryWrapper)
     {
         _appConfig = appConfig;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _logger = logger;
-        _metadataTransformerService = metadataTransformerService;
     }
 
     public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status)
@@ -103,6 +101,12 @@ public class RestfulRegistryRepositoryService
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
+
+        if (documentReference.Association == null)
+        {
+            documentReference.Association = CreateAssociationBetweenObjects(documentReference.DocumentEntry, documentReference.SubmissionSet);
+        }
+
         var elementsToBeUploaded = new List<RegistryObjectDto>() { documentReference.DocumentEntry, documentReference.SubmissionSet, documentReference.Association };
 
         if (DuplicateUuidsExist(documentRegistry, elementsToBeUploaded, out var dupliacteIds))
@@ -114,6 +118,20 @@ public class RestfulRegistryRepositoryService
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(elementsToBeUploaded);
 
         return uploadResponse;
+    }
+
+    private AssociationDto CreateAssociationBetweenObjects(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet)
+    {
+        var association = new AssociationDto();
+
+        if (documentEntry != null && submissionSet != null)
+        {
+            association.AssociationType = Constants.Xds.AssociationType.HasMember;
+            association.SourceObject = submissionSet.Id;
+            association.TargetObject = documentEntry.Id;
+        }
+
+        return association;
     }
 
     private bool DuplicateUuidsExist(List<RegistryObjectDto> registryObjectList, List<RegistryObjectDto> submissionRegistryObjects, out string[] duplicateIds)

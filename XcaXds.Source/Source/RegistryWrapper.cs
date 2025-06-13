@@ -1,4 +1,5 @@
 ﻿using XcaXds.Commons;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Services;
@@ -9,13 +10,11 @@ namespace XcaXds.Source.Source;
 public class RegistryWrapper
 {
     internal volatile List<RegistryObjectDto> _jsonDocumentRegistry = null;
-    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
     private readonly IRegistry _documentRegistry;
 
-    public RegistryWrapper(RegistryMetadataTransformerService registryMetadataTransformerService, IRegistry documentRegistry)
+    public RegistryWrapper(IRegistry documentRegistry)
     {
-        _registryMetadataTransformerService = registryMetadataTransformerService;
         _documentRegistry = documentRegistry;
     }
 
@@ -41,7 +40,7 @@ public class RegistryWrapper
     public XmlDocumentRegistry GetDocumentRegistryContentAsRegistryObjects()
     {
         var dtoList = GetDocumentRegistryContentAsDtos();
-        var registryObjs = _registryMetadataTransformerService
+        var registryObjs = RegistryMetadataTransformerService
                 .TransformRegistryObjectDtosToRegistryObjects(dtoList);
 
         return new XmlDocumentRegistry { RegistryObjectList = registryObjs };
@@ -68,7 +67,7 @@ public class RegistryWrapper
     {
         try
         {
-            var dtoList = _registryMetadataTransformerService
+            var dtoList = RegistryMetadataTransformerService
                 .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
 
             SetDocumentRegistryContentWithDtos(dtoList);

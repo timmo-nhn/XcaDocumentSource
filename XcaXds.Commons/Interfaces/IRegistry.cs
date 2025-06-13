@@ -1,6 +1,6 @@
 ﻿using XcaXds.Commons.Models.Custom.DocumentEntry;
 
-namespace XcaXds.Source.Source;
+namespace XcaXds.Commons.Interfaces;
 
 
 public interface IRegistry

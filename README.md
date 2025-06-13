@@ -1,7 +1,7 @@
 # PJD.XcaDocumentSource - XCA Responding Gateway and integrated Document Registry and Repository  
 
-## Introduction
-In the healthcare industry, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely desig|ned to communicate with each other, leading to:
+## Introduction/Getting started
+In the healthcare industry, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely designed to communicate with each other, leading to:
 * Data silos where patient records are confined in local systems
 * Manual, error-prone processes for sharing health information
 * Delayed treatment due to lack of access to complete medical histories  
@@ -41,14 +41,14 @@ subgraph "Actor systems"
   end
 end
 
-nhnxca <--SOAP-Request--> resgw
+nhnxca <--SOAP-Request--> pep
 
 pep<-->pdp
 
-resgw <--> pep
-pep <--> doclist
+pep <--> resgw
+resgw <--> doclist
 
-pep <--> document
+resgw <--> document
 
 doclist <--> docstore
 document <--> docstore
@@ -76,9 +76,6 @@ Covering the SOAP-message format and the XDS profile and transactions involved i
 ### [📨 ITI-messages](/Docs/XdsTransactions.md)
 Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoints, as well as examples.
 
-### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
-Describes the lightweight but expandable implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
-
 ### [💠 OIDs (Object Identifiers)](/Docs/Oids.md)
 OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.
 
@@ -89,6 +86,9 @@ Documentation of the Admin-GUI which also serves as a practical tool for interac
 
 ### [📄 CDA To Registry Metadata](/Docs/CdaRegistryMetadata.md)
 Describes the functionality for converting a CDA document to an ITI-41 message/Registry Metadata and vice-versa.
+
+### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
+Describes the lightweight but expandable implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
 
 
 ## Coding Conventions
@@ -131,7 +131,7 @@ Used when referencing something thats part of an XML SOAP-message
 
 
 ### Normal Quotes  
-Used as an addendum or side-note for a section of text  
+Used as an addendum for a section of text  
 **Example:**  
 >Quote
 

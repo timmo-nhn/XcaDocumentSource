@@ -18,11 +18,8 @@ public static class AssociationExtensions
 
         foreach (var entry in documentEntryToDeprecate)
         {
-            if (entry.Status != Constants.Xds.StatusValues.Deprecated)
-            {
-                entry.Status = Constants.Xds.StatusValues.Deprecated;
-                success = true;
-            }
+            entry.Status = Constants.Xds.StatusValues.Deprecated;
+            success = true;
         }
     }
 }

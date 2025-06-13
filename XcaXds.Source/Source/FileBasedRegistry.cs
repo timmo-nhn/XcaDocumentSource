@@ -1,15 +1,16 @@
 ﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
 
 namespace XcaXds.Source.Source;
 
-public class Registry : IRegistry
+public class FileBasedRegistry : IRegistry
 {
     internal string _registryPath;
     internal string _registryFile;
     private readonly object _lock = new();
 
-    public Registry()
+    public FileBasedRegistry()
     {
         string baseDirectory = AppContext.BaseDirectory;
         _registryPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");

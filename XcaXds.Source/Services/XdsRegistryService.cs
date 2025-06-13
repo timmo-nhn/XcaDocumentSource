@@ -18,12 +18,10 @@ public partial class XdsRegistryService
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly ILogger<XdsRegistryService> _logger;
-    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
 
-    public XdsRegistryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, RegistryMetadataTransformerService registryMetadataTransformerService)
+    public XdsRegistryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
     {
-        _registryMetadataTransformerService = registryMetadataTransformerService;
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
         _logger = logger;
@@ -446,7 +444,7 @@ public partial class XdsRegistryService
     {
         try
         {
-            var dtoList = _registryMetadataTransformerService
+            var dtoList = RegistryMetadataTransformerService
                 .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
 
             _registryWrapper.SetDocumentRegistryContentWithDtos(dtoList);

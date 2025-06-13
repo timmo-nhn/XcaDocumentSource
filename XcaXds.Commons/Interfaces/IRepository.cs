@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Source.Source;
+﻿namespace XcaXds.Commons.Interfaces;
 
 public interface IRepository
 {

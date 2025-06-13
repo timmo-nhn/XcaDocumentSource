@@ -1,7 +1,7 @@
 ﻿using XcaXds.Commons.Models.Custom.DocumentEntry;
-using XcaXds.Source.Source;
+using XcaXds.Commons.Interfaces;
 
-namespace XcaXds.Source.Source.Custom;
+namespace XcaXds.OpenDipsRegistryRepository.Services;
 
 public class OpenDipsRegistry : IRegistry
 {

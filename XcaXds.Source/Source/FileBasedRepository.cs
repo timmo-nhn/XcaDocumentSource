@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XcaXds.Commons.Extensions;
+﻿using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Interfaces;
 
 namespace XcaXds.Source.Source;
 
-public class Repository : IRepository
+public class FileBasedRepository : IRepository
 {
     private readonly ApplicationConfig _appConfig;
     private readonly string _repositoryPath;
     private readonly object _lock = new();
-    public Repository(ApplicationConfig appConfig)
+    public FileBasedRepository(ApplicationConfig appConfig)
     {
         _appConfig = appConfig;
         _repositoryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Repository", _appConfig.RepositoryUniqueId);

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Reflection.Metadata;
+using System.Text.Json.Serialization;
 
 namespace XcaXds.Commons.Models.Custom.DocumentEntry;
 
@@ -8,5 +9,9 @@ namespace XcaXds.Commons.Models.Custom.DocumentEntry;
 [JsonDerivedType(typeof(AssociationDto))]
 public class RegistryObjectDto
 {
+    public RegistryObjectDto()
+    {
+        Id = Guid.NewGuid().ToString();
+    }
     public string Id { get; set; }
 }

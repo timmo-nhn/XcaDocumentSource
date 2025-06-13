@@ -1,8 +1,7 @@
-﻿using Hl7.Fhir.Serialization;
-using Microsoft.AspNetCore.Mvc;
-using System.Web;
+﻿using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
-using XcaXds.Source.Services.Custom;
+using XcaXds.Commons.Services;
+using XcaXds.OpenDipsRegistryRepository.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,26 +13,34 @@ namespace XcaXds.WebService.Controllers
     [ApiController]
     public class OpenDipsController : ControllerBase
     {
-        private readonly OpenDipsClient _openDipsClient;
-        private readonly HttpClient _httpClient;
 
-        public OpenDipsController(OpenDipsClient openDipsClient, HttpClient httpClient)
+        private readonly FhirEndpointsDtoTransformerService _fhirEndpointsDtoTransformerService;
+
+        public OpenDipsController(FhirEndpointsDtoTransformerService fhirEndpointsDtoTransformerService)
         {
-            _httpClient = httpClient;
-            _openDipsClient = openDipsClient;
+            _fhirEndpointsDtoTransformerService = fhirEndpointsDtoTransformerService;
         }
 
         [HttpGet("CreateRandomizedTestDataDocumentEntry")]
         public async Task<IActionResult> CreateRandomizedTestDataDocumentEntry(string apiKey, string patientId = null)
         {
-            // Documentlist
+            var bundleDocumentList = await _fhirEndpointsDtoTransformerService.GetDocumentReference(patientId, apiKey);
 
-            var queryParams = HttpUtility.ParseQueryString(string.Empty);
-            queryParams["Patient.Identifier"] = patientId;
+            var externalIdentifiers = _fhirEndpointsDtoTransformerService.GetResourceIdentifiersFromDocumentEntries(bundleDocumentList);
 
-            var responseContent = _openDipsClient.CallApiAsync("https://api.dips.no/fhir/DocumentReference?" + queryParams.ToString());
+            foreach (var resourceId in externalIdentifiers)
+            {
+                var resource = await _fhirEndpointsDtoTransformerService.GetResource(resourceId, apiKey);
+                _fhirEndpointsDtoTransformerService.AddResource(resource);
+            }
 
-            var fhirSerializer = new FhirJsonSerializer();
+
+            var registryObjects = new List<RegistryObjectDto>();
+
+            foreach (var documentReferenec in bundleDocumentList.Entry)
+            {
+                registryObjects.AddRange(FhirTransformerService.TransformFhirResourceToRegistryObjectDto(documentReferenec));
+            }
 
 
             var documententry = new DocumentReferenceDto()

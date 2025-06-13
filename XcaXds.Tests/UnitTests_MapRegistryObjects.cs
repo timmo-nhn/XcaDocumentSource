@@ -1,6 +1,7 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Services;
 
 namespace XcaXds.Tests;
@@ -22,14 +23,13 @@ public class UnitTests_MapRegistryObjects
         try
         {
             var documentEntryDto = new DocumentReferenceDto();
-            var regmetaserv = new RegistryMetadataTransformerService();
 
             var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
 
 
-            var documentReference = regmetaserv.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.ToList());
+            var documentReference = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.ToList());
 
-            var registryObjects = regmetaserv.TransformRegistryObjectDtosToRegistryObjects(documentReference);
+            var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(documentReference);
 
             var outputSoap = new SoapEnvelope()
             {
@@ -55,7 +55,6 @@ public class UnitTests_MapRegistryObjects
     [Fact]
     public async Task MapEbRimRegistryObjectsRegistryToJsonDtoRegistry()
     {
-        var rmts = new RegistryMetadataTransformerService();
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
         var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
@@ -66,7 +65,7 @@ public class UnitTests_MapRegistryObjects
         var registryContent = await sxmls.DeserializeSoapMessageAsync<XmlDocumentRegistry>(content);
 
 
-        var documentDtoEntries = rmts.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
+        var documentDtoEntries = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
 
         var jsonRegistry = RegistryJsonSerializer.Serialize(documentDtoEntries);
 

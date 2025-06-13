@@ -6,11 +6,13 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.WebService", "XcaXds.WebService\XcaXds.WebService.csproj", "{ADEF8203-9FA8-4F44-8DF6-E07F9CC9A007}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B002DEEA-37E0-458F-A553-8FCA8994ECCF} = {B002DEEA-37E0-458F-A553-8FCA8994ECCF}
+		{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785} = {B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Source", "XcaXds.Source\XcaXds.Source.csproj", "{B002DEEA-37E0-458F-A553-8FCA8994ECCF}"
 	ProjectSection(ProjectDependencies) = postProject
+		{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785} = {B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
 	EndProjectSection
 EndProject
@@ -25,6 +27,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Tests", "XcaXds.Test
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Frontend", "XcaXds.Frontend\XcaXds.Frontend.csproj", "{9C18D988-5621-487A-901B-4AC247E62CD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.OpenDipsRegistryRepository", "XcaXds.OpenDipsRegistryRepository\XcaXds.OpenDipsRegistryRepository.csproj", "{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
 	EndProjectSection
@@ -55,6 +62,10 @@ Global
 		{9C18D988-5621-487A-901B-4AC247E62CD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C18D988-5621-487A-901B-4AC247E62CD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C18D988-5621-487A-901B-4AC247E62CD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
