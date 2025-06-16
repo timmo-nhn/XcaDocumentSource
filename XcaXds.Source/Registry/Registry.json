@@ -19,7 +19,6 @@
         "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
       }
     },
-    "Id": "RegistryPackage01",
     "PatientId": {
       "Code": "13116900216",
       "CodeSystem": "2.16.578.1.12.4.1.7.3.2.1"
@@ -27,7 +26,8 @@
     "SubmissionTime": "2025-02-06T14:13:56",
     "Title": "SubmissionSet-RegistryPackage01",
     "UniqueId": "2.16.578.1.12.4.5.7.4.87227.6270.1793",
-    "SourceId": "1.2.840.4711.815.1"
+    "SourceId": "1.2.840.4711.815.1",
+    "Id": "RegistryPackage01"
   },
   {
     "$type": "DocumentEntryDto",
@@ -73,7 +73,6 @@
       "DisplayName": "86.211"
     },
     "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "Id": "ExtrinsicObject01",
     "LanguageCode": "nb-NO",
     "MimeType": "application/xml",
     "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
@@ -106,7 +105,8 @@
       "CodeSystem": "2.16.578.1.12.4.1.1.9602",
       "DisplayName": "Kriseplan"
     },
-    "UniqueId": "ExtrinsicObject01"
+    "UniqueId": "ExtrinsicObject01",
+    "Id": "ExtrinsicObject01"
   },
   {
     "$type": "AssociationDto",
@@ -158,7 +158,6 @@
       "DisplayName": "Outpatient"
     },
     "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "Id": "ExtrinsicObject02",
     "LanguageCode": "en-us",
     "MimeType": "text/xml",
     "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
@@ -191,7 +190,8 @@
       "CodeSystem": "LOINC",
       "DisplayName": "Outpatient Evaluation And Management"
     },
-    "UniqueId": "1.3.6.1.4.1.21367.2005.3.9999.32"
+    "UniqueId": "1.3.6.1.4.1.21367.2005.3.9999.32",
+    "Id": "ExtrinsicObject02"
   },
   {
     "$type": "SubmissionSetDto",
@@ -212,7 +212,6 @@
         "Code": "Orthopedic"
       }
     },
-    "Id": "SubmissionSet02",
     "PatientId": {
       "Code": "SELF-5",
       "CodeSystem": "1.3.6.1.4.1.21367.2005.3.7"
@@ -220,7 +219,8 @@
     "SubmissionTime": "2004-12-25T23:50:50",
     "Title": "Physical",
     "UniqueId": "1.3.6.1.4.1.21367.2005.3.9999.33",
-    "SourceId": "3670984664"
+    "SourceId": "3670984664",
+    "Id": "SubmissionSet02"
   },
   {
     "$type": "AssociationDto",
@@ -232,7 +232,6 @@
   },
   {
     "$type": "SubmissionSetDto",
-    "Id": "diom_registryPackage01",
     "PatientId": {
       "Code": "13116900216",
       "CodeSystem": "2.16.578.1.12.4.1.4.1"
@@ -240,7 +239,8 @@
     "SubmissionTime": "2024-05-14T03:30:38",
     "Title": "diom_registryPackage01",
     "UniqueId": "diom_registryPackage01",
-    "SourceId": "1.2.840.4711.815.1"
+    "SourceId": "1.2.840.4711.815.1",
+    "Id": "diom_registryPackage01"
   },
   {
     "$type": "DocumentEntryDto",
@@ -278,7 +278,6 @@
       "CodeSystem": "2.16.578.1.12.4.1.1.1303"
     },
     "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "Id": "diom_extrinsicObject01",
     "LanguageCode": "nb-NO",
     "MimeType": "application/pdf",
     "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
@@ -309,7 +308,8 @@
       "Code": "A03-2",
       "CodeSystem": "2.16.578.1.12.4.1.1.9602"
     },
-    "UniqueId": "extrinsicObjectDocument01"
+    "UniqueId": "extrinsicObjectDocument01",
+    "Id": "diom_extrinsicObject01"
   },
   {
     "$type": "AssociationDto",
@@ -322,38 +322,38 @@
   {
     "$type": "SubmissionSetDto",
     "Author": {},
-    "Id": "RegistryPackageFolder01",
     "PatientId": {
       "Code": "SELF-5",
       "CodeSystem": "1.3.6.1.4.1.21367.2005.3.7"
     },
     "SubmissionTime": "2004-12-25T23:50:50",
     "Title": "Physical",
-    "SourceId": "3670984664"
+    "SourceId": "3670984664",
+    "Id": "RegistryPackageFolder01"
   },
   {
     "$type": "SubmissionSetDto",
     "AvailabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "Id": "FT_RegistryPackageFolder01",
-    "Title": "XDS Folder 1"
+    "Title": "XDS Folder 1",
+    "Id": "FT_RegistryPackageFolder01"
   },
   {
     "$type": "SubmissionSetDto",
-    "Id": "FT_SubmissionSet01",
     "PatientId": {},
     "SubmissionTime": "2025-03-10T10:13:46",
     "Title": "XDS Submission Set",
     "UniqueId": "1.3.6.1.4.1.12559.11.1.2.2.1.1.4.165057",
-    "SourceId": "1.3.6.1.4.1.21367.2012.2.1.1"
+    "SourceId": "1.3.6.1.4.1.21367.2012.2.1.1",
+    "Id": "FT_SubmissionSet01"
   },
   {
     "$type": "SubmissionSetDto",
-    "Id": "FT_SubmissionSet02",
     "PatientId": {},
     "SubmissionTime": "2025-03-10T10:13:46",
     "Title": "XDS Submission Set",
     "UniqueId": "1.3.6.1.4.1.12559.11.1.2.2.1.1.4.165057",
-    "SourceId": "1.3.6.1.4.1.21367.2012.2.1.1"
+    "SourceId": "1.3.6.1.4.1.21367.2012.2.1.1",
+    "Id": "FT_SubmissionSet02"
   },
   {
     "$type": "DocumentEntryDto",
@@ -362,7 +362,6 @@
     "FormatCode": {
       "Code": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
     },
-    "Id": "FT_DocumentEntry01",
     "LanguageCode": "en-us",
     "MimeType": "application/octet-stream",
     "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
@@ -371,7 +370,8 @@
       "CodeSystem": "2.16.578.1.12.4.1.7.3.2.1"
     },
     "Title": "XDSDocument Entry 1",
-    "UniqueId": "1.3.6.1.4.1.12559.11.11.9.1.165059"
+    "UniqueId": "1.3.6.1.4.1.12559.11.11.9.1.165059",
+    "Id": "FT_DocumentEntry01"
   },
   {
     "$type": "DocumentEntryDto",
@@ -380,13 +380,13 @@
     "FormatCode": {
       "Code": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
     },
-    "Id": "FT_DocumentEntry02",
     "LanguageCode": "en-us",
     "MimeType": "application/octet-stream",
     "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
     "PatientId": {},
     "Title": "XDSDocument Entry 1",
-    "UniqueId": "1.3.6.1.4.1.12559.11.11.9.1.165059"
+    "UniqueId": "1.3.6.1.4.1.12559.11.11.9.1.165059",
+    "Id": "FT_DocumentEntry02"
   },
   {
     "$type": "AssociationDto",
@@ -463,7 +463,6 @@
       "DisplayName": "Outpatient"
     },
     "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "Id": "Document01",
     "LanguageCode": "en-us",
     "MimeType": "text/plain",
     "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
@@ -496,7 +495,8 @@
       "CodeSystem": "LOINC",
       "DisplayName": "Outpatient Evaluation And Management"
     },
-    "UniqueId": "1.2009.9.1.2455"
+    "UniqueId": "1.2009.9.1.2455",
+    "Id": "Document01"
   },
   {
     "$type": "SubmissionSetDto",
@@ -517,7 +517,6 @@
         "Code": "Orthopedic"
       }
     },
-    "Id": "SubmissionSet01",
     "PatientId": {
       "Code": "76cc765a442f410",
       "CodeSystem": "1.3.6.1.4.1.21367.2005.3.7"
@@ -525,7 +524,8 @@
     "SubmissionTime": "2004-12-25T23:50:50",
     "Title": "Physical",
     "UniqueId": "1.2009.9.1.2456",
-    "SourceId": "1.3.6.1.4.1.21367.2009.1.2.1"
+    "SourceId": "1.3.6.1.4.1.21367.2009.1.2.1",
+    "Id": "SubmissionSet01"
   },
   {
     "$type": "AssociationDto",
@@ -577,7 +577,6 @@
       "DisplayName": "Outpatient"
     },
     "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "Id": "ExtrinsicObject_Document001",
     "LanguageCode": "en-us",
     "MimeType": "text/plain",
     "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
@@ -610,7 +609,8 @@
       "CodeSystem": "LOINC",
       "DisplayName": "Outpatient Evaluation And Management"
     },
-    "UniqueId": "1.2009.9.1.2455"
+    "UniqueId": "1.2009.9.1.2455",
+    "Id": "ExtrinsicObject_Document001"
   },
   {
     "$type": "SubmissionSetDto",
@@ -631,7 +631,6 @@
         "Code": "Orthopedic Replace document"
       }
     },
-    "Id": "RegistryPackage_SubmissionSet01",
     "PatientId": {
       "Code": "76cc765a442f410",
       "CodeSystem": "1.3.6.1.4.1.21367.2005.3.7"
@@ -639,7 +638,8 @@
     "SubmissionTime": "2004-12-25T23:50:50",
     "Title": "Physical",
     "UniqueId": "1.2009.9.1.2456",
-    "SourceId": "1.3.6.1.4.1.21367.2009.1.2.1"
+    "SourceId": "1.3.6.1.4.1.21367.2009.1.2.1",
+    "Id": "RegistryPackage_SubmissionSet01"
   },
   {
     "$type": "AssociationDto",
@@ -656,5 +656,157 @@
     "SubmissionSetStatus": "Original",
     "TargetObject": "Document01",
     "Id": "AssociationReplace001"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "Author": {
+      "Organization": {
+        "Id": "string",
+        "OrganizationName": "string",
+        "AssigningAuthority": "string"
+      },
+      "Department": {
+        "Id": "string",
+        "OrganizationName": "string",
+        "AssigningAuthority": "string"
+      },
+      "Person": {
+        "Id": "string",
+        "FirstName": "string",
+        "LastName": "string",
+        "AssigningAuthority": "string"
+      },
+      "Role": {
+        "Code": "string",
+        "CodeSystem": "string",
+        "DisplayName": "string"
+      },
+      "Speciality": {
+        "Code": "string",
+        "CodeSystem": "string",
+        "DisplayName": "string"
+      }
+    },
+    "AvailabilityStatus": "string",
+    "ClassCode": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "ConfidentialityCode": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "CreationTime": "2025-06-13T10:31:04.555Z",
+    "EventCodeList": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "FormatCode": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "Hash": "string",
+    "HealthCareFacilityTypeCode": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "HomeCommunityId": "string",
+    "LanguageCode": "string",
+    "LegalAuthenticator": {
+      "Id": "string",
+      "IdSystem": "string",
+      "GivenName": "string",
+      "FamilyName": "string"
+    },
+    "MimeType": "string",
+    "ObjectType": "string",
+    "PatientId": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "PracticeSettingCode": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "RepositoryUniqueId": "string",
+    "Size": "string",
+    "ServiceStartTime": "2025-06-13T10:31:04.555Z",
+    "ServiceStopTime": "2025-06-13T10:31:04.555Z",
+    "SourcePatientInfo": {
+      "PatientId": {
+        "Id": "string",
+        "System": "string"
+      },
+      "GivenName": "string",
+      "FamilyName": "string",
+      "BirthTime": "2025-06-13T10:31:04.555Z",
+      "Gender": "string"
+    },
+    "Title": "string",
+    "TypeCode": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "UniqueId": "string",
+    "Id": "documentEntry"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "Author": {
+      "Organization": {
+        "Id": "string",
+        "OrganizationName": "string",
+        "AssigningAuthority": "string"
+      },
+      "Department": {
+        "Id": "string",
+        "OrganizationName": "string",
+        "AssigningAuthority": "string"
+      },
+      "Person": {
+        "Id": "string",
+        "FirstName": "string",
+        "LastName": "string",
+        "AssigningAuthority": "string"
+      },
+      "Role": {
+        "Code": "string",
+        "CodeSystem": "string",
+        "DisplayName": "string"
+      },
+      "Speciality": {
+        "Code": "string",
+        "CodeSystem": "string",
+        "DisplayName": "string"
+      }
+    },
+    "AvailabilityStatus": "string",
+    "HomeCommunityId": "string",
+    "PatientId": {
+      "Code": "string",
+      "CodeSystem": "string",
+      "DisplayName": "string"
+    },
+    "SubmissionTime": "2025-06-13T10:31:04.555Z",
+    "Title": "string",
+    "UniqueId": "string",
+    "SourceId": "string",
+    "Id": "submissionSet"
+  },
+  {
+    "$type": "AssociationDto",
+    "AssociationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "SourceObject": "submissionSet",
+    "SubmissionSetStatus": "Current",
+    "TargetObject": "documentEntry",
+    "Id": "fd5a8681-99fa-40cd-b3f2-5d10b244589f"
   }
 ]

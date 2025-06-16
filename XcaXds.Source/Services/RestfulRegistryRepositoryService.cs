@@ -101,7 +101,6 @@ public class RestfulRegistryRepositoryService
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-
         if (documentReference.Association == null)
         {
             documentReference.Association = CreateAssociationBetweenObjects(documentReference.DocumentEntry, documentReference.SubmissionSet);
@@ -129,6 +128,7 @@ public class RestfulRegistryRepositoryService
             association.AssociationType = Constants.Xds.AssociationType.HasMember;
             association.SourceObject = submissionSet.Id;
             association.TargetObject = documentEntry.Id;
+            association.SubmissionSetStatus = "Current";
         }
 
         return association;
