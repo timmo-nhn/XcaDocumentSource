@@ -68,12 +68,10 @@ public partial class XdsRegistryService
         // list spread to combine both lists
         documentRegistry.RegistryObjectList = [.. documentRegistry.RegistryObjectList, .. submissionRegistryObjects];
 
-        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromXml(documentRegistry);
+        var registryUpdateResult = _registryWrapper.SetDocumentRegistryFromXml(documentRegistry);
 
         if (registryUpdateResult.IsSuccess)
         {
-            documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
-
             registryResponse.EvaluateStatusCode();
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }

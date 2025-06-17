@@ -99,11 +99,35 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateDocument(string id, [FromBody] DocumentReferenceDto value)
+    public async Task<IActionResult> UpdateDocument([FromBody] DocumentReferenceDto documentReference)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Update")) return NotFound();
 
-        _restfulRegistryService.UpdateDocumentMetadata(value);
+        var requestTimer = Stopwatch.StartNew();
+
+        var updateResponse = _restfulRegistryService.UpdateDocumentMetadata(documentReference);
+
+        requestTimer.Stop();
+
+        if (updateResponse.Success)
+        {
+            _logger.LogInformation($"Successfully updated document and metadata in {requestTimer.ElapsedMilliseconds} ms");
+            return Ok(updateResponse);
+        }
+
+        return BadRequest(updateResponse);
+    }
+
+    [HttpPatch("patch")]
+    public async Task<IActionResult> PatchDocument([FromBody] DocumentReferenceDto documentReference)
+    {
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Update")) return NotFound();
+
+        var requestTimer = Stopwatch.StartNew();
+
+        _restfulRegistryService.PartiallyUpdateDocumentMetadata(documentReference);
+
+        requestTimer.Stop();
 
         return Ok("ok");
     }
@@ -113,7 +137,12 @@ public class RestfulRegistryRepositoryController : ControllerBase
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
 
+        var requestTimer = Stopwatch.StartNew();
+
         _restfulRegistryService.DeleteDocumentAndMetadata(id);
+
+        requestTimer.Stop();
+
         return Ok("ok");
     }
 }

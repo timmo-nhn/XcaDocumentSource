@@ -8,10 +8,11 @@ A RegistryService is registered with Dependency Injection (DI), which holds an i
 
 ## IDocumentRegistry/IRepository
 The IDocumentRegistry and IRepository (at `<solution>/XcaXds.Source/Services/`) are the actual Registry/Repository Implementation. The base implementation is file-based.  
-When an implementer wants to connect XcaDocumentSource to an existing Registry/Repostiory solution, it should theoretically be nescesarry to create a new implementation of the IDocumentRegistry and/or IRepository-interfaces, and plug them into the implementation defined in the `Program.cs` of `XcaXds.WebService`-solution. Note that further modifications may be nescesarry.  
-
 The documents are stored in a folder named after the Repository-Id OID (Object Identifier) as defined in the **appsettings.json**-file and is created automatically when a document is first uploaded.  
 The unique ID of the document is represented as the file-system name of the file.
+  
+When an implementer wants to connect XcaDocumentSource to an existing Registry/Repostiory solution, it should theoretically be nescesarry to create a new implementation of the IDocumentRegistry and/or IRepository-interfaces, and plug them into the implementation defined in the `Program.cs` of `XcaXds.WebService`-solution. Note that further modifications may be nescesarry.  
+
 
 
 ## Base architecture

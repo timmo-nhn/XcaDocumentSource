@@ -10,10 +10,11 @@ This lack of interoperability results in documents having to be shared via manua
 
 **XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as hospitals and municipalities to share patient health records across organizational and technical boundaries by handling the SOAP-implementation, and allowing the implementer to easily modify the solution to for integrating between **XcaDocumentSource** and their own systems.  
 The implementation is based around the IHE integration profiles based on **XDS** and **XCA** provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context, aswell as **HL7** and **XACML**:
+
 * XDS.b (Cross-Enterprise Document Sharing) – for registering and retrieving clinical documents
 * XCA (Cross-Community Access) Responding Gateway – for querying and retrieving documents from NHN's XCA  
 * HL7 (Health Level 7) version 2 - for some queries related to patient identity
-* PEP (Policy Enforcement Point) - for access control
+* PEP (Policy Enforcement Point) - for access control (XACML-implementation)
 
 ### Technical overview
 ```mermaid
@@ -58,13 +59,13 @@ document <--> docstore
 
 ## Solution Documentation
 
-### [📝 Use case scenarios - PJD.XcaDocumentSource](/Docs/UseCases.md)
-Scenarios of PJD.XcaDocumentSource in a source system.
-
 ### [🌐 Document Sharing overiew - Actors and Components](/Docs/Overview.md)
 Describes the high-level principles of document sharing, and the components involved in the process.
 
-### [⚙️ Technical implementation details](/Docs/TechnicalImplementation.md)
+### [📝 Use case scenarios - PJD.XcaDocumentSource](/Docs/UseCases.md)
+Scenarios of PJD.XcaDocumentSource in a source system.
+
+### [⚙️ Solution Overview/Technical implementation details](/Docs/TechnicalImplementation.md)
 How **PJD.XcaDocumentSource** solution is structured, and how it can be implemented in a source system, taking in account existing document registries/repositories, and PAP/PDP/PR systems.
 
 ### [📜 Custom Registry Format](/Docs/RegistryDto.md)
@@ -73,8 +74,15 @@ Describes the custom Registry format which is used to store document entries.
 ### [🧾 (ebRIM) Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
 Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
 
-### [📨 ITI-messages](/Docs/XdsTransactions.md)
+## Interacting With the Document Registry/Repository
+
+### [📨 SOAP-endpoints/ITI-messages (SOAP-transactions)](/Docs/XdsTransactions.md)
 Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoints, as well as examples.
+
+### [👩‍💻 REST-endpoints (CRUD-transactions)](/Docs/RestTransactions.md)
+Describes the REST-endpoints of the solution, allowing for quick and easy CRUD-operations on the Document Registry and Repository.
+
+### Governing the solution
 
 ### [💠 OIDs (Object Identifiers)](/Docs/Oids.md)
 OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.

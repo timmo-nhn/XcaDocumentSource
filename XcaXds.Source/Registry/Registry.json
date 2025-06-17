@@ -661,14 +661,9 @@
     "$type": "DocumentEntryDto",
     "Author": {
       "Organization": {
-        "Id": "string",
-        "OrganizationName": "string",
-        "AssigningAuthority": "string"
-      },
-      "Department": {
-        "Id": "string",
-        "OrganizationName": "string",
-        "AssigningAuthority": "string"
+        "Id": "asddsadsa",
+        "OrganizationName": "asdsadads",
+        "AssigningAuthority": "dsadsadsadsa"
       },
       "Person": {
         "Id": "string",
@@ -698,7 +693,7 @@
       "CodeSystem": "string",
       "DisplayName": "string"
     },
-    "CreationTime": "2025-06-13T10:31:04.555Z",
+    "CreationTime": "2025-06-16T10:59:32.887Z",
     "EventCodeList": {
       "Code": "string",
       "CodeSystem": "string",
@@ -737,8 +732,8 @@
     },
     "RepositoryUniqueId": "string",
     "Size": "string",
-    "ServiceStartTime": "2025-06-13T10:31:04.555Z",
-    "ServiceStopTime": "2025-06-13T10:31:04.555Z",
+    "ServiceStartTime": "2025-06-16T10:59:32.887Z",
+    "ServiceStopTime": "2025-06-16T10:59:32.887Z",
     "SourcePatientInfo": {
       "PatientId": {
         "Id": "string",
@@ -746,7 +741,7 @@
       },
       "GivenName": "string",
       "FamilyName": "string",
-      "BirthTime": "2025-06-13T10:31:04.555Z",
+      "BirthTime": "2025-06-16T10:59:32.887Z",
       "Gender": "string"
     },
     "Title": "string",

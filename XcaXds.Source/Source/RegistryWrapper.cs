@@ -63,7 +63,7 @@ public class RegistryWrapper
         return true;
     }
 
-    public SoapRequestResult<string> UpdateDocumentRegistryFromXml(XmlDocumentRegistry xml)
+    public SoapRequestResult<string> SetDocumentRegistryFromXml(XmlDocumentRegistry xml)
     {
         try
         {
@@ -71,6 +71,23 @@ public class RegistryWrapper
                 .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
 
             SetDocumentRegistryContentWithDtos(dtoList);
+
+            return new SoapRequestResult<string>().Success("Updated OK");
+        }
+        catch (Exception ex)
+        {
+            return new SoapRequestResult<string>().Fault($"Error updating registry: {ex.Message}");
+        }
+    }
+
+    public SoapRequestResult<string> UpdateDocumentRegistryFromXml(XmlDocumentRegistry xml)
+    {
+        try
+        {
+            var dtoList = RegistryMetadataTransformerService
+                .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
+
+            UpdateDocumentRegistryContentWithDtos(dtoList);
 
             return new SoapRequestResult<string>().Success("Updated OK");
         }

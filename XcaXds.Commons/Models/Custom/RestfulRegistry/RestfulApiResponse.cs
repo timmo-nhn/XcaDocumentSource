@@ -7,6 +7,7 @@ public class RestfulApiResponse
 
     public List<Error> Errors { get; set; }
 
+    public string Message { get; set; }
 
     public void AddError(string code, string message)
     {
@@ -18,6 +19,11 @@ public class RestfulApiResponse
             Message = string.IsNullOrWhiteSpace(message) ? null : message
 
         });
+    }
+
+    public void SetMessage(string message)
+    {
+        Message = message;
     }
 }
 

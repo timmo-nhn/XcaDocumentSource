@@ -24,6 +24,7 @@ public class XdsRepositoryController : ControllerBase
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
+
     public XdsRepositoryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
     {
         _logger = logger;

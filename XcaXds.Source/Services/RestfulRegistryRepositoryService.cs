@@ -1,12 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Reflection;
+using Hl7.Fhir.Model;
+using Microsoft.Extensions.Logging;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DocumentEntry;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Source;
+using static XcaXds.Commons.Constants.Xds.Uuids;
 
 namespace XcaXds.Source.Services;
 
@@ -31,7 +34,7 @@ public class RestfulRegistryRepositoryService
 
         if (string.IsNullOrWhiteSpace(patientId))
         {
-            documentListResponse.AddError("RequiredParameterMissing", "Parameter 'id' is required.");
+            documentListResponse.AddError("MissingParameter", "Parameter 'id' is required.");
             return documentListResponse;
         }
 
@@ -39,7 +42,7 @@ public class RestfulRegistryRepositoryService
 
         if (!string.IsNullOrWhiteSpace(status) && !allowedStatuses.Contains(status))
         {
-            documentListResponse.AddError("RequiredParameterMissing", @$"Status must be one of ""Approved"" or ""Deprecated"", got {status}.");
+            documentListResponse.AddError("MissingParameter", @$"Status must be one of ""approved"" or ""deprecated"", got {status}.");
             return documentListResponse;
 
         }
@@ -54,7 +57,8 @@ public class RestfulRegistryRepositoryService
 
         var patientDocumentReferences = documentRegistry
             .OfType<DocumentEntryDto>()
-            .ByDocumentEntryPatientId(patientIdCx);
+            .ByDocumentEntryPatientId(patientIdCx)
+            .ByDocumentEntryStatus(status);
 
         documentListResponse.DocumentListEntries = patientDocumentReferences
             .Select(dr => new DocumentListEntry()
@@ -77,7 +81,7 @@ public class RestfulRegistryRepositoryService
 
         if (string.IsNullOrWhiteSpace(home) || string.IsNullOrWhiteSpace(repository) || string.IsNullOrWhiteSpace(document))
         {
-            documentResponse.AddError("RequiredParameterMissing", "Parameters homecommunity_id, repository_id, document_id are required.");
+            documentResponse.AddError("MissingParameter", "Parameters homecommunity_id, repository_id, document_id are required.");
             return documentResponse;
         }
 
@@ -114,24 +118,78 @@ public class RestfulRegistryRepositoryService
             return uploadResponse;
         }
 
+        if (documentReference.Document != null)
+        {
+            _repositoryWrapper.StoreDocument(documentReference.Document.DocumentId, documentReference.Document.Data, documentReference.DocumentEntry.PatientId.Code);
+
+        }
+
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(elementsToBeUploaded);
 
         return uploadResponse;
     }
 
-    private AssociationDto CreateAssociationBetweenObjects(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet)
+    public UpdateResponse UpdateDocumentMetadata(DocumentReferenceDto documentReference)
     {
-        var association = new AssociationDto();
+        var updateResponse = new UpdateResponse();
 
-        if (documentEntry != null && submissionSet != null)
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var documentEntryToBeReplaced = documentRegistry
+            .OfType<DocumentEntryDto>()
+            .Where(ss => ss.Id == documentReference.DocumentEntry?.Id).FirstOrDefault();
+
+        documentRegistry = documentRegistry.Replace(documentEntryToBeReplaced, documentReference.DocumentEntry).ToList();
+
+        var submissionSetToBeReplaced = documentRegistry
+            .OfType<SubmissionSetDto>()
+            .Where(ss => ss.Id == documentReference.SubmissionSet?.Id).FirstOrDefault();
+        documentRegistry = documentRegistry.Replace(submissionSetToBeReplaced, documentReference.SubmissionSet).ToList();
+
+        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
+
+        if (documentReference.Document != null && documentReference.Document.Data.Length != 0)
         {
-            association.AssociationType = Constants.Xds.AssociationType.HasMember;
-            association.SourceObject = submissionSet.Id;
-            association.TargetObject = documentEntry.Id;
-            association.SubmissionSetStatus = "Current";
+            var storeResult = _repositoryWrapper.StoreDocument(documentReference.Document.DocumentId, documentReference.Document.Data, documentReference.DocumentEntry.PatientId.Code);
+            if (storeResult == false)
+            {
+                updateResponse.AddError("UploadError", "Error while uploading document");
+            }
         }
 
-        return association;
+        return updateResponse;
+    }
+
+    public RestfulApiResponse DeleteDocumentAndMetadata(string id)
+    {
+        var apiResponse = new RestfulApiResponse();
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        
+        var count = documentRegistry.RemoveAll(x => x.Id == id);
+
+        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
+        
+        apiResponse.SetMessage($"Successfully removed {count} documents");
+
+        return apiResponse;
+    }
+
+    public RestfulApiResponse PartiallyUpdateDocumentMetadata(DocumentReferenceDto value)
+    {
+        var patchResponse = new RestfulApiResponse();
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var submissionSetToPatch = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ro => ro.Id == value.SubmissionSet?.Id);
+        var documentEntryToPatch = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == value.DocumentEntry?.Id);
+        var associationToPatch = documentRegistry.OfType<AssociationDto>().FirstOrDefault(ro => ro.Id == value.Association?.Id);
+
+
+        MergeObjects(submissionSetToPatch, value.SubmissionSet);
+        MergeObjects(documentEntryToPatch, value.DocumentEntry);
+        MergeObjects(associationToPatch, value.Association);
+
+
+        return patchResponse;
     }
 
     private bool DuplicateUuidsExist(List<RegistryObjectDto> registryObjectList, List<RegistryObjectDto> submissionRegistryObjects, out string[] duplicateIds)
@@ -150,13 +208,51 @@ public class RestfulRegistryRepositoryService
         return duplicateIds.Length > 0;
     }
 
-    public void UpdateDocumentMetadata(DocumentReferenceDto value)
+    private AssociationDto CreateAssociationBetweenObjects(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet)
     {
-        throw new NotImplementedException();
+        var association = new AssociationDto();
+
+        if (documentEntry != null && submissionSet != null)
+        {
+            association.AssociationType = Constants.Xds.AssociationType.HasMember;
+            association.SourceObject = submissionSet.Id;
+            association.TargetObject = documentEntry.Id;
+            association.SubmissionSetStatus = "Current";
+        }
+
+        return association;
     }
 
-    public void DeleteDocumentAndMetadata(object value)
+    public void MergeObjects<T>(T source, T target)
     {
-        throw new NotImplementedException();
+        if (source == null || target == null) return;
+
+        var props = source.GetType().GetProperties();
+
+        foreach (var property in props)
+        {
+            var sourceValue = property.GetValue(source);
+            var targetValue = property.GetValue(target);
+
+            if (sourceValue == null)
+                continue;
+
+            if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
+            {
+                if (targetValue == null)
+                {
+                    targetValue = Activator.CreateInstance(property.PropertyType);
+                    property.SetValue(target, targetValue);
+                }
+
+                MergeObjects(sourceValue, targetValue);
+            }
+            else
+            {
+                property.SetValue(source, targetValue);
+            }
+        }
     }
+
+
 }

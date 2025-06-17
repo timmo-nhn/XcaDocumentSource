@@ -63,6 +63,8 @@ public class XdsRespondingGatewayController : ControllerBase
 
 
             case Constants.Xds.OperationContract.Iti38Action:
+                if (!await _featureManager.IsEnabledAsync("Iti38CrossGatewayQuery")) return NotFound();
+
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
                 var iti38Response = await _xcaGateway.RegistryStoredQuery(soapEnvelope, baseUrl + "/Registry/services/RegistryService");
@@ -80,6 +82,8 @@ public class XdsRespondingGatewayController : ControllerBase
 
 
             case Constants.Xds.OperationContract.Iti39Action:
+                if (!await _featureManager.IsEnabledAsync("Iti39CrossGatewayRetrieve")) return NotFound();
+
                 // Only change from ITI-39 to ITI-43 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti43Action);
                 var iti39Response = await _xcaGateway.RetrieveDocumentSet(soapEnvelope, baseUrl + "/Repository/services/RepositoryService");

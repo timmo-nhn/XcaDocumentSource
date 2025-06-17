@@ -11,11 +11,11 @@ For more info on ebRIM types, see [SOAP-Message and SOAP-message formats](/Docs/
 
 The classes defining the structure are found in `<Solution>/XcaXds.Commons/Models/DocumentReferenceDto`. 
 
-### Transformer service
-A service layer for the DTOs exist, allowing for the format to be transformed to and from ebRIM XML-types. The service can be injected in a class using Dependency Injection.
+### Transforming between DTOs and ebRIM objects
+Functions exist to translate the DTOs between DTO and ebRIM-types. It can be found in the `RegistryMetadataTransformerService`-class. 
 
 ## Mapping Table (Custom classes to ebRIM/IHE XDS Metadata)
-Fields are mandatory or not according to the optionality of the ebRIM metadata, all properties have a 1:1 cardinality.  
+Fields are required according to the optionality of the ebRIM metadata, all properties have a 1:1 cardinality.  
 For more info on metadata, see [IHE XDS metadata - git.sarepta.ehelse.no ↗](https://git.sarepta.ehelse.no/publisert/standarder/raw/master/kravdokument/IHS_XDS_metadata/HIS%201169_2016%20IHE%20XDS%20metadata%20-oppdatert.pdf)
 
 ```mermaid
@@ -397,26 +397,26 @@ Maps to `<RegistryPackage>` in ebRIM, including nested `<Classification>`, `<Slo
 {
 "Author": {
     "Organization": {
-    "Id": "",
-    "OrganizationName": "Berea Community",
-    "AssigningAuthority": ""
+        "Id": "",
+        "OrganizationName": "Berea Community",
+        "AssigningAuthority": ""
     },
     "Department": null,
     "Person": {
-    "Id": null,
-    "FirstName": "Sherry",
-    "LastName": "Dopplemeyer",
-    "AssigningAuthority": null
+        "Id": null,
+        "FirstName": "Sherry",
+        "LastName": "Dopplemeyer",
+        "AssigningAuthority": null
     },
     "Role": {
-    "Code": "Pry Surgon",
-    "CodeSystem": null,
-    "DisplayName": null
+        "Code": "Pry Surgon",
+        "CodeSystem": null,
+        "DisplayName": null
     },
     "Speciality": {
-    "Code": "Orthopedic",
-    "CodeSystem": null,
-    "DisplayName": null
+        "Code": "Orthopedic",
+        "CodeSystem": null,
+        "DisplayName": null
     }
 },
 "AvailabilityStatus": null,
@@ -536,7 +536,6 @@ Represents an association `<Association>`-XML type, often used to create a link 
 ```json
 {
     "AssociationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
-    "ObjectType": null,
     "SourceObject": "RegistryPackage01",
     "SubmissionSetStatus": "Original",
     "TargetObject": "ExtrinsicObject01",

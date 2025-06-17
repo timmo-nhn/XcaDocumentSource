@@ -29,7 +29,10 @@ public class OpenDipsClient : IFhirEndpointsService
 
         var client = _httpClientFactory.CreateClient();
 
-        client.SetBearerToken(Token.Value);
+        if (Token?.Value != null)
+        {
+            client.SetBearerToken(Token.Value);
+        }
 
         client.DefaultRequestHeaders.TryAddWithoutValidation("dips-subscription-key", apiKey);
 
