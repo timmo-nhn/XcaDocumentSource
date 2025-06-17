@@ -4,7 +4,7 @@ using Hl7.Fhir.Model;
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom.DocumentEntry;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Xca;
@@ -160,23 +160,9 @@ public class RestfulRegistryRepositoryService
         return updateResponse;
     }
 
-    public RestfulApiResponse DeleteDocumentAndMetadata(string id)
-    {
-        var apiResponse = new RestfulApiResponse();
-        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        
-        var count = documentRegistry.RemoveAll(x => x.Id == id);
-
-        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
-        
-        apiResponse.SetMessage($"Successfully removed {count} documents");
-
-        return apiResponse;
-    }
-
     public RestfulApiResponse PartiallyUpdateDocumentMetadata(DocumentReferenceDto value)
     {
-        var patchResponse = new RestfulApiResponse();
+        var partialUpdateResponse = new RestfulApiResponse();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
         var submissionSetToPatch = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ro => ro.Id == value.SubmissionSet?.Id);
@@ -189,7 +175,22 @@ public class RestfulRegistryRepositoryService
         MergeObjects(associationToPatch, value.Association);
 
 
-        return patchResponse;
+
+        return partialUpdateResponse;
+    }
+
+    public RestfulApiResponse DeleteDocumentAndMetadata(string id)
+    {
+        var apiResponse = new RestfulApiResponse();
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        
+        var count = documentRegistry.RemoveAll(x => x.Id == id);
+
+        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
+        
+        apiResponse.SetMessage($"Successfully removed {count} documents");
+
+        return apiResponse;
     }
 
     private bool DuplicateUuidsExist(List<RegistryObjectDto> registryObjectList, List<RegistryObjectDto> submissionRegistryObjects, out string[] duplicateIds)

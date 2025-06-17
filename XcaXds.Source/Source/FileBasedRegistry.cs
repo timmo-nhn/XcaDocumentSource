@@ -1,6 +1,6 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
-using XcaXds.Commons.Models.Custom.DocumentEntry;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Source.Source;
 

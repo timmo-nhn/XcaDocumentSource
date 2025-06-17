@@ -1,7 +1,7 @@
 ﻿using System.Reflection.Metadata;
 using System.Text.Json.Serialization;
 
-namespace XcaXds.Commons.Models.Custom.DocumentEntry;
+namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(DocumentEntryDto))]

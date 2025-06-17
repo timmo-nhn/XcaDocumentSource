@@ -1,5 +1,5 @@
 ﻿using Hl7.Fhir.Model;
-using XcaXds.Commons.Models.Custom.DocumentEntry;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Commons.Services;
 

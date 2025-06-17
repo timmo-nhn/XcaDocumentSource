@@ -1,4 +1,4 @@
-﻿using XcaXds.Commons.Models.Custom.DocumentEntry;
+﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Interfaces;
 
 namespace XcaXds.OpenDipsRegistryRepository.Services;

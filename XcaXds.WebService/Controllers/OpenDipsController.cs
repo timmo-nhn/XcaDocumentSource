@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using XcaXds.Commons.Models.Custom.DocumentEntry;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Services;
 using XcaXds.OpenDipsRegistryRepository.Services;
 

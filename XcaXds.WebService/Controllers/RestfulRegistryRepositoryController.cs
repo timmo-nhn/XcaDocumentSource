@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Reflection.Metadata;
-using XcaXds.Commons.Models.Custom.DocumentEntry;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 

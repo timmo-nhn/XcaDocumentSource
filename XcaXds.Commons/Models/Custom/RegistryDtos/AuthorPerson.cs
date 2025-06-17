@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Commons.Models.Custom.DocumentEntry;
+﻿namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
 public class AuthorPerson
 {

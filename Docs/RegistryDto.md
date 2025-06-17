@@ -9,7 +9,10 @@ The RegistryObjectDto and its inheritants are used to store the registry metadat
 
 For more info on ebRIM types, see [SOAP-Message and SOAP-message formats](/Docs/XdsAndSoap.md)
 
-The classes defining the structure are found in `<Solution>/XcaXds.Commons/Models/DocumentReferenceDto`. 
+The classes defining the structure are found in `<Solution>/XcaXds.Commons/Models/RegistryDtos`. 
+
+### Custom JSON Serialization
+Due to the polymorphic nature of the `RegistryObjectDto`-class, a custom JSON serializer needs to be used when serializing or deserializing data. The serializer can be found in `<Solution>/XcaXds.Commons/Commons.RegistryJsonSerializer.cs`
 
 ### Transforming between DTOs and ebRIM objects
 Functions exist to translate the DTOs between DTO and ebRIM-types. It can be found in the `RegistryMetadataTransformerService`-class. 

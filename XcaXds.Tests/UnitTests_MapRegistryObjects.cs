@@ -1,5 +1,5 @@
 ﻿using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.DocumentEntry;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Services;

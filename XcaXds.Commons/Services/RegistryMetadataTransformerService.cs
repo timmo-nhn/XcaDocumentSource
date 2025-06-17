@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom.DocumentEntry;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 

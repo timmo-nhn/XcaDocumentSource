@@ -1,4 +1,4 @@
-﻿using XcaXds.Commons.Models.Custom.DocumentEntry;
+﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Commons.Models.Custom.RestfulRegistry;
 
