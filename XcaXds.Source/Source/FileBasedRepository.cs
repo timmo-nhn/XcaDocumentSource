@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Extensions;
+﻿using System.Text.RegularExpressions;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 
 namespace XcaXds.Source.Source;
@@ -8,6 +9,11 @@ public class FileBasedRepository : IRepository
     private readonly ApplicationConfig _appConfig;
     private readonly string _repositoryPath;
     private readonly object _lock = new();
+
+    private static readonly Regex SafeFileNameRegex = new(@"^[a-zA-Z0-9\-_\.^]+$", RegexOptions.Compiled);
+    private static readonly Regex SafeCharacters = new(@"[^a-zA-Z0-9\-_\.^]+", RegexOptions.Compiled);
+
+
     public FileBasedRepository(ApplicationConfig appConfig)
     {
         _appConfig = appConfig;
@@ -16,6 +22,8 @@ public class FileBasedRepository : IRepository
 
     public byte[]? Read(string documentUniqueId)
     {
+        if (!IsValidIdentifier(documentUniqueId)) return null;
+
         lock (_lock)
         {
             if (!Directory.Exists(_repositoryPath)) return null;
@@ -39,6 +47,11 @@ public class FileBasedRepository : IRepository
 
     public bool Write(string documentId, byte[] documentContent, string patientIdPart)
     {
+        documentId = SafeCharacters.Replace(documentId, "");
+        patientIdPart = SafeCharacters.Replace(patientIdPart, "");
+
+        if (!IsValidIdentifier(documentId) || !IsValidIdentifier(patientIdPart)) return false;
+
         lock (_lock)
         {
             var documentPath = Path.Combine(_repositoryPath, patientIdPart);
@@ -57,6 +70,8 @@ public class FileBasedRepository : IRepository
 
     public bool Delete(string documentUniqueId)
     {
+        documentUniqueId = SafeCharacters.Replace(documentUniqueId, "");
+
         lock (_lock)
         {
             if (!Directory.Exists(_repositoryPath)) return false;
@@ -76,4 +91,14 @@ public class FileBasedRepository : IRepository
             return false;
         }
     }
+
+
+    /// <summary>
+    /// Ensures that file and directory names are safe by allowing only alphanumeric characters, dashes, and underscores.
+    /// </summary>
+    private static bool IsValidIdentifier(string input)
+    {
+        return !string.IsNullOrEmpty(input) && SafeFileNameRegex.IsMatch(input);
+    }
+
 }

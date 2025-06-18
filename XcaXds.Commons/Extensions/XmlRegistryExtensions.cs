@@ -19,8 +19,7 @@ namespace XcaXds.Commons.Extensions;
 ///             - Underscore ('_') matches an arbitrary character
 ///             - Percent('%') matches an arbitrary string (0 or more characters)
 /// 
-/// -- Table Format --
-/// Format used for the tables above each method
+/// -- Table Format used for the tables above each method --
 /// Parameter Name:     Part of the request (ITI-18)
 /// Attribute:          Part of the Document Registry Object    
 ///

@@ -375,17 +375,8 @@
   },
   {
     "$type": "DocumentEntryDto",
-    "AvailabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "CreationTime": "2025-03-10T10:13:38",
-    "FormatCode": {
-      "Code": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
-    },
-    "LanguageCode": "en-us",
-    "MimeType": "application/octet-stream",
-    "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "FormatCode": {},
     "PatientId": {},
-    "Title": "XDSDocument Entry 1",
-    "UniqueId": "1.3.6.1.4.1.12559.11.11.9.1.165059",
     "Id": "FT_DocumentEntry02"
   },
   {

@@ -99,13 +99,13 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateDocument([FromBody] DocumentReferenceDto documentReference)
+    public async Task<IActionResult> UpdateDocument(bool? replace, [FromBody] DocumentReferenceDto documentReference)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Update")) return NotFound();
 
         var requestTimer = Stopwatch.StartNew();
 
-        var updateResponse = _restfulRegistryService.UpdateDocumentMetadata(documentReference);
+        var updateResponse = _restfulRegistryService.UpdateDocumentMetadata(replace, documentReference);
 
         requestTimer.Stop();
 

@@ -31,6 +31,10 @@ public class FileBasedRegistry : IRegistry
     {
         lock (_lock)
         {
+            var backup = File.ReadAllText(_registryFile);
+            
+            File.WriteAllText(_registryFile + ".backup", RegistryJsonSerializer.Serialize(dtos));
+
             File.WriteAllTextAsync(_registryFile, RegistryJsonSerializer.Serialize(dtos));
             return true;
         }

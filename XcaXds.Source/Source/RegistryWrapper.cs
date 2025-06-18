@@ -55,6 +55,11 @@ public class RegistryWrapper
         return true;
     }
 
+    public bool UpdateDocumentRegistryContentWithDtos(RegistryObjectDto registryObjectDto)
+    {
+        return UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
+    }
+
     public bool UpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
     {
         if (registryObjectDtos.Count == 0) return false;

@@ -6,7 +6,7 @@ namespace XcaXds.Commons.Commons;
 
 public static class RegistryJsonSerializer
 {
-    private static JsonSerializerOptions _jsonOptions = new()
+    public static JsonSerializerOptions _jsonOptions = new()
     {
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
         WriteIndented = true,

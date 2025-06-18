@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Hl7.Fhir.Model;
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -107,7 +111,7 @@ public class RestfulRegistryRepositoryService
 
         if (documentReference.Association == null)
         {
-            documentReference.Association = CreateAssociationBetweenObjects(documentReference.DocumentEntry, documentReference.SubmissionSet);
+            documentReference.Association = CreateAssociationBetweenObjects(documentReference.SubmissionSet, documentReference.DocumentEntry);
         }
 
         var elementsToBeUploaded = new List<RegistryObjectDto>() { documentReference.DocumentEntry, documentReference.SubmissionSet, documentReference.Association };
@@ -129,7 +133,7 @@ public class RestfulRegistryRepositoryService
         return uploadResponse;
     }
 
-    public UpdateResponse UpdateDocumentMetadata(DocumentReferenceDto documentReference)
+    public UpdateResponse UpdateDocumentMetadata(bool? replace, DocumentReferenceDto inputDocumentReference)
     {
         var updateResponse = new UpdateResponse();
 
@@ -137,25 +141,93 @@ public class RestfulRegistryRepositoryService
 
         var documentEntryToBeReplaced = documentRegistry
             .OfType<DocumentEntryDto>()
-            .Where(ss => ss.Id == documentReference.DocumentEntry?.Id).FirstOrDefault();
-
-        documentRegistry = documentRegistry.Replace(documentEntryToBeReplaced, documentReference.DocumentEntry).ToList();
+            .FirstOrDefault(ss => ss.Id == inputDocumentReference.DocumentEntry?.Id);
 
         var submissionSetToBeReplaced = documentRegistry
             .OfType<SubmissionSetDto>()
-            .Where(ss => ss.Id == documentReference.SubmissionSet?.Id).FirstOrDefault();
-        documentRegistry = documentRegistry.Replace(submissionSetToBeReplaced, documentReference.SubmissionSet).ToList();
+            .FirstOrDefault(ss => ss.Id == inputDocumentReference.SubmissionSet?.Id);
 
-        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
-
-        if (documentReference.Document != null && documentReference.Document.Data.Length != 0)
+        if (documentEntryToBeReplaced == null || submissionSetToBeReplaced == null)
         {
-            var storeResult = _repositoryWrapper.StoreDocument(documentReference.Document.DocumentId, documentReference.Document.Data, documentReference.DocumentEntry.PatientId.Code);
-            if (storeResult == false)
+            if (documentEntryToBeReplaced == null)
             {
-                updateResponse.AddError("UploadError", "Error while uploading document");
+                updateResponse.AddError("UploadError", $"No document entry with ID {inputDocumentReference.DocumentEntry?.Id}");
             }
+
+            if (submissionSetToBeReplaced == null)
+            {
+                updateResponse.AddError("UploadError", $"No submission set with Id {inputDocumentReference.SubmissionSet?.Id}");
+            }
+
+            return updateResponse;
         }
+
+        if (replace == true)
+        {
+            if (inputDocumentReference.DocumentEntry != null)
+            {
+                documentRegistry = documentRegistry.Replace(documentEntryToBeReplaced, inputDocumentReference.DocumentEntry).ToList();
+            }
+
+            if (inputDocumentReference.SubmissionSet != null)
+            {
+                documentRegistry = documentRegistry.Replace(submissionSetToBeReplaced, inputDocumentReference.SubmissionSet).ToList();
+            }
+
+            _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
+
+            if (inputDocumentReference.Document != null && inputDocumentReference.Document.Data.Length != 0 && inputDocumentReference.DocumentEntry?.PatientId?.Code != null)
+            {
+                var storeResult = _repositoryWrapper.StoreDocument(inputDocumentReference.Document.DocumentId, inputDocumentReference.Document.Data, inputDocumentReference.DocumentEntry.PatientId.Code);
+                if (storeResult == false)
+                {
+                    updateResponse.AddError("UploadError", "Error while uploading document");
+                }
+            }
+
+            updateResponse.SetMessage($"DocumentEntry {documentEntryToBeReplaced.Id} updated with new DocumentEntry");
+
+        }
+        else
+        {
+            // Create new identifiers
+            var documentEntryId = Guid.NewGuid().ToString();
+            _logger.LogInformation($"RPLC: DocumentEntry new ID: {documentEntryId} Previous: {inputDocumentReference.DocumentEntry.Id}");
+            inputDocumentReference.DocumentEntry.Id = documentEntryId;
+
+
+            var submissionSetId = Guid.NewGuid().ToString();
+            _logger.LogInformation($"RPLC: SubmissionSet new ID: {submissionSetId} Previous: {inputDocumentReference.SubmissionSet.Id}");
+            inputDocumentReference.SubmissionSet.Id = submissionSetId;
+
+            // Deprecate the old DocumentEntry
+            documentRegistry = documentRegistry.DeprecateEntry(documentEntryToBeReplaced.Id);
+
+            // Create RPLC association between old and new DocumentEntry
+            var replaceAssociation = CreateAssociationBetweenObjects(
+                inputDocumentReference.DocumentEntry, 
+                documentEntryToBeReplaced,
+                Constants.Xds.AssociationType.Replace);
+
+
+            _logger.LogInformation($"RPLC: Replace Association: {replaceAssociation.Id} Created between {inputDocumentReference.DocumentEntry.Id} and {documentEntryToBeReplaced.Id}");
+
+            // Recreate association with new identifiers
+            inputDocumentReference.Association = CreateAssociationBetweenObjects(
+                inputDocumentReference.SubmissionSet,
+                inputDocumentReference.DocumentEntry);
+
+            _registryWrapper.UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>()
+            {
+                inputDocumentReference.DocumentEntry, 
+                inputDocumentReference.SubmissionSet, 
+                inputDocumentReference.Association, 
+                replaceAssociation
+            });
+
+            updateResponse.SetMessage($"Document deprecated and replaced by new DocumentEntry");
+        }
+
 
         return updateResponse;
     }
@@ -165,16 +237,30 @@ public class RestfulRegistryRepositoryService
         var partialUpdateResponse = new RestfulApiResponse();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var submissionSetToPatch = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ro => ro.Id == value.SubmissionSet?.Id);
         var documentEntryToPatch = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == value.DocumentEntry?.Id);
+        var submissionSetToPatch = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ro => ro.Id == value.SubmissionSet?.Id);
         var associationToPatch = documentRegistry.OfType<AssociationDto>().FirstOrDefault(ro => ro.Id == value.Association?.Id);
 
 
-        MergeObjects(submissionSetToPatch, value.SubmissionSet);
-        MergeObjects(documentEntryToPatch, value.DocumentEntry);
-        MergeObjects(associationToPatch, value.Association);
+        if (documentEntryToPatch != null)
+        {
+            _logger.LogInformation($"Updating documentEntry {documentEntryToPatch.Id} with values:\n {JsonSerializer.Serialize(value.DocumentEntry, new JsonSerializerOptions() { WriteIndented = true })}");
+            MergeObjects(documentEntryToPatch, value.DocumentEntry);
+        }
 
+        if (submissionSetToPatch != null)
+        {
+            _logger.LogInformation($"Updating submissionSet {submissionSetToPatch.Id} with values:\n {JsonSerializer.Serialize(value.SubmissionSet, new JsonSerializerOptions() { WriteIndented = true })}");
+            MergeObjects(submissionSetToPatch, value.SubmissionSet);
+        }
 
+        if (associationToPatch != null)
+        {
+            _logger.LogInformation($"Updating association {associationToPatch.Id} with values:\n {JsonSerializer.Serialize(value.Association, new JsonSerializerOptions() { WriteIndented = true })}");
+            MergeObjects(associationToPatch, value.Association);
+        }
+
+        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
 
         return partialUpdateResponse;
     }
@@ -184,10 +270,26 @@ public class RestfulRegistryRepositoryService
         var apiResponse = new RestfulApiResponse();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
         
+        var deleteResponse = _repositoryWrapper.DeleteSingleDocument(id);
+
+        if (deleteResponse == false)
+        {
+            _logger.LogWarning($"Error while deleting document");
+            apiResponse.AddError("DeleteError", $"Error while deleting document {id}");
+            return apiResponse;
+        }
+
         var count = documentRegistry.RemoveAll(x => x.Id == id);
 
-        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
-        
+        var deleteUpdate = _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
+
+        if (deleteUpdate == false)
+        {
+            _logger.LogWarning($"Error while updating registry");
+            apiResponse.AddError("RegistryUpdateError", $"Error while deleting document {id}");
+            return apiResponse;
+        }
+
         apiResponse.SetMessage($"Successfully removed {count} documents");
 
         return apiResponse;
@@ -209,15 +311,15 @@ public class RestfulRegistryRepositoryService
         return duplicateIds.Length > 0;
     }
 
-    private AssociationDto CreateAssociationBetweenObjects(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet)
+    private AssociationDto CreateAssociationBetweenObjects(RegistryObjectDto sourceRegistryObject, RegistryObjectDto targetRegistryObject, string associationType = null)
     {
         var association = new AssociationDto();
 
-        if (documentEntry != null && submissionSet != null)
+        if (targetRegistryObject != null && sourceRegistryObject != null)
         {
-            association.AssociationType = Constants.Xds.AssociationType.HasMember;
-            association.SourceObject = submissionSet.Id;
-            association.TargetObject = documentEntry.Id;
+            association.AssociationType = associationType ?? Constants.Xds.AssociationType.HasMember;
+            association.SourceObject = sourceRegistryObject.Id;
+            association.TargetObject = targetRegistryObject.Id;
             association.SubmissionSetStatus = "Current";
         }
 
@@ -235,8 +337,11 @@ public class RestfulRegistryRepositoryService
             var sourceValue = property.GetValue(source);
             var targetValue = property.GetValue(target);
 
-            if (sourceValue == null)
-                continue;
+            if (sourceValue == null && targetValue != null)
+            {
+                var newInstance = Activator.CreateInstance(property.PropertyType);
+                property.SetValue(newInstance, targetValue);
+            }
 
             if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
             {
