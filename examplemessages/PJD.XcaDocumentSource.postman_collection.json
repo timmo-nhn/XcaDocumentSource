@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f0187883-5109-42aa-97b9-dfdc97665571",
+		"_postman_id": "2c34442a-1062-46fe-8c32-90189e4186bd",
 		"name": "PJD.XcaDocumentSource",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23368570"
@@ -33,12 +33,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Registry/services/RegistryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Registry",
 								"services",
@@ -84,12 +83,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Registry/services/RegistryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Registry",
 								"services",
@@ -135,12 +133,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Repository/services/RepositoryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Repository/services/RepositoryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Repository",
 								"services",
@@ -183,12 +180,11 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7176/Registry/services/RegistryService",
-									"protocol": "https",
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
 									"host": [
-										"localhost"
+										"{{baseurl}}"
 									],
-									"port": "7176",
 									"path": [
 										"Registry",
 										"services",
@@ -222,12 +218,11 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7176/Registry/services/RegistryService",
-									"protocol": "https",
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
 									"host": [
-										"localhost"
+										"{{baseurl}}"
 									],
-									"port": "7176",
 									"path": [
 										"Registry",
 										"services",
@@ -261,12 +256,11 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7176/Registry/services/RegistryService",
-									"protocol": "https",
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
 									"host": [
-										"localhost"
+										"{{baseurl}}"
 									],
-									"port": "7176",
 									"path": [
 										"Registry",
 										"services",
@@ -300,12 +294,11 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7176/Registry/services/RegistryService",
-									"protocol": "https",
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
 									"host": [
-										"localhost"
+										"{{baseurl}}"
 									],
-									"port": "7176",
 									"path": [
 										"Registry",
 										"services",
@@ -344,12 +337,11 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7176/Registry/services/RegistryService",
-									"protocol": "https",
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
 									"host": [
-										"localhost"
+										"{{baseurl}}"
 									],
-									"port": "7176",
 									"path": [
 										"Registry",
 										"services",
@@ -388,12 +380,130 @@
 									}
 								},
 								"url": {
-									"raw": "https://localhost:7176/Registry/services/RegistryService",
-									"protocol": "https",
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
 									"host": [
-										"localhost"
+										"{{baseurl}}"
 									],
-									"port": "7176",
+									"path": [
+										"Registry",
+										"services",
+										"RegistryService"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ITI-18_GetFolderAndContents",
+					"item": [
+						{
+							"name": "ITI-18_UUID",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/soap+xml",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\r\n    xmlns:a=\"http://www.w3.org/2005/08/addressing\"\r\n    xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\r\n    <s:Header>\r\n        <a:Action s:mustUnderstand=\"1\">urn:ihe:iti:2007:RegistryStoredQuery</a:Action>\r\n        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>\r\n        <a:ReplyTo>\r\n            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>\r\n        </a:ReplyTo>\r\n        <a:To s:mustUnderstand=\"1\">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>\r\n    </s:Header>\r\n    <s:Body xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\r\n        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n        <AdhocQueryRequest xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\">\r\n            <ResponseOption returnType=\"LeafClass\" returnComposedObjects=\"true\" />\r\n            <AdhocQuery xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\" id=\"urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7\">\r\n                <Slot name=\"$XDSFolderUniqueId\">\r\n                    <ValueList>\r\n                        <Value>1.3.6.1.4.1.12559.11.11.9.1.165058</Value>\r\n                    </ValueList>\r\n                </Slot>\r\n            </AdhocQuery>\r\n        </AdhocQueryRequest>\r\n    </s:Body>\r\n</s:Envelope>",
+									"options": {
+										"raw": {
+											"language": "xml"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
+									"host": [
+										"{{baseurl}}"
+									],
+									"path": [
+										"Registry",
+										"services",
+										"RegistryService"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ITI-18_UniqueId",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/soap+xml",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\r\n    xmlns:a=\"http://www.w3.org/2005/08/addressing\"\r\n    xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\r\n    <s:Header>\r\n        <a:Action s:mustUnderstand=\"1\">urn:ihe:iti:2007:RegistryStoredQuery</a:Action>\r\n        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>\r\n        <a:ReplyTo>\r\n            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>\r\n        </a:ReplyTo>\r\n        <a:To s:mustUnderstand=\"1\">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>\r\n    </s:Header>\r\n    <s:Body xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\r\n        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n        <AdhocQueryRequest xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\">\r\n            <ResponseOption returnType=\"LeafClass\" returnComposedObjects=\"true\" />\r\n            <AdhocQuery xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\" id=\"urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7\">\r\n                <Slot name=\"$XDSFolderEntryUUID\">\r\n                    <ValueList>\r\n                        <Value>FT_RegistryPackageFolder01</Value>\r\n                    </ValueList>\r\n                </Slot>\r\n            </AdhocQuery>\r\n        </AdhocQueryRequest>\r\n    </s:Body>\r\n</s:Envelope>",
+									"options": {
+										"raw": {
+											"language": "xml"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
+									"host": [
+										"{{baseurl}}"
+									],
+									"path": [
+										"Registry",
+										"services",
+										"RegistryService"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ITI-18_FormatCode",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/soap+xml",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\r\n    xmlns:a=\"http://www.w3.org/2005/08/addressing\"\r\n    xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\r\n    <s:Header>\r\n        <a:Action s:mustUnderstand=\"1\">urn:ihe:iti:2007:RegistryStoredQuery</a:Action>\r\n        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>\r\n        <a:ReplyTo>\r\n            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>\r\n        </a:ReplyTo>\r\n        <a:To s:mustUnderstand=\"1\">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>\r\n    </s:Header>\r\n    <s:Body xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\r\n        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n        <AdhocQueryRequest xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\">\r\n            <ResponseOption returnType=\"LeafClass\" returnComposedObjects=\"true\" />\r\n            <AdhocQuery xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\" id=\"urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7\">\r\n                <Slot name=\"$XDSDocumentEntryFormatCode\">\r\n                    <ValueList>\r\n                        <Value>('urn:ihe:iti:xds:2017:mimeTypeSufficient')</Value>\r\n                    </ValueList>\r\n                </Slot>\r\n            </AdhocQuery>\r\n        </AdhocQueryRequest>\r\n    </s:Body>\r\n</s:Envelope>",
+									"options": {
+										"raw": {
+											"language": "xml"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+									"protocol": "{{httpscheme}}",
+									"host": [
+										"{{baseurl}}"
+									],
 									"path": [
 										"Registry",
 										"services",
@@ -407,128 +517,6 @@
 				}
 			],
 			"description": "Get document references(metadata) from the document Registry"
-		},
-		{
-			"name": "ITI-18_GetFolderAndContents",
-			"item": [
-				{
-					"name": "ITI-18_UUID",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/soap+xml",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\r\n    xmlns:a=\"http://www.w3.org/2005/08/addressing\"\r\n    xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\r\n    <s:Header>\r\n        <a:Action s:mustUnderstand=\"1\">urn:ihe:iti:2007:RegistryStoredQuery</a:Action>\r\n        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>\r\n        <a:ReplyTo>\r\n            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>\r\n        </a:ReplyTo>\r\n        <a:To s:mustUnderstand=\"1\">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>\r\n    </s:Header>\r\n    <s:Body xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\r\n        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n        <AdhocQueryRequest xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\">\r\n            <ResponseOption returnType=\"LeafClass\" returnComposedObjects=\"true\" />\r\n            <AdhocQuery xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\" id=\"urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7\">\r\n                <Slot name=\"$XDSFolderUniqueId\">\r\n                    <ValueList>\r\n                        <Value>1.3.6.1.4.1.12559.11.11.9.1.165058</Value>\r\n                    </ValueList>\r\n                </Slot>\r\n            </AdhocQuery>\r\n        </AdhocQueryRequest>\r\n    </s:Body>\r\n</s:Envelope>",
-							"options": {
-								"raw": {
-									"language": "xml"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://localhost:7176/Registry/services/RegistryService",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7176",
-							"path": [
-								"Registry",
-								"services",
-								"RegistryService"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "ITI-18_UniqueId",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/soap+xml",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\r\n    xmlns:a=\"http://www.w3.org/2005/08/addressing\"\r\n    xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\r\n    <s:Header>\r\n        <a:Action s:mustUnderstand=\"1\">urn:ihe:iti:2007:RegistryStoredQuery</a:Action>\r\n        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>\r\n        <a:ReplyTo>\r\n            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>\r\n        </a:ReplyTo>\r\n        <a:To s:mustUnderstand=\"1\">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>\r\n    </s:Header>\r\n    <s:Body xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\r\n        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n        <AdhocQueryRequest xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\">\r\n            <ResponseOption returnType=\"LeafClass\" returnComposedObjects=\"true\" />\r\n            <AdhocQuery xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\" id=\"urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7\">\r\n                <Slot name=\"$XDSFolderEntryUUID\">\r\n                    <ValueList>\r\n                        <Value>FT_RegistryPackageFolder01</Value>\r\n                    </ValueList>\r\n                </Slot>\r\n            </AdhocQuery>\r\n        </AdhocQueryRequest>\r\n    </s:Body>\r\n</s:Envelope>",
-							"options": {
-								"raw": {
-									"language": "xml"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://localhost:7176/Registry/services/RegistryService",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7176",
-							"path": [
-								"Registry",
-								"services",
-								"RegistryService"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "ITI-18_FormatCode",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/soap+xml",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\r\n    xmlns:a=\"http://www.w3.org/2005/08/addressing\"\r\n    xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\r\n    <s:Header>\r\n        <a:Action s:mustUnderstand=\"1\">urn:ihe:iti:2007:RegistryStoredQuery</a:Action>\r\n        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>\r\n        <a:ReplyTo>\r\n            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>\r\n        </a:ReplyTo>\r\n        <a:To s:mustUnderstand=\"1\">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>\r\n    </s:Header>\r\n    <s:Body xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\r\n        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n        <AdhocQueryRequest xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0\">\r\n            <ResponseOption returnType=\"LeafClass\" returnComposedObjects=\"true\" />\r\n            <AdhocQuery xmlns=\"urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0\" id=\"urn:uuid:b909a503-523d-4517-8acf-8e5834dfc4c7\">\r\n                <Slot name=\"$XDSDocumentEntryFormatCode\">\r\n                    <ValueList>\r\n                        <Value>('urn:ihe:iti:xds:2017:mimeTypeSufficient')</Value>\r\n                    </ValueList>\r\n                </Slot>\r\n            </AdhocQuery>\r\n        </AdhocQueryRequest>\r\n    </s:Body>\r\n</s:Envelope>",
-							"options": {
-								"raw": {
-									"language": "xml"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://localhost:7176/Registry/services/RegistryService",
-							"protocol": "https",
-							"host": [
-								"localhost"
-							],
-							"port": "7176",
-							"path": [
-								"Registry",
-								"services",
-								"RegistryService"
-							]
-						}
-					},
-					"response": []
-				}
-			]
 		},
 		{
 			"name": "Retrieve Document Set",
@@ -557,12 +545,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Repository/services/RepositoryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Repository/services/RepositoryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Repository",
 								"services",
@@ -602,12 +589,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/XCA/services/RespondingGatewayService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/XCA/services/RespondingGatewayService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"XCA",
 								"services",
@@ -641,12 +627,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Repository/services/RepositoryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Repository/services/RepositoryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Repository",
 								"services",
@@ -657,7 +642,7 @@
 					"response": []
 				}
 			],
-			"description": "Queries from an initiating XCA gateway to a responding gateway"
+			"description": "Queries from an initiating XCA gateway to a responding gateway.\n\nThe system sending the ITI-38/ITI-39-message (Postman, in this case) will act as the initiating gateway"
 		},
 		{
 			"name": "Provide And Register Document Set",
@@ -686,12 +671,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Repository/services/RepositoryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Repository/services/RepositoryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Repository",
 								"services",
@@ -725,12 +709,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Repository/services/RepositoryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Repository/services/RepositoryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Repository",
 								"services",
@@ -740,7 +723,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "Register document and metadata to the registry and repository"
 		},
 		{
 			"name": "Register Document Set",
@@ -769,12 +753,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Registry/services/RegistryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Registry",
 								"services",
@@ -808,12 +791,11 @@
 							}
 						},
 						"url": {
-							"raw": "https://localhost:7176/Registry/services/RegistryService",
-							"protocol": "https",
+							"raw": "{{httpscheme}}://{{baseurl}}/Registry/services/RegistryService",
+							"protocol": "{{httpscheme}}",
 							"host": [
-								"localhost"
+								"{{baseurl}}"
 							],
-							"port": "7176",
 							"path": [
 								"Registry",
 								"services",
@@ -823,7 +805,153 @@
 					},
 					"response": []
 				}
+			],
+			"description": "Register only metadata to the registry"
+		},
+		{
+			"name": "Patient Demographics Query PDQ",
+			"item": [
+				{
+					"name": "Get Patient Demographics (QBP_Q22)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/hl7-v2",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|202504141200||QBP^Q22^QBP_Q21|123456|P|2.5\r\nQPD|Q22^Find Candidates^HL7|QRY12345|@PID.5.1^Smith|@PID.7^19700101\r\nRCP|I|10^RD",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{httpscheme}}://{{baseurl}}/hl7/search-patients",
+							"protocol": "{{httpscheme}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"hl7",
+								"search-patients"
+							]
+						}
+					},
+					"response": []
+				}
 			]
+		},
+		{
+			"name": "REST CRUD operations",
+			"item": [
+				{
+					"name": "Create Documents and References",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"documentEntry\": {\r\n    \"Author\": {\r\n      \"Organization\": {\r\n        \"Id\": \"983974880\",\r\n        \"OrganizationName\": \"Finnmarkssykehuset HF\",\r\n        \"AssigningAuthority\": \"2.16.578.1.12.4.1.4.101\"\r\n      },\r\n      \"Department\": {\r\n        \"Id\": \"4211607\",\r\n        \"OrganizationName\": \"Laboratoriemedisinsk avdeling - FIN\",\r\n        \"AssigningAuthority\": \"2.16.578.1.12.4.1.4.102\"\r\n      },\r\n      \"Person\": {\r\n        \"Id\": \"502116685\",\r\n        \"FirstName\": \"BENEDIKTE\",\r\n        \"LastName\": \"GEIRAAS\",\r\n        \"AssigningAuthority\": \"urn:oid:2.16.578.1.12.4.1.4.4\"\r\n      }\r\n    },\r\n    \"AvailabilityStatus\": \"urn:oasis:names:tc:ebxml-regrep:StatusType:Approved\",\r\n    \"ClassCode\": {\r\n      \"Code\": \"A00-1\",\r\n      \"CodeSystem\": \"2.16.578.1.12.4.1.1.9602\",\r\n      \"DisplayName\": \"Epikriser og sammenfatninger\"\r\n    },\r\n    \"ConfidentialityCode\": {\r\n      \"Code\": \"NORN_DUP\",\r\n      \"CodeSystem\": \"2.16.578.1.12.4.1.1.9603\",\r\n      \"DisplayName\": \"Nektet, duplikat\"\r\n    },\r\n    \"CreationTime\": \"2025-02-06T14:13:56\",\r\n    \"FormatCode\": {\r\n      \"Code\": \"urn:ihe:iti:xds:2017:mimeTypeSufficient\",\r\n      \"CodeSystem\": \"http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode\",\r\n      \"DisplayName\": \"urn:ihe:iti:xds:2017:mimeTypeSufficient\"\r\n    },\r\n    \"Hash\": \"35A3E0104791D9ACD5A16352ED075F390508CA10\",\r\n    \"HealthCareFacilityTypeCode\": {\r\n      \"Code\": \"86.211\",\r\n      \"CodeSystem\": \"2.16.578.1.12.4.1.1.1303\",\r\n      \"DisplayName\": \"86.211\"\r\n    },\r\n    \"HomeCommunityId\": \"2.16.578.1.12.4.5.100.1\",\r\n    \"LanguageCode\": \"nb-NO\",\r\n    \"MimeType\": \"application/xml\",\r\n    \"ObjectType\": \"urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1\",\r\n    \"PatientId\": {\r\n      \"Code\": \"13116900216\",\r\n      \"CodeSystem\": \"2.16.578.1.12.4.1.7.3.2.1\"\r\n    },\r\n    \"PracticeSettingCode\": {\r\n      \"Code\": \"4\",\r\n      \"CodeSystem\": \"2.16.578.1.12.4.1.1.8653\",\r\n      \"DisplayName\": \"4\"\r\n    },\r\n    \"RepositoryUniqueId\": \"2.16.578.1.12.4.5.100.1.2\",\r\n    \"Size\": \"80574\",\r\n    \"ServiceStartTime\": \"2025-01-07T15:14:03\",\r\n    \"ServiceStopTime\": \"2025-01-22T15:14:03\",\r\n    \"SourcePatientInfo\": {\r\n      \"PatientId\": {\r\n        \"Id\": \"13116900216\",\r\n        \"System\": \"2.16.578.1.12.4.1.7.3.2.1\"\r\n      },\r\n      \"GivenName\": \"Line\",\r\n      \"FamilyName\": \"Danser\",\r\n      \"BirthTime\": \"1969-11-13T00:00:00\",\r\n      \"Gender\": \"F\"\r\n    },\r\n    \"Title\": \"test 123\",\r\n    \"TypeCode\": {\r\n      \"Code\": \"A01-2\",\r\n      \"CodeSystem\": \"2.16.578.1.12.4.1.1.9602\",\r\n      \"DisplayName\": \"Kriseplan\"\r\n    },\r\n    \"UniqueId\": \"ExtrinsicObject01\",\r\n    \"Id\": \"ExtrinsicObject01\"\r\n  },\r\n  \"submisisonSet\": {\r\n    \"Author\": {\r\n      \"Organization\": {\r\n        \"Id\": \"994598759\",\r\n        \"OrganizationName\": \"NORSK HELSENETT SF\",\r\n        \"AssigningAuthority\": \"2.16.578.1.12.4.1.4.101\"\r\n      },\r\n      \"Department\": {\r\n        \"Id\": \"1345020\",\r\n        \"OrganizationName\": \"Department X\",\r\n        \"AssigningAuthority\": \"2.16.578.1.12.4.1.4.102\"\r\n      },\r\n      \"Person\": {\r\n        \"Id\": \"565505933\",\r\n        \"FirstName\": \"KVART\",\r\n        \"LastName\": \"GREVLING\",\r\n        \"AssigningAuthority\": \"2.16.578.1.12.4.1.4.4\"\r\n      }\r\n    },\r\n    \"PatientId\": {\r\n      \"Code\": \"13116900216\",\r\n      \"CodeSystem\": \"2.16.578.1.12.4.1.7.3.2.1\"\r\n    },\r\n    \"SubmissionTime\": \"2025-02-06T14:13:56\",\r\n    \"Title\": \"SubmissionSet-RegistryPackage01\",\r\n    \"UniqueId\": \"2.16.578.1.12.4.5.7.4.87227.6270.1793\",\r\n    \"SourceId\": \"1.2.840.4711.815.1\",\r\n    \"Id\": \"RegistryPackage01\"\r\n  },\r\n  \"association\": {\r\n    \"AssociationType\": \"urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember\",\r\n    \"SourceObject\": \"RegistryPackage01\",\r\n    \"SubmissionSetStatus\": \"Original\",\r\n    \"TargetObject\": \"ExtrinsicObject01\",\r\n    \"Id\": \"Association01\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{httpscheme}}://{{baseurl}}/api/rest/upload",
+							"protocol": "{{httpscheme}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rest",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Document List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{httpscheme}}://{{baseurl}}/api/rest/document-list?id=13116900216",
+							"protocol": "{{httpscheme}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rest",
+								"document-list"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "13116900216"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Document",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{httpscheme}}://{{baseurl}}/api/rest/document?id=13116900216",
+							"protocol": "{{httpscheme}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"api",
+								"rest",
+								"document"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "13116900216"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Document Reference",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseurl",
+			"value": "localhost:7176",
+			"type": "default"
+		},
+		{
+			"key": "httpscheme",
+			"value": "https",
+			"type": "default"
 		}
 	]
 }
