@@ -192,12 +192,12 @@ public class RestfulRegistryRepositoryService
         {
             // Create new identifiers
             var documentEntryId = Guid.NewGuid().ToString();
-            _logger.LogInformation($"RPLC: DocumentEntry new ID: {documentEntryId} Previous: {inputDocumentReference.DocumentEntry.Id}");
+            _logger.LogInformation($"REPLACE: \nDocumentEntry new ID: {documentEntryId} \nPrevious: {inputDocumentReference.DocumentEntry.Id}");
             inputDocumentReference.DocumentEntry.Id = documentEntryId;
 
 
             var submissionSetId = Guid.NewGuid().ToString();
-            _logger.LogInformation($"RPLC: SubmissionSet new ID: {submissionSetId} Previous: {inputDocumentReference.SubmissionSet.Id}");
+            _logger.LogInformation($"REPLACE: \nSubmissionSet new ID: {submissionSetId} \nPrevious: {inputDocumentReference.SubmissionSet.Id}");
             inputDocumentReference.SubmissionSet.Id = submissionSetId;
 
             // Deprecate the old DocumentEntry
@@ -209,8 +209,7 @@ public class RestfulRegistryRepositoryService
                 documentEntryToBeReplaced,
                 Constants.Xds.AssociationType.Replace);
 
-
-            _logger.LogInformation($"RPLC: Replace Association: {replaceAssociation.Id} Created between {inputDocumentReference.DocumentEntry.Id} and {documentEntryToBeReplaced.Id}");
+            _logger.LogInformation($"REPLACE: \nReplace Association: {replaceAssociation.Id} Created between {inputDocumentReference.DocumentEntry.Id} and {documentEntryToBeReplaced.Id}");
 
             // Recreate association with new identifiers
             inputDocumentReference.Association = CreateAssociationBetweenObjects(
@@ -225,7 +224,7 @@ public class RestfulRegistryRepositoryService
                 replaceAssociation
             });
 
-            updateResponse.SetMessage($"Document deprecated and replaced by new DocumentEntry");
+            updateResponse.SetMessage($"REPLACE: \nDocument deprecated and replaced by new DocumentEntry {inputDocumentReference.DocumentEntry.Id}");
         }
 
 
@@ -279,7 +278,23 @@ public class RestfulRegistryRepositoryService
             return apiResponse;
         }
 
-        var count = documentRegistry.RemoveAll(x => x.Id == id);
+        var associationsForEntry = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.TargetObject == id).ToList();
+
+        if (associationsForEntry == null)
+        {
+            apiResponse.SetMessage($"No document with id {id} found");
+            return apiResponse;
+        }
+
+        var count = 0;
+
+        foreach (var association in associationsForEntry)
+        {
+            var submissionSet = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.TargetObject);
+            var documentEntry = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
+            
+            count += documentRegistry.RemoveAll(x => x.Id == submissionSet?.Id || x.Id == documentEntry?.Id || x.Id == association.Id);
+        }
 
         var deleteUpdate = _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
 
@@ -328,34 +343,38 @@ public class RestfulRegistryRepositoryService
 
     public void MergeObjects<T>(T source, T target)
     {
-        if (source == null || target == null) return;
+        if (target == null) return;
 
-        var props = source.GetType().GetProperties();
+        var props = target.GetType().GetProperties();
 
         foreach (var property in props)
         {
             var sourceValue = property.GetValue(source);
             var targetValue = property.GetValue(target);
 
-            if (sourceValue == null && targetValue != null)
-            {
-                var newInstance = Activator.CreateInstance(property.PropertyType);
-                property.SetValue(newInstance, targetValue);
-            }
+            if (sourceValue == targetValue)
+                continue;
+
+            if (targetValue == null || (sourceValue == null && targetValue == null) || (sourceValue == null && targetValue == null))
+                continue;
+
 
             if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
             {
-                if (targetValue == null)
+                if (sourceValue == null)
                 {
-                    targetValue = Activator.CreateInstance(property.PropertyType);
-                    property.SetValue(target, targetValue);
+                    sourceValue = Activator.CreateInstance(property.PropertyType);
+                    property.SetValue(source, sourceValue);
                 }
 
                 MergeObjects(sourceValue, targetValue);
             }
             else
             {
-                property.SetValue(source, targetValue);
+                if (targetValue != null)
+                {
+                    property.SetValue(source, targetValue);
+                }
             }
         }
     }

@@ -170,7 +170,9 @@ https://localhost:7176/api/rest/document?document=extrinsicObjectDocument01
 ```
 
 ### Update Document Reference
-Updates an entire existing Document Reference. Can either replace and overwrite the existing document entry entirely, or create a new DocumentEntry and SubmissionSet, and overwrite 
+Updates an entire existing Document Reference. This endpoint has two behaviors which can be set using the `replace` query parameter:
+* **Behavior 1 - Replace** `replace=true` Overwrites the existing document entry entirely 
+* **Behavior 2 - Deprecate** `replace=false` Acts similar to how IHE XDS defines the behavior for replacing document metadata, where the old DocumentEntry's status is set to `Deprecated`, a new DocumentEntry is created and a **Replace Association** is created between the old and new documententry.
 
 | Property  | Description |
 |---|---|

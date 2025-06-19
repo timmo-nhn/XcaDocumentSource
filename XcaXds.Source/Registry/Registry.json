@@ -375,8 +375,15 @@
   },
   {
     "$type": "DocumentEntryDto",
+    "Author": {
+      "Department": {
+        "Id": "456123789",
+        "OrganizationName": "Corrected Department Name",
+        "AssigningAuthority": "2.16.578.1.12.4.1.4.102"
+      }
+    },
     "AvailabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "CreationTime": "2025-03-10T10:13:38",
+    "CreationTime": "2025-03-16T10:13:38",
     "FormatCode": {
       "Code": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
     },

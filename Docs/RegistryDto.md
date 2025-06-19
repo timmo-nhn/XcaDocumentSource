@@ -17,7 +17,7 @@ Due to the polymorphic nature of the `RegistryObjectDto`-class, a custom JSON se
 ### Transforming between DTOs and ebRIM objects
 Functions exist to translate the DTOs between DTO and ebRIM-types. It can be found in the `RegistryMetadataTransformerService`-class. 
 
-## Mapping Table (Custom classes to ebRIM/IHE XDS Metadata)
+## Registry Object Mappings (Custom classes to ebRIM/IHE XDS Metadata)
 Fields are required according to the optionality of the ebRIM metadata, all properties have a 1:1 cardinality.  
 For more info on metadata, see [IHE XDS metadata - git.sarepta.ehelse.no ↗](https://git.sarepta.ehelse.no/publisert/standarder/raw/master/kravdokument/IHS_XDS_metadata/HIS%201169_2016%20IHE%20XDS%20metadata%20-oppdatert.pdf)
 
@@ -560,3 +560,5 @@ Represents an association `<Association>`-XML type, often used to create a link 
     </Slot>
 </Association>
 ```
+
+## Registry Objects in the Registry
