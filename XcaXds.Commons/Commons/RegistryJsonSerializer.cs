@@ -9,6 +9,7 @@ public static class RegistryJsonSerializer
     public static JsonSerializerOptions _jsonOptions = new()
     {
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, 
         WriteIndented = true,
         TypeInfoResolver = new DefaultJsonTypeInfoResolver
         {

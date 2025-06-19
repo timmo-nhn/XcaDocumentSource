@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
@@ -14,9 +15,9 @@ public class TestDataController : ControllerBase
 {
 
     [HttpPost("generate-testdata")]
-    public async Task<IActionResult> GenerateTestData(int numberOfEntries, [FromBody] DocumentReferenceDto documentReferenceDto)
+    public async Task<IActionResult> GenerateTestData(int numberOfEntries, [FromBody] Test_DocumentReference documentReferenceDto)
     {
-
+        
 
         return Ok("hibb");
     }

@@ -1,0 +1,203 @@
+{
+  "possibleDocumentEntryValues": {
+    "authors": [
+      {
+        "organization": {
+          "id": "983974880",
+          "organizationName": "Finnmarkssykehuset HF",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "department": {
+          "id": "4211607",
+          "organizationName": "Laboratoriemedisinsk avdeling - FIN",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "string",
+          "firstName": "string",
+          "lastName": "string",
+          "assigningAuthority": "string"
+        },
+        "role": {
+          "code": "string",
+          "codeSystem": "string",
+          "displayName": "string"
+        },
+        "speciality": {
+          "code": "string",
+          "codeSystem": "string",
+          "displayName": "string"
+        }
+      }
+    ],
+    "availabilityStatuses": [
+      "string"
+    ],
+    "classCodes": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "confidentialityCodes": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "creationTimes": [
+      "2025-06-19T10:34:43.304Z"
+    ],
+    "eventCodeLists": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "formatCodes": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "healthcareFacilityTypeCodes": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "homeCommunityIds": [
+      "string"
+    ],
+    "languageCodes": [
+      "string"
+    ],
+    "legalAuthenticators": [
+      {
+        "id": "string",
+        "idSystem": "string",
+        "givenName": "string",
+        "familyName": "string"
+      }
+    ],
+    "mimeTypes": [
+      "string"
+    ],
+    "objectTypes": [
+      "string"
+    ],
+    "patientIdentifiers": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "practiceSettingCodes": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "repositoryUniqueIds": [
+      "string"
+    ],
+    "serviceStartTimes": [
+      "2025-06-19T10:34:43.304Z"
+    ],
+    "serviceStopTimes": [
+      "2025-06-19T10:34:43.304Z"
+    ],
+    "sourcePatientInfos": [
+      {
+        "patientId": {
+          "id": "string",
+          "system": "string"
+        },
+        "givenName": "string",
+        "familyName": "string",
+        "birthTime": "2025-06-19T10:34:43.304Z",
+        "gender": "string"
+      }
+    ],
+    "titles": [
+      "string"
+    ],
+    "typeCodes": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "uniqueIds": [
+      "string"
+    ],
+    "ids": [
+      "string"
+    ]
+  },
+  "possibleSubmissionSetValues": {
+    "testAuthors": [
+      {
+        "organization": {
+          "id": "string",
+          "organizationName": "string",
+          "assigningAuthority": "string"
+        },
+        "department": {
+          "id": "string",
+          "organizationName": "string",
+          "assigningAuthority": "string"
+        },
+        "person": {
+          "id": "string",
+          "firstName": "string",
+          "lastName": "string",
+          "assigningAuthority": "string"
+        },
+        "role": {
+          "code": "string",
+          "codeSystem": "string",
+          "displayName": "string"
+        },
+        "speciality": {
+          "code": "string",
+          "codeSystem": "string",
+          "displayName": "string"
+        }
+      }
+    ],
+    "availabilityStatuses": [
+      "string"
+    ],
+    "homeCommunityIds": [
+      "string"
+    ],
+    "codedValues": [
+      {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    ],
+    "submissionTimes": [
+      "2025-06-19T10:34:43.304Z"
+    ],
+    "titles": [
+      "string"
+    ],
+    "uniqueIds": [
+      "string"
+    ],
+    "sourceIds": [
+      "string"
+    ]
+  }
+}
