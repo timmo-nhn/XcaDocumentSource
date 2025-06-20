@@ -15,7 +15,7 @@ public class TestDataController : ControllerBase
 {
 
     [HttpPost("generate-testdata")]
-    public async Task<IActionResult> GenerateTestData(int numberOfEntries, [FromBody] Test_DocumentReferenceValue testDocumentReference)
+    public async Task<IActionResult> GenerateTestData(int numberOfEntries, [FromBody] Test_DocumentReference testDocumentReference)
     {
         
 
