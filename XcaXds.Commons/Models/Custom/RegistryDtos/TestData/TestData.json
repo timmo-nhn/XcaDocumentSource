@@ -1,0 +1,828 @@
+{
+    "possibleDocumentEntryValues": {
+        "authors": [
+            {
+                "organizations": [
+                    {
+                        "id": "string",
+                        "organizationName": "string",
+                        "assigningAuthority": "string"
+                    }
+                ],
+                "departments": [
+                    {
+                        "id": "string",
+                        "organizationName": "string",
+                        "assigningAuthority": "string"
+                    }
+                ],
+                "persons": [
+                    {
+                        "code": "565505933",
+                        "FirstName": "KVART",
+                        "LastName": "GREVLING",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "10925099231",
+                        "FirstName": "DYPSINDIG",
+                        "LastName": "ODDE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "21877699800",
+                        "FirstName": "TROFAST",
+                        "LastName": "SVIGERINNE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "14811249255",
+                        "FirstName": "GREI",
+                        "LastName": "METER",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "31837998495",
+                        "FirstName": "LIDENSKAPELIG",
+                        "LastName": "PLIKT",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "08884699909",
+                        "FirstName": "FREDELIG",
+                        "LastName": "BOT",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "41837701048",
+                        "FirstName": "KRY",
+                        "LastName": "FLØYTE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "16920997949",
+                        "FirstName": "UTROLIG",
+                        "LastName": "FUKTIGHETSKREM",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "26878897330",
+                        "FirstName": "FASCINERENDE",
+                        "LastName": "RADIOSTASJON",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "12891848933",
+                        "FirstName": "LATTERMILD",
+                        "LastName": "GLOSE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "23876997983",
+                        "FirstName": "MOMENTAN",
+                        "LastName": "RIPE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "02906499765",
+                        "FirstName": "FORDEKT",
+                        "LastName": "HIMMEL",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "24826397280",
+                        "FirstName": "MINIMALISTISK",
+                        "LastName": "EKSPEDITØR",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "02910999438",
+                        "FirstName": "FINTFØLENDE",
+                        "LastName": "KJØPMANN",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "45927700178",
+                        "FirstName": "USYMMETRISK",
+                        "LastName": "FARFAR",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "24849698172",
+                        "FirstName": "EKTE",
+                        "LastName": "RYNKE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "09917999055",
+                        "FirstName": "PLUTSELIG",
+                        "LastName": "SILD",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "09892399333",
+                        "FirstName": "UVITENDE",
+                        "LastName": "GORILLA",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "13913746753",
+                        "FirstName": "VARM",
+                        "LastName": "OVERSKRIFT",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "30880948314",
+                        "FirstName": "TØRR",
+                        "LastName": "MILJØGIFT",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "26860749563",
+                        "FirstName": "ENTUSIASTISK",
+                        "LastName": "BOKSTAV",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "10816898728",
+                        "FirstName": "LILLA",
+                        "LastName": "ALT",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "03850398185",
+                        "FirstName": "LIVSTRETT",
+                        "LastName": "HOPPE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "27905697442",
+                        "FirstName": "MÅTEHOLDEN",
+                        "LastName": "DØR",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "03920999971",
+                        "FirstName": "RETT",
+                        "LastName": "SAU",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "02880748680",
+                        "FirstName": "DISKRET",
+                        "LastName": "BOKORM",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "13890497696",
+                        "FirstName": "EPISK",
+                        "LastName": "GAUPE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "24894497366",
+                        "FirstName": "HÅNDLAGET",
+                        "LastName": "BASS",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "06828399789",
+                        "FirstName": "KVART",
+                        "LastName": "GREVLING",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "03866197813",
+                        "FirstName": "SELVHJULPEN",
+                        "LastName": "BRETT",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "26866896762",
+                        "FirstName": "ALDRENDE",
+                        "LastName": "HANDLINGSEVNE",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    },
+                    {
+                        "code": "31835998439",
+                        "FirstName": "FLOTT",
+                        "LastName": "PLEKTER",
+                        "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+                    }
+                ],
+                "roles": [
+                    {
+                        "code": "string",
+                        "codeSystem": "string",
+                        "displayName": "string"
+                    }
+                ],
+                "specialities": [
+                    {
+                        "code": "string",
+                        "codeSystem": "string",
+                        "displayName": "string"
+                    }
+                ]
+            }
+        ],
+        "availabilityStatuses": [
+            "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"
+        ],
+        "classCodes": [
+            {
+                "code": "A00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Epikriser og Sammenfatninger"
+            },
+            {
+                "code": "B00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Kontinuerlig/løpende journal"
+            },
+            {
+                "code": "C00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Prøvesvar, vev og væsker"
+            },
+            {
+                "code": "D00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Organfunksjon"
+            },
+            {
+                "code": "E00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Bildediagnostikk"
+            },
+            {
+                "code": "F00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Kurve, observasjon og behandling"
+            },
+            {
+                "code": "I00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Korrespondanse"
+            },
+            {
+                "code": "J00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Attester, melding og erklæringer"
+            },
+            {
+                "code": "S00-1",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Test og scoring"
+            }
+        ],
+        "confidentialityCodes": [
+            {
+                "code": "string",
+                "codeSystem": "string",
+                "displayName": "string"
+            }
+        ],
+        "creationTimes": [
+            "2025-06-19T18:38:12.634Z"
+        ],
+        "eventCodeLists": [
+            {
+                "code": "string",
+                "codeSystem": "string",
+                "displayName": "string"
+            }
+        ],
+        "formatCodes": [
+            {
+                "code": "string",
+                "codeSystem": "string",
+                "displayName": "string"
+            }
+        ],
+        "healthcareFacilityTypeCodes": [
+            {
+                "code": "string",
+                "codeSystem": "string",
+                "displayName": "string"
+            }
+        ],
+        "homeCommunityIds": [
+            "2.16.578.1.12.4.5.100.1"
+        ],
+        "languageCodes": [
+            "nb-NO"
+        ],
+        "legalAuthenticators": [
+            {
+                "id": "string",
+                "idSystem": "string",
+                "firstName": "string",
+                "lastName": "string"
+            }
+        ],
+        "mimeTypes": [
+            "string"
+        ],
+        "objectTypes": [
+            "string"
+        ],
+        "patientIdentifiers": [
+            {
+                "code": "string",
+                "codeSystem": "string",
+                "displayName": "string"
+            }
+        ],
+        "practiceSettingCodes": [
+            {
+                "code": "string",
+                "codeSystem": "string",
+                "displayName": "string"
+            }
+        ],
+        "repositoryUniqueIds": [
+            "string"
+        ],
+        "serviceStartTimes": [
+            "2025-06-19T18:38:12.634Z"
+        ],
+        "serviceStopTimes": [
+            "2025-06-19T18:38:12.634Z"
+        ],
+        "sourcePatientInfos": [
+            {
+                "patientId": {
+                    "id": "13116900216",
+                    "system": "2.16.578.1.12.4.1.4.1"
+                },
+                "firstName": "string",
+                "lastName": "string",
+                "birthTime": "2025-06-19T18:38:12.634Z",
+                "gender": "string"
+            }
+        ],
+        "titles": [
+            "Klinisk vurdering og anbefalt behandlingsforløp",
+            "Epikrise etter poliklinisk konsultasjon",
+            "Akuttjournal – Innkomstnotat",
+            "Vurdering av medikamentell behandling",
+            "Tverrfaglig behandlingsplan – Psykisk helse",
+            "Diagnostisk utredning og funn",
+            "Kontrollnotat – Kronisk sykdomsoppfølging",
+            "Medisinsk oppsummering etter utskrivelse",
+            "Behandlingsnotat – Somatiske plager",
+            "Observasjonsnotat – Endringer i tilstand",
+            "Foreløpig epikrise – Midlertidig vurdering",
+            "Journalnotat – Vurdering av behandlingsrespons",
+            "Konsultasjonsrapport – Spesialisthelsetjeneste",
+            "Revurdering av diagnose og tiltak",
+            "Forespørsel om videre utredning",
+            "Oppsummering – Klinisk status og behov",
+            "Preoperativ vurdering og risikoanalyse",
+            "Postoperativ notat – Observasjon og plan",
+            "Oppfølging etter innleggelse – Medisinsk vurdering",
+            "Avsluttende behandlingsrapport",
+            "Innkomstnotat – Akutt innleggelse",
+            "Epikrise – Utskrivelse fra indremedisin",
+            "Journalnotat – Kontrolltime hjertesvikt",
+            "Operasjonsbeskrivelse – Appendektomi",
+            "Poliklinisk vurdering – Psykisk helsevern",
+            "Observasjonsnotat – Fall i blodtrykk",
+            "Tverrfaglig behandlingsplan – Rehabilitering",
+            "Medikamentjustering – Diabetes type 2",
+            "Postoperativ vurdering – Hofteprotese",
+            "Anestesiopplysninger – Elektiv kirurgi",
+            "Diagnostisk notat – Lungeutredning",
+            "CT-beskrivelse – Abdomen og bekken",
+            "EKG-vurdering – Brystsmerter",
+            "Henvisning – Revmatologisk utredning",
+            "Epikrise – Psykiatrisk døgnopphold",
+            "Pasientnotat – Samtykke og informasjon",
+            "Utskrivingsrapport – Ortopedisk avdeling",
+            "Nevrologisk status – Kontroll Parkinson",
+            "Journalnotat – Mistanke om infeksjon",
+            "Konsultasjonsnotat – Fastlege",
+            "Fysioterapinotat – Postoperativ oppfølging",
+            "Psykologvurdering – Angstproblematikk",
+            "Sosionomnotat – Tjenestebehov",
+            "Ergoterapeutisk kartlegging – Hjemmebesøk",
+            "Tverrfaglig oppsummering – ALS-pasient",
+            "Preoperativ vurdering – Kirurgisk forløp",
+            "Overvåkningsnotat – Intensivavdeling",
+            "Labrapport – Blodprøver og infeksjonsstatus",
+            "Epikrise – Korttidsopphold sykehjem",
+            "Behandlingsnotat – Smertepoliklinikk",
+            "Konsilnotat – Hudavdeling",
+            "Attest – Helseerklæring før arbeid",
+            "Multidisiplinær vurdering – Kreftbehandling",
+            "Svangerskapsjournal – Første konsultasjon",
+            "Fødselsnotat – Normal fødsel",
+            "Ultralydbeskrivelse – Fosterets utvikling",
+            "Infeksjonsstatus – Urinprøve",
+            "Behandlingsrapport – Cellegiftkur",
+            "Ambulansejournal – Transport til sykehus",
+            "Melding til NAV – Sykefravær",
+            "Dødsattest – Legeerklæring",
+            "Oppfølgingsplan – Kroniske smerter",
+            "Utredningsnotat – Uforklarte magesmerter",
+            "Pårørendesamtale – Informasjonsutveksling",
+            "Pasientsikkerhetsnotat – Avvikshendelse",
+            "Journalnotat – Reaksjon på medisin",
+            "Kontrollskjema – Blodsukkerregistrering",
+            "Legevaktjournal – Nattlig konsultasjon",
+            "Palliativ vurdering – Livets sluttfase",
+            "Statusnotat – Behandlingsforløp psykose",
+            "Forespørsel om tverrfaglig vurdering",
+            "Sykdomsforløp – Progressiv MS",
+            "Kirurgisk epikrise – Kolecystektomi",
+            "Legemiddelgjennomgang – Sykehjemspasient",
+            "Psykiatrisk observasjon – Første innleggelse",
+            "Nevropsykologisk vurdering – Demensutredning",
+            "Sårjournal – Trykksår behandling",
+            "Journalnotat – Ernæringsstatus",
+            "Henvisning til bildediagnostikk – MR Caput",
+            "Telefonnotat – Pårørendekontakt",
+            "Diagnosebekreftelse – Cøliaki",
+            "Barnelegevurdering – Astmautredning",
+            "Vaksinasjonsstatus – Oppdatering",
+            "Akutt journalnotat – Brannskade",
+            "Fysiologisk måling – Lungefunksjonstest",
+            "Anamnese – Kroniske magesmerter",
+            "Epikrise – Psykomotorisk fysioterapi",
+            "Innkomstskjema – Fødeavdeling",
+            "Tiltaksplan – Psykososiale behov",
+            "Forespørsel om second opinion",
+            "Funnbeskrivelse – Røntgen thorax",
+            "Ernæringsjournal – Underernært pasient",
+            "Oppfølging av blodtrykk – Hjemmemålinger",
+            "Diabetesjournal – Insulindosering",
+            "Post-konsultasjonsnotat – Psykiater",
+            "Opptrappingsplan – Medisinjustering",
+            "Kontrollnotat – Revmatisk artritt",
+            "Avdelingsrapport – Vaktbytte",
+            "Klinisk vurdering – Ryggsmerter",
+            "Epikrise – Endokrinologisk oppfølging",
+            "Klinisk undersøkelse – Overvekt barn",
+            "Helsesamtale – Minoritetsspråklig pasient",
+            "Undersøkelsesnotat – Hudforandringer",
+            "Kvalitetsnotat – Avvikshåndtering",
+            "Behandlingsoppsummering – Palliativ enhet",
+            "Komparentopplysninger – Pasient med kognitiv svikt",
+            "Rehabiliteringsplan – Slagpasient",
+            "Skadebeskrivelse – Idrettsulykke",
+            "Legemiddelinteraksjoner – Klinisk vurdering",
+            "Farmasøytisk vurdering – Reseptkontroll",
+            "Samtalenotat – Lege og pasient",
+            "Vurdering av samtykkekompetanse",
+            "Pasientrapporterte plager – Ustrukturert",
+            "Journalnotat – Nytilkommet svimmelhet",
+            "Epikrise – TIA-utredning",
+            "Journaltillegg – Supplerende funn",
+            "Henvisning til audiograf – Hørselstest",
+            "Tilsynsrapport – Internt tilsyn",
+            "Smertekartlegging – Langvarige plager",
+            "Sikkerhetsvurdering – Pasient med voldsrisiko"
+        ],
+        "typeCodes": [
+            {
+                "code": "A01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Kriseplan"
+            },
+            {
+                "code": "A02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Individuell plan"
+            },
+            {
+                "code": "A03-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Epikrise"
+            },
+            {
+                "code": "A04-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Sykepleiesammenfatning"
+            },
+            {
+                "code": "A05-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Fysioterapisammenfatning"
+            },
+            {
+                "code": "A06-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Ergoterapisammenfatning"
+            },
+            {
+                "code": "A07-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Psykologsammenfatning"
+            },
+            {
+                "code": "A08-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Sosionomsammenfatning"
+            },
+            {
+                "code": "A09-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Ernæringsfysiologsammenfatning"
+            },
+            {
+                "code": "A10-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Annet fagpersonell sammenfatning"
+            },
+            {
+                "code": "A11-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Tverrfaglig sammenfatning"
+            },
+            {
+                "code": "A12-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Utskrivings-/Pasientorientering"
+            },
+            {
+                "code": "A13-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Poliklinisk epikrise"
+            },
+            {
+                "code": "B01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Tverrfaglig behandlingsplan"
+            },
+            {
+                "code": "B02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Journalnotat"
+            },
+            {
+                "code": "B03-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Poliklinisk notat"
+            },
+            {
+                "code": "C01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Medisinsk biokjemi"
+            },
+            {
+                "code": "C02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Blodbank og immunologi"
+            },
+            {
+                "code": "C03-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Mikrobiologi, virologi og serologi"
+            },
+            {
+                "code": "C04-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Patologi, histologi og cytologi"
+            },
+            {
+                "code": "C05-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Klinisk farmakologi"
+            },
+            {
+                "code": "C06-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Medisinsk genetikk"
+            },
+            {
+                "code": "C07-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Allergiutredning"
+            },
+            {
+                "code": "D01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Hjerte og kretsløp"
+            },
+            {
+                "code": "D02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Lunge"
+            },
+            {
+                "code": "D03-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Fordøyelse"
+            },
+            {
+                "code": "D04-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Urinveier"
+            },
+            {
+                "code": "D05-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Gyn/Reproduksjon"
+            },
+            {
+                "code": "D06-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Nervesystemet"
+            },
+            {
+                "code": "D07-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Ledd/ ben/ skjelett"
+            },
+            {
+                "code": "D08-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "ØNH"
+            },
+            {
+                "code": "D09-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Øye"
+            },
+            {
+                "code": "D10-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Hud"
+            },
+            {
+                "code": "D11-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Endokrinologi"
+            },
+            {
+                "code": "D12-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Metabolisme"
+            },
+            {
+                "code": "D13-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Beinmargsutstryk"
+            },
+            {
+                "code": "E01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Bildediagnostiske svar"
+            },
+            {
+                "code": "E02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Foto og film"
+            },
+            {
+                "code": "F01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Kurve"
+            },
+            {
+                "code": "F02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Anestesi- og opr. Rapporter"
+            },
+            {
+                "code": "F03-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Intensiv/postoperativ observasjon"
+            },
+            {
+                "code": "F04-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Svangerskap og fødsel"
+            },
+            {
+                "code": "F05-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Diabetes/ endokrinologi"
+            },
+            {
+                "code": "F06-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Onkologi/ hematologi"
+            },
+            {
+                "code": "F07-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Nyre/ dialyse"
+            },
+            {
+                "code": "F08-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Smertebehandling"
+            },
+            {
+                "code": "F09-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Ambulansejournal"
+            },
+            {
+                "code": "F10-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Transplantasjon"
+            },
+            {
+                "code": "I01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Henvisninger"
+            },
+            {
+                "code": "I02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Brev"
+            },
+            {
+                "code": "J01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Sykmeldinger og trygdesaker"
+            },
+            {
+                "code": "J02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Legeerklæring om dødsfall"
+            },
+            {
+                "code": "S01-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Tester"
+            },
+            {
+                "code": "S02-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Systematiserte diagnostiske intervju"
+            },
+            {
+                "code": "S03-2",
+                "codeSystem": "2.16.578.1.12.4.1.1.9602",
+                "displayName": "Voldsrisikovurdering"
+            }
+        ],
+        "uniqueIds": [
+            "string"
+        ],
+        "ids": [
+            "string"
+        ]
+    },
+    "possibleSubmissionSetValues": {
+        "testAuthors": [
+            {
+                "organization": {
+                    "id": "string",
+                    "organizationName": "string",
+                    "assigningAuthority": "string"
+                },
+                "department": {
+                    "id": "string",
+                    "organizationName": "string",
+                    "assigningAuthority": "string"
+                },
+                "person": {
+                    "id": "string",
+                    "firstName": "string",
+                    "lastName": "string",
+                    "assigningAuthority": "string"
+                },
+                "role": {
+                    "code": "string",
+                    "codeSystem": "string",
+                    "displayName": "string"
+                },
+                "speciality": {
+                    "code": "string",
+                    "codeSystem": "string",
+                    "displayName": "string"
+                }
+            }
+        ],
+        "availabilityStatuses": [
+            "string"
+        ],
+        "homeCommunityIds": [
+            "string"
+        ],
+        "patientIds": [
+            {
+                "code": "string",
+                "codeSystem": "string",
+                "displayName": "string"
+            }
+        ],
+        "submissionTimes": [
+            "2025-06-19T18:38:12.634Z"
+        ],
+        "titles": [
+            "string"
+        ],
+        "uniqueIds": [
+            "string"
+        ],
+        "sourceIds": [
+            "string"
+        ]
+    }
+}

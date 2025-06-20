@@ -94,8 +94,8 @@
         "Id": "13116900216",
         "System": "2.16.578.1.12.4.1.7.3.2.1"
       },
-      "GivenName": "Line",
-      "FamilyName": "Danser",
+      "FirstName": "Line",
+      "LastName": "Danser",
       "BirthTime": "1969-11-13T00:00:00",
       "Gender": "F"
     },
@@ -179,8 +179,8 @@
         "Id": "ST-1000",
         "System": "1.3.6.1.4.1.21367.2003.3.9"
       },
-      "GivenName": "John",
-      "FamilyName": "Doe",
+      "FirstName": "John",
+      "LastName": "Doe",
       "BirthTime": "1956-05-27T00:00:00",
       "Gender": "M"
     },
@@ -298,8 +298,8 @@
         "Id": "13116900216",
         "System": "2.16.578.1.12.4.1.4.1"
       },
-      "GivenName": "Line",
-      "FamilyName": "Danser",
+      "FirstName": "Line",
+      "LastName": "Danser",
       "BirthTime": "1969-11-13T00:00:00",
       "Gender": "F"
     },
@@ -491,8 +491,8 @@
         "Id": "89765a87b",
         "System": "3.4.5"
       },
-      "GivenName": "John",
-      "FamilyName": "Doe",
+      "FirstName": "John",
+      "LastName": "Doe",
       "BirthTime": "1956-05-27T00:00:00",
       "Gender": "M"
     },
@@ -605,8 +605,8 @@
         "Id": "89765a87b",
         "System": "3.4.5"
       },
-      "GivenName": "John",
-      "FamilyName": "Doe",
+      "FirstName": "John",
+      "LastName": "Doe",
       "BirthTime": "1956-05-27T00:00:00",
       "Gender": "M"
     },
@@ -721,9 +721,9 @@
     "LanguageCode": "string",
     "LegalAuthenticator": {
       "Id": "string",
-      "IdSystem": "string",
-      "GivenName": "string",
-      "FamilyName": "string"
+      "AssigningAuthority": "string",
+      "FirstName": "string",
+      "LastName": "string"
     },
     "MimeType": "string",
     "ObjectType": "string",
@@ -746,8 +746,8 @@
         "Id": "string",
         "System": "string"
       },
-      "GivenName": "string",
-      "FamilyName": "string",
+      "FirstName": "string",
+      "LastName": "string",
       "BirthTime": "2025-06-16T10:59:32.887Z",
       "Gender": "string"
     },
@@ -876,8 +876,8 @@
         "Id": "13116900216",
         "System": "2.16.578.1.12.4.1.7.3.2.1"
       },
-      "GivenName": "Line",
-      "FamilyName": "Danser",
+      "FirstName": "Line",
+      "LastName": "Danser",
       "BirthTime": "1969-11-13T00:00:00",
       "Gender": "F"
     },

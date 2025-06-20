@@ -292,8 +292,8 @@ public static class RegistryMetadataTransformerService
             return new()
             {
                 BirthTime = birthTime == null ? null : DateTime.ParseExact(birthTime, Constants.Hl7.Dtm.DtmYmdFormat, CultureInfo.InvariantCulture),
-                FamilyName = name?.FamilyName,
-                GivenName = name?.GivenName,
+                LastName = name?.FamilyName,
+                FirstName = name?.GivenName,
                 Gender = gender ?? "U",
                 PatientId = new()
                 {
@@ -365,7 +365,6 @@ public static class RegistryMetadataTransformerService
         }
 
         return null;
-
     }
 
     private static LegalAuthenticator? GetLegalAuthenticatorFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
@@ -378,10 +377,10 @@ public static class RegistryMetadataTransformerService
 
         if (legAuthXcn != null)
         {
-            legalAuthenticator.FamilyName = legAuthXcn.FamilyName;
-            legalAuthenticator.GivenName = legAuthXcn.GivenName;
+            legalAuthenticator.LastName = legAuthXcn.FamilyName;
+            legalAuthenticator.FirstName = legAuthXcn.GivenName;
             legalAuthenticator.Id = legAuthXcn.PersonIdentifier;
-            legalAuthenticator.IdSystem = legAuthXcn.AssigningAuthority.UniversalId;
+            legalAuthenticator.AssigningAuthority = legAuthXcn.AssigningAuthority.UniversalId;
 
             return legalAuthenticator;
         }
@@ -833,14 +832,14 @@ public static class RegistryMetadataTransformerService
         }
 
 
-        if (sourcePatientInfo?.FamilyName != null)
+        if (sourcePatientInfo?.LastName != null)
         {
-            var lastNameParts = sourcePatientInfo.FamilyName?.Split(' ');
+            var lastNameParts = sourcePatientInfo.LastName?.Split(' ');
 
             var sourcePatientXcn = new XPN()
             {
-                GivenName = sourcePatientInfo.GivenName,
-                FamilyName = sourcePatientInfo.FamilyName,
+                GivenName = sourcePatientInfo.FirstName,
+                FamilyName = sourcePatientInfo.LastName,
             };
 
             sourcePatientIdSlot.AddValue($"PID-5|{sourcePatientXcn.Serialize()}");
@@ -900,19 +899,19 @@ public static class RegistryMetadataTransformerService
         var legalAuthenticator = documentEntryMetadata.LegalAuthenticator;
         if (legalAuthenticator != null)
         {
-            var lastNameParts = legalAuthenticator.FamilyName?.Split(' ');
+            var lastNameParts = legalAuthenticator.LastName?.Split(' ');
             var middleName = lastNameParts?.FirstOrDefault();
             var lastName = string.Join(" ", lastNameParts?.Skip(1));
             var legalAuthXcn = new XCN()
             {
                 PersonIdentifier = legalAuthenticator.Id,
-                GivenName = legalAuthenticator.GivenName,
+                GivenName = legalAuthenticator.FirstName,
                 MiddleName = middleName,
                 FamilyName = lastName,
                 AssigningAuthority = new()
                 {
-                    UniversalId = legalAuthenticator.IdSystem,
-                    UniversalIdType = string.IsNullOrWhiteSpace(legalAuthenticator.IdSystem) ? null : Constants.Hl7.UniversalIdType.Iso
+                    UniversalId = legalAuthenticator.AssigningAuthority,
+                    UniversalIdType = string.IsNullOrWhiteSpace(legalAuthenticator.AssigningAuthority) ? null : Constants.Hl7.UniversalIdType.Iso
                 }
             };
 

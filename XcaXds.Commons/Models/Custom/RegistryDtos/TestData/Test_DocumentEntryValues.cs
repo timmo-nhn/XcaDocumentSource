@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
 public class Test_DocumentEntryValues
 {
-    public List<Author> Authors { get; set; }
+    public List<TestAuthors> Authors { get; set; }
     public List<string> AvailabilityStatuses { get; set; }
     public List<CodedValue> ClassCodes { get; set; }
     public List<CodedValue> ConfidentialityCodes { get; set; }

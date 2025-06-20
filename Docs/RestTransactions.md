@@ -21,118 +21,118 @@ https://localhost:7176/api/rest/upload
 ```json
 {
     "documentEntry": {
-        "Author": {
-            "Organization": {
-                "Id": "983974880",
-                "OrganizationName": "Finnmarkssykehuset HF",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.101"
+        "author": {
+            "organization": {
+                "id": "983974880",
+                "organizationName": "Finnmarkssykehuset HF",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.101"
             },
-            "Department": {
-                "Id": "4211607",
-                "OrganizationName": "Laboratoriemedisinsk avdeling - FIN",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.102"
+            "department": {
+                "id": "4211607",
+                "organizationName": "Laboratoriemedisinsk avdeling - FIN",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.102"
             },
-            "Person": {
-                "Id": "502116685",
-                "FirstName": "BENEDIKTE",
-                "LastName": "GEIRAAS",
-                "AssigningAuthority": "urn:oid:2.16.578.1.12.4.1.4.4"
+            "person": {
+                "id": "502116685",
+                "firstName": "BENEDIKTE",
+                "lastName": "GEIRAAS",
+                "assigningAuthority": "urn:oid:2.16.578.1.12.4.1.4.4"
             }
         },
-        "AvailabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-        "ClassCode": {
-            "Code": "A00-1",
-            "CodeSystem": "2.16.578.1.12.4.1.1.9602",
-            "DisplayName": "Epikriser og sammenfatninger"
+        "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+        "classCode": {
+            "code": "A00-1",
+            "codeSystem": "2.16.578.1.12.4.1.1.9602",
+            "displayName": "Epikriser og sammenfatninger"
         },
-        "ConfidentialityCode": {
-            "Code": "NORN_DUP",
-            "CodeSystem": "2.16.578.1.12.4.1.1.9603",
-            "DisplayName": "Nektet, duplikat"
+        "confidentialityCode": {
+            "code": "NORN_DUP",
+            "codeSystem": "2.16.578.1.12.4.1.1.9603",
+            "displayName": "Nektet, duplikat"
         },
-        "CreationTime": "2025-02-06T14:13:56",
-        "FormatCode": {
-            "Code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-            "CodeSystem": "http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode",
-            "DisplayName": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
+        "creationTime": "2025-02-06T14:13:56",
+        "formatCode": {
+            "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+            "codeSystem": "http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode",
+            "displayName": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
         },
-        "Hash": "35A3E0104791D9ACD5A16352ED075F390508CA10",
-        "HealthCareFacilityTypeCode": {
-            "Code": "86.211",
-            "CodeSystem": "2.16.578.1.12.4.1.1.1303",
-            "DisplayName": "86.211"
+        "hash": "35A3E0104791D9ACD5A16352ED075F390508CA10",
+        "healthCareFacilityTypeCode": {
+            "code": "86.211",
+            "codeSystem": "2.16.578.1.12.4.1.1.1303",
+            "displayName": "86.211"
         },
-        "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
-        "LanguageCode": "nb-NO",
-        "MimeType": "application/xml",
-        "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
-        "PatientId": {
-            "Code": "13116900216",
-            "CodeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+        "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+        "languageCode": "nb-NO",
+        "mimeType": "application/xml",
+        "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+        "patientId": {
+            "code": "13116900216",
+            "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
         },
-        "PracticeSettingCode": {
-            "Code": "4",
-            "CodeSystem": "2.16.578.1.12.4.1.1.8653",
-            "DisplayName": "4"
+        "practiceSettingCode": {
+            "code": "4",
+            "codeSystem": "2.16.578.1.12.4.1.1.8653",
+            "displayName": "4"
         },
-        "RepositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
-        "Size": "80574",
-        "ServiceStartTime": "2025-01-07T15:14:03",
-        "ServiceStopTime": "2025-01-22T15:14:03",
-        "SourcePatientInfo": {
-            "PatientId": {
-                "Id": "13116900216",
-                "System": "2.16.578.1.12.4.1.7.3.2.1"
+        "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+        "size": "80574",
+        "serviceStartTime": "2025-01-07T15:14:03",
+        "serviceStopTime": "2025-01-22T15:14:03",
+        "sourcePatientInfo": {
+            "patientId": {
+                "id": "13116900216",
+                "system": "2.16.578.1.12.4.1.7.3.2.1"
             },
-            "GivenName": "Line",
-            "FamilyName": "Danser",
-            "BirthTime": "1969-11-13T00:00:00",
-            "Gender": "F"
+            "givenName": "Line",
+            "familyName": "Danser",
+            "birthTime": "1969-11-13T00:00:00",
+            "gender": "F"
         },
-        "Title": "test 123",
-        "TypeCode": {
-            "Code": "A01-2",
-            "CodeSystem": "2.16.578.1.12.4.1.1.9602",
-            "DisplayName": "Kriseplan"
+        "title": "test 123",
+        "typeCode": {
+            "code": "A01-2",
+            "codeSystem": "2.16.578.1.12.4.1.1.9602",
+            "displayName": "Kriseplan"
         },
-        "UniqueId": "ExtrinsicObject01",
-        "Id": "ExtrinsicObject01"
+        "uniqueId": "ExtrinsicObject01",
+        "id": "ExtrinsicObject01"
     },
     "submisisonSet": {
-        "Author": {
-            "Organization": {
-                "Id": "994598759",
-                "OrganizationName": "NORSK HELSENETT SF",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.101"
+        "author": {
+            "organization": {
+                "id": "994598759",
+                "organizationName": "NORSK HELSENETT SF",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.101"
             },
-            "Department": {
-                "Id": "1345020",
-                "OrganizationName": "Department X",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.102"
+            "department": {
+                "id": "1345020",
+                "organizationName": "Department X",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.102"
             },
-            "Person": {
-                "Id": "565505933",
-                "FirstName": "KVART",
-                "LastName": "GREVLING",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+            "person": {
+                "id": "565505933",
+                "firstName": "KVART",
+                "lastName": "GREVLING",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.4"
             }
         },
-        "PatientId": {
-            "Code": "13116900216",
-            "CodeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+        "patientId": {
+            "code": "13116900216",
+            "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
         },
-        "SubmissionTime": "2025-02-06T14:13:56",
-        "Title": "SubmissionSet-RegistryPackage01",
-        "UniqueId": "2.16.578.1.12.4.5.7.4.87227.6270.1793",
-        "SourceId": "1.2.840.4711.815.1",
-        "Id": "RegistryPackage01"
+        "submissionTime": "2025-02-06T14:13:56",
+        "title": "SubmissionSet-RegistryPackage01",
+        "uniqueId": "2.16.578.1.12.4.5.7.4.87227.6270.1793",
+        "sourceId": "1.2.840.4711.815.1",
+        "id": "RegistryPackage01"
     },
     "association": {
-        "AssociationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
-        "SourceObject": "RegistryPackage01",
-        "SubmissionSetStatus": "Original",
-        "TargetObject": "ExtrinsicObject01",
-        "Id": "Association01"
+        "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+        "sourceObject": "RegistryPackage01",
+        "submissionSetStatus": "Original",
+        "targetObject": "ExtrinsicObject01",
+        "id": "Association01"
     }
 }
 ```
@@ -192,118 +192,118 @@ https://localhost:7176/api/rest/update?replace=false
 ```json
 {
     "documentEntry": {
-        "Author": {
-            "Organization": {
-                "Id": "983974880",
-                "OrganizationName": "New Finnmarkssykehuset HF",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.101"
+        "author": {
+            "organization": {
+                "id": "983974880",
+                "organizationName": "New Finnmarkssykehuset HF",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.101"
             },
-            "Department": {
-                "Id": "4211607",
-                "OrganizationName": "New Laboratoriemedisinsk avdeling - FIN",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.102"
+            "department": {
+                "id": "4211607",
+                "organizationName": "New Laboratoriemedisinsk avdeling - FIN",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.102"
             },
-            "Person": {
-                "Id": "502116685",
-                "FirstName": "MODIG",
-                "LastName": "STOL",
-                "AssigningAuthority": "urn:oid:2.16.578.1.12.4.1.4.4"
+            "person": {
+                "id": "502116685",
+                "firstName": "MODIG",
+                "lastName": "STOL",
+                "assigningAuthority": "urn:oid:2.16.578.1.12.4.1.4.4"
             }
         },
-        "AvailabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-        "ClassCode": {
-            "Code": "A00-1",
-            "CodeSystem": "2.16.578.1.12.4.1.1.9602",
-            "DisplayName": "Epikriser og sammenfatninger"
+        "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+        "classCode": {
+            "code": "A00-1",
+            "codeSystem": "2.16.578.1.12.4.1.1.9602",
+            "displayName": "Epikriser og sammenfatninger"
         },
-        "ConfidentialityCode": {
-            "Code": "NORN_DUP",
-            "CodeSystem": "2.16.578.1.12.4.1.1.9603",
-            "DisplayName": "Nektet, duplikat"
+        "confidentialityCode": {
+            "code": "NORN_DUP",
+            "codeSystem": "2.16.578.1.12.4.1.1.9603",
+            "displayName": "Nektet, duplikat"
         },
-        "CreationTime": "2025-02-06T14:13:56",
-        "FormatCode": {
-            "Code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-            "CodeSystem": "http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode",
-            "DisplayName": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
+        "creationTime": "2025-02-06T14:13:56",
+        "formatCode": {
+            "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+            "codeSystem": "http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode",
+            "displayName": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
         },
-        "Hash": "35A3E0104791D9ACD5A16352ED075F390508CA10",
-        "HealthCareFacilityTypeCode": {
-            "Code": "86.211",
-            "CodeSystem": "2.16.578.1.12.4.1.1.1303",
-            "DisplayName": "86.211"
+        "hash": "35A3E0104791D9ACD5A16352ED075F390508CA10",
+        "healthCareFacilityTypeCode": {
+            "code": "86.211",
+            "codeSystem": "2.16.578.1.12.4.1.1.1303",
+            "displayName": "86.211"
         },
-        "HomeCommunityId": "2.16.578.1.12.4.5.100.1",
-        "LanguageCode": "nb-NO",
-        "MimeType": "application/xml",
-        "ObjectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
-        "PatientId": {
-            "Code": "13116900216",
-            "CodeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+        "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+        "languageCode": "nb-NO",
+        "mimeType": "application/xml",
+        "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+        "patientId": {
+            "code": "13116900216",
+            "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
         },
-        "PracticeSettingCode": {
-            "Code": "4",
-            "CodeSystem": "2.16.578.1.12.4.1.1.8653",
-            "DisplayName": "4"
+        "practiceSettingCode": {
+            "code": "4",
+            "codeSystem": "2.16.578.1.12.4.1.1.8653",
+            "displayName": "4"
         },
-        "RepositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
-        "Size": "80574",
-        "ServiceStartTime": "2025-01-07T15:14:03",
-        "ServiceStopTime": "2025-01-22T15:14:03",
-        "SourcePatientInfo": {
-            "PatientId": {
-                "Id": "13116900216",
-                "System": "2.16.578.1.12.4.1.7.3.2.1"
+        "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+        "size": "80574",
+        "serviceStartTime": "2025-01-07T15:14:03",
+        "serviceStopTime": "2025-01-22T15:14:03",
+        "sourcePatientInfo": {
+            "patientId": {
+                "id": "13116900216",
+                "system": "2.16.578.1.12.4.1.7.3.2.1"
             },
-            "GivenName": "Line",
-            "FamilyName": "Danser",
-            "BirthTime": "1969-11-13T00:00:00",
-            "Gender": "F"
+            "givenName": "Line",
+            "familyName": "Danser",
+            "birthTime": "1969-11-13T00:00:00",
+            "gender": "F"
         },
-        "Title": "test 123 oppdatert",
-        "TypeCode": {
-            "Code": "A07-2",
-            "CodeSystem": "2.16.578.1.12.4.1.1.9602",
-            "DisplayName": "Psykologsammenfatning"
+        "title": "test 123 oppdatert",
+        "typeCode": {
+            "code": "A07-2",
+            "codeSystem": "2.16.578.1.12.4.1.1.9602",
+            "displayName": "Psykologsammenfatning"
         },
-        "UniqueId": "ExtrinsicObject01",
-        "Id": "ExtrinsicObject01"
+        "uniqueId": "ExtrinsicObject01",
+        "id": "ExtrinsicObject01"
     },
     "submissionSet": {
-        "Author": {
-            "Organization": {
-                "Id": "994598759",
-                "OrganizationName": "NORSK HELSENETT SF",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.101"
+        "author": {
+            "organization": {
+                "id": "994598759",
+                "organizationName": "NORSK HELSENETT SF",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.101"
             },
-            "Department": {
-                "Id": "1345020",
-                "OrganizationName": "Department X",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.102"
+            "department": {
+                "id": "1345020",
+                "organizationName": "Department X",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.102"
             },
-            "Person": {
-                "Id": "565505933",
-                "FirstName": "KVART",
-                "LastName": "GREVLING",
-                "AssigningAuthority": "2.16.578.1.12.4.1.4.4"
+            "person": {
+                "id": "565505933",
+                "firstName": "KVART",
+                "lastName": "GREVLING",
+                "assigningAuthority": "2.16.578.1.12.4.1.4.4"
             }
         },
-        "PatientId": {
-            "Code": "13116900216",
-            "CodeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+        "patientId": {
+            "code": "13116900216",
+            "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
         },
-        "SubmissionTime": "2025-02-06T14:13:56",
-        "Title": "SubmissionSet-RegistryPackage01",
-        "UniqueId": "2.16.578.1.12.4.5.7.4.87227.6270.1793",
-        "SourceId": "1.2.840.4711.815.1",
-        "Id": "RegistryPackage01"
+        "submissionTime": "2025-02-06T14:13:56",
+        "title": "SubmissionSet-RegistryPackage01",
+        "uniqueId": "2.16.578.1.12.4.5.7.4.87227.6270.1793",
+        "sourceId": "1.2.840.4711.815.1",
+        "id": "RegistryPackage01"
     },
     "association": {
-        "AssociationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
-        "SourceObject": "RegistryPackage01",
-        "SubmissionSetStatus": "Original",
-        "TargetObject": "ExtrinsicObject01",
-        "Id": "Association01"
+        "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+        "sourceObject": "RegistryPackage01",
+        "submissionSetStatus": "Original",
+        "targetObject": "ExtrinsicObject01",
+        "id": "Association01"
     }
 }
 ```
@@ -314,7 +314,7 @@ Send a partial request which only updates the specified fields. Useful for small
 | Property  | Description |
 |---|---|
 | HTTP action | PATCH |
-| Short description | Update an existing document reference by only sending the values that are needed for the update |
+| Short description | Partially update an existing document reference by only sending the values that are needed for the update |
 | Endpoint URL | /api/rest/update |
 | Request Query | `repository`, `home`, `documentid` |
 | Response Object | `DocumentResponse` |
