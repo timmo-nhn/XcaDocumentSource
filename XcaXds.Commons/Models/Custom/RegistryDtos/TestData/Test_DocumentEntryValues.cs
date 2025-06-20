@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
+﻿namespace XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
 public class Test_DocumentEntryValues
 {
@@ -26,11 +20,9 @@ public class Test_DocumentEntryValues
     public List<string> RepositoryUniqueIds { get; set; }
     public List<DateTime> ServiceStartTimes { get; set; }
     public List<DateTime> ServiceStopTimes { get; set; }
-
     public List<SourcePatientInfo> SourcePatientInfos { get; set; }
     public List<string> Titles { get; set; }
     public List<CodedValue> TypeCodes { get; set; }
     public List<string> UniqueIds { get; set; }
     public List<string> Ids { get; set; }
- 
 }

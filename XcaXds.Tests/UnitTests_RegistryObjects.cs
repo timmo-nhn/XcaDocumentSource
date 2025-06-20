@@ -6,10 +6,10 @@ using XcaXds.Commons.Services;
 
 namespace XcaXds.Tests;
 
-public class UnitTests_MapRegistryObjects
+public class UnitTests_RegistryObjects
 {
     [Fact]
-    public async Task MapRegistryObjects()
+    public async Task Registry_MapRegistryObjects()
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
@@ -53,7 +53,7 @@ public class UnitTests_MapRegistryObjects
     }
 
     [Fact]
-    public async Task MapEbRimRegistryObjectsRegistryToJsonDtoRegistry()
+    public async Task Registry_MapEbRimRegistryObjectsRegistryToJsonDtoRegistry()
     {
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
@@ -71,5 +71,21 @@ public class UnitTests_MapRegistryObjects
 
         File.WriteAllText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")), jsonRegistry);
 
+    }
+
+    [Fact]
+    public async Task Registry_ReadWriteRegistry()
+    {
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+
+        var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
+        var testDataFiles = Directory.GetFiles(registryPath);
+        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json.backup")));
+        var jsonContent = await reader.ReadToEndAsync();
+        var content = RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(jsonContent);
+
+        var jsonRegistry = RegistryJsonSerializer.Serialize(content);
+
+        File.WriteAllText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")), jsonRegistry);
     }
 }
