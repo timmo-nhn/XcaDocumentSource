@@ -1077,6 +1077,9 @@ public static class RegistryMetadataTransformerService
             ValueList = new()
         };
 
+        var organization = new XON();
+        var department = new XON();
+
         if (author.Organization != null)
         {
             var org = new XON()
@@ -1089,8 +1092,7 @@ public static class RegistryMetadataTransformerService
                     UniversalIdType = string.IsNullOrWhiteSpace(author.Organization.AssigningAuthority) ? null : Constants.Hl7.UniversalIdType.Iso
                 }
             };
-
-            authorInstitutionSlot.ValueList.Value = [org.Serialize()];
+            organization = org;
         }
 
         if (author.Department != null)
@@ -1105,9 +1107,11 @@ public static class RegistryMetadataTransformerService
                     UniversalIdType = string.IsNullOrWhiteSpace(author.Department.AssigningAuthority) ? null : Constants.Hl7.UniversalIdType.Iso
                 }
             };
+            department = dpt;
 
-            authorInstitutionSlot.ValueList.Value = [.. authorInstitutionSlot.ValueList.Value, dpt.Serialize()];
         }
+
+        authorInstitutionSlot.ValueList.Value = [ organization.Serialize(), department.Serialize()];
 
         classification.AddSlot(authorInstitutionSlot);
     }

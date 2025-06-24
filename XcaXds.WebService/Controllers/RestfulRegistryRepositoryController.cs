@@ -31,13 +31,13 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [HttpGet("document-list")]
-    public async Task<IActionResult> GetDocumentList([FromQuery] string? id, [FromQuery] string? status)
+    public async Task<IActionResult> GetDocumentList(string? id, string? status, int? maxResults, int? pageNumber)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
         var requestTimer = Stopwatch.StartNew();
         
-        var entries = _restfulRegistryService.GetDocumentListForPatient(id, status);
+        var entries = _restfulRegistryService.GetDocumentListForPatient(id, status, maxResults, pageNumber);
 
         requestTimer.Stop();
         

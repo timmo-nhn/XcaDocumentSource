@@ -32,7 +32,7 @@ public class RestfulRegistryRepositoryService
         _logger = logger;
     }
 
-    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status)
+    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, int? maxResults, int? pageNumber)
     {
         var documentListResponse = new DocumentListResponse();
 

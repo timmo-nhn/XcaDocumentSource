@@ -3,7 +3,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
 public class Test_SubmissionSetValues
 {
-    public List<TestAuthors> Authors { get; set; }
+    public TestAuthors Authors { get; set; }
     public List<string> AvailabilityStatuses { get; set; }
     public List<string> HomeCommunityIds { get; set; }
     public List<CodedValue> PatientIds { get; set; }

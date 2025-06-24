@@ -4,7 +4,7 @@
 The Document Registry/Repository-solution is created to be easily interchangeable with existing Document Source solutions. It is based on a simple file-based Registry and Repository.  
 The Document Registry is a XML-file with a 1:1 representation of the serialized document metadata, such as what is returned in **ITI-messages**.
 A RegistryService is registered with Dependency Injection (DI), which holds an instance of the Document Registry. When a document is uploaded or deleted using one of **ITI-41**, **ITI-42** or **ITI-62**, the DI-instance of the Registry is updated to correspond to the modifications made. 
-> **⚠️ Note!** <br> If the **Registry.xml** file is edited directly by hand, such as using a text-editor, the application must be restarted or "bumped" by uploading or deleting registry objects with an **ITI-message**, thus triggering an update to the DI-instance.
+>**🔶 Implementation Note** <br> If the **Registry.json** file is edited directly by hand, such as using a text-editor, the application must be restarted or "bumped" by uploading or deleting registry objects with a registry request, thus triggering an update to the DI-instance.
 
 ## IDocumentRegistry/IRepository
 The IDocumentRegistry and IRepository (at `<solution>/XcaXds.Source/Services/`) are the actual Registry/Repository Implementation. The base implementation is file-based.  

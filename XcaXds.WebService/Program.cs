@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.FeatureManagement;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.OpenDipsRegistryRepository.Services;
 using XcaXds.Source.Services;
-using XcaXds.Commons.Interfaces;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -80,10 +79,10 @@ public class Program
         // OpenDips service
         builder.Services.AddSingleton<OpenDipsClient>();
         builder.Services.AddSingleton<OpenDipsTokenService>();
-        
+
         // Fhir server interfacing service
         builder.Services.AddSingleton<IFhirEndpointsService, OpenDipsClient>();
-        builder.Services.AddSingleton(provider => 
+        builder.Services.AddSingleton(provider =>
         new FhirEndpointsDtoTransformerService(
             "http://hapi.fhir.org/baseR4",
             provider.GetService<ILogger<FhirEndpointsDtoTransformerService>>(),

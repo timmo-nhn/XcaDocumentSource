@@ -6,11 +6,11 @@ using XcaXds.WebService.Attributes;
 namespace XcaXds.WebService.Controllers;
 
 
-[ApiController]
-[UsePolicyEnforcementPoint]
-[Route("api/rest")]
-[Consumes("application/json")]
-[Produces("application/json")]
+//[ApiController]
+//[UsePolicyEnforcementPoint]
+//[Route("api/rest")]
+//[Consumes("application/json")]
+//[Produces("application/json")]
 public class TestDataController : ControllerBase
 {
 
