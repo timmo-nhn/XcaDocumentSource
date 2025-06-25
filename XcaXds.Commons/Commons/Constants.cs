@@ -395,6 +395,11 @@ public static class Constants
             public const string DtmFormat = DtmYmdhmFormat + "ss";
 
             /// <summary>
+            /// yyMMddHHmmss
+            /// </summary>
+            public const string DtmYyFormat = "yyMMddHHmmss";
+
+            /// <summary>
             /// yyyyMMddHHmmssfff
             /// </summary>
             public const string DtmLongFormat = DtmFormat + "fff";

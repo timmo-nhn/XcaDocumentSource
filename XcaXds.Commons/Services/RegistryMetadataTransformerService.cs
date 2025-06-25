@@ -899,9 +899,17 @@ public static class RegistryMetadataTransformerService
         var legalAuthenticator = documentEntryMetadata.LegalAuthenticator;
         if (legalAuthenticator != null)
         {
+            string middleName = null;
+            string lastName = null;
+
             var lastNameParts = legalAuthenticator.LastName?.Split(' ');
-            var middleName = lastNameParts?.FirstOrDefault();
-            var lastName = string.Join(" ", lastNameParts?.Skip(1));
+            
+            if (lastNameParts != null)
+            {
+                middleName = lastNameParts?.FirstOrDefault();
+                lastName = string.Join(" ", lastNameParts?.Skip(1));
+            }
+            
             var legalAuthXcn = new XCN()
             {
                 PersonIdentifier = legalAuthenticator.Id,

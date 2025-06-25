@@ -1124,7 +1124,21 @@
       ]
     },
     "availabilityStatuses": [
-      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+      "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"
     ],
     "classCodes": [
       {

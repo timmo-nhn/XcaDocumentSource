@@ -71,7 +71,7 @@ public class RestfulRegistryRepositoryService
                 LinkToDocument = new()
                 {
                     Title = dr.Title,
-                    Url = $"api/rest/document?home={dr.HomeCommunityId}&repository={dr.RepositoryUniqueId}&document={dr.UniqueId}"
+                    Url = $"api/rest/document?home={dr.HomeCommunityId}&repository={dr.RepositoryUniqueId}&document={dr.Id}"
                 }
             }).ToList();
 

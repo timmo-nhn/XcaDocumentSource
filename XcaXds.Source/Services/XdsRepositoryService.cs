@@ -1,4 +1,5 @@
-﻿using PdfSharp.Pdf;
+﻿using Microsoft.Extensions.Logging;
+using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Net.Http.Headers;
 using System.Text;
@@ -19,12 +20,15 @@ public class XdsRepositoryService
     private readonly ApplicationConfig _xdsConfig;
     private readonly XcaGateway _xcaGateway;
     private readonly RepositoryWrapper _repositoryWrapper;
+    private readonly ILogger<XdsRepositoryService> _logger;
 
-    public XdsRepositoryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RepositoryWrapper repositoryWrapper)
+
+    public XdsRepositoryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RepositoryWrapper repositoryWrapper, ILogger<XdsRepositoryService> logger)
     {
         _xdsConfig = xdsConfig;
         _xcaGateway = xcaGateway;
         _repositoryWrapper = repositoryWrapper;
+        _logger = logger;
     }
 
     public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope)
@@ -178,21 +182,26 @@ public class XdsRepositoryService
                 var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);
                 if (mimeType == "application/pdf")
                 {
-                    // Create a memory stream from the file bytes
-                    using MemoryStream ms = new(file);
-                    // Open the PDF document from the memory stream
-                    PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
+                    try
+                    {
+                        using MemoryStream ms = new(file);
 
-                    // Set the title to the document ID
-                    pdfDoc.Info.Title = docId;
+                        PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
 
-                    // Save the modified document to a new memory stream
-                    using MemoryStream outputStream = new();
-                    pdfDoc.Save(outputStream);
-                    pdfDoc.Close();
+                        pdfDoc.Info.Title = docId;
+
+                        using MemoryStream outputStream = new();
+                        pdfDoc.Save(outputStream);
+                        pdfDoc.Close();
+
+                        file = outputStream.ToArray();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message + ex.StackTrace);
+                    }
 
                     // Get the modified file bytes and replace the original file variable
-                    file = outputStream.ToArray();
                 }
                 retrieveResponse.AddDocument(file, home, repoId, docId, mimeType);
             }

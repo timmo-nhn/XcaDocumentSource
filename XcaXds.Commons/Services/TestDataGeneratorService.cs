@@ -75,9 +75,18 @@ public static class TestDataGeneratorService
                 Title = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Titles)
             };
 
+            var associaiton = new AssociationDto()
+            {
+                AssociationType = Constants.Xds.AssociationType.HasMember,
+                SourceObject = submissionSet.Id,
+                SubmissionSetStatus = "Current",
+                TargetObject = documentEntry.Id,
+
+            };
 
             registryObjects.Add(documentEntry);
             registryObjects.Add(submissionSet);
+            registryObjects.Add(associaiton);
             maxCount++;
         }
 

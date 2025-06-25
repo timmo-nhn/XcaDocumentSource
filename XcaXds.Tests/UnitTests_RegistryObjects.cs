@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
@@ -72,7 +74,7 @@ public class UnitTests_RegistryObjects
     {
         if (!Debugger.IsAttached)
         {
-            _output.WriteLine("Skipping manual test (not debugging).");
+            _output.WriteLine("Must be run manually (will modify registry)");
             return;
         }
 
@@ -114,15 +116,13 @@ public class UnitTests_RegistryObjects
     {
         if (!Debugger.IsAttached)
         {
-            _output.WriteLine("Skipping manual test (not debugging).");
+            _output.WriteLine("Must be run manually (will modify registry)");
             return;
         }
 
-        var registryFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry"));
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
         var testDataDocuments = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Documents"));
 
-        using var registryFile = File.OpenText(registryFiles.First(f => f.Contains("Registry.json")));
         using var testDataFile = File.OpenText(testDataFiles.First(f => f.Contains("TestDataRegistryObjects.json")));
 
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(await testDataFile.ReadToEndAsync());
@@ -130,26 +130,33 @@ public class UnitTests_RegistryObjects
 
         jsonTestData.PossibleSubmissionSetValues.Authors = jsonTestData.PossibleDocumentEntryValues.Authors;
         
-        var registryContent = RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(await registryFile.ReadToEndAsync());
 
-        var files = testDataDocuments.Select(file => File.ReadAllText(file)).ToList();
+        var files = testDataDocuments.Select(file => File.ReadAllBytes(file)).ToList();
 
-        var registryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, 100);
+        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, 10);
 
-        var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = registryObjects.OfType<DocumentEntryDto>().FirstOrDefault().RepositoryUniqueId});
 
-        foreach (var registryObject in registryObjects.OfType<DocumentEntryDto>())
+        var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = generatedTestRegistryObjects.OfType<DocumentEntryDto>().FirstOrDefault().RepositoryUniqueId});
+
+        var registryService = new FileBasedRegistry();
+
+        foreach (var generatedTestObject in generatedTestRegistryObjects.OfType<DocumentEntryDto>())
         {
-            var randomFileAsByteArray = Encoding.UTF8.GetBytes(files.ElementAt(new Random().Next(files.Count())));
+            var randomFileAsByteArray = files.ElementAt(new Random().Next(files.Count()));
             
-            if (registryObject?.PatientId?.Code != null && registryObject.Id != null && randomFileAsByteArray != null)
+            if (generatedTestObject?.PatientId?.Code != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
             {
-                repoService.Write(registryObject.Id, randomFileAsByteArray, registryObject.PatientId.Code);
+                generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
+                using (var md5 = MD5.Create())
+                {
+                    generatedTestObject.Hash  = BitConverter.ToString(md5.ComputeHash(randomFileAsByteArray)).Replace("-", "");
+                }
+                repoService.Write(generatedTestObject.Id, randomFileAsByteArray, generatedTestObject.PatientId.Code);
             }
         }
-                        
-        var jsonRegistry = RegistryJsonSerializer.Serialize(registryContent);
 
-        File.WriteAllText(registryFiles.First(f => f.Contains("Registry.json")), jsonRegistry);
+        var documentRegistryObjects = registryService.ReadRegistry();
+        documentRegistryObjects.AddRange(generatedTestRegistryObjects);
+        registryService.WriteRegistry(documentRegistryObjects);
     }
 }

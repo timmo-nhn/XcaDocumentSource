@@ -16,11 +16,6 @@
     <PackageReference Include="PDFsharp" Version="6.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repository\2.16.578.1.12.4.5.100.1.2\12119000465\" />
-    <Folder Include="Repository\2.16.578.1.12.4.5.100.1.2\27888498775\" />
-  </ItemGroup>
-
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

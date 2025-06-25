@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
@@ -32,8 +33,8 @@ public class FileBasedRegistry : IRegistry
         lock (_lock)
         {
             var backup = File.ReadAllText(_registryFile);
-            
-            File.WriteAllText(_registryFile + ".backup", RegistryJsonSerializer.Serialize(dtos));
+
+            File.WriteAllText(_registryFile + $".backup_{DateTime.UtcNow.ToString(Constants.Hl7.Dtm.DtmYyFormat)}", backup);
 
             File.WriteAllTextAsync(_registryFile, RegistryJsonSerializer.Serialize(dtos));
             return true;
