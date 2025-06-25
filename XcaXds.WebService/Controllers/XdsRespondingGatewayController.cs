@@ -11,6 +11,7 @@ using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
 
+[Tags("SOAP Endpoints (IHE XDS/XCA)")]
 [ApiController]
 [Route("XCA/services")]
 [UsePolicyEnforcementPoint]

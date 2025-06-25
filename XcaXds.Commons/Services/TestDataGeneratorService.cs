@@ -16,7 +16,7 @@ public static class TestDataGeneratorService
         {
             var rng = new Random();
             var creationTime =
-                DateTime.Now.AddSeconds(-rng.Next(1_000_000_000));
+                DateTime.UtcNow.AddSeconds(-rng.Next(1_000_000_000));
 
 
             var documentEntry = new DocumentEntryDto()
@@ -46,8 +46,8 @@ public static class TestDataGeneratorService
                 PatientId = PickRandom(documentEntryValues.PossibleDocumentEntryValues.PatientIdentifiers),
                 PracticeSettingCode = PickRandom(documentEntryValues.PossibleDocumentEntryValues.PracticeSettingCodes),
                 RepositoryUniqueId = PickRandom(documentEntryValues.PossibleDocumentEntryValues.RepositoryUniqueIds),
-                ServiceStartTime = creationTime.AddSeconds(-rng.Next(10_000)),
-                ServiceStopTime = creationTime.AddSeconds(-rng.Next(10_000, 20_000)),
+                ServiceStartTime = creationTime.AddSeconds(-rng.Next(10_000, 20_000)),
+                ServiceStopTime = creationTime.AddSeconds(-rng.Next(10_000)),
                 Size = "32768",
                 SourcePatientInfo = PickRandom(documentEntryValues.PossibleDocumentEntryValues.SourcePatientInfos),
                 Title = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Titles),

@@ -1,0 +1,939 @@
+[
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "994598759",
+        "organizationName": "NORSK HELSENETT SF - Patient Health Records API EPJ",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "",
+        "organizationName": "NORSK HELSENETT SF - Patient Health Records API EPJ",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "id": "565505933",
+        "firstName": "KVART",
+        "lastName": "GREVLING",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      }
+    },
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+    },
+    "submissionTime": "2025-02-06T14:13:56",
+    "title": "SubmissionSet-RegistryPackage01",
+    "uniqueId": "2.16.578.1.12.4.5.7.4.87227.6270.1793",
+    "sourceId": "1.2.840.4711.815.1",
+    "id": "RegistryPackage01"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "983974880",
+        "organizationName": "Finnmarkssykehuset HF",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4211607",
+        "organizationName": "Laboratoriemedisinsk avdeling - FIN",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "502116685",
+        "firstName": "BENEDIKTE",
+        "lastName": "GEIRAAS",
+        "assigningAuthority": "urn:oid:2.16.578.1.12.4.1.4.4"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og sammenfatninger"
+    },
+    "confidentialityCode": {
+      "code": "NORN_DUP",
+      "codeSystem": "2.16.578.1.12.4.1.1.9603",
+      "displayName": "Nektet, duplikat"
+    },
+    "creationTime": "2025-02-06T14:13:56",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode",
+      "displayName": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
+    },
+    "hash": "35A3E0104791D9ACD5A16352ED075F390508CA10",
+    "healthCareFacilityTypeCode": {
+      "code": "86.211",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "86.211"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "mimeType": "application/xml",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "4"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "80574",
+    "serviceStartTime": "2025-01-07T15:14:03",
+    "serviceStopTime": "2025-01-22T15:14:03",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "13116900216",
+        "system": "2.16.578.1.12.4.1.7.3.2.1"
+      },
+      "firstName": "Line",
+      "lastName": "Danser",
+      "birthTime": "1969-11-13T00:00:00",
+      "gender": "F"
+    },
+    "title": "test 123",
+    "typeCode": {
+      "code": "A01-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Kriseplan"
+    },
+    "uniqueId": "ExtrinsicObject01",
+    "id": "ExtrinsicObject01"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "RegistryPackage01",
+    "submissionSetStatus": "Original",
+    "targetObject": "ExtrinsicObject01",
+    "id": "Association01"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "",
+        "organizationName": "Parma Community",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "firstName": "Gerald",
+        "lastName": "Smitty"
+      },
+      "role": {
+        "code": "Attending"
+      },
+      "speciality": {
+        "code": "Orthopedic"
+      }
+    },
+    "classCode": {
+      "code": "History and Physical",
+      "codeSystem": "Connect-a-thon classCodes",
+      "displayName": "History and Physical"
+    },
+    "confidentialityCode": {
+      "code": "1.3.6.1.4.1.21367.2006.7.101",
+      "codeSystem": "Connect-a-thon confidentialityCodes",
+      "displayName": "Clinical-Staff"
+    },
+    "creationTime": "2005-12-24T00:00:00",
+    "formatCode": {
+      "code": "CDAR2/IHE 1.0",
+      "codeSystem": "Connect-a-thon formatCodes",
+      "displayName": "CDAR2/IHE 1.0"
+    },
+    "hash": "958E860499E2D694C61345D161A8AE356DA7AC3C",
+    "healthCareFacilityTypeCode": {
+      "code": "Outpatient",
+      "codeSystem": "Connect-a-thon healthcareFacilityTypeCodes",
+      "displayName": "Outpatient"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "en-us",
+    "mimeType": "text/xml",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "SELF-5",
+      "codeSystem": "1.3.6.1.4.1.21367.2005.3.7"
+    },
+    "practiceSettingCode": {
+      "code": "General Medicine",
+      "codeSystem": "Connect-a-thon practiceSettingCodes",
+      "displayName": "General Medicine"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "36",
+    "serviceStartTime": "2004-12-23T08:00:00",
+    "serviceStopTime": "2004-12-23T08:01:00",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "ST-1000",
+        "system": "1.3.6.1.4.1.21367.2003.3.9"
+      },
+      "firstName": "John",
+      "lastName": "Doe",
+      "birthTime": "1956-05-27T00:00:00",
+      "gender": "M"
+    },
+    "title": "Physical",
+    "typeCode": {
+      "code": "34108-1",
+      "codeSystem": "LOINC",
+      "displayName": "Outpatient Evaluation And Management"
+    },
+    "uniqueId": "1.3.6.1.4.1.21367.2005.3.9999.32",
+    "id": "ExtrinsicObject02"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "",
+        "organizationName": "Berea Community",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "firstName": "Sherry",
+        "lastName": "Dopplemeyer"
+      },
+      "role": {
+        "code": "Pry Surgon"
+      },
+      "speciality": {
+        "code": "Orthopedic"
+      }
+    },
+    "patientId": {
+      "code": "SELF-5",
+      "codeSystem": "1.3.6.1.4.1.21367.2005.3.7"
+    },
+    "submissionTime": "2004-12-25T23:50:50",
+    "title": "Physical",
+    "uniqueId": "1.3.6.1.4.1.21367.2005.3.9999.33",
+    "sourceId": "3670984664",
+    "id": "SubmissionSet02"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "HasMember",
+    "sourceObject": "SubmissionSet02",
+    "submissionSetStatus": "Original",
+    "targetObject": "ExtrinsicObject02",
+    "id": "Association02"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2024-05-14T03:30:38",
+    "title": "diom_registryPackage01",
+    "uniqueId": "diom_registryPackage01",
+    "sourceId": "1.2.840.4711.815.1",
+    "id": "diom_registryPackage01"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "",
+        "organizationName": "St. Olavs klinikk",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "firstName": "Karen",
+        "lastName": "sj\u00F8l"
+      },
+      "role": {
+        "code": "Lege"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602"
+    },
+    "confidentialityCode": {
+      "code": "N",
+      "codeSystem": "2.16.578.1.12.4.1.1.9603"
+    },
+    "creationTime": "2024-02-07T02:35:41",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
+    },
+    "hash": "BD2D344B71A07E9FA0BA32800D3D6346B79785D3",
+    "healthCareFacilityTypeCode": {
+      "code": "86.211",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "mimeType": "application/pdf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "59061",
+    "serviceStartTime": "2024-04-14T17:29:47+02:00",
+    "serviceStopTime": "2024-04-19T17:29:47+02:00",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "13116900216",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Line",
+      "lastName": "Danser",
+      "birthTime": "1969-11-13T00:00:00",
+      "gender": "F"
+    },
+    "title": "skoert.pdf",
+    "typeCode": {
+      "code": "A03-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602"
+    },
+    "uniqueId": "extrinsicObjectDocument01",
+    "id": "diom_extrinsicObject01"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "diom_registryPackage01",
+    "submissionSetStatus": "Original",
+    "targetObject": "diom_extrinsicObject01",
+    "id": "diom_association01"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {},
+    "patientId": {
+      "code": "SELF-5",
+      "codeSystem": "1.3.6.1.4.1.21367.2005.3.7"
+    },
+    "submissionTime": "2004-12-25T23:50:50",
+    "title": "Physical",
+    "sourceId": "3670984664",
+    "id": "RegistryPackageFolder01"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "title": "XDS Folder 1",
+    "id": "FT_RegistryPackageFolder01"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "patientId": {},
+    "submissionTime": "2025-03-10T10:13:46",
+    "title": "XDS Submission Set",
+    "uniqueId": "1.3.6.1.4.1.12559.11.1.2.2.1.1.4.165057",
+    "sourceId": "1.3.6.1.4.1.21367.2012.2.1.1",
+    "id": "FT_SubmissionSet01"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "patientId": {},
+    "submissionTime": "2025-03-10T10:13:46",
+    "title": "XDS Submission Set",
+    "uniqueId": "1.3.6.1.4.1.12559.11.1.2.2.1.1.4.165057",
+    "sourceId": "1.3.6.1.4.1.21367.2012.2.1.1",
+    "id": "FT_SubmissionSet02"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "creationTime": "2025-03-10T10:13:38",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
+    },
+    "languageCode": "en-us",
+    "mimeType": "application/octet-stream",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+    },
+    "title": "XDSDocument Entry 1",
+    "uniqueId": "1.3.6.1.4.1.12559.11.11.9.1.165059",
+    "id": "FT_DocumentEntry01"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "department": {
+        "id": "456123789",
+        "organizationName": "Corrected Department Name",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "creationTime": "2025-03-16T10:13:38",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
+    },
+    "languageCode": "en-us",
+    "mimeType": "application/octet-stream",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {},
+    "title": "XDSDocument Entry 1",
+    "uniqueId": "1.3.6.1.4.1.12559.11.11.9.1.165059",
+    "id": "FT_DocumentEntry02"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "FT_SubmissionSet01",
+    "submissionSetStatus": "Original",
+    "targetObject": "FT_RegistryPackageFolder01",
+    "id": "FT_ASS01_SSFD"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "FT_SubmissionSet02",
+    "submissionSetStatus": "Original",
+    "targetObject": "FT_RegistryPackageFolder01",
+    "id": "FT_ASS02_SSFD"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "FT_SubmissionSet01",
+    "submissionSetStatus": "Original",
+    "targetObject": "FT_DocumentEntry01",
+    "id": "FT_ASS03_SSDE"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "FT_SubmissionSet02",
+    "submissionSetStatus": "Original",
+    "targetObject": "FT_DocumentEntry02",
+    "id": "TF_ASS04_SSDE"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "",
+        "organizationName": "Parma Community",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "firstName": "Gerald",
+        "lastName": "Smitty"
+      },
+      "role": {
+        "code": "Attending"
+      },
+      "speciality": {
+        "code": "Orthopedic"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "classCode": {
+      "code": "History and Physical",
+      "codeSystem": "Connect-a-thon classCodes",
+      "displayName": "History and Physical"
+    },
+    "confidentialityCode": {
+      "code": "1.3.6.1.4.1.21367.2006.7.101",
+      "codeSystem": "Connect-a-thon confidentialityCodes",
+      "displayName": "Clinical-Staff"
+    },
+    "creationTime": "2005-12-24T00:00:00",
+    "formatCode": {
+      "code": "CDAR2/IHE 1.0",
+      "codeSystem": "Connect-a-thon formatCodes",
+      "displayName": "CDAR2/IHE 1.0"
+    },
+    "hash": "D48CBB3DEE351EF8F309CE4795BB0B1D95200FDD",
+    "healthCareFacilityTypeCode": {
+      "code": "Outpatient",
+      "codeSystem": "Connect-a-thon\n                                    healthcareFacilityTypeCodes",
+      "displayName": "Outpatient"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "en-us",
+    "mimeType": "text/plain",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "76cc765a442f410",
+      "codeSystem": "1.3.6.1.4.1.21367.2005.3.7"
+    },
+    "practiceSettingCode": {
+      "code": "General Medicine",
+      "codeSystem": "Connect-a-thon practiceSettingCodes",
+      "displayName": "General Medicine"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "438",
+    "serviceStartTime": "2004-12-23T08:00:00",
+    "serviceStopTime": "2004-12-23T08:01:00",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "89765a87b",
+        "system": "3.4.5"
+      },
+      "firstName": "John",
+      "lastName": "Doe",
+      "birthTime": "1956-05-27T00:00:00",
+      "gender": "M"
+    },
+    "title": "Physical",
+    "typeCode": {
+      "code": "34108-1",
+      "codeSystem": "LOINC",
+      "displayName": "Outpatient Evaluation And Management"
+    },
+    "uniqueId": "1.2009.9.1.2455",
+    "id": "Document01"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "",
+        "organizationName": "Berea Community",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "firstName": "Sherry",
+        "lastName": "Dopplemeyer"
+      },
+      "role": {
+        "code": "Primary Surgon"
+      },
+      "speciality": {
+        "code": "Orthopedic"
+      }
+    },
+    "patientId": {
+      "code": "76cc765a442f410",
+      "codeSystem": "1.3.6.1.4.1.21367.2005.3.7"
+    },
+    "submissionTime": "2004-12-25T23:50:50",
+    "title": "Physical",
+    "uniqueId": "1.2009.9.1.2456",
+    "sourceId": "1.3.6.1.4.1.21367.2009.1.2.1",
+    "id": "SubmissionSet01"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "SubmissionSet01",
+    "submissionSetStatus": "Original",
+    "targetObject": "Document01",
+    "id": "ID_1216346_2"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "",
+        "organizationName": "Parma Community",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "firstName": "Gerald",
+        "lastName": "Smitty"
+      },
+      "role": {
+        "code": "Attending"
+      },
+      "speciality": {
+        "code": "Orthopedic"
+      }
+    },
+    "classCode": {
+      "code": "History and Physical",
+      "codeSystem": "Connect-a-thon classCodes",
+      "displayName": "History and Physical"
+    },
+    "confidentialityCode": {
+      "code": "1.3.6.1.4.1.21367.2006.7.101",
+      "codeSystem": "Connect-a-thon confidentialityCodes",
+      "displayName": "Clinical-Staff"
+    },
+    "creationTime": "2005-12-24T00:00:00",
+    "formatCode": {
+      "code": "CDAR2/IHE 1.0",
+      "codeSystem": "Connect-a-thon formatCodes",
+      "displayName": "CDAR2/IHE 1.0"
+    },
+    "hash": "D48CBB3DEE351EF8F309CE4795BB0B1D95200FDD",
+    "healthCareFacilityTypeCode": {
+      "code": "Outpatient",
+      "codeSystem": "Connect-a-thon\n                                    healthcareFacilityTypeCodes",
+      "displayName": "Outpatient"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "en-us",
+    "mimeType": "text/plain",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "76cc765a442f410",
+      "codeSystem": "1.3.6.1.4.1.21367.2005.3.7"
+    },
+    "practiceSettingCode": {
+      "code": "General Medicine",
+      "codeSystem": "Connect-a-thon practiceSettingCodes",
+      "displayName": "General Medicine"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "438",
+    "serviceStartTime": "2004-12-23T08:00:00",
+    "serviceStopTime": "2004-12-23T08:01:00",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "89765a87b",
+        "system": "3.4.5"
+      },
+      "firstName": "John",
+      "lastName": "Doe",
+      "birthTime": "1956-05-27T00:00:00",
+      "gender": "M"
+    },
+    "title": "Physical",
+    "typeCode": {
+      "code": "34108-1",
+      "codeSystem": "LOINC",
+      "displayName": "Outpatient Evaluation And Management"
+    },
+    "uniqueId": "1.2009.9.1.2455",
+    "id": "ExtrinsicObject_Document001"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "",
+        "organizationName": "Berea Community Replace document",
+        "assigningAuthority": ""
+      },
+      "person": {
+        "firstName": "Sherry",
+        "lastName": "Dopplemeyer"
+      },
+      "role": {
+        "code": "Primary Surgon Replace document"
+      },
+      "speciality": {
+        "code": "Orthopedic Replace document"
+      }
+    },
+    "patientId": {
+      "code": "76cc765a442f410",
+      "codeSystem": "1.3.6.1.4.1.21367.2005.3.7"
+    },
+    "submissionTime": "2004-12-25T23:50:50",
+    "title": "Physical",
+    "uniqueId": "1.2009.9.1.2456",
+    "sourceId": "1.3.6.1.4.1.21367.2009.1.2.1",
+    "id": "RegistryPackage_SubmissionSet01"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "RegistryPackage_SubmissionSet01",
+    "submissionSetStatus": "Original",
+    "targetObject": "ExtrinsicObject_Document001",
+    "id": "Association001"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:ihe:iti:2007:AssociationType:RPLC",
+    "sourceObject": "ExtrinsicObject_Document001",
+    "submissionSetStatus": "Original",
+    "targetObject": "Document01",
+    "id": "AssociationReplace001"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "asddsadsa",
+        "organizationName": "asdsadads",
+        "assigningAuthority": "dsadsadsadsa"
+      },
+      "person": {
+        "id": "string",
+        "firstName": "string",
+        "lastName": "string",
+        "assigningAuthority": "string"
+      },
+      "role": {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      },
+      "speciality": {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    },
+    "availabilityStatus": "string",
+    "classCode": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "confidentialityCode": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "creationTime": "2025-06-16T10:59:32.887Z",
+    "eventCodeList": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "formatCode": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "hash": "string",
+    "healthCareFacilityTypeCode": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "homeCommunityId": "string",
+    "languageCode": "string",
+    "legalAuthenticator": {
+      "id": "string",
+      "idSystem": "string",
+      "givenName": "string",
+      "familyName": "string"
+    },
+    "mimeType": "string",
+    "objectType": "string",
+    "patientId": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "practiceSettingCode": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "repositoryUniqueId": "string",
+    "size": "string",
+    "serviceStartTime": "2025-06-16T10:59:32.887Z",
+    "serviceStopTime": "2025-06-16T10:59:32.887Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "string",
+        "system": "string"
+      },
+      "firstName": "string",
+      "lastName": "string",
+      "birthTime": "2025-06-16T10:59:32.887Z",
+      "gender": "string"
+    },
+    "title": "string",
+    "typeCode": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "uniqueId": "string",
+    "id": "documentEntry"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "string",
+        "organizationName": "string",
+        "assigningAuthority": "string"
+      },
+      "department": {
+        "id": "string",
+        "organizationName": "string",
+        "assigningAuthority": "string"
+      },
+      "person": {
+        "id": "string",
+        "firstName": "string",
+        "lastName": "string",
+        "assigningAuthority": "string"
+      },
+      "role": {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      },
+      "speciality": {
+        "code": "string",
+        "codeSystem": "string",
+        "displayName": "string"
+      }
+    },
+    "availabilityStatus": "string",
+    "homeCommunityId": "string",
+    "patientId": {
+      "code": "string",
+      "codeSystem": "string",
+      "displayName": "string"
+    },
+    "submissionTime": "2025-06-13T10:31:04.555Z",
+    "title": "string",
+    "uniqueId": "string",
+    "sourceId": "string",
+    "id": "submissionSet"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "submissionSet",
+    "submissionSetStatus": "Current",
+    "targetObject": "documentEntry",
+    "id": "fd5a8681-99fa-40cd-b3f2-5d10b244589f"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "983974880",
+        "organizationName": "New Finnmarkssykehuset HF",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4211607",
+        "organizationName": "New Laboratoriemedisinsk avdeling - FIN",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "502116685",
+        "firstName": "MODIG",
+        "lastName": "STOL",
+        "assigningAuthority": "urn:oid:2.16.578.1.12.4.1.4.4"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og sammenfatninger"
+    },
+    "confidentialityCode": {
+      "code": "NORN_DUP",
+      "codeSystem": "2.16.578.1.12.4.1.1.9603",
+      "displayName": "Nektet, duplikat"
+    },
+    "creationTime": "2025-02-06T14:13:56",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://profiles.ihe.net/fhir/ihe.formatcode.fhir/CodeSystem-formatcode",
+      "displayName": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
+    },
+    "hash": "35A3E0104791D9ACD5A16352ED075F390508CA10",
+    "healthCareFacilityTypeCode": {
+      "code": "86.211",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "86.211"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "mimeType": "application/xml",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "4"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "80574",
+    "serviceStartTime": "2025-01-07T15:14:03",
+    "serviceStopTime": "2025-01-22T15:14:03",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "13116900216",
+        "system": "2.16.578.1.12.4.1.7.3.2.1"
+      },
+      "firstName": "Line",
+      "lastName": "Danser",
+      "birthTime": "1969-11-13T00:00:00",
+      "gender": "F"
+    },
+    "title": "test 123 oppdatert",
+    "typeCode": {
+      "code": "A07-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Psykologsammenfatning"
+    },
+    "uniqueId": "ExtrinsicObject01",
+    "id": "f378df48-f9d0-4e05-b4a0-729b032d3ed4"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "994598759",
+        "organizationName": "NORSK HELSENETT SF",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "1345020",
+        "organizationName": "Department X",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "565505933",
+        "firstName": "KVART",
+        "lastName": "GREVLING",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      }
+    },
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.7.3.2.1"
+    },
+    "submissionTime": "2025-02-06T14:13:56",
+    "title": "SubmissionSet-RegistryPackage01",
+    "uniqueId": "2.16.578.1.12.4.5.7.4.87227.6270.1793",
+    "sourceId": "1.2.840.4711.815.1",
+    "id": "0ed3a2a8-fa43-4080-8f7f-787426dde616"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "0ed3a2a8-fa43-4080-8f7f-787426dde616",
+    "submissionSetStatus": "Current",
+    "targetObject": "f378df48-f9d0-4e05-b4a0-729b032d3ed4",
+    "id": "492fec0e-afab-49cd-b0d8-b6100e3cf28d"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:ihe:iti:2007:AssociationType:RPLC",
+    "sourceObject": "f378df48-f9d0-4e05-b4a0-729b032d3ed4",
+    "submissionSetStatus": "Current",
+    "targetObject": "ExtrinsicObject01",
+    "id": "52639c03-49d5-48cc-bf9e-38704ba6b4d5"
+  }
+]

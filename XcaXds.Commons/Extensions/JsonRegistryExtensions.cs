@@ -10,7 +10,8 @@ public static class FindDocumentEntry
     {
         if (string.IsNullOrWhiteSpace(patientId?.IdNumber)) return Enumerable.Empty<DocumentEntryDto>();
         return source
-            .Where(eo => eo?.SourcePatientInfo?.PatientId?.Id == patientId.IdNumber &&
+            .Where(eo => 
+            eo?.SourcePatientInfo?.PatientId?.Id == patientId.IdNumber &&
             eo?.SourcePatientInfo?.PatientId?.System.NoUrn() == patientId.AssigningAuthority.UniversalId.NoUrn());
     }
 

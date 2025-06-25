@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
-using System.Reflection.Metadata;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 
-
 namespace XcaXds.WebService.Controllers;
 
+[Tags("RESTful Registry/Repository (CRUD)")]
 [ApiController]
 [UsePolicyEnforcementPoint]
 [Route("api/rest")]
@@ -31,16 +29,21 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [HttpGet("document-list")]
-    public async Task<IActionResult> GetDocumentList(string? id, string? status, int? maxResults, int? pageNumber)
+    public async Task<IActionResult> GetDocumentList(string? id, string? status, DateTime serviceStartTime, DateTime serviceStopTime, int pageNumber = 1, int pageSize = 10)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
+        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+        {
+            id = patientId;
+        }
+
         var requestTimer = Stopwatch.StartNew();
-        
-        var entries = _restfulRegistryService.GetDocumentListForPatient(id, status, maxResults, pageNumber);
+
+        var entries = _restfulRegistryService.GetDocumentListForPatient(id, status, serviceStartTime, serviceStopTime, pageNumber, pageSize);
 
         requestTimer.Stop();
-        
+
         _logger.LogInformation($"Completed action: document-list");
 
         if (entries.Success)

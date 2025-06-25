@@ -16,8 +16,9 @@ Uploads a Document reference and/or document to the registry. The input type is 
 ```
 https://localhost:7176/api/rest/upload
 ```
+<details>
+<summary><big><strong> View example JSON payload</strong></big></summary>
 
-##### JSON payload
 ```json
 {
     "documentEntry": {
@@ -136,6 +137,7 @@ https://localhost:7176/api/rest/upload
     }
 }
 ```
+</details>
 
 ### Read Document List
 Read all document references for a given patient identifier. Also supports status (Approved or Deprecated, Default: Approved)
@@ -145,8 +147,18 @@ Read all document references for a given patient identifier. Also supports statu
 | HTTP action | GET |
 | Short description | Upload a Document reference and associated document to the registry or reposito
 | Endpoint URL | /api/rest/document-list |
-| Request Query | `id`, `status` |
+| Request Query | **See table below** | 
 | Response Object | `DocumentListResponse` |
+
+#### Request parameters
+| Query  | Description |
+|---|---|
+| `id` | patient identifier to search for. If the patient id is not formatted as a **CX**-datatype, a default **CX** type will be created with assigning authority OID for **Norwegian birth numbers**<br> Example: `?id=13116900216` will assume the assigning authority of the identifier is `2.16.578.1.12.4.1.4.1`|
+| `status` | Status of the document. Values are confined to `Approved` or `Deprecated`. Will be joined together with `urn:oasis:names:tc:ebxml-regrep:StatusType:`, so `Approved` is appended to get the urn/ebXML name of Approved status type |
+| serviceStartTime | DateTime for the service Start time, when the patient care started |
+| serviceStopTime |DateTime for the service Stop time, when the patient care ended|
+| pageNumber | Pagination - Current page number for the result |
+| pageSize | Pagination - Amount of documentreferences to return per page |
 
 #### Example 
 ```
@@ -179,7 +191,7 @@ Updates an entire existing Document Reference. This endpoint has two behaviors w
 | HTTP action | PUT |
 | Short description | Upload a Document reference and associated document to the registry or repository |
 | Endpoint URL | /api/rest/update |
-| Request Query | `repository`, `home`, `documentid` |
+| Request Query | `DocumentReferenceDto` |
 | Response Object | `DocumentResponse` |
 
 
@@ -189,6 +201,9 @@ https://localhost:7176/api/rest/update?replace=false
 ```
 
 #### JSON payload
+<details>
+<summary><big><strong>View example JSON payload</strong></big></summary>
+
 ```json
 {
     "documentEntry": {
@@ -307,6 +322,7 @@ https://localhost:7176/api/rest/update?replace=false
     }
 }
 ```
+</details>
 
 ### Patch Document Reference
 Send a partial request which only updates the specified fields. Useful for small fixes to the registry content.
@@ -316,7 +332,7 @@ Send a partial request which only updates the specified fields. Useful for small
 | HTTP action | PATCH |
 | Short description | Partially update an existing document reference by only sending the values that are needed for the update |
 | Endpoint URL | /api/rest/update |
-| Request Query | `repository`, `home`, `documentid` |
+| Request Query | `DocumentReferenceDto` |
 | Response Object | `DocumentResponse` |
 
 #### URL
@@ -324,13 +340,16 @@ Send a partial request which only updates the specified fields. Useful for small
 https://localhost:7176/api/rest/update
 ```
 #### Example JSON payload
+<details>
+<summary><big><strong> View example JSON payload</strong></big></summary>
+
 ```json
 {
-  "documentEntry": {
-    "id": "FT_DocumentEntry02",
+    "documentEntry": {
+        "id": "FT_DocumentEntry02",
     "author": {
-      "department": {
-        "id": "456123789",
+        "department": {
+            "id": "456123789",
         "organizationName": "Corrected Department Name",
         "assigningAuthority": "2.16.578.1.12.4.1.4.102"
       }
@@ -338,3 +357,4 @@ https://localhost:7176/api/rest/update
   }
 }
 ```
+</details>

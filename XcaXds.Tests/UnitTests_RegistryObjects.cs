@@ -130,10 +130,9 @@ public class UnitTests_RegistryObjects
 
         jsonTestData.PossibleSubmissionSetValues.Authors = jsonTestData.PossibleDocumentEntryValues.Authors;
         
-
         var files = testDataDocuments.Select(file => File.ReadAllBytes(file)).ToList();
 
-        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, 10);
+        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, 250);
 
 
         var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = generatedTestRegistryObjects.OfType<DocumentEntryDto>().FirstOrDefault().RepositoryUniqueId});

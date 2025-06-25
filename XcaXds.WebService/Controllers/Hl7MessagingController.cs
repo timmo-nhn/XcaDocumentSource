@@ -5,6 +5,7 @@ using XcaXds.Source.Services;
 
 namespace XcaXds.WebService.Controllers;
 
+[Tags("HL7 Endpoints")]
 [ApiController]
 [Route("hl7")]
 public class Hl7MessagingController : ControllerBase

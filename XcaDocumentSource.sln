@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Frontend", "XcaXds.F
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.OpenDipsRegistryRepository", "XcaXds.OpenDipsRegistryRepository\XcaXds.OpenDipsRegistryRepository.csproj", "{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenDipsRegistryRepository", "XcaXds.OpenDipsRegistryRepository\OpenDipsRegistryRepository.csproj", "{B537B5EC-1A9A-4AF4-9E8E-3A1AD5F82785}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
 	EndProjectSection

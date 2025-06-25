@@ -1,7 +1,6 @@
-﻿using System.Resources;
-using System.Web;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Microsoft.Extensions.Logging;
+using System.Web;
 
 namespace XcaXds.OpenDipsRegistryRepository.Services;
 
@@ -33,7 +32,7 @@ public class FhirEndpointsDtoTransformerService
     public async Task<Bundle> GetDocumentReference(string patientId, string apiKey)
     {
         var queryParams = HttpUtility.ParseQueryString(string.Empty);
-        
+
         queryParams["Patient.Identifier"] = patientId;
 
         var resources = (Bundle)await _fhirEndpointsService.FetchFromFhirEndpointAsync(FhirServerUrl + "/DocumentReference" + $"?{queryParams.ToString()}", apiKey);

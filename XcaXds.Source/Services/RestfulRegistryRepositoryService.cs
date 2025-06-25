@@ -32,7 +32,7 @@ public class RestfulRegistryRepositoryService
         _logger = logger;
     }
 
-    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, int? maxResults, int? pageNumber)
+    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime serviceStartTime, DateTime serviceStopTime, int pageNumber = 1, int pageSize = 10)
     {
         var documentListResponse = new DocumentListResponse();
 
@@ -62,9 +62,15 @@ public class RestfulRegistryRepositoryService
         var patientDocumentReferences = documentRegistry
             .OfType<DocumentEntryDto>()
             .ByDocumentEntryPatientId(patientIdCx)
-            .ByDocumentEntryStatus(status);
+            .ByDocumentEntryStatus(status)
+            .ToList();
 
-        documentListResponse.DocumentListEntries = patientDocumentReferences
+        var paginatedDocumentList = patientDocumentReferences
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var documentListEntriesWithLink = paginatedDocumentList
             .Select(dr => new DocumentListEntry()
             {
                 DocumentReference = dr,
@@ -74,6 +80,20 @@ public class RestfulRegistryRepositoryService
                     Url = $"api/rest/document?home={dr.HomeCommunityId}&repository={dr.RepositoryUniqueId}&document={dr.Id}"
                 }
             }).ToList();
+
+        // pageNumber = 1
+
+        var pagination = new Pagination()
+        {
+            TotalResults = patientDocumentReferences.Count,
+            NumberOfResults = paginatedDocumentList.Count,
+            PageNumber = pageNumber,
+            Next = pageNumber + 1,
+            Prev = pageNumber <= 1 ? null : pageNumber - 1
+        };
+
+        documentListResponse.Pagination = pagination;
+        documentListResponse.DocumentListEntries = documentListEntriesWithLink;
 
         return documentListResponse;
     }

@@ -2,7 +2,9 @@
 
 public class Pagination
 {
-    public string? Next { get; set; }
-    public string? Prev { get; set; }
-    public int Total { get; set; }
+    public int? Next { get; set; }
+    public int? Prev { get; set; }
+    public int TotalResults { get; set; }
+    public int PageNumber { get; set; }
+    public int NumberOfResults { get; set; }
 }
