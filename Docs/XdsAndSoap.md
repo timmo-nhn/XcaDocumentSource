@@ -358,14 +358,17 @@ An `<Association>` is used to bind two or more **types** together in order to cr
 
 graph LR
     ex[ExtrinsicObject]
-    as[Association]
+    
+    subgraph "Association"
+        so[sourceObject]
+        to[targetObject]
+    end
+    
     re[RegistryPackage]
     do[Document]
-    so[sourceObject]
-    to[targetObject]
 
-    as-->so--->re
-    as-->to-->ex
+    so--->re
+    to-->ex
     to-->do
     do-->ex
 ```

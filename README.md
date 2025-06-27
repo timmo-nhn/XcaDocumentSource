@@ -1,4 +1,4 @@
-# PJD.XcaDocumentSource - XCA Responding Gateway and integrated Document Registry and Repository  
+# PJD.XcaDocumentSource - Open Source XCA Responding Gateway and Document Registry and Repository  
 
 ## Introduction/Getting started
 In the healthcare industry, hospitals, clinics, and municipalities use a variety of Electronic Health Record (EHR) systems, often from different vendors. These systems were rarely designed to communicate with each other, leading to:
@@ -35,8 +35,6 @@ subgraph "Actor systems"
     document([Get Document])
   end
 
-  pdp[PDP]
-
   subgraph "Document storage solution"
     docstore[(Document<br>store)]
   end
@@ -44,7 +42,6 @@ end
 
 nhnxca <--SOAP-Request--> pep
 
-pep<-->pdp
 
 pep <--> resgw
 resgw <--> doclist
@@ -82,7 +79,7 @@ Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoint
 ### [👩‍💻 REST-endpoints (CRUD-transactions)](/Docs/RestTransactions.md)
 Describes the REST-endpoints of the solution, allowing for quick and easy CRUD-operations on the Document Registry and Repository.
 
-### Governing the solution
+## Governing the solution
 
 ### [💠 OIDs (Object Identifiers)](/Docs/Oids.md)
 OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.

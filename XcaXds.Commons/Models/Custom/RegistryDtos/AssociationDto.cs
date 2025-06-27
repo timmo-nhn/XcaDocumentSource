@@ -7,7 +7,7 @@ public class AssociationDto : RegistryObjectDto
     /// Usually the RegistryPackage/SubmissionSet
     /// </summary>
     public string? SourceObject { get; set; }
-    public string? SubmissionSetStatus { get; set; }
+    public string? SubmissionSetStatus { get; set; } = "Original";
     /// <summary>
     /// Usually the ExtrinsicObject/DocumentReference
     /// </summary>

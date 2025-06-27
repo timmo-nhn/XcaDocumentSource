@@ -71,7 +71,6 @@ public class Program
         builder.Services.AddSingleton<XdsRegistryService>();
         builder.Services.AddSingleton<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
-        builder.Services.AddSingleton<CdaTransformerService>();
         builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton(xdsConfig);
@@ -82,6 +81,7 @@ public class Program
 
         // Fhir server interfacing service
         builder.Services.AddSingleton<IFhirEndpointsService, OpenDipsClient>();
+
         builder.Services.AddSingleton(provider =>
         new FhirEndpointsDtoTransformerService(
             "http://hapi.fhir.org/baseR4",
@@ -111,7 +111,9 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.UsePolicyEnforcementPointMiddleware();
+        // Middleware, only enabled for endpoints with attributes
+        app.UseMiddleware<PolicyEnforcementPointMiddlware>();
+        app.UseMiddleware<AuditLoggingMiddleware>();
 
         app.UseHttpsRedirection();
 

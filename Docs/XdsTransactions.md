@@ -66,10 +66,11 @@ An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata
 | StoredQuery | Guid |
 |---|---|
 | FindDocuments | urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d |
-| GetAll | urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3 |
+| FindSubmissionSets | urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9 |
+| FindFolders | urn:uuid:958f3006-baad-4929-a4de-ff1114824431 |
 | GetFolders | urn:uuid:5737b14c-8a1a-4539-b659-e03a34a5e1e4 |
 | GetAssociations | urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155 |
-| FindSubmissionSets | urn:uuid:f26abbcb-ac74-4422-8a30-edb644bbc1a9 |
+| GetAll | urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3 |
 
 *Possible Stored Queries in PJD.XcaDocumentSource*
 

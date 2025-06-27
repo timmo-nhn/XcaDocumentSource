@@ -48,7 +48,6 @@ public class RestfulRegistryRepositoryService
         {
             documentListResponse.AddError("MissingParameter", @$"Status must be one of ""approved"" or ""deprecated"", got {status}.");
             return documentListResponse;
-
         }
 
         var patientIdCx = Hl7Object.Parse<CX>(patientId);
@@ -63,6 +62,8 @@ public class RestfulRegistryRepositoryService
             .OfType<DocumentEntryDto>()
             .ByDocumentEntryPatientId(patientIdCx)
             .ByDocumentEntryStatus(status)
+            .ByDocumentEntryServiceStartTime(serviceStartTime)
+            .ByDocumentEntryServiceStopTime(serviceStopTime)
             .ToList();
 
         var paginatedDocumentList = patientDocumentReferences
@@ -81,14 +82,12 @@ public class RestfulRegistryRepositoryService
                 }
             }).ToList();
 
-        // pageNumber = 1
-
         var pagination = new Pagination()
         {
             TotalResults = patientDocumentReferences.Count,
             NumberOfResults = paginatedDocumentList.Count,
             PageNumber = pageNumber,
-            Next = pageNumber + 1,
+            Next = paginatedDocumentList.Count < pageSize ? null : pageNumber + 1,
             Prev = pageNumber <= 1 ? null : pageNumber - 1
         };
 
@@ -102,10 +101,12 @@ public class RestfulRegistryRepositoryService
     {
         var documentResponse = new DocumentResponse();
 
+        home ??= _appConfig.HomeCommunityId;
+        repository ??= _appConfig.RepositoryUniqueId;
 
-        if (string.IsNullOrWhiteSpace(home) || string.IsNullOrWhiteSpace(repository) || string.IsNullOrWhiteSpace(document))
+        if (string.IsNullOrWhiteSpace(document))
         {
-            documentResponse.AddError("MissingParameter", "Parameters homecommunity_id, repository_id, document_id are required.");
+            documentResponse.AddError("MissingParameter", "Parameter document is required.");
             return documentResponse;
         }
 
@@ -118,6 +119,10 @@ public class RestfulRegistryRepositoryService
                 Data = documentBytes,
                 DocumentId = document
             };
+        }
+        else
+        {
+            documentResponse.SetMessage($"No document with id {document} for home {home}, repository {repository}");
         }
 
         return documentResponse;
@@ -306,14 +311,18 @@ public class RestfulRegistryRepositoryService
             return apiResponse;
         }
 
-        var count = 0;
+        var docentryCount = 0;
+        var submissionSetCount = 0;
+        var associationCount = 0;
 
         foreach (var association in associationsForEntry)
         {
-            var submissionSet = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.TargetObject);
-            var documentEntry = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
-            
-            count += documentRegistry.RemoveAll(x => x.Id == submissionSet?.Id || x.Id == documentEntry?.Id || x.Id == association.Id);
+            var documentEntry = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.TargetObject);
+            var submissionSet = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
+
+            docentryCount += documentRegistry.RemoveAll(x => x.Id == documentEntry?.Id);
+            submissionSetCount += documentRegistry.RemoveAll(x => x.Id == submissionSet?.Id);
+            associationCount += documentRegistry.RemoveAll(x => x.Id == association.Id);
         }
 
         var deleteUpdate = _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
@@ -325,7 +334,7 @@ public class RestfulRegistryRepositoryService
             return apiResponse;
         }
 
-        apiResponse.SetMessage($"Successfully removed {count} documents");
+        apiResponse.SetMessage($"Successfully removed {docentryCount} DocumentEntries, {submissionSetCount} SubmissisonSets and {associationCount} Associations");
 
         return apiResponse;
     }

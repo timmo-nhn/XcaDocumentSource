@@ -8,7 +8,7 @@ public static class FindDocumentEntry
     public static IEnumerable<DocumentEntryDto> ByDocumentEntryPatientId(
         this IEnumerable<DocumentEntryDto> source, CX? patientId)
     {
-        if (string.IsNullOrWhiteSpace(patientId?.IdNumber)) return Enumerable.Empty<DocumentEntryDto>();
+        if (string.IsNullOrWhiteSpace(patientId?.IdNumber)) return Enumerable.Empty<DocumentEntryDto>(); // Mandatory
         return source
             .Where(eo => 
             eo?.SourcePatientInfo?.PatientId?.Id == patientId.IdNumber &&
@@ -16,11 +16,27 @@ public static class FindDocumentEntry
     }
 
     public static IEnumerable<DocumentEntryDto> ByDocumentEntryStatus(
-        this IEnumerable<DocumentEntryDto> source, string? status)
+        this IEnumerable<DocumentEntryDto> source, string? status) 
     {
-        if (string.IsNullOrWhiteSpace(status)) return source;
+        if (string.IsNullOrWhiteSpace(status)) return source; // Optional
         return source
             .Where(eo => string.Equals(eo?.AvailabilityStatus, "urn:oasis:names:tc:ebxml-regrep:StatusType:" + status,StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    public static IEnumerable<DocumentEntryDto> ByDocumentEntryServiceStartTime(
+        this IEnumerable<DocumentEntryDto> source, DateTime? startTime)
+    {
+        if (!startTime.HasValue || startTime == DateTime.MinValue) return source; // Optional
+        return source
+            .Where(eo => eo?.ServiceStartTime >= startTime);
+    }
+
+    public static IEnumerable<DocumentEntryDto> ByDocumentEntryServiceStopTime(
+        this IEnumerable<DocumentEntryDto> source, DateTime? stopTime)
+    {
+        if (!stopTime.HasValue || stopTime == DateTime.MinValue) return source; // Optional
+        return source
+            .Where(eo => eo?.ServiceStopTime <= stopTime);
     }
 }
 

@@ -1,6 +1,6 @@
 ﻿namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
-public class Author
+public class AuthorInfo
 {
     public AuthorOrganization? Organization { get; set; }
     public AuthorOrganization? Department { get; set; }

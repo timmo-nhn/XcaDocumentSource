@@ -1080,6 +1080,280 @@
     "$type": "DocumentEntryDto",
     "author": {
       "organization": {
+        "id": "982791952",
+        "organizationName": "Diakonhjemmet Sykehus AS",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4213189",
+        "organizationName": "Infeksjonsmedisinsk vaktteam - OUS Ullev\u00E5l",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "02906499765",
+        "firstName": "FORDEKT",
+        "lastName": "HIMMEL",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      },
+      "role": {
+        "code": "PS",
+        "codeSystem": "2.16.578.1.12.4.1.1.9060",
+        "displayName": "Psykolog"
+      },
+      "speciality": {}
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": {
+      "code": "N",
+      "codeSystem": "2.16.578.1.12.4.1.1.9603",
+      "displayName": "Normal"
+    },
+    "creationTime": "2022-06-28T19:50:33.3050577Z",
+    "formatCode": {
+      "code": "urn:no:ehelse:document:pdf",
+      "displayName": "FormatCodes"
+    },
+    "hash": "1F9556BD59F6E4AEF5DE94EA8D469E2F",
+    "healthCareFacilityTypeCode": {
+      "code": "86.906",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Medisinske laboratorietjenester"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "41837701048",
+      "firstName": "KRY",
+      "lastName": "FLOYTE"
+    },
+    "mimeType": "application/rtf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "9",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "9"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "59061",
+    "serviceStartTime": "2022-06-28T17:24:16.3050577Z",
+    "serviceStopTime": "2022-06-28T20:38:08.3050577Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "13116900216",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Line",
+      "lastName": "Danser",
+      "birthTime": "1969-11-13T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "Postoperativ notat - Observasjon og plan",
+    "typeCode": {
+      "code": "J02-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Legeerkl\u00E6ring om d\u00F8dsfall"
+    },
+    "uniqueId": "f17c70a9-93ce-4b19-a759-bfaadb2a5d29",
+    "id": "877fdb68-5313-40e2-a709-0ad08a921ce0"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "983971709",
+        "organizationName": "SYKEHUSET INNLANDET HF",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4213045",
+        "organizationName": "Hudpoliklinikken - Diakonhjemmet Sykehus",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "13890497696",
+        "firstName": "EPISK",
+        "lastName": "GAUPE",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      },
+      "role": {
+        "code": "OS",
+        "codeSystem": "2.16.578.1.12.4.1.1.9060",
+        "displayName": "Osteopat"
+      },
+      "speciality": {
+        "code": "33",
+        "codeSystem": "2.16.578.1.12.4.1.1.7426",
+        "displayName": "Medisinsk genetikk"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2022-06-28T21:32:37.3050577Z",
+    "title": "Journalnotat - Kontrolltime hjertesvikt",
+    "uniqueId": "2.16.578.1.12.4.5.100.1.2481.3647.1576",
+    "sourceId": "2.16.578.1.12.4.5.100.1.2774.1427.3149",
+    "id": "e0689d01-4a96-408b-b455-8d7180a35064"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "e0689d01-4a96-408b-b455-8d7180a35064",
+    "submissionSetStatus": "Current",
+    "targetObject": "877fdb68-5313-40e2-a709-0ad08a921ce0",
+    "id": "fa8e3a8c-c18d-4327-a608-c7a91fc59a7c"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "994919806",
+        "organizationName": "MIDTBYEN LEGESENTER KONGSVINGER DA",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4213167",
+        "organizationName": "Gynekologisk seksjon - Helse M\u00F8re og Romsdal",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "02880748680",
+        "firstName": "DISKRET",
+        "lastName": "BOKORM",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      },
+      "role": {},
+      "speciality": {
+        "code": "37",
+        "codeSystem": "2.16.578.1.12.4.1.1.7426",
+        "displayName": "Nevrologi"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "C00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Pr\u00F8vesvar, vev og v\u00E6sker"
+    },
+    "confidentialityCode": {
+      "code": "N",
+      "codeSystem": "2.16.578.1.12.4.1.1.9603",
+      "displayName": "Normal"
+    },
+    "creationTime": "2004-12-02T23:16:41.305078Z",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
+    },
+    "hash": "1F9556BD59F6E4AEF5DE94EA8D469E2F",
+    "healthCareFacilityTypeCode": {
+      "code": "86.101",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Alminnelige somatiske sykehus"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "23876997983",
+      "firstName": "MOMENTAN",
+      "lastName": "RIPE"
+    },
+    "mimeType": "application/rtf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "1",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "1"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "59061",
+    "serviceStartTime": "2004-12-02T18:09:21.305078Z",
+    "serviceStopTime": "2004-12-02T22:09:22.305078Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "13116900216",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Line",
+      "lastName": "Danser",
+      "birthTime": "1969-11-13T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "Diagnostisk utredning og funn",
+    "typeCode": {
+      "code": "A06-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Ergoterapisammenfatning"
+    },
+    "uniqueId": "a24cf977-30ca-420a-94ea-79444a20e58b",
+    "id": "04be519c-3094-4f9a-9b1c-6f3a62070ac3"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "312865068",
+        "organizationName": "ALLSIDIG VIRKELIG KATT M\u00F8BELFORRETNING",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4213090",
+        "organizationName": "Geriatrisk sengepost - Lovisenberg Diakonale Sykehus",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "13913746753",
+        "firstName": "VARM",
+        "lastName": "OVERSKRIFT",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      },
+      "role": {
+        "code": "HF",
+        "codeSystem": "2.16.578.1.12.4.1.1.9060",
+        "displayName": "Helsefagarbeider"
+      },
+      "speciality": {}
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2004-12-02T23:11:39.305078Z",
+    "title": "Epikrise etter poliklinisk konsultasjon",
+    "uniqueId": "2.16.578.1.12.4.5.100.1.2889.644.1955",
+    "sourceId": "2.16.578.1.12.4.5.100.1.3887.659.3803",
+    "id": "01d71903-f0ac-4f53-ba80-a704f6273580"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "01d71903-f0ac-4f53-ba80-a704f6273580",
+    "submissionSetStatus": "Current",
+    "targetObject": "04be519c-3094-4f9a-9b1c-6f3a62070ac3",
+    "id": "9141bda7-13b5-4e04-bbfd-eefbb656e402"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
         "id": "998570328",
         "organizationName": "Munkholmen Legesenter",
         "assigningAuthority": "2.16.578.1.12.4.1.4.101"
@@ -20155,6 +20429,149 @@
     "submissionSetStatus": "Current",
     "targetObject": "c7c0464c-23dc-47cf-802e-9427474caa8b",
     "id": "f33e73ef-1fd6-45c4-b0d8-f0f8c5cdf533"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": {
+      "organization": {
+        "id": "983974724",
+        "organizationName": "HELSE BERGEN HF",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4213101",
+        "organizationName": "Ortopedisk poliklinikk - Sykehuset \u00F8stfold",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "12891848933",
+        "firstName": "LATTERMILD",
+        "lastName": "GLOSE",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      },
+      "role": {
+        "code": "PS",
+        "codeSystem": "2.16.578.1.12.4.1.1.9060",
+        "displayName": "Psykolog"
+      },
+      "speciality": {
+        "code": "198",
+        "codeSystem": "2.16.578.1.12.4.1.1.7426",
+        "displayName": "Nyresykdommer"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "B00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Kontinuerlig/l\u00F8pende journal"
+    },
+    "confidentialityCode": {
+      "code": "N",
+      "codeSystem": "2.16.578.1.12.4.1.1.9603",
+      "displayName": "Normal"
+    },
+    "creationTime": "1995-07-18T03:10:40.3065625Z",
+    "formatCode": {
+      "code": "urn:no:ehelse:document:pdf",
+      "displayName": "FormatCodes"
+    },
+    "hash": "1F9556BD59F6E4AEF5DE94EA8D469E2F",
+    "healthCareFacilityTypeCode": {
+      "code": "86.101",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Alminnelige somatiske sykehus"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "16920997949",
+      "firstName": "UTROLIG",
+      "lastName": "FUKTIGHETSKREM"
+    },
+    "mimeType": "application/rtf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "4"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "59061",
+    "serviceStartTime": "1995-07-18T01:23:49.3065625Z",
+    "serviceStopTime": "1995-07-18T04:41:56.3065625Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "13116900216",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Line",
+      "lastName": "Danser",
+      "birthTime": "1969-11-13T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "Innkomstskjema - F\u00F8deavdeling",
+    "typeCode": {
+      "code": "D05-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Gyn/Reproduksjon"
+    },
+    "uniqueId": "02f98bb7-8ce0-4435-9988-0b918515556a",
+    "id": "f44edade-fb32-48b4-968c-63eff8275b69"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": {
+      "organization": {
+        "id": "999988921",
+        "organizationName": "CGM Vision BHT",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+      },
+      "department": {
+        "id": "4213112",
+        "organizationName": "Gastroenterologisk avdeling - B\u00E6rum Sykehus",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      },
+      "person": {
+        "id": "23876997983",
+        "firstName": "MOMENTAN",
+        "lastName": "RIPE",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+      },
+      "role": {
+        "code": "BI",
+        "codeSystem": "2.16.578.1.12.4.1.1.9060",
+        "displayName": "Bioingeni\u00F8r"
+      },
+      "speciality": {
+        "code": "82",
+        "codeSystem": "2.16.578.1.12.4.1.1.7426",
+        "displayName": "Gastroenterologisk kirurgi"
+      }
+    },
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "1995-07-18T05:00:34.3065625Z",
+    "title": "Diagnostisk utredning og funn",
+    "uniqueId": "2.16.578.1.12.4.5.100.1.83.1393.2491",
+    "sourceId": "2.16.578.1.12.4.5.100.1.2635.857.1661",
+    "id": "77a2fcca-0087-4bb9-b4c3-57b51a712028"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "77a2fcca-0087-4bb9-b4c3-57b51a712028",
+    "submissionSetStatus": "Current",
+    "targetObject": "f44edade-fb32-48b4-968c-63eff8275b69",
+    "id": "6558c7e3-80ec-40b9-8026-9ad63086a15c"
   },
   {
     "$type": "DocumentEntryDto",

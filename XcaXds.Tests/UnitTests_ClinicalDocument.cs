@@ -1,17 +1,16 @@
+using System.Xml;
+using System.Xml.Serialization;
+using PdfSharp.Events;
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
+using XcaXds.Source.Source;
 
 namespace XcaXds.Tests;
 
 public class UnitTests_ClinicalDocument
 {
-    private readonly CdaTransformerService _transformerService;
-    public UnitTests_ClinicalDocument()
-    {
-        _transformerService = new CdaTransformerService();
-    }
-
     [Fact]
     public async Task SerializeDeserialize()
     {
@@ -69,35 +68,31 @@ public class UnitTests_ClinicalDocument
 
 
     [Fact]
-    public async Task TransformIti41ToCda()
+    public async Task TransformRegistryObjectDtosToCda()
     {
+        var registry = new FileBasedRegistry();
+        var registryObjects = registry.ReadRegistry();
 
-        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var randomIndex = new Random().Next(registryObjects.OfType<DocumentEntryDto>().Count());
 
-        foreach (var file in testDataFiles)
+        var documentEntry = registryObjects.OfType<DocumentEntryDto>().ElementAt(randomIndex);
+
+        var association = registryObjects.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.TargetObject == documentEntry.Id);
+
+        var submissionSet = registryObjects.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association.SourceObject);
+
+        var repository = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = documentEntry.RepositoryUniqueId, HomeCommunityId = documentEntry.HomeCommunityId });
+
+        var document = new DocumentDto()
         {
-            var fileContent = string.Empty;
+            Data = repository.Read(documentEntry.Id),
+            DocumentId = documentEntry.Id,
+        };
 
-            if (file.Contains("PnR_request"))
-            {
-                using var reader = File.OpenText(file);
-                fileContent = await reader.ReadToEndAsync();
-            }
-            else continue;
-
-            var docc = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(fileContent);
-
-            try
-            {
-                var cdaDocument = _transformerService.TransformProvideAndRegisterRequestToClinicalDocument(docc.Body.ProvideAndRegisterDocumentSetRequest.SubmitObjectsRequest.RegistryObjectList, docc.Body.ProvideAndRegisterDocumentSetRequest.Document);
-                var gobb = sxmls.SerializeSoapMessageToXmlString(cdaDocument);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+        var cdaDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, document);
+        var sxmls = new SoapXmlSerializer();
+        var cdaXml = sxmls.SerializeSoapMessageToXmlString(cdaDocument).Content;
+        var cdaDocumentAgain = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(cdaXml);
     }
 }

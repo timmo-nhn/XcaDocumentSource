@@ -1,8 +1,10 @@
 ﻿using Abc.Xacml.Context;
+using Hl7.Fhir.Model.CdsHooks;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
@@ -32,13 +34,13 @@ public class PolicyEnforcementPointMiddlware
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! PEP bypass is enabled in production!");
 
         // If the request is from localhost and environment is development we can ignore PEP.
-        var requestIsLocal = httpContext.Connection.RemoteIpAddress is not null &&
+        var requestIsLocal = httpContext.Connection.RemoteIpAddress != null &&
               (IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress) ||
                httpContext.Connection.RemoteIpAddress.ToString() == "::1");
 
         if (requestIsLocal &&
-            _xdsConfig.IgnorePEPForLocalhostRequests is true &&
-            _env.IsDevelopment() is true)
+            _xdsConfig.IgnorePEPForLocalhostRequests == true &&
+            _env.IsDevelopment() == true)
         {
             _logger.LogWarning("Policy Enforcement Point middleware was bypassed for requests from localhost.");
             await _next(httpContext);
@@ -48,22 +50,66 @@ public class PolicyEnforcementPointMiddlware
         var endpoint = httpContext.GetEndpoint();
         var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
 
-        if (enforceAttr is null || enforceAttr.Enabled is false)
+        if (enforceAttr == null || enforceAttr.Enabled == false)
         {
             await _next(httpContext); // Skip PEP check
             return;
         }
 
-        if (httpContext.Request.ContentType?.Contains("application/soap+xml") is false)
+        httpContext.Request.EnableBuffering(); // Allows multiple reads
+        
+        XacmlContextRequest xacmlRequest = null;
+
+        switch (httpContext.Request.ContentType)
         {
-            await _next(httpContext);
+            case "application/soap+xml":
+                xacmlRequest = await GetXacmlRequestFromSoapEnvelope(httpContext);
+                break;
+
+            case "application/json":
+                xacmlRequest = await GetXacmlRequestFromJsonRequest(httpContext);
+                break;
+
+            default:
+                await _next(httpContext);
+                return;
+        }
+
+        var xacmlRequestString = JsonSerializer.Serialize(xacmlRequest);
+        /* 
+         * Call PDP Endpoint with request string here
+         * short circuit middleware and return Soap response if response from PDP is Deny
+        */
+
+        // Example where PEP denied the request; short-circuit the middleware
+
+        if ("PepResponseStatus".Equals("Deny"))
+        {
+            var responseEnvelope = SoapExtensions.CreateSoapFault("Access denied").Value;
+            var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+
+            _logger.LogError($"Access denied from Policy Decision Point \n Reason: {responseEnvelope?.Body.Fault?.Code.Value}");
+            httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+            httpContext.Response.ContentType = "application/soap+xml";
+            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(responseEnvelope).Content);
             return;
         }
 
-        httpContext.Request.EnableBuffering(); // Allows multiple reads
+
+        // Call the next delegate/middleware in the pipeline.
+        await _next(httpContext);
+    }
+
+    private async Task<XacmlContextRequest?> GetXacmlRequestFromJsonRequest(HttpContext httpContext)
+    {
+        XacmlContextRequest contextRequest = null;
+        return contextRequest;
+    }
+
+    private async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(HttpContext httpContext)
+    {
         using var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true);
         var bodyContent = await reader.ReadToEndAsync();
-
         httpContext.Request.Body.Position = 0; // Reset stream position for next reader
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
@@ -74,16 +120,13 @@ public class PolicyEnforcementPointMiddlware
 
         var assertion = soapEnvelope.GetElementsByTagName("saml:Assertion");
 
-        var ip = httpContext.Connection.RemoteIpAddress.ToString();
-
-
         if (assertion.Count == 0)
         {
             _logger.LogDebug("No saml token in request");
             throw new Exception("No SAML Assertion found in the SOAP envelope.");
         }
 
-        var samlAssertion = assertion[0].OuterXml;
+        var samlAssertion = assertion[0]?.OuterXml;
 
         var handler = new Saml2SecurityTokenHandler();
         var samlToken = handler.ReadSaml2Token(samlAssertion);
@@ -150,35 +193,13 @@ public class PolicyEnforcementPointMiddlware
             OmitXmlDeclaration = false
         };
 
-        var xacmlRequestString = XacmlSerializer.SerializeRequest(request);
-
-        /* 
-         * Call PDP Endpoint with request string here
-         * short circuit middleware and return Soap response if response from PDP is Deny
-        */
-
-        // Example where PEP denied the request; short-circuit the middleware
-
-        if ("PepResponseStatus".Equals("Deny"))
-        {
-            var responseEnvelope = SoapExtensions.CreateSoapFault("Access denied").Value;
-
-            _logger.LogError($"Access denied from Policy Decision Point \n Reason: {responseEnvelope?.Body.Fault?.Code.Value}");
-            httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
-            httpContext.Response.ContentType = "application/soap+xml";
-            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(responseEnvelope).Content);
-            return;
-        }
-
-
-        // Call the next delegate/middleware in the pipeline.
-        await _next(httpContext);
+        return request;
     }
 }
 
 public static class XacmlSerializer
 {
-    public static string SerializeRequest(XacmlContextRequest request)
+    public static string SerializeRequestToXml(XacmlContextRequest request)
     {
         var settings = new XmlWriterSettings()
         {
@@ -288,14 +309,4 @@ public static class XacmlSerializer
         writer.WriteEndElement();
     }
 
-}
-
-
-public static class PolicyEnforcementPointMiddlewareExtensions
-{
-    public static IApplicationBuilder UsePolicyEnforcementPointMiddleware(
-        this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<PolicyEnforcementPointMiddlware>();
-    }
 }

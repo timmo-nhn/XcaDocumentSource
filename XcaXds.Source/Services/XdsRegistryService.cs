@@ -248,32 +248,32 @@ public partial class XdsRegistryService
                 break;
 
 
-            case Constants.Xds.StoredQueries.GetFolderAndContents:
-                var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
+            //case Constants.Xds.StoredQueries.GetFolderAndContents:
+            //    var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
 
-                var registryGetFoldersAndDocumentsResult = documentRegistry.RegistryObjectList.OfType<IdentifiableType>();
+            //    var registryGetFoldersAndDocumentsResult = documentRegistry.RegistryObjectList.OfType<IdentifiableType>();
 
-                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-                    .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
+            //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+            //        .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
 
-                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-                    .ByXdsFolderEntryUuid(getFoldersAndContentsParameters.XdsFolderEntryUuid);
+            //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+            //        .ByXdsFolderEntryUuid(getFoldersAndContentsParameters.XdsFolderEntryUuid);
 
-                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-                    .ByXdsDocumentEntryFormatCode(getFoldersAndContentsParameters.XdsDocumentEntryFormatCode);
+            //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+            //        .ByXdsDocumentEntryFormatCode(getFoldersAndContentsParameters.XdsDocumentEntryFormatCode);
 
 
-                // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
-                // Return an XDSStoredQueryParamNumber error if both parameters are specified
-                if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
-                {
-                    _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
-                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
-                }
+            //    // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
+            //    // Return an XDSStoredQueryParamNumber error if both parameters are specified
+            //    if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
+            //    {
+            //        _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
+            //        registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
+            //    }
 
-                filteredElements = [.. registryGetFoldersAndDocumentsResult];
+            //    filteredElements = [.. registryGetFoldersAndDocumentsResult];
 
-                break;
+            //    break;
         }
 
         if (adhocQueryRequest.ResponseOption != null)

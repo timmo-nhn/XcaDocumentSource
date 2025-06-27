@@ -70,15 +70,16 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         _logger.LogInformation($"Completed action: get-document");
 
-        if (entries.Success)
+        if (entries.Document != null)
         {
             _logger.LogInformation($"Successfully retrieved document with id: {entries.Document.DocumentId} in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(entries);
         }
-
-        for (int i = 0; i < entries.Errors.Count; i++) _logger.LogError($"\n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
-
-        return BadRequest(entries);
+        else
+        {
+            _logger.LogInformation($"Successfully retrieved 0 documents in {requestTimer.ElapsedMilliseconds} ms");
+            return Ok(entries);
+        }
     }
 
     [HttpPost("upload")]
@@ -142,10 +143,10 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         var requestTimer = Stopwatch.StartNew();
 
-        _restfulRegistryService.DeleteDocumentAndMetadata(id);
+        var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id);
 
         requestTimer.Stop();
 
-        return Ok("ok");
+        return Ok(deleteResponse);
     }
 }

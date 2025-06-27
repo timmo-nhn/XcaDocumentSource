@@ -205,13 +205,13 @@ public static class RegistryMetadataTransformerService
         return null;
     }
 
-    private static Author GetAuthorFromRegistryPackage(RegistryPackageType registryPackage)
+    private static AuthorInfo GetAuthorFromRegistryPackage(RegistryPackageType registryPackage)
     {
         var authorClassification = registryPackage.GetFirstClassification(Constants.Xds.Uuids.SubmissionSet.Author);
 
         if (authorClassification != null)
         {
-            var author = new Author();
+            var author = new AuthorInfo();
             author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
             author.Department = GetAuthorDepartmentFromClassification(authorClassification);
             author.Person = GetAuthorPersonFromClassification(authorClassification);
@@ -497,13 +497,13 @@ public static class RegistryMetadataTransformerService
         };
     }
 
-    private static Author GetAuthorFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
+    private static AuthorInfo GetAuthorFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
     {
         var authorClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.Author);
 
         if (authorClassification != null)
         {
-            var author = new Author();
+            var author = new AuthorInfo();
             author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
             author.Department = GetAuthorDepartmentFromClassification(authorClassification);
             author.Person = GetAuthorPersonFromClassification(authorClassification);
@@ -1038,7 +1038,7 @@ public static class RegistryMetadataTransformerService
         extrinsicObject.Classification = [.. extrinsicObject.Classification, authorClassification];
     }
 
-    private static void GetAuthorSpecialitySlotFromAuthor(ClassificationType classification, Author documentAuthor)
+    private static void GetAuthorSpecialitySlotFromAuthor(ClassificationType classification, AuthorInfo documentAuthor)
     {
         var authorSpeciality = documentAuthor?.Speciality;
 
@@ -1057,7 +1057,7 @@ public static class RegistryMetadataTransformerService
         classification.AddSlot(Constants.Xds.SlotNames.AuthorSpecialty, [authorSpecialityCx.Serialize()]);
     }
 
-    private static void GetAuthorRoleSlotFromAuthor(ClassificationType classification, Author documentAuthor)
+    private static void GetAuthorRoleSlotFromAuthor(ClassificationType classification, AuthorInfo documentAuthor)
     {
         var authorRole = documentAuthor?.Role;
         if (authorRole == null) return;
@@ -1075,7 +1075,7 @@ public static class RegistryMetadataTransformerService
         classification.AddSlot(Constants.Xds.SlotNames.AuthorRole, [authorRoleCx.Serialize()]);
     }
 
-    private static void GetAuthorInstitutionSlotFromAuthor(ClassificationType classification, Author author)
+    private static void GetAuthorInstitutionSlotFromAuthor(ClassificationType classification, AuthorInfo author)
     {
         if (author == null) return;
 
@@ -1124,7 +1124,7 @@ public static class RegistryMetadataTransformerService
         classification.AddSlot(authorInstitutionSlot);
     }
 
-    private static void GetAuthorPersonSlotFromAuthor(ClassificationType classification, Author author)
+    private static void GetAuthorPersonSlotFromAuthor(ClassificationType classification, AuthorInfo author)
     {
         var authorPerson = author?.Person;
         if (authorPerson == null) return;

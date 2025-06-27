@@ -155,15 +155,25 @@ Read all document references for a given patient identifier. Also supports statu
 |---|---|
 | `id` | patient identifier to search for. If the patient id is not formatted as a **CX**-datatype, a default **CX** type will be created with assigning authority OID for **Norwegian birth numbers**<br> Example: `?id=13116900216` will assume the assigning authority of the identifier is `2.16.578.1.12.4.1.4.1`|
 | `status` | Status of the document. Values are confined to `Approved` or `Deprecated`. Will be joined together with `urn:oasis:names:tc:ebxml-regrep:StatusType:`, so `Approved` is appended to get the urn/ebXML name of Approved status type |
-| serviceStartTime | DateTime for the service Start time, when the patient care started |
-| serviceStopTime |DateTime for the service Stop time, when the patient care ended|
-| pageNumber | Pagination - Current page number for the result |
-| pageSize | Pagination - Amount of documentreferences to return per page |
+| `serviceStartTime` | DateTime for the service Start time, when the patient care started |
+| `serviceStopTime` | DateTime for the service Stop time, when the patient care ended|
+| `pageNumber` | Pagination - Current page number for the result |
+| `pageSize` | Pagination - Amount of documentreferences to return per page |
 
 #### Example 
 ```
-https://localhost:7176/api/rest/document-list?id=13116900216
+GET https://localhost:7176/api/rest/document-list?id=13116900216
 ```
+
+
+#### Example using `x-patient-id` header
+To avoid leaking patient identifiers in logs, the patient ID for the search can also be added as a header with the `x-patient-id` property. Internally, it will funciton exactly like the URL query parameter.
+```
+GET https://localhost:7176/api/rest/document-list?pageNumber=1&pageSize=10
+
+-H 'x-patient-id: 13116900216'
+```
+
 
 ### Read Document
 Gets a document from the document repository. Will be returned as a base64-encoded string in the JSON. Repository ID and HomecommunityID can be specified. The **Repository** and **Homecommunity** OIDs in the **Application config** will be used if not specified.
@@ -178,7 +188,7 @@ Gets a document from the document repository. Will be returned as a base64-encod
 
 #### Example
 ```
-https://localhost:7176/api/rest/document?document=extrinsicObjectDocument01
+GET https://localhost:7176/api/rest/document?document=extrinsicObjectDocument01
 ```
 
 ### Update Document Reference
@@ -197,7 +207,7 @@ Updates an entire existing Document Reference. This endpoint has two behaviors w
 
 #### URL
 ```
-https://localhost:7176/api/rest/update?replace=false
+PUT https://localhost:7176/api/rest/update?replace=false
 ```
 
 #### JSON payload
@@ -337,7 +347,43 @@ Send a partial request which only updates the specified fields. Useful for small
 
 #### URL
 ```
-https://localhost:7176/api/rest/update
+PATCH https://localhost:7176/api/rest/patch
+```
+#### Example JSON payload
+<details>
+<summary><big><strong> View example JSON payload</strong></big></summary>
+
+```json
+{
+    "documentEntry": {
+        "id": "FT_DocumentEntry02",
+    "author": {
+        "department": {
+            "id": "456123789",
+        "organizationName": "Corrected Department Name",
+        "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+      }
+    }
+  }
+}
+```
+</details>
+
+
+### Patch Document Reference
+Send a partial request which only updates the specified fields. Useful for small fixes to the registry content.
+
+| Property  | Description |
+|---|---|
+| HTTP action | PATCH |
+| Short description | Partially update an existing document reference by only sending the values that are needed for the update |
+| Endpoint URL | /api/rest/update |
+| Request Query | `DocumentReferenceDto` |
+| Response Object | `DocumentResponse` |
+
+#### URL
+```
+PATCH https://localhost:7176/api/rest/patch
 ```
 #### Example JSON payload
 <details>

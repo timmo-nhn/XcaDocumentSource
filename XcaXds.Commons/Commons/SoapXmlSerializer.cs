@@ -16,6 +16,10 @@ public class SoapXmlSerializerResult
     public bool IsSuccess { get; set; }
 }
 
+
+/// <summary>
+/// Works as a generic XML Serializer, but returns a SOAP-envelope as a serialization result
+/// </summary>
 public class SoapXmlSerializer
 {
     private XmlWriterSettings? _xmlWriterSettings;
@@ -23,6 +27,7 @@ public class SoapXmlSerializer
     {
         _xmlWriterSettings = xmlSettings;
     }
+
     public SoapXmlSerializer(XmlSettings xmlSettings)
     {
         _xmlWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };

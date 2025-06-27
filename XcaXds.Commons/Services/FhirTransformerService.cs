@@ -22,9 +22,9 @@ public static class FhirTransformerService
         return registryObjectList;
     }
 
-    private static Author? GetDocumentEntryAuthorFromFhirDocumentReference(DocumentReference documentReference)
+    private static AuthorInfo? GetDocumentEntryAuthorFromFhirDocumentReference(DocumentReference documentReference)
     {
-        var author = new Author();
+        var author = new AuthorInfo();
 
 
 
