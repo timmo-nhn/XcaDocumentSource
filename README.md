@@ -1,4 +1,4 @@
-# PJD.XcaDocumentSource - Open Source XCA Responding Gateway and Document Registry and Repository  
+# PJD.XcaDocumentSource – Open Source XCA Responding Gateway Adapter Framework
 
 ## Preface: The vision of PJD.XcaDocumentSource
 > ⚠ **Important Note!** <br>**PJD.XcaDocumentSource** is provided as an open-source reference for the implementer to extend or customize its interfaces to align with the requirements of their existing Electronic Patient Record (EPR) systems.  
