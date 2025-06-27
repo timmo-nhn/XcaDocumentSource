@@ -1,30 +1,5 @@
 # Use case Scenarios for PJD.XcaDocumentSource
 
-## Preface: The vision of PJD.XcaDocumentSource
-> **Important Note!** ⚠ <br>**PJD.XcaDocumentSource** is provided as an open-source reference for the implementer to extend or customize its interfaces to align with the requirements of their existing Electronic Patient Record (EPR) systems.  
-The solution is **not** a substitute for an EPR system nor an EPR storage solution; it acts as a translating framework between SOAP messages from NHN's XCA and the implementers **existing** EPR-system.<br><br></span>
-**Norsk helsenett (NHN) does not assume responsibility for the integrity, availability, or confidentiality of patient data handled through deployments based on PJD.XcaDocumentSource. Use of PJD.XcaDocumentSource is at the implementer's own risk, and any integration between PJD.XcaDocumentSource and live Electronic Patient Record (EPR) systems must be thoroughly tested and validated within the implementer’s own governance and compliance frameworks.**
-
-**PJD.XcaDocumentSource** allows healthcare providers to expose their internal, **existing document storage solution** as an **XDS-compliant Registry** and **Repository** interface.  
-The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML**, and **ebRIM** formatted messages behind a simplified **RESTful API layer**. This significantly reduces integration friction with an actor's existing storage solution, by translating complex ITI messages into implementation-defined, simplified internal representations suitable for integration with custom document APIs.
-
-* Implements IHE XCA profile for cross-community access
-* Provides an XDS.b-compatible registry and repository layer backed by customizable storage adapters
-* Supports integration with Norsk Helsenett’s XCA Initiating Gateway
-
-**PJD.XcaDocumentSource** does not provide document storage itself. Instead, it allows implementers to connect their own storage infrastructure - whether proprietary, legacy, or standards-based—by implementing custom translation logic between document storage metadata and the simpler, internal data-structures.
-```
- [External XCA Initiating Gateway]
-             ↓ ITI-38/39
-  [XcaDocumentSource Translation Layer, simple data structures]
-             ↓ Custom Adapter Interface (Written by the implementer)
-     [Existing Document Storage Backend]
-```
-
-It aims to accelerate prototyping and integration with NHN, without requiring full knowledge of **IHE profiles** and **ebXML RegRep** specifications up-front; the solution handles the complexities of SOAP and XML, essentially "doing the plumbing work". This allows the end user to focus on their domain-specific implementations needs, like shaping business logic and handling access control.
-
-Architecturally, **PJD.XcaDocumentSource** acts as a translation gateway that sits between an external XCA Initiating Gateway (e.g., NHN) and an organization’s internal EPR system, mapping IHE protocols to local API semantics
-
 ## Use cases
 
 ### 1. Municipality Sharing Test Results with National Health Network
