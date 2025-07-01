@@ -1,5 +1,7 @@
 # REST-endpoints (CRUD) - RestfulRegistryService
 
+This page describes the RESTful API-endpoints in **PJD.XcaDocumentSource**. They can be used to externally perform CRUD-operations on the document registry and repository implementation, if nescesarry.
+
 ### Create Documents and References
 Uploads a Document reference and/or document to the registry. The input type is one `DocumentReference` which can hold one `DocumentEntryDto`, `SubmissionSetDto`, `AssociationDto` and `DocumentDto`. A partial document upload can be done by only uploading a `DocumentEntryDto` and a `SubmissionSetDto`. An **Association** will be created **if it is not present in the request**.
 
@@ -153,12 +155,12 @@ Read all document references for a given patient identifier. Also supports statu
 #### Request parameters
 | Query  | Description |
 |---|---|
-| `id` | patient identifier to search for. If the patient id is not formatted as a **CX**-datatype, a default **CX** type will be created with assigning authority OID for **Norwegian birth numbers**<br> Example: `?id=13116900216` will assume the assigning authority of the identifier is `2.16.578.1.12.4.1.4.1`|
-| `status` | Status of the document. Values are confined to `Approved` or `Deprecated`. Will be joined together with `urn:oasis:names:tc:ebxml-regrep:StatusType:`, so `Approved` is appended to get the urn/ebXML name of Approved status type |
-| `serviceStartTime` | DateTime for the service Start time, when the patient care started |
-| `serviceStopTime` | DateTime for the service Stop time, when the patient care ended|
-| `pageNumber` | Pagination - Current page number for the result |
-| `pageSize` | Pagination - Amount of documentreferences to return per page |
+| `id`(R) | patient identifier to search for. If the patient id is not formatted as a **CX**-datatype, a default **CX** type will be created with assigning authority OID for **Norwegian birth numbers**<br> Example: `?id=13116900216` will assume the assigning authority of the identifier is `2.16.578.1.12.4.1.4.1`|
+| `status`(O) | Status of the document. Values are confined to `Approved` or `Deprecated`. Will be joined together with `urn:oasis:names:tc:ebxml-regrep:StatusType:`, so `Approved` is appended to get the urn/ebXML name of Approved status type |
+| `serviceStartTime`(O) | DateTime for the service Start time, when the patient care started |
+| `serviceStopTime`(O) | DateTime for the service Stop time, when the patient care ended|
+| `pageNumber`(O) | Pagination - Current page number for the result. Default: 1 |
+| `pageSize`(O) | Pagination - Amount of documentreferences to return per page. Default: 10 |
 
 #### Example 
 ```
@@ -183,7 +185,7 @@ Gets a document from the document repository. Will be returned as a base64-encod
 | HTTP action | GET |
 | Short description | Upload a Document reference and associated document to the registry or repository |
 | Endpoint URL | /api/rest/document |
-| Request Query | `repository`, `home`, `documentid` |
+| Request Query | `repository`(O), `home`(O), `document`(R) |
 | Response Object | `DocumentResponse` |
 
 #### Example
@@ -194,14 +196,14 @@ GET https://localhost:7176/api/rest/document?document=extrinsicObjectDocument01
 ### Update Document Reference
 Updates an entire existing Document Reference. This endpoint has two behaviors which can be set using the `replace` query parameter:
 * **Behavior 1 - Replace** `replace=true` Overwrites the existing document entry entirely 
-* **Behavior 2 - Deprecate** `replace=false` Acts similar to how IHE XDS defines the behavior for replacing document metadata, where the old DocumentEntry's status is set to `Deprecated`, a new DocumentEntry is created and a **Replace Association** is created between the old and new documententry.
+* **Behavior 2 - Deprecate** `replace=false` Acts similar to how the **IHE XDS** profile defines the behavior for replacing document metadata, where the old DocumentEntry's status is set to `Deprecated`, a new DocumentEntry is created and a **Replace Association** is created between the old and new documententry.
 
 | Property  | Description |
 |---|---|
 | HTTP action | PUT |
 | Short description | Upload a Document reference and associated document to the registry or repository |
 | Endpoint URL | /api/rest/update |
-| Request Query | `DocumentReferenceDto` |
+| Request Query | `replace`(R) `DocumentReferenceDto` |
 | Response Object | `DocumentResponse` |
 
 

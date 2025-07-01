@@ -13,6 +13,20 @@ The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML
 * Supports integration with Norsk Helsenett’s XCA Initiating Gateway
 
 **PJD.XcaDocumentSource** does not provide document storage itself. Instead, it allows implementers to connect their own storage infrastructure - whether proprietary, legacy, or standards-based—by implementing custom translation logic between document storage metadata and the simpler, internal data-structures.
+```mermaid
+graph
+
+nhnxca[NHN XCA Initiating Gateway]
+subgraph "Actor"
+  xcads[XcaDocumentSource<br>XCA Responding Gateway]
+  epr[Electronic Patient Records]
+      A@{ shape: comment, label: "PJD.XcaDocumentSource translates SOAP-calls to simpler data structures" }
+end
+
+
+nhnxca--"ITI-38/-ITI39"-->xcads--"Custom Adapter Interface (Written by the implementer)"-->epr
+```
+
 ```
  [External XCA Initiating Gateway]
              ↓ ITI-38/39
@@ -23,7 +37,7 @@ The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML
 
 It aims to accelerate prototyping and integration with NHN, without requiring full knowledge of **IHE profiles** and **ebXML RegRep** specifications up-front; the solution handles the complexities of SOAP and XML, essentially "doing the plumbing work". This allows the end user to focus on their domain-specific implementations needs, like shaping business logic and handling access control.
 
-Architecturally, **PJD.XcaDocumentSource** acts as a translation gateway that sits between an external XCA Initiating Gateway (e.g., NHN) and an organization’s internal EPR system, mapping IHE protocols to local API semantics
+Architecturally, **PJD.XcaDocumentSource** acts as a translation gateway that sits between an external XCA Initiating Gateway (e.g., NHN) and an organization’s internal EPR system, mapping IHE protocols to local API formats.
 
 
 ## Introduction/Getting started
@@ -125,7 +139,7 @@ Describes the lightweight but expandable implementation of HL7 messaging, allowi
 ## Coding Conventions
 
 The following coding conventions are used in XcaDocumentSource. They are not enforced onto the implementer, but described here for informational purposes:
-- Functions are used extensively to break up code and separate concerns. No function should rarely be more than 100 lines.
+- Functions are used extensively to break up code and separate concerns. Functions should rarely be more than 100 lines.
   - Functions should have a single purpose (SRP)
 - Service-classes encapsulate functionality related to a single "purpose" or function (interact with registry/repository, transform objects from X to Y format etc.)
 - Naming:
