@@ -16,7 +16,7 @@ Uploads a Document reference and/or document to the registry. The input type is 
 #### Example 
 ##### Request
 ```
-https://localhost:7176/api/rest/upload
+POST https://localhost:7176/api/rest/upload
 ```
 <details>
 <summary><big><strong> View example JSON payload</strong></big></summary>

@@ -1,5 +1,4 @@
 ﻿using Abc.Xacml.Context;
-using Hl7.Fhir.Model.CdsHooks;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
@@ -57,7 +56,7 @@ public class PolicyEnforcementPointMiddlware
         }
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
-        
+
         XacmlContextRequest xacmlRequest = null;
 
         switch (httpContext.Request.ContentType)

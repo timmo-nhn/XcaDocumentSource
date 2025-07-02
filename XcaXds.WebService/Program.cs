@@ -64,12 +64,12 @@ public class Program
 
 
         // Register services
-        builder.Services.AddSingleton<XcaGateway>();
+        builder.Services.AddScoped<XcaGateway>();
         //builder.Services.AddSingleton<SoapService>();
-        builder.Services.AddSingleton<XdsRepositoryService>();
+        builder.Services.AddScoped<XdsRepositoryService>();
+        builder.Services.AddScoped<XdsRegistryService>();
+        builder.Services.AddScoped<Hl7RegistryService>();
         builder.Services.AddSingleton<RepositoryWrapper>();
-        builder.Services.AddSingleton<XdsRegistryService>();
-        builder.Services.AddSingleton<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
@@ -100,10 +100,13 @@ public class Program
         // Feature Toggle (located in XcaXds.WebService/Appsettings.json)
         builder.Services.AddFeatureManagement();
 
+        // Health check
+        builder.Services.AddHealthChecks();
 
         // Begin app
         var app = builder.Build();
         app.UseExceptionHandler("/error");
+        app.MapHealthChecks("/healthz");
 
         if (app.Environment.IsDevelopment())
         {

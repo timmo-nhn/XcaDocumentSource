@@ -29,7 +29,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [HttpGet("document-list")]
-    public async Task<IActionResult> GetDocumentList(string? id, string? status, DateTime serviceStartTime, DateTime serviceStopTime, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> GetDocumentList(string? id, string? status, DateTime serviceStartTimeFrom, DateTime serviceStopTimeTo, int pageNumber = 1, int pageSize = 10)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
@@ -40,7 +40,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         var requestTimer = Stopwatch.StartNew();
 
-        var entries = _restfulRegistryService.GetDocumentListForPatient(id, status, serviceStartTime, serviceStopTime, pageNumber, pageSize);
+        var entries = _restfulRegistryService.GetDocumentListForPatient(id, status, serviceStartTimeFrom, serviceStopTimeTo, pageNumber, pageSize);
 
         requestTimer.Stop();
 
