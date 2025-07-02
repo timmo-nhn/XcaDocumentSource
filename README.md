@@ -14,7 +14,8 @@ The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML
 
 **PJD.XcaDocumentSource** does not provide document storage itself. Instead, it allows implementers to connect their own storage infrastructure - whether proprietary, legacy, or standards-based—by implementing custom translation logic between document storage metadata and the simpler, internal data-structures.
 ```mermaid
-graph
+%%{init: {'theme':'dark'}}%%
+flowchart
 
 nhnxca[NHN XCA Initiating Gateway]
 subgraph "Actor"

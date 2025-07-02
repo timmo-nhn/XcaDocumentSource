@@ -14,37 +14,41 @@ public class FhirEndpointsController : Controller
     [HttpGet("DocumentReference")]
     public async Task<ActionResult> DocumentReference(
         [FromQuery(Name = "patient")] string patient,
-        [FromQuery(Name = "creation")] string creation,
-        [FromQuery(Name = "author.given")] string authorgiven,
-        [FromQuery(Name = "author.family")] string authorfamily,
+        [FromQuery(Name = "creation")] string? creation,
+        [FromQuery(Name = "author.given")] string? authorGiven,
+        [FromQuery(Name = "author.family")] string? authorFamily,
         [FromQuery(Name = "status")] string status,
-        [FromQuery(Name = "category")] string category,
-        [FromQuery(Name = "type")] string type,
-        [FromQuery(Name = "setting")] string setting,
-        [FromQuery(Name = "period")] string period,
-        [FromQuery(Name = "facility")] string facility,
-        [FromQuery(Name = "event")] string @event,
-        [FromQuery(Name = "security-label")] string securitylabel,
-        [FromQuery(Name = "format")] string format
+        [FromQuery(Name = "category")] string? category,
+        [FromQuery(Name = "type")] string? typeCode,
+        [FromQuery(Name = "setting")] string? setting,
+        [FromQuery(Name = "period")] string? period,
+        [FromQuery(Name = "facility")] string? facility,
+        [FromQuery(Name = "event")] string? eventCode,
+        [FromQuery(Name = "security-label")] string? securityLabel,
+        [FromQuery(Name = "format")] string? format
         )
     {
-        var pretty = bool.Parse(Request.Headers["compact"].ToString() ?? "false");
+        var prettyprint = string.IsNullOrWhiteSpace(Request.Headers["compact"].ToString()) 
+            ? "false"
+            : Request.Headers["compact"].ToString();
+
+        var pretty = bool.Parse(prettyprint);
         var resource = new Bundle() { Id = Guid.NewGuid().ToString() };
 
         var documentRequest = new MhdDocumentRequest()
         {
             Patient = patient,
             Creation = creation,
-            Authorgiven = authorgiven,
-            Authorfamily = authorfamily,
+            AuthorGiven = authorGiven,
+            AuthorFamily = authorFamily,
             Status = status,
             Category = category,
-            Type = type,
+            Type = typeCode,
             Setting = setting,
             Period = period,
             Facility = facility,
-            Event = @event,
-            Securitylabel = securitylabel,
+            Event = eventCode,
+            Securitylabel = securityLabel,
             Format = format
         };
 

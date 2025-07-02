@@ -55,6 +55,7 @@ public partial class IdentifiableType
             Slot = [.. Slot, slotType];
         }
     }
+
     public void AddSlot(string slotName, string[] valueList)
     {
 
@@ -67,6 +68,22 @@ public partial class IdentifiableType
                 Value = valueList
             }
         });
+    }
+
+    public void UpdateSlot(string slotName, string[] valueList)
+    {
+        var slot = GetFirstSlot(slotName);
+        if (slot == null)
+        {
+            AddSlot(slotName, valueList);
+        }
+        else
+        { 
+            var updatedValues = slot.ValueList?.Value?.ToList() ?? new List<string>();
+            updatedValues.AddRange(valueList);
+            slot.ValueList ??= new();
+            slot.ValueList.Value = updatedValues.Distinct().ToArray();
+        }
     }
 
     public SlotType[] GetSlots(string slotName)

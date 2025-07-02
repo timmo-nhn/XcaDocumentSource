@@ -9,23 +9,23 @@ public static class RegistryStoredQueryParameters
     {
         return new FindDocuments()
         {
-            XdsDocumentEntryPatientId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.PatientId).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryStatus = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.Status)?.GetValuesGrouped(),
-            XdsDocumentEntryClassCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.ClassCode).GetValuesGrouped(),
-            XdsDocumentEntryTypeCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.TypeCode).GetValuesGrouped(),
-            XdsDocumentEntryPracticeSettingCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.PracticeSettingCode).GetValuesGrouped(),
-            XdsDocumentEntryCreationTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.CreationTimeFrom).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryCreationTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.CreationTimeTo).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryServiceStartTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.ServiceStartTimeFrom).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryServiceStartTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.ServiceStartTimeTo).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryServiceStoptimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.ServiceStopTimeFrom).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryServiceStoptimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.ServiceStopTimeTo).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryHealthcareFacilityTypeCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.HealthcareFacilityTypeCode).GetValuesGrouped(),
-            XdsDocumentEntryEventCodeList = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.EventCodeList).GetValuesGrouped(),
-            XdsDocumentEntryConfidentialityCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.ConfidentialityCode).GetValuesGrouped(),
-            XdsDocumentEntryAuthorPerson = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.AuthorPerson).GetValuesGrouped(),
-            XdsDocumentEntryFormatCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.FormatCode).GetValuesGrouped(),
-            XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindDocuments.Type).GetValuesGrouped(),
+            XdsDocumentEntryPatientId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.PatientId).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryStatus = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.Status)?.GetValuesGrouped(),
+            XdsDocumentEntryClassCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.ClassCode).GetValuesGrouped(),
+            XdsDocumentEntryTypeCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.TypeCode).GetValuesGrouped(),
+            XdsDocumentEntryPracticeSettingCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.PracticeSettingCode).GetValuesGrouped(),
+            XdsDocumentEntryCreationTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.CreationTimeFrom).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryCreationTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.CreationTimeTo).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryServiceStartTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.ServiceStartTimeFrom).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryServiceStartTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.ServiceStartTimeTo).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryServiceStoptimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.ServiceStopTimeFrom).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryServiceStoptimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.ServiceStopTimeTo).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryHealthcareFacilityTypeCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.HealthcareFacilityTypeCode).GetValuesGrouped(),
+            XdsDocumentEntryEventCodeList = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.EventCodeList).GetValuesGrouped(),
+            XdsDocumentEntryConfidentialityCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.ConfidentialityCode).GetValuesGrouped(),
+            XdsDocumentEntryAuthorPerson = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.AuthorPerson).GetValuesGrouped(),
+            XdsDocumentEntryFormatCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.FormatCode).GetValuesGrouped(),
+            XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.Type).GetValuesGrouped(),
         };
     }
 
@@ -33,13 +33,13 @@ public static class RegistryStoredQueryParameters
     {
         return new FindSubmissionSets()
         {
-            XdsSubmissionSetPatientId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindSubmissionSets.PatientId).FirstOrDefault()?.GetFirstValue(),
-            XdsSubmissionSetSourceId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindSubmissionSets.SourceId).GetValuesGrouped(),
-            XdsSubmissionSetSubmissionTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindSubmissionSets.SubmissionTimeFrom).FirstOrDefault()?.GetFirstValue(),
-            XdsSubmissionSetSubmissionTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindSubmissionSets.SubmissionTimeTo).FirstOrDefault()?.GetFirstValue(),
-            XdsSubmissionSetAuthorPerson = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindSubmissionSets.AuthorPerson).FirstOrDefault()?.GetFirstValue(),
-            XdsSubmissionSetContentType = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindSubmissionSets.ContentType).GetValuesGrouped(),
-            XdsSubmissionSetStatus = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindSubmissionSets.Status).GetValuesGrouped(),
+            XdsSubmissionSetPatientId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindSubmissionSets.PatientId).FirstOrDefault()?.GetFirstValue(),
+            XdsSubmissionSetSourceId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindSubmissionSets.SourceId).GetValuesGrouped(),
+            XdsSubmissionSetSubmissionTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindSubmissionSets.SubmissionTimeFrom).FirstOrDefault()?.GetFirstValue(),
+            XdsSubmissionSetSubmissionTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindSubmissionSets.SubmissionTimeTo).FirstOrDefault()?.GetFirstValue(),
+            XdsSubmissionSetAuthorPerson = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindSubmissionSets.AuthorPerson).FirstOrDefault()?.GetFirstValue(),
+            XdsSubmissionSetContentType = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindSubmissionSets.ContentType).GetValuesGrouped(),
+            XdsSubmissionSetStatus = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindSubmissionSets.Status).GetValuesGrouped(),
         };
     }
 
@@ -48,11 +48,11 @@ public static class RegistryStoredQueryParameters
         return new FindFolders()
         {
 
-            XdsFolderPatientId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindFoldes.XdsFolderPatientId).FirstOrDefault()?.GetFirstValue(),
-            XdsFolderLastUpdateTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindFoldes.XdsFolderLastUpdateTimeFrom).FirstOrDefault()?.GetFirstValue(),
-            XdsFolderLastUpdateTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindFoldes.XdsFolderLastUpdateTimeTo).FirstOrDefault()?.GetFirstValue(),
-            XdsFolderCodeList = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindFoldes.XdsFolderCodeList).GetValuesGrouped(),
-            XdsFolderStatus = adhocQuery.GetSlots(Constants.Xds.QueryParamters.FindFoldes.XdsFolderStatus).GetValuesGrouped(),
+            XdsFolderPatientId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindFoldes.XdsFolderPatientId).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderLastUpdateTimeFrom = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindFoldes.XdsFolderLastUpdateTimeFrom).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderLastUpdateTimeTo = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindFoldes.XdsFolderLastUpdateTimeTo).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderCodeList = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindFoldes.XdsFolderCodeList).GetValuesGrouped(),
+            XdsFolderStatus = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindFoldes.XdsFolderStatus).GetValuesGrouped(),
         };
     }
 
@@ -60,13 +60,13 @@ public static class RegistryStoredQueryParameters
     {
         return new GetAll()
         {
-            PatientId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetAll.PatientId).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryStatus = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetAll.DocumentEntryStatus).GetValuesGrouped(),
-            XdsSubmissionSetStatus = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetAll.SubmissionSetStatus).GetValuesGrouped(),
-            XdsFolderStatus = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetAll.FolderStatus).GetValuesGrouped(),
-            XdsDocumentEntryFormatCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetAll.DocumentEntryFormatCode).GetValuesGrouped(),
-            XdsDocumentEntryConfidentialityCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetAll.DocumentEntryConfidentialityCode).GetValuesGrouped(),
-            XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetAll.DocumentEntryType).GetValuesGrouped(),
+            PatientId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetAll.PatientId).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryStatus = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetAll.DocumentEntryStatus).GetValuesGrouped(),
+            XdsSubmissionSetStatus = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetAll.SubmissionSetStatus).GetValuesGrouped(),
+            XdsFolderStatus = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetAll.FolderStatus).GetValuesGrouped(),
+            XdsDocumentEntryFormatCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetAll.DocumentEntryFormatCode).GetValuesGrouped(),
+            XdsDocumentEntryConfidentialityCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetAll.DocumentEntryConfidentialityCode).GetValuesGrouped(),
+            XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetAll.DocumentEntryType).GetValuesGrouped(),
         };
     }
 
@@ -74,9 +74,9 @@ public static class RegistryStoredQueryParameters
     {
         return new GetDocuments()
         {
-            XdsDocumentEntryUuid = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetDocuments.XdsDocumentEntryUuid).GetValuesGrouped(),
-            XdsDocumentEntryUniqueId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetDocuments.XdsDocumentEntryUniqueId).GetValuesGrouped(),
-            HomeCommunityId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.Associations.HomeCommunityId).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryUuid = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetDocuments.XdsDocumentEntryUuid).GetValuesGrouped(),
+            XdsDocumentEntryUniqueId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetDocuments.XdsDocumentEntryUniqueId).GetValuesGrouped(),
+            HomeCommunityId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.Associations.HomeCommunityId).FirstOrDefault()?.GetFirstValue(),
         };
     }
 
@@ -84,8 +84,8 @@ public static class RegistryStoredQueryParameters
     {
         return new GetAssociations()
         {
-            Uuid = adhocQuery.GetSlots(Constants.Xds.QueryParamters.Associations.Uuid).GetValuesGrouped(),
-            HomeCommunityId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.Associations.HomeCommunityId).FirstOrDefault()?.GetFirstValue(),
+            Uuid = adhocQuery.GetSlots(Constants.Xds.QueryParameters.Associations.Uuid).GetValuesGrouped(),
+            HomeCommunityId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.Associations.HomeCommunityId).FirstOrDefault()?.GetFirstValue(),
         };
     }
 
@@ -93,8 +93,8 @@ public static class RegistryStoredQueryParameters
     {
         return new GetFolders()
         {
-            XdsFolderEntryUuid = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolders.XdsFolderEntryUuid).GetValuesGrouped(),
-            XdsFolderUniqueId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolders.XdsFolderUniqueId).GetValuesGrouped()
+            XdsFolderEntryUuid = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolders.XdsFolderEntryUuid).GetValuesGrouped(),
+            XdsFolderUniqueId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolders.XdsFolderUniqueId).GetValuesGrouped()
         };
     }
 
@@ -102,12 +102,12 @@ public static class RegistryStoredQueryParameters
     {
         return new GetFolderAndContents()
         {
-            XdsFolderEntryUuid = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolderAndContents.XdsFolderEntryUuid).FirstOrDefault()?.GetFirstValue(),
-            XdsFolderUniqueId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolderAndContents.XdsFolderUniqueId).FirstOrDefault()?.GetFirstValue(),
-            XdsDocumentEntryFormatCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolderAndContents.XdsDocumentEntryFormatCode).GetValuesGrouped(),
-            XdsDocumentEntryConfidentialityCode = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolderAndContents.XdsDocumentEntryConfidentialityCode).GetValuesGrouped(),
-            XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolderAndContents.XdsDocumentEntryType).GetValuesGrouped(),
-            homeCommunityId = adhocQuery.GetSlots(Constants.Xds.QueryParamters.GetFolderAndContents.homeCommunityId).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderEntryUuid = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.XdsFolderEntryUuid).FirstOrDefault()?.GetFirstValue(),
+            XdsFolderUniqueId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.XdsFolderUniqueId).FirstOrDefault()?.GetFirstValue(),
+            XdsDocumentEntryFormatCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.XdsDocumentEntryFormatCode).GetValuesGrouped(),
+            XdsDocumentEntryConfidentialityCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.XdsDocumentEntryConfidentialityCode).GetValuesGrouped(),
+            XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.XdsDocumentEntryType).GetValuesGrouped(),
+            homeCommunityId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.homeCommunityId).FirstOrDefault()?.GetFirstValue(),
         };
     }
 }

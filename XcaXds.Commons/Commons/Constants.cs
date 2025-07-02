@@ -124,7 +124,7 @@ public static class Constants
 
         }
 
-        public static class QueryParamters
+        public static class QueryParameters
         {
             public static class FindDocuments
             {

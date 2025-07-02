@@ -90,7 +90,7 @@ public class Program
 
 
         // REST services
-        builder.Services.AddSingleton<RestfulRegistryRepositoryService>();
+        builder.Services.AddScoped<RestfulRegistryRepositoryService>();
 
         builder.Services.AddHostedService<AppStartupService>();
 

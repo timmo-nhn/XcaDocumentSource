@@ -32,17 +32,17 @@
 
     private IEnumerable<KeyValueEntry> GetCustomers()
     {
-        var storedQueryTypes = typeof(Constants.Xds.QueryParamters.FindDocuments).GetAsKeyValuePair();
+        var storedQueryTypes = typeof(Constants.Xds.QueryParameters.FindDocuments).GetAsKeyValuePair();
 
         // Jank?!
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.FindSubmissionSets).GetAsKeyValuePair()];
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.Folder).GetAsKeyValuePair()];
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.GetFolders).GetAsKeyValuePair()];
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.GetFolderAndContents).GetAsKeyValuePair()];
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.Associations).GetAsKeyValuePair()];
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.General).GetAsKeyValuePair()];
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.GetAll).GetAsKeyValuePair()];
-        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParamters.GetDocuments).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.FindSubmissionSets).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.Folder).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.GetFolders).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.GetFolderAndContents).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.Associations).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.General).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.GetAll).GetAsKeyValuePair()];
+        storedQueryTypes = [..storedQueryTypes, ..typeof(Constants.Xds.QueryParameters.GetDocuments).GetAsKeyValuePair()];
 
         var uniqueStoredQueryTypes = storedQueryTypes
         .Select(sqt => new KeyValueEntry() { Key = sqt.Key, Value = sqt.Value })
