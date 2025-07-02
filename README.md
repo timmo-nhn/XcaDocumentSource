@@ -23,7 +23,6 @@ subgraph "Actor"
       A@{ shape: comment, label: "PJD.XcaDocumentSource translates SOAP-calls to simpler data structures" }
 end
 
-
 nhnxca--"ITI-38/-ITI39"-->xcads--"Custom Adapter Interface (Written by the implementer)"-->epr
 ```
 

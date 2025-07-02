@@ -1,6 +1,8 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -29,8 +31,26 @@ public class FhirEndpointsController : Controller
         var pretty = bool.Parse(Request.Headers["compact"].ToString() ?? "false");
         var resource = new Bundle() { Id = Guid.NewGuid().ToString() };
 
-        var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = true });
+        var documentRequest = new MhdDocumentRequest()
+        {
+            Patient = patient,
+            Creation = creation,
+            Authorgiven = authorgiven,
+            Authorfamily = authorfamily,
+            Status = status,
+            Category = category,
+            Type = type,
+            Setting = setting,
+            Period = period,
+            Facility = facility,
+            Event = @event,
+            Securitylabel = securitylabel,
+            Format = format
+        };
 
+        var iti18 = XdsOnFhirService.GenerateIti18FromIti67(documentRequest);
+
+        var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = pretty });
         var gobb = fhirJsonSerializer.SerializeToString(resource);
 
         return Ok(gobb);
