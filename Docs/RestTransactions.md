@@ -10,7 +10,7 @@ Uploads a Document reference and/or document to the registry. The input type is 
 | HTTP action | POST |
 | Short description | Upload a Document reference and/or associated document to the registry or repository |
 | Endpoint URL | /api/rest/upload |
-| Request Object | `DocumentReference` |
+| Request Object | `DocumentReference` | 
 | Response Object | `RestfulApiResponse` |
 
 #### Example 

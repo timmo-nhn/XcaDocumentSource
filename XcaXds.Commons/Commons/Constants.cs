@@ -468,6 +468,7 @@ public static class Constants
                 public const string Gender = "2.16.578.1.12.4.1.1.3101";
                 public const string DocumentType = "2.16.578.1.12.4.1.1.9602";
                 public const string Confidentiality = "2.16.578.1.12.4.1.1.9603";
+                public const string EventCode = "2.16.578.1.12.4.1.1.7210";
             }
             public static class Hl7
             {

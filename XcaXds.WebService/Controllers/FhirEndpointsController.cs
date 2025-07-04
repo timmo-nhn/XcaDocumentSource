@@ -1,8 +1,13 @@
-﻿using Hl7.Fhir.Model;
+﻿using System.Web;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using XcaXds.Commons;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
+using XcaXds.Source.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -11,6 +16,18 @@ namespace XcaXds.WebService.Controllers;
 [Route("R4/fhir")]
 public class FhirEndpointsController : Controller
 {
+    private readonly ILogger<FhirEndpointsController> _logger;
+    private readonly XdsOnFhirService _xdsOnFhirService;
+
+    private readonly XdsRegistryService _xdsRegistryService;
+
+    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsOnFhirService xdsOnFhirService, XdsRegistryService xdsRegistryService)
+    {
+        _xdsRegistryService = xdsRegistryService;
+        _logger = logger;
+        _xdsOnFhirService = xdsOnFhirService;
+    }
+
     [HttpGet("DocumentReference")]
     public async Task<ActionResult> DocumentReference(
         [FromQuery(Name = "patient")] string patient,
@@ -28,31 +45,53 @@ public class FhirEndpointsController : Controller
         [FromQuery(Name = "format")] string? format
         )
     {
+
         var prettyprint = string.IsNullOrWhiteSpace(Request.Headers["compact"].ToString()) 
             ? "false"
             : Request.Headers["compact"].ToString();
 
         var pretty = bool.Parse(prettyprint);
-        var resource = new Bundle() { Id = Guid.NewGuid().ToString() };
 
         var documentRequest = new MhdDocumentRequest()
         {
-            Patient = patient,
-            Creation = creation,
-            AuthorGiven = authorGiven,
-            AuthorFamily = authorFamily,
-            Status = status,
-            Category = category,
-            Type = typeCode,
-            Setting = setting,
-            Period = period,
-            Facility = facility,
-            Event = eventCode,
-            Securitylabel = securityLabel,
-            Format = format
+            Patient = HttpUtility.UrlDecode(patient),
+            Creation = HttpUtility.UrlDecode(creation),
+            AuthorGiven = HttpUtility.UrlDecode(authorGiven),
+            AuthorFamily = HttpUtility.UrlDecode(authorFamily),
+            Status = HttpUtility.UrlDecode(status),
+            Category = HttpUtility.UrlDecode(category),
+            Type = HttpUtility.UrlDecode(typeCode),
+            Setting = HttpUtility.UrlDecode(setting),
+            Period = HttpUtility.UrlDecode(period),
+            Facility = HttpUtility.UrlDecode(facility),
+            Event = HttpUtility.UrlDecode(eventCode),
+            Securitylabel = HttpUtility.UrlDecode(securityLabel),
+            Format = HttpUtility.UrlDecode(format)
         };
 
-        var iti18 = XdsOnFhirService.GenerateIti18FromIti67(documentRequest);
+        var adhocQueryRequest = new AdhocQueryRequest();
+        var adhocQuery = _xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery;
+
+        adhocQueryRequest.AdhocQuery = adhocQuery;
+        adhocQueryRequest.AdhocQuery.Id = Constants.Xds.StoredQueries.FindDocuments;
+
+        adhocQueryRequest.ResponseOption = new()
+        {
+            ReturnType = ResponseOptionTypeReturnType.LeafClass
+        };
+        
+        var soapEnvelope = new SoapEnvelope()
+        {
+            Header = new(),
+            Body = new() { AdhocQueryRequest = adhocQueryRequest }
+        };
+
+        var response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+        var resource = new Bundle() { Id = Guid.NewGuid().ToString() };
+        
+        _xdsOnFhirService.TransformRegistryObjectsToBundle(response.Value.Body.AdhocQueryResponse.RegistryObjectList);
+
+
 
         var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = pretty });
         var gobb = fhirJsonSerializer.SerializeToString(resource);

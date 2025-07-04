@@ -1,4 +1,6 @@
-﻿namespace XcaXds.Commons.Extensions;
+﻿using XcaXds.Commons.Models.Hl7.DataType;
+
+namespace XcaXds.Commons.Extensions;
 
 public static class StringExtensions
 {

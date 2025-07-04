@@ -306,7 +306,7 @@ public partial class XdsRegistryService
         {
             Header = new()
             {
-                RelatesTo = soapEnvelope.Header.MessageId
+                RelatesTo = soapEnvelope.Header?.MessageId
             },
             Body = new()
             {

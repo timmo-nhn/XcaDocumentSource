@@ -92,7 +92,7 @@ doclist <--> docstore
 document <--> docstore
 ```
 *Solution architecture overview*
-
+ 
 
 ## Solution Documentation
 
@@ -118,6 +118,9 @@ Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoint
 
 ### [👩‍💻 REST-endpoints (CRUD-transactions)](/Docs/RestTransactions.md)
 Describes the REST-endpoints of the solution, allowing for quick and easy CRUD-operations on the Document Registry and Repository.
+
+### [🔥 FHIR/MHD-endpoints](/Docs/MhdTransactions.md)
+Describes the RESTful FHIR and MHD-endpoints (Mobile access to Health Documents) of the solution, accesing the registry and repository in a standards-based format.
 
 ## Governing the solution
 
