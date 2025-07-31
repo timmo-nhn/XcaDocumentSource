@@ -143,7 +143,7 @@ public class Hl7RegistryService
     public PID GetPatientIdentifiersFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
     {
         var patientPid = new PID();
-        patientPid.PatientIdentifier ??= new();
+        patientPid.PatientIdentifier ??= new CX();
 
         var patientId = extrinsicObject.ExternalIdentifier.FirstOrDefault(x => x.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId)?.Value;
 

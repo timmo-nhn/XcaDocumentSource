@@ -120,7 +120,7 @@ Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoint
 Describes the REST-endpoints of the solution, allowing for quick and easy CRUD-operations on the Document Registry and Repository.
 
 ### [🔥 FHIR/MHD-endpoints](/Docs/MhdTransactions.md)
-Describes the RESTful FHIR and MHD-endpoints (Mobile access to Health Documents) of the solution, accesing the registry and repository in a standards-based format.
+Describes the RESTful FHIR and MHD-endpoints (Mobile access to Health Documents) of the solution, accesing the registry and repository in a standards-based format (XDS on FHIR).
 
 ## Governing the solution
 

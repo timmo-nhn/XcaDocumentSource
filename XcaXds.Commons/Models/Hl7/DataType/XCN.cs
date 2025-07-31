@@ -1,5 +1,10 @@
 namespace XcaXds.Commons.Models.Hl7.DataType;
 
+/// <summary>
+/// <strong>Extended Composite ID Number and Name for Persons (XCN)</strong><para/>
+/// Used to uniquely identify a person (identifier and full name)<para/>
+/// <strong><a href="https://hl7-definition.caristix.com/v2/HL7v2.5/DataTypes/XCN">Extended Composite ID Number and Name for Persons (XCN) - hl7-definition.caristix.com</a></strong>
+/// </summary>
 public class XCN : Hl7Object
 {
     [Hl7(Sequence = 1)]

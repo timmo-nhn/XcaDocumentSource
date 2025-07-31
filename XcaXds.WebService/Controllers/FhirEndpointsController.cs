@@ -17,15 +17,13 @@ namespace XcaXds.WebService.Controllers;
 public class FhirEndpointsController : Controller
 {
     private readonly ILogger<FhirEndpointsController> _logger;
-    private readonly XdsOnFhirService _xdsOnFhirService;
 
     private readonly XdsRegistryService _xdsRegistryService;
 
-    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsOnFhirService xdsOnFhirService, XdsRegistryService xdsRegistryService)
+    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsRegistryService xdsRegistryService)
     {
         _xdsRegistryService = xdsRegistryService;
         _logger = logger;
-        _xdsOnFhirService = xdsOnFhirService;
     }
 
     [HttpGet("DocumentReference")]
@@ -70,7 +68,7 @@ public class FhirEndpointsController : Controller
         };
 
         var adhocQueryRequest = new AdhocQueryRequest();
-        var adhocQuery = _xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery;
+        var adhocQuery = XdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery;
 
         adhocQueryRequest.AdhocQuery = adhocQuery;
         adhocQueryRequest.AdhocQuery.Id = Constants.Xds.StoredQueries.FindDocuments;
@@ -87,14 +85,13 @@ public class FhirEndpointsController : Controller
         };
 
         var response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
-        var resource = new Bundle() { Id = Guid.NewGuid().ToString() };
         
-        _xdsOnFhirService.TransformRegistryObjectsToBundle(response.Value.Body.AdhocQueryResponse.RegistryObjectList);
+        var bundle = XdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value.Body.AdhocQueryResponse.RegistryObjectList);
 
 
 
         var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = pretty });
-        var gobb = fhirJsonSerializer.SerializeToString(resource);
+        var gobb = fhirJsonSerializer.SerializeToString(bundle);
 
         return Ok(gobb);
     }

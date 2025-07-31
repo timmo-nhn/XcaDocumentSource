@@ -1,5 +1,10 @@
 namespace XcaXds.Commons.Models.Hl7.DataType;
 
+/// <summary>
+/// <strong>Extended Composite Name and Identification Number for Organizations (XON)</strong><para/>
+/// Used to uniquely identify an organization <para/>
+/// <strong><a href="https://hl7-definition.caristix.com/v2/HL7v2.5/DataTypes/XON">Extended Composite Name and Identification Number for Organizations (XON) - hl7-definition.caristix.com</a></strong>
+/// </summary>
 public class XON : Hl7Object
 {
     [Hl7(Sequence = 1)]

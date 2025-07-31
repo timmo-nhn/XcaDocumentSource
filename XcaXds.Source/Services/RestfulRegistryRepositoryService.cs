@@ -1,19 +1,12 @@
-﻿using System;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Hl7.Fhir.Model;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Source;
-using static XcaXds.Commons.Constants.Xds.Uuids;
 
 namespace XcaXds.Source.Services;
 
@@ -230,7 +223,7 @@ public class RestfulRegistryRepositoryService
 
             // Create RPLC association between old and new DocumentEntry
             var replaceAssociation = CreateAssociationBetweenObjects(
-                inputDocumentReference.DocumentEntry, 
+                inputDocumentReference.DocumentEntry,
                 documentEntryToBeReplaced,
                 Constants.Xds.AssociationType.Replace);
 
@@ -243,9 +236,9 @@ public class RestfulRegistryRepositoryService
 
             _registryWrapper.UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>()
             {
-                inputDocumentReference.DocumentEntry, 
-                inputDocumentReference.SubmissionSet, 
-                inputDocumentReference.Association, 
+                inputDocumentReference.DocumentEntry,
+                inputDocumentReference.SubmissionSet,
+                inputDocumentReference.Association,
                 replaceAssociation
             });
 
@@ -293,7 +286,7 @@ public class RestfulRegistryRepositoryService
     {
         var apiResponse = new RestfulApiResponse();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        
+
         var deleteResponse = _repositoryWrapper.DeleteSingleDocument(id);
 
         if (deleteResponse == false)

@@ -55,7 +55,7 @@ public class RegistryObjectType : IdentifiableType
     {
         return Classification.Where(cl => cl.ClassificationScheme == classificationScheme).ToArray();
     }
-    public ClassificationType GetFirstClassification(string classificationScheme)
+    public ClassificationType? GetFirstClassification(string classificationScheme)
     {
         return Classification.FirstOrDefault(cl => cl.ClassificationScheme == classificationScheme);
     }
@@ -64,7 +64,7 @@ public class RegistryObjectType : IdentifiableType
     {
         return ExternalIdentifier.Where(cl => cl.IdentificationScheme == identificationScheme).ToArray();
     }
-    public ExternalIdentifierType GetFirstExternalIdentifier(string identificationScheme)
+    public ExternalIdentifierType? GetFirstExternalIdentifier(string identificationScheme)
     {
         return ExternalIdentifier.FirstOrDefault(cl => cl.IdentificationScheme == identificationScheme);
     }

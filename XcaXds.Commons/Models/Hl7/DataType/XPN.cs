@@ -1,5 +1,11 @@
 namespace XcaXds.Commons.Models.Hl7.DataType;
 
+/// <summary>
+/// <strong>Extended Person Name (XPN)</strong><para/>
+/// Similar to XCN but without identifier<para/>
+/// Used in complex HL7-types, such as PID, where the identifier is contained in another property<para/>
+/// <strong><a href="https://hl7-definition.caristix.com/v2/HL7v2.5/DataTypes/XPN">Extended Person Name (XPN) - hl7-definition.caristix.com</a></strong>
+/// </summary>
 public class XPN : Hl7Object
 {
     [Hl7(Sequence = 1)]

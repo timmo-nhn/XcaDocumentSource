@@ -36,7 +36,7 @@ public class FileBasedRegistry : IRegistry
 
             File.WriteAllText(_registryFile + $".backup_{DateTime.UtcNow.ToString(Constants.Hl7.Dtm.DtmYyFormat)}", backup);
 
-            File.WriteAllTextAsync(_registryFile, RegistryJsonSerializer.Serialize(dtos));
+            File.WriteAllText(_registryFile, RegistryJsonSerializer.Serialize(dtos));
             return true;
         }
     }

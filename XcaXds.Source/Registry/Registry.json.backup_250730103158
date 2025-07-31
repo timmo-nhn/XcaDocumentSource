@@ -720,8 +720,7 @@
     "homeCommunityId": "string",
     "languageCode": "string",
     "legalAuthenticator": {
-      "id": "string",
-      "idSystem": "2.16.578.1.12.4.1.4.1"
+      "id": "string"
     },
     "mimeType": "string",
     "objectType": "string",
@@ -990,7 +989,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -1134,7 +1132,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MINIMALISTISK",
       "lastName": "EKSPEDITOR"
     },
@@ -1274,7 +1271,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26866896762",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ALDRENDE",
       "lastName": "HANDLINGSEVNE"
     },
@@ -1418,7 +1414,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -1562,7 +1557,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -1706,7 +1700,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26866896762",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ALDRENDE",
       "lastName": "HANDLINGSEVNE"
     },
@@ -1850,7 +1843,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -1994,7 +1986,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -2130,7 +2121,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -2266,7 +2256,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -2410,7 +2399,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -2550,7 +2538,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -2690,7 +2677,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MINIMALISTISK",
       "lastName": "EKSPEDITOR"
     },
@@ -2830,7 +2816,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -2966,7 +2951,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -3106,7 +3090,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -3246,7 +3229,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -3390,7 +3372,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -3530,7 +3511,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -3670,7 +3650,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -3814,7 +3793,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -3950,7 +3928,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -4094,7 +4071,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -4234,7 +4210,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -4374,7 +4349,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -4518,7 +4492,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -4662,7 +4635,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02906499765",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FORDEKT",
       "lastName": "HIMMEL"
     },
@@ -4806,7 +4778,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -4946,7 +4917,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24894497366",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "HANDLAGET",
       "lastName": "BASS"
     },
@@ -5086,7 +5056,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -5226,7 +5195,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -5370,7 +5338,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13890497696",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EPISK",
       "lastName": "GAUPE"
     },
@@ -5502,7 +5469,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13913746753",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "VARM",
       "lastName": "OVERSKRIFT"
     },
@@ -5646,7 +5612,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -5786,7 +5751,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -5926,7 +5890,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -6070,7 +6033,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FLOTT",
       "lastName": "PLEKTER"
     },
@@ -6210,7 +6172,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -6346,7 +6307,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -6478,7 +6438,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -6622,7 +6581,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -6766,7 +6724,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -6910,7 +6867,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -7054,7 +7010,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -7194,7 +7149,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -7334,7 +7288,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -7474,7 +7427,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -7618,7 +7570,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -7762,7 +7713,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -7902,7 +7852,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -8046,7 +7995,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "23876997983",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MOMENTAN",
       "lastName": "RIPE"
     },
@@ -8186,7 +8134,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -8330,7 +8277,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -8470,7 +8416,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "08884699909",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FREDELIG",
       "lastName": "BOT"
     },
@@ -8614,7 +8559,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -8754,7 +8698,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TROFAST",
       "lastName": "SVIGERINNE"
     },
@@ -8894,7 +8837,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -9030,7 +8972,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -9170,7 +9111,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LILLA",
       "lastName": "ALT"
     },
@@ -9310,7 +9250,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -9454,7 +9393,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -9594,7 +9532,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03866197813",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "SELVHJULPEN",
       "lastName": "BRETT"
     },
@@ -9734,7 +9671,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -9878,7 +9814,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -10022,7 +9957,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -10166,7 +10100,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -10294,7 +10227,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -10438,7 +10370,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -10582,7 +10513,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -10726,7 +10656,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MINIMALISTISK",
       "lastName": "EKSPEDITOR"
     },
@@ -10870,7 +10799,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -11014,7 +10942,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MINIMALISTISK",
       "lastName": "EKSPEDITOR"
     },
@@ -11158,7 +11085,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -11294,7 +11220,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -11438,7 +11363,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -11582,7 +11506,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -11722,7 +11645,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -11858,7 +11780,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -12002,7 +11923,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26860749563",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ENTUSIASTISK",
       "lastName": "BOKSTAV"
     },
@@ -12142,7 +12062,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -12286,7 +12205,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13913746753",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "VARM",
       "lastName": "OVERSKRIFT"
     },
@@ -12430,7 +12348,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -12574,7 +12491,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -12714,7 +12630,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -12858,7 +12773,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LILLA",
       "lastName": "ALT"
     },
@@ -13002,7 +12916,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02906499765",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FORDEKT",
       "lastName": "HIMMEL"
     },
@@ -13142,7 +13055,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13890497696",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EPISK",
       "lastName": "GAUPE"
     },
@@ -13286,7 +13198,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -13426,7 +13337,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -13570,7 +13480,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26860749563",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ENTUSIASTISK",
       "lastName": "BOKSTAV"
     },
@@ -13714,7 +13623,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -13850,7 +13758,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TROFAST",
       "lastName": "SVIGERINNE"
     },
@@ -13994,7 +13901,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13913746753",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "VARM",
       "lastName": "OVERSKRIFT"
     },
@@ -14134,7 +14040,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -14278,7 +14183,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -14418,7 +14322,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -14558,7 +14461,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -14698,7 +14600,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -14838,7 +14739,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -14982,7 +14882,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -15126,7 +15025,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -15270,7 +15168,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13890497696",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EPISK",
       "lastName": "GAUPE"
     },
@@ -15414,7 +15311,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TROFAST",
       "lastName": "SVIGERINNE"
     },
@@ -15558,7 +15454,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -15702,7 +15597,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -15842,7 +15736,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -15986,7 +15879,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -16130,7 +16022,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -16270,7 +16161,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -16410,7 +16300,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -16554,7 +16443,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -16698,7 +16586,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -16842,7 +16729,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "23876997983",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MOMENTAN",
       "lastName": "RIPE"
     },
@@ -16982,7 +16868,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -17122,7 +17007,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -17266,7 +17150,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -17406,7 +17289,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26866896762",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ALDRENDE",
       "lastName": "HANDLINGSEVNE"
     },
@@ -17546,7 +17428,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -17690,7 +17571,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "08884699909",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FREDELIG",
       "lastName": "BOT"
     },
@@ -17830,7 +17710,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -17974,7 +17853,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13890497696",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EPISK",
       "lastName": "GAUPE"
     },
@@ -18114,7 +17992,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -18250,7 +18127,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02906499765",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FORDEKT",
       "lastName": "HIMMEL"
     },
@@ -18390,7 +18266,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -18530,7 +18405,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TROFAST",
       "lastName": "SVIGERINNE"
     },
@@ -18674,7 +18548,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -18814,7 +18687,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FLOTT",
       "lastName": "PLEKTER"
     },
@@ -18958,7 +18830,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -19094,7 +18965,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26866896762",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ALDRENDE",
       "lastName": "HANDLINGSEVNE"
     },
@@ -19234,7 +19104,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -19374,7 +19243,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -19518,7 +19386,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -19654,7 +19521,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -19790,7 +19656,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LILLA",
       "lastName": "ALT"
     },
@@ -19926,7 +19791,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -20066,7 +19930,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -20210,7 +20073,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -20350,7 +20212,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -20490,7 +20351,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -20634,7 +20494,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -20778,7 +20637,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -20918,7 +20776,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "23876997983",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MOMENTAN",
       "lastName": "RIPE"
     },
@@ -21062,7 +20919,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -21206,7 +21062,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FLOTT",
       "lastName": "PLEKTER"
     },
@@ -21350,7 +21205,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -21494,7 +21348,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -21630,7 +21483,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24894497366",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "HANDLAGET",
       "lastName": "BASS"
     },
@@ -21774,7 +21626,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -21918,7 +21769,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -22062,7 +21912,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -22198,7 +22047,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -22342,7 +22190,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TROFAST",
       "lastName": "SVIGERINNE"
     },
@@ -22482,7 +22329,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24894497366",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "HANDLAGET",
       "lastName": "BASS"
     },
@@ -22626,7 +22472,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -22766,7 +22611,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -22910,7 +22754,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -23054,7 +22897,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -23198,7 +23040,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02906499765",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FORDEKT",
       "lastName": "HIMMEL"
     },
@@ -23338,7 +23179,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26860749563",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ENTUSIASTISK",
       "lastName": "BOKSTAV"
     },
@@ -23482,7 +23322,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TROFAST",
       "lastName": "SVIGERINNE"
     },
@@ -23626,7 +23465,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -23766,7 +23604,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -23910,7 +23747,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -24046,7 +23882,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LILLA",
       "lastName": "ALT"
     },
@@ -24190,7 +24025,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -24334,7 +24168,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -24478,7 +24311,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -24622,7 +24454,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FLOTT",
       "lastName": "PLEKTER"
     },
@@ -24762,7 +24593,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -24898,7 +24728,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -25038,7 +24867,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -25178,7 +25006,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -25314,7 +25141,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -25454,7 +25280,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LILLA",
       "lastName": "ALT"
     },
@@ -25598,7 +25423,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "23876997983",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MOMENTAN",
       "lastName": "RIPE"
     },
@@ -25742,7 +25566,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -25882,7 +25705,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -26014,7 +25836,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -26158,7 +25979,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -26294,7 +26114,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -26434,7 +26253,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -26570,7 +26388,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -26714,7 +26531,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26860749563",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ENTUSIASTISK",
       "lastName": "BOKSTAV"
     },
@@ -26850,7 +26666,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -26994,7 +26809,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "23876997983",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MOMENTAN",
       "lastName": "RIPE"
     },
@@ -27134,7 +26948,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -27270,7 +27083,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "08884699909",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FREDELIG",
       "lastName": "BOT"
     },
@@ -27414,7 +27226,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -27558,7 +27369,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -27694,7 +27504,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -27838,7 +27647,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -27982,7 +27790,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FLOTT",
       "lastName": "PLEKTER"
     },
@@ -28122,7 +27929,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -28266,7 +28072,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -28410,7 +28215,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MINIMALISTISK",
       "lastName": "EKSPEDITOR"
     },
@@ -28554,7 +28358,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DYPSINDIG",
       "lastName": "ODDE"
     },
@@ -28694,7 +28497,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "DISKRET",
       "lastName": "BOKORM"
     },
@@ -28838,7 +28640,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -28978,7 +28779,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -29110,7 +28910,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -29250,7 +29049,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -29394,7 +29192,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FASCINERENDE",
       "lastName": "RADIOSTASJON"
     },
@@ -29534,7 +29331,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -29674,7 +29470,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -29814,7 +29609,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FINTFOLENDE",
       "lastName": "KJOPMANN"
     },
@@ -29958,7 +29752,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -30102,7 +29895,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FLOTT",
       "lastName": "PLEKTER"
     },
@@ -30246,7 +30038,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "GREI",
       "lastName": "METER"
     },
@@ -30390,7 +30181,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -30534,7 +30324,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UTROLIG",
       "lastName": "FUKTIGHETSKREM"
     },
@@ -30678,7 +30467,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -30822,7 +30610,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24894497366",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "HANDLAGET",
       "lastName": "BASS"
     },
@@ -30962,7 +30749,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LILLA",
       "lastName": "ALT"
     },
@@ -31102,7 +30888,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26866896762",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ALDRENDE",
       "lastName": "HANDLINGSEVNE"
     },
@@ -31246,7 +31031,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -31390,7 +31174,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -31530,7 +31313,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -31666,7 +31448,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -31806,7 +31587,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03866197813",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "SELVHJULPEN",
       "lastName": "BRETT"
     },
@@ -31950,7 +31730,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -32094,7 +31873,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -32238,7 +32016,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -32378,7 +32155,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -32522,7 +32298,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIDENSKAPELIG",
       "lastName": "PLIKT"
     },
@@ -32662,7 +32437,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24894497366",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "HANDLAGET",
       "lastName": "BASS"
     },
@@ -32806,7 +32580,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LIVSTRETT",
       "lastName": "HOPPE"
     },
@@ -32950,7 +32723,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -33090,7 +32862,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "41837701048",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KRY",
       "lastName": "FLOYTE"
     },
@@ -33230,7 +33001,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "RETT",
       "lastName": "SAU"
     },
@@ -33374,7 +33144,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -33518,7 +33287,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "UVITENDE",
       "lastName": "GORILLA"
     },
@@ -33658,7 +33426,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -33802,7 +33569,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "PLUTSELIG",
       "lastName": "SILD"
     },
@@ -33946,7 +33712,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -34086,7 +33851,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26866896762",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ALDRENDE",
       "lastName": "HANDLINGSEVNE"
     },
@@ -34222,7 +33986,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FLOTT",
       "lastName": "PLEKTER"
     },
@@ -34366,7 +34129,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TORR",
       "lastName": "MILJOGIFT"
     },
@@ -34506,7 +34268,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "EKTE",
       "lastName": "RYNKE"
     },
@@ -34650,7 +34411,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26860749563",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "ENTUSIASTISK",
       "lastName": "BOKSTAV"
     },
@@ -34794,7 +34554,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02906499765",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "FORDEKT",
       "lastName": "HIMMEL"
     },
@@ -34938,7 +34697,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "TROFAST",
       "lastName": "SVIGERINNE"
     },
@@ -35074,7 +34832,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "45927700178",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "USYMMETRISK",
       "lastName": "FARFAR"
     },
@@ -35214,7 +34971,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LATTERMILD",
       "lastName": "GLOSE"
     },
@@ -35358,7 +35114,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "MATEHOLDEN",
       "lastName": "DOR"
     },
@@ -35502,7 +35257,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "565505933",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "KVART",
       "lastName": "GREVLING"
     },
@@ -35642,7 +35396,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "LILLA",
       "lastName": "ALT"
     },
@@ -35786,7 +35539,6 @@
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13913746753",
-      "idSystem": "2.16.578.1.12.4.1.4.1",
       "firstName": "VARM",
       "lastName": "OVERSKRIFT"
     },

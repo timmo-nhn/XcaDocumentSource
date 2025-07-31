@@ -1,11 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
+using XcaXds.Commons;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Soap;
@@ -42,7 +38,7 @@ public class UnitTests_RegistryObjects
             var documentEntryDto = new DocumentReferenceDto();
 
             var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
-
+            
 
             var documentReference = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.ToList());
 
@@ -129,33 +125,42 @@ public class UnitTests_RegistryObjects
         if (jsonTestData == null) return;
 
         jsonTestData.PossibleSubmissionSetValues.Authors = jsonTestData.PossibleDocumentEntryValues.Authors;
-        
+
         var files = testDataDocuments.Select(file => File.ReadAllBytes(file)).ToList();
 
         var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, 250);
 
 
-        var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = generatedTestRegistryObjects.OfType<DocumentEntryDto>().FirstOrDefault().RepositoryUniqueId});
+        var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = generatedTestRegistryObjects.OfType<DocumentEntryDto>().FirstOrDefault().RepositoryUniqueId });
 
         var registryService = new FileBasedRegistry();
+
+        var documentRegistryObjects = registryService.ReadRegistry();
+        foreach (var docentry in documentRegistryObjects.OfType<DocumentEntryDto>())
+        {
+            if (docentry.LegalAuthenticator == null) continue;
+
+            docentry.LegalAuthenticator!.IdSystem = Constants.Oid.Fnr;
+
+        }
+
+        registryService.WriteRegistry(documentRegistryObjects);
+
 
         foreach (var generatedTestObject in generatedTestRegistryObjects.OfType<DocumentEntryDto>())
         {
             var randomFileAsByteArray = files.ElementAt(new Random().Next(files.Count()));
-            
+
             if (generatedTestObject?.PatientId?.Code != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
             {
                 generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
                 using (var md5 = MD5.Create())
                 {
-                    generatedTestObject.Hash  = BitConverter.ToString(md5.ComputeHash(randomFileAsByteArray)).Replace("-", "");
+                    generatedTestObject.Hash = BitConverter.ToString(md5.ComputeHash(randomFileAsByteArray)).Replace("-", "");
                 }
                 repoService.Write(generatedTestObject.Id, randomFileAsByteArray, generatedTestObject.PatientId.Code);
             }
         }
 
-        var documentRegistryObjects = registryService.ReadRegistry();
-        documentRegistryObjects.AddRange(generatedTestRegistryObjects);
-        registryService.WriteRegistry(documentRegistryObjects);
     }
 }

@@ -1,13 +1,18 @@
+using Hl7.Fhir.Model.CdsHooks;
+using Hl7.Fhir.Utility;
 using Microsoft.Extensions.Logging;
+using Moq;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Services;
+using XcaXds.Source.Services;
+using XcaXds.Source.Source;
 
 namespace XcaXds.Tests;
 
 public class UnitTests_Fhir
 {
-    private readonly ILogger<XdsOnFhirService> _logger;
-
     [Fact]
     public async Task TestIti67ToIti18AdhocQueryConversion()
     {
@@ -18,12 +23,21 @@ public class UnitTests_Fhir
             Status = "current"
         };
 
-        var _xdsOnFhirService = new XdsOnFhirService(_logger);
 
-        var adhocquery = _xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
+        var adhocquery = XdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
 
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
         var adhocquerystring = sxmls.SerializeSoapMessageToXmlString(adhocquery);
+    }
+
+    [Fact]
+    public async Task TestTransformRegistryObjectsToFhirBundle()
+    {
+        var mockRegistry = new FileBasedRegistry();
+
+        var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry());
+
+        var bundle = XdsOnFhirService.TransformRegistryObjectsToFhirBundle(registryObjects);
     }
 }

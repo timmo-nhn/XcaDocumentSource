@@ -59,8 +59,10 @@ public static class Hl7FhirExtensions
         return new DateTime(date.Ticks - date.Ticks % roundTicks, date.Kind);
     }
 
-
-    public static CX ParseNinToCxWithAssigningAuthority(string inputNin)
+    /// <summary>
+    /// Parse a National Identifier Number and get the birth date aswell as the proper assigning authority depending on whether its a Dnr, Hnr or Pnr/Fnr)
+    /// </summary>
+    public static CX? ParseNinToCxWithAssigningAuthority(string inputNin)
     {
         if (inputNin.Length != 11) return null;
 
