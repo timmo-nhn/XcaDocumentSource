@@ -2,6 +2,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Soap;
 
 namespace XcaXds.Commons.Services;
 
@@ -72,16 +73,23 @@ public class SoapXmlSerializer
                 bodyElement = xmlDoc.SelectSingleNode("//Body");
             }
 
-            if (bodyElement != null && bodyElement.Attributes["type", "http://www.w3.org/2001/XMLSchema-instance"] != null)
+            if (bodyElement != null && bodyElement.Attributes?["type", "http://www.w3.org/2001/XMLSchema-instance"] != null)
             {
                 bodyElement.Attributes.RemoveNamedItem("type", "http://www.w3.org/2001/XMLSchema-instance");
             }
 
             var modifiedXmlContent = xmlDoc.OuterXml;
 
+            if (string.IsNullOrWhiteSpace(modifiedXmlContent))
+                throw new ArgumentException("XML content cannot be null or whitespace.", nameof(modifiedXmlContent));
+
+
             using (var stringReader = new StringReader(modifiedXmlContent))
             {
-                return (T)serializer.Deserialize(stringReader);
+                var result = serializer.Deserialize(stringReader);
+                return result is T typedResult
+                    ? typedResult
+                    : throw new InvalidOperationException($"Deserialized object is not of type {typeof(T).FullName}.");
             }
         }
     }
@@ -108,7 +116,7 @@ public class SoapXmlSerializer
 
             try
             {
-                var faultSerializer = new XmlSerializer(soapFault.Value.GetType());
+                var faultSerializer = new XmlSerializer(soapFault.Value!.GetType());
 
                 using (var stringWriter = new StringWriter())
                 using (var writer = XmlWriter.Create(stringWriter, settings))

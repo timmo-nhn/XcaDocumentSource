@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Diagnostics;
+using System.Web;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,20 +20,22 @@ public class FhirEndpointsController : Controller
     private readonly ILogger<FhirEndpointsController> _logger;
 
     private readonly XdsRegistryService _xdsRegistryService;
+    private readonly XdsOnFhirService _xdsOnFhirService;
 
-    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsRegistryService xdsRegistryService)
+    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsRegistryService xdsRegistryService, XdsOnFhirService xdsOnFhirService)
     {
         _xdsRegistryService = xdsRegistryService;
+        _xdsOnFhirService = xdsOnFhirService;
         _logger = logger;
     }
 
     [HttpGet("DocumentReference")]
     public async Task<ActionResult> DocumentReference(
-        [FromQuery(Name = "patient")] string patient,
+        [FromQuery(Name = "patient")] string? patient,
         [FromQuery(Name = "creation")] string? creation,
         [FromQuery(Name = "author.given")] string? authorGiven,
         [FromQuery(Name = "author.family")] string? authorFamily,
-        [FromQuery(Name = "status")] string status,
+        [FromQuery(Name = "status")] string? status,
         [FromQuery(Name = "category")] string? category,
         [FromQuery(Name = "type")] string? typeCode,
         [FromQuery(Name = "setting")] string? setting,
@@ -43,9 +46,11 @@ public class FhirEndpointsController : Controller
         [FromQuery(Name = "format")] string? format
         )
     {
+        var requestTimer = Stopwatch.StartNew();
+        _logger.LogInformation($"Received request for action: ITI-67 from {Request.HttpContext.Connection.RemoteIpAddress}");
 
-        var prettyprint = string.IsNullOrWhiteSpace(Request.Headers["compact"].ToString()) 
-            ? "false"
+        var prettyprint = string.IsNullOrWhiteSpace(Request.Headers["compact"].ToString())
+            ? "true"
             : Request.Headers["compact"].ToString();
 
         var pretty = bool.Parse(prettyprint);
@@ -67,8 +72,43 @@ public class FhirEndpointsController : Controller
             Format = HttpUtility.UrlDecode(format)
         };
 
+        var operationOutcome = new OperationOutcome();
+
+        var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = pretty });
+
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = "The 'status' field is required."
+            });
+
+            _logger.LogInformation($"Missing required field 'status'");
+        }
+
+        if (string.IsNullOrWhiteSpace(patient))
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = "The 'patient' field is required."
+            });
+
+            _logger.LogInformation($"Missing required field 'patient'");
+        }
+
+        if (operationOutcome.Issue.Count != 0)
+        {
+            requestTimer.Stop();
+            _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
+            return BadRequest(fhirJsonSerializer.SerializeToString(operationOutcome));
+        }
+
         var adhocQueryRequest = new AdhocQueryRequest();
-        var adhocQuery = XdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery;
+        var adhocQuery = _xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery;
 
         adhocQueryRequest.AdhocQuery = adhocQuery;
         adhocQueryRequest.AdhocQuery.Id = Constants.Xds.StoredQueries.FindDocuments;
@@ -77,7 +117,7 @@ public class FhirEndpointsController : Controller
         {
             ReturnType = ResponseOptionTypeReturnType.LeafClass
         };
-        
+
         var soapEnvelope = new SoapEnvelope()
         {
             Header = new(),
@@ -85,14 +125,22 @@ public class FhirEndpointsController : Controller
         };
 
         var response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
-        
-        var bundle = XdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value.Body.AdhocQueryResponse.RegistryObjectList);
 
+        var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value?.Body.AdhocQueryResponse?.RegistryObjectList);
 
+        requestTimer.Stop();
 
-        var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = pretty });
-        var gobb = fhirJsonSerializer.SerializeToString(bundle);
+        _logger.LogInformation($"Number of Bundle.Entries {bundle?.Entry?.Count ?? 0}");
 
-        return Ok(gobb);
+        if (bundle != null)
+        {
+            var jsonOutput = fhirJsonSerializer.SerializeToString(bundle);
+
+            _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
+            return Ok(jsonOutput);
+        }
+
+        _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
+        return BadRequest(operationOutcome);
     }
 }

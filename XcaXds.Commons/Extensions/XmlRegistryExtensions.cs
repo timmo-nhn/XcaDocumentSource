@@ -257,7 +257,8 @@ public static class FindDocuments
                         var authorRegexPattern = Regex.Escape(authorPersonListFromInput)
                             .Replace("%", ".*") // [%]: Matches any string
                             .Replace("_", "."); // [_]: Matches any single chararcter
-                        return Regex.IsMatch(author, $"^{authorRegexPattern}$");
+
+                        return Regex.IsMatch(author ?? string.Empty, $"^{authorRegexPattern}$");
                     })
                 )
             );
@@ -607,5 +608,10 @@ public static class Commons
             .Select(slot => slot.GetValues(codeMultipleValues) ?? Array.Empty<string>())
             .Where(values => values.Length > 0)
             .ToList();
+    }
+
+    public static IdentifiableType GetById(this IEnumerable<IdentifiableType> identifiableTypes, string id)
+    {
+        return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
     }
 }

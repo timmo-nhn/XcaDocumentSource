@@ -12,7 +12,7 @@ namespace XcaXds.Tests;
 public class UnitTests_ClinicalDocument
 {
     [Fact]
-    public async Task SerializeDeserialize()
+    public async Task CDA_SerializeDeserialize()
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 

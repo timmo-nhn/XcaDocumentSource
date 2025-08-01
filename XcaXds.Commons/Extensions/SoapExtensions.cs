@@ -28,7 +28,7 @@ public static class SoapExtensions
                         Code = new()
                         {
                             Value = faultCode,
-                            Subcode = string.IsNullOrWhiteSpace(detail) ? null : new() { Value = subCode }
+                            Subcode = string.IsNullOrWhiteSpace(detail) ? null : new() { Value = subCode ?? string.Empty }
                         },
                         Reason = new()
                         {
@@ -155,7 +155,7 @@ public static class SoapExtensions
 
                 using (var reader = new StreamReader(memoryStream))
                 {
-                    return (T)serializer.Deserialize(reader);
+                    return (T)serializer.Deserialize(reader)!;
                 }
             }
         }

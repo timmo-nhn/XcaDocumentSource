@@ -406,6 +406,8 @@ public static class Constants
 
             public const string DtmFhirIsoDateTimeFormat = "yyyy-MM-ddTHH:mm:ssK";
 
+            public const string DtmFhirIsoDateFormat = "yyyy-MM-dd";
+
             public static readonly string[] AllFormats =
             [
                 "yyyy-MM-ddTHH:mm:ssK",
@@ -571,10 +573,11 @@ public static class ConstantsExtensions
 
         foreach (var field in fields)
         {
+            var value = (string?)field.GetValue(null);
             // Ensure that the field is a constant (it should be a static readonly or const field)
-            if (field.IsLiteral && !field.IsInitOnly)
+            if (field.IsLiteral && !field.IsInitOnly && value != null)
             {
-                constants.Add(field.Name, (string)field.GetValue(null));
+                constants.Add(field.Name, value);
             }
         }
 
@@ -589,10 +592,12 @@ public static class ConstantsExtensions
 
         foreach (var field in fields)
         {
+            var value = (string?)field.GetValue(null);
+
             // Ensure that the field is a constant (it should be a static readonly or const field)
-            if (field.IsLiteral && !field.IsInitOnly)
+            if (field.IsLiteral && !field.IsInitOnly && value != null)
             {
-                constants = [.. constants, new KeyValueEntry() { Key = field.Name, Value = (string)field.GetValue(null) }];
+                constants = [.. constants, new KeyValueEntry() { Key = field.Name, Value = value }];
             }
         }
 

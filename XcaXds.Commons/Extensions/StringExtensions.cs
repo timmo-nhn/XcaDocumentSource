@@ -11,7 +11,7 @@ public static class StringExtensions
             return input;
         }
 
-        return input.Replace("urn:uuid:", "");
+        return input.Replace("urn:uuid:", "").Replace("urn:oid:", "");
     }
 
     public static string GetMimetypeFromMagicNumber(byte[] input)

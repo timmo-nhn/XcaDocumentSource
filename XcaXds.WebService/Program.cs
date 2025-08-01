@@ -92,6 +92,9 @@ public class Program
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
 
+        // XDS On FHIR service
+        builder.Services.AddScoped<XdsOnFhirService>();
+
         builder.Services.AddHostedService<AppStartupService>();
 
         builder.Services.AddEndpointsApiExplorer();
