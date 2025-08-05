@@ -3,6 +3,7 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 api:
+  label: api
   service:
     name: xcadocumentsource
     port: 8080
@@ -57,7 +58,7 @@ securityContext:
   runAsGroup: 101
   readOnlyRootFilesystem: true
 service:
-  type: ClusterIP
+  type: NodePort
   port: 8080
 ingress:
   enabled: false
