@@ -55,6 +55,18 @@ spec:
             - name: {{ $key }}
               value: "{{ $value }}"
             {{- end }}
+        initContainers:
+          - name: copy-default-data
+            command:
+              - /bin/sh
+              - -c
+              - |
+                if [ ! "$(ls -A /app/registry)" ]; then
+                  cp -r /app/registry/* /mnt/registry/
+                fi
+                if [ ! "$(ls -A /app/repository)" ]; then
+                  cp -r /app/repository/* /mnt/repository/
+                fi
 
       {{- with .Values.volumes }}
       volumes:

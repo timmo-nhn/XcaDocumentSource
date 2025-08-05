@@ -12,8 +12,8 @@ nameOverride: ""
 fullnameOverride: ""
 env:
   ASPNETCORE_ENVIRONMENT: Development
-  REGISTRY_FILE_PATH: /app/registry
-  REPOSITORY_FILE_PATH: /app/repository
+  REGISTRY_FILE_PATH: /mnt/registry
+  REPOSITORY_FILE_PATH: /mnt/repository
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -100,9 +100,9 @@ volumes:
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
   - name: registry-volume
-    mountPath: /app/registry
+    mountPath: /mnt/registry
   - name: repository-volume
-    mountPath: /app/repository
+    mountPath: /mnt/repository
 nodeSelector: {}
 tolerations: []
 affinity: {}
