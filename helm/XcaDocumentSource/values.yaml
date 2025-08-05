@@ -12,6 +12,9 @@ nameOverride: ""
 fullnameOverride: ""
 env:
   ASPNETCORE_ENVIRONMENT: Development
+  REGISTRY_FILE_PATH: /app/registry
+  REPOSITORY_FILE_PATH: /app/repository
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
