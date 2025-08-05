@@ -98,6 +98,10 @@ volumes:
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
+  - name: registry-volume
+    mountPath: /app/registry
+  - name: repository-volume
+    mountPath: /app/repository
 nodeSelector: {}
 tolerations: []
 affinity: {}
