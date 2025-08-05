@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "auditlog-processor.fullname" . }}
+  labels:
+    {{ include "auditlog-processor.labels" . | nindent 4 }}
+data:
+  KafkaConfig__BootstrapServers: "bootstrap-trd-test.kafka.nhn.no:9094"
+  KafkaConfig__XCALogTopic: "nhn-test-test-audit-log-document-sharing-ehs"
+  KafkaConfig__XCALogGroupId: "nhn-test-test-pjd_auditlog_test"
+  KafkaConfig__UnfilteredAuditMsgTopic: "nhn-test-test-audit-log-document-sharing-unfiltered"
+  KafkaConfig__UnfilteredAuditMsgGroupId: "nhn-test-test-pjd_auditlog_test"
+  KafkaConfig__FilteredAuditMsgTopic: "nhn-test-test-audit-log-document-sharing"
+  KafkaConfig__FilteredAuditMsgGroupId: "nhn-test-test-pjd_auditlog_test"
+  KafkaConfig__SslCaPemLocation: "/kafka-secrets/SslCaPem"
+  KafkaConfig__SslCertificatePemLocation: "/kafka-secrets/SslCertificatePem"
+  KafkaConfig__SslKeyPemLocation: "/kafka-secrets/SslKeyPem"
+  KafkaConfig__SslKeyPasswordLocation: "/kafka-secrets/SslKeyPassword"

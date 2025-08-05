@@ -1,0 +1,22 @@
+api:
+  image: your-registry/xcaxds-api:latest
+  port: 5000
+  env:
+    ASPNETCORE_ENVIRONMENT: Development
+    ASPNETCORE_URLS: http://+:5000
+    REGISTRY_FILE_PATH: /app/registry
+    REPOSITORY_FILE_PATH: /app/repository
+
+admin:
+  image: your-registry/xcaxds-admin:latest
+  port: 5001
+  env:
+    ASPNETCORE_ENVIRONMENT: Development
+    ASPNETCORE_URLS: http://+:5001
+
+persistence:
+  enabled: true
+  registry:
+    size: 1Gi
+  repository:
+    size: 1Gi
