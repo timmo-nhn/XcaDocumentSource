@@ -87,8 +87,14 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 # Additional volumes on the output Deployment definition.
 volumes:
-  - ./XcaXds.Source/Registry:/app/registry
-  - ./XcaXds.Source/Repository:/app/repository
+  - name: registry-volume
+    hostPath:
+      path: /full/path/on/node/to/XcaXds.Source/Registry
+      type: DirectoryOrCreate
+  - name: repository-volume
+    hostPath:
+      path: /full/path/on/node/to/XcaXds.Source/Repository
+      type: DirectoryOrCreate
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
