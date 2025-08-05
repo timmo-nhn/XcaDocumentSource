@@ -46,13 +46,3 @@ tag manifest prod:
     DEPLOY_ENVIRONMENTS: "prod"
   when: manual
 
-
-# run-tests: 
-#   extends:
-#     - .dotnet-unit-test-without-coverage
-#   variables:
-#     DESIRED_BRANCH: test
-#     SRC_FOLDER: "."
-#     PROJECT_FILENAME: "Shp.Nav.TopicCopier.sln"
-#     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
-
