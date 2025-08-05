@@ -2,6 +2,6 @@
 
 public class DocumentDto
 {
-    public string DocumentId { get; set; }
-    public byte[] Data { get; set; }
+    public string? DocumentId { get; set; }
+    public byte[]? Data { get; set; }
 }

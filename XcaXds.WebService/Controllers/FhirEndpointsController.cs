@@ -126,7 +126,7 @@ public class FhirEndpointsController : Controller
 
         var response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
 
-        var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value?.Body.AdhocQueryResponse?.RegistryObjectList);
+        var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value?.Body?.AdhocQueryResponse?.RegistryObjectList);
 
         requestTimer.Stop();
 

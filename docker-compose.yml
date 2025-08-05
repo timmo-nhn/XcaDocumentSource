@@ -1,0 +1,34 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ASPNETCORE_ENVIRONMENT=Development
+      - REGISTRY_FILE_PATH=/app/registry
+      - REPOSITORY_FILE_PATH=/app/repository
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./XcaXds.Source/Registry:/app/registry
+      - ./XcaXds.Source/Repository:/app/repository
+    networks:
+      - xcanet
+
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    environment:
+      - ASPNETCORE_URLS=http://+:5001
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5001:5001"
+    networks:
+      - xcanet
+
+networks:
+  xcanet:

@@ -43,7 +43,7 @@ public partial class RepositoryWrapper
             return _repository.Read(documentUniqueId);
         }
 
-        _logger.LogDebug($"WrapRetrievedDocumentInCda Enabled, ");
+        _logger.LogDebug($"WrapRetrievedDocumentInCda Enabled");
 
 
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
@@ -64,8 +64,20 @@ public partial class RepositoryWrapper
             DocumentId = documentEntry?.Id
         };
 
-        var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
-        var cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
+        var cdaXml = string.Empty;
+
+        var documentAsString = Encoding.UTF8.GetString(documentDto.Data ?? []);
+
+        if (documentAsString.StartsWith("<ClinicalDocument"))
+        {
+            _logger.LogInformation("CDA-wrapping skipped for document already in ClinicalDocument format");
+            var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
+            cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
+        }
+        else
+        {
+            cdaXml = documentAsString;
+        }
 
         return Encoding.UTF8.GetBytes(cdaXml);
 

@@ -20,7 +20,6 @@ public class Program
 
 
         // Begin builder
-        builder.WebHost.UseUrls(["https://localhost:7176", "http://localhost:5009"]);
 
         builder.Logging.ClearProviders(); // Clear default logging providers
         builder.Services.AddLogging(logging =>
@@ -121,7 +120,14 @@ public class Program
         app.UseMiddleware<PolicyEnforcementPointMiddlware>();
         app.UseMiddleware<AuditLoggingMiddleware>();
 
-        app.UseHttpsRedirection();
+
+        var runningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? "false");
+        Console.WriteLine($"Running in container: {runningInContainer}");
+        if (!runningInContainer)
+        {
+            builder.WebHost.UseUrls(["https://localhost:7176"]);
+            app.UseHttpsRedirection();
+        }
 
         app.MapControllers();
 

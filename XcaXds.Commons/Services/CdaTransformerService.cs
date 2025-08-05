@@ -10,8 +10,9 @@ namespace XcaXds.Commons.Services;
 public static class CdaTransformerService
 {
     /// <summary>
-    /// Parse a provide and register request and transform into a CDA document.
-    /// Will preserve the document content in the CDA documents NonXmlBody 
+    /// Parse a provide and register request and transform into a CDA document.<para/>
+    /// Will preserve the document content in the CDA documents NonXmlBody <para/>
+    /// <a href="https://build.fhir.org/ig/HL7/CDA-core-2.0/" />
     /// </summary>
     public static ClinicalDocument TransformRegistryObjectsToClinicalDocument(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet, DocumentDto document)
     {
@@ -54,7 +55,7 @@ public static class CdaTransformerService
         var nonXmlBody = new NonXmlBody();
         nonXmlBody.Text ??= new();
         nonXmlBody.Text.MediaType = documentEntry.MimeType;
-        nonXmlBody.Text.Text = Convert.ToBase64String(document.Data);
+        nonXmlBody.Text.Text = Convert.ToBase64String(document.Data ?? []);
 
         return nonXmlBody;
     }
@@ -62,8 +63,6 @@ public static class CdaTransformerService
     private static Author SetClinicalDocumentAuthor(SubmissionSetDto submissionSet)
     {
         var author = new Author();
-
-
 
         author.Time = SetAuthorTime(submissionSet);
 

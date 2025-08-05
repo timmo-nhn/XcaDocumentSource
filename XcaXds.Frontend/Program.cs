@@ -11,7 +11,6 @@ builder.Services.AddBlazorBootstrap();
 builder.Services.AddHighlight();
 builder.Services.AddScoped(sp => new HttpClient());
 builder.Services.AddScoped<ICookie, Cookie>();
-builder.WebHost.UseUrls(["https://localhost:7213", "http://localhost:5220"]);
 
 var app = builder.Build();
 
@@ -23,9 +22,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+var runningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? "false");
+Console.WriteLine($"Running in container: {runningInContainer}");
+if (!runningInContainer)
+{
+    builder.WebHost.UseUrls(["https://localhost:7213"]);
+    app.UseHttpsRedirection();
+}
 
-
-app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();

@@ -35,7 +35,7 @@ public class RestfulRegistryRepositoryService
             return documentListResponse;
         }
 
-        var allowedStatuses = new[] { "Approved", "Deprecated" };
+        var allowedStatuses = new[] { "approved", "deprecated" };
 
         if (!string.IsNullOrWhiteSpace(status) && !allowedStatuses.Contains(status))
         {

@@ -17,7 +17,19 @@ public class FileBasedRepository : IRepository
     public FileBasedRepository(ApplicationConfig appConfig)
     {
         _appConfig = appConfig;
-        _repositoryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Repository", _appConfig.RepositoryUniqueId);
+
+        // When running in a container the path will be different
+        var customPath = Environment.GetEnvironmentVariable("REPOSITORY_FILE_PATH");
+
+        if (!string.IsNullOrWhiteSpace(customPath))
+        {
+            _repositoryPath = Path.Combine(customPath, _appConfig.RepositoryUniqueId);
+        }
+        else
+        {
+            string baseDirectory = AppContext.BaseDirectory;
+            _repositoryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Repository", _appConfig.RepositoryUniqueId);
+        }
     }
 
     public byte[]? Read(string documentUniqueId)
