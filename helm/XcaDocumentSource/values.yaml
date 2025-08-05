@@ -2,6 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 replicaCount: 1
+api:
+  ingress:
+    #    hostname: api.pjd.test.sky.nhn.no
+    #    primaryHostname: api.pjd.test.nhn.no
+    hostname: xds.pjd.test.nhn.no
+    #    hostname: api.qa.pjd.nhn.no    
+    certIssuer: letsencrypt-prod
+    label: xcadocumentsource
 image:
   repository: ncr.sky.nhn.no/team-dokumentdeling/xcadocumentsource
   pullPolicy: IfNotPresent
