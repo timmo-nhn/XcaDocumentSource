@@ -88,13 +88,11 @@ autoscaling:
 # Additional volumes on the output Deployment definition.
 volumes:
   - name: registry-volume
-    hostPath:
-      path: /full/path/on/node/to/XcaXds.Source/Registry
-      type: DirectoryOrCreate
+    persistentVolumeClaim:
+      claimName: registry-pvc
   - name: repository-volume
-    hostPath:
-      path: /full/path/on/node/to/XcaXds.Source/Repository
-      type: DirectoryOrCreate
+    persistentVolumeClaim:
+      claimName: repository-pvc
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:

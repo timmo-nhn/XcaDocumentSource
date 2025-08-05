@@ -60,13 +60,6 @@ spec:
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      volumes:
-        - name: registry-volume
-          persistentVolumeClaim:
-            claimName: registry-pvc
-        - name: repository-volume
-          persistentVolumeClaim:
-            claimName: repository-pvc
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
