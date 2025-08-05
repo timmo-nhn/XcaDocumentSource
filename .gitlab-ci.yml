@@ -1,0 +1,49 @@
+include:
+  - project: helsepersonell/team-plattform/nhn-ci-template
+    file: .gitlab-ci.yml
+    ref: "0.12.1"
+
+variables:
+  IMAGE_NAME: xcadocumentsource
+  HARBOR_REPOSITORY: team-dokumentdeling
+  HARBOR_IMAGE_REPOSITORY: $IMAGE_NAME
+
+build image and push to harbor:
+  variables:
+    SRC_FOLDER: "XcaXds.WebService"
+    CONTEXT_FOLDER: "."
+    NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
+  extends:
+    - .nhn-image-build-and-push-harbor
+
+# scan-image:
+#   extends: 
+#     - .nhn-image-scan-artifact
+
+tag manifest:
+  extends:
+    - .manifest-repo-update-singlefile
+  variables:
+    MANIFEST_REPO_URL: "milliways.nhn.no/helsepersonell/team-dokumentdeling/dokumentdeling/xcadocumentsource.git"
+    SRC_FOLDER: "helm/xcadocumentsource"
+    DEPLOY_ENVIRONMENTS: "test"
+    GITLAB_USER: $PLATFORM_GIT_USER
+    NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
+
+tag manifest prod:
+  extends:
+    - tag manifest
+  variables:
+    DEPLOY_ENVIRONMENTS: "prod"
+  when: manual
+
+
+# run-tests: 
+#   extends:
+#     - .dotnet-unit-test-without-coverage
+#   variables:
+#     DESIRED_BRANCH: test
+#     SRC_FOLDER: "."
+#     PROJECT_FILENAME: "Shp.Nav.TopicCopier.sln"
+#     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
+
