@@ -60,6 +60,11 @@ spec:
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumeMounts:
+        - name: registry-volume
+          mountPath: /app/registry
+        - name: repository-volume
+          mountPath: /app/repository
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
