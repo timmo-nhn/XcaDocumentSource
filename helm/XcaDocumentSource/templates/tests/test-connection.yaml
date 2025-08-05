@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "auditlog-processor.fullname" . }}-test-connection"
+  name: "{{ include "xcadocumentsource.fullname" . }}-test-connection"
   labels:
-    {{- include "auditlog-processor.labels" . | nindent 4 }}
+    {{- include "xcadocumentsource.labels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "auditlog-processor.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "xcadocumentsource.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
