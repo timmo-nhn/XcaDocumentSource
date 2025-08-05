@@ -63,6 +63,7 @@ public class RegistryWrapper
     public bool UpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
     {
         if (registryObjectDtos.Count == 0) return false;
+        _jsonDocumentRegistry ??= GetDocumentRegistryContentAsDtos();
         _jsonDocumentRegistry.AddRange(registryObjectDtos);
         _documentRegistry.WriteRegistry(_jsonDocumentRegistry);
         return true;

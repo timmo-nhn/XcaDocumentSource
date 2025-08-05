@@ -140,8 +140,7 @@ public class UnitTests_RegistryObjects
         {
             if (docentry.LegalAuthenticator == null) continue;
 
-            docentry.LegalAuthenticator!.IdSystem = Constants.Oid.Fnr;
-
+            docentry.LegalAuthenticator.IdSystem = Constants.Oid.Fnr;
         }
 
         registryService.WriteRegistry(documentRegistryObjects);
