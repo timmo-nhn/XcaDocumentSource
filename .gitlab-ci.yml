@@ -29,7 +29,6 @@ build image and push to harbor:
 #   extends: 
 #     - .nhn-image-scan-artifact
 
-
 tag manifest:
   extends:
     - .manifest-repo-update-singlefile
