@@ -7,6 +7,7 @@ api:
     name: xcadocumentsource
     port: 8080
   ingress:
+    name: xcadocumentsource-ingress
     #    hostname: api.pjd.test.sky.nhn.no
     #    primaryHostname: api.pjd.test.nhn.no
     hostname: xds.pjd.test.nhn.no
