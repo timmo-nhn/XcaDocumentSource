@@ -11,6 +11,7 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 data:
+  ASPNETCORE_ENVIRONMENT: Development
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

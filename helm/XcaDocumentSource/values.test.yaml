@@ -1,2 +1,4 @@
 image:
   tag: "3399c082"
+data:
+  ASPNETCORE_ENVIRONMENT: Development
