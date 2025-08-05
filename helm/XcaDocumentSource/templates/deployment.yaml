@@ -60,11 +60,13 @@ spec:
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      volumeMounts:
+      volumes:
         - name: registry-volume
-          mountPath: /app/registry
+          persistentVolumeClaim:
+            claimName: registry-pvc
         - name: repository-volume
-          mountPath: /app/repository
+          persistentVolumeClaim:
+            claimName: repository-pvc
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
