@@ -57,6 +57,7 @@ spec:
             {{- end }}
         initContainers:
           - name: copy-default-data
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             command:
               - /bin/sh
               - -c
@@ -67,6 +68,11 @@ spec:
                 if [ ! "$(ls -A /app/repository)" ]; then
                   cp -r /app/repository/* /mnt/repository/
                 fi
+            volumeMounts:
+              - name: registry-volume
+                mountPath: /mnt/registry
+              - name: repository-volume
+                mountPath: /mnt/repository
 
       {{- with .Values.volumes }}
       volumes:
