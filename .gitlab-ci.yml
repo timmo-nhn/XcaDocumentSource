@@ -13,6 +13,7 @@ build image and push to harbor:
     SRC_FOLDER: "XcaXds.WebService"
     CONTEXT_FOLDER: "."
     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
+    DOCKERFILE: "Dockerfile.backend"
   extends:
     - .nhn-image-build-and-push-harbor
 
