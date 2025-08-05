@@ -17,6 +17,14 @@ build image and push to harbor:
   extends:
     - .nhn-image-build-and-push-harbor
 
+
+build frontend image and push to harbor:
+  extends:
+    - build image and push to harbor
+  variables:
+    DOCKERFILE: "Dockerfile.frontend"
+    SRC_FOLDER: "XcaXds.Frontend"
+
 # scan-image:
 #   extends: 
 #     - .nhn-image-scan-artifact
