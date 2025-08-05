@@ -8,7 +8,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: standard  # adjust to your cluster's storage class
+  storageClassName: osl1-w02-cl01-vsan-storage-policy
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -20,4 +20,4 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: standard
+  storageClassName: osl1-w02-cl01-vsan-storage-policy
