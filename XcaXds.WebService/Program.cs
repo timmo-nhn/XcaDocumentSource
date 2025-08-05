@@ -105,6 +105,16 @@ public class Program
         // Health check
         builder.Services.AddHealthChecks();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("_allowSpecificOrigins",
+                policy =>
+                {
+                    //policy.WithOrigins($"https://localhost:{ConfigurationValues.SampleApiPort}").AllowAnyHeader();
+                    policy.WithOrigins($"*").AllowAnyHeader();
+                });
+        });
+
         // Begin app
         var app = builder.Build();
         app.UseExceptionHandler("/error");
