@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.api.ingress.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.api.ingress.certIssuer }}
+    dns.nhn.no/override-infrastructure: '{"infrastructure":["helsenett","internett"]}'
+spec:
+  ingressClassName: {{ .Values.api.ingress.class }}
+  tls:
+    - hosts:
+        - {{ .Values.api.ingress.hostname }}
+      secretName: "{{ .Values.api.ingress.name }}-secret"
+    {{ if .Values.api.ingress.primaryHostname }}
+    - hosts:
+        - {{ .Values.api.ingress.primaryHostname }}
+      secretName: "{{ .Values.api.ingress.name }}-primary-secret"
+    {{ end }}
+  rules:
+    - host: {{ .Values.api.ingress.hostname }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.api.service.name }}
+                port:
+                  number: {{ .Values.api.service.port }}
+    {{ if .Values.api.ingress.primaryHostname }}
+    - host: {{ .Values.api.ingress.primaryHostname }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.api.service.name }}
+                port:
+                  number: {{ .Values.api.service.port }}
+    {{ end }}

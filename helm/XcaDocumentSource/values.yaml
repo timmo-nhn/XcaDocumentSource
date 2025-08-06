@@ -1,28 +1,20 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: xcads-int-nhn
-  namespace: xcads-int-nhn
-  labels:
-    app: xcads-int-nhn
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: xcads-int-nhn
-  template:
-    metadata:
-      labels:
-        app: xcads-int-nhn
-      annotations:
-        nhn.no/splunkIndex: kube_prod
-
-
-
 # Default values for auditlog-processor.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 replicaCount: 1
+api:
+  label: api
+  service:
+    name: xcadocumentsource
+    port: 8080
+  ingress:
+    name: xcadocumentsource-ingress
+    #    hostname: api.pjd.test.sky.nhn.no
+    #    primaryHostname: api.pjd.test.nhn.no
+    hostname: xds.pjd.test.nhn.no
+    #    hostname: api.qa.pjd.nhn.no    
+    certIssuer: letsencrypt-prod
+    label: xcadocumentsource
 image:
   repository: ncr.sky.nhn.no/team-dokumentdeling/xcadocumentsource
   pullPolicy: IfNotPresent
@@ -69,6 +61,24 @@ securityContext:
   runAsUser: 101
   runAsGroup: 101
   readOnlyRootFilesystem: true
+service:
+  type: NodePort
+  port: 8080
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 resources: {}
 # We usually recommend not to specify default resources and to leave this as a conscious
 # choice for the user. This also increases chances charts run on environments with little

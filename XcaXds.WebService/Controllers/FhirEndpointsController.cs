@@ -29,7 +29,7 @@ public class FhirEndpointsController : Controller
         _logger = logger;
     }
 
-    [HttpGet("DocumentReference/_search")]
+    [HttpGet("DocumentReference")]
     public async Task<ActionResult> DocumentReference(
         [FromQuery(Name = "patient")] string? patient,
         [FromQuery(Name = "creation")] string? creation,
