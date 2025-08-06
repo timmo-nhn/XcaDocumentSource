@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xcadocumentsource
+  labels:
+    app.kubernetes.io/name: xcadocumentsource
+    app.kubernetes.io/instance: xcadocumentsource
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: xcadocumentsource
+      app.kubernetes.io/instance: xcadocumentsource
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/name: xcadocumentsource
+        app.kubernetes.io/instance: xcadocumentsource
+    spec:
+      imagePullSecrets:
+        - name: my-registry-secret
+      serviceAccountName: xcadocumentsource
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: xcadocumentsource
+          securityContext:
+            allowPrivilegeEscalation: false
+          image: "myregistry.com/xcadocumentsource:1.0.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: registry-volume
+              mountPath: /mnt/registry
+            - name: repository-volume
+              mountPath: /mnt/repository
+          env:
+            - name: ENVIRONMENT
+              value: "production"
+            - name: LOG_LEVEL
+              value: "info"
+      initContainers:
+        - name: copy-default-data
+          image: "myregistry.com/xcadocumentsource:1.0.0"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Copying Registry..."
+              cp -r /app/registry/* /mnt/registry/ || echo "Registry empty or already copied"
+              echo "Copying Repository..."
+              cp -r /app/repository/* /mnt/repository/ || echo "Repository empty or already copied"
+          volumeMounts:
+            - name: registry-volume
+              mountPath: /mnt/registry
+            - name: repository-volume
+              mountPath: /mnt/repository
+
+      volumes:
+        - name: registry-volume
+          emptyDir: {}
+        - name: repository-volume
+          emptyDir: {}
+
+      nodeSelector:
+        disktype: ssd
+
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - xcadocumentsource
+              topologyKey: "kubernetes.io/hostname"
+
+      tolerations:
+        - key: "example-key"
+          operator: "Exists"
+          effect: "NoSchedule"
