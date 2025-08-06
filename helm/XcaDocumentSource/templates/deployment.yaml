@@ -62,12 +62,10 @@ spec:
             - /bin/sh
             - -c
             - |
-              if [ ! "$(ls -A /app/registry)" ]; then
-                cp -r /app/registry/* /mnt/registry/
-              fi
-              if [ ! "$(ls -A /app/repository)" ]; then
-                cp -r /app/repository/* /mnt/repository/
-              fi
+              echo "Copying Registry..."
+              cp -r /app/registry/* /mnt/registry/ || echo "Registry empty or already copied"
+              echo "Copying Repository..."
+              cp -r /app/repository/* /mnt/repository/ || echo "Repository empty or already copied"
           volumeMounts:
             - name: registry-volume
               mountPath: /mnt/registry
