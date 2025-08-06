@@ -29,6 +29,7 @@ public class ApplicationMetadataController : ControllerBase
         _repositoryWrapper = repositoryWrapper;
     }
 
+
     [Produces("application/json")]
     [HttpGet("about/config")]
     public async Task<IActionResult> GetXdsConfig()
