@@ -1,5 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
+metadata:
+  name: xcads-int-nhn
+  namespace: xcads-int-nhn
+  labels:
+    app: xcads-int-nhn
+
 
 # Default values for auditlog-processor.
 # This is a YAML-formatted file.
