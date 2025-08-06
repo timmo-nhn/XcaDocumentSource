@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "frank-sykehus-enk.fullname" . }}
+  labels:
+    {{- include "frank-sykehus-enk.labels" . | nindent 4 }}
+data:
+  ASPNETCORE_ENVIRONMENT: {{ .Values.config.environment | quote }}
+  REGISTRY_FILE_PATH: {{ .Values.config.registryFilePath | quote }}
+  REPOSITORY_FILE_PATH: {{ .Values.config.repositoryFilePath | quote }}
+
