@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-  name: xcadocumentsource-ingress
+  name: xcads-int-nhn-ingress
   namespace: xcads-int-nhn
 spec:
   ingressClassName: avi-ingress-class-helsenett
@@ -16,7 +16,7 @@ spec:
         paths:
           - backend:
               service:
-                name: xcadocumentsource
+                name: xcads-int-nhn
                 port:
                   number: 8080
             path: /
