@@ -5,6 +5,18 @@ metadata:
   namespace: xcads-int-nhn
   labels:
     app: xcads-int-nhn
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xcads-int-nhn
+  template:
+    metadata:
+      labels:
+        app: xcads-int-nhn
+      annotations:
+        nhn.no/splunkIndex: kube_prod
+
 
 
 # Default values for auditlog-processor.
