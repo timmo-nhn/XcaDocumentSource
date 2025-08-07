@@ -1,35 +1,46 @@
 ﻿using System.Diagnostics;
+using System.Reflection.Metadata;
 using System.Web;
 using Hl7.Fhir.Model;
+using Hl7.Fhir.Rest;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
+using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Controllers;
 
 [Tags("FHIR Endpoints")]
 [ApiController]
-[Route("R4/fhir")]
 public class FhirEndpointsController : Controller
 {
     private readonly ILogger<FhirEndpointsController> _logger;
 
     private readonly XdsRegistryService _xdsRegistryService;
+    private readonly RegistryWrapper _registryWrapper;
+    private readonly RepositoryWrapper _repositoryWrapper;
     private readonly XdsOnFhirService _xdsOnFhirService;
 
-    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsRegistryService xdsRegistryService, XdsOnFhirService xdsOnFhirService)
+    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsRegistryService xdsRegistryService, XdsOnFhirService xdsOnFhirService, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
     {
         _xdsRegistryService = xdsRegistryService;
         _xdsOnFhirService = xdsOnFhirService;
         _logger = logger;
+        _registryWrapper = registryWrapper;
+        _repositoryWrapper = repositoryWrapper;
     }
 
-    [HttpGet("DocumentReference")]
+    [Consumes("application/fhir+json")]
+    [Produces("application/fhir+json")]
+    [HttpGet("R4/fhir/DocumentReference")]
+    [HttpPost("R4/fhir/DocumentReference/_search")]
     public async Task<ActionResult> DocumentReference(
         [FromQuery(Name = "patient")] string? patient,
         [FromQuery(Name = "creation")] string? creation,
@@ -142,5 +153,43 @@ public class FhirEndpointsController : Controller
 
         _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
         return BadRequest(operationOutcome);
+    }
+
+
+    [HttpGet("mhd/document")]
+    public async Task<IActionResult> Document(
+        [FromQuery] string homeCommunityId,
+        [FromQuery] string repositoryUniqueId,
+        [FromQuery] string documentUniqueId
+        )
+    {
+        var requestTimer = Stopwatch.StartNew();
+        _logger.LogInformation($"Received request for action: ITI-68 from {Request.HttpContext.Connection.RemoteIpAddress}");
+
+        var registryObjectForDocument = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == documentUniqueId);
+        
+        if (registryObjectForDocument?.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated)
+            return StatusCode(StatusCodes.Status410Gone);
+
+        var document = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId);
+
+        requestTimer.Stop();
+
+        var mimetype = StringExtensions.GetMimetypeFromMagicNumber(document);
+
+        if (document == null)
+        {
+            _logger.LogInformation($"No document with id {documentUniqueId} found");
+            return NotFound();
+        }
+
+        _logger.LogInformation($"Returned document. Mimetype {mimetype ?? registryObjectForDocument?.MimeType ?? "unknown"}");
+        _logger.LogInformation($"Completed action: ITI-68 in {requestTimer.ElapsedMilliseconds} ms with 0 errors");
+
+
+        var fileResponse = File(document, mimetype ?? registryObjectForDocument.MimeType);
+        fileResponse.FileDownloadName = $"{documentUniqueId}.{mimetype?.Split('/')[1] ?? registryObjectForDocument?.MimeType?.Split('/')[1]}";
+
+        return fileResponse;
     }
 }

@@ -16,7 +16,7 @@ Uploads a Document reference and/or document to the registry. The input type is 
 #### Example 
 ##### Request
 ```
-POST https://localhost:7176/api/rest/upload
+POST <baseurl>/api/rest/upload
 ```
 <details>
 <summary><big><strong> View example JSON payload</strong></big></summary>
@@ -164,14 +164,14 @@ Read all document references for a given patient identifier. Also supports statu
 
 #### Example 
 ```
-GET https://localhost:7176/api/rest/document-list?id=13116900216
+GET <baseurl>/api/rest/document-list?id=13116900216
 ```
 
 
 #### Example using `x-patient-id` header
 To avoid leaking patient identifiers in logs, the patient ID for the search can also be added as a header with the `x-patient-id` property. Internally, it will funciton exactly like the URL query parameter.
 ```
-GET https://localhost:7176/api/rest/document-list?pageNumber=1&pageSize=10
+GET <baseurl>/api/rest/document-list?pageNumber=1&pageSize=10
 
 -H 'x-patient-id: 13116900216'
 ```
@@ -190,7 +190,7 @@ Gets a document from the document repository. Will be returned as a base64-encod
 
 #### Example
 ```
-GET https://localhost:7176/api/rest/document?document=extrinsicObjectDocument01
+GET <baseurl>/api/rest/document?document=extrinsicObjectDocument01
 ```
 
 ### Update Document Reference
@@ -209,7 +209,7 @@ Updates an entire existing Document Reference. This endpoint has two behaviors w
 
 #### URL
 ```
-PUT https://localhost:7176/api/rest/update?replace=false
+PUT <baseurl>/api/rest/update?replace=false
 ```
 
 #### JSON payload
@@ -349,7 +349,7 @@ Send a partial request which only updates the specified fields. Useful for small
 
 #### URL
 ```
-PATCH https://localhost:7176/api/rest/patch
+PATCH <baseurl>/api/rest/patch
 ```
 #### Example JSON payload
 <details>
@@ -385,7 +385,7 @@ Send a partial request which only updates the specified fields. Useful for small
 
 #### URL
 ```
-PATCH https://localhost:7176/api/rest/patch
+PATCH <baseurl>/api/rest/patch
 ```
 #### Example JSON payload
 <details>

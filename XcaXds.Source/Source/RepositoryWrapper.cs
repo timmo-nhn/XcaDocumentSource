@@ -43,7 +43,7 @@ public partial class RepositoryWrapper
             return _repository.Read(documentUniqueId);
         }
 
-        _logger.LogDebug($"WrapRetrievedDocumentInCda Enabled");
+        _logger.LogInformation($"WrapRetrievedDocumentInCda Enabled");
 
 
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
@@ -68,14 +68,14 @@ public partial class RepositoryWrapper
 
         var documentAsString = Encoding.UTF8.GetString(documentDto.Data ?? []);
 
-        if (documentAsString.StartsWith("<ClinicalDocument"))
+        if (documentAsString.StartsWith("<ClinicalDocument") == false)
         {
-            _logger.LogInformation("CDA-wrapping skipped for document already in ClinicalDocument format");
             var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
             cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
         }
         else
         {
+            _logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument format");
             cdaXml = documentAsString;
         }
 

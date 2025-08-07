@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using XcaXds.Commons;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Soap;
@@ -40,7 +41,7 @@ public class UnitTests_RegistryObjects
             var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
             
 
-            var documentReference = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.ToList());
+            var documentReference = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList?.ToList());
 
             var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(documentReference);
 
@@ -161,5 +162,33 @@ public class UnitTests_RegistryObjects
             }
         }
 
+    }
+
+    [Fact]
+    public async Task Registry_FindDudsInRegistryRepository()
+    {
+        var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = "2.16.578.1.12.4.5.100.1.2", HomeCommunityId = "2.16.578.1.12.4.5.100.1" });
+
+        var registryService = new FileBasedRegistry();
+
+        var registryContent = registryService.ReadRegistry();
+
+        var documentEntries = registryContent.OfType<DocumentEntryDto>().ToList();
+        
+        List<string> duds = new();
+
+        foreach ( var documentEntry in documentEntries)
+        {
+            if (repoService.Read(documentEntry.Id) == null)
+            {
+                duds.Add($"{documentEntry.Id} for patient {documentEntry.SourcePatientInfo?.FirstName} {documentEntry.SourcePatientInfo?.LastName} (id: {documentEntry.PatientId.Code}) is a dud!!");
+            }
+        }
+
+        Console.WriteLine(duds.Count + " duds!");
+        if (duds.Any())
+        {
+            Console.WriteLine(duds.ToString());
+        }
     }
 }

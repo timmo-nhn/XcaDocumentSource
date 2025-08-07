@@ -80,7 +80,7 @@ public class UnitTests_ClinicalDocument
 
         var association = registryObjects.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.TargetObject == documentEntry.Id);
 
-        var submissionSet = registryObjects.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association.SourceObject);
+        var submissionSet = registryObjects.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
 
         var repository = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = documentEntry.RepositoryUniqueId, HomeCommunityId = documentEntry.HomeCommunityId });
 
