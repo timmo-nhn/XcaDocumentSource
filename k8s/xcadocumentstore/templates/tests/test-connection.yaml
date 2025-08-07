@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "frank-sykehus-enk.fullname" . }}-test-connection"
+  labels:
+    {{- include "frank-sykehus-enk.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "frank-sykehus-enk.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

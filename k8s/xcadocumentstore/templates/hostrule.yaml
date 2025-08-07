@@ -1,0 +1,22 @@
+apiVersion: ako.vmware.com/v1alpha1
+kind: HostRule
+metadata:
+  name: {{ include "frank-sykehus-enk.fullname" . }}
+  labels: 
+    {{- include "frank-sykehus-enk.labels" . | nindent 4 }}
+spec:
+  virtualhost:
+    fqdn: {{ .Values.ingress.fqdn }}
+    datascripts:
+      - expose-nhn-office-isp
+      - expose-nhn-office-client
+      - expose-nhn-dc-any
+      - expose-nhn-office-devops
+      - bottom-deny-rule
+    analyticsProfile: NHN-System-Analytics-Profile
+    analyticsPolicy:
+      fullClientLogs:
+        enabled: true
+        throttle: DISABLED
+      logAllHeaders: false
+
