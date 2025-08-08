@@ -14,11 +14,13 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
+using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
 
 [Tags("FHIR Endpoints")]
 [ApiController]
+[UsePolicyEnforcementPoint]
 public class FhirEndpointsController : Controller
 {
     private readonly ILogger<FhirEndpointsController> _logger;

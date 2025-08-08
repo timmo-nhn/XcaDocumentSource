@@ -9,10 +9,10 @@ namespace XcaXds.WebService.Controllers;
 
 [Tags("RESTful Registry/Repository (CRUD)")]
 [ApiController]
-[UsePolicyEnforcementPoint]
 [Route("api/rest")]
 [Consumes("application/json")]
 [Produces("application/json")]
+[UsePolicyEnforcementPoint]
 public class RestfulRegistryRepositoryController : ControllerBase
 {
     private readonly ILogger<RestfulRegistryRepositoryController> _logger;
