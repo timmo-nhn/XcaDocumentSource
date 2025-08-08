@@ -148,6 +148,10 @@ volumeMounts:
     mountPath: /mnt/data/repository
     subPath: repository
 
+  - name: registry-volume
+    mountPath: /mnt/data/tmp
+    subPath: tmp
+
 
 
 
