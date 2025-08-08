@@ -33,25 +33,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 
-      initContainers:
-        - name: copy-default-data
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          command:
-            - /bin/sh
-            - -c
-            - |
-              chmod 0775 /mnt/data/registry
-              chmod 0775 /mnt/data/repository
-              echo "Copying Registry..."
-              cp -r /app/registry/* /mnt/data/registry/ || echo "Registry empty or already copied"
-              echo "Copying Repository..."
-              cp -r /app/repository/* /mnt/data/repository/ || echo "Repository empty or already copied"
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-
-
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
