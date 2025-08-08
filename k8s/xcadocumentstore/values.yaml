@@ -48,8 +48,18 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  runAsUser: 101
+  runAsGroup: 101
+  fsGroup: 101
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+  supplementalGroups:
+    - 100
+  capabilities:
+    drop:
+      - ALL
 
 securityContext:
   capabilities:
@@ -61,8 +71,11 @@ securityContext:
   allowPrivilegeEscalation: false
   runAsNonRoot: true
   runAsUser: 101
+  fsGroup: 101
   runAsGroup: 101
   readOnlyRootFilesystem: true
+  supplementalGroups:
+    - 100
 
   # capabilities:
   #   drop:
@@ -128,7 +141,14 @@ volumes:
 
 volumeMounts:
   - name: registry-volume
-    mountPath: /mnt/data
+    mountPath: /mnt/data/registry
+    subPath: registry
+
+  - name: registry-volume
+    mountPath: /mnt/data/repository
+    subPath: repository
+
+
 
 
 nodeSelector: {}
