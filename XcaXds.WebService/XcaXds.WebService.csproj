@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
     <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
-    <ProjectReference Include="..\XcaXds.OpenDipsRegistryRepository\OpenDipsRegistryRepository.csproj" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
