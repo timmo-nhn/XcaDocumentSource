@@ -21,7 +21,7 @@ public class PolicyAuthorizationService
 
     public PolicyAuthorizationService()
     {
-        
+
     }
 
     public async Task<XacmlContextRequest?> GetXacmlRequestFromJsonRequest(HttpContext httpContext)
@@ -30,7 +30,7 @@ public class PolicyAuthorizationService
         return contextRequest;
     }
 
-     public async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(HttpContext httpContext)
+    public async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(HttpContext httpContext)
     {
         using var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true);
         var bodyContent = await reader.ReadToEndAsync();
@@ -68,7 +68,7 @@ public class PolicyAuthorizationService
 
         var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml"));
 
-        
+
 
         var subjectAttributes = new List<XacmlContextAttribute>();
 
@@ -83,13 +83,29 @@ public class PolicyAuthorizationService
                     var xmlDocument = new XmlDocument();
                     xmlDocument.LoadXml(Regex.Replace(attributeValue, @"\bxsi:\b", ""));
 
-                    var gobb = xmlDocument.ChildNodes[0].Attributes.GetNamedItem("type").Value;
+                    var attributes = xmlDocument.ChildNodes[0]?.Attributes;
 
-                    //switch ()
-                    //{
-                    //    default:
-                    //        break;
-                    //}
+                    var type = attributes?.GetNamedItem("type")?.Value;
+
+                    var code = attributes.GetNamedItem("code").Value;
+
+                    switch (type)
+                    {
+                        case "CE":
+                            var ce = new CX()
+                            {
+                                AssigningAuthority = new()
+                            };
+
+                            break;
+
+                        case "II":
+                            break;
+
+                        default:
+                            break;
+                    }
+
 
                 }
                 catch (Exception)
