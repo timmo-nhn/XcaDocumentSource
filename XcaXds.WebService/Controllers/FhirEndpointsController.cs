@@ -150,7 +150,7 @@ public class FhirEndpointsController : Controller
             var jsonOutput = fhirJsonSerializer.SerializeToString(bundle);
 
             _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
-            return Ok(jsonOutput);
+            return Content(jsonOutput);
         }
 
         _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");

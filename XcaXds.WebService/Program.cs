@@ -59,7 +59,15 @@ public class Program
         builder.Services.AddHttpClient<SoapService>(client =>
         {
             client.Timeout = TimeSpan.FromSeconds(xdsConfig.TimeoutInSeconds);
+             Path.GetTempPath();
         });
+
+        Environment.SetEnvironmentVariable("TMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable("TEMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable("TMPDIR", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
+
+        Console.WriteLine(Path.GetTempPath()); // now returns /mnt/data/tmp/
+
 
 
         // Register services

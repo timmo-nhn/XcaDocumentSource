@@ -490,299 +490,104 @@
       ],
       "roles": [
         {
-          "code": "AA",
-          "displayName": "Ambulansearbeider",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "3",
+          "displayName": "Behandlingsansvarlig lege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "AT",
-          "displayName": "Apotektekniker",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "4",
+          "displayName": "Journalansvarlig",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "AU",
-          "displayName": "Audiograf",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "5",
+          "displayName": "Informasjonsansvarlig",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "BI",
-          "displayName": "Bioingeni\u00f8r",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "6",
+          "displayName": "Fastlege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "ET",
-          "displayName": "Ergoterapeut",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "7",
+          "displayName": "Faglig ansvarlig for vedtak i psykisk helsevern",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "FA1",
-          "displayName": "Provisorfarmas\u00f8yt",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "8",
+          "displayName": "Koordinator Individuell plan",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "FA2",
-          "displayName": "Reseptarfarmas\u00f8yt",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "9",
+          "displayName": "Primærkontakt",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "FB",
-          "displayName": "Fiskehelsebiolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "10",
+          "displayName": "Utskrivende lege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "FO",
-          "displayName": "Fotterapeut",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "11",
+          "displayName": "Utskrivende sykepleier",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "FT",
-          "displayName": "Fysioterapeut",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "12",
+          "displayName": "Instituerende lege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "HE",
-          "displayName": "Helsesekret\u00e6r",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "13",
+          "displayName": "Innleggende lege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "HF",
-          "displayName": "Helsefagarbeider",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "14",
+          "displayName": "Ansvarlig jordmor",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "HP",
-          "displayName": "Hjelpepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "15",
+          "displayName": "Vikar for fastlege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "JO",
-          "displayName": "Jordmor",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "16",
+          "displayName": "LIS-lege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "KE",
-          "displayName": "Klinisk",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "17",
+          "displayName": "Forløpskoordinator kreft",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "KI",
-          "displayName": "Kiropraktor",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "18",
+          "displayName": "Koordinator",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "19",
+          "displayName": "Kontaktlege",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "20",
+          "displayName": "Kontaktpsykolog",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "21",
+          "displayName": "Helsefaglig kontakt",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "LE",
-          "displayName": "Lege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "MT",
-          "displayName": "Manuellterapeut",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "NP",
-          "displayName": "Naprapat",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "OA",
-          "displayName": "Omsorgsarbeider",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "OI",
-          "displayName": "Ortopediingeni\u00f8r",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "OP",
-          "displayName": "Optiker",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "OR",
-          "displayName": "Ortoptist",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "OS",
-          "displayName": "Osteopat",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PE",
-          "displayName": "Perfusjonist",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PM",
-          "displayName": "Paramedisiner",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PS",
-          "displayName": "Psykolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PS",
-          "displayName": "Psykolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PS",
-          "displayName": "Psykolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PS",
-          "displayName": "Psykolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PS",
-          "displayName": "Psykolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PS",
-          "displayName": "Psykolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "PS",
-          "displayName": "Psykolog",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "RA",
-          "displayName": "Radiograf",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "SP",
-          "displayName": "Sykepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "TH",
-          "displayName": "Tannhelsesekret\u00e6r",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "TL",
-          "displayName": "Tannlege",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "TP",
-          "displayName": "Tannpleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "TT",
-          "displayName": "Tanntekniker",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "VE",
-          "displayName": "Veterin\u00e6r",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "VP",
-          "displayName": "Vernepleier",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "code": "XX",
-          "displayName": "Ukjent/uspesifisert",
-          "codeSystem": "2.16.578.1.12.4.1.1.9060"
+          "code": "23",
+          "displayName": "Ønsket behandler",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         },
         {
           "code": null,
@@ -833,6 +638,126 @@
           "code": null,
           "displayName": null,
           "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": "24",
+          "displayName": "Kontakt hos mottaker",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034"
         }
       ],
       "specialities": [
@@ -1120,7 +1045,248 @@
           "code": null,
           "displayName": null,
           "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
+        },
+        {
+          "code": null,
+          "displayName": null,
+          "codeSystem": null
         }
+
       ]
     },
     "availabilityStatuses": [
@@ -2645,7 +2811,7 @@
       "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"
     ],
     "homeCommunityIds": [
-      "string"
+      "2.16.578.1.12.4.5.100.1"
     ],
     "patientIds": [
       {
@@ -2664,7 +2830,7 @@
       "string"
     ],
     "sourceIds": [
-        "2.16.578.1.12.4.5.100.1"
+        "2.16.578.1.12.4.5.100.1.2"
     ]
   },
   "documents":[
