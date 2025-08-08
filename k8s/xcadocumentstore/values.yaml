@@ -25,8 +25,8 @@ fullnameOverride: ""
 
 config:
   environment: Development
-  registryFilePath: /mnt/registry
-  repositoryFilePath: /mnt/repository
+  registryFilePath: /mnt/data/registry
+  repositoryFilePath: /mnt/data/repository
 
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
@@ -123,17 +123,13 @@ autoscaling:
 volumes:
   - name: registry-volume
     persistentVolumeClaim:
-      claimName: "{{ include \"frank-sykehus-enk.fullname\" . }}-registry"
-  - name: repository-volume
-    persistentVolumeClaim:
-      claimName: "{{ include \"frank-sykehus-enk.fullname\" . }}-repository"
+      claimName: "registry-pvc"
 
-# Additional volumeMounts on the output Deployment definition.
+
 volumeMounts:
   - name: registry-volume
-    mountPath: /mnt/registry
-  - name: repository-volume
-    mountPath: /mnt/repository
+    mountPath: /mnt/data
+
 
 
 
