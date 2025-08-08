@@ -57,6 +57,9 @@ podSecurityContext:
     type: RuntimeDefault
   supplementalGroups:
     - 100
+  capabilities:
+    drop:
+      - ALL
 
 securityContext:
   capabilities:
