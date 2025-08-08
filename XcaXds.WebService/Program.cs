@@ -7,6 +7,7 @@ using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
+using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
@@ -80,9 +81,11 @@ public class Program
         builder.Services.AddScoped<XdsOnFhirService>();
 
         builder.Services.AddHostedService<AppStartupService>();
+        builder.Services.AddScoped<PolicyAuthorizationService>();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
 
         // Feature Toggle (located in XcaXds.WebService/Appsettings.json)
         builder.Services.AddFeatureManagement();
