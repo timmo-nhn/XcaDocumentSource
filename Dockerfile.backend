@@ -10,6 +10,11 @@ COPY XcaXds.Source/Registry /app/registry
 COPY XcaXds.Source/Repository /app/repository
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+RUN mkdir /mnt/data/registry
+RUN mkdir /mnt/data/repository
+
 WORKDIR /app
 COPY --from=build /app .
+
 ENTRYPOINT ["dotnet", "XcaXds.WebService.dll"]

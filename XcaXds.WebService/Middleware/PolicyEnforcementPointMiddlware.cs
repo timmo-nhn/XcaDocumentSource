@@ -11,6 +11,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -20,13 +21,15 @@ public class PolicyEnforcementPointMiddlware
     private readonly ILogger<PolicyEnforcementPointMiddlware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
+    private readonly PolicyAuthorizationService _policyAuthorizationService;
 
-    public PolicyEnforcementPointMiddlware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env)
+    public PolicyEnforcementPointMiddlware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env, PolicyAuthorizationService policyAuthorizationService)
     {
         _logger = logger;
         _next = next;
         _xdsConfig = xdsConfig;
         _env = env;
+        _policyAuthorizationService = policyAuthorizationService;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
@@ -63,11 +66,11 @@ public class PolicyEnforcementPointMiddlware
         switch (httpContext.Request.ContentType)
         {
             case "application/soap+xml":
-                xacmlRequest = await GetXacmlRequestFromSoapEnvelope(httpContext);
+                xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromSoapEnvelope(httpContext);
                 break;
 
             case "application/json":
-                xacmlRequest = await GetXacmlRequestFromJsonRequest(httpContext);
+                xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromJsonRequest(httpContext);
                 break;
 
             default:
@@ -100,101 +103,6 @@ public class PolicyEnforcementPointMiddlware
         await _next(httpContext);
     }
 
-    private async Task<XacmlContextRequest?> GetXacmlRequestFromJsonRequest(HttpContext httpContext)
-    {
-        XacmlContextRequest contextRequest = null;
-        return contextRequest;
-    }
-
-    private async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(HttpContext httpContext)
-    {
-        using var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true);
-        var bodyContent = await reader.ReadToEndAsync();
-        httpContext.Request.Body.Position = 0; // Reset stream position for next reader
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
-
-        var soapEnvelope = new XmlDocument();
-        soapEnvelope.LoadXml(bodyContent);
-
-        var soapEnvelopeObject = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(bodyContent);
-
-        var assertion = soapEnvelope.GetElementsByTagName("saml:Assertion");
-
-        if (assertion.Count == 0)
-        {
-            _logger.LogDebug("No saml token in request");
-            throw new Exception("No SAML Assertion found in the SOAP envelope.");
-        }
-
-        var samlAssertion = assertion[0]?.OuterXml;
-
-        var handler = new Saml2SecurityTokenHandler();
-        var samlToken = handler.ReadSaml2Token(samlAssertion);
-
-        var authStatement = samlToken.Assertion.Statements.OfType<Saml2AuthenticationStatement>().FirstOrDefault();
-        var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
-
-        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml"));
-
-        var subjectAttributes = new List<XacmlContextAttribute>();
-
-        foreach (var attribute in samltokenAuthorizationAttributes)
-        {
-            foreach (var attributeValue in attribute.Values)
-            {
-                var contextAttributeValues = new XacmlContextAttributeValue();
-                subjectAttributes.Add(new XacmlContextAttribute(
-                    new Uri(attribute.Name), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = attributeValue }));
-            }
-        }
-
-        // Resource
-
-        var xacmlResourceAttribute = subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).FirstOrDefault();
-
-        var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
-
-        // Action
-        var action = string.Empty;
-        switch (soapEnvelopeObject.Header.Action)
-        {
-            case Constants.Xds.OperationContract.Iti43Action:
-            case Constants.Xds.OperationContract.Iti42Action:
-            case Constants.Xds.OperationContract.Iti18Action:
-                action = "read";
-                break;
-
-            case Constants.Xds.OperationContract.Iti41Action:
-                action = "write";
-                break;
-
-            case Constants.Xds.OperationContract.Iti62Action:
-            case Constants.Xds.OperationContract.Iti86Action:
-                action = "delete";
-                break;
-
-            default:
-                break;
-        }
-
-        var actionAttribute = new XacmlContextAttribute(
-            new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = action });
-
-        var xacmlAction = new XacmlContextAction(actionAttribute);
-
-
-        var xacmlSubject = new XacmlContextSubject(subjectAttributes);
-        var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
-
-        var settings = new XmlWriterSettings
-        {
-            Indent = true,
-            Encoding = Encoding.UTF8,
-            OmitXmlDeclaration = false
-        };
-
-        return request;
-    }
 }
 
 public static class XacmlSerializer
