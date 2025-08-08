@@ -123,10 +123,10 @@ autoscaling:
 volumes:
   - name: registry-volume
     persistentVolumeClaim:
-      claimName: registry-pvc
+      claimName: "{{ include \"frank-sykehus-enk.fullname\" . }}-registry"
   - name: repository-volume
     persistentVolumeClaim:
-      claimName: repository-pvc
+      claimName: "{{ include \"frank-sykehus-enk.fullname\" . }}-repository"
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
