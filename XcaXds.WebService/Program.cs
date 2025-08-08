@@ -81,7 +81,7 @@ public class Program
         builder.Services.AddScoped<XdsOnFhirService>();
 
         builder.Services.AddHostedService<AppStartupService>();
-        builder.Services.AddScoped<PolicyAuthorizationService>();
+        builder.Services.AddSingleton<PolicyAuthorizationService>();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

@@ -1,5 +1,7 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Utility;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Text;
 using System.Text.RegularExpressions;
