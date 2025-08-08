@@ -49,7 +49,6 @@ podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
 
 securityContext:
   capabilities:
@@ -61,8 +60,11 @@ securityContext:
   allowPrivilegeEscalation: false
   runAsNonRoot: true
   runAsUser: 101
+  fsGroup: 101
   runAsGroup: 101
   readOnlyRootFilesystem: true
+  supplementalGroups:
+    - 100
 
   # capabilities:
   #   drop:
