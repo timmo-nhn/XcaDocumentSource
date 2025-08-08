@@ -56,7 +56,7 @@ public class XdsRepositoryController : ControllerBase
             case Constants.Xds.OperationContract.Iti43Action:
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
 
-                var documentFetchResponse = await _repositoryService.GetContentFromRepository(soapEnvelope);
+                var documentFetchResponse = await _repositoryService.RetrieveDocumentSet(soapEnvelope);
                 if (documentFetchResponse.IsSuccess is false)
                 {
                     break;

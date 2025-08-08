@@ -132,7 +132,7 @@ public class XdsRepositoryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> GetContentFromRepository(SoapEnvelope iti43envelope)
+    public async Task<SoapRequestResult<SoapEnvelope>> RetrieveDocumentSet(SoapEnvelope iti43envelope)
     {
         var registryResponse = new RegistryResponseType();
         var retrieveResponse = new RetrieveDocumentSetResponseType();

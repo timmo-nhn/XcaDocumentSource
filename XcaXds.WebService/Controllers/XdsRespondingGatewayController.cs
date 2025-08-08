@@ -21,17 +21,19 @@ public class XdsRespondingGatewayController : ControllerBase
     private readonly HttpClient _httpClient;
     private readonly XcaGateway _xcaGateway;
     private readonly ApplicationConfig _xdsConfig;
-    private readonly XdsRepositoryService _repositoryService;
+    private readonly XdsRegistryService _xdsRegistryService;
+    private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, ApplicationConfig xdsConfig, XdsRepositoryService repositoryService, IVariantFeatureManager featureManager)
+    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
         _xcaGateway = xcaGateway;
         _xdsConfig = xdsConfig;
-        _repositoryService = repositoryService;
+        _xdsRepositoryService = xdsRepositoryService;
         _featureManager = featureManager;
+        _xdsRegistryService = xdsRegistryService;
     }
 
     [Consumes("application/soap+xml")]
@@ -68,8 +70,8 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
-                var iti38Response = await _xcaGateway.RegistryStoredQuery(soapEnvelope, baseUrl + "/Registry/services/RegistryService");
-                iti38Response.Value.SetAction(Constants.Xds.OperationContract.Iti38Reply);
+                var iti38Response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+                iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
 
                 responseEnvelope = iti38Response.Value;
                 break;
@@ -87,7 +89,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-39 to ITI-43 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti43Action);
-                var iti39Response = await _xcaGateway.RetrieveDocumentSet(soapEnvelope, baseUrl + "/Repository/services/RepositoryService");
+                var iti39Response = await _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
                 iti39Response.Value?.SetAction(Constants.Xds.OperationContract.Iti39Reply);
 
                 if (iti39Response.IsSuccess is false)
@@ -98,7 +100,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43 is true)
                 {
-                    var multipartContent = _repositoryService.ConvertToMultipartResponse(iti39Response.Value);
+                    var multipartContent = _xdsRepositoryService.ConvertToMultipartResponse(iti39Response.Value);
 
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {
