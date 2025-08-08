@@ -8,9 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Abc.Xacml" Version="1.2.1" />
 	<PackageReference Include="Hl7.Fhir.R4" Version="5.11.7" />
 	<PackageReference Include="Hl7.Fhir.Serialization" Version="4.3.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
 	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+	<PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.9.0" />
 	<PackageReference Include="System.ServiceModel.Http" Version="8.1.2" />
 	<PackageReference Include="System.ServiceModel.Primitives" Version="8.1.2" />
   </ItemGroup>
