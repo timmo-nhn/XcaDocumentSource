@@ -25,8 +25,8 @@ fullnameOverride: ""
 
 config:
   environment: Development
-  registryFilePath: /mnt/registry
-  repositoryFilePath: /mnt/repository
+  registryFilePath: /mnt/data/registry
+  repositoryFilePath: /mnt/data/repository
 
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
@@ -81,7 +81,7 @@ service:
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: true
-  fqdn: frank-sykehus-enk.dcs.nhn.no
+  fqdn: frank-sykehus-t1.t-xcads.pjd.nhn.no
   className: "avi-ingress-class-helsenett"
   annotations: 
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -102,14 +102,14 @@ resources: {}
   #   memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+#livenessProbe:
+#  httpGet:
+#    path: /
+#    port: http
+#readinessProbe:
+#  httpGet:
+#    path: /
+#    port: http
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
@@ -120,17 +120,16 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+volumes:
+  - name: registry-volume
+    persistentVolumeClaim:
+      claimName: "registry-pvc"
 
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+
+volumeMounts:
+  - name: registry-volume
+    mountPath: /mnt/data
+
 
 nodeSelector: {}
 

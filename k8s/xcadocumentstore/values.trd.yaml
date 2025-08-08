@@ -1,2 +1,3 @@
 replicaCount: 2
-Namespace: trd-sykehus
+ingress:
+  fqdn: trd.t-xcads.pjd.nhn.no
