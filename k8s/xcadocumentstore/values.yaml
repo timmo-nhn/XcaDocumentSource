@@ -81,7 +81,7 @@ service:
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: true
-  fqdn: frank-sykehus-enk.xcads.pjd.nhn.no
+  fqdn: frank-sykehus-enk.t-xcads.pjd.nhn.no
   className: "avi-ingress-class-helsenett"
   annotations: 
     cert-manager.io/cluster-issuer: letsencrypt-prod
