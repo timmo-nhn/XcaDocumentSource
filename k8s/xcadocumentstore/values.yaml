@@ -62,16 +62,16 @@ podSecurityContext:
       - ALL
 
 securityContext:
-  capabilities:
-    drop:
-      - ALL
+#  capabilities:
+#    drop:
+#      - ALL
   seccompProfile:
     type: RuntimeDefault
   privileged: false
   allowPrivilegeEscalation: false
   runAsNonRoot: true
   runAsUser: 101
-  fsGroup: 101
+#  fsGroup: 101
   runAsGroup: 101
   readOnlyRootFilesystem: true
 #  supplementalGroups:
