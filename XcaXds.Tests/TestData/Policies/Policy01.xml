@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ReadDocumentPolicy" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining:permit-overrides" Version="1.0">
+	<Target>
+		<AnyOf>
+			<AllOf>
+				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+					<AttributeDesignator AttributeId="action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+				</Match>
+			</AllOf>
+		</AnyOf>
+	</Target>
+
+	<Rule RuleId="PermitRead" Effect="Permit">
+		<Condition>
+			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+				<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ORG123</AttributeValue>
+				<AttributeDesignator AttributeId="organization" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+			</Apply>
+		</Condition>
+	</Rule>
+</Policy>

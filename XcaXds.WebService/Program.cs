@@ -3,7 +3,6 @@ using Microsoft.FeatureManagement;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
-using XcaXds.OpenDipsRegistryRepository.Services;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
@@ -73,20 +72,6 @@ public class Program
         builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton(xdsConfig);
-
-        // OpenDips service
-        builder.Services.AddSingleton<OpenDipsClient>();
-        builder.Services.AddSingleton<OpenDipsTokenService>();
-
-        // Fhir server interfacing service
-        builder.Services.AddSingleton<IFhirEndpointsService, OpenDipsClient>();
-
-        builder.Services.AddSingleton(provider =>
-        new FhirEndpointsDtoTransformerService(
-            "http://hapi.fhir.org/baseR4",
-            provider.GetService<ILogger<FhirEndpointsDtoTransformerService>>(),
-            provider.GetService<IFhirEndpointsService>()));
-
 
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
