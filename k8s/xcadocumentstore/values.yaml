@@ -74,8 +74,8 @@ securityContext:
   fsGroup: 101
   runAsGroup: 101
   readOnlyRootFilesystem: true
-  supplementalGroups:
-    - 100
+#  supplementalGroups:
+#    - 100
 
   # capabilities:
   #   drop:
