@@ -62,7 +62,7 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 101
   runAsGroup: 101
-  readOnlyRootFilesystem: true
+  readOnlyRootFilesystem: false
 
   # capabilities:
   #   drop:
