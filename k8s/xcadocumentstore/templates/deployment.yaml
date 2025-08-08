@@ -40,6 +40,8 @@ spec:
             - /bin/sh
             - -c
             - |
+              chmod 0775 /mnt/data/registry
+              chmod 0775 /mnt/data/repository
               echo "Copying Registry..."
               cp -r /app/registry/* /mnt/data/registry/ || echo "Registry empty or already copied"
               echo "Copying Repository..."
