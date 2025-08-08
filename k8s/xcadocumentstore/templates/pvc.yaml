@@ -7,7 +7,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 50Gi
   {{- with .Values.persistence.storageClass }}
   storageClassName: {{ . }}
   {{- end }}
