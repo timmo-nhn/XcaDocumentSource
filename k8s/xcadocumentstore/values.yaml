@@ -129,7 +129,7 @@ volumes:
 volumeMounts:
   - name: registry-volume
     mountPath: /mnt/data/registry
-  - name: repository-volume
+  - name: registry-volume
     mountPath: /mnt/data/repository
 
 
