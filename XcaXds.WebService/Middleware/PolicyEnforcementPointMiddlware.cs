@@ -1,10 +1,12 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
+using Hl7.Fhir.Utility;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
@@ -61,24 +63,22 @@ public class PolicyEnforcementPointMiddlware
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
-        XacmlContextRequest xacmlRequest = null;
+        XacmlContextRequest? xacmlRequest = null;
+
+        var httpContent = await GetBodyContentFromHttpRequest(httpContext.Request);
+
 
         switch (httpContext.Request.ContentType)
         {
             case "application/soap+xml":
-                xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromSoapEnvelope(httpContext);
+                xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromSoapEnvelope(httpContent);
                 break;
 
             case "application/json":
-                xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromJsonRequest(httpContext);
+                xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromJsonWebToken(httpContent);
                 break;
-
-            default:
-                await _next(httpContext);
-                return;
         }
 
-        var xacmlRequestString = JsonSerializer.Serialize(xacmlRequest);
         /* 
          * Call PDP Endpoint with request string here
          * short circuit middleware and return Soap response if response from PDP is Deny
@@ -103,6 +103,13 @@ public class PolicyEnforcementPointMiddlware
         await _next(httpContext);
     }
 
+    public static async Task<string> GetBodyContentFromHttpRequest(HttpRequest httpRequest)
+    {
+        using var reader = new StreamReader(httpRequest.Body, leaveOpen: true);
+        var bodyContent = await reader.ReadToEndAsync();
+        httpRequest.Body.Position = 0; // Reset stream position for next reader
+        return bodyContent;
+    }
 }
 
 public static class XacmlSerializer
@@ -121,6 +128,8 @@ public static class XacmlSerializer
 
         xmlWriter.WriteStartDocument();
         xmlWriter.WriteStartElement("Request", Constants.Xacml.Namespace.WD17);
+
+        xmlWriter.WriteAttributeString("ReturnPolicyIdList", request.ReturnPolicyIdList.ToString().ToLower());
 
         WriteSubject(xmlWriter, request.Subjects);
         WriteResources(xmlWriter, request.Resources);

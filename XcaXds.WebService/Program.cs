@@ -52,9 +52,13 @@ public class Program
         });
 
 
-        var xdsConfig = new ApplicationConfig();
+        builder.Configuration
+            .AddEnvironmentVariables();
 
+        var xdsConfig = new ApplicationConfig();
         builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
+
+        builder.Services.AddSingleton(xdsConfig);
 
         builder.Services.AddHttpClient<SoapService>(client =>
         {
@@ -80,7 +84,6 @@ public class Program
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
-        builder.Services.AddSingleton(xdsConfig);
 
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();

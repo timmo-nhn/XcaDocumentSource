@@ -1,12 +1,11 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Utility;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons;
+using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
@@ -26,44 +25,22 @@ public class PolicyAuthorizationService
 
     }
 
-    public async Task<XacmlContextRequest?> GetXacmlRequestFromJsonRequest(HttpContext httpContext)
+    public async Task<XacmlContextRequest?> GetXacmlRequestFromJsonWebToken(string inputJson)
     {
         XacmlContextRequest contextRequest = null;
         return contextRequest;
     }
 
-    public async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(HttpContext httpContext)
+
+    public async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(string inputSamlToken, string action)
     {
-        using var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true);
-        var bodyContent = await reader.ReadToEndAsync();
-        httpContext.Request.Body.Position = 0; // Reset stream position for next reader
-        return await GetXacmlRequestFromSoapEnvelope(bodyContent);
-    }
-
-    public async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(string inputSoapEnvelope)
-    {
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
-
-        var soapEnvelope = new XmlDocument();
-        soapEnvelope.LoadXml(inputSoapEnvelope);
-
-        var soapEnvelopeObject = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(inputSoapEnvelope);
-
-        var assertion = soapEnvelope.GetElementsByTagName("saml:Assertion");
-
-        if (assertion.Count == 0)
+        if (inputSamlToken == null || action == null)
         {
-            if (_logger != null)
-            {
-                _logger.LogDebug("No saml token in request");
-            }
-            throw new Exception("No SAML Assertion found in the SOAP envelope.");
+            return null;
         }
 
-        var samlAssertion = assertion[0]?.OuterXml;
-
         var handler = new Saml2SecurityTokenHandler();
-        var samlToken = handler.ReadSaml2Token(samlAssertion);
+        var samlToken = handler.ReadSaml2Token(inputSamlToken);
 
         var authStatement = samlToken.Assertion.Statements.OfType<Saml2AuthenticationStatement>().FirstOrDefault();
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
@@ -88,29 +65,17 @@ public class PolicyAuthorizationService
 
                     var type = attributes?.GetNamedItem("type")?.Value;
 
-                    var code = attributes.GetNamedItem("code").Value;
+                    var code = attributes?.GetNamedItem("code")?.Value;
+                    var codeSystem = attributes?.GetNamedItem("codeSystem")?.Value?.NoUrn();
+                    var displayName = attributes?.GetNamedItem("displayName")?.Value;
 
-                    switch (type)
+                    var ce = new CodedValue()
                     {
-                        case "CE":
-                            var ce = new CX()
-                            {
-                                AssigningAuthority = new()
-                                {
-                                    UniversalId = "ih",
-                                }
-                            };
+                        Code = code,
+                        CodeSystem = codeSystem,
+                        DisplayName = displayName,
 
-                            break;
-
-                        case "II":
-                            break;
-
-                        default:
-                            break;
-                    }
-
-
+                    };
                 }
                 catch (Exception)
                 {
@@ -131,12 +96,14 @@ public class PolicyAuthorizationService
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
         // Action
-        var action = string.Empty;
-        switch (soapEnvelopeObject.Header.Action)
+        switch (action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
+            case Constants.Xds.OperationContract.Iti43ActionAsync:
             case Constants.Xds.OperationContract.Iti42Action:
+            case Constants.Xds.OperationContract.Iti42ActionAsync:
             case Constants.Xds.OperationContract.Iti18Action:
+            case Constants.Xds.OperationContract.Iti18ActionAsync:
                 action = "read";
                 break;
 
@@ -145,7 +112,9 @@ public class PolicyAuthorizationService
                 break;
 
             case Constants.Xds.OperationContract.Iti62Action:
+            case Constants.Xds.OperationContract.Iti62ActionAsync:
             case Constants.Xds.OperationContract.Iti86Action:
+            case Constants.Xds.OperationContract.Iti86ActionAsync:
                 action = "delete";
                 break;
 
@@ -171,4 +140,37 @@ public class PolicyAuthorizationService
 
         return request;
     }
+
+    public async Task<XacmlContextRequest?> GetXacmlRequestFromSoapEnvelope(string inputSoapEnvelope)
+    {
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+
+        var soapEnvelopeXmlDocument = new XmlDocument();
+        try
+        {
+            soapEnvelopeXmlDocument.LoadXml(inputSoapEnvelope);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
+        var soapEnvelopeObject = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(inputSoapEnvelope);
+
+        var assertion = soapEnvelopeXmlDocument.GetElementsByTagName("saml:Assertion");
+
+        if (assertion.Count == 0)
+        {
+            if (_logger != null)
+            {
+                _logger.LogDebug("No saml token in request");
+            }
+            throw new Exception("No SAML Assertion found in the SOAP envelope.");
+        }
+
+        var samlAssertion = assertion[0]?.OuterXml;
+
+        return await GetXacmlRequestFromSamlToken(samlAssertion, soapEnvelopeObject.Header.Action);
+    }
+
 }
