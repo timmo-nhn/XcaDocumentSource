@@ -31,19 +31,18 @@ public class UnitTests_PolicyAuthorization
         var policy = new XmlDocument();
         policy.LoadXml(policyFile);
 
-        var serialize = new Xacml30ProtocolSerializer();
+        var serializer = new Xacml30ProtocolSerializer();
 
         XacmlContextRequest requestData;
 
         using (XmlReader reader = XmlReader.Create(new StringReader(request.OuterXml)))
         {
-            requestData = serialize.ReadContextRequest(reader);
+            requestData = serializer.ReadContextRequest(reader);
         }
         
         EvaluationEngine engine = EvaluationEngineFactory.Create(policy, null);
 
         XacmlContextResponse evaluatedResponse = engine.Evaluate(requestData, request);
-
 
     }
 }

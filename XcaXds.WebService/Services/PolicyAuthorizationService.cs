@@ -71,7 +71,6 @@ public class PolicyAuthorizationService
         var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml"));
 
 
-
         var subjectAttributes = new List<XacmlContextAttribute>();
 
         foreach (var attribute in samltokenAuthorizationAttributes)
@@ -97,6 +96,9 @@ public class PolicyAuthorizationService
                             var ce = new CX()
                             {
                                 AssigningAuthority = new()
+                                {
+                                    UniversalId = "ih",
+                                }
                             };
 
                             break;
@@ -165,12 +167,7 @@ public class PolicyAuthorizationService
 
         var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
 
-        var settings = new XmlWriterSettings
-        {
-            Indent = true,
-            Encoding = Encoding.UTF8,
-            OmitXmlDeclaration = false
-        };
+        request.ReturnPolicyIdList = true;
 
         return request;
     }
