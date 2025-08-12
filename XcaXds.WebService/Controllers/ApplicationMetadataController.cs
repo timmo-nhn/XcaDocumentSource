@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
-using System.Text.Json;
-using Hl7.Fhir.Model;
-using XcaXds.Commons.Interfaces;
-using System.Text;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -55,6 +53,7 @@ public class ApplicationMetadataController : ControllerBase
 
             if (generatedTestObject?.PatientId?.Code != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
             {
+                generatedTestObject.Title = "XcaDS - " + generatedTestObject.Title;
                 generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
                 using (var md5 = MD5.Create())
                 {

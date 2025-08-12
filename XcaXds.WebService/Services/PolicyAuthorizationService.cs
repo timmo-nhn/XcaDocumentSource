@@ -68,17 +68,24 @@ public class PolicyAuthorizationService
                                 new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.Code }));
                     }
 
+                    if (attributeValueAsCodedValue.CodeSystem != null)
+                    {
+                        subjectAttributes.Add(
                         new XacmlContextAttribute(
                             new Uri(attribute.Name + ":codeSystem"),
                             new Uri(Constants.Xacml.DataType.String),
-                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }),
+                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }));
 
-                        attributeValueAsCodedValue.DisplayName == null ? null :
-                        new XacmlContextAttribute(
-                            new Uri(attribute.Name + ":displayName"),
-                            new Uri(Constants.Xacml.DataType.String),
-                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.DisplayName })
-                    ]);
+                    }
+
+                    if (attributeValueAsCodedValue.DisplayName != null)
+                    {
+                        subjectAttributes.Add(
+                            new XacmlContextAttribute(
+                                new Uri(attribute.Name + ":displayName"),
+                                new Uri(Constants.Xacml.DataType.String),
+                                new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.DisplayName }));
+                    }
                 }
                 else
                 {
