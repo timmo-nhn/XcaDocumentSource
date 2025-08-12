@@ -1,13 +1,9 @@
-using System.Xml;
-using System.Xml.Serialization;
-using PdfSharp.Events;
 using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 
-namespace XcaXds.Tests;
+namespace XcaXds.UnitTests;
 
 public class UnitTests_ClinicalDocument
 {
@@ -31,7 +27,7 @@ public class UnitTests_ClinicalDocument
             int file1 = fileContent.Split("\n").Length;
             int file2 = doccCDA.Content.Split("\n").Length;
             int diff = file1 - file2;
-            Assert.InRange(diff,0,3);
+            Assert.InRange(diff, 0, 3);
         }
     }
 

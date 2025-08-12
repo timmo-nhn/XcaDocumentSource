@@ -7,7 +7,7 @@ using XcaXds.Commons.Services;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
 
-namespace XcaXds.Tests;
+namespace XcaXds.UnitTests;
 
 public class UnitTests_PolicyAuthorization
 {

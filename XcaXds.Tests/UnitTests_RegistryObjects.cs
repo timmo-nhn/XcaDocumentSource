@@ -11,7 +11,7 @@ using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using Xunit.Abstractions;
 
-namespace XcaXds.Tests;
+namespace XcaXds.UnitTests;
 
 public class UnitTests_RegistryObjects
 {

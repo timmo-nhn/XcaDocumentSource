@@ -1,27 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>true</InvariantGlobalization>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Abc.Xacml" Version="1.2.1" />
-    <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
-    <PackageReference Include="Microsoft.FeatureManagement" Version="4.0.0" />
-    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.9.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Abc.Xacml" Version="1.2.1" />
+        <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+        <PackageReference Include="Microsoft.FeatureManagement" Version="4.0.0" />
+        <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.9.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+    </ItemGroup>
+	
+    <ItemGroup>
+        <InternalsVisibleTo Include="..\XcaXds.WebService\XcaXds.WebService.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
-    <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
+        <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
+    </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+    <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

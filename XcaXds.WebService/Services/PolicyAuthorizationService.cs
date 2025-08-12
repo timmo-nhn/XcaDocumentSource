@@ -114,12 +114,12 @@ public class PolicyAuthorizationService
         var xacmlAction = new XacmlContextAction(actionAttribute);
 
         // Subject
-        var xacmlSubject = new XacmlContextSubject(subjectAttributes);
+        var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id") == false ));
 
         // Environment
         var xacmlEnvironment = new XacmlContextEnvironment();
 
-        var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
+        var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject, xacmlEnvironment);
 
         request.ReturnPolicyIdList = false;
         request.CombinedDecision = false;
@@ -201,5 +201,4 @@ public class PolicyAuthorizationService
 
         return await GetXacmlRequestFromSamlToken(samlAssertion, soapEnvelopeObject.Header.Action);
     }
-
 }
