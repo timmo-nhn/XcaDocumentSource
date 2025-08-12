@@ -13,7 +13,7 @@ using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 
-namespace XcaXds.Tests;
+namespace XcaXds.UnitTests;
 
 public class UnitTests_Fhir
 {

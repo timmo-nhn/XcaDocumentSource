@@ -2,7 +2,7 @@
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Hl7.DataType;
 
-namespace XcaXds.Tests;
+namespace XcaXds.UnitTests;
 
 public class UnitTests_Functionalities
 {

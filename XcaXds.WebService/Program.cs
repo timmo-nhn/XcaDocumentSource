@@ -12,7 +12,7 @@ using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
 
-public class Program
+public partial class Program
 {
     public static void Main(string[] args)
     {

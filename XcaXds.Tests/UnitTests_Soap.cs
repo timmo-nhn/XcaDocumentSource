@@ -2,7 +2,7 @@ using System.Xml;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 
-namespace XcaXds.Tests;
+namespace XcaXds.UnitTests;
 
 public class UnitTests_Soap
 {
