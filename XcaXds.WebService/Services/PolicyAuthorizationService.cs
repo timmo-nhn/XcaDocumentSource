@@ -1,7 +1,6 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Utility;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons;
@@ -55,25 +54,42 @@ public class PolicyAuthorizationService
             foreach (var attributeValue in attribute.Values)
             {
                 string finalAttributeValue = null;
-                
+
                 var attributeValueAsCodedValue = GetSamlAttributeValueAsCodedValue(attributeValue);
 
                 // If its structured codedvalue format or just plain text
                 if (attributeValueAsCodedValue != null)
                 {
-                    finalAttributeValue = JsonSerializer.Serialize(attributeValueAsCodedValue, Constants.JsonDefaultOptions.DefaultSettingsInline);
+                    if (attributeValueAsCodedValue.Code != null)
+                    {
+                        subjectAttributes.Add(new XacmlContextAttribute(
+                                new Uri(attribute.Name + ":code"),
+                                new Uri(Constants.Xacml.DataType.String),
+                                new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.Code }));
+                    }
+
+                        new XacmlContextAttribute(
+                            new Uri(attribute.Name + ":codeSystem"),
+                            new Uri(Constants.Xacml.DataType.String),
+                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }),
+
+                        attributeValueAsCodedValue.DisplayName == null ? null :
+                        new XacmlContextAttribute(
+                            new Uri(attribute.Name + ":displayName"),
+                            new Uri(Constants.Xacml.DataType.String),
+                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.DisplayName })
+                    ]);
                 }
                 else
                 {
                     finalAttributeValue = attributeValue;
+                    subjectAttributes.Add(new XacmlContextAttribute(
+                        new Uri(attribute.Name),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = finalAttributeValue }
+                    ));
                 }
 
-                var contextAttribute = new XacmlContextAttribute(
-                    new Uri(attribute.Name),
-                    new Uri(Constants.Xacml.DataType.String),
-                    new XacmlContextAttributeValue() { Value = finalAttributeValue }
-                );
-                subjectAttributes.Add(contextAttribute);
             }
         }
 
@@ -84,16 +100,21 @@ public class PolicyAuthorizationService
         // Action
         switch (action)
         {
-            case Constants.Xds.OperationContract.Iti43Action:
-            case Constants.Xds.OperationContract.Iti43ActionAsync:
-            case Constants.Xds.OperationContract.Iti42Action:
-            case Constants.Xds.OperationContract.Iti42ActionAsync:
             case Constants.Xds.OperationContract.Iti18Action:
             case Constants.Xds.OperationContract.Iti18ActionAsync:
+            case Constants.Xds.OperationContract.Iti43Action:
+            case Constants.Xds.OperationContract.Iti43ActionAsync:
+            case Constants.Xds.OperationContract.Iti38Action:
+            case Constants.Xds.OperationContract.Iti38ActionAsync:
+            case Constants.Xds.OperationContract.Iti39Action:
+            case Constants.Xds.OperationContract.Iti39ActionAsync:
                 action = "read";
                 break;
 
             case Constants.Xds.OperationContract.Iti41Action:
+            case Constants.Xds.OperationContract.Iti41ActionAsync:
+            case Constants.Xds.OperationContract.Iti42Action:
+            case Constants.Xds.OperationContract.Iti42ActionAsync:
                 action = "write";
                 break;
 
@@ -114,7 +135,7 @@ public class PolicyAuthorizationService
         var xacmlAction = new XacmlContextAction(actionAttribute);
 
         // Subject
-        var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id") == false ));
+        var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id") == false));
 
         // Environment
         var xacmlEnvironment = new XacmlContextEnvironment();

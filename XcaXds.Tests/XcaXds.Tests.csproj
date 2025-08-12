@@ -19,8 +19,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-	
-  <ItemGroup>
+
+	<ItemGroup>
     <PackageReference Include="Abc.Xacml" Version="1.2.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>

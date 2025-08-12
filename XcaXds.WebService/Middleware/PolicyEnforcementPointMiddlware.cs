@@ -1,17 +1,10 @@
 ﻿using Abc.Xacml.Context;
-using Abc.Xacml.Policy;
-using Hl7.Fhir.Model.CdsHooks;
-using Hl7.Fhir.Utility;
-using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Xml;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Services;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
@@ -53,6 +46,8 @@ public class PolicyEnforcementPointMiddlware
             return;
         }
 
+        _logger.LogInformation("Request Content-type: " + httpContext.Request.ContentType);
+
         var endpoint = httpContext.GetEndpoint();
         var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
 
@@ -68,8 +63,10 @@ public class PolicyEnforcementPointMiddlware
 
         var httpContent = await GetBodyContentFromHttpRequest(httpContext.Request);
 
+        var contentType = httpContext.Request.ContentType?.Split(";").First();
 
-        switch (httpContext.Request.ContentType)
+
+        switch (contentType)
         {
             case "application/soap+xml":
                 xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromSoapEnvelope(httpContent);

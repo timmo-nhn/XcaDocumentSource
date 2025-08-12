@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
+using System.Collections;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
@@ -12,7 +14,7 @@ using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
 
-public partial class Program
+public class Program
 {
     public static void Main(string[] args)
     {
@@ -119,15 +121,23 @@ public partial class Program
         app.UseExceptionHandler("/error");
         app.MapHealthChecks("/healthz");
 
+        app.UseRouting();
+
+        // Middleware, only enabled for endpoints with attributes
+        app.UseMiddleware<PolicyEnforcementPointMiddlware>();
+        app.UseMiddleware<AuditLoggingMiddleware>();
+
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
 
-        // Middleware, only enabled for endpoints with attributes
-        app.UseMiddleware<PolicyEnforcementPointMiddlware>();
-        app.UseMiddleware<AuditLoggingMiddleware>();
+
+        foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
+        {
+            Console.WriteLine($"{entry.Key}={entry.Value}");
+        }
 
 
         var runningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? "false");
