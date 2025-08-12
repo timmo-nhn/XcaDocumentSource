@@ -1,5 +1,6 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
+using Hl7.Fhir.Model.CdsHooks;
 using Hl7.Fhir.Utility;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
@@ -130,6 +131,7 @@ public static class XacmlSerializer
         xmlWriter.WriteStartElement("Request", Constants.Xacml.Namespace.WD17);
 
         xmlWriter.WriteAttributeString("ReturnPolicyIdList", request.ReturnPolicyIdList.ToString().ToLower());
+        xmlWriter.WriteAttributeString("CombinedDecision", request.CombinedDecision.ToString().ToLower());
 
         WriteSubject(xmlWriter, request.Subjects);
         WriteResources(xmlWriter, request.Resources);
@@ -154,6 +156,7 @@ public static class XacmlSerializer
         foreach (var subject in subjects)
         {
             xmlWriter.WriteStartElement("Attributes");
+            xmlWriter.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
             xmlWriter.WriteAttributeString("Category", Constants.Xacml.Category.Subject);
             foreach (var attr in subject.Attributes)
             {
@@ -170,6 +173,7 @@ public static class XacmlSerializer
         foreach (var resource in resources)
         {
             writer.WriteStartElement("Attributes");
+            writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
             writer.WriteAttributeString("Category", Constants.Xacml.Category.Resource);
 
             foreach (var attr in resource.Attributes)
@@ -185,6 +189,7 @@ public static class XacmlSerializer
 
 
         writer.WriteStartElement("Attributes");
+        writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
         writer.WriteAttributeString("Category", Constants.Xacml.Category.Action);
 
         foreach (var attr in action.Attributes)
@@ -199,6 +204,7 @@ public static class XacmlSerializer
         if (environment == null) return;
 
         writer.WriteStartElement("Attributes");
+        writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
         writer.WriteAttributeString("Category", Constants.Xacml.Category.Environment);
 
         foreach (var attr in environment.Attributes)
@@ -211,6 +217,7 @@ public static class XacmlSerializer
         if (attr == null) return;
 
         writer.WriteStartElement("Attribute");
+        writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
         writer.WriteAttributeString("AttributeId", attr.AttributeId.ToString());
         //writer.WriteAttributeString("IncludeInResult", attr..ToString().ToLower());
 
@@ -225,5 +232,4 @@ public static class XacmlSerializer
 
         writer.WriteEndElement();
     }
-
 }

@@ -1,6 +1,7 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Utility;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons;
@@ -47,52 +48,37 @@ public class PolicyAuthorizationService
 
         var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml"));
 
-
         var subjectAttributes = new List<XacmlContextAttribute>();
 
         foreach (var attribute in samltokenAuthorizationAttributes)
         {
             foreach (var attributeValue in attribute.Values)
             {
-                var contextAttributeValues = new XacmlContextAttributeValue();
+                string finalAttributeValue = null;
+                
+                var attributeValueAsCodedValue = GetSamlAttributeValueAsCodedValue(attributeValue);
 
-                try
+                // If its structured codedvalue format or just plain text
+                if (attributeValueAsCodedValue != null)
                 {
-                    var xmlDocument = new XmlDocument();
-                    xmlDocument.LoadXml(Regex.Replace(attributeValue, @"\bxsi:\b", ""));
-
-                    var attributes = xmlDocument.ChildNodes[0]?.Attributes;
-
-                    var type = attributes?.GetNamedItem("type")?.Value;
-
-                    var code = attributes?.GetNamedItem("code")?.Value;
-                    var codeSystem = attributes?.GetNamedItem("codeSystem")?.Value?.NoUrn();
-                    var displayName = attributes?.GetNamedItem("displayName")?.Value;
-
-                    var ce = new CodedValue()
-                    {
-                        Code = code,
-                        CodeSystem = codeSystem,
-                        DisplayName = displayName,
-
-                    };
+                    finalAttributeValue = JsonSerializer.Serialize(attributeValueAsCodedValue, Constants.JsonDefaultOptions.DefaultSettingsInline);
                 }
-                catch (Exception)
+                else
                 {
-
-                    continue;
+                    finalAttributeValue = attributeValue;
                 }
 
-                subjectAttributes.Add(new XacmlContextAttribute(
-                    new Uri(attribute.Name), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = attributeValue }));
+                var contextAttribute = new XacmlContextAttribute(
+                    new Uri(attribute.Name),
+                    new Uri(Constants.Xacml.DataType.String),
+                    new XacmlContextAttributeValue() { Value = finalAttributeValue }
+                );
+                subjectAttributes.Add(contextAttribute);
             }
         }
 
         // Resource
         var xacmlResourceAttribute = subjectAttributes.FirstOrDefault(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
-
-        var resourceId = Hl7Object.Parse<CX>(xacmlResourceAttribute?.AttributeValues.FirstOrDefault()?.Value);
-
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
         // Action
@@ -130,15 +116,58 @@ public class PolicyAuthorizationService
         // Subject
         var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 
-
         // Environment
         var xacmlEnvironment = new XacmlContextEnvironment();
 
         var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
 
-        request.ReturnPolicyIdList = true;
+        request.ReturnPolicyIdList = false;
+        request.CombinedDecision = false;
 
         return request;
+    }
+
+    private CodedValue? GetSamlAttributeValueAsCodedValue(string attributeValue)
+    {
+        string code = null;
+        string codeSystem = null;
+        string displayName = null;
+
+        try
+        {
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(Regex.Replace(attributeValue, @"\bxsi:\b", ""));
+            var attributes = xmlDocument.ChildNodes[0]?.Attributes;
+
+            var type = attributes?.GetNamedItem("type")?.Value;
+
+            code = attributes?.GetNamedItem("code")?.Value;
+            codeSystem = attributes?.GetNamedItem("codeSystem")?.Value?.NoUrn();
+            displayName = attributes?.GetNamedItem("displayName")?.Value;
+        }
+        catch (Exception)
+        {
+            var hl7Value = Hl7Object.Parse<CX>(attributeValue);
+            if (hl7Value?.AssigningAuthority?.UniversalId == null)
+            {
+                // If its codeable from neither XML or HL7, then treat it as plain text.
+                return null;
+            }
+        }
+
+        var hl7ObjectValue = Hl7Object.Parse<CX>(attributeValue);
+        if (hl7ObjectValue != null)
+        {
+            code ??= hl7ObjectValue.IdNumber;
+            codeSystem ??= hl7ObjectValue.AssigningAuthority.UniversalId;
+        }
+
+        return new()
+        {
+            Code = code,
+            CodeSystem = codeSystem,
+            DisplayName = displayName
+        };
     }
 
     public async Task<XacmlContextRequest?> GetXacmlRequestFromSoapEnvelope(string inputSoapEnvelope)

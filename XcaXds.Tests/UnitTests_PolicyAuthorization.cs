@@ -3,6 +3,7 @@ using Abc.Xacml.Context;
 using Abc.Xacml.Runtime;
 using System.Text;
 using System.Xml;
+using XcaXds.Commons.Services;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
 
@@ -19,11 +20,8 @@ public class UnitTests_PolicyAuthorization
         var policyService = new PolicyAuthorizationService();
 
         var request = new XmlDocument();
-        var requestFile = XacmlSerializer.SerializeRequestToXml(
-            await policyService.GetXacmlRequestFromSoapEnvelope(
-                File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8)
-                )
-            );
+        var xacmlObject = await policyService.GetXacmlRequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
+        var requestFile = XacmlSerializer.SerializeRequestToXml(xacmlObject);
 
         request.LoadXml(requestFile);
 

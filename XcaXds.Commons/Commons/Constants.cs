@@ -1,10 +1,37 @@
 ﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons;
 public static class Constants
 {
+    public static class JsonDefaultOptions
+    {
+        public static readonly JsonSerializerOptions DefaultSettings = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+            PropertyNameCaseInsensitive = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+            {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+            }
+        };
+
+        public static readonly JsonSerializerOptions DefaultSettingsInline = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+            {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+            }
+        };
+    }
 
     public static class Soap
     {
