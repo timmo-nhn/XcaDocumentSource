@@ -33,7 +33,7 @@ tag manifest:
   extends:
     - .manifest-repo-update-singlefile
   variables:
-    MANIFEST_REPO_URL: "https://milliways.nhn.no/helsepersonell/team-dokumentdeling/xcads/k8s/xcadocumentstore.git"
+    MANIFEST_REPO_URL: "milliways.nhn.no/helsepersonell/team-dokumentdeling/xcads/k8s/xcadocumentstore.git"
     SRC_FOLDER: "."
     DEPLOY_ENVIRONMENTS: "test"
     GITLAB_USER: $PLATFORM_GIT_USER
