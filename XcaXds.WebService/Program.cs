@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Collections;
 using XcaXds.Commons.Interfaces;
-using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
 using XcaXds.Commons.Services;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
@@ -54,18 +53,29 @@ public class Program
         });
 
 
-        builder.Configuration
-            .AddEnvironmentVariables();
+        builder.Configuration.AddEnvironmentVariables();
 
         var xdsConfig = new ApplicationConfig();
-        builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
+
+        // If we are running in a container, override appsettings.json and environment variables for configuration
+        if (bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? "false"))
+        {
+            var envVars = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key,entry => (string)entry.Value);
+            var xdsConfigEnvVars = envVars.Where(n => n.Key.StartsWith("XdsConfiguration")).ToList();
+            xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(xdsConfigEnvVars);
+            builder.Configuration.Bind(xdsConfig);
+        }
+        else
+        {
+            builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
+        }
 
         builder.Services.AddSingleton(xdsConfig);
 
         builder.Services.AddHttpClient<SoapService>(client =>
         {
             client.Timeout = TimeSpan.FromSeconds(xdsConfig.TimeoutInSeconds);
-             Path.GetTempPath();
+            Path.GetTempPath();
         });
 
         Environment.SetEnvironmentVariable("TMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);

@@ -1,4 +1,6 @@
-﻿using Abc.Xacml.Context;
+﻿using Abc.Xacml;
+using Abc.Xacml.Context;
+using Abc.Xacml.Runtime;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
@@ -77,24 +79,29 @@ public class PolicyEnforcementPointMiddlware
                 break;
         }
 
-        /* 
-         * Call PDP Endpoint with request string here
-         * short circuit middleware and return Soap response if response from PDP is Deny
-        */
 
-        // Example where PEP denied the request; short-circuit the middleware
+        var request = XacmlSerializer.SerializeRequestToXml(xacmlRequest);
 
-        if ("PepResponseStatus".Equals("Deny"))
+        var serializer = new Xacml30ProtocolSerializer();
+
+        XacmlContextRequest requestData;
+
+        using (XmlReader reader = XmlReader.Create(new StringReader(request)))
         {
-            var responseEnvelope = SoapExtensions.CreateSoapFault("Access denied").Value;
-            var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
-
-            _logger.LogError($"Access denied from Policy Decision Point \n Reason: {responseEnvelope?.Body.Fault?.Code.Value}");
-            httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
-            httpContext.Response.ContentType = "application/soap+xml";
-            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(responseEnvelope).Content);
-            return;
+            requestData = serializer.ReadContextRequest(reader);
         }
+
+        var policyRepository = new PolicyRepository();
+
+        //policyRepository.RequestPolicy(new Uri(""));
+
+        //var policy = new XmlDocument();
+        //policy.LoadXml(policyFile);
+
+
+        //EvaluationEngine engine = EvaluationEngineFactory.Create(policy,);
+
+        //XacmlContextResponse evaluatedResponse = engine.Evaluate(requestData, request);
 
 
         // Call the next delegate/middleware in the pipeline.

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text;
 
 namespace XcaXds.IntegrationTests;
@@ -21,7 +20,7 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
         var iti38 = testDataFiles.FirstOrDefault(f => f.Contains("iti38"));
 
-        var soapEnvelope = new StringContent(File.ReadAllText(iti38),Encoding.UTF8, "application/soap+xml");
+        var soapEnvelope = new StringContent(File.ReadAllText(iti38), Encoding.UTF8, "application/soap+xml");
 
         var response = await _client.PostAsync("/XCA/services/RespondingGatewayService", soapEnvelope);
         var content = await response.Content.ReadAsStringAsync();

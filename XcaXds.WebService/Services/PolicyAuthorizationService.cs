@@ -41,6 +41,11 @@ public class PolicyAuthorizationService
 
         var handler = new Saml2SecurityTokenHandler();
         var samlToken = handler.ReadSaml2Token(inputSamlToken);
+        return await GetXacmlRequestFromSamlToken(samlToken, action);
+    }
+
+    public async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action)
+    {
 
         var authStatement = samlToken.Assertion.Statements.OfType<Saml2AuthenticationStatement>().FirstOrDefault();
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
@@ -96,12 +101,11 @@ public class PolicyAuthorizationService
                         new XacmlContextAttributeValue() { Value = finalAttributeValue }
                     ));
                 }
-
             }
         }
 
         // Resource
-        var xacmlResourceAttribute = subjectAttributes.FirstOrDefault(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
+        var xacmlResourceAttribute = subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
         // Action
@@ -147,7 +151,7 @@ public class PolicyAuthorizationService
         // Environment
         var xacmlEnvironment = new XacmlContextEnvironment();
 
-        var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject, xacmlEnvironment);
+        var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
 
         request.ReturnPolicyIdList = false;
         request.CombinedDecision = false;

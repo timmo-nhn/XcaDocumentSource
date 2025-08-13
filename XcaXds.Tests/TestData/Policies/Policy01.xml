@@ -1,22 +1,48 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="ReadDocumentPolicy" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining:permit-overrides" Version="1.0">
-	<Target>
-		<AnyOf>
-			<AllOf>
-				<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
-					<AttributeDesignator AttributeId="action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-				</Match>
-			</AllOf>
-		</AnyOf>
-	</Target>
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17"
+        PolicyId="ReadDocumentPolicy_KvartGrevling"
+        RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-unless-permit"
+        Version="1.0">
 
-	<Rule RuleId="PermitRead" Effect="Permit">
-		<Condition>
-			<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-				<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ORG123</AttributeValue>
-				<AttributeDesignator AttributeId="organization" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-			</Apply>
-		</Condition>
-	</Rule>
+    <Target>
+        <AnyOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="false"/>
+                </Match>
+            </AllOf>
+        </AnyOf>
+    </Target>
+
+    <Rule RuleId="PermitRead" Effect="Permit">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                             Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                             DataType="http://www.w3.org/2001/XMLSchema#string"
+                                             MustBePresent="false"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of">
+                <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">KVART GREVLING</AttributeValue>
+                </Apply>
+                <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+                                     Category="urn:oasis:names:tc:xacml:3.0:attribute-category:access-subject"
+                                     DataType="http://www.w3.org/2001/XMLSchema#string"
+                                     MustBePresent="true"/>
+            </Apply>
+        </Condition>
+    </Rule>
 </Policy>
