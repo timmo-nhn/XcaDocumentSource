@@ -33,8 +33,8 @@ tag manifest:
   extends:
     - .manifest-repo-update-singlefile
   variables:
-    MANIFEST_REPO_URL: "milliways.nhn.no/helsepersonell/team-dokumentdeling/dokumentdeling/xcadocumentsource.git"
-    SRC_FOLDER: "helm/XcaDocumentSource"
+    MANIFEST_REPO_URL: "milliways.nhn.no/helsepersonell/team-dokumentdeling/xcads/k8s/xcadocumentstore.git"
+    SRC_FOLDER: "."
     DEPLOY_ENVIRONMENTS: "test"
     GITLAB_USER: $PLATFORM_GIT_USER
     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
