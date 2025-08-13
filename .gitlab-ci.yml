@@ -36,7 +36,7 @@ tag manifest:
     MANIFEST_REPO_URL: "milliways.nhn.no/helsepersonell/team-dokumentdeling/xcads/k8s/xcadocumentstore.git"
     SRC_FOLDER: "."
     DEPLOY_ENVIRONMENTS: "test"
-    GITLAB_USER: $PLATFORM_GIT_USER
+    GITLAB_USER: gitlab-user
     GITLAB_TOKEN: $FRANK_GITLAB_TOKEN
     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
 
