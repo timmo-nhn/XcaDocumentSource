@@ -68,15 +68,15 @@ public partial class RepositoryWrapper
 
         var documentAsString = Encoding.UTF8.GetString(documentDto.Data ?? []);
 
-        if (documentAsString.StartsWith("<ClinicalDocument") == false)
-        {
-            var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
-            cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
-        }
-        else
+        if (documentAsString.StartsWith("<ClinicalDocument"))
         {
             _logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument format");
             cdaXml = documentAsString;
+        }
+        else
+        {
+            var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
+            cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
         }
 
         return Encoding.UTF8.GetBytes(cdaXml);

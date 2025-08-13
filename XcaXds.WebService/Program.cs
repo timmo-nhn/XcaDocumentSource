@@ -64,6 +64,11 @@ public class Program
             var xdsConfigEnvVars = envVars.Where(n => n.Key.StartsWith("XdsConfiguration")).ToList();
             xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(xdsConfigEnvVars);
             builder.Configuration.Bind(xdsConfig);
+            Environment.SetEnvironmentVariable("TMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable("TEMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable("TMPDIR", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
+
+            Console.WriteLine(Path.GetTempPath()); // now returns /mnt/data/tmp/
         }
         else
         {
@@ -78,11 +83,6 @@ public class Program
             Path.GetTempPath();
         });
 
-        Environment.SetEnvironmentVariable("TMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
-        Environment.SetEnvironmentVariable("TEMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
-        Environment.SetEnvironmentVariable("TMPDIR", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
-
-        Console.WriteLine(Path.GetTempPath()); // now returns /mnt/data/tmp/
 
 
 

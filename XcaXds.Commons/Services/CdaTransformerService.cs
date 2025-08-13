@@ -14,34 +14,38 @@ public static class CdaTransformerService
     /// Will preserve the document content in the CDA documents NonXmlBody <para/>
     /// <a href="https://build.fhir.org/ig/HL7/CDA-core-2.0/" />
     /// </summary>
-    public static ClinicalDocument TransformRegistryObjectsToClinicalDocument(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet, DocumentDto document)
+    public static ClinicalDocument? TransformRegistryObjectsToClinicalDocument(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet, DocumentDto document)
     {
         var cdaDocument = new ClinicalDocument();
 
-        cdaDocument.Id = SetClinicalDocumentId(documentEntry);
+        if (documentEntry != null)
+        {
+            cdaDocument.Id = SetClinicalDocumentId(documentEntry);
 
-        cdaDocument.Code = SetClinicalDocumentTypeCode(documentEntry);
+            cdaDocument.Code = SetClinicalDocumentTypeCode(documentEntry);
 
-        cdaDocument.Title = SetClinicalDocumentTitle(documentEntry);
+            cdaDocument.Title = SetClinicalDocumentTitle(documentEntry);
 
-        cdaDocument.EffectiveTime = SetClinicalDocumentEffectiveTime(documentEntry);
+            cdaDocument.EffectiveTime = SetClinicalDocumentEffectiveTime(documentEntry);
 
-        cdaDocument.ConfidentialityCode = SetClinicalDocumentConfidentialityCode(documentEntry);
+            cdaDocument.ConfidentialityCode = SetClinicalDocumentConfidentialityCode(documentEntry);
 
-        // Patient and organization
-        cdaDocument.RecordTarget ??= new();
-        cdaDocument.RecordTarget.Add(SetClinicalDocumentRecordTarget(documentEntry));
+            // Patient and organization
+            cdaDocument.RecordTarget ??= new();
+            cdaDocument.RecordTarget.Add(SetClinicalDocumentRecordTarget(documentEntry));
 
-        // ClinicalDocument.author
-        cdaDocument.Author ??= new();
-        cdaDocument.Author.Add(SetClinicalDocumentAuthor(submissionSet));
+            // ClinicalDocument.author
+            cdaDocument.Author ??= new();
+            cdaDocument.Author.Add(SetClinicalDocumentAuthor(submissionSet));
 
-        // ClinicalDocument.custodian
-        cdaDocument.Custodian ??= new();
-        cdaDocument.Custodian = SetClinicalDocumentCustodian(submissionSet);
+            // ClinicalDocument.custodian
+            cdaDocument.Custodian ??= new();
+            cdaDocument.Custodian = SetClinicalDocumentCustodian(submissionSet);
+
+        }
 
         // ClinicalDocument.nonXmlBody
-        if (document != null)
+        if (document != null && document.Data != null)
         {
             cdaDocument.Component ??= new();
             cdaDocument.Component.NonXmlBody = SetClinicalDocumentNonXmlBody(document, documentEntry);
@@ -318,8 +322,9 @@ public static class CdaTransformerService
         };
     }
 
-    private static II SetClinicalDocumentId(DocumentEntryDto documentEntry)
+    private static II? SetClinicalDocumentId(DocumentEntryDto? documentEntry)
     {
+        if (documentEntry == null) return null;
         return new()
         {
             Root = documentEntry.RepositoryUniqueId ?? string.Empty,

@@ -39,7 +39,7 @@ public class XdsRespondingGatewayController : ControllerBase
     [Consumes("application/soap+xml")]
     [Produces("application/soap+xml", "application/xop+xml", "application/octet-stream", "multipart/related")]
     [HttpPost("RespondingGatewayService")]
-    public async Task<IActionResult> CrossGatewayQuery([FromBody] SoapEnvelope soapEnvelope)
+    public async Task<IActionResult> HandleRespondingGatewayRequests([FromBody] SoapEnvelope soapEnvelope)
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
         var action = soapEnvelope.Header.Action?.Trim();
@@ -106,6 +106,9 @@ public class XdsRespondingGatewayController : ControllerBase
                     {
                         Content = multipartContent
                     };
+
+                    requestTimer.Stop();
+                    _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
                     return new ContentResult
                     {
