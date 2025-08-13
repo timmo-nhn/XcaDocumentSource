@@ -37,7 +37,7 @@ tag manifest:
     SRC_FOLDER: "."
     DEPLOY_ENVIRONMENTS: "test"
     GITLAB_USER: $PLATFORM_GIT_USER
-    GITLAB_TOKEN: $PLATFORM_GIT_TOKEN
+    GITLAB_TOKEN: $FRANK_GITLAB_TOKEN
     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
 
 tag manifest prod:
