@@ -7,4 +7,5 @@ public class Pagination
     public int TotalResults { get; set; }
     public int PageNumber { get; set; }
     public int NumberOfResults { get; set; }
+    public int LastPage { get; set; }
 }

@@ -21,7 +21,7 @@ flowchart LR
 
 nhnxca[NHN<br>Initiating Gateway]
 
-subgraph "Municipality 1"
+subgraph "System 1"
     subgraph "EPR Systems/platform"
         xcads[PJD.XcaDocumentSource]
         regrep[(Document/<br>Document Metadata)]
@@ -32,10 +32,11 @@ nhnxca<--Queries-->xcads<--Retrieves-->regrep
 ```
 *Municipality sharing documents via XcaDocumentSource*
 
-### 2. Hospital Sharing Discharge Summaries with GPs and Home Care Providers
+### 2. Hospital Sharing copy of all documents and metadata to XcaDocumentSource
 
 #### Scenario:
-A hospital wants to make discharge notes and care plans available to the patient’s general practitioner and municipal home care team.
+A hospital wants to share documents using XcaDocumentSource, but their storage solution does not allow for easy transformation and fetching of data.  
+**Solution:** All documents uploaded to the EPR's storage solution is also uploaded to XcaDocumentSource's storage solution
 
 #### Use Case Flow:
 * After discharge, the hospital’s EPR system sends a CDA discharge summary.
@@ -44,6 +45,29 @@ A hospital wants to make discharge notes and care plans available to the patient
 
 #### Benefits:
 Ensures continuity of care and informed follow-up treatment.
+
+```mermaid
+%%{init: {'theme':'dark'}}%%
+flowchart LR
+
+nhnxca[NHN<br>Initiating Gateway]
+
+subgraph "System 1"
+    subgraph "XcaDocumentSource"
+        xcads[API Endpoints]
+        regrep1[(Copy of<br>Document/<br>Document Metadata)]
+    end
+        epr[EPR-system]
+        regrep2[(Document/<br>Document Metadata)]
+end
+
+regrep1<--Stores documents-->epr
+regrep2<--Stores documents-->epr
+
+nhnxca<--Queries-->xcads<--Retrieves-->regrep1
+```
+*Municipality sharing documents via XcaDocumentSource*
+
 
 ### 3. Private Specialist Making Consult Notes Available to Hospitals
 

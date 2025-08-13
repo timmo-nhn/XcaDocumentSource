@@ -37,7 +37,7 @@ public class XdsRepositoryController : ControllerBase
         _featureManager = featureManager;
     }
 
-    [Consumes("application/soap+xml")]
+    [Consumes("application/soap+xml", "application/xml")]
     [Produces("application/soap+xml", ["application/xop+xml", "application/octet-stream"])]
     [HttpPost("RepositoryService")]
     public async Task<IActionResult> RepositoryService([FromBody] SoapEnvelope soapEnvelope)

@@ -46,7 +46,6 @@ public class PolicyAuthorizationService
 
     public async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action)
     {
-
         var authStatement = samlToken.Assertion.Statements.OfType<Saml2AuthenticationStatement>().FirstOrDefault();
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
@@ -67,7 +66,8 @@ public class PolicyAuthorizationService
                 {
                     if (attributeValueAsCodedValue.Code != null)
                     {
-                        subjectAttributes.Add(new XacmlContextAttribute(
+                        subjectAttributes.Add(
+                            new XacmlContextAttribute(
                                 new Uri(attribute.Name + ":code"),
                                 new Uri(Constants.Xacml.DataType.String),
                                 new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.Code }));
@@ -76,10 +76,10 @@ public class PolicyAuthorizationService
                     if (attributeValueAsCodedValue.CodeSystem != null)
                     {
                         subjectAttributes.Add(
-                        new XacmlContextAttribute(
-                            new Uri(attribute.Name + ":codeSystem"),
-                            new Uri(Constants.Xacml.DataType.String),
-                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }));
+                            new XacmlContextAttribute(
+                                new Uri(attribute.Name + ":codeSystem"),
+                                new Uri(Constants.Xacml.DataType.String),
+                                new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }));
 
                     }
 
@@ -95,10 +95,11 @@ public class PolicyAuthorizationService
                 else
                 {
                     finalAttributeValue = attributeValue;
-                    subjectAttributes.Add(new XacmlContextAttribute(
-                        new Uri(attribute.Name),
-                        new Uri(Constants.Xacml.DataType.String),
-                        new XacmlContextAttributeValue() { Value = finalAttributeValue }
+                    subjectAttributes.Add(
+                        new XacmlContextAttribute(
+                            new Uri(attribute.Name),
+                            new Uri(Constants.Xacml.DataType.String),
+                            new XacmlContextAttributeValue() { Value = finalAttributeValue }
                     ));
                 }
             }

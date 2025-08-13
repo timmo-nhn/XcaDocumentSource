@@ -39,14 +39,14 @@ public class PolicyEnforcementPointMiddlware
               (IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress) ||
                httpContext.Connection.RemoteIpAddress.ToString() == "::1");
 
-        //if (requestIsLocal &&
-        //    _xdsConfig.IgnorePEPForLocalhostRequests == true &&
-        //    _env.IsDevelopment() == true)
-        //{
-        //    _logger.LogWarning("Policy Enforcement Point middleware was bypassed for requests from localhost.");
-        //    await _next(httpContext);
-        //    return;
-        //}
+        if (requestIsLocal &&
+            _xdsConfig.IgnorePEPForLocalhostRequests == true &&
+            _env.IsDevelopment() == true)
+        {
+            _logger.LogWarning("Policy Enforcement Point middleware was bypassed for requests from localhost.");
+            await _next(httpContext);
+            return;
+        }
 
         _logger.LogInformation("Request Content-type: " + httpContext.Request.ContentType);
 
@@ -83,6 +83,10 @@ public class PolicyEnforcementPointMiddlware
                 break;
         }
 
+        if (xacmlRequest == null)
+        {
+            await _next(httpContext);
+        }
 
         var request = XacmlSerializer.SerializeRequestToXml(xacmlRequest);
 

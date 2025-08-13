@@ -25,7 +25,7 @@ public class RestfulRegistryRepositoryService
         _logger = logger;
     }
 
-    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime serviceStartTime, DateTime serviceStopTime, int pageNumber = 1, int pageSize = 10)
+    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime serviceStartTime, DateTime serviceStopTime, int currentPageNumber = 1, int pageSize = 10)
     {
         var documentListResponse = new DocumentListResponse();
 
@@ -60,7 +60,7 @@ public class RestfulRegistryRepositoryService
             .ToList();
 
         var paginatedDocumentList = patientDocumentReferences
-            .Skip((pageNumber - 1) * pageSize)
+            .Skip((currentPageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
 
@@ -75,14 +75,37 @@ public class RestfulRegistryRepositoryService
                 }
             }).ToList();
 
-        var pagination = new Pagination()
+
+        var totalPages = (int)Math.Ceiling((double)patientDocumentReferences.Count / pageSize);
+
+        var pagination = new Pagination();
+        if (currentPageNumber < 1 || currentPageNumber - 1 > totalPages)
         {
-            TotalResults = patientDocumentReferences.Count,
-            NumberOfResults = paginatedDocumentList.Count,
-            PageNumber = pageNumber,
-            Next = paginatedDocumentList.Count < pageSize ? null : pageNumber + 1,
-            Prev = pageNumber <= 1 ? null : pageNumber - 1
-        };
+            pagination = new Pagination()
+            {
+                TotalResults = patientDocumentReferences.Count,
+                NumberOfResults = 0,
+                PageNumber = currentPageNumber,
+                Next = null,
+                Prev = null,
+                LastPage = totalPages
+            };
+        }
+        else
+        {
+            var nextPageNull = currentPageNumber >= totalPages;
+            var previousPageNull = currentPageNumber <= 1;
+
+            pagination = new Pagination()
+            {
+                TotalResults = patientDocumentReferences.Count,
+                NumberOfResults = paginatedDocumentList.Count,
+                PageNumber = currentPageNumber,
+                Next = nextPageNull ? null : currentPageNumber + 1,
+                Prev = previousPageNull ? null : currentPageNumber - 1,
+                LastPage = totalPages
+            };
+        }
 
         documentListResponse.Pagination = pagination;
         documentListResponse.DocumentListEntries = documentListEntriesWithLink;

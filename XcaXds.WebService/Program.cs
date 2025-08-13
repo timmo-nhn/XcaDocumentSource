@@ -63,6 +63,7 @@ public class Program
             var envVars = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key,entry => (string)entry.Value);
             var xdsConfigEnvVars = envVars.Where(n => n.Key.StartsWith("XdsConfiguration")).ToList();
             xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(xdsConfigEnvVars);
+
             builder.Configuration.Bind(xdsConfig);
             Environment.SetEnvironmentVariable("TMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("TEMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
@@ -82,8 +83,6 @@ public class Program
             client.Timeout = TimeSpan.FromSeconds(xdsConfig.TimeoutInSeconds);
             Path.GetTempPath();
         });
-
-
 
 
         // Register services

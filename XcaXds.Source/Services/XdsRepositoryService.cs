@@ -277,7 +277,7 @@ public class XdsRepositoryService
         var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
-        multipart.Headers.ContentType = new MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated);
+        multipart.Headers.ContentType = new MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated, Encoding.UTF8.BodyName);
 
         if (documents != null && multipart != null)
         {

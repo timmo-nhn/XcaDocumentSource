@@ -36,7 +36,7 @@ public class XdsRespondingGatewayController : ControllerBase
         _xdsRegistryService = xdsRegistryService;
     }
 
-    [Consumes("application/soap+xml")]
+    [Consumes("application/soap+xml", "application/xml")]
     [Produces("application/soap+xml", "application/xop+xml", "application/octet-stream", "multipart/related")]
     [HttpPost("RespondingGatewayService")]
     public async Task<IActionResult> HandleRespondingGatewayRequests([FromBody] SoapEnvelope soapEnvelope)
@@ -113,7 +113,7 @@ public class XdsRespondingGatewayController : ControllerBase
                     return new ContentResult
                     {
                         StatusCode = (int)HttpStatusCode.OK,
-                        Content = responseMessage.Content.ReadAsStringAsync().Result,
+                        Content = await responseMessage.Content.ReadAsStringAsync(),
                         ContentType = Constants.MimeTypes.MultipartRelated
                     };
                 }

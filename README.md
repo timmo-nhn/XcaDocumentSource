@@ -2,7 +2,7 @@
 
 ## Preface: The vision of PJD.XcaDocumentSource
 > ⚠ **Important Note!** <br>**PJD.XcaDocumentSource** is provided as an open-source reference for the implementer to extend or customize its interfaces to align with the requirements of their existing Electronic Patient Record (EPR) systems.  
-The solution is **not** a substitute for an EPR system nor an EPR storage solution; it acts as a translating framework between SOAP messages from NHN's XCA and the implementers **existing** EPR-system.<br><br></span>
+The solution is **not** a substitute for an EPR system nor a full EPR storage solution; it acts as a translating framework between SOAP messages from NHN's XCA and the implementers **existing** EPR-system.<br><br></span>
 **Norsk helsenett (NHN) does not assume responsibility for the integrity, availability, or confidentiality of patient data handled through deployments based on PJD.XcaDocumentSource. Use of PJD.XcaDocumentSource is at the implementer's own risk, and any integration between PJD.XcaDocumentSource and live Electronic Patient Record (EPR) systems must be thoroughly tested and validated within the implementer’s own governance and compliance frameworks.**
 
 **PJD.XcaDocumentSource** allows healthcare providers to expose their internal, **existing document storage solution** as an **XDS-compliant Registry** and **Repository** interface.  
@@ -12,7 +12,7 @@ The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML
 * Provides an XDS.b-compatible registry and repository layer backed by customizable storage adapters
 * Supports integration with Norsk Helsenett’s XCA Initiating Gateway
 
-**PJD.XcaDocumentSource** does not provide document storage itself. Instead, it allows implementers to connect their own storage infrastructure - whether proprietary, legacy, or standards-based—by implementing custom translation logic between document storage metadata and the simpler, internal data-structures.
+**PJD.XcaDocumentSource** provides basic document registry and repository. However, the reccomended option is for implementers to connect their own storage infrastructure to **PJD.XcaDocumentSource** - whether proprietary, legacy, or standards-based - by implementing custom translation logic between document storage metadata and the simpler, internal data-structures of **PJD.XcaDocumentSource**.
 ```mermaid
 %%{init: {'theme':'dark'}}%%
 flowchart
@@ -21,7 +21,6 @@ nhnxca[NHN XCA Initiating Gateway]
 subgraph "Actor"
   xcads[XcaDocumentSource<br>XCA Responding Gateway]
   epr[Electronic Patient Records]
-      A@{ shape: comment, label: "PJD.XcaDocumentSource translates SOAP-calls to simpler data structures" }
 end
 
 nhnxca--"ITI-38/-ITI39"-->xcads--"Custom Adapter Interface (Written by the implementer)"-->epr

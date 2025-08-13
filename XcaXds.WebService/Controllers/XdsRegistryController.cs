@@ -34,8 +34,8 @@ public class XdsRegistryController : ControllerBase
         _featureManager = featureManager;
     }
 
-    [Consumes("application/soap+xml")]
-    [Produces("application/soap+xml")]
+    [Consumes("application/soap+xml", "application/xml")]
+    [Produces("application/soap+xml", "application/xml")]
     [HttpPost("RegistryService")]
     public async Task<IActionResult> RegistryService([FromBody] SoapEnvelope soapEnvelope)
     {

@@ -23,8 +23,6 @@ public class UnitTests_PolicyAuthorization
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
         var policyService = new PolicyAuthorizationService();
-
-        var request = new XmlDocument();
         
         XacmlContextRequest xacmlObject = await policyService.GetXacmlRequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
         var requestXml = XacmlSerializer.SerializeRequestToXml(xacmlObject);
@@ -40,23 +38,6 @@ public class UnitTests_PolicyAuthorization
             var serialize = new Xacml30ProtocolSerializer();
             policy01 = serialize.ReadPolicy(reader);
         }
-
-        var debugDump = new StringBuilder();
-
-        foreach (var attrCategory in xacmlObject.Attributes)
-        {
-            debugDump.AppendLine($"Category: {attrCategory.Category}");
-            foreach (var attr in attrCategory.Attributes)
-            {
-                debugDump.AppendLine($"  AttributeId: {attr.AttributeId}");
-                foreach (var value in attr.AttributeValues)
-                {
-                    debugDump.AppendLine($"    Value: {value}");
-                }
-            }
-        }
-    
-        var gob = debugDump.ToString();
 
         var ngin = new EvaluationEngine30(policy01);
 
