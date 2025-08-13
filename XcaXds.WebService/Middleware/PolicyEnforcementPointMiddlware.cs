@@ -30,6 +30,7 @@ public class PolicyEnforcementPointMiddlware
         _policyAuthorizationService = policyAuthorizationService;
     }
 
+
     public async Task InvokeAsync(HttpContext httpContext)
     {
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! PEP bypass is enabled in production!");
