@@ -1,30 +1,26 @@
-﻿using Abc.Xacml;
+﻿using System.Text;
+using System.Text.Json;
+using System.Xml;
+using Abc.Xacml;
 using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
 using Abc.Xacml.Runtime;
-using Hl7.Fhir.Model.CdsHooks;
-using PdfSharp.Charting;
-using System.Text;
-using System.Text.Json;
-using System.Xml;
-using XcaXds.Commons.Services;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
-using static XcaXds.Commons.Constants.Xacml;
 
 namespace XcaXds.UnitTests;
 
 public class UnitTests_PolicyAuthorization
 {
     [Fact]
-    public async Task Authorization_PolicyStuff()
+    public async Task Authorization_Policy_ShouldPermit()
     {
-        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData","Policies"));
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
         var policyService = new PolicyAuthorizationService();
-        
-        XacmlContextRequest xacmlObject = await policyService.GetXacmlRequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
+
+        XacmlContextRequest xacmlObject = await policyService.GetXacml30RequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
         var requestXml = XacmlSerializer.SerializeRequestToXml(xacmlObject);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -41,8 +37,9 @@ public class UnitTests_PolicyAuthorization
 
         var ngin = new EvaluationEngine30(policy01);
 
-        var gobb = ngin.Evaluate(xacmlObject, requestDoc);
+        var evalResult = ngin.Evaluate(xacmlObject, requestDoc);
 
-        var jsoncontextresponse = JsonSerializer.Serialize(gobb);
+        var jsoncontextresponse = JsonSerializer.Serialize(evalResult);
+        Assert.Equal(evalResult.Results.FirstOrDefault().Decision,XacmlContextDecision.Permit);
     }
 }

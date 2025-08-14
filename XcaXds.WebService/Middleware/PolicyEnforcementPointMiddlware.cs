@@ -1,10 +1,11 @@
-﻿using Abc.Xacml;
-using Abc.Xacml.Context;
-using Abc.Xacml.Runtime;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Xml;
+using Abc.Xacml;
+using Abc.Xacml.Context;
+using Abc.Xacml.Policy;
+using Abc.Xacml.Runtime;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Services;
@@ -76,7 +77,7 @@ public class PolicyEnforcementPointMiddlware
         switch (contentType)
         {
             case "application/soap+xml":
-                xacmlRequest = await _policyAuthorizationService.GetXacmlRequestFromSoapEnvelope(httpContent);
+                xacmlRequest = await _policyAuthorizationService.GetXacml30RequestFromSoapEnvelope(httpContent);
                 break;
 
             case "application/json":
@@ -148,10 +149,46 @@ public static class XacmlSerializer
         xmlWriter.WriteAttributeString("ReturnPolicyIdList", request.ReturnPolicyIdList.ToString().ToLower());
         xmlWriter.WriteAttributeString("CombinedDecision", request.CombinedDecision.ToString().ToLower());
 
-        WriteSubject(xmlWriter, request.Subjects);
-        WriteResources(xmlWriter, request.Resources);
-        WriteAction(xmlWriter, request.Action);
-        WriteEnvironment(xmlWriter, request.Environment);
+        if (request.Subjects.Count == 0)
+        {
+            var subjectAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("subject")));
+            WriteCategoryAttributes(xmlWriter, subjectAttributes, Constants.Xacml.Category.Subject);
+        }
+        else
+        {
+            WriteSubject(xmlWriter, request.Subjects);
+        }
+
+        if (request.Resources.Count == 0)
+        {
+            var resourceAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("resource-id")));
+            WriteCategoryAttributes(xmlWriter, resourceAttributes, Constants.Xacml.Category.Resource);
+        }
+        else
+        {
+            WriteResources(xmlWriter, request.Resources);
+        }
+
+        if (request.Action == null)
+        {
+            var actionAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("action-id")));
+            WriteCategoryAttributes(xmlWriter, actionAttributes, Constants.Xacml.Category.Action);
+        }
+        else
+        {
+            WriteAction(xmlWriter, request.Action);
+        }
+
+        if (request.Environment == null)
+        {
+            var environmentAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("environment")));
+            WriteCategoryAttributes(xmlWriter, environmentAttributes, Constants.Xacml.Category.Environment);
+
+        }
+        else
+        {
+            WriteEnvironment(xmlWriter, request.Environment);
+        }
 
         xmlWriter.WriteEndElement();
         xmlWriter.WriteEndDocument();
@@ -162,6 +199,24 @@ public static class XacmlSerializer
         serializedRequest = serializedRequest.Replace("&amp;amp;", "&amp;");
 
         return serializedRequest;
+    }
+
+
+    private static void WriteCategoryAttributes(XmlWriter xmlWriter, IEnumerable<XacmlContextAttributes> categoryAttributes, string category)
+    {
+        if (categoryAttributes.Count() == 0) return;
+
+        foreach (var attribute in categoryAttributes)
+        {
+            xmlWriter.WriteStartElement("Attributes");
+            xmlWriter.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
+            xmlWriter.WriteAttributeString("Category", category);
+            foreach (var attr in attribute.Attributes)
+            {
+                WriteAttribute(xmlWriter, attr);
+            }
+            xmlWriter.WriteEndElement();
+        }
     }
 
     private static void WriteSubject(XmlWriter xmlWriter, ICollection<XacmlContextSubject> subjects)
@@ -175,7 +230,7 @@ public static class XacmlSerializer
             xmlWriter.WriteAttributeString("Category", Constants.Xacml.Category.Subject);
             foreach (var attr in subject.Attributes)
             {
-                WriteAttribute(xmlWriter, attr);
+                WriteContextAttribute(xmlWriter, attr);
             }
             xmlWriter.WriteEndElement();
         }
@@ -192,7 +247,7 @@ public static class XacmlSerializer
             writer.WriteAttributeString("Category", Constants.Xacml.Category.Resource);
 
             foreach (var attr in resource.Attributes)
-                WriteAttribute(writer, attr);
+                WriteContextAttribute(writer, attr);
 
             writer.WriteEndElement();
         }
@@ -208,7 +263,7 @@ public static class XacmlSerializer
         writer.WriteAttributeString("Category", Constants.Xacml.Category.Action);
 
         foreach (var attr in action.Attributes)
-            WriteAttribute(writer, attr);
+            WriteContextAttribute(writer, attr);
 
         writer.WriteEndElement();
 
@@ -223,11 +278,12 @@ public static class XacmlSerializer
         writer.WriteAttributeString("Category", Constants.Xacml.Category.Environment);
 
         foreach (var attr in environment.Attributes)
-            WriteAttribute(writer, attr);
+            WriteContextAttribute(writer, attr);
 
         writer.WriteEndElement();
     }
-    private static void WriteAttribute(XmlWriter writer, XacmlContextAttribute attr)
+
+    private static void WriteContextAttribute(XmlWriter writer, XacmlContextAttribute attr)
     {
         if (attr == null) return;
 
@@ -241,6 +297,25 @@ public static class XacmlSerializer
         {
             writer.WriteStartElement("AttributeValue");
             writer.WriteAttributeString("DataType", attr.DataType.ToString());
+            writer.WriteString(val.Value);
+            writer.WriteEndElement();
+        }
+
+        writer.WriteEndElement();
+    }
+
+    private static void WriteAttribute(XmlWriter writer, XacmlAttribute attr)
+    {
+        if (attr == null) return;
+
+        writer.WriteStartElement("Attribute");
+        writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
+        writer.WriteAttributeString("AttributeId", attr.AttributeId.ToString());
+
+        foreach (var val in attr.AttributeValues)
+        {
+            writer.WriteStartElement("AttributeValue");
+            writer.WriteAttributeString("DataType", val.DataType.ToString());
             writer.WriteString(val.Value);
             writer.WriteEndElement();
         }

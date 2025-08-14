@@ -556,6 +556,12 @@ public static class Constants
 
     public static class Xacml
     {
+        public enum XacmlVersion
+        {
+            Version20,
+            Version30
+        }
+
         public static class Attribute
         {
             public const string ActionId = "urn:oasis:names:tc:xacml:1.0:action:action-id";
@@ -566,7 +572,7 @@ public static class Constants
 
         public static class Category
         {
-            public const string Subject = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+            public const string Subject = "urn:oasis:names:tc:xacml:3.0:attribute-category:access-subject";
             public const string Resource = "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
             public const string Action = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
             public const string Environment = "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
