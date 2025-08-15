@@ -2,6 +2,7 @@
 using System.Xml;
 using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using XcaXds.Commons;
 using XcaXds.Commons.Extensions;
@@ -47,70 +48,70 @@ public class PolicyAuthorizationService
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
-        
-        var subjectAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, action);
-
-
-        var xacmlAllAttributes = MapSamlAttributesToXacml30Properties(samltokenAuthorizationAttributes, action);
-
-
-
         XacmlContextRequest request;
 
-        if (xacmlVersion == Constants.Xacml.XacmlVersion.Version30)
+        switch (xacmlVersion)
         {
+            case Constants.Xacml.XacmlVersion.Version30:
+                var xacmlAllAttributes = MapSamlAttributesToXacml30Properties(samltokenAuthorizationAttributes, action);
+                
+                var xacmlActionAttribute = new XacmlAttribute(new Uri(Constants.Xacml.Attribute.ActionId), false);
+                var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), action);
+                xacmlActionAttribute.AttributeValues.Add(xacmlActionAttributeValue);
+                xacmlAllAttributes.Add(xacmlActionAttribute);
 
-            var xacmlActionAttribute = new XacmlAttribute(new Uri(Constants.Xacml.Attribute.ActionId), false);
-            var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), action);
-            xacmlActionAttribute.AttributeValues.Add(xacmlActionAttributeValue);
-            xacmlAllAttributes.Add(xacmlActionAttribute);
+                var xacmlSubjectContextAttributes = new XacmlContextAttributes(
+                    new Uri(Constants.Xacml.Category.V30_Subject),
+                    xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("subject")));
 
-            var xacmlSubjectContextAttributes = new XacmlContextAttributes(
-                new Uri(Constants.Xacml.Category.Subject),
-                xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("subject")));
+                var xacmlResourceContextAttributes = new XacmlContextAttributes(
+                    new Uri(Constants.Xacml.Category.V30_Resource),
+                    xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("resource-id")));
 
-            var xacmlResourceContextAttributes = new XacmlContextAttributes(
-                new Uri(Constants.Xacml.Category.Resource),
-                xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("resource-id")));
+                var xacmlActionContextAttributes = new XacmlContextAttributes(
+                    new Uri(Constants.Xacml.Category.V30_Action),
+                    xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("action-id")));
 
-            var xacmlActionContextAttributes = new XacmlContextAttributes(
-                new Uri(Constants.Xacml.Category.Action),
-                xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("action-id")));
+                xacmlAttributesList.Add(xacmlSubjectContextAttributes);
+                xacmlAttributesList.Add(xacmlResourceContextAttributes);
+                xacmlAttributesList.Add(xacmlActionContextAttributes);
 
-            xacmlAttributesList.Add(xacmlSubjectContextAttributes);
-            xacmlAttributesList.Add(xacmlResourceContextAttributes);
-            xacmlAttributesList.Add(xacmlActionContextAttributes);
+                request = new XacmlContextRequest(false, false, xacmlAttributesList);
+                request.ReturnPolicyIdList = false;
+                request.CombinedDecision = false;
 
-            request = new XacmlContextRequest(false, false, xacmlAttributesList);
-            request.ReturnPolicyIdList = false;
-            request.CombinedDecision = false;
+                return request;
 
-            return request;
+
+            case Constants.Xacml.XacmlVersion.Version20:
+                var subjectAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, action);
+                
+                // Resource
+                var xacmlResourceAttribute = subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
+
+                var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
+
+                var actionAttribute = new XacmlContextAttribute(
+                    new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = action });
+
+                var xacmlAction = new XacmlContextAction(actionAttribute);
+
+                // Subject
+                var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id") == false));
+
+                // Environment
+                var xacmlEnvironment = new XacmlContextEnvironment();
+
+                request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
+
+                request.ReturnPolicyIdList = false;
+                request.CombinedDecision = false;
+
+                return request;
+
+            default:
+                return null;
         }
-
-        if (xacmlVersion == Constants.Xacml.XacmlVersion.Version20)
-        {
-
-            var actionAttribute = new XacmlContextAttribute(
-                new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = action });
-
-            var xacmlAction = new XacmlContextAction(actionAttribute);
-
-            // Subject
-            var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id") == false));
-
-            // Environment
-            var xacmlEnvironment = new XacmlContextEnvironment();
-
-            var request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
-
-            request.ReturnPolicyIdList = false;
-            request.CombinedDecision = false;
-
-            return request;
-        }
-
-        return null;
     }
 
     private List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
@@ -270,8 +271,29 @@ public class PolicyAuthorizationService
 
     public async Task<XacmlContextRequest?> GetXacml30RequestFromSoapEnvelope(string inputSoapEnvelope)
     {
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var samlAssertion = GetSamlTokenFromSoapEnvelope(inputSoapEnvelope);
+        var action = MapXacmlActionFromSoapAction(GetActionFromSoapEnvelope(inputSoapEnvelope));
+        return await GetXacmlRequestFromSamlToken(samlAssertion, action, Constants.Xacml.XacmlVersion.Version30);
+    }
 
+    public async Task<XacmlContextRequest?> GetXacml20RequestFromSoapEnvelope(string inputSoapEnvelope)
+    {
+        var samlAssertion = GetSamlTokenFromSoapEnvelope(inputSoapEnvelope);
+        var action = MapXacmlActionFromSoapAction(GetActionFromSoapEnvelope(inputSoapEnvelope));
+        return await GetXacmlRequestFromSamlToken(samlAssertion, action, Constants.Xacml.XacmlVersion.Version20);
+    }
+
+
+    public string? GetActionFromSoapEnvelope(string? inputSoapEnvelope)
+    {
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(inputSoapEnvelope);
+
+        return soapEnvelopeObject.Header.Action;
+    }
+
+    private string? GetSamlTokenFromSoapEnvelope(string inputSoapEnvelope)
+    {
         var soapEnvelopeXmlDocument = new XmlDocument();
         try
         {
@@ -282,7 +304,6 @@ public class PolicyAuthorizationService
             return null;
         }
 
-        var soapEnvelopeObject = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(inputSoapEnvelope);
 
         var assertion = soapEnvelopeXmlDocument.GetElementsByTagName("saml:Assertion");
 
@@ -291,9 +312,7 @@ public class PolicyAuthorizationService
             throw new Exception("No SAML Assertion found in the SOAP envelope.");
         }
 
-        var samlAssertion = assertion[0]?.OuterXml;
-
-        return await GetXacmlRequestFromSamlToken(samlAssertion, soapEnvelopeObject.Header.Action, Constants.Xacml.XacmlVersion.Version20);
+        return assertion[0]?.OuterXml;
     }
 
     private static string MapXacmlActionFromSoapAction(string action)

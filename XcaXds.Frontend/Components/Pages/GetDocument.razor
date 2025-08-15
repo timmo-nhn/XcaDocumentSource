@@ -338,7 +338,7 @@
         try
         {
             // Validate SOAP request
-            var soapRequest = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(requestMessage);
+            var soapRequest = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestMessage);
         }
         catch (Exception ex)
         {
@@ -368,7 +368,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var responseStream = await response.Content.ReadAsStreamAsync();
-                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                ResponseEnvelope =  sxmls.DeserializeSoapMessage<SoapEnvelope>(responseStream);
                 
                 if (ResponseEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length > 0)
                 {
@@ -394,7 +394,7 @@
             else
             {
                 var responseStream = await response.Content.ReadAsStreamAsync();
-                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                ResponseEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(responseStream);
                 
                 messages.Add(new ToastMessage
                 {

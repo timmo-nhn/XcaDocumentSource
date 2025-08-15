@@ -25,17 +25,17 @@ public class SoapService
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStreamAsync();
-                var soapResponse = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(content);
+                var soapResponse = sxmls.DeserializeSoapMessage<SoapEnvelope>(content);
                 var success = soapResponse.Header.Action is not Constants.Soap.Namespaces.AddressingSoapFault;
                 return new SoapRequestResult<SoapEnvelope>() { Value = soapResponse, IsSuccess = success };
             }
 
             var errorContent = await response.Content.ReadAsStreamAsync();
-            var soapington = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(errorContent);
+            var soapington = sxmls.DeserializeSoapMessage<SoapEnvelope>(errorContent);
             return new SoapRequestResult<SoapEnvelope>() { Value = soapington, IsSuccess = false };
         }
 
-        var serializationFault = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(soapSerialization.Content);
+        var serializationFault = sxmls.DeserializeSoapMessage<SoapEnvelope>(soapSerialization.Content);
         return new SoapRequestResult<SoapEnvelope>() { Value = serializationFault, IsSuccess = false };
     }
 

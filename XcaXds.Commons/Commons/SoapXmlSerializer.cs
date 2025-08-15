@@ -38,20 +38,20 @@ public class SoapXmlSerializer
 
     }
 
-    public async Task<T> DeserializeSoapMessageAsync<T>(string xmlString)
+    public T DeserializeSoapMessage<T>(string xmlString)
     {
         var byteArray = Encoding.UTF8.GetBytes(xmlString);
         var memStream = new MemoryStream(byteArray);
-        return await DeserializeSoapMessageAsync<T>(memStream);
+        return DeserializeSoapMessage<T>(memStream);
     }
 
-    public async Task<T> DeserializeSoapMessageAsync<T>(Stream xmlStream)
+    public T DeserializeSoapMessage<T>(Stream xmlStream)
     {
         var serializer = new XmlSerializer(typeof(T));
 
         using (var streamReader = new StreamReader(xmlStream))
         {
-            var xmlContent = await streamReader.ReadToEndAsync();
+            var xmlContent = streamReader.ReadToEnd();
 
             Console.WriteLine(xmlContent);
 

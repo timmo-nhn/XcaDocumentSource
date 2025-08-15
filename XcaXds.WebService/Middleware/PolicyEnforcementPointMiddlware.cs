@@ -77,7 +77,7 @@ public class PolicyEnforcementPointMiddlware
         switch (contentType)
         {
             case "application/soap+xml":
-                xacmlRequest = await _policyAuthorizationService.GetXacml30RequestFromSoapEnvelope(httpContent);
+                xacmlRequest = await _policyAuthorizationService.GetXacml20RequestFromSoapEnvelope(httpContent);
                 break;
 
             case "application/json":
@@ -101,9 +101,6 @@ public class PolicyEnforcementPointMiddlware
             requestData = serializer.ReadContextRequest(reader);
         }
 
-        var policyRepository = new PolicyRepository();
-
-        //policyRepository.RequestPolicy(new Uri(""));
 
         //var policy = new XmlDocument();
         //policy.LoadXml(policyFile);
@@ -144,50 +141,61 @@ public static class XacmlSerializer
         using var xmlWriter = XmlWriter.Create(stringWriter, settings);
 
         xmlWriter.WriteStartDocument();
-        xmlWriter.WriteStartElement("Request", Constants.Xacml.Namespace.WD17);
+
+        if (request.Resources.Count == 0)
+        {
+            // XACML 3.0
+            xmlWriter.WriteStartElement("Request", Constants.Xacml.Namespace.WD17);
+        }
+        else
+        {
+            // XACML 2.0
+            xmlWriter.WriteStartElement("Request", Constants.Xacml.Namespace.OS);
+        }
 
         xmlWriter.WriteAttributeString("ReturnPolicyIdList", request.ReturnPolicyIdList.ToString().ToLower());
         xmlWriter.WriteAttributeString("CombinedDecision", request.CombinedDecision.ToString().ToLower());
 
+        // Request.Subjects, Request.Resources etc. is essentially a XACML Version check, V2 is populated, while V3 has everything in resource.Attributes
+
         if (request.Subjects.Count == 0)
         {
             var subjectAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("subject")));
-            WriteCategoryAttributes(xmlWriter, subjectAttributes, Constants.Xacml.Category.Subject);
+            WriteCategoryAttributes(xmlWriter, subjectAttributes, Constants.Xacml.Category.V30_Subject);
         }
         else
         {
-            WriteSubject(xmlWriter, request.Subjects);
+            WriteSubject(xmlWriter, request.Subjects, Constants.Xacml.Category.V20_Subject);
         }
 
         if (request.Resources.Count == 0)
         {
             var resourceAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("resource-id")));
-            WriteCategoryAttributes(xmlWriter, resourceAttributes, Constants.Xacml.Category.Resource);
+            WriteCategoryAttributes(xmlWriter, resourceAttributes, Constants.Xacml.Category.V30_Resource);
         }
         else
         {
-            WriteResources(xmlWriter, request.Resources);
+            WriteResources(xmlWriter, request.Resources, Constants.Xacml.Category.V20_Resource);
         }
 
         if (request.Action == null)
         {
             var actionAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("action-id")));
-            WriteCategoryAttributes(xmlWriter, actionAttributes, Constants.Xacml.Category.Action);
+            WriteCategoryAttributes(xmlWriter, actionAttributes, Constants.Xacml.Category.V30_Action);
         }
         else
         {
-            WriteAction(xmlWriter, request.Action);
+            WriteAction(xmlWriter, request.Action, Constants.Xacml.Category.V20_Action);
         }
 
         if (request.Environment == null)
         {
             var environmentAttributes = request.Attributes.Where(xatt => xatt.Attributes.Any(xid => xid.AttributeId.AbsolutePath.Contains("environment")));
-            WriteCategoryAttributes(xmlWriter, environmentAttributes, Constants.Xacml.Category.Environment);
-
+            WriteCategoryAttributes(xmlWriter, environmentAttributes, Constants.Xacml.Category.V30_Environment);
         }
         else
         {
-            WriteEnvironment(xmlWriter, request.Environment);
+            WriteEnvironment(xmlWriter, request.Environment, Constants.Xacml.Category.V20_Environment);
         }
 
         xmlWriter.WriteEndElement();
@@ -211,15 +219,17 @@ public static class XacmlSerializer
             xmlWriter.WriteStartElement("Attributes");
             xmlWriter.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
             xmlWriter.WriteAttributeString("Category", category);
+
             foreach (var attr in attribute.Attributes)
             {
                 WriteAttribute(xmlWriter, attr);
             }
+
             xmlWriter.WriteEndElement();
         }
     }
 
-    private static void WriteSubject(XmlWriter xmlWriter, ICollection<XacmlContextSubject> subjects)
+    private static void WriteSubject(XmlWriter xmlWriter, ICollection<XacmlContextSubject> subjects, string category)
     {
         if (subjects == null || subjects.Count() == 0) return;
 
@@ -227,16 +237,17 @@ public static class XacmlSerializer
         {
             xmlWriter.WriteStartElement("Attributes");
             xmlWriter.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
-            xmlWriter.WriteAttributeString("Category", Constants.Xacml.Category.Subject);
+            xmlWriter.WriteAttributeString("Category", Constants.Xacml.Category.V20_Subject);
             foreach (var attr in subject.Attributes)
             {
                 WriteContextAttribute(xmlWriter, attr);
             }
+
             xmlWriter.WriteEndElement();
         }
     }
 
-    private static void WriteResources(XmlWriter writer, IEnumerable<XacmlContextResource> resources)
+    private static void WriteResources(XmlWriter writer, IEnumerable<XacmlContextResource> resources, string category)
     {
         if (resources == null || resources.Count() == 0) return;
 
@@ -244,7 +255,7 @@ public static class XacmlSerializer
         {
             writer.WriteStartElement("Attributes");
             writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
-            writer.WriteAttributeString("Category", Constants.Xacml.Category.Resource);
+            writer.WriteAttributeString("Category", Constants.Xacml.Category.V20_Resource);
 
             foreach (var attr in resource.Attributes)
                 WriteContextAttribute(writer, attr);
@@ -253,14 +264,13 @@ public static class XacmlSerializer
         }
     }
 
-    private static void WriteAction(XmlWriter writer, XacmlContextAction action)
+    private static void WriteAction(XmlWriter writer, XacmlContextAction action, string category)
     {
         if (action == null) return;
 
-
         writer.WriteStartElement("Attributes");
         writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
-        writer.WriteAttributeString("Category", Constants.Xacml.Category.Action);
+        writer.WriteAttributeString("Category", category);
 
         foreach (var attr in action.Attributes)
             WriteContextAttribute(writer, attr);
@@ -269,13 +279,13 @@ public static class XacmlSerializer
 
     }
 
-    private static void WriteEnvironment(XmlWriter writer, XacmlContextEnvironment environment)
+    private static void WriteEnvironment(XmlWriter writer, XacmlContextEnvironment environment, string category)
     {
         if (environment == null) return;
 
         writer.WriteStartElement("Attributes");
         writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
-        writer.WriteAttributeString("Category", Constants.Xacml.Category.Environment);
+        writer.WriteAttributeString("Category", category);
 
         foreach (var attr in environment.Attributes)
             WriteContextAttribute(writer, attr);

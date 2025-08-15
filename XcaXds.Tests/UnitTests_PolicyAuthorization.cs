@@ -7,13 +7,14 @@ using Abc.Xacml.Policy;
 using Abc.Xacml.Runtime;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
+using XcaXds.Source.Source;
 
 namespace XcaXds.UnitTests;
 
 public class UnitTests_PolicyAuthorization
 {
     [Fact]
-    public async Task Authorization_Policy_ShouldPermit()
+    public async Task AuthZ_Xacml30_Policy_ShouldPermit()
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
@@ -27,7 +28,7 @@ public class UnitTests_PolicyAuthorization
 
         XacmlPolicy policy01;
 
-        var policyFile = File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("Policy01")), Encoding.UTF8);
+        var policyFile = File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("Policy01_Xacml30")), Encoding.UTF8);
 
         using (XmlReader reader = XmlReader.Create(new StringReader(policyFile)))
         {
@@ -40,6 +41,58 @@ public class UnitTests_PolicyAuthorization
         var evalResult = ngin.Evaluate(xacmlObject, requestDoc);
 
         var jsoncontextresponse = JsonSerializer.Serialize(evalResult);
-        Assert.Equal(evalResult.Results.FirstOrDefault().Decision,XacmlContextDecision.Permit);
+        Assert.Equal(XacmlContextDecision.Permit, evalResult.Results.FirstOrDefault()?.Decision);
+    }
+
+    [Fact]
+    public async Task AuthZ_Xacml20_Policy_ShouldPermit()
+    {
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
+        var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
+
+        var policyService = new PolicyAuthorizationService();
+
+        XacmlContextRequest xacmlObject = await policyService.GetXacml20RequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
+        var requestXml = XacmlSerializer.SerializeRequestToXml(xacmlObject);
+        var requestDoc = new XmlDocument();
+        requestDoc.LoadXml(requestXml);
+
+        XacmlPolicy policy01;
+
+        var policyFile = File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("Policy01_Xacml20")), Encoding.UTF8);
+
+        using (XmlReader reader = XmlReader.Create(new StringReader(policyFile)))
+        {
+            var serialize = new Xacml20ProtocolSerializer();
+            policy01 = serialize.ReadPolicy(reader);
+        }
+
+        var ngin = new EvaluationEngine(policy01);
+
+        var evalResult = ngin.Evaluate(xacmlObject, requestDoc);
+
+        var jsoncontextresponse = JsonSerializer.Serialize(evalResult);
+        Assert.Equal(XacmlContextDecision.Permit, evalResult.Results.FirstOrDefault()?.Decision);
+    }
+
+    [Fact]
+    public async Task AuthZ_Xacml20_PolicyService()
+    {
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
+        var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
+
+        var policyService = new PolicyAuthorizationService();
+
+        var policyWrapper = new PolicyRepositoryWrapper(new FileBasedPolicyRepository());
+
+
+        XacmlContextRequest xacmlObject = await policyService.GetXacml20RequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
+        var requestXml = XacmlSerializer.SerializeRequestToXml(xacmlObject);
+        var requestDoc = new XmlDocument();
+        requestDoc.LoadXml(requestXml);
+
+        var evalResult = policyWrapper.EvaluateReqeust_V20(xacmlObject);
+
+        Assert.Equal(XacmlContextDecision.Permit, evalResult.Results.FirstOrDefault()?.Decision);
     }
 }

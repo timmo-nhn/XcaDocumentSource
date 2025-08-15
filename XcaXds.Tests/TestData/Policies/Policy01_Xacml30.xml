@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17"
+﻿<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17"
         PolicyId="ReadDocumentPolicy_KvartGrevling"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-unless-permit"
         Version="1.0">

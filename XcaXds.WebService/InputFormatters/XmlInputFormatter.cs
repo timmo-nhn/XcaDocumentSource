@@ -49,7 +49,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
 
         try
         {
-            var soapEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(xmlContent);
+            var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(xmlContent);
 
             bindingContext.Result = ModelBindingResult.Success(soapEnvelope);
         }

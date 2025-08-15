@@ -1,0 +1,29 @@
+﻿<Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+		PolicyId="ReadDocumentPolicy_KvartGrevling"
+		RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides"
+		Version="1.0">
+
+	<Target>
+		<Subjects>
+			<Subject>
+				<SubjectMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GOBB GÆBB</AttributeValue>
+					<SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+													DataType="http://www.w3.org/2001/XMLSchema#string"/>
+				</SubjectMatch>
+			</Subject>
+		</Subjects>
+
+		<Actions>
+			<Action>
+				<ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+					<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
+					<ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+												DataType="http://www.w3.org/2001/XMLSchema#string"/>
+				</ActionMatch>
+			</Action>
+		</Actions>
+	</Target>
+
+	<Rule RuleId="PermitRead" Effect="Permit"/>
+</Policy>

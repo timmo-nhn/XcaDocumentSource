@@ -87,7 +87,7 @@
         requestMessage = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
         try
         {
-            var soapRequest = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(requestMessage);
+            var soapRequest = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestMessage);
         }
         catch (Exception ex)
         {
@@ -107,7 +107,7 @@
             if (soapRequestResponse.IsSuccessStatusCode)
             {
                 var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
-                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                ResponseEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(responseStream);
                 StateHasChanged();
             }
         }

@@ -196,7 +196,7 @@ public class UnitTests_Soap
 
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
-        var soapEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(soapMessage);
+        var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(soapMessage);
 
         var xmlDocument = new XmlDocument();
 

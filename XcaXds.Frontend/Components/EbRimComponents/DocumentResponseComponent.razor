@@ -75,7 +75,7 @@ else
         documentTextContent = Encoding.UTF8.GetString(documentResponse.Document);
         if (documentTextContent.Contains("<ClinicalDocument"))
         {
-            clinicalDocument = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(documentTextContent);
+            clinicalDocument = sxmls.DeserializeSoapMessage<ClinicalDocument>(documentTextContent);
         }
 
     }

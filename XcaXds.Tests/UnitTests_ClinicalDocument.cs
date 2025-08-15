@@ -20,7 +20,7 @@ public class UnitTests_ClinicalDocument
 
             var fileContent = File.ReadAllText(file);
 
-            var docc = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(fileContent);
+            var docc = sxmls.DeserializeSoapMessage<ClinicalDocument>(fileContent);
 
             var doccCDA = sxmls.SerializeSoapMessageToXmlString(docc);
 
@@ -82,6 +82,6 @@ public class UnitTests_ClinicalDocument
         var cdaDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, document);
         var sxmls = new SoapXmlSerializer();
         var cdaXml = sxmls.SerializeSoapMessageToXmlString(cdaDocument).Content;
-        var cdaDocumentAgain = await sxmls.DeserializeSoapMessageAsync<ClinicalDocument>(cdaXml);
+        var cdaDocumentAgain = sxmls.DeserializeSoapMessage<ClinicalDocument>(cdaXml);
     }
 }

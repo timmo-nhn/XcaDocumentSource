@@ -325,7 +325,7 @@
 
         try
         {
-            var soapRequest = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(requestMessage);
+            var soapRequest = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestMessage);
             if (soapRequest.Body.AdhocQueryRequest is not null && adhocQueryInput.Value is not null)
             {
                 soapRequest.Body.AdhocQueryRequest.AdhocQuery.Id = adhocQueryInput.Value;
@@ -359,7 +359,7 @@
             if (soapRequestResponse.IsSuccessStatusCode)
             {
                 var responseStream = await soapRequestResponse.Content.ReadAsStreamAsync();
-                ResponseEnvelope = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(responseStream);
+                ResponseEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(responseStream);
                 
                 messages.Add(new ToastMessage
                 {

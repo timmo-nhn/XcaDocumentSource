@@ -32,7 +32,7 @@ public class UnitTests_RegistryObjects
         using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("PnR")));
         var fileContent = await reader.ReadToEndAsync();
 
-        var docc = await sxmls.DeserializeSoapMessageAsync<SoapEnvelope>(fileContent);
+        var docc = sxmls.DeserializeSoapMessage<SoapEnvelope>(fileContent);
 
         try
         {
@@ -82,7 +82,7 @@ public class UnitTests_RegistryObjects
         using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.xml")));
 
         var content = await reader.ReadToEndAsync();
-        var registryContent = await sxmls.DeserializeSoapMessageAsync<XmlDocumentRegistry>(content);
+        var registryContent = sxmls.DeserializeSoapMessage<XmlDocumentRegistry>(content);
 
 
         var documentDtoEntries = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
