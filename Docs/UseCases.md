@@ -40,11 +40,11 @@ A hospital wants to share documents using XcaDocumentSource, but their storage s
 
 #### Use Case Flow:
 * After discharge, the hospital’s EPR system sends a CDA discharge summary.
-* PJD.XcaDocumentSource registers it with the national XCA infrastructure.
-* GPs and municipal care teams query and retrieve the document seamlessly.
+* The EPR system is connected both to its existing storage solution, but also **PJD.XcaDocumentSource**
+* This allows their existing document storage solution to stay unchanged, while a copy of all the data in the "internal" repository is forwarded to **PJD.XcaDocumentSource**
 
 #### Benefits:
-Ensures continuity of care and informed follow-up treatment.
+Ensures continuity of care and interoperability without migrating storage solutions.
 
 ```mermaid
 %%{init: {'theme':'dark'}}%%
@@ -66,18 +66,4 @@ regrep2<--Stores documents-->epr
 
 nhnxca<--Queries-->xcads<--Retrieves-->regrep1
 ```
-*Municipality sharing documents via XcaDocumentSource*
-
-
-### 3. Private Specialist Making Consult Notes Available to Hospitals
-
-#### Scenario:
-A private dermatologist or cardiologist needs to ensure that their consult findings are accessible to the referring hospital or emergency department.
-
-#### Use Case Flow:
-* Specialist uploads or sends consult note (CDA, PDF) to the integration system.
-* Integration with PJD.XcaDocumentSource makes the document available with appropriate access rights.
-* Hospitals query using the national gateway and retrieve the documents.
-
-#### Benefit:
-Reduces duplicated effort, supports informed emergency care.
+*Hospital sharing copy of stored documents via XcaDocumentSource*

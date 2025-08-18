@@ -8,7 +8,7 @@ using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
-using XcaXds.WebService.Services;
+using XcaXds.Commons.Services;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
@@ -93,8 +93,10 @@ public class Program
         builder.Services.AddScoped<Hl7RegistryService>();
         builder.Services.AddSingleton<RepositoryWrapper>();
         builder.Services.AddSingleton<RegistryWrapper>();
+        builder.Services.AddSingleton<PolicyRepositoryWrapper>();
         builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
+        builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
 
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
@@ -103,7 +105,6 @@ public class Program
         builder.Services.AddScoped<XdsOnFhirService>();
 
         builder.Services.AddHostedService<AppStartupService>();
-        builder.Services.AddSingleton<PolicyAuthorizationService>();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

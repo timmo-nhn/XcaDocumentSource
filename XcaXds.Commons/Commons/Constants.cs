@@ -627,7 +627,8 @@ public static class Constants
         public static class Namespace
         {
             public const string WD17 = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
-            public const string OS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
+            public const string Policy_OS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
+            public const string Context_OS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
         }
     }
 }

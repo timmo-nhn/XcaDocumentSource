@@ -1,8 +1,8 @@
-## SOAP-Message and SOAP-message formats  
+# SOAP-Message and SOAP-message formats  
 An **XML SOAP-message** (also known as **SOAP-envelope**) is defined by an enclosing `<Envelope>`-tag and a `<Header>` and `<Body>` tag. The Header holds information about the request in the Body, such as the Action performed.
 **SOAP-messages** are commonly transmitted over **HTTPS** as a `POST`-request, with the **SOAP message** as the request payload.
 
-### Sample SOAP-message
+## Sample SOAP-message
 ```xml
 <Envelope>
     <Header>
@@ -24,7 +24,7 @@ An **XML SOAP-message** (also known as **SOAP-envelope**) is defined by an enclo
 
 There is excpected to be a **1:1 relationship** between the **SOAP action** (`<Action>`-field in the **SOAP-header**) and the content in the request `<Body>` (`<AdhocQueryRequest>` in this case)
 
-### SOAP-Envelope and `<Body>`-content
+## SOAP-Envelope and `<Body>`-content
 The content of the body might seem like it's related to the SOAP-body itself, but they are not the same. In the example above, the `<AdhocQueryRequest>` XML-part is called the ITI-message, while the rest is the SOAP-envelope. It can be abstracted to this:
 ```mermaid
 %%{init: {'theme':'dark'}}%%
@@ -36,7 +36,7 @@ end
 ```
 *ITI-message inside a SOAP-envelope*
 
-### Terminology in Document sharing
+## Terminology in Document sharing
 | Term  | Definition | Example |
 |---|---|---|
 | Assigning Authority | Used in conjunction with metadata. Consists of an unique identifier for the organization or system responsible for governing or producing said data. Also used for defining the format of the data. | `13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO` <br> *Here the **OID** identifies the **assigning authority** for defining what the numbers `13116900216` represent (`<Birth-number>^^^<OID defining birth numbers>`)*  |
@@ -318,7 +318,7 @@ More on ebXML RegRep [OASIS ebXML RegRep Version 3.0 - docs.oasis-open.org ↗](
 
 
 #### AssociationType (`<Association>`)  
-An `<Association>` is used to bind two or more **types** together in order to create a logical connection between them. This is done using attributes `sourceObject` and `targetObject`. An `<Association>` can have multiple states based on its `associationType`
+An `<Association>` is used to bind two or more **types** together in order to create a logical connection between them. This is done using attributes `sourceObject` and `targetObject` attributes, referencing the unique identifiers of the associated types. An `<Association>` can have multiple states based on its `associationType`
 
 | Property  | Description |
 |---|---|
@@ -360,6 +360,7 @@ graph LR
     ex[ExtrinsicObject]
     
     subgraph "Association"
+        id[id]
         so[sourceObject]
         to[targetObject]
     end
@@ -367,10 +368,10 @@ graph LR
     re[RegistryPackage]
     do[Document]
 
-    so--->re
-    to-->ex
+    so--id-->re
+    to--id-->ex
     to-->do
-    do-->ex
+    do<-->ex
 ```
 *Figure x: connection between objects.*
 

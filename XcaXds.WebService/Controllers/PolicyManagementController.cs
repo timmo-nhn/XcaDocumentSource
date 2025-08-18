@@ -26,7 +26,6 @@ public class PolicyManagementController : ControllerBase
     [HttpGet("policy/getall")]
     public async Task<IActionResult> GetAllPolicies(bool asXml = false)
     {
-        _policyRepositoryWrapper.GetAllPolicies();
 
         return Ok();
     }

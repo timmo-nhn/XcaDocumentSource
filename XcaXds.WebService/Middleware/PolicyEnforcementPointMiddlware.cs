@@ -1,17 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Net;
-using System.Text;
 using System.Xml;
 using Abc.Xacml;
 using Abc.Xacml.Context;
-using Abc.Xacml.Policy;
-using Abc.Xacml.Runtime;
-using XcaXds.Commons;
-using XcaXds.Commons.Extensions;
+using Hl7.Fhir.Model.CdsHooks;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
+using XcaXds.Source.Services;
+using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
-using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -21,21 +18,28 @@ public class PolicyEnforcementPointMiddlware
     private readonly ILogger<PolicyEnforcementPointMiddlware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
-    private readonly PolicyAuthorizationService _policyAuthorizationService;
+    private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
 
-    public PolicyEnforcementPointMiddlware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env, PolicyAuthorizationService policyAuthorizationService)
+
+    public PolicyEnforcementPointMiddlware(
+        RequestDelegate next, 
+        ILogger<PolicyEnforcementPointMiddlware> logger,
+        ApplicationConfig xdsConfig,
+        IWebHostEnvironment env,
+        PolicyRepositoryWrapper policyRepositoryWrapper
+        )
     {
         _logger = logger;
         _next = next;
         _xdsConfig = xdsConfig;
         _env = env;
-        _policyAuthorizationService = policyAuthorizationService;
+        _policyRepositoryWrapper = policyRepositoryWrapper;
     }
 
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! PEP bypass is enabled in production!");
+        Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! 'PEP bypass for local requests' is enabled in production!");
 
         // If the request is from localhost and environment is development we can ignore PEP.
         var requestIsLocal = httpContext.Connection.RemoteIpAddress != null &&
@@ -64,59 +68,59 @@ public class PolicyEnforcementPointMiddlware
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
-        XacmlContextRequest? xacmlRequest = null;
 
-        var httpContent = await GetBodyContentFromHttpRequest(httpContext.Request);
+        var requestBody = await GetHttpRequestBody(httpContext.Request);
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
-
-        if (string.IsNullOrWhiteSpace(httpContent))
-        {
-            await _next(httpContext);
-        }
+        
+        XacmlContextRequest? xacmlRequest = null;
 
         switch (contentType)
         {
             case "application/soap+xml":
-                xacmlRequest = await _policyAuthorizationService.GetXacml20RequestFromSoapEnvelope(httpContent);
+                xacmlRequest = await PolicyRequestMapperService.GetXacml20RequestFromSoapEnvelope(requestBody);
                 break;
 
             case "application/json":
-                xacmlRequest = await _policyAuthorizationService.GetXacml20RequestFromJsonWebToken(httpContent);
+                xacmlRequest = await PolicyRequestMapperService.GetXacml20RequestFromJsonWebToken(requestBody);
                 break;
         }
 
-        if (xacmlRequest == null)
-        {
-            await _next(httpContext);
-        }
 
         var request = XacmlSerializer.SerializeRequestToXml(xacmlRequest);
 
-        var serializer = new Xacml30ProtocolSerializer();
+        var serializer = new Xacml20ProtocolSerializer();
 
         XacmlContextRequest requestData;
 
-        using (XmlReader reader = XmlReader.Create(new StringReader(request)))
+        try
         {
-            requestData = serializer.ReadContextRequest(reader);
+            using (XmlReader reader = XmlReader.Create(new StringReader(request)))
+            {
+                requestData = serializer.ReadContextRequest(reader);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
         }
 
 
-        //var policy = new XmlDocument();
-        //policy.LoadXml(policyFile);
+        var evaluateResponse = _policyRepositoryWrapper.EvaluateReqeust_V20(xacmlRequest);
 
+        if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision == XacmlContextDecision.Permit))
+        {
+            httpContext.Response.StatusCode = int.Parse(HttpStatusCode.Unauthorized.ToString());
+            await httpContext.Response.WriteAsync("Unauthorized access.");
+            return;
 
-        //EvaluationEngine engine = EvaluationEngineFactory.Create(policy,);
-
-        //XacmlContextResponse evaluatedResponse = engine.Evaluate(requestData, request);
-
+        }
 
         // Call the next delegate/middleware in the pipeline.
         await _next(httpContext);
     }
 
-    public static async Task<string> GetBodyContentFromHttpRequest(HttpRequest httpRequest)
+    public static async Task<string> GetHttpRequestBody(HttpRequest httpRequest)
     {
         using var reader = new StreamReader(httpRequest.Body, leaveOpen: true);
         var bodyContent = await reader.ReadToEndAsync();

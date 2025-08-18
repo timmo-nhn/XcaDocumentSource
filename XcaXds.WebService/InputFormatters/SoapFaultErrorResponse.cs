@@ -7,8 +7,8 @@ using XcaXds.Commons.Serializers;
 
 
 /// <summary>
-/// For validation errors that occur in between the inputformatter and controller part of the middleware pipeline
-/// IE.: This functions is triggered when the user sends a malformed payload
+/// For validation errors that occur in between the inputformatter and controller part of the middleware pipeline<para/>
+/// Ie. this functions is triggered when the user sends a malformed payload
 /// </summary>
 public static class ErrorResponseFactory
 {

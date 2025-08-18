@@ -7,9 +7,9 @@ using XcaXds.Commons.Commons;
 namespace XcaXds.Commons.Serializers;
 public static class XacmlSerializer
 {
-    public static string? SerializeRequestToXml(XacmlContextRequest request)
+    public static string? SerializeRequestToXml(XacmlContextRequest? request)
     {
-        if (request == null) return null;
+        if (request == null) return string.Empty;
 
         var settings = new XmlWriterSettings()
         {
@@ -31,7 +31,7 @@ public static class XacmlSerializer
         else
         {
             // XACML 2.0
-            xmlWriter.WriteStartElement("Request", Constants.Xacml.Namespace.OS);
+            xmlWriter.WriteStartElement("Request", Constants.Xacml.Namespace.Context_OS);
         }
 
         xmlWriter.WriteAttributeString("ReturnPolicyIdList", request.ReturnPolicyIdList.ToString().ToLower());

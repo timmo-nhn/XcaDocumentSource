@@ -5,14 +5,14 @@
 The solution is **not** a substitute for an EPR system nor a full EPR storage solution; it acts as a translating framework between SOAP messages from NHN's XCA and the implementers **existing** EPR-system.<br><br></span>
 **Norsk helsenett (NHN) does not assume responsibility for the integrity, availability, or confidentiality of patient data handled through deployments based on PJD.XcaDocumentSource. Use of PJD.XcaDocumentSource is at the implementer's own risk, and any integration between PJD.XcaDocumentSource and live Electronic Patient Record (EPR) systems must be thoroughly tested and validated within the implementer’s own governance and compliance frameworks.**
 
-**PJD.XcaDocumentSource** allows healthcare providers to expose their internal, **existing document storage solution** as an **XDS-compliant Registry** and **Repository** interface.  
-The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML**, and **ebRIM** formatted messages behind a simplified **RESTful API layer**. This significantly reduces integration friction with an actor's existing storage solution, by translating complex ITI messages into implementation-defined, simplified internal representations suitable for integration with custom document APIs.
+**PJD.XcaDocumentSource** allows healthcare providers to expose their internal, document storage solution as an **XDS-compliant Registry** and **Repository** interface.  
+The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML**, and **ebRIM** formatted messages behind a simplified **API layer**. This significantly reduces integration friction with an actor's existing storage solution, by translating complex **ITI messages** into implementation-defined, simplified internal representations.
 
 * Implements IHE XCA profile for cross-community access
 * Provides an XDS.b-compatible registry and repository layer backed by customizable storage adapters
 * Supports integration with Norsk Helsenett’s XCA Initiating Gateway
 
-**PJD.XcaDocumentSource** provides basic document registry and repository. However, the reccomended option is for implementers to connect their own storage infrastructure to **PJD.XcaDocumentSource** - whether proprietary, legacy, or standards-based - by implementing custom translation logic between document storage metadata and the simpler, internal data-structures of **PJD.XcaDocumentSource**.
+**PJD.XcaDocumentSource provides basic document registry and repository.** However, the recommended option is for implementers to connect their own storage infrastructure to **PJD.XcaDocumentSource** - whether proprietary, legacy, or standards-based - by implementing custom translation logic between document storage metadata and the simpler, internal data-structures of **PJD.XcaDocumentSource**.
 ```mermaid
 %%{init: {'theme':'dark'}}%%
 flowchart
@@ -125,6 +125,9 @@ Describes the RESTful FHIR and MHD-endpoints (Mobile access to Health Documents)
 
 ### [💠 OIDs (Object Identifiers)](/Docs/Oids.md)
 OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.
+
+### [🏛 Authorization and Access Control](/Docs/AccessControl.md)
+Authorization
 
 ## Other Functionality
 

@@ -1,7 +1,7 @@
-## Transactions In IHE XDS  
+# SOAP-transactions In IHE XDS/XCA  
 Below are the transactions supported by default by **PJD.XcaDocumentSource**. Each transaction section contains a table defining the properties of the transaction.  
 > It is reccomended to read [Xds And Soap](/Docs/XdsAndSoap.md) first, as it gives an introduction to SOAP/ITI messages and the components 
-### ITI-18 - Registry Stored Query 
+## ITI-18 - Registry Stored Query 
 This transaction is used in a dialogue between the Document Requester and the Document Registry to query documents with specific properties.  
 A request with specific search parameters is sent from a Document Requester to the Document Registry, which sends back a list of documents that satisfy the search parameters.
 
@@ -17,14 +17,14 @@ A request with specific search parameters is sent from a Document Requester to t
 
 *ITI-18 request*
 
-#### AdhocQuery Request types  
+### AdhocQuery Request types  
 An `<AdhocQuery>` request can feature different queries for different types of items in the Document Registry. 
 The example below shows an `<AdhocQueryRequest>` with id `urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d` (`FindDocuments`). Each type of `<AdhocQuery>` has different requirements and optionalities for the slots used in the search.
-##### AND/OR semantics
+#### AND/OR semantics
 An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata to search for. Each `<Slot>` in the `<AdhocQueryRequest>` works as a **AND-clause**. However, for some slots, the `<Value>` elements in the `<ValueList>` works as an **OR-clause**. It can be thought of like this:  
 *This slot with this value **AND** that slot with this **OR** that value*
 
-#### Example  
+### Example  
 ```xml
 <AdhocQueryRequest xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
     <ResponseOption returnType="LeafClass" returnComposedObjects="true" />
@@ -75,7 +75,7 @@ An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata
 *Possible Stored Queries in PJD.XcaDocumentSource*
 
 
-#### AdhocQuery Response  
+### AdhocQuery Response  
 In `FindDocuments` stored queries, a **Document Consumer** can choose between two response types:  
 1.	`ObjectRef`: Returns only the documents' unique identificators (UUID) 
 2.	`LeafClass`: Returns all metadata the system  can return.  
@@ -86,7 +86,7 @@ More on [ITI-18 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/
 See [3.18.4.1.2.3.7 Parameters for Required Queries - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7) for more information on query parameters aswell as AND/OR semantics
 
 
-### ITI-38 - Cross Gateway Query 
+## ITI-38 - Cross Gateway Query 
 Cross Gateway Query is essentially Exactly the same as an **ITI-18 AdhocQuery request**, apart from the `<Action>`-field in the `<Header>` of the **SOAP-request**.
 In practice, The ITI-38 request originates from the NHN XCA gateway, and is used when querying documents across **Affinity domains**.  
 Internally, the ITI-38 request is transformed into an **ITI-18** request, and sent via `HTTP` to the Registry-endpoint as a normal **ITI-18-request**.
@@ -106,7 +106,7 @@ Internally, the ITI-38 request is transformed into an **ITI-18** request, and se
 More on [ITI-38 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-38.html)  
 
 
-### ITI-39 - Cross Gateway Retrieve
+## ITI-39 - Cross Gateway Retrieve
 Cross Gateway Retrieve is essentially Exactly the same as an **ITI-43 Retrieve Document Set request**, apart from the `<Action>`-field in the `<Header>` of the **SOAP-request**.
 In practice, The ITI-39 request originates from the NHN XCA gateway, and is used when querying documents across **Affinity domains**.  
 Internally, the ITI-39 request is transformed into an **ITI-43** request, and sent via `HTTP` to the Repository-endpoint as a normal **ITI-43-request**.
@@ -126,7 +126,7 @@ Internally, the ITI-39 request is transformed into an **ITI-43** request, and se
 More on [ITI-39 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-39.html)  
 
 
-### ITI-41 Provide and Register Document Set.b
+## ITI-41 Provide and Register Document Set.b
 The ITI-41 transaction is used to upload **metadata** and **documents** to the Document Registry and Repository, respectively. Internally, the **ITI-41 request** is transformed into an **ITI-42 request**, which is sent to the **Registry**. If the **Registry Request** is successful, the document is uploaded to the **Repository**. If an error occurs while uploading the Registry content, the request is aborted (atomicity). 
 
 > The **ITI-41** (and **ITI-42**) transactions can seem intimidating in size.
@@ -145,7 +145,7 @@ However, it's merely a culmination of the types and formats explained earlier in
 *ITI-41 request*
 
 
-#### Example  
+### Example  
 ```xml
 <ProvideAndRegisterDocumentSetRequest xmlns="urn:ihe:iti:xds-b:2007">
     <SubmitObjectsRequest xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
@@ -196,7 +196,7 @@ However, it's merely a culmination of the types and formats explained earlier in
 More on [ITI-41 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-41.html)  
 
 
-### ITI-42 Register Document Set.b
+## ITI-42 Register Document Set.b
 Register Document Set is used to upload metadata to the **Document Registry**. A `<RegisterDocumentSetRequest>` is provided, containing the items to be added to the Registry. **Similar to ITI-41**, the metadata or associated resources for a patient is provided, **however**, in this case, **no actual document is provided**. This might be because the document already exists elsewhere or because only registering metadata is appropriate.
 
 | Property  | Description |
@@ -213,7 +213,7 @@ Register Document Set is used to upload metadata to the **Document Registry**. A
 
 
 
-#### Example  
+### Example  
 ```xml
 <RegisterDocumentSetRequest xmlns="urn:ihe:iti:xds-b:2007">
     <SubmitObjectsRequest xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
@@ -265,7 +265,7 @@ Register Document Set is used to upload metadata to the **Document Registry**. A
 More on [ITI-42 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-42.html)  
 
 
-### ITI-43 - Retrieve Document Set 
+## ITI-43 - Retrieve Document Set 
 ITI-43 is used by Document Consumer to retrieve one or more documents from Document Repository.  
 The Document Consumer must use the following attributes received from `<AdhocQueryResponse>` via **ITI-18 Registry Stored Query**:  
 
@@ -291,7 +291,7 @@ The Document Consumer must use the following attributes received from `<AdhocQue
 >**🚩 National Extension**<br> [IHE ITI-TF Vol.3 4.2.3.2.26 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume3/ch-4.2.html#4.2.3.2.26) specifies constraints for a document unique ID. **PJD.XcaDocumentSource, aswell as other document sources in norway, does not enforce these constraints by default** - this falls onto the producing application
 
 
-#### Example  
+### Example  
 ```xml
 <ns2:RetrieveDocumentSetRequest
     xmlns:ns2="urn:ihe:iti:xds-b:2007">
@@ -320,7 +320,7 @@ The Document Consumer must use the following attributes received from `<AdhocQue
 More on [ITI-43 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume2/ITI-43.html)  
 
 
-### ITI-62 Remove Objects Request
+## ITI-62 Remove Objects Request
 Remove objects is used to remove objects from the **Document Registry**. A list of `<ObjectRef>`s are provided, specifying the identifier for each item to be removed from the **Registry**.
 
 | Property  | Description |
@@ -336,7 +336,7 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 *ITI-62 request*
 
 
-#### Example  
+### Example  
 ```xml
 <lcm:RemoveObjectsRequest xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
     <rim:ObjectRefList xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
@@ -358,7 +358,7 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 
 *Cardinality of RemoveObjectsRequest*
 
-### ITI-86 Delete Document Set
+## ITI-86 Delete Document Set
 Remove objects is used to remove objects from the **Document Registry**. A list of `<ObjectRef>`s are provided, specifying the identifier for each item to be removed from the **Registry**.
 
 | Property  | Description |
@@ -374,7 +374,7 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 *ITI-86 request*
 
 
-#### Example  
+### Example  
 ```xml
 <rmd:RemoveDocumentsRequest xmlns:rmd="urn:ihe:iti:rmd:2017">
     <xds:DocumentRequest xmlns:xds="urn:ihe:iti:xds-b:2007">

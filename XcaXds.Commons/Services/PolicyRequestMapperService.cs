@@ -2,7 +2,6 @@
 using System.Xml;
 using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -11,23 +10,17 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.Commons.Services;
 
-public class PolicyAuthorizationService
+public static class PolicyRequestMapperService
 {
-    public PolicyAuthorizationService()
-    {
-
-    }
-
-    public async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(string inputJson)
+    public static async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(string inputJson)
     {
         XacmlContextRequest contextRequest = null;
         return contextRequest;
     }
 
-
-    public async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(string inputSamlToken, string action, Constants.Xacml.XacmlVersion xacmlVersion)
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(string inputSamlToken, string action, Constants.Xacml.XacmlVersion xacmlVersion)
     {
         if (inputSamlToken == null || action == null)
         {
@@ -39,12 +32,12 @@ public class PolicyAuthorizationService
         return await GetXacmlRequestFromSamlToken(samlToken, action, xacmlVersion);
     }
 
-    public async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, Constants.Xacml.XacmlVersion xacmlVersion)
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, Constants.Xacml.XacmlVersion xacmlVersion)
     {
         var authStatement = samlToken.Assertion.Statements.OfType<Saml2AuthenticationStatement>().FirstOrDefault();
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
-        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml"));
+        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa"));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
@@ -54,7 +47,7 @@ public class PolicyAuthorizationService
         {
             case Constants.Xacml.XacmlVersion.Version30:
                 var xacmlAllAttributes = MapSamlAttributesToXacml30Properties(samltokenAuthorizationAttributes, action);
-                
+
                 var xacmlActionAttribute = new XacmlAttribute(new Uri(Constants.Xacml.Attribute.ActionId), false);
                 var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), action);
                 xacmlActionAttribute.AttributeValues.Add(xacmlActionAttributeValue);
@@ -85,7 +78,7 @@ public class PolicyAuthorizationService
 
             case Constants.Xacml.XacmlVersion.Version20:
                 var subjectAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, action);
-                
+
                 // Resource
                 var xacmlResourceAttribute = subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
 
@@ -114,7 +107,7 @@ public class PolicyAuthorizationService
         }
     }
 
-    private List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
+    private static List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
     {
         var xacmlAllAttributes = new List<XacmlAttribute>();
         // SAML token values, map to XACML values
@@ -167,7 +160,7 @@ public class PolicyAuthorizationService
         return xacmlAllAttributes;
     }
 
-    private List<XacmlContextAttribute> MapSamlAttributesToXacml20Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
+    private static List<XacmlContextAttribute> MapSamlAttributesToXacml20Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
     {
         var subjectAttributes = new List<XacmlContextAttribute>();
 
@@ -226,7 +219,7 @@ public class PolicyAuthorizationService
         return subjectAttributes;
     }
 
-    private CodedValue? GetSamlAttributeValueAsCodedValue(string attributeValue)
+    private static CodedValue? GetSamlAttributeValueAsCodedValue(string attributeValue)
     {
         string code = null;
         string codeSystem = null;
@@ -240,8 +233,8 @@ public class PolicyAuthorizationService
 
             var type = attributes?.GetNamedItem("type")?.Value;
 
-            code = attributes?.GetNamedItem("code")?.Value;
-            codeSystem = attributes?.GetNamedItem("codeSystem")?.Value?.NoUrn();
+            code = attributes?.GetNamedItem("code")?.Value ?? attributes?.GetNamedItem("extension")?.Value;
+            codeSystem = attributes?.GetNamedItem("codeSystem")?.Value?.NoUrn() ?? attributes?.GetNamedItem("root")?.Value?.NoUrn();
             displayName = attributes?.GetNamedItem("displayName")?.Value;
         }
         catch (Exception)
@@ -255,7 +248,7 @@ public class PolicyAuthorizationService
         }
 
         var hl7ObjectValue = Hl7Object.Parse<CX>(attributeValue);
-        if (hl7ObjectValue != null)
+        if (hl7ObjectValue != null && hl7ObjectValue.AssigningAuthority != null)
         {
             code ??= hl7ObjectValue.IdNumber;
             codeSystem ??= hl7ObjectValue.AssigningAuthority.UniversalId;
@@ -269,14 +262,14 @@ public class PolicyAuthorizationService
         };
     }
 
-    public async Task<XacmlContextRequest?> GetXacml30RequestFromSoapEnvelope(string inputSoapEnvelope)
+    public static async Task<XacmlContextRequest?> GetXacml30RequestFromSoapEnvelope(string inputSoapEnvelope)
     {
         var samlAssertion = GetSamlTokenFromSoapEnvelope(inputSoapEnvelope);
         var action = MapXacmlActionFromSoapAction(GetActionFromSoapEnvelope(inputSoapEnvelope));
         return await GetXacmlRequestFromSamlToken(samlAssertion, action, Constants.Xacml.XacmlVersion.Version30);
     }
 
-    public async Task<XacmlContextRequest?> GetXacml20RequestFromSoapEnvelope(string inputSoapEnvelope)
+    public static async Task<XacmlContextRequest?> GetXacml20RequestFromSoapEnvelope(string inputSoapEnvelope)
     {
         var samlAssertion = GetSamlTokenFromSoapEnvelope(inputSoapEnvelope);
         var action = MapXacmlActionFromSoapAction(GetActionFromSoapEnvelope(inputSoapEnvelope));
@@ -284,7 +277,7 @@ public class PolicyAuthorizationService
     }
 
 
-    public string? GetActionFromSoapEnvelope(string? inputSoapEnvelope)
+    public static string? GetActionFromSoapEnvelope(string? inputSoapEnvelope)
     {
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
         var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(inputSoapEnvelope);
@@ -292,7 +285,7 @@ public class PolicyAuthorizationService
         return soapEnvelopeObject.Header.Action;
     }
 
-    private string? GetSamlTokenFromSoapEnvelope(string inputSoapEnvelope)
+    private static string? GetSamlTokenFromSoapEnvelope(string inputSoapEnvelope)
     {
         var soapEnvelopeXmlDocument = new XmlDocument();
         try

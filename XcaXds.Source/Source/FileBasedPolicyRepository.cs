@@ -53,8 +53,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
     public bool AddPolicy(XacmlPolicy xacmlPolicy)
     {
-        Xacml20ProtocolSerializer serializer = new Xacml20ProtocolSerializer();
-        string xmlXacmlPolicy;
+        var serializer = new Xacml20ProtocolSerializer();
 
         var settings = new XmlWriterSettings()
         {
@@ -63,27 +62,42 @@ public class FileBasedPolicyRepository : IPolicyRepository
             Encoding = Encoding.UTF8
         };
 
-        using var stringWriter = new StringWriter();
-        using var xmlWriter = XmlWriter.Create(stringWriter, settings);
+        var policyXml = string.Empty;
 
-
-        serializer.WritePolicy(xmlWriter, xacmlPolicy);
+        try
+        {
+            using (var stringWriter = new StringWriter())
+            {
+                using (var xmlWriter = XmlWriter.Create(stringWriter, settings))
+                {
+                    serializer.WritePolicy(xmlWriter, xacmlPolicy);
+                    policyXml = stringWriter.ToString();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
 
         lock (_lock)
         {
-            File.WriteAllText(_policyRepositoryPath + xacmlPolicy.PolicyId.ToString(), stringWriter.ToString());
+            File.WriteAllText(_policyRepositoryPath + xacmlPolicy.PolicyId.ToString(), policyXml);
         }
-
-        xmlWriter.Close();
-        stringWriter.Close();
 
         return true;
     }
 
-    public bool DeletePolicy(XacmlPolicy xacmlPolicy)
+    public bool DeletePolicy(XacmlPolicy xacmlPolicy, string? id)
     {
-
-        throw new NotImplementedException();
+        var filePath = _policyRepositoryPath + (id ?? xacmlPolicy.PolicyId.ToString());
+        if (!File.Exists(filePath))
+        {
+            return false;
+        }
+        
+        File.Delete(filePath);
+        return true;
     }
 
     public bool UpdatePolicy(XacmlPolicy xacmlPolicy, string policyId)
