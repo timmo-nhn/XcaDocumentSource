@@ -1,12 +1,13 @@
-﻿using Abc.Xacml;
-using Abc.Xacml.Policy;
-using Abc.Xacml.Runtime;
+﻿using System.Text;
 using System.Xml;
-using XcaXds.Commons;
+using Abc.Xacml;
+using Abc.Xacml.Policy;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Interfaces;
 
 namespace XcaXds.Source.Source;
 
-public class FileBasedPolicyRepository : IXacmlPolicyRepository
+public class FileBasedPolicyRepository : IPolicyRepository
 {
     private string _policyRepositoryPath;
     private readonly object _lock = new();
@@ -50,15 +51,44 @@ public class FileBasedPolicyRepository : IXacmlPolicyRepository
         return policySet;
     }
 
+    public bool AddPolicy(XacmlPolicy xacmlPolicy)
+    {
+        Xacml20ProtocolSerializer serializer = new Xacml20ProtocolSerializer();
+        string xmlXacmlPolicy;
 
-    public XacmlPolicy RequestPolicy(Uri policyId)
+        var settings = new XmlWriterSettings()
+        {
+            Indent = true,
+            OmitXmlDeclaration = false,
+            Encoding = Encoding.UTF8
+        };
+
+        using var stringWriter = new StringWriter();
+        using var xmlWriter = XmlWriter.Create(stringWriter, settings);
+
+
+        serializer.WritePolicy(xmlWriter, xacmlPolicy);
+
+        lock (_lock)
+        {
+            File.WriteAllText(_policyRepositoryPath + xacmlPolicy.PolicyId.ToString(), stringWriter.ToString());
+        }
+
+        xmlWriter.Close();
+        stringWriter.Close();
+
+        return true;
+    }
+
+    public bool DeletePolicy(XacmlPolicy xacmlPolicy)
     {
 
         throw new NotImplementedException();
     }
 
-    public XacmlPolicySet RequestPolicySet(Uri policySetId)
+    public bool UpdatePolicy(XacmlPolicy xacmlPolicy, string policyId)
     {
+
         throw new NotImplementedException();
     }
 }

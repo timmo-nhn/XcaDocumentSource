@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Xml.Serialization;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 

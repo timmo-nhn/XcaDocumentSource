@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
-using XcaXds.Commons;
-using XcaXds.Commons.Enums;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;

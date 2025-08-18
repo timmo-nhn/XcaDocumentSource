@@ -1,6 +1,7 @@
 ﻿using System.Xml.Serialization;
+using XcaXds.Commons.Commons;
 
-namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
+namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [XmlInclude(typeof(IVL_TS))]
 [XmlInclude(typeof(EIVL_TS))]

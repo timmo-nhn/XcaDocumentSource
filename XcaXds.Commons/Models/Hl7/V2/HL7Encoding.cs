@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace Efferent.HL7.V2
+namespace XcaXds.Commons.Models.Hl7.V2
 {
     public class HL7Encoding
     {
@@ -25,19 +25,19 @@ namespace Efferent.HL7.V2
 
         public void EvaluateDelimiters(string delimiters)
         {
-            this.FieldDelimiter = delimiters[0];
-            this.ComponentDelimiter = delimiters[1];
-            this.RepeatDelimiter = delimiters[2];
+            FieldDelimiter = delimiters[0];
+            ComponentDelimiter = delimiters[1];
+            RepeatDelimiter = delimiters[2];
 
-            if (delimiters[4] == this.FieldDelimiter)
+            if (delimiters[4] == FieldDelimiter)
             {
-                this.EscapeCharacter = (char)0;
-                this.SubComponentDelimiter = delimiters[3];
+                EscapeCharacter = (char)0;
+                SubComponentDelimiter = delimiters[3];
             }
             else
             {
-                this.EscapeCharacter = delimiters[3];
-                this.SubComponentDelimiter = delimiters[4];
+                EscapeCharacter = delimiters[3];
+                SubComponentDelimiter = delimiters[4];
             }
             _charsThatMightNeedEncoding = new[] { '<', '\r', '\n', FieldDelimiter, ComponentDelimiter, RepeatDelimiter, EscapeCharacter, SubComponentDelimiter };
         }
@@ -83,25 +83,25 @@ namespace Efferent.HL7.V2
                     // special case <B>
                     if (val.Length >= i + 3 && val[i + 1] == 'B' && val[i + 2] == '>')
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('H');
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         i += 2; // +1 in loop
                     }
                     // special case </B>
                     else if (val.Length >= i + 4 && val[i + 1] == '/' && val[i + 2] == 'B' && val[i + 3] == '>')
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('N');
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         i += 3; // +1 in loop
                     }
                     // special case <BR>
                     else if (val.Length >= i + 4 && val[i + 1] == 'B' && val[i + 2] == 'R' && val[i + 3] == '>')
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append(".br");
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         i += 3; // +1 in loop
                     }
                     else
@@ -112,47 +112,47 @@ namespace Efferent.HL7.V2
 
                 if (continueEncoding)
                 {
-                    if (c == this.ComponentDelimiter)
+                    if (c == ComponentDelimiter)
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('S');
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                     }
-                    else if (c == this.EscapeCharacter)
+                    else if (c == EscapeCharacter)
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('E');
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                     }
-                    else if (c == this.FieldDelimiter)
+                    else if (c == FieldDelimiter)
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('F');
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                     }
-                    else if (c == this.RepeatDelimiter)
+                    else if (c == RepeatDelimiter)
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('R');
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                     }
-                    else if (c == this.SubComponentDelimiter)
+                    else if (c == SubComponentDelimiter)
                     {
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('T');
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                     }
                     else if (c == 10 || c == 13) // All other non-visible characters will be preserved
                     {
                         string v = string.Format(CultureInfo.InvariantCulture, "{0:X2}", (int)c);
 
-                        if ((v.Length % 2) != 0) // make number of digits even, this test would only be needed for values > 0xFF
+                        if (v.Length % 2 != 0) // make number of digits even, this test would only be needed for values > 0xFF
                             v = "0" + v;
 
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                         sb.Append('X');
                         sb.Append(v);
-                        sb.Append(this.EscapeCharacter);
+                        sb.Append(EscapeCharacter);
                     }
                     else
                     {
@@ -181,19 +181,19 @@ namespace Efferent.HL7.V2
             {
                 char c = encodedValue[i];
 
-                if (c != this.EscapeCharacter)
+                if (c != EscapeCharacter)
                 {
                     result.Append(c);
                     continue;
                 }
 
                 i++;
-                int li = encodedValue.IndexOf(this.EscapeCharacter, i);
+                int li = encodedValue.IndexOf(EscapeCharacter, i);
 
                 if (li == -1)
                 {
                     // throw new HL7Exception("Invalid escape sequence in HL7 string");
-                    result.Append(this.EscapeCharacter);
+                    result.Append(EscapeCharacter);
 
                     if (i < encodedValue.Length)
                         result.Append(encodedValue[i]);
@@ -215,19 +215,19 @@ namespace Efferent.HL7.V2
                         result.Append("</B>");
                         break;
                     case "F": // field separator
-                        result.Append(this.FieldDelimiter);
+                        result.Append(FieldDelimiter);
                         break;
                     case "S": // component separator
-                        result.Append(this.ComponentDelimiter);
+                        result.Append(ComponentDelimiter);
                         break;
                     case "T": // subcomponent separator
-                        result.Append(this.SubComponentDelimiter);
+                        result.Append(SubComponentDelimiter);
                         break;
                     case "R": // repetition separator
-                        result.Append(this.RepeatDelimiter);
+                        result.Append(RepeatDelimiter);
                         break;
                     case "E": // escape character
-                        result.Append(this.EscapeCharacter);
+                        result.Append(EscapeCharacter);
                         break;
                     case ".br":
                         result.Append("<BR>");

@@ -1,6 +1,6 @@
-﻿using Efferent.HL7.V2;
-using Microsoft.AspNetCore.Mvc.Formatters;
+﻿using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Text;
+using XcaXds.Commons.Models.Hl7.V2;
 namespace XcaXds.WebService.InputFormatters;
 
 public class Hl7InputFormatter : TextInputFormatter

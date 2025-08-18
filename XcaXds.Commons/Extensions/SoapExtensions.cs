@@ -1,4 +1,5 @@
 ﻿using System.Xml.Serialization;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 

@@ -1,7 +1,7 @@
 ﻿using System.Xml.Serialization;
-using XcaXds.Commons;
-using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
-using XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.ClinicalDocument;
+using XcaXds.Commons.Models.ClinicalDocument.Types;
 
 [Serializable]
 [XmlType("component", Namespace = Constants.Xds.Namespaces.Hl7V3)]

@@ -1,5 +1,5 @@
 using System.ServiceModel;
-using XcaXds.Commons;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 

@@ -1,4 +1,4 @@
-namespace Efferent.HL7.V2
+namespace XcaXds.Commons.Models.Hl7.V2
 {
     internal sealed class FieldCollection : List<Field>
     {
@@ -8,7 +8,7 @@ namespace Efferent.HL7.V2
             {
                 Field field = null;
 
-                if (index < base.Count)
+                if (index < Count)
                     field = base[index];
 
                 return field;
@@ -35,7 +35,7 @@ namespace Efferent.HL7.V2
         /// <param name="position">position</param>
         internal void Add(Field field, int position)
         {
-            int listCount = base.Count;
+            int listCount = Count;
 
             if (position < listCount)
             {

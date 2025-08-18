@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Xml.Serialization;
+using XcaXds.Commons.Commons;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 

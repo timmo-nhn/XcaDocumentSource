@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Efferent.HL7.V2
+namespace XcaXds.Commons.Models.Hl7.V2
 {
     public class Segment : MessageElement
     {
@@ -11,70 +11,70 @@ namespace Efferent.HL7.V2
 
         public Segment(HL7Encoding encoding)
         {
-            this.FieldList = new FieldCollection();
-            this.Encoding = encoding;
+            FieldList = new FieldCollection();
+            Encoding = encoding;
         }
 
         public Segment(string name, HL7Encoding encoding)
         {
-            this.FieldList = new FieldCollection();
-            this.Name = name;
-            this.Encoding = encoding;
+            FieldList = new FieldCollection();
+            Name = name;
+            Encoding = encoding;
         }
 
         protected override void ProcessValue()
         {
-            var allFields = _value.Split(this.Encoding.FieldDelimiter);
+            var allFields = _value.Split(Encoding.FieldDelimiter);
 
             for (int i = 1; i < allFields.Length; i++)
             {
                 string strField = allFields[i];
-                Field field = new Field(this.Encoding);
+                Field field = new Field(Encoding);
 
                 if (Name == "MSH" && i == 1)
                     field.IsDelimitersField = true; // special case
 
                 field.Value = strField;
-                this.FieldList.Add(field);
+                FieldList.Add(field);
             }
 
-            if (this.Name == "MSH")
+            if (Name == "MSH")
             {
-                var field1 = new Field(this.Encoding);
+                var field1 = new Field(Encoding);
                 field1.IsDelimitersField = true;
-                field1.Value = this.Encoding.FieldDelimiter.ToString();
+                field1.Value = Encoding.FieldDelimiter.ToString();
 
-                this.FieldList.Insert(0, field1);
+                FieldList.Insert(0, field1);
             }
         }
 
         public Segment DeepCopy()
         {
-            var newSegment = new Segment(this.Name, this.Encoding);
-            newSegment.Value = this.Value;
+            var newSegment = new Segment(Name, Encoding);
+            newSegment.Value = Value;
 
             return newSegment;
         }
 
         public void AddEmptyField()
         {
-            this.AddNewField(string.Empty);
+            AddNewField(string.Empty);
         }
 
         public void AddNewField(string content, int position = -1)
         {
-            this.AddNewField(new Field(content, this.Encoding), position);
+            AddNewField(new Field(content, Encoding), position);
         }
 
         public void AddNewField(string content, bool isDelimiters)
         {
-            var newField = new Field(this.Encoding);
+            var newField = new Field(Encoding);
 
             if (isDelimiters)
                 newField.IsDelimitersField = true; // Prevent decoding
 
             newField.Value = content;
-            this.AddNewField(newField, -1);
+            AddNewField(newField, -1);
         }
 
         public bool AddNewField(Field field, int position = -1)
@@ -83,19 +83,19 @@ namespace Efferent.HL7.V2
             {
                 if (position < 0)
                 {
-                    this.FieldList.Add(field);
+                    FieldList.Add(field);
                 }
                 else
                 {
                     position--;
-                    this.FieldList.Add(field, position);
+                    FieldList.Add(field, position);
                 }
 
                 return true;
             }
             catch (Exception ex)
             {
-                throw new HL7Exception("Unable to add new field in segment " + this.Name + " Error - " + ex.Message, ex);
+                throw new HL7Exception("Unable to add new field in segment " + Name + " Error - " + ex.Message, ex);
             }
         }
 
@@ -105,7 +105,7 @@ namespace Efferent.HL7.V2
 
             try
             {
-                return this.FieldList[position];
+                return FieldList[position];
             }
             catch (Exception ex)
             {
@@ -115,12 +115,12 @@ namespace Efferent.HL7.V2
 
         public List<Field> GetAllFields()
         {
-            return this.FieldList;
+            return FieldList;
         }
 
         public int GetSequenceNo()
         {
-            return this.SequenceNo;
+            return SequenceNo;
         }
 
         /// <summary>
@@ -129,19 +129,19 @@ namespace Efferent.HL7.V2
         /// <param name="strMessage">A StringBuilder to write on</param>
         public void SerializeSegment(StringBuilder strMessage)
         {
-            strMessage.Append(this.Name);
+            strMessage.Append(Name);
 
-            if (this.FieldList.Count > 0)
+            if (FieldList.Count > 0)
                 strMessage.Append(Encoding.FieldDelimiter);
 
-            int startField = this.Name == "MSH" ? 1 : 0;
+            int startField = Name == "MSH" ? 1 : 0;
 
-            for (int i = startField; i < this.FieldList.Count; i++)
+            for (int i = startField; i < FieldList.Count; i++)
             {
                 if (i > startField)
                     strMessage.Append(Encoding.FieldDelimiter);
 
-                var field = this.FieldList[i];
+                var field = FieldList[i];
 
                 if (field.IsDelimitersField)
                 {

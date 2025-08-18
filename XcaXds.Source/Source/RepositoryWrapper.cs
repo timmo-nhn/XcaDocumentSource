@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 
 namespace XcaXds.Source.Source;

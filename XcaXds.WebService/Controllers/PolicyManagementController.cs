@@ -1,11 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Controllers;
@@ -18,20 +11,22 @@ public class PolicyManagementController : ControllerBase
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
+    private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
 
-    public PolicyManagementController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
+    public PolicyManagementController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper, PolicyRepositoryWrapper policyRepositoryWrapper)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
+        _policyRepositoryWrapper = policyRepositoryWrapper;
     }
 
     [Produces("application/json")]
     [HttpGet("policy/getall")]
-    public async Task<IActionResult> HandleRequest(bool asXml = false)
+    public async Task<IActionResult> GetAllPolicies(bool asXml = false)
     {
-
+        _policyRepositoryWrapper.GetAllPolicies();
 
         return Ok();
     }

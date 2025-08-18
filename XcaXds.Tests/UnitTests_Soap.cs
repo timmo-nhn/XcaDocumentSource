@@ -1,8 +1,8 @@
 using System.Xml;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.Serializers;
 
-namespace XcaXds.UnitTests;
+namespace XcaXds.Tests;
 
 public class UnitTests_Soap
 {

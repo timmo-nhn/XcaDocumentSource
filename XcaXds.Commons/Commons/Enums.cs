@@ -1,4 +1,4 @@
-namespace XcaXds.Commons.Enums;
+namespace XcaXds.Commons.Commons;
 
 public enum StoredQuery
 {

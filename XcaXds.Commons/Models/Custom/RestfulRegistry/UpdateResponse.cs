@@ -1,6 +1,4 @@
-﻿using XcaXds.Commons.Models.Custom.RestfulRegistry;
-
-namespace XcaXds.Source.Services;
+﻿namespace XcaXds.Commons.Models.Custom.RestfulRegistry;
 
 public class UpdateResponse : RestfulApiResponse
 {

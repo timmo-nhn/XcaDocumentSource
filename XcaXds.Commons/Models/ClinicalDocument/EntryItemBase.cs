@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace XcaXds.Commons.Models.ClinicalDocumentArchitecture;
+namespace XcaXds.Commons.Models.ClinicalDocument;
 
 [Serializable]
 [XmlInclude(typeof(Act))]

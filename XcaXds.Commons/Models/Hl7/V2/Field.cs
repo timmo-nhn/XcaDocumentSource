@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Efferent.HL7.V2
+namespace XcaXds.Commons.Models.Hl7.V2
 {
     public class Field : MessageElement
     {
@@ -29,67 +29,67 @@ namespace Efferent.HL7.V2
 
         protected override void ProcessValue()
         {
-            if (this.IsDelimitersField)  // Special case for the delimiters fields (MSH)
+            if (IsDelimitersField)  // Special case for the delimiters fields (MSH)
             {
-                var subcomponent = new SubComponent(_value, this.Encoding);
+                var subcomponent = new SubComponent(_value, Encoding);
 
-                this.ComponentList.Clear();
-                Component component = new Component(this.Encoding, true);
+                ComponentList.Clear();
+                Component component = new Component(Encoding, true);
 
                 component.SubComponentList.Add(subcomponent);
 
-                this.ComponentList.Add(component);
+                ComponentList.Add(component);
                 return;
             }
 
-            this.HasRepetitions = _value.Contains(this.Encoding.RepeatDelimiter.ToString());
+            HasRepetitions = _value.Contains(Encoding.RepeatDelimiter.ToString());
 
-            if (this.HasRepetitions)
+            if (HasRepetitions)
             {
-                var individualFields = _value.Split(this.Encoding.RepeatDelimiter);
+                var individualFields = _value.Split(Encoding.RepeatDelimiter);
                 _RepetitionList = new List<Field>(individualFields.Length);
 
                 for (int index = 0; index < individualFields.Length; index++)
                 {
-                    Field field = new Field(individualFields[index], this.Encoding);
+                    Field field = new Field(individualFields[index], Encoding);
                     _RepetitionList.Add(field);
                 }
             }
             else
             {
-                var allComponents = _value.Split(this.Encoding.ComponentDelimiter);
+                var allComponents = _value.Split(Encoding.ComponentDelimiter);
 
-                this.ComponentList = new ComponentCollection(allComponents.Length);
+                ComponentList = new ComponentCollection(allComponents.Length);
 
                 foreach (string strComponent in allComponents)
                 {
-                    Component component = new Component(this.Encoding);
+                    Component component = new Component(Encoding);
                     component.Value = strComponent;
-                    this.ComponentList.Add(component);
+                    ComponentList.Add(component);
                 }
 
-                this.IsComponentized = this.ComponentList.Count > 1;
+                IsComponentized = ComponentList.Count > 1;
             }
         }
 
         public Field(HL7Encoding encoding)
         {
-            this.ComponentList = [];
-            this.Encoding = encoding;
+            ComponentList = [];
+            Encoding = encoding;
         }
 
         public Field(string value, HL7Encoding encoding)
         {
-            this.ComponentList = [];
-            this.Encoding = encoding;
-            this.Value = value;
+            ComponentList = [];
+            Encoding = encoding;
+            Value = value;
         }
 
         public bool AddNewComponent(Component com)
         {
             try
             {
-                this.ComponentList.Add(com);
+                ComponentList.Add(com);
                 return true;
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace Efferent.HL7.V2
         {
             try
             {
-                this.ComponentList.Add(component, position);
+                ComponentList.Add(component, position);
                 return true;
             }
             catch (Exception ex)
@@ -132,7 +132,7 @@ namespace Efferent.HL7.V2
 
         public List<Field> Repetitions()
         {
-            if (this.HasRepetitions)
+            if (HasRepetitions)
                 return RepetitionList;
 
             return null;
@@ -140,7 +140,7 @@ namespace Efferent.HL7.V2
 
         public Field Repetitions(int repetitionNumber)
         {
-            if (this.HasRepetitions)
+            if (HasRepetitions)
                 return RepetitionList[repetitionNumber - 1];
 
             return null;
@@ -168,7 +168,7 @@ namespace Efferent.HL7.V2
 
         public void AddRepeatingField(Field field)
         {
-            if (!this.HasRepetitions)
+            if (!HasRepetitions)
                 throw new HL7Exception("Repeating field must have repetitions (HasRepetitions = true)");
 
             if (_RepetitionList == null)
@@ -183,11 +183,11 @@ namespace Efferent.HL7.V2
         /// <param name="strMessage">A StringBuilder to write on</param>
         public void SerializeField(StringBuilder strMessage)
         {
-            if (this.ComponentList.Count > 0)
+            if (ComponentList.Count > 0)
             {
                 int indexCom = 0;
 
-                foreach (Component com in this.ComponentList)
+                foreach (Component com in ComponentList)
                 {
                     indexCom++;
 
@@ -196,13 +196,13 @@ namespace Efferent.HL7.V2
                     else
                         strMessage.Append(Encoding.Encode(com.Value));
 
-                    if (indexCom < this.ComponentList.Count)
+                    if (indexCom < ComponentList.Count)
                         strMessage.Append(Encoding.ComponentDelimiter);
                 }
             }
             else
             {
-                strMessage.Append(Encoding.Encode(this.Value));
+                strMessage.Append(Encoding.Encode(Value));
             }
         }
     }

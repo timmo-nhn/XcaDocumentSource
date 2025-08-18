@@ -1,5 +1,7 @@
 ﻿using System.Text;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Services;
 

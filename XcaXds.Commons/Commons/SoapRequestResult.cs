@@ -1,5 +1,5 @@
 ﻿using XcaXds.Commons.Models.Soap;
-namespace XcaXds.Commons;
+namespace XcaXds.Commons.Commons;
 
 public class SoapRequestResult<T>
 {

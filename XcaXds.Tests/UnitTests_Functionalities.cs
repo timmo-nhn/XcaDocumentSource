@@ -1,8 +1,8 @@
-﻿using XcaXds.Commons;
+﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Hl7.DataType;
 
-namespace XcaXds.UnitTests;
+namespace XcaXds.Tests;
 
 public class UnitTests_Functionalities
 {

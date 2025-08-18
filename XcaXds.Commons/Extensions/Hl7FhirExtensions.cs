@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Models.Custom;
+﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 
 namespace XcaXds.Commons.Extensions;

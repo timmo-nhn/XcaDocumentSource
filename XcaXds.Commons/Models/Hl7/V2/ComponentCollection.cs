@@ -1,4 +1,4 @@
-namespace Efferent.HL7.V2
+namespace XcaXds.Commons.Models.Hl7.V2
 {
     internal sealed class ComponentCollection : List<Component>
     {
@@ -19,7 +19,7 @@ namespace Efferent.HL7.V2
             {
                 Component component = null;
 
-                if (index < base.Count)
+                if (index < Count)
                     component = base[index];
 
                 return component;
@@ -46,7 +46,7 @@ namespace Efferent.HL7.V2
         /// <param name="position">Position</param>
         internal void Add(Component component, int position)
         {
-            int listCount = base.Count;
+            int listCount = Count;
             position = position - 1;
 
             if (position < listCount)

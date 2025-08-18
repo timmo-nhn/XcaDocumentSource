@@ -1,3 +1,5 @@
+using XcaXds.Commons.Serializers;
+
 namespace XcaXds.Commons.Models.Hl7.DataType;
 
 /// <summary>

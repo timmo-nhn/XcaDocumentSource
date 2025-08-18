@@ -1,17 +1,17 @@
 ﻿using System.Diagnostics;
 using System.Security.Cryptography;
-using XcaXds.Commons;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Custom;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using Xunit.Abstractions;
 
-namespace XcaXds.UnitTests;
+namespace XcaXds.Tests;
 
 public class UnitTests_RegistryObjects
 {

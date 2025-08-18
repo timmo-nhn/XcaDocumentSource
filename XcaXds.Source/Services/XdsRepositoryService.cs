@@ -3,13 +3,12 @@ using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Net.Http.Headers;
 using System.Text;
-using XcaXds.Commons;
-using XcaXds.Commons.Enums;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Source;
 

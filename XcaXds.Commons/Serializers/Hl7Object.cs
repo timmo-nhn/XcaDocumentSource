@@ -4,8 +4,10 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Hl7.DataType;
 
-namespace XcaXds.Commons.Models.Hl7.DataType;
+namespace XcaXds.Commons.Serializers;
 
 public abstract class Hl7Object
 {

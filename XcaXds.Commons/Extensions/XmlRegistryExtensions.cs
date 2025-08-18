@@ -2,6 +2,7 @@
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Extensions;

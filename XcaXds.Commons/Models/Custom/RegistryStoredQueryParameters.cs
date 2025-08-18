@@ -1,7 +1,8 @@
-﻿using XcaXds.Commons.Extensions;
+﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.Commons.Models;
+namespace XcaXds.Commons.Models.Custom;
 
 public static class RegistryStoredQueryParameters
 {

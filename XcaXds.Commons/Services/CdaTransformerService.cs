@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
-using XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.ClinicalDocument;
+using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using CE = XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types.CE;
-using TS = XcaXds.Commons.Models.ClinicalDocumentArchitecture.Types.TS;
+using CE = XcaXds.Commons.Models.ClinicalDocument.Types.CE;
+using TS = XcaXds.Commons.Models.ClinicalDocument.Types.TS;
 
 namespace XcaXds.Commons.Services;
 

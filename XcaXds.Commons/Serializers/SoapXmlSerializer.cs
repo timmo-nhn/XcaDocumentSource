@@ -1,10 +1,11 @@
 ﻿using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.Serializers;
 
 public enum XmlSettings
 {

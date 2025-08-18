@@ -1,9 +1,10 @@
-using XcaXds.Commons.Models.ClinicalDocumentArchitecture;
+using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 
-namespace XcaXds.UnitTests;
+namespace XcaXds.Tests;
 
 public class UnitTests_ClinicalDocument
 {

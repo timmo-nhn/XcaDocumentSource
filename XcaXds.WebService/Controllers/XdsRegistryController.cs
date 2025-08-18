@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
-using XcaXds.Commons;
-using XcaXds.Commons.Enums;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;

@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text;
 
-namespace XcaXds.IntegrationTests;
+namespace XcaXds.Tests;
 
 
-public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicationFactory<XcaXds.WebService.Program>>
+public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     private readonly HttpClient _client;
 
-    public IntegrationTests_XcaRespondingGateway(WebApplicationFactory<XcaXds.WebService.Program> factory)
+    public IntegrationTests_XcaRespondingGateway(WebApplicationFactory<WebService.Program> factory)
     {
         _client = factory.CreateClient();
     }

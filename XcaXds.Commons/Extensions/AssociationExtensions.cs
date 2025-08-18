@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Models.Soap.XdsTypes;
+﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Extensions;
 

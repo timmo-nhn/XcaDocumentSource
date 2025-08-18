@@ -1,4 +1,4 @@
-namespace Efferent.HL7.V2
+namespace XcaXds.Commons.Models.Hl7.V2
 {
     public class Component : MessageElement
     {
@@ -11,35 +11,35 @@ namespace Efferent.HL7.V2
         public Component(HL7Encoding encoding, bool isDelimiter = false)
         {
             this.isDelimiter = isDelimiter;
-            this.SubComponentList = new List<SubComponent>();
-            this.Encoding = encoding;
+            SubComponentList = new List<SubComponent>();
+            Encoding = encoding;
         }
 
         public Component(string pValue, HL7Encoding encoding)
         {
-            this.SubComponentList = new List<SubComponent>();
-            this.Encoding = encoding;
-            this.Value = pValue;
+            SubComponentList = new List<SubComponent>();
+            Encoding = encoding;
+            Value = pValue;
         }
 
         protected override void ProcessValue()
         {
             string[] allSubComponents;
 
-            if (this.isDelimiter)
-                allSubComponents = [this.Value];
+            if (isDelimiter)
+                allSubComponents = [Value];
             else
-                allSubComponents = _value.Split(this.Encoding.SubComponentDelimiter);
+                allSubComponents = _value.Split(Encoding.SubComponentDelimiter);
 
             if (allSubComponents.Length > 1)
-                this.IsSubComponentized = true;
+                IsSubComponentized = true;
 
             SubComponentList.Clear(); // in case there's existing data in there
             SubComponentList.Capacity = allSubComponents.Length;
 
             foreach (string strSubComponent in allSubComponents)
             {
-                SubComponent subComponent = new SubComponent(strSubComponent, this.Encoding);
+                SubComponent subComponent = new SubComponent(strSubComponent, Encoding);
                 SubComponentList.Add(subComponent);
             }
         }

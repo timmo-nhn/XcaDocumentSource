@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using XcaXds.Commons.Models;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.Commons;
+namespace XcaXds.Commons.Commons;
 public static class Constants
 {
     public static class JsonDefaultOptions

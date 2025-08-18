@@ -3,11 +3,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Hl7.Fhir.Model;
 using Microsoft.Extensions.Logging;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Services;
 

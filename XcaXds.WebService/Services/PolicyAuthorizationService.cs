@@ -4,12 +4,12 @@ using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using XcaXds.Commons;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.WebService.Services;
 
@@ -20,7 +20,7 @@ public class PolicyAuthorizationService
 
     }
 
-    public async Task<XacmlContextRequest?> GetXacmlRequestFromJsonWebToken(string inputJson)
+    public async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(string inputJson)
     {
         XacmlContextRequest contextRequest = null;
         return contextRequest;

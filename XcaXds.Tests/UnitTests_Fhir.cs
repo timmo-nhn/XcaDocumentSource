@@ -9,11 +9,12 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 
-namespace XcaXds.UnitTests;
+namespace XcaXds.Tests;
 
 public class UnitTests_Fhir
 {

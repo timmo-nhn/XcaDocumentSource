@@ -1,4 +1,4 @@
-namespace Efferent.HL7.V2
+namespace XcaXds.Commons.Models.Hl7.V2
 {
     public abstract class MessageElement
     {

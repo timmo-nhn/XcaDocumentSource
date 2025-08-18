@@ -1,6 +1,6 @@
-﻿using Efferent.HL7.V2;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
+using XcaXds.Commons.Models.Hl7.V2;
 using XcaXds.Source.Services;
 
 namespace XcaXds.WebService.Controllers;

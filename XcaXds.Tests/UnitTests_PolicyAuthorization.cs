@@ -8,8 +8,9 @@ using Abc.Xacml.Runtime;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
 using XcaXds.Source.Source;
+using XcaXds.Commons.Serializers;
 
-namespace XcaXds.UnitTests;
+namespace XcaXds.Tests;
 
 public class UnitTests_PolicyAuthorization
 {

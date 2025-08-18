@@ -35,6 +35,16 @@ public class PolicyRepositoryWrapper
         _evaluationEngine30 = new EvaluationEngine30(_policies);
     }
 
+    public XacmlPolicySet GetAllPolicies()
+    {
+        return _policies;
+    }
+
+    public bool AddPolicy(XacmlPolicy xacmlPolicy)
+    {
+        return _policyRepository.AddPolicy(xacmlPolicy);
+    }
+
     public XacmlContextResponse EvaluateReqeust_V20(XacmlContextRequest xacmlContextRequest)
     {
         var xmlDocument = new XmlDocument();
