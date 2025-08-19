@@ -102,7 +102,8 @@ public class PolicyEnforcementPointMiddlware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex.ToString());
+            throw;
         }
 
 

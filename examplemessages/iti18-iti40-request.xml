@@ -138,15 +138,6 @@
                 <wsu:Expires>2024-02-16T10:14:00.211Z</wsu:Expires>
             </wsu:Timestamp>
         </wsse:Security>
-
-    </saml:AttributeValue>
-</saml:Attribute>
-<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
-    <saml:AttributeValue>
-                            &lt;PurposeOfUse xmlns="urn:hl7-org:v3" type="CE" code="13" codeSystem="1.0.14265.1" codeSystemName="ISO 14265 Classification of Purposes for processing personal health information" displayName="Subject of care uses"/&gt;
-    </saml:AttributeValue>
-</saml:Attribute>
-<saml:Attribute Name="urn:oasis:names:tc:xacml:2.0:resource:resource-id">
 </s:Header>
 <s:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
