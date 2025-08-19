@@ -13,7 +13,7 @@ public class PolicyRepositoryWrapper
 
     private readonly IPolicyRepository _policyRepository;
 
-    private readonly ILogger<PolicyRepositoryWrapper> _logger;
+    private readonly ILogger<PolicyRepositoryWrapper> _logger = null;
 
     private EvaluationEngine _evaluationEngine;
     private EvaluationEngine30 _evaluationEngine30;
@@ -27,6 +27,7 @@ public class PolicyRepositoryWrapper
         _evaluationEngine30 = new EvaluationEngine30(_policies);
     }
 
+    // For use in unit tests
     public PolicyRepositoryWrapper(FileBasedPolicyRepository policyRepository)
     {
         _policyRepository = policyRepository;
@@ -40,7 +41,7 @@ public class PolicyRepositoryWrapper
         return _policyRepository.AddPolicy(xacmlPolicy);
     }
 
-    public XacmlContextResponse? EvaluateReqeust_V20(XacmlContextRequest? xacmlContextRequest)
+    public XacmlContextResponse? EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest)
     {
         var xmlDocument = new XmlDocument();
 

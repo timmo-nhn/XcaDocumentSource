@@ -15,7 +15,7 @@ public static class XacmlSerializer
         {
             Indent = true,
             OmitXmlDeclaration = false,
-            Encoding = Encoding.UTF8
+            Encoding = new UTF8Encoding(false)
         };
 
         using var stringWriter = new StringWriter();
@@ -125,7 +125,7 @@ public static class XacmlSerializer
             xmlWriter.WriteStartElement("Subject");
             foreach (var attr in nonEmptySubjects)
             {
-                WriteContextAttribute(xmlWriter, attr, Constants.Xacml.XacmlVersion.Version20);
+                WriteContextAttribute(xmlWriter, attr, XacmlVersion.Version20);
             }
 
             xmlWriter.WriteEndElement();
@@ -140,7 +140,7 @@ public static class XacmlSerializer
         {
             writer.WriteStartElement("Resource");
             foreach (var attr in resource.Attributes)
-                WriteContextAttribute(writer, attr, Constants.Xacml.XacmlVersion.Version20);
+                WriteContextAttribute(writer, attr, XacmlVersion.Version20);
 
             writer.WriteEndElement();
         }
@@ -152,7 +152,7 @@ public static class XacmlSerializer
 
         writer.WriteStartElement("Action");
         foreach (var attr in action.Attributes)
-            WriteContextAttribute(writer, attr, Constants.Xacml.XacmlVersion.Version20);
+            WriteContextAttribute(writer, attr, XacmlVersion.Version20);
 
         writer.WriteEndElement();
     }
@@ -163,27 +163,28 @@ public static class XacmlSerializer
 
         writer.WriteStartElement("Environment");
         foreach (var attr in environment.Attributes)
-            WriteContextAttribute(writer, attr, Constants.Xacml.XacmlVersion.Version20);
+            WriteContextAttribute(writer, attr, XacmlVersion.Version20);
 
         writer.WriteEndElement();
     }
 
-    private static void WriteContextAttribute(XmlWriter writer, XacmlContextAttribute attr, Constants.Xacml.XacmlVersion xacmlVersion = Constants.Xacml.XacmlVersion.Version30)
+    private static void WriteContextAttribute(XmlWriter writer, XacmlContextAttribute attr, XacmlVersion xacmlVersion = XacmlVersion.Version30)
     {
         if (attr == null) return;
 
         writer.WriteStartElement("Attribute");
-        if (xacmlVersion == Constants.Xacml.XacmlVersion.Version30)
+        if (xacmlVersion == XacmlVersion.Version30)
         {
             writer.WriteAttributeString("IncludeInResult", bool.FalseString.ToLower());
-            writer.WriteAttributeString("AttributeId", attr.AttributeId.ToString());
         }
+        
+        writer.WriteAttributeString("AttributeId", attr.AttributeId.ToString());
+        writer.WriteAttributeString("DataType", attr.DataType.ToString());
 
 
         foreach (var val in attr.AttributeValues)
         {
             writer.WriteStartElement("AttributeValue");
-            writer.WriteAttributeString("DataType", attr.DataType.ToString());
             writer.WriteString(val.Value);
             writer.WriteEndElement();
         }

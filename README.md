@@ -127,7 +127,7 @@ Describes the RESTful FHIR and MHD-endpoints (Mobile access to Health Documents)
 OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.
 
 ### [🏛 Authorization and Access Control](/Docs/AccessControl.md)
-Authorization
+Describes the methods and interfaces for access control.
 
 ## Other Functionality
 

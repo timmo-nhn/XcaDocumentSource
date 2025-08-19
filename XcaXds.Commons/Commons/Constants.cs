@@ -556,12 +556,6 @@ public static class Constants
 
     public static class Xacml
     {
-        public enum XacmlVersion
-        {
-            Version20,
-            Version30
-        }
-
         public static class CombiningAlgorithms
         {
             // XACML 1.0 / 1.1 Rule Combining Algorithms

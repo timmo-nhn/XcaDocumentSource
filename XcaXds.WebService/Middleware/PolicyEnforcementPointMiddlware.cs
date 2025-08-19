@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Abc.Xacml;
 using Abc.Xacml.Context;
+using Abc.Xacml.Policy;
 using Hl7.Fhir.Model.CdsHooks;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
@@ -86,33 +88,15 @@ public class PolicyEnforcementPointMiddlware
                 break;
         }
 
+        var requestXml = XacmlSerializer.SerializeRequestToXml(xacmlRequest);
+        var requestDoc = new XmlDocument();
+        requestDoc.LoadXml(requestXml);
 
-        var request = XacmlSerializer.SerializeRequestToXml(xacmlRequest);
+        var evaluateResponse = _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest);
 
-        var serializer = new Xacml20ProtocolSerializer();
-
-        XacmlContextRequest requestData;
-
-        try
+        if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision != XacmlContextDecision.Permit))
         {
-            using (XmlReader reader = XmlReader.Create(new StringReader(request)))
-            {
-                requestData = serializer.ReadContextRequest(reader);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex.ToString());
-            throw;
-        }
-
-
-        var evaluateResponse = _policyRepositoryWrapper.EvaluateReqeust_V20(xacmlRequest);
-
-        if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision == XacmlContextDecision.Permit))
-        {
-            httpContext.Response.StatusCode = int.Parse(HttpStatusCode.Unauthorized.ToString());
-            await httpContext.Response.WriteAsync("Unauthorized access.");
+            httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             return;
 
         }

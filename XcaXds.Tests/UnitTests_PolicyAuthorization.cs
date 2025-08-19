@@ -86,7 +86,7 @@ public class UnitTests_PolicyAuthorization
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
 
-        var evalResult = policyWrapper.EvaluateReqeust_V20(xacmlObject);
+        var evalResult = policyWrapper.EvaluateRequest_V20(xacmlObject);
 
         Assert.Equal(XacmlContextDecision.Permit, evalResult.Results.FirstOrDefault()?.Decision);
     }
