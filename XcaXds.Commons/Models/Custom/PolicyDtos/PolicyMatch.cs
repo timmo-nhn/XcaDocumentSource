@@ -2,9 +2,9 @@
 
 namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
-public class PolicyMatch<T>
+public class PolicyMatch
 {
-    public string MatchId { get; set; }
-    public string AttributeId { get; set; }
-    public T Value { get; set; }
+    public string? MatchId { get; set; }
+    public string? AttributeId { get; set; }
+    public string? Value { get; set; }
 }

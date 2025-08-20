@@ -7,10 +7,9 @@ namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 public class PolicyDto
 {
     public string? Id { get; set; }
-    public string? Name { get; set; }
-    public PolicyMatch<CodedValue>? Subject { get; set; } 
-    public PolicyMatch<CodedValue>? Role { get; set; }
-    public PolicyMatch<CodedValue>? Organization { get; set; }
-    public PolicyMatch<CodedValue>? ResourceId { get; set; }
-    public XacmlPolicyAction[]? Action { get; set; }
+    public List<PolicyMatch> Subjects { get; set; } 
+    public List<PolicyMatch> Role { get; set; }
+    public List<PolicyMatch> Organization { get; set; }
+    public List<PolicyMatch> Resources { get; set; }
+    public List<XacmlPolicyAction> Action { get; set; }
 }

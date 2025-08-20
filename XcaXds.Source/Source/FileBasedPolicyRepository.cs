@@ -62,6 +62,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
             Encoding = Encoding.UTF8
         };
 
+
         var policyXml = string.Empty;
 
         try
