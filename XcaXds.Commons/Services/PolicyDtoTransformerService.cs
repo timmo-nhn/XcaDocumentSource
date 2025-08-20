@@ -20,13 +20,7 @@ public static class PolicyDtoTransformerService
 
         var organization = xacmlPolicy.Target.Subjects
             .SelectMany(sub => sub.Matches
-            .Select(match => new PolicyMatch<string>() 
-            {
-                AttributeId = match.AttributeValue.Value, 
-                MatchId = match.MatchId.ToString(),
-                Value = match.AttributeValue.Value 
-            }));
-
+            .Select(match => match));
         
 
         policyDto.Subject = new()
