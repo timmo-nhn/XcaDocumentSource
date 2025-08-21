@@ -1,12 +1,11 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Xca;
 using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
@@ -18,7 +17,7 @@ public class RestfulRegistryRepositoryService
     private readonly ILogger<XdsRegistryService> _logger;
     private readonly RepositoryWrapper _repositoryWrapper;
 
-    public RestfulRegistryRepositoryService(ApplicationConfig appConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, RepositoryWrapper repositoryWrapper)
+    public RestfulRegistryRepositoryService(ApplicationConfig appConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, RepositoryWrapper repositoryWrapper)
     {
         _appConfig = appConfig;
         _registryWrapper = registryWrapper;

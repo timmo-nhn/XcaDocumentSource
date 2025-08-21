@@ -10,6 +10,7 @@ namespace XcaXds.Source.Services;
 
 public class PolicyRepositoryService
 {
+    private readonly ApplicationConfig _appConfig;
     private readonly ILogger<PolicyRepositoryService> _logger;
     private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
 

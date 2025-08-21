@@ -5,7 +5,6 @@ using System.Net;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 
@@ -19,17 +18,15 @@ public class XdsRespondingGatewayController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly HttpClient _httpClient;
-    private readonly XcaGateway _xcaGateway;
     private readonly ApplicationConfig _xdsConfig;
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager)
+    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, HttpClient httpClient, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
-        _xcaGateway = xcaGateway;
         _xdsConfig = xdsConfig;
         _xdsRepositoryService = xdsRepositoryService;
         _featureManager = featureManager;
@@ -57,10 +54,6 @@ public class XdsRespondingGatewayController : ControllerBase
                 var responseUrl = soapEnvelope.Header.ReplyTo?.Address;
 
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
-
-
-                var iti38AsyncResponse = await _xcaGateway.RegistryStoredQuery(soapEnvelope, baseUrl + "/Registry/services/RegistryService");
-                iti38AsyncResponse.Value.SetAction(Constants.Xds.OperationContract.Iti38ReplyAsync);
 
                 return Accepted(SoapExtensions.CreateAsyncAcceptedMessage(soapEnvelope));
 

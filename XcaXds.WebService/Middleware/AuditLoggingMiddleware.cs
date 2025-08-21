@@ -3,11 +3,11 @@
 public class AuditLoggingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<PolicyEnforcementPointMiddlware> _logger;
+    private readonly ILogger<PolicyEnforcementPointMiddleware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
 
-    public AuditLoggingMiddleware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddlware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env)
+    public AuditLoggingMiddleware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddleware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env)
     {
         _logger = logger;
         _next = next;

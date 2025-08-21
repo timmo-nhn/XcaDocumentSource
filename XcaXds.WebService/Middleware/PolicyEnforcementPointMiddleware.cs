@@ -1,31 +1,29 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Text.RegularExpressions;
-using System.Xml;
-using Abc.Xacml;
+﻿using Abc.Xacml;
 using Abc.Xacml.Context;
-using Abc.Xacml.Policy;
-using Hl7.Fhir.Model.CdsHooks;
+using System.Diagnostics;
+using System.Net;
+using System.Text;
+using System.Xml;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
-using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Middleware;
 
-public class PolicyEnforcementPointMiddlware
+public class PolicyEnforcementPointMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<PolicyEnforcementPointMiddlware> _logger;
+    private readonly ILogger<PolicyEnforcementPointMiddleware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
     private readonly PolicyRepositoryService _policyRepositoryService;
 
 
-    public PolicyEnforcementPointMiddlware(
+    public PolicyEnforcementPointMiddleware(
         RequestDelegate next,
-        ILogger<PolicyEnforcementPointMiddlware> logger,
+        ILogger<PolicyEnforcementPointMiddleware> logger,
         ApplicationConfig xdsConfig,
         IWebHostEnvironment env,
         PolicyRepositoryService policyRepositoryService
@@ -48,9 +46,7 @@ public class PolicyEnforcementPointMiddlware
               (IPAddress.IsLoopback(httpContext.Connection.RemoteIpAddress) ||
                httpContext.Connection.RemoteIpAddress.ToString() == "::1");
 
-        if (requestIsLocal &&
-            _xdsConfig.IgnorePEPForLocalhostRequests == true &&
-            _env.IsDevelopment() == true)
+        if (requestIsLocal && _xdsConfig.IgnorePEPForLocalhostRequests == true && _env.IsDevelopment() == true)
         {
             _logger.LogWarning("Policy Enforcement Point middleware was bypassed for requests from localhost.");
             await _next(httpContext);
@@ -74,7 +70,7 @@ public class PolicyEnforcementPointMiddlware
         var requestBody = await GetHttpRequestBody(httpContext.Request);
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
-        
+
         XacmlContextRequest? xacmlRequest = null;
 
         switch (contentType)
@@ -88,9 +84,15 @@ public class PolicyEnforcementPointMiddlware
                 break;
         }
 
-        var requestXml = XacmlSerializer.SerializeRequestToXml(xacmlRequest);
-        var requestDoc = new XmlDocument();
-        requestDoc.LoadXml(requestXml);
+        var sb = new StringBuilder();
+        string xacmlRequestString;
+        using (var writer = XmlWriter.Create(sb, Constants.XmlDefaultOptions.DefaultXmlWriterSettings))
+        {
+            var serialize = new Xacml20ProtocolSerializer();
+            serialize.WriteContextRequest(writer, xacmlRequest);
+            xacmlRequestString = sb.ToString();
+        }
+
 
         var evaluateResponse = _policyRepositoryService.EvaluateRequest(xacmlRequest);
 
@@ -101,7 +103,6 @@ public class PolicyEnforcementPointMiddlware
 
         }
 
-        // Call the next delegate/middleware in the pipeline.
         await _next(httpContext);
     }
 

@@ -12,6 +12,9 @@ using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Services;
 
+/// <summary>
+/// Parse incoming requests (ie. SOAP-requests and REST-requests with JWT) and generate XACML-access requests from the request assertions
+/// </summary>
 public static class PolicyRequestMapperService
 {
     public static async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(string inputJson)
@@ -32,7 +35,7 @@ public static class PolicyRequestMapperService
         return await GetXacmlRequestFromSamlToken(samlToken, action, xacmlVersion);
     }
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, XacmlVersion xacmlVersion)
+    public static async Task<XacmlContextRequest>GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, XacmlVersion xacmlVersion)
     {
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
@@ -41,7 +44,7 @@ public static class PolicyRequestMapperService
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
         var xacmlActionString = action.ToString().ToLower();
-        
+
         XacmlContextRequest request;
 
         switch (xacmlVersion)
@@ -66,9 +69,14 @@ public static class PolicyRequestMapperService
                     new Uri(Constants.Xacml.Category.V30_Action),
                     xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("action-id")));
 
+                var xacmlEnvironmentContextAttributes = new XacmlContextAttributes(
+                    new Uri(Constants.Xacml.Category.V30_Action),
+                    xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("laksjhflksadhflkajsfh")));
+
                 xacmlAttributesList.Add(xacmlSubjectContextAttributes);
                 xacmlAttributesList.Add(xacmlResourceContextAttributes);
                 xacmlAttributesList.Add(xacmlActionContextAttributes);
+                xacmlAttributesList.Add(xacmlEnvironmentContextAttributes);
 
                 request = new XacmlContextRequest(false, false, xacmlAttributesList);
                 request.ReturnPolicyIdList = false;
@@ -96,7 +104,7 @@ public static class PolicyRequestMapperService
                 // Environment
                 var xacmlEnvironment = new XacmlContextEnvironment();
 
-                request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject);
+                request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject, xacmlEnvironment);
 
                 return request;
 

@@ -6,7 +6,6 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 
@@ -20,17 +19,15 @@ public class XdsRepositoryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly HttpClient _httpClient;
-    private readonly XcaGateway _xcaGateway;
     private readonly XdsRepositoryService _repositoryService;
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRepositoryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
+    public XdsRepositoryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
-        _xcaGateway = xcaGateway;
         _repositoryService = repositoryService;
         _registryService = registryService;
         _xdsConfig = xdsConfig;
@@ -123,7 +120,7 @@ public class XdsRepositoryController : ControllerBase
                     break;
                 }
 
-                var registerDocumentSetResponse = await _xcaGateway.RegisterDocumentSetb(iti42Message.Value, baseUrl + "/Registry/services/RegistryService");
+                var registerDocumentSetResponse = await _registryService.AppendToRegistryAsync(iti42Message.Value);
 
                 if (registerDocumentSetResponse.IsSuccess is false)
                 {

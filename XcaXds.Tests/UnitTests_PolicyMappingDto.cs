@@ -48,7 +48,7 @@ public class UnitTests_PolicyMappingDto
 
             var policyDto = PolicyDtoTransformerService.TransformXacmlVersion20PolicyToPolicyDto(policy);
 
-            
+
 
             var policyJson = JsonSerializer.Serialize(policyDto, Constants.JsonDefaultOptions.DefaultSettings);
 

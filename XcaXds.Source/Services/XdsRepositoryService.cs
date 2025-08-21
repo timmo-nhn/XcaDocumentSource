@@ -9,7 +9,6 @@ using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Xca;
 using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
@@ -17,15 +16,13 @@ namespace XcaXds.Source.Services;
 public class XdsRepositoryService
 {
     private readonly ApplicationConfig _xdsConfig;
-    private readonly XcaGateway _xcaGateway;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly ILogger<XdsRepositoryService> _logger;
 
 
-    public XdsRepositoryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RepositoryWrapper repositoryWrapper, ILogger<XdsRepositoryService> logger)
+    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, ILogger<XdsRepositoryService> logger)
     {
         _xdsConfig = xdsConfig;
-        _xcaGateway = xcaGateway;
         _repositoryWrapper = repositoryWrapper;
         _logger = logger;
     }
@@ -173,9 +170,9 @@ public class XdsRepositoryService
             }
 
             var file = _repositoryWrapper.GetDocumentFromRepository(home, repoId, docId);
-            
+
             byte[] renamedFile;
-            
+
             if (file != null)
             {
                 var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);

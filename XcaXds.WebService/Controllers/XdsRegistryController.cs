@@ -6,7 +6,6 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Xca;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 
@@ -20,15 +19,13 @@ public class XdsRegistryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly HttpClient _httpClient;
-    private readonly XcaGateway _xcaGateway;
     private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRegistryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XcaGateway xcaGateway, XdsRegistryService registryService, IVariantFeatureManager featureManager)
+    public XdsRegistryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XdsRegistryService registryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _httpClient = httpClient;
-        _xcaGateway = xcaGateway;
         _registryService = registryService;
         _featureManager = featureManager;
     }
@@ -90,7 +87,7 @@ public class XdsRegistryController : ControllerBase
                 {
                     _logger.LogError("Error while updating registry", registryUploadResponse.Value?.Body.Fault);
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
-                    
+
                     registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList.RegistryError];
 
                     responseEnvelope = SoapExtensions.CreateSoapResultRegistryResponse(registryResponse).Value;

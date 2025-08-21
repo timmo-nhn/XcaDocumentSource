@@ -7,7 +7,6 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
-using XcaXds.Commons.Xca;
 using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
@@ -19,7 +18,7 @@ public partial class XdsRegistryService
     private readonly ILogger<XdsRegistryService> _logger;
 
 
-    public XdsRegistryService(ApplicationConfig xdsConfig, XcaGateway xcaGateway, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
+    public XdsRegistryService(ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
     {
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;

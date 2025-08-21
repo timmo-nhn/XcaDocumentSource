@@ -5,6 +5,10 @@ using XcaXds.Commons.Models.Custom.PolicyDtos;
 
 namespace XcaXds.Commons.Services;
 
+/// <summary>
+/// Transform between simple Policy DTO objects and actual XACML objects. <para/>
+/// Policy DTOs are used for storage and creation, whilst the actual policy evaluation is done via XACML XML-requests and policies
+/// </summary>
 public static class PolicyDtoTransformerService
 {
     public static PolicyDto TransformXacmlVersion20PolicyToPolicyDto(XacmlPolicy xacmlPolicy)
@@ -69,7 +73,7 @@ public static class PolicyDtoTransformerService
 
         if (policyDto.Id != null)
         {
-            xacmlPolicy.PolicyId = new Uri(policyDto.Id);
+            xacmlPolicy.PolicyId = new Uri($"urn:uuid:{policyDto.Id}",UriKind.Absolute);
         }
 
         foreach (var action in policyDto.Actions ?? new List<string>())
@@ -135,7 +139,7 @@ public static class PolicyDtoTransformerService
     {
         var xacmlPolicySet = new XacmlPolicySet(new Uri(policySetDto.CombiningAlgorithm), new XacmlTarget());
 
-        xacmlPolicySet.PolicySetId = new Uri(policySetDto.SetId);
+        xacmlPolicySet.PolicySetId = new Uri($"urn:uuid:{policySetDto.SetId}", UriKind.Absolute);
 
         if (policySetDto.Policies?.Count != 0)
         {

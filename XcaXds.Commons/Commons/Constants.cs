@@ -1,12 +1,31 @@
 ﻿using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Commons;
 public static class Constants
 {
+    public static class XmlDefaultOptions
+    {
+        public static readonly XmlWriterSettings DefaultXmlWriterSettings = new()
+        {
+            Indent = true,
+            Encoding = Encoding.UTF8,
+            OmitXmlDeclaration = true,
+        };
+
+        public static readonly XmlWriterSettings DefaultXmlWriterSettingsInline = new()
+        {
+            Indent = true,
+            Encoding = Encoding.UTF8,
+            OmitXmlDeclaration = true,
+        };
+    }
+
     public static class JsonDefaultOptions
     {
         public static readonly JsonSerializerOptions DefaultSettings = new()
