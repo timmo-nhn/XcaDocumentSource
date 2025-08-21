@@ -1,6 +1,10 @@
 ﻿using System.Text;
+using System.Text.Json;
 using System.Xml;
+using Abc.Xacml;
 using Abc.Xacml.Context;
+using Abc.Xacml.Policy;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
@@ -29,17 +33,27 @@ public class UnitTests_PolicyMappingDto
     [Fact]
     public async Task AuthZ_MapFromDtoToPolicy()
     {
-        var repository = new FileBasedPolicyRepository();
-        var policyWrapper = new PolicyRepositoryWrapper(repository);
+        var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "PolicyRepository"));
 
-        var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
+        foreach (var file in requests)
+        {
+            var policyXmlString = File.ReadAllText(file);
+            
+            XacmlPolicy policy;
 
-        XacmlContextRequest xacmlObject = await PolicyRequestMapperService.GetXacml20RequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
-        var requestXml = XacmlSerializer.SerializeRequestToXml(xacmlObject);
-        var requestDoc = new XmlDocument();
-        requestDoc.LoadXml(requestXml);
+            using (XmlReader reader = XmlReader.Create(new StringReader(policyXmlString)))
+            {
+                var serialize = new Xacml20ProtocolSerializer();
+                policy = serialize.ReadPolicy(reader);
+            }
 
+            var policyDto = PolicyDtoTransformerService.TransformXacmlVersion20PolicyToPolicyDto(policy);
 
-        var evaluateResponse = policyWrapper.EvaluateRequest_V20(xacmlObject);
+            
+
+            var policyJson = JsonSerializer.Serialize(policyDto, Constants.JsonDefaultOptions.DefaultSettings);
+
+            var xacmlPolicyReCreated = PolicyDtoTransformerService.TransformPolicyDtoToXacmlVersion20Policy(policyDto);
+        }
     }
 }

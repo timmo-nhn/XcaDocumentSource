@@ -1,0 +1,17 @@
+{
+  "Id": "ReadDocumentPolicy_KvartGrevling",
+  "Subjects": [
+    {
+      "MatchId": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
+      "AttributeId": "urn:oasis:names:tc:xspa:1.0:subject:subject-id:code",
+      "DataType": "http://www.w3.org/2001/XMLSchema#string",
+      "Value": "KVART GREVLING"
+    }
+  ],
+  "Role": null,
+  "Organization": null,
+  "Resources": null,
+  "Actions": [
+    "ReadDocumentList"
+  ]
+}

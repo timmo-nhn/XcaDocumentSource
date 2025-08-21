@@ -20,7 +20,7 @@ public static class PolicyRequestMapperService
         return contextRequest;
     }
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(string inputSamlToken, XacmlPolicyAction action, XacmlVersion xacmlVersion)
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(string inputSamlToken, string action, XacmlVersion xacmlVersion)
     {
         if (inputSamlToken == null || action == null)
         {
@@ -32,7 +32,7 @@ public static class PolicyRequestMapperService
         return await GetXacmlRequestFromSamlToken(samlToken, action, xacmlVersion);
     }
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, XacmlPolicyAction action, XacmlVersion xacmlVersion)
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, XacmlVersion xacmlVersion)
     {
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
@@ -301,7 +301,7 @@ public static class PolicyRequestMapperService
         return assertion[0]?.OuterXml;
     }
 
-    private static XacmlPolicyAction MapXacmlActionFromSoapAction(string action)
+    private static string MapXacmlActionFromSoapAction(string action)
     {
         // Action
         switch (action)
@@ -310,28 +310,28 @@ public static class PolicyRequestMapperService
             case Constants.Xds.OperationContract.Iti18ActionAsync:
             case Constants.Xds.OperationContract.Iti38Action:
             case Constants.Xds.OperationContract.Iti38ActionAsync:
-                return XacmlPolicyAction.ReadDocumentList;
+                return Constants.Xacml.Actions.ReadDocumentList;
 
             case Constants.Xds.OperationContract.Iti43Action:
             case Constants.Xds.OperationContract.Iti43ActionAsync:
             case Constants.Xds.OperationContract.Iti39Action:
             case Constants.Xds.OperationContract.Iti39ActionAsync:
-                return XacmlPolicyAction.ReadDocuments;
+                return Constants.Xacml.Actions.ReadDocuments;
 
             case Constants.Xds.OperationContract.Iti41Action:
             case Constants.Xds.OperationContract.Iti41ActionAsync:
             case Constants.Xds.OperationContract.Iti42Action:
             case Constants.Xds.OperationContract.Iti42ActionAsync:
-                return XacmlPolicyAction.Create;
+                return Constants.Xacml.Actions.Create;
 
             case Constants.Xds.OperationContract.Iti62Action:
             case Constants.Xds.OperationContract.Iti62ActionAsync:
             case Constants.Xds.OperationContract.Iti86Action:
             case Constants.Xds.OperationContract.Iti86ActionAsync:
-                return XacmlPolicyAction.Delete;
+                return Constants.Xacml.Actions.Delete;
 
             default:
-                return XacmlPolicyAction.Unknown;
+                return Constants.Xacml.Actions.Unknown;
         }
     }
 }

@@ -1,15 +1,5 @@
 namespace XcaXds.Commons.Commons;
 
-public enum XacmlPolicyAction
-{
-    Create,
-    ReadDocumentList,
-    ReadDocuments,
-    Update,
-    Delete,
-    Unknown
-}
-
 public enum XacmlVersion
 {
     Version20,

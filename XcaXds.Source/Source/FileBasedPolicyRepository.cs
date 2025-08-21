@@ -1,9 +1,12 @@
 ﻿using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Xml;
 using Abc.Xacml;
 using Abc.Xacml.Policy;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 
 namespace XcaXds.Source.Source;
 
@@ -27,11 +30,14 @@ public class FileBasedPolicyRepository : IPolicyRepository
         }
     }
 
-    public XacmlPolicySet GetAllPolicies()
+    public PolicySetDto GetAllPolicies()
     {
         var target = new XacmlTarget();
 
-        var policySet = new XacmlPolicySet(new Uri(Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_PermitOverrides), target);
+        var policySetDto = new PolicySetDto()
+        {
+            CombiningAlgorithm = Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_PermitOverrides,
+        };
 
         lock (_lock)
         {
@@ -39,59 +45,36 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
             foreach (var policyFilePath in policyFiles)
             {
-                var policyFile = File.ReadAllText(policyFilePath);
-                using (XmlReader reader = XmlReader.Create(new StringReader(policyFile)))
+                var policyFileContent = File.ReadAllText(policyFilePath);
+                var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent);
+                if (policyDto != null)
                 {
-                    var serialize = new Xacml20ProtocolSerializer();
-                    policySet.Policies.Add(serialize.ReadPolicy(reader));
+                    policySetDto.Policies ??= new();
+                    policySetDto.Policies.Add(policyDto);
                 }
             }
         }
 
-        return policySet;
+        return policySetDto;
     }
 
-    public bool AddPolicy(XacmlPolicy xacmlPolicy)
+    public bool AddPolicy(PolicyDto? policyDto)
     {
-        var serializer = new Xacml20ProtocolSerializer();
+        if (policyDto == null) return false;
 
-        var settings = new XmlWriterSettings()
-        {
-            Indent = true,
-            OmitXmlDeclaration = false,
-            Encoding = Encoding.UTF8
-        };
-
-
-        var policyXml = string.Empty;
-
-        try
-        {
-            using (var stringWriter = new StringWriter())
-            {
-                using (var xmlWriter = XmlWriter.Create(stringWriter, settings))
-                {
-                    serializer.WritePolicy(xmlWriter, xacmlPolicy);
-                    policyXml = stringWriter.ToString();
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            return false;
-        }
+        var jsonPolicyDto = JsonSerializer.Serialize(policyDto, Constants.JsonDefaultOptions.DefaultSettings);
 
         lock (_lock)
         {
-            File.WriteAllText(_policyRepositoryPath + xacmlPolicy.PolicyId.ToString(), policyXml);
+            File.WriteAllText(_policyRepositoryPath + policyDto.Id, jsonPolicyDto);
         }
 
         return true;
     }
 
-    public bool DeletePolicy(XacmlPolicy xacmlPolicy, string? id)
+    public bool DeletePolicy(PolicyDto? xacmlPolicy, string? id)
     {
-        var filePath = _policyRepositoryPath + (id ?? xacmlPolicy.PolicyId.ToString());
+        var filePath = _policyRepositoryPath + (id ?? xacmlPolicy?.Id);
         if (!File.Exists(filePath))
         {
             return false;
@@ -101,7 +84,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
         return true;
     }
 
-    public bool UpdatePolicy(XacmlPolicy xacmlPolicy, string policyId)
+    public bool UpdatePolicy(PolicyDto? xacmlPolicy, string policyId)
     {
 
         throw new NotImplementedException();

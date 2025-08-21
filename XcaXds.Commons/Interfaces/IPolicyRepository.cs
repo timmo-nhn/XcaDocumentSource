@@ -1,11 +1,12 @@
 ﻿using Abc.Xacml.Policy;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 
 namespace XcaXds.Commons.Interfaces;
 
 public interface IPolicyRepository
 {
-    public XacmlPolicySet GetAllPolicies();
-    public bool AddPolicy(XacmlPolicy xacmlPolicy);
-    public bool DeletePolicy(XacmlPolicy xacmlPolicy, string? id);
-    public bool UpdatePolicy(XacmlPolicy xacmlPolicy, string policyId);
+    public PolicySetDto GetAllPolicies();
+    public bool AddPolicy(PolicyDto xacmlPolicy);
+    public bool DeletePolicy(PolicyDto xacmlPolicy, string? id);
+    public bool UpdatePolicy(PolicyDto xacmlPolicy, string policyId);
 }

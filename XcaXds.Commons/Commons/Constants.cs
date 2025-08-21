@@ -556,6 +556,21 @@ public static class Constants
 
     public static class Xacml
     {
+        public static class Actions
+        {
+            public const string Create = "Create";
+            public const string ReadDocumentList = "ReadDocumentList";
+            public const string ReadDocuments = "ReadDocuments";
+            public const string Update = "Update";
+            public const string Delete = "Delete";
+            public const string Unknown = "Unknown";
+        }
+
+        public static class Functions
+        {
+            public const string StringEqual = "urn:oasis:names:tc:xacml:1.0:function:string-equal";
+        }
+
         public static class CombiningAlgorithms
         {
             // XACML 1.0 / 1.1 Rule Combining Algorithms
@@ -616,6 +631,7 @@ public static class Constants
             public const string Uri = "http://www.w3.org/2001/XMLSchema#anyURI";
             public const string XPath = "urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression";
             public const string Date = "http://www.w3.org/2001/XMLSchema#date";
+            public const string DateTime = "http://www.w3.org/2001/XMLSchema#dateTime";
         }
 
         public static class Namespace
