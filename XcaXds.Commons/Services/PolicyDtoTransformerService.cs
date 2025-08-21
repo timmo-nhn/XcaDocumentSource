@@ -1,4 +1,5 @@
-﻿using Abc.Xacml.Policy;
+﻿using System.Collections;
+using Abc.Xacml.Policy;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 
@@ -111,5 +112,39 @@ public static class PolicyDtoTransformerService
         xacmlPolicy.Rules.Add(new XacmlRule(policyDto.Effect));
         
         return xacmlPolicy;
+    }
+
+    public static PolicySetDto TransformXacmlVersion20PolicySetToPolicySetDto(XacmlPolicySet xacmlPolicySet)
+    {
+        var policySetDto = new PolicySetDto();
+
+        if (xacmlPolicySet.Policies.Count != 0)
+        {
+            foreach (var xacmlPolicy in xacmlPolicySet.Policies)
+            {
+                policySetDto.Policies ??= new();
+                policySetDto.Policies.Add(TransformXacmlVersion20PolicyToPolicyDto(xacmlPolicy));
+            }
+        }
+
+        return policySetDto;
+
+    }
+
+    public static XacmlPolicySet? TransformPolicySetDtoToXacmlVersion20PolicySet(PolicySetDto policySetDto)
+    {
+        var xacmlPolicySet = new XacmlPolicySet(new Uri(policySetDto.CombiningAlgorithm), new XacmlTarget());
+
+        xacmlPolicySet.PolicySetId = new Uri(policySetDto.SetId);
+
+        if (policySetDto.Policies?.Count != 0)
+        {
+            foreach (var policyDto in policySetDto.Policies ?? new List<PolicyDto>())
+            {
+                xacmlPolicySet.Policies.Add(TransformPolicyDtoToXacmlVersion20Policy(policyDto));
+            }
+        }
+
+        return xacmlPolicySet;
     }
 }

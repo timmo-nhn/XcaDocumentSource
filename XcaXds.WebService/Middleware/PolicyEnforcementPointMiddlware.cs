@@ -20,22 +20,22 @@ public class PolicyEnforcementPointMiddlware
     private readonly ILogger<PolicyEnforcementPointMiddlware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
-    private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
+    private readonly PolicyRepositoryService _policyRepositoryService;
 
 
     public PolicyEnforcementPointMiddlware(
-        RequestDelegate next, 
+        RequestDelegate next,
         ILogger<PolicyEnforcementPointMiddlware> logger,
         ApplicationConfig xdsConfig,
         IWebHostEnvironment env,
-        PolicyRepositoryWrapper policyRepositoryWrapper
+        PolicyRepositoryService policyRepositoryService
         )
     {
         _logger = logger;
         _next = next;
         _xdsConfig = xdsConfig;
         _env = env;
-        _policyRepositoryWrapper = policyRepositoryWrapper;
+        _policyRepositoryService = policyRepositoryService;
     }
 
 
@@ -92,7 +92,7 @@ public class PolicyEnforcementPointMiddlware
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
 
-        var evaluateResponse = _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest);
+        var evaluateResponse = _policyRepositoryService.EvaluateRequest(xacmlRequest);
 
         if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision != XacmlContextDecision.Permit))
         {

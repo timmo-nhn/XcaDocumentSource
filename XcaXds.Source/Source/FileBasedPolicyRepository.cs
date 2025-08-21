@@ -1,8 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml;
-using Abc.Xacml;
+﻿using System.Text.Json;
 using Abc.Xacml.Policy;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
@@ -72,16 +68,20 @@ public class FileBasedPolicyRepository : IPolicyRepository
         return true;
     }
 
-    public bool DeletePolicy(PolicyDto? xacmlPolicy, string? id)
+    public bool DeletePolicy(string? id)
     {
-        var filePath = _policyRepositoryPath + (id ?? xacmlPolicy?.Id);
+        var filePath = _policyRepositoryPath + id;
+
         if (!File.Exists(filePath))
-        {
             return false;
+
+        lock (_lock)
+        {
+            File.Delete(filePath);
         }
         
-        File.Delete(filePath);
         return true;
+
     }
 
     public bool UpdatePolicy(PolicyDto? xacmlPolicy, string policyId)

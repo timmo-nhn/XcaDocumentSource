@@ -66,3 +66,6 @@ permitdeny --Permit-->repep
 ## Policy Decision Point
 
 ## Endpoints for managing Access control
+
+## DTOs for policy and Policy Set
+Easier creation and storage of policies. Complex XACML-classes are abstracted behind simpler JSON structure.

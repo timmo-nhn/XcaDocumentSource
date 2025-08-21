@@ -7,6 +7,6 @@ public interface IPolicyRepository
 {
     public PolicySetDto GetAllPolicies();
     public bool AddPolicy(PolicyDto xacmlPolicy);
-    public bool DeletePolicy(PolicyDto xacmlPolicy, string? id);
-    public bool UpdatePolicy(PolicyDto xacmlPolicy, string policyId);
+    public bool DeletePolicy(string? id);
+    public bool UpdatePolicy(PolicyDto xacmlPolicy, string? policyId = null);
 }

@@ -26,7 +26,6 @@ public class UnitTests_PolicyMappingDto
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
 
-
         var evaluateResponse = policyWrapper.EvaluateRequest_V20(xacmlObject);
     }
 

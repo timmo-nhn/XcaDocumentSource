@@ -1,57 +1,68 @@
-﻿using Abc.Xacml.Context;
-using Abc.Xacml.Policy;
+﻿using System.Xml;
+using Abc.Xacml.Context;
 using Abc.Xacml.Runtime;
 using Microsoft.Extensions.Logging;
-using System.Xml;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
+using XcaXds.Commons.Services;
 
 namespace XcaXds.Source.Source;
 
 public class PolicyRepositoryWrapper
 {
-    internal volatile XacmlPolicySet _policies = null;
+    internal volatile PolicySetDto _policySet;
 
+    internal volatile EvaluationEngine _evaluationEngine;
+    
     private readonly IPolicyRepository _policyRepository;
 
-    private readonly ILogger<PolicyRepositoryWrapper> _logger = null;
+    private readonly ILogger<PolicyRepositoryWrapper> _logger;
 
-    private EvaluationEngine _evaluationEngine;
-    private EvaluationEngine30 _evaluationEngine30;
 
     public PolicyRepositoryWrapper(IPolicyRepository policyRepository, ILogger<PolicyRepositoryWrapper> logger)
     {
         _logger = logger;
         _policyRepository = policyRepository;
-        _policies ??= _policyRepository.GetAllPolicies();
-        _evaluationEngine = new EvaluationEngine(_policies);
-        _evaluationEngine30 = new EvaluationEngine30(_policies);
+        _policySet ??= _policyRepository.GetAllPolicies();
+        _evaluationEngine = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(_policySet));
     }
 
     // For use in unit tests
     public PolicyRepositoryWrapper(FileBasedPolicyRepository policyRepository)
     {
         _policyRepository = policyRepository;
-        _policies ??= _policyRepository.GetAllPolicies();
-        _evaluationEngine = new EvaluationEngine(_policies);
-        _evaluationEngine30 = new EvaluationEngine30(_policies);
+        _policySet ??= _policyRepository.GetAllPolicies();
+        _evaluationEngine = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(_policySet));
     }
 
-    public bool AddPolicy(XacmlPolicy xacmlPolicy)
+    public bool AddPolicy(PolicyDto policyDto)
     {
-        return _policyRepository.AddPolicy(xacmlPolicy);
+        _policySet.Policies ??= new();
+        _policySet.Policies.Add(policyDto);
+        _evaluationEngine = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(_policySet));
+        return _policyRepository.AddPolicy(policyDto);
     }
 
-    public XacmlContextResponse? EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest)
+    public PolicySetDto GetPolicies()
+    {
+        return _policySet;
+    }
+
+    public bool DeletePolicy(string id)
+    {
+        var deleteResult = _policyRepository.DeletePolicy(id);
+
+        if (!deleteResult) return deleteResult;
+
+        _policySet = _policyRepository.GetAllPolicies();
+
+        return deleteResult;
+    }
+
+    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest xacmlContextRequest)
     {
         var xmlDocument = new XmlDocument();
 
         return _evaluationEngine.Evaluate(xacmlContextRequest, xmlDocument);
-    }
-
-    public XacmlContextResponse? EvaluateRequest_V30(XacmlContextRequest? xacmlContextRequest)
-    {
-        var xmlDocument = new XmlDocument();
-
-        return _evaluationEngine30.Evaluate(xacmlContextRequest, xmlDocument);
     }
 }

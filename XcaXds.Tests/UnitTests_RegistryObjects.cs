@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Cryptography;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Soap;
@@ -39,7 +38,7 @@ public class UnitTests_RegistryObjects
             var documentEntryDto = new DocumentReferenceDto();
 
             var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
-            
+
 
             var documentReference = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList?.ToList());
 
@@ -174,10 +173,10 @@ public class UnitTests_RegistryObjects
         var registryContent = registryService.ReadRegistry();
 
         var documentEntries = registryContent.OfType<DocumentEntryDto>().ToList();
-        
+
         List<string> duds = new();
 
-        foreach ( var documentEntry in documentEntries)
+        foreach (var documentEntry in documentEntries)
         {
             if (repoService.Read(documentEntry.Id) == null)
             {
