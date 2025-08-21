@@ -25,12 +25,21 @@ public class PolicyRepositoryService
         return _policyRepositoryWrapper.GetPolicies();
     }
 
+    public bool AddPolicy(PolicyDto policyDto)
+    {
+        return _policyRepositoryWrapper.AddPolicy(policyDto);
+    }
+
+    public bool DeletePolicy(string id)
+    {
+        return _policyRepositoryWrapper.DeletePolicy(id);
+    }
+
     public XacmlPolicySet GetPoliciesAsXacmlPolicySet()
     {
         var policySetDto = _policyRepositoryWrapper.GetPolicies();
         return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
-
 
     public XacmlContextResponse EvaluateRequest(XacmlContextRequest xacmlRequest)
     {

@@ -62,7 +62,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         lock (_lock)
         {
-            File.WriteAllText(_policyRepositoryPath + policyDto.Id, jsonPolicyDto);
+            File.WriteAllText(Path.Combine(_policyRepositoryPath, policyDto.Id), jsonPolicyDto);
         }
 
         return true;
@@ -70,7 +70,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
     public bool DeletePolicy(string? id)
     {
-        var filePath = _policyRepositoryPath + id;
+        var filePath = Path.Combine(_policyRepositoryPath, id);
 
         if (!File.Exists(filePath))
             return false;

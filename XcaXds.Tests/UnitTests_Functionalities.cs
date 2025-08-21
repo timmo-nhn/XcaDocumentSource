@@ -16,7 +16,7 @@ public class UnitTests_Functionalities
         nin = "13116900216";
         parsedNin = Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(nin);
         Assert.Equal(parsedNin.AssigningAuthority.UniversalId, Constants.Oid.Fnr);
-        
+
 
         // D-number: Day + 40
         nin = "53116900216";
@@ -28,7 +28,7 @@ public class UnitTests_Functionalities
         nin = "13516900216";
         parsedNin = Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(nin);
         Assert.Equal(parsedNin.AssigningAuthority.UniversalId, Constants.Oid.Hnr);
-        
+
 
         // +80 Synthetic Normal
         nin = "13816900216";
@@ -40,7 +40,7 @@ public class UnitTests_Functionalities
         nin = "53816900216";
         parsedNin = Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(nin);
         Assert.Equal(parsedNin.AssigningAuthority.UniversalId, Constants.Oid.Dnr);
-        
+
 
         // +65 Synthetic Normal
         nin = "13766900216";
@@ -52,5 +52,24 @@ public class UnitTests_Functionalities
         nin = "53766900216";
         parsedNin = Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(nin);
         Assert.Equal(parsedNin.AssigningAuthority.UniversalId, Constants.Oid.Dnr);
+    }
+
+    [Fact]
+    public async Task UniqueGuid()
+    {
+        var guid = Guid.NewGuid().ToString();
+        var guidFirstPart = guid.Substring(0, 6);
+
+        var secondGuid = Guid.NewGuid().ToString();
+        var secondGuidFirstPart = secondGuid.Substring(0, 6);
+
+        var counter = 0;
+        
+        while (!string.Equals(guidFirstPart,secondGuidFirstPart))
+        {
+            secondGuid = Guid.NewGuid().ToString();
+            secondGuidFirstPart = secondGuid.Substring(0, 6);
+            counter++;
+        }
     }
 }

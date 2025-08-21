@@ -3,6 +3,15 @@
 
 public class RestfulApiResponse
 {
+    public RestfulApiResponse(bool success)
+    {
+        Success = success;
+    }
+    public RestfulApiResponse()
+    {
+        
+    }
+
     public bool Success { get; set; } = true;
 
     public List<Error> Errors { get; set; }

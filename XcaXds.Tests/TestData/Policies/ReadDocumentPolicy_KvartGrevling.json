@@ -13,5 +13,6 @@
   "Resources": null,
   "Actions": [
     "ReadDocumentList"
-  ]
+  ],
+  "Effect": "Permit"
 }

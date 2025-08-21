@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-using System.Reflection.Metadata;
-using System.Web;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Rest;
+﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Web;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -169,7 +167,7 @@ public class FhirEndpointsController : Controller
         _logger.LogInformation($"Received request for action: ITI-68 from {Request.HttpContext.Connection.RemoteIpAddress}");
 
         var registryObjectForDocument = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == documentUniqueId);
-        
+
         if (registryObjectForDocument?.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated)
             return StatusCode(StatusCodes.Status410Gone);
 

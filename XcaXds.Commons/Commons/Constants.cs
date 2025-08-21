@@ -626,7 +626,7 @@ public static class Constants
         {
             public const string ActionId = "urn:oasis:names:tc:xacml:1.0:action:action-id";
             public const string SubjectId = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
-            public const string ResourceId = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+            public const string ResourceId = "urn:oasis:names:tc:xacml:2.0:resource:resource-id";
             public const string Role = "urn:oasis:names:tc:xspa:1.0:subject:role";
         }
 

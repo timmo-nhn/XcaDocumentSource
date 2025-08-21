@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Abc.Xacml.Policy;
+﻿using Abc.Xacml.Policy;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 
@@ -61,7 +60,7 @@ public static class PolicyDtoTransformerService
             policyDto.Resources.AddRange(resources);
         }
 
-        policyDto.Effect = xacmlPolicy.Rules.FirstOrDefault()?.Effect ?? XacmlEffectType.Permit;
+        policyDto.Effect = xacmlPolicy.Rules.FirstOrDefault()?.Effect.ToString() ?? XacmlEffectType.Permit.ToString();
 
         return policyDto;
     }
@@ -73,7 +72,7 @@ public static class PolicyDtoTransformerService
 
         if (policyDto.Id != null)
         {
-            xacmlPolicy.PolicyId = new Uri($"urn:uuid:{policyDto.Id}",UriKind.Absolute);
+            xacmlPolicy.PolicyId = new Uri($"urn:uuid:{policyDto.Id}", UriKind.Absolute);
         }
 
         foreach (var action in policyDto.Actions ?? new List<string>())
@@ -113,8 +112,11 @@ public static class PolicyDtoTransformerService
             xacmlPolicy.Target.Resources.Add(xacmlSubject);
         }
 
-        xacmlPolicy.Rules.Add(new XacmlRule(policyDto.Effect));
-        
+        if (Enum.TryParse<XacmlEffectType>(policyDto.Effect, ignoreCase: true, out var effect))
+        {
+            xacmlPolicy.Rules.Add(new XacmlRule(effect));
+        }
+
         return xacmlPolicy;
     }
 
