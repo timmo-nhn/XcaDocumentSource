@@ -121,6 +121,15 @@ permitdeny --Permit-->repep
 ## Endpoints for managing Access control
 
 
+## XACML-Terminology
+
+
+
+### Policy - `<Rule>`
+A `<Rule>` in a XACML-`<Policy>` defines conditions that the XACML-request must satisfy. A `<Rule>` features a `Effect` attribute with a value of either `Permit` or `Deny`. Policies can contain multiple rules, and based on the rule-combining algorithm, together make up whether the request is permitted or denied.
+
+### Policy - `<Target>`
+A `<Target>` in a XACML-`<Policy>` describes who the policy is intended for. XACML 2.0 requests and policies have 
 
 
 ## DTOs for policy and Policy Set
@@ -142,12 +151,6 @@ Easier creation and storage of policies. Complex XACML-classes are abstracted be
             "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
             "dataType": "http://www.w3.org/2001/XMLSchema#string",
             "value": "urn:oid:2.16.578.1.12.4.1.1.9060"
-        },
-        {
-            "matchId": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:displayName",
-            "dataType": "http://www.w3.org/2001/XMLSchema#string",
-            "value": "Lege"
         }
     ],
     "actions": [
@@ -156,3 +159,4 @@ Easier creation and storage of policies. Complex XACML-classes are abstracted be
     "effect": "Permit"
 }
 ```
+

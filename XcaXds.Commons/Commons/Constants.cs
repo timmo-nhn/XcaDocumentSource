@@ -588,6 +588,7 @@ public static class Constants
         public static class Functions
         {
             public const string StringEqual = "urn:oasis:names:tc:xacml:1.0:function:string-equal";
+            public const string StringIsIn = "urn:oasis:names:tc:xacml:1.0:function:string-is-in";
             public const string StringAtLeastOneMemberOf = "urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of";
             public const string StringBag = "urn:oasis:names:tc:xacml:1.0:function:string-bag";
             public const string And = "urn:oasis:names:tc:xacml:1.0:function:and";
