@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Abc.Xacml.Policy;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 
@@ -42,9 +43,13 @@ public class FileBasedPolicyRepository : IPolicyRepository
             foreach (var policyFilePath in policyFiles)
             {
                 var policyFileContent = File.ReadAllText(policyFilePath);
-                var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent);
-                if (policyDto != null)
+                var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent, Constants.JsonDefaultOptions.DefaultSettings);
+                if (policyDto?.Id != null)
                 {
+                    // Normalize so OID values arent prefixed with "urn:oid:"
+                    policyDto.Subjects?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
+                    policyDto.Resources?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
+
                     policySetDto.Policies ??= new();
                     policySetDto.Policies.Add(policyDto);
                 }

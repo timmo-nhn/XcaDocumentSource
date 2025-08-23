@@ -1,7 +1,7 @@
-﻿using System.Xml;
-using Abc.Xacml.Context;
+﻿using Abc.Xacml.Context;
 using Abc.Xacml.Runtime;
 using Microsoft.Extensions.Logging;
+using System.Xml;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Services;
@@ -10,10 +10,10 @@ namespace XcaXds.Source.Source;
 
 public class PolicyRepositoryWrapper
 {
-    internal volatile PolicySetDto _policySet;
+    internal PolicySetDto _policySet;
 
-    internal volatile EvaluationEngine _evaluationEngine;
-    
+    internal EvaluationEngine _evaluationEngine;
+
     private readonly IPolicyRepository _policyRepository;
 
     private readonly ILogger<PolicyRepositoryWrapper> _logger;
@@ -55,7 +55,7 @@ public class PolicyRepositoryWrapper
         if (!deleteResult) return deleteResult;
 
         _policySet = _policyRepository.GetAllPolicies();
-
+        _evaluationEngine = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(_policySet));
         return deleteResult;
     }
 

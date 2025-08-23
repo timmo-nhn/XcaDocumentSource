@@ -3,6 +3,7 @@ using Abc.Xacml.Context;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
@@ -18,7 +19,8 @@ public class PolicyEnforcementPointMiddleware
     private readonly ILogger<PolicyEnforcementPointMiddleware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
-    private readonly PolicyRepositoryService _policyRepositoryService;
+    private readonly PolicyRepositoryService _debug_policyRepositoryService;
+    private readonly PolicyDecisionPointService _policyDecisionPointService;
 
 
     public PolicyEnforcementPointMiddleware(
@@ -26,14 +28,16 @@ public class PolicyEnforcementPointMiddleware
         ILogger<PolicyEnforcementPointMiddleware> logger,
         ApplicationConfig xdsConfig,
         IWebHostEnvironment env,
-        PolicyRepositoryService policyRepositoryService
+        PolicyRepositoryService debug_policyRepositoryService,
+        PolicyDecisionPointService policyDecisionPointService
         )
     {
         _logger = logger;
         _next = next;
         _xdsConfig = xdsConfig;
         _env = env;
-        _policyRepositoryService = policyRepositoryService;
+        _debug_policyRepositoryService = debug_policyRepositoryService;
+        _policyDecisionPointService = policyDecisionPointService;
     }
 
 
@@ -84,23 +88,16 @@ public class PolicyEnforcementPointMiddleware
                 break;
         }
 
-        var sb = new StringBuilder();
-        string xacmlRequestString;
-        using (var writer = XmlWriter.Create(sb, Constants.XmlDefaultOptions.DefaultXmlWriterSettings))
-        {
-            var serialize = new Xacml20ProtocolSerializer();
-            serialize.WriteContextRequest(writer, xacmlRequest);
-            xacmlRequestString = sb.ToString();
-        }
+        string xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
+        var policySetXml = XacmlSerializer.SerializeXacmlToXml(_debug_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-        var evaluateResponse = _policyRepositoryService.EvaluateRequest(xacmlRequest);
+        var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
 
         if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision != XacmlContextDecision.Permit))
         {
             httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             return;
-
         }
 
         await _next(httpContext);

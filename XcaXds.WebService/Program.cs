@@ -80,6 +80,7 @@ public class Program
         builder.Services.AddScoped<XdsRegistryService>();
         builder.Services.AddScoped<XdsRepositoryService>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
+        builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddScoped<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<RepositoryWrapper>();

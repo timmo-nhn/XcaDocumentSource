@@ -16,7 +16,7 @@ public class PolicyDto
 
     public void SetDefaultValues()
     {
-        if (Id == "string")
+        if (Id == "string" || string.IsNullOrWhiteSpace(Id))
         {
             Id = Guid.NewGuid().ToString();
         }

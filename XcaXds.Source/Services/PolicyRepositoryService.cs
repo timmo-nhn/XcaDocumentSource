@@ -40,9 +40,4 @@ public class PolicyRepositoryService
         var policySetDto = _policyRepositoryWrapper.GetPolicies();
         return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
-
-    public XacmlContextResponse EvaluateRequest(XacmlContextRequest xacmlRequest)
-    {
-        return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest);
-    }
 }

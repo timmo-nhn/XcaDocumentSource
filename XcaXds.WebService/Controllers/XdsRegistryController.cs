@@ -18,14 +18,12 @@ namespace XcaXds.WebService.Controllers;
 public class XdsRegistryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
-    private readonly HttpClient _httpClient;
     private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRegistryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XdsRegistryService registryService, IVariantFeatureManager featureManager)
+    public XdsRegistryController(ILogger<XdsRegistryController> logger, XdsRegistryService registryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
-        _httpClient = httpClient;
         _registryService = registryService;
         _featureManager = featureManager;
     }
@@ -113,6 +111,7 @@ public class XdsRegistryController : ControllerBase
                 _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
+
         requestTimer.Stop();
         _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
         registryResponse.EvaluateStatusCode();

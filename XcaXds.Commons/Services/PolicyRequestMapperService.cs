@@ -43,7 +43,7 @@ public static class PolicyRequestMapperService
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
-        var xacmlActionString = action.ToString().ToLower();
+        var xacmlActionString = action.ToString();
 
         XacmlContextRequest request;
 
@@ -200,7 +200,7 @@ public static class PolicyRequestMapperService
                         new XacmlContextAttribute(
                             new Uri(attribute.Name + ":codeSystem"),
                             new Uri(Constants.Xacml.DataType.String),
-                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }));
+                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem.NoUrn() }));
 
                 }
 

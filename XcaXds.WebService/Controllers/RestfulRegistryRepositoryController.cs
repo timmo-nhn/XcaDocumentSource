@@ -16,14 +16,12 @@ namespace XcaXds.WebService.Controllers;
 public class RestfulRegistryRepositoryController : ControllerBase
 {
     private readonly ILogger<RestfulRegistryRepositoryController> _logger;
-    private readonly HttpClient _httpClient;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public RestfulRegistryRepositoryController(ILogger<RestfulRegistryRepositoryController> logger, HttpClient httpClient, RestfulRegistryRepositoryService registryRestfulService, IVariantFeatureManager featureManager)
+    public RestfulRegistryRepositoryController(ILogger<RestfulRegistryRepositoryController> logger, RestfulRegistryRepositoryService registryRestfulService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
-        _httpClient = httpClient;
         _restfulRegistryService = registryRestfulService;
         _featureManager = featureManager;
     }

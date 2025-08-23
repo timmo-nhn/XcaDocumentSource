@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Xml;
 using XcaXds.Commons.Models.Hl7.DataType;
 
 namespace XcaXds.Commons.Extensions;
@@ -13,6 +14,11 @@ public static class StringExtensions
         }
 
         return input.Replace("urn:uuid:", "").Replace("urn:oid:", "");
+    }
+
+    public static byte[] GetAsUtf8Bytes(this string input)
+    {
+        return Encoding.UTF8.GetBytes(input);
     }
 
     public static string? GetMimetypeFromMagicNumber(byte[] input)

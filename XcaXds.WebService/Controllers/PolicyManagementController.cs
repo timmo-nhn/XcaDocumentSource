@@ -47,17 +47,12 @@ public class PolicyManagementController : ControllerBase
         
         if (asXml)
         {
-            var serializer = new Xacml20ProtocolSerializer();
-
-            var sb = new StringBuilder();
-
-            using (var writer = XmlWriter.Create(sb, Constants.XmlDefaultOptions.DefaultXmlWriterSettings))
-            {
-                var serialize = new Xacml20ProtocolSerializer();
-                serialize.WritePolicySet(writer, PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySet));
-                var gogg = sb.ToString();
-                return Content(gogg, Constants.MimeTypes.Xml);
-            }
+            var xacmlPolicySet = PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySet);
+            
+            var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
+            
+            return Content(xmlPolicySet, Constants.MimeTypes.Xml);
+            
         }
 
         return Ok(policySet);
@@ -77,6 +72,7 @@ public class PolicyManagementController : ControllerBase
 
         if (apiResponse.Success)
         {
+            apiResponse.SetMessage($"Created Policy with id {policyDto.Id}");
             return Ok(apiResponse);
         }
 
@@ -85,7 +81,7 @@ public class PolicyManagementController : ControllerBase
 
 
     [Produces("application/json")]
-    [HttpGet("delete")]
+    [HttpDelete("delete")]
     public async Task<IActionResult> DeletePolicy(string id)
     {
         var response = _policyRepositoryService.DeletePolicy(id);
@@ -96,11 +92,11 @@ public class PolicyManagementController : ControllerBase
 
         if (apiResponse.Success)
         {
-            apiResponse.Message = $"Succesfully deleted id {id}";
-            return Ok(response);
+            apiResponse.SetMessage($"Succesfully deleted id {id}");
+            return Ok(apiResponse);
         }
 
-        apiResponse.Message = $"Policy {id} not found";
-        return NotFound(response);
+        apiResponse.SetMessage($"Policy {id} not found");
+        return NotFound(apiResponse);
     }
 }
