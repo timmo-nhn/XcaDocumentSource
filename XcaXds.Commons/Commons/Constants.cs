@@ -592,6 +592,7 @@ public static class Constants
             public const string StringBag = "urn:oasis:names:tc:xacml:1.0:function:string-bag";
             public const string And = "urn:oasis:names:tc:xacml:1.0:function:and";
             public const string Or = "urn:oasis:names:tc:xacml:1.0:function:or";
+            public const string StringOneAndOnly = "urn:oasis:names:tc:xacml:1.0:function:string-one-and-only";
         }
         public static class CombiningAlgorithms
         {

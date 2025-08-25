@@ -25,6 +25,11 @@ public class PolicyRepositoryService
         return _policyRepositoryWrapper.GetPolicies();
     }
 
+    public PolicyDto? GetSinglePolicy(string id)
+    {
+        return _policyRepositoryWrapper.GetPolicy(id);
+    }
+
     public bool AddPolicy(PolicyDto policyDto)
     {
         return _policyRepositoryWrapper.AddPolicy(policyDto);
@@ -39,5 +44,15 @@ public class PolicyRepositoryService
     {
         var policySetDto = _policyRepositoryWrapper.GetPolicies();
         return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
+    }
+
+    public bool PartiallyUpdatePolicy(PolicyDto policyDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool UpdatePolicy(PolicyDto policyDto)
+    {
+        throw new NotImplementedException();
     }
 }

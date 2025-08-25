@@ -1,10 +1,7 @@
-﻿using Abc.Xacml;
-using Abc.Xacml.Context;
+﻿using Abc.Xacml.Context;
+using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
-using System.Text;
-using System.Text.Json;
-using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
@@ -80,11 +77,16 @@ public class PolicyEnforcementPointMiddleware
         switch (contentType)
         {
             case "application/soap+xml":
-                xacmlRequest = await PolicyRequestMapperService.GetXacml20RequestFromSoapEnvelope(requestBody);
+
+                var xacmlAction = PolicyRequestMapperSamlService.MapXacmlActionFromSoapAction(PolicyRequestMapperSamlService.GetActionFromSoapEnvelope(requestBody));
+                var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(PolicyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody));
+                xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(samlToken, xacmlAction, XacmlVersion.Version20);
+
                 break;
 
             case "application/json":
-                xacmlRequest = await PolicyRequestMapperService.GetXacml20RequestFromJsonWebToken(requestBody);
+                xacmlRequest = await PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(requestBody);
+                
                 break;
         }
 
@@ -94,13 +96,14 @@ public class PolicyEnforcementPointMiddleware
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
 
-        if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision != XacmlContextDecision.Permit))
+        if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision == XacmlContextDecision.Permit))
         {
-            httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            return;
+            await _next(httpContext);
         }
 
-        await _next(httpContext);
+        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+        return;
+
     }
 
     public static async Task<string> GetHttpRequestBody(HttpRequest httpRequest)

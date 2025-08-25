@@ -1,12 +1,11 @@
-﻿using Abc.Xacml.Policy;
-using System.Reflection.Metadata;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
 
 namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicyDto
 {
     public string? Id { get; set; }
+    public List<PolicyMatch>? Rules { get; set; }
     public List<PolicyMatch>? Subjects { get; set; }
     public List<PolicyMatch>? Roles { get; set; }
     public List<PolicyMatch>? Organizations { get; set; }
@@ -21,44 +20,22 @@ public class PolicyDto
             Id = Guid.NewGuid().ToString();
         }
 
-        if (Subjects != null && Subjects.Count != 0)
-        {
-            foreach (var subject in Subjects)
-            {
-                subject.DataType ??= Constants.Xacml.DataType.String;
-                subject.AttributeId ??= Constants.Xacml.Attribute.SubjectId;
-                subject.MatchId ??= Constants.Xacml.Functions.StringEqual;
-            }
-        }
+        SetDefaultValuesProperties(Rules);
+        SetDefaultValuesProperties(Subjects);
+        SetDefaultValuesProperties(Roles);
+        SetDefaultValuesProperties(Organizations);
+        SetDefaultValuesProperties(Resources);
+    }
 
-        if (Roles != null && Roles.Count != 0)
-        {
-            foreach (var role in Roles)
-            {
-                role.DataType ??= Constants.Xacml.DataType.String;
-                role.AttributeId ??= Constants.Xacml.Attribute.Role;
-                role.MatchId ??= Constants.Xacml.Functions.StringEqual;
-            }
-        }
+    private void SetDefaultValuesProperties(List<PolicyMatch>? items)
+    {
+        if (items == null) return;
 
-        if (Organizations != null && Organizations.Count != 0)
+        foreach (var item in items)
         {
-            foreach (var organization in Organizations)
-            {
-                organization.DataType ??= Constants.Xacml.DataType.String;
-                organization.AttributeId ??= "urn:oasis:names:tc:xspa:1.0:subject:organization:code";
-                organization.MatchId ??= Constants.Xacml.Functions.StringEqual;
-            }
-        }
-
-        if (Resources != null && Resources.Count != 0)
-        {
-            foreach (var resource in Resources)
-            {
-                resource.DataType ??= Constants.Xacml.DataType.String;
-                resource.AttributeId ??= Constants.Xacml.Attribute.ResourceId;
-                resource.MatchId ??= Constants.Xacml.Functions.StringEqual;
-            }
+            item.DataType ??= Constants.Xacml.DataType.String;
+            item.AttributeId ??= Constants.Xacml.Attribute.SubjectId;
+            item.MatchId ??= Constants.Xacml.Functions.StringEqual;
         }
     }
 }

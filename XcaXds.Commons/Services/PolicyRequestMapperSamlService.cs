@@ -15,12 +15,13 @@ namespace XcaXds.Commons.Services;
 /// <summary>
 /// Parse incoming requests (ie. SOAP-requests and REST-requests with JWT) and generate XACML-access requests from the request assertions
 /// </summary>
-public static class PolicyRequestMapperService
+public static class PolicyRequestMapperSamlService
 {
-    public static async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(string inputJson)
+
+    public static Saml2SecurityToken ReadSamlToken(string inputSamlToken)
     {
-        XacmlContextRequest contextRequest = null;
-        return contextRequest;
+        var handler = new Saml2SecurityTokenHandler();
+        return handler.ReadSaml2Token(inputSamlToken);
     }
 
     public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(string inputSamlToken, string action, XacmlVersion xacmlVersion)
@@ -29,9 +30,7 @@ public static class PolicyRequestMapperService
         {
             return null;
         }
-
-        var handler = new Saml2SecurityTokenHandler();
-        var samlToken = handler.ReadSaml2Token(inputSamlToken);
+        var samlToken = ReadSamlToken(inputSamlToken);
         return await GetXacmlRequestFromSamlToken(samlToken, action, xacmlVersion);
     }
 
@@ -39,7 +38,7 @@ public static class PolicyRequestMapperService
     {
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
-        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa"));
+        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel"));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
@@ -70,8 +69,8 @@ public static class PolicyRequestMapperService
                     xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("action-id")));
 
                 var xacmlEnvironmentContextAttributes = new XacmlContextAttributes(
-                    new Uri(Constants.Xacml.Category.V30_Action),
-                    xacmlAllAttributes.Where(xatt => xatt.AttributeId.AbsolutePath.Contains("laksjhflksadhflkajsfh")));
+                    new Uri(Constants.Xacml.Category.V30_Environment),
+                    Enumerable.Empty<XacmlAttribute>());
 
                 xacmlAttributesList.Add(xacmlSubjectContextAttributes);
                 xacmlAttributesList.Add(xacmlResourceContextAttributes);
@@ -185,7 +184,17 @@ public static class PolicyRequestMapperService
                         ));
 
                 // If its structured codedvalue format or just plain text
-                if (attributeValueAsCodedValue.Code != null)
+                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.Code) && 
+                    string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem) && 
+                    string.IsNullOrWhiteSpace(attributeValueAsCodedValue.DisplayName))
+                {
+                    subjectAttributes.Add(
+                        new XacmlContextAttribute(
+                            new Uri(attribute.Name),
+                            new Uri(Constants.Xacml.DataType.String),
+                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.Code }));
+                }
+                else
                 {
                     subjectAttributes.Add(
                         new XacmlContextAttribute(
@@ -194,17 +203,17 @@ public static class PolicyRequestMapperService
                             new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.Code }));
                 }
 
-                if (attributeValueAsCodedValue.CodeSystem != null)
+                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem))
                 {
                     subjectAttributes.Add(
                         new XacmlContextAttribute(
                             new Uri(attribute.Name + ":codeSystem"),
                             new Uri(Constants.Xacml.DataType.String),
-                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem.NoUrn() }));
+                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }));
 
                 }
 
-                if (attributeValueAsCodedValue.DisplayName != null)
+                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.DisplayName))
                 {
                     subjectAttributes.Add(
                         new XacmlContextAttribute(
@@ -233,7 +242,7 @@ public static class PolicyRequestMapperService
             var type = attributes?.GetNamedItem("type")?.Value;
 
             code = attributes?.GetNamedItem("code")?.Value ?? attributes?.GetNamedItem("extension")?.Value;
-            codeSystem = attributes?.GetNamedItem("codeSystem")?.Value?.NoUrn() ?? attributes?.GetNamedItem("root")?.Value?.NoUrn();
+            codeSystem = attributes?.GetNamedItem("codeSystem")?.Value ?? attributes?.GetNamedItem("root")?.Value;
             displayName = attributes?.GetNamedItem("displayName")?.Value;
         }
         catch (Exception)
@@ -286,7 +295,7 @@ public static class PolicyRequestMapperService
         return soapEnvelopeObject.Header.Action;
     }
 
-    private static string? GetSamlTokenFromSoapEnvelope(string inputSoapEnvelope)
+    public static string? GetSamlTokenFromSoapEnvelope(string inputSoapEnvelope)
     {
         var soapEnvelopeXmlDocument = new XmlDocument();
         try
@@ -309,7 +318,7 @@ public static class PolicyRequestMapperService
         return assertion[0]?.OuterXml;
     }
 
-    private static string MapXacmlActionFromSoapAction(string action)
+    public static string MapXacmlActionFromSoapAction(string action)
     {
         // Action
         switch (action)
@@ -342,4 +351,5 @@ public static class PolicyRequestMapperService
                 return Constants.Xacml.Actions.Unknown;
         }
     }
+
 }
