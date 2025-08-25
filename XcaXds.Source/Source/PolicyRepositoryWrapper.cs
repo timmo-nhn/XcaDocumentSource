@@ -48,6 +48,11 @@ public class PolicyRepositoryWrapper
         return _policySet;
     }
 
+    public PolicyDto? GetPolicy(string id)
+    {
+        return _policySet.Policies?.FirstOrDefault(pol => pol.Id == id);
+    }
+
     public bool DeletePolicy(string id)
     {
         var deleteResult = _policyRepository.DeletePolicy(id);

@@ -8,7 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Abc.Xacml" Version="1.2.1" />
         <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
         <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
         <PackageReference Include="Microsoft.FeatureManagement" Version="4.0.0" />
@@ -24,6 +23,7 @@
     <ItemGroup>
         <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
         <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
+        <ProjectReference Include="..\Abc.Xacml\Abc.Xacml.csproj" />
     </ItemGroup>
 
     <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

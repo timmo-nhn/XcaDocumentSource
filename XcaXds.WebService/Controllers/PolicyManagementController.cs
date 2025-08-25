@@ -41,11 +41,11 @@ public class PolicyManagementController : ControllerBase
 
     [Produces("application/json","application/xml")]
     [HttpGet("getall")]
-    public async Task<IActionResult> GetAllPolicies(bool asXml = false)
+    public IActionResult GetAllPolicies(bool xml = false)
     {
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
         
-        if (asXml)
+        if (xml)
         {
             var xacmlPolicySet = PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySet);
             
@@ -58,12 +58,76 @@ public class PolicyManagementController : ControllerBase
         return Ok(policySet);
     }
 
+    [Produces("application/json","application/xml")]
+    [HttpGet("getsingle")]
+    public IActionResult GetSinglePolicy(string id, bool xml = false)
+    {
+        var policySet = _policyRepositoryService.GetSinglePolicy(id);
+        
+        if (xml)
+        {
+            var xacmlPolicySet = PolicyDtoTransformerService.TransformPolicyDtoToXacmlVersion20Policy(policySet);
+            
+            var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
+            
+            return Content(xmlPolicySet, Constants.MimeTypes.Xml);
+            
+        }
+
+        return Ok(policySet);
+    }
+
     [Produces("application/json")]
+    [Consumes("application/json")]
     [HttpPost("upload")]
-    public async Task<IActionResult> CreatePolicy([FromBody]PolicyDto policyDto)
+    public IActionResult CreatePolicy([FromBody]PolicyDto policyDto)
     {
         policyDto.SetDefaultValues();
         var response = _policyRepositoryService.AddPolicy(policyDto);
+
+        var apiResponse = new RestfulApiResponse()
+        {
+            Success = response
+        };
+
+        if (apiResponse.Success)
+        {
+            apiResponse.SetMessage($"Created Policy with id {policyDto.Id}");
+            return Ok(apiResponse);
+        }
+
+        return BadRequest(apiResponse);
+    }
+
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [HttpPut("update")]
+    public IActionResult UpdatePolicy([FromBody]PolicyDto policyDto)
+    {
+        policyDto.SetDefaultValues();
+        var response = _policyRepositoryService.UpdatePolicy(policyDto);
+
+        var apiResponse = new RestfulApiResponse()
+        {
+            Success = response
+        };
+
+        if (apiResponse.Success)
+        {
+            apiResponse.SetMessage($"Created Policy with id {policyDto.Id}");
+            return Ok(apiResponse);
+        }
+
+        return BadRequest(apiResponse);
+    }
+
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [HttpPatch("patch")]
+    public IActionResult PatchPolicy([FromBody]PolicyDto policyDto)
+    {
+        policyDto.SetDefaultValues();
+        var response = _policyRepositoryService.PartiallyUpdatePolicy(policyDto);
 
         var apiResponse = new RestfulApiResponse()
         {

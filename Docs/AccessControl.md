@@ -43,9 +43,9 @@ pep --6.2\.--> in
 
 &emsp;6.&nbsp;*The **PEP** receives the decision response.*
 
-&emsp;6.1&nbsp;*The **PEP** sends the request on to the API-endpoint*  
+&emsp;6.1.&nbsp;*The **PEP** sends the request on to the API-endpoint*  
 
-&emsp;6.2&nbsp;*The **PEP** denies the request*
+&emsp;6.2.&nbsp;*The **PEP** denies the request*
 
 ## Policy Enforcement Point
 **The Policy Enforcement Point** (PEP) sits in front of an API-endpoint (such as the SOAP-endpoints) and intercepts the request, parses the authentication details from the request and sends it to the Policy Decision Point (PDP), to authorize the request.
@@ -56,7 +56,7 @@ An extension method is also used to define it in the applications `Program.cs`-f
 ```c#
 app.UsePolicyEnforcementPointMiddleware();
 ```
-*Excerpt from XcaXds.WebService's `Program.cs`-file*  
+*Excerpt from **XcaXds.WebService**'s `Program.cs`-file*  
 
 #### The `[UsePolicyEnforcementPoint]`-Attribute
 
@@ -91,7 +91,7 @@ subgraph "XcaDocumentSource"
     end
     subgraph "PDP/PAP Service"
         pdp[PDP] 
-        pr[PR]
+        pr[(&emsp;PR&emsp;)]
     end
 
 end
@@ -119,6 +119,7 @@ permitdeny --Permit-->repep
 ## Policy Repository
 
 ## Endpoints for managing Access control
+API-endpoints for performing CRUD-operations on policies are available. These serve as easy-to-use interfaces for configuring access control for **XcaDocumentSource**
 
 
 ## XACML-Terminology
@@ -133,11 +134,39 @@ A `<Target>` in a XACML-`<Policy>` describes who the policy is intended for. XAC
 
 
 ## DTOs for policy and Policy Set
-Easier creation and storage of policies. Complex XACML-classes are abstracted behind simpler JSON structure.
+**XcaDocumentSource** features a DTO for policies. This allows for easier creation and storage of policies. Complex XACML-classes and concepts are abstracted behind simpler JSON structure.
 
-### Example
+### Example - NHN trust-framework compliant policy
 ```json
 {
+  "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
+  "Rules": [
+    {
+      "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
+      "value": "4"
+    },
+    {
+      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+      "value": "LE;SP"
+    },
+    {
+      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+      "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+    },
+    {
+      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
+      "value": "TREAT;ETREAT;COC;BTG"
+    },
+    {
+      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
+      "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
+    }
+  ],
+  "actions": [
+    "ReadDocumentList"
+  ],
+  "effect": "Permit"
+}```
     "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
     "subjects": [
         {
