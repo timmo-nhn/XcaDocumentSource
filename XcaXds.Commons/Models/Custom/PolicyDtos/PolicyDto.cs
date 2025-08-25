@@ -7,6 +7,7 @@ namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 public class PolicyDto
 {
     public string? Id { get; set; }
+    public List<PolicyMatch>? Rules { get; set; }
     public List<PolicyMatch>? Subjects { get; set; }
     public List<PolicyMatch>? Roles { get; set; }
     public List<PolicyMatch>? Organizations { get; set; }
@@ -19,6 +20,16 @@ public class PolicyDto
         if (Id == "string" || string.IsNullOrWhiteSpace(Id))
         {
             Id = Guid.NewGuid().ToString();
+        }
+
+        if (Rules != null && Rules.Count != 0)
+        {
+            foreach (var rule in Rules)
+            {
+                rule.DataType ??= Constants.Xacml.DataType.String;
+                rule.AttributeId ??= Constants.Xacml.Attribute.SubjectId;
+                rule.MatchId ??= Constants.Xacml.Functions.StringEqual;
+            }
         }
 
         if (Subjects != null && Subjects.Count != 0)

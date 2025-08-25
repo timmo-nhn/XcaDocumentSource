@@ -88,37 +88,57 @@ public static class PolicyDtoTransformerService
             xacmlPolicy.PolicyId = new Uri($"urn:uuid:{policyDto.Id}", UriKind.Absolute);
         }
 
-        var xacmlRule = new XacmlRule(xacmlEffect);
 
         foreach (var action in policyDto.Actions ?? new List<string>())
         {
             var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), action.ToString());
             var xacmlAttributeDesignator = new XacmlActionAttributeDesignator(new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String));
 
-            var xacmlActionMatch = new XacmlActionMatch(new Uri(Constants.Xacml.Functions.StringIsIn), xacmlActionAttributeValue, xacmlAttributeDesignator);
+            var xacmlActionMatch = new XacmlActionMatch(new Uri(Constants.Xacml.Functions.StringEqual), xacmlActionAttributeValue, xacmlAttributeDesignator);
 
             var xacmlAction = new XacmlAction([xacmlActionMatch]);
-            xacmlRule.Target ??= new();
-            xacmlRule.Target.Actions.Add(xacmlAction);
+            xacmlPolicy.Target.Actions.Add(xacmlAction);
+        }
+
+        foreach (var subject in policyDto.Subjects ?? new List<PolicyMatch>())
+        {
+            var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), subject.Value?.ToString());
+            var xacmlAttributeDesignator = new XacmlSubjectAttributeDesignator(new Uri(Constants.Xacml.Attribute.SubjectId), new Uri(Constants.Xacml.DataType.String));
+
+            var xacmlActionMatch = new XacmlSubjectMatch(new Uri(Constants.Xacml.Functions.StringEqual), xacmlActionAttributeValue, xacmlAttributeDesignator);
+
+            var xacmlAction = new XacmlSubject([xacmlActionMatch]);
+            xacmlPolicy.Target.Subjects.Add(xacmlAction);
+        }
+
+        foreach (var resource in policyDto.Resources ?? new List<PolicyMatch>())
+        {
+            var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), resource.Value?.ToString());
+            var xacmlAttributeDesignator = new XacmlResourceAttributeDesignator(new Uri(Constants.Xacml.Attribute.ResourceId), new Uri(Constants.Xacml.DataType.String));
+
+            var xacmlActionMatch = new XacmlResourceMatch(new Uri(Constants.Xacml.Functions.StringEqual), xacmlActionAttributeValue, xacmlAttributeDesignator);
+
+            var xacmlAction = new XacmlResource([xacmlActionMatch]);
+            xacmlPolicy.Target.Resources.Add(xacmlAction);
         }
 
 
-        if (policyDto.Subjects != null && policyDto.Subjects.Count != 0)
+        if (policyDto.Rules != null && policyDto.Rules.Count != 0)
         {
             var andApply = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
 
-            foreach (var subject in policyDto.Subjects)
+            foreach (var rule in policyDto.Rules)
             {
-                var values = subject.Value?.Split(";");
+                var values = rule.Value?.Split(";");
 
                 if (values?.Length > 1)
                 {
                     var orClause = new XacmlApply(new Uri(Constants.Xacml.Functions.Or));
                     foreach (var value in values)
                     {
-                        var stringApply = new XacmlApply(new Uri(Constants.Xacml.Functions.StringIsIn));
+                        var stringApply = new XacmlApply(new Uri(Constants.Xacml.Functions.StringEqual));
                         stringApply.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), value));
-                        stringApply.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(subject.AttributeId), new Uri(Constants.Xacml.DataType.String)));
+                        stringApply.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String)));
                         orClause.Parameters.Add(stringApply);
                     }
 
@@ -126,21 +146,23 @@ public static class PolicyDtoTransformerService
                 }
                 else
                 {
-                    var apply = new XacmlApply(new Uri(Constants.Xacml.Functions.StringIsIn));
+                    var apply = new XacmlApply(new Uri(Constants.Xacml.Functions.StringEqual));
                     apply.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), values.FirstOrDefault()));
-                    apply.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(subject.AttributeId), new Uri(Constants.Xacml.DataType.String)));
+                    apply.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String)));
 
                     andApply.Parameters.Add(apply);
                 }
 
             }
 
-            xacmlRule.Condition = new XacmlExpression()
-            {
-                Property = andApply
-            };  
-
         }
+
+        var xacmlRule = new XacmlRule(xacmlEffect);
+
+        xacmlRule.Condition = new XacmlExpression()
+        {
+            Property = andApply
+        };
 
         xacmlPolicy.Rules.Add(xacmlRule);
 
@@ -153,7 +175,7 @@ public static class PolicyDtoTransformerService
                 var xacmlResourceAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), subject.Value);
                 var xacmlAttributeDesignator = new XacmlResourceAttributeDesignator(new Uri(subject.AttributeId ?? Constants.Xacml.Attribute.ResourceId), new Uri(Constants.Xacml.DataType.String));
 
-                var xacmlResourceMatch = new XacmlResourceMatch(new Uri(subject.MatchId ?? Constants.Xacml.Functions.StringIsIn), xacmlResourceAttributeValue, xacmlAttributeDesignator);
+                var xacmlResourceMatch = new XacmlResourceMatch(new Uri(subject.MatchId ?? Constants.Xacml.Functions.StringEqual), xacmlResourceAttributeValue, xacmlAttributeDesignator);
 
                 matches.Add(xacmlResourceMatch);
 
