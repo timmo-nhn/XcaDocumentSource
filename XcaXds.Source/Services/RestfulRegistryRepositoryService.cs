@@ -285,19 +285,19 @@ public class RestfulRegistryRepositoryService
         if (documentEntryToPatch != null)
         {
             _logger.LogInformation($"Updating documentEntry {documentEntryToPatch.Id} with values:\n {JsonSerializer.Serialize(value.DocumentEntry, new JsonSerializerOptions() { WriteIndented = true })}");
-            MergeObjects(documentEntryToPatch, value.DocumentEntry);
+            ObjectMerger.MergeObjects(documentEntryToPatch, value.DocumentEntry);
         }
 
         if (submissionSetToPatch != null)
         {
             _logger.LogInformation($"Updating submissionSet {submissionSetToPatch.Id} with values:\n {JsonSerializer.Serialize(value.SubmissionSet, new JsonSerializerOptions() { WriteIndented = true })}");
-            MergeObjects(submissionSetToPatch, value.SubmissionSet);
+            ObjectMerger.MergeObjects(submissionSetToPatch, value.SubmissionSet);
         }
 
         if (associationToPatch != null)
         {
             _logger.LogInformation($"Updating association {associationToPatch.Id} with values:\n {JsonSerializer.Serialize(value.Association, new JsonSerializerOptions() { WriteIndented = true })}");
-            MergeObjects(associationToPatch, value.Association);
+            ObjectMerger.MergeObjects(associationToPatch, value.Association);
         }
 
         _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
@@ -385,44 +385,4 @@ public class RestfulRegistryRepositoryService
 
         return association;
     }
-
-    public void MergeObjects<T>(T source, T target)
-    {
-        if (target == null) return;
-
-        var props = target.GetType().GetProperties();
-
-        foreach (var property in props)
-        {
-            var sourceValue = property.GetValue(source);
-            var targetValue = property.GetValue(target);
-
-            if (sourceValue == targetValue)
-                continue;
-
-            if (targetValue == null || (sourceValue == null && targetValue == null) || (sourceValue == null && targetValue == null))
-                continue;
-
-
-            if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
-            {
-                if (sourceValue == null)
-                {
-                    sourceValue = Activator.CreateInstance(property.PropertyType);
-                    property.SetValue(source, sourceValue);
-                }
-
-                MergeObjects(sourceValue, targetValue);
-            }
-            else
-            {
-                if (targetValue != null)
-                {
-                    property.SetValue(source, targetValue);
-                }
-            }
-        }
-    }
-
-
 }

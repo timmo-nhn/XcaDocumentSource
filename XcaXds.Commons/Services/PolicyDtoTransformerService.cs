@@ -33,8 +33,6 @@ public static class PolicyDtoTransformerService
             .Select(subjects => new PolicyMatch()
             {
                 AttributeId = subjects?.AttributeDesignator?.AttributeId?.ToString(),
-                DataType = subjects?.AttributeDesignator?.DataType?.ToString(),
-                MatchId = subjects?.MatchId?.ToString(),
                 Value = subjects?.AttributeValue?.Value,
             })).ToList();
 
@@ -49,8 +47,6 @@ public static class PolicyDtoTransformerService
             .Select(resources => new PolicyMatch()
             {
                 AttributeId = resources?.AttributeSelector?.ContextSelectorId?.ToString(),
-                DataType = resources?.AttributeDesignator?.DataType?.ToString(),
-                MatchId = resources?.MatchId?.ToString(),
                 Value = resources?.AttributeValue?.Value,
 
             })).ToList();
@@ -174,7 +170,7 @@ public static class PolicyDtoTransformerService
                 var xacmlResourceAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), subject.Value);
                 var xacmlAttributeDesignator = new XacmlResourceAttributeDesignator(new Uri(subject.AttributeId ?? Constants.Xacml.Attribute.ResourceId), new Uri(Constants.Xacml.DataType.String));
 
-                var xacmlResourceMatch = new XacmlResourceMatch(new Uri(subject.MatchId ?? Constants.Xacml.Functions.StringEqual), xacmlResourceAttributeValue, xacmlAttributeDesignator);
+                var xacmlResourceMatch = new XacmlResourceMatch(new Uri(Constants.Xacml.Functions.StringEqual), xacmlResourceAttributeValue, xacmlAttributeDesignator);
 
                 matches.Add(xacmlResourceMatch);
             }

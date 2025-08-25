@@ -1,6 +1,4 @@
-﻿using Abc.Xacml.Context;
-using Abc.Xacml.Policy;
-using Hl7.Fhir.Model;
+﻿using Abc.Xacml.Policy;
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Services;
@@ -10,7 +8,6 @@ namespace XcaXds.Source.Services;
 
 public class PolicyRepositoryService
 {
-    private readonly ApplicationConfig _appConfig;
     private readonly ILogger<PolicyRepositoryService> _logger;
     private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
 
@@ -22,7 +19,7 @@ public class PolicyRepositoryService
 
     public PolicySetDto GetPoliciesAsPolicySetDto()
     {
-        return _policyRepositoryWrapper.GetPolicies();
+        return _policyRepositoryWrapper.GetPoliciesAsPolicySet();
     }
 
     public PolicyDto? GetSinglePolicy(string id)
@@ -42,17 +39,17 @@ public class PolicyRepositoryService
 
     public XacmlPolicySet GetPoliciesAsXacmlPolicySet()
     {
-        var policySetDto = _policyRepositoryWrapper.GetPolicies();
+        var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet();
         return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
 
-    public bool PartiallyUpdatePolicy(PolicyDto policyDto)
+    public bool UpdatePolicy(PolicyDto policyDto, string id)
     {
-        throw new NotImplementedException();
+        return _policyRepositoryWrapper.UpdatePolicy(policyDto, id);
     }
 
-    public bool UpdatePolicy(PolicyDto policyDto)
+    public bool PartiallyUpdatePolicy(PolicyDto policyDto, string? id)
     {
-        throw new NotImplementedException();
+        return _policyRepositoryWrapper.PartiallyUpdatePolicy(policyDto, id);
     }
 }

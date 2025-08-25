@@ -122,9 +122,8 @@ permitdeny --Permit-->repep
 API-endpoints for performing CRUD-operations on policies are available. These serve as easy-to-use interfaces for configuring access control for **XcaDocumentSource**
 
 
+
 ## XACML-Terminology
-
-
 
 ### Policy - `<Rule>`
 A `<Rule>` in a XACML-`<Policy>` defines conditions that the XACML-request must satisfy. A `<Rule>` features a `Effect` attribute with a value of either `Permit` or `Deny`. Policies can contain multiple rules, and based on the rule-combining algorithm, together make up whether the request is permitted or denied.
@@ -166,26 +165,5 @@ A `<Target>` in a XACML-`<Policy>` describes who the policy is intended for. XAC
     "ReadDocumentList"
   ],
   "effect": "Permit"
-}```
-    "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
-    "subjects": [
-        {
-            "matchId": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-            "dataType": "http://www.w3.org/2001/XMLSchema#string",
-            "value": "LE"
-        },
-        {
-            "matchId": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-            "dataType": "http://www.w3.org/2001/XMLSchema#string",
-            "value": "urn:oid:2.16.578.1.12.4.1.1.9060"
-        }
-    ],
-    "actions": [
-        "ReadDocumentList"
-    ],
-    "effect": "Permit"
 }
 ```
-
