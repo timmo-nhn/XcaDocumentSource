@@ -147,7 +147,7 @@ Read all document references for a given patient identifier. Also supports statu
 | Property  | Description |
 |---|---|
 | HTTP action | GET |
-| Short description | Upload a Document reference and associated document to the registry or reposito
+| Short description | Get document list for a specific patient
 | Endpoint URL | /api/rest/document-list |
 | Request Query | **See table below** | 
 | Response Object | `DocumentListResponse` |

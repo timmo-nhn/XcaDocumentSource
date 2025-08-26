@@ -13,7 +13,7 @@ using XcaXds.Commons.Serializers;
 namespace XcaXds.Commons.Services;
 
 /// <summary>
-/// Parse incoming requests (ie. SOAP-requests and REST-requests with JWT) and generate XACML-access requests from the request assertions
+/// Parse incoming requests (ie. SOAP-requests with SAML-token) and generate XACML-access requests from the request assertions
 /// </summary>
 public static class PolicyRequestMapperSamlService
 {
