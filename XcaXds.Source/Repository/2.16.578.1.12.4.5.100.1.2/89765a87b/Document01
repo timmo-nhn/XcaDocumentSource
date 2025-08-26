@@ -1,7 +1,0 @@
-<rim:Association associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:RPLC" sourceObject="ExtrinsicObject_Document001" targetObject="Document01" id="Association001" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
-    <rim:Slot name="SubmissionSetStatus">
-        <rim:ValueList>
-            <rim:Value>Original</rim:Value>
-        </rim:ValueList>
-    </rim:Slot>
-</rim:Association>

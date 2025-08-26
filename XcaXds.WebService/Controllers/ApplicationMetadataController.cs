@@ -43,13 +43,15 @@ public class ApplicationMetadataController : ControllerBase
 
         jsonTestData.PossibleSubmissionSetValues.Authors ??= jsonTestData.PossibleDocumentEntryValues.Authors;
 
+        entriesToGenerate = entriesToGenerate == 0 ? 10 : entriesToGenerate;
+
         var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, entriesToGenerate);
 
         var files = jsonTestData.Documents.Select(file => Encoding.UTF8.GetBytes(file));
 
         foreach (var generatedTestObject in generatedTestRegistryObjects.OfType<DocumentEntryDto>())
         {
-            var randomFileAsByteArray = files.ElementAt(new Random().Next(files.Count()));
+            var randomFileAsByteArray = files.ElementAt(Random.Shared.Next(files.Count()));
 
             if (generatedTestObject?.PatientId?.Code != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
             {
@@ -59,6 +61,10 @@ public class ApplicationMetadataController : ControllerBase
                 {
                     generatedTestObject.Hash = BitConverter.ToString(md5.ComputeHash(randomFileAsByteArray)).Replace("-", "");
                 }
+
+                generatedTestObject.RepositoryUniqueId = _xdsConfig.RepositoryUniqueId;
+                generatedTestObject.HomeCommunityId = _xdsConfig.HomeCommunityId;
+
                 _repositoryWrapper.StoreDocument(generatedTestObject.Id, randomFileAsByteArray, generatedTestObject.PatientId.Code);
             }
         }

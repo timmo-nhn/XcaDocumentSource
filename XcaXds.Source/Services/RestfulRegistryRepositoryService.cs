@@ -385,4 +385,19 @@ public class RestfulRegistryRepositoryService
 
         return association;
     }
+
+    public List<SourcePatientInfo>? GetPatientIdentifiersInRegistry()
+    {
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        var patientIdentifiers = documentRegistry.OfType<DocumentEntryDto>()
+            .Select(de => de.SourcePatientInfo)
+            .Where(spi => !string.IsNullOrWhiteSpace(spi?.PatientId?.Id))
+            .DistinctBy(gob => gob?.PatientId?.Id).ToList();
+        return patientIdentifiers;
+    }
+
+    public void PurgeRegistryRepository()
+    {
+        throw new NotImplementedException();
+    }
 }

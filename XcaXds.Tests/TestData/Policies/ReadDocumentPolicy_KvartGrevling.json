@@ -1,18 +1,29 @@
 {
-  "Id": "ReadDocumentPolicy_KvartGrevling",
-  "Subjects": [
-    {
-      "MatchId": "urn:oasis:names:tc:xacml:1.0:function:string-equal",
-      "AttributeId": "urn:oasis:names:tc:xspa:1.0:subject:subject-id:code",
-      "DataType": "http://www.w3.org/2001/XMLSchema#string",
-      "Value": "KVART GREVLING"
-    }
-  ],
-  "Role": null,
-  "Organization": null,
-  "Resources": null,
-  "Actions": [
-    "ReadDocumentList"
-  ],
-  "Effect": "Permit"
+    "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
+    "rules": [
+        {
+            "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
+            "value": "4"
+        },
+        {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+            "value": "LE;SP"
+        },
+        {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+            "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+        },
+        {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
+            "value": "TREAT;ETREAT;COC;BTG"
+        },
+        {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
+            "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
+        }
+    ],
+    "actions": [
+        "ReadDocumentList"
+    ],
+    "effect": "Permit"
 }

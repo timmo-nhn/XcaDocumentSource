@@ -528,6 +528,8 @@ public static class Constants
     }
     public static class MimeTypes
     {
+        public const string FhirJson = "application/fhir+json";
+        public const string Json = "application/json";
         public const string SoapXml = "application/soap+xml";
         public const string MultipartRelated = "multipart/related";
         public const string XopXml = "application/xop+xml";
