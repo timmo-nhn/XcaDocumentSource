@@ -17,16 +17,14 @@ namespace XcaXds.WebService.Controllers;
 public class XdsRespondingGatewayController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
-    private readonly HttpClient _httpClient;
     private readonly ApplicationConfig _xdsConfig;
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, HttpClient httpClient, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager)
+    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager)
     {
         _logger = logger;
-        _httpClient = httpClient;
         _xdsConfig = xdsConfig;
         _xdsRepositoryService = xdsRepositoryService;
         _featureManager = featureManager;

@@ -1,8 +1,14 @@
+<!-- 
+                        ===========NOTE!============
+For Integration tests to work properly, its recommended to not touch these files. 
+                Use the testdata files in the directory above 
+-->
+
 <s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
     xmlns:a="http://www.w3.org/2005/08/addressing"
     xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
     <s:Header>
-        <a:Action s:mustUnderstand="1">urn:ihe:iti:2007:CrossGatewayQuery</a:Action>
+        <a:Action s:mustUnderstand="1">urn:ihe:iti:2007:RegistryStoredQuery</a:Action>
         <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>
         <a:ReplyTo>
             <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>
@@ -142,6 +148,15 @@
                 <Slot name="$XDSDocumentEntryStatus">
                     <ValueList>
                         <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                    </ValueList>
+                </Slot>
+                <Slot name="$XDSDocumentEntryConfidentialityCode">
+                    <ValueList>
+                        <Value>('L^^2.16.840.1.113883.5.25')</Value>
+                        <Value>('M^^2.16.840.1.113883.5.25')</Value>
+                        <Value>('N^^2.16.840.1.113883.5.25')</Value>
+                        <Value>('U^^2.16.840.1.113883.5.25')</Value>
+                        <Value>('R^^2.16.840.1.113883.5.25')</Value>
                     </ValueList>
                 </Slot>
             </AdhocQuery>

@@ -15,27 +15,28 @@ public class PolicyDto
 
     public void SetDefaultValues()
     {
-        if (Id == "string" || string.IsNullOrWhiteSpace(Id))
+        if (Subjects != null)
         {
-            Id = Guid.NewGuid().ToString();
+            foreach (var item in Subjects)
+            {
+                item.AttributeId ??= Constants.Xacml.Attribute.SubjectId;
+            }
         }
 
-        SetDefaultValuesProperties(Rules);
-        SetDefaultValuesProperties(Subjects);
-        SetDefaultValuesProperties(Roles);
-        SetDefaultValuesProperties(Organizations);
-        SetDefaultValuesProperties(Resources);
-    }
-
-    private void SetDefaultValuesProperties(List<PolicyMatch>? items)
-    {
-        if (items == null) return;
-
-        foreach (var item in items)
+        if (Roles != null)
         {
-            item.DataType ??= Constants.Xacml.DataType.String;
-            item.AttributeId ??= Constants.Xacml.Attribute.SubjectId;
-            item.MatchId ??= Constants.Xacml.Functions.StringEqual;
+            foreach (var item in Roles)
+            {
+                item.AttributeId ??= Constants.Xacml.Attribute.Role;
+            }
+        }
+
+        if (Resources != null)
+        {
+            foreach (var item in Resources)
+            {
+                item.AttributeId ??= Constants.Xacml.Attribute.ResourceId;
+            }
         }
     }
 }

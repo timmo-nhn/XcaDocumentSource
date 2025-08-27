@@ -71,7 +71,6 @@ public class PolicyManagementController : ControllerBase
             var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
             
             return Content(xmlPolicySet, Constants.MimeTypes.Xml);
-            
         }
 
         return Ok(policySet);
@@ -96,24 +95,36 @@ public class PolicyManagementController : ControllerBase
             return Ok(apiResponse);
         }
 
+        if (_policyRepositoryService.GetSinglePolicy(policyDto.Id) != null)
+        {
+            apiResponse.AddError("Conflict", "Resource already exists");
+            apiResponse.SetMessage($"Policy with id {policyDto.Id} already exists!");
+            return Conflict(apiResponse);
+        }
+
         return BadRequest(apiResponse);
     }
 
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPut("update")]
-    public IActionResult UpdatePolicy([FromBody]PolicyDto policyDto)
+    public IActionResult UpdatePolicy([FromBody]PolicyDto policyDto, string? id)
     {
-        policyDto.SetDefaultValues();
-        var response = _policyRepositoryService.UpdatePolicy(policyDto);
+        var apiResponse = new RestfulApiResponse();
 
-        var apiResponse = new RestfulApiResponse()
-        {
-            Success = response
-        };
+        var policyToUpdate = _policyRepositoryService.GetSinglePolicy(id ?? policyDto.Id);
 
-        if (apiResponse.Success)
+        if (policyToUpdate == null)
         {
+            apiResponse.SetMessage($"Policy with id {id ?? policyDto.Id} not found.");
+            return NotFound(apiResponse);
+        }
+
+        var response = _policyRepositoryService.UpdatePolicy(policyDto, id);
+
+        if (response)
+        {
+            apiResponse.Success = true;
             apiResponse.SetMessage($"Created Policy with id {policyDto.Id}");
             return Ok(apiResponse);
         }
@@ -124,10 +135,10 @@ public class PolicyManagementController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPatch("patch")]
-    public IActionResult PatchPolicy([FromBody]PolicyDto policyDto)
+    public IActionResult PatchPolicy([FromBody]PolicyDto policyDto, string? id)
     {
         policyDto.SetDefaultValues();
-        var response = _policyRepositoryService.PartiallyUpdatePolicy(policyDto);
+        var response = _policyRepositoryService.PartiallyUpdatePolicy(policyDto, id);
 
         var apiResponse = new RestfulApiResponse()
         {

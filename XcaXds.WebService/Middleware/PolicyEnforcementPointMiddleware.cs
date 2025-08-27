@@ -100,10 +100,11 @@ public class PolicyEnforcementPointMiddleware
         {
             await _next(httpContext);
         }
-
-        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-        return;
-
+        else
+        {
+            httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return;
+        }
     }
 
     public static async Task<string> GetHttpRequestBody(HttpRequest httpRequest)

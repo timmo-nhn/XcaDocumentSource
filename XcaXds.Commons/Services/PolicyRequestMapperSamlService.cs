@@ -98,7 +98,7 @@ public static class PolicyRequestMapperSamlService
                 var xacmlAction = new XacmlContextAction(actionAttribute);
 
                 // Subject
-                var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("subject")));
+                var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && sa.AttributeId.OriginalString.Contains("subject")));
 
                 // Environment
                 var xacmlEnvironment = new XacmlContextEnvironment();
