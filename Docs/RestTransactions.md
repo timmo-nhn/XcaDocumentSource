@@ -19,7 +19,7 @@ Uploads a Document reference and/or document to the registry. The input type is 
 POST <baseurl>/api/rest/upload
 ```
 <details>
-<summary><big><strong> View example JSON payload</strong></big></summary>
+<summary><big><strong> 🔎 View example JSON payload</strong></big></summary>
 
 ```json
 {
@@ -214,7 +214,7 @@ PUT <baseurl>/api/rest/update?replace=false
 
 #### JSON payload
 <details>
-<summary><big><strong>View example JSON payload</strong></big></summary>
+<summary><big><strong> 🔎 View example JSON payload</strong></big></summary>
 
 ```json
 {
@@ -353,7 +353,7 @@ PATCH <baseurl>/api/rest/patch
 ```
 #### Example JSON payload
 <details>
-<summary><big><strong> View example JSON payload</strong></big></summary>
+<summary><big><strong> 🔎 View example JSON payload</strong></big></summary>
 
 ```json
 {
@@ -389,7 +389,7 @@ PATCH <baseurl>/api/rest/patch
 ```
 #### Example JSON payload
 <details>
-<summary><big><strong> View example JSON payload</strong></big></summary>
+<summary><big><strong> 🔎 View example JSON payload</strong></big></summary>
 
 ```json
 {

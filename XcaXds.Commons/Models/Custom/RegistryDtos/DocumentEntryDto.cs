@@ -3,10 +3,10 @@ namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
 public class DocumentEntryDto : RegistryObjectDto
 {
-    public AuthorInfo? Author { get; set; }
+    public List<AuthorInfo>? Author { get; set; }
     public string? AvailabilityStatus { get; set; }
     public CodedValue? ClassCode { get; set; }
-    public CodedValue? ConfidentialityCode { get; set; }
+    public List<CodedValue>? ConfidentialityCode { get; set; }
     public DateTime? CreationTime { get; set; }
     public CodedValue? EventCodeList { get; set; }
     public CodedValue? FormatCode { get; set; }

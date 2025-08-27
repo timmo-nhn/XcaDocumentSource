@@ -37,7 +37,7 @@ public static class CdaTransformerService
 
             // ClinicalDocument.author
             cdaDocument.Author ??= new();
-            cdaDocument.Author.Add(SetClinicalDocumentAuthor(submissionSet));
+            cdaDocument.Author.AddRange(SetClinicalDocumentAuthors(submissionSet));
 
             // ClinicalDocument.custodian
             cdaDocument.Custodian ??= new();
@@ -65,31 +65,40 @@ public static class CdaTransformerService
         return nonXmlBody;
     }
 
-    private static Author SetClinicalDocumentAuthor(SubmissionSetDto submissionSet)
+    private static List<Author> SetClinicalDocumentAuthors(SubmissionSetDto submissionSet)
     {
-        var author = new Author();
+        var authorList = new List<Author>();
 
-        author.Time = SetAuthorTime(submissionSet);
+        foreach (var author in submissionSet.Author)
+        {
+            var cdaAauthor = new Author();
 
-        author.AssignedAuthor = SetAssignedAuthor(submissionSet);
+            cdaAauthor.Time = SetAuthorTime(submissionSet);
 
-        return author;
+            cdaAauthor.AssignedAuthor = SetAssignedAuthor(submissionSet);
+
+            authorList.Add(cdaAauthor);
+        }
+
+        return authorList;
     }
 
     private static AssignedAuthor SetAssignedAuthor(SubmissionSetDto submissionSet)
     {
         var assignedAuthor = new AssignedAuthor();
 
-        if (submissionSet.Author?.Person != null)
+        var firstSubmissionAuthor = submissionSet.Author?.FirstOrDefault();
+
+        if (firstSubmissionAuthor != null && firstSubmissionAuthor.Person != null)
         {
             assignedAuthor.Id ??= new();
             assignedAuthor.Id.Add(new()
             {
-                Extension = submissionSet.Author.Person.Id ?? string.Empty,
-                Root = submissionSet.Author.Person.AssigningAuthority ?? string.Empty
+                Extension = firstSubmissionAuthor.Person.Id ?? string.Empty,
+                Root = firstSubmissionAuthor.Person.AssigningAuthority ?? string.Empty
             });
 
-            assignedAuthor.AssignedPerson = SetAssignedPerson(submissionSet.Author.Person);
+            assignedAuthor.AssignedPerson = SetAssignedPerson(firstSubmissionAuthor.Person);
         }
         return assignedAuthor;
     }
@@ -125,7 +134,7 @@ public static class CdaTransformerService
         if (submissionsSet.Author == null) return null;
 
         custodian.AssignedCustodian ??= new();
-        custodian.AssignedCustodian.RepresentedCustodianOrganization = SetRepresentedCustodianOrganization(submissionsSet.Author);
+        custodian.AssignedCustodian.RepresentedCustodianOrganization = SetRepresentedCustodianOrganization(submissionsSet.Author.FirstOrDefault());
 
         return custodian;
     }
@@ -238,17 +247,17 @@ public static class CdaTransformerService
     {
         var providerOrganization = new Organization();
 
-        var documentAuthor = documentEntry.Author;
+        var documentAuthor = documentEntry.Author?.FirstOrDefault();
 
         if (documentAuthor?.Department != null)
         {
             providerOrganization.Id ??= new();
             providerOrganization.Id.Add(new()
             {
-                Extension = documentAuthor.Department.Id,
-                Root = documentAuthor.Department.AssigningAuthority
+                Extension = documentAuthor?.Department?.Id,
+                Root = documentAuthor?.Department?.AssigningAuthority
             });
-            providerOrganization.Name = [new() { XmlText = documentAuthor.Department.OrganizationName }];
+            providerOrganization.Name = [new() { XmlText = documentAuthor?.Department?.OrganizationName }];
 
         }
 
@@ -295,9 +304,9 @@ public static class CdaTransformerService
 
         return new()
         {
-            Code = documentEntry.ConfidentialityCode.Code,
-            DisplayName = documentEntry.ConfidentialityCode.DisplayName,
-            CodeSystem = documentEntry.ConfidentialityCode.CodeSystem
+            Code = documentEntry.ConfidentialityCode.FirstOrDefault()?.Code,
+            DisplayName = documentEntry.ConfidentialityCode.FirstOrDefault()?.DisplayName,
+            CodeSystem = documentEntry.ConfidentialityCode.FirstOrDefault()?.CodeSystem
         };
     }
 

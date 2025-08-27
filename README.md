@@ -199,3 +199,8 @@ Used to describe an implementation which is notable or specific to **PJD.XcaDocu
 Used to describe something specific to the **Norwegian** implementation of **IHE XDS/XCA**  
 **Example:**
 >**🚩 National Extension x** <br> Example text
+
+### Question/Answer
+Questions that the reader might ask themselves. Usually in a lighthearted tone.  
+**Example:**  
+> ⁉️ **Why is the S in SOAP a lie?**<br> The answer might shock you!

@@ -4,6 +4,9 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
@@ -75,17 +78,25 @@ public class PolicyEnforcementPointMiddleware
 
         XacmlContextRequest? xacmlRequest = null;
 
+
         switch (contentType)
         {
-            case "application/soap+xml":
+            case Constants.MimeTypes.SoapXml:
 
                 var xacmlAction = PolicyRequestMapperSamlService.MapXacmlActionFromSoapAction(PolicyRequestMapperSamlService.GetActionFromSoapEnvelope(requestBody));
                 var samlTokenString = PolicyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody);
 
-                var validations = new TokenValidationParameters()
+                if (string.IsNullOrEmpty(samlTokenString))
                 {
-                    
-                };
+                    break;
+                }
+                if (_xdsConfig.ValidateSamlTokenIntegrity)
+                {
+                    var validations = new TokenValidationParameters()
+                    {
+
+                    };
+                }
 
                 var samlTokenValidator = new Saml2SecurityTokenHandler();
 
@@ -94,10 +105,20 @@ public class PolicyEnforcementPointMiddleware
 
                 break;
 
-            case "application/json":
-                xacmlRequest = await PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(requestBody);
-                
+            default:
+            case Constants.MimeTypes.Json:
+                xacmlRequest = await PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(httpContext.Request.Headers);
                 break;
+        }
+
+        //FIXME maybe some day, do something about JWT aswell?!
+        if (xacmlRequest == null && contentType == Constants.MimeTypes.SoapXml)
+        {
+            var soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "No saml token found in SOAP-message").Value;
+            var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content ?? string.Empty);
+            httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
+            return;
         }
 
         string xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
@@ -112,7 +133,28 @@ public class PolicyEnforcementPointMiddleware
         }
         else
         {
-            httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+            var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestBody);
+
+            var soapEnvelopeResponse = new SoapEnvelope()
+            {
+                Header = new()
+                {
+                    Action = soapEnvelopeObject.GetCorrespondingResponseAction(),
+                    MessageId = Guid.NewGuid().ToString(),
+                    RelatesTo = soapEnvelopeObject.Header.MessageId,
+                }
+            };
+            var registryResponse = new RegistryResponseType();
+            registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
+
+            soapEnvelopeResponse.Body ??= new();
+            soapEnvelopeResponse.Body.RegistryResponse = registryResponse;
+
+            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
+            httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
+
             return;
         }
     }

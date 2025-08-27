@@ -14,7 +14,7 @@ public static class FhirTransformerService
         var documentEntry =  new DocumentEntryDto();
         
         documentEntry.Id = bundleEntry.Resource.Id;
-        documentEntry.Author = GetDocumentEntryAuthorFromFhirDocumentReference(fhirDocumentReference);
+        documentEntry.Author = GetDocumentEntryAuthorsFromFhirDocumentReference(fhirDocumentReference);
 
         var submissionSet = new SubmissionSetDto();
 
@@ -22,10 +22,9 @@ public static class FhirTransformerService
         return registryObjectList;
     }
 
-    private static AuthorInfo? GetDocumentEntryAuthorFromFhirDocumentReference(DocumentReference documentReference)
+    private static List<AuthorInfo>? GetDocumentEntryAuthorsFromFhirDocumentReference(DocumentReference documentReference)
     {
-        var author = new AuthorInfo();
-
+        var author = new List<AuthorInfo>();
 
 
 

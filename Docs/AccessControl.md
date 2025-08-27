@@ -61,7 +61,7 @@ subgraph "Evaluation Engine"
 end
 
 req[XACML Request]
-req-->eval
+req<--Evaluation<br>Request/Response-->eval
 ```
 
 ## Policy Enforcement Point
@@ -87,14 +87,12 @@ flowchart LR
 
 incomingrequest[Incoming Request]
 
-
 subgraph "XcaDocumentSource"
     subgraph "PEP"
         xtract[Extract XACML-request from SAML token or JWT]
         sendpeprequest[Send XACML Request to PDP]
         permitdeny{Permit/Deny}
     end
-    
     subgraph "Endpoints"
         subgraph "Other Endpoints"
             epx[Endpoint X]
@@ -164,7 +162,7 @@ Here, `code` and `codeSystem` are transformed by the **PEP** into their own sepa
 *The **HL7 XSI Snippet** when parsed by the **PEP**; with `:code` and `:codeSystem` separated out into two distinct attributes*
 
 <details>
-<summary><big><strong> 🔎 View full XML XACML-Request</strong></big></summary>
+<summary><big><strong> 🔎 View example XML XACML-Request</strong></big></summary>
 
 ```xml
 <xacml-context:Request xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os">
@@ -277,8 +275,11 @@ Here, `code` and `codeSystem` are transformed by the **PEP** into their own sepa
 
 </details>
 
-> ⁉️ **But why not insert the XSI/Coded XML as a raw XML string instead?**<br> The reason for parsing the coded attributes into disctinct XACML Request attributes is general readability and compliance with the XACML-specification, as Policy Engines might'nt be very glad to see XML strings in their validation logic.  
-Separating them into their own attributes also allows for fine-grained control of which codes and code systems are allowed for each attribute. This also propagates to the design of the Policies, which become substantially more intuitive when a single value per attribute is of concern, and allows for cool stuff like OR-semantics. Also, since different code systems can contain the same code-values, its important to define which code system is relevant for the specific code.
+<br>
+
+> ⁉️ **But why not insert the XSI/Coded XML as a raw XML string instead?**  
+The reason for parsing the coded attributes into disctinct XACML Request attributes is general readability and compliance with the XACML-specification, as Policy Engines might go haywire when they see XML strings in their validation logic.  
+Separating them into their own attributes also allows for fine-grained control of which codes and code systems are allowed for each attribute. This also propagates to the design of the Policies, which become substantially more intuitive when a single value per attribute is of concern, and allows for cool stuff like OR-semantics. Also, since different code systems can contain the same code-values, its important to define which code system is relevant for the specific code, and defining all possible values for both code values and code systems in a single string value would get **messy**..quick!
 
 
 ## DTOs for policy and Policy Set
@@ -286,11 +287,28 @@ Separating them into their own attributes also allows for fine-grained control o
 By default, the `PolicySetDto` generated from the policies in the Policy Repository defaults to the `deny-overrides` (`urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides`)-combining algorithm.  
 If any child (Policy/Rule) evaluates to Deny, the result is Deny, regardless whether other policies or rules Permit.
 
-### Data Model
-|Field|Optionality/Constraints|XACML-equivalent|Comments|
-|--|--|--|--|
-|**`PolicySetDto`**|PolicySetDto (R)||The top-level Policy Set DTO|
-|&emsp;**`SetId`**|string(R)||The Unique ID of the Policy Set|
+### Data Model for PolicySetDTO/PolicyDTO
+|Field|Type/Optionality|card|XACML-equivalent|Comments|
+|--|--|--|--|--|
+|**`PolicySetDto`**|PolicySetDto (R)|[1..1]|`<PolicySet>`|The top-level **Policy Set DTO**|
+|&emsp;L&nbsp;**`SetId`**|string(R)|[1..1]|`@PolicySetId`|The **Unique ID** of the **Policy Set**|
+|&emsp;L&nbsp;**`CombiningAlgorithm`**|string(R)|[1..1]|`@CombiningAlgorithm`|Algorithm used to combine the result of multiple policies|
+|&emsp;L&nbsp;**`Policies`**|List&lt;PolicyDto&gt;(R)|[1..1]|`/PolicySet/Policies[]`|The List of Policies for this PolicySet|
+|&emsp;&emsp;L&nbsp;**`PolicyDto`**|PolicyDto(R)|[1..*]|`<Policy>`|A **Policy DTO**|
+|&emsp;&emsp;&emsp;L&nbsp;**`id`**|string(R)|[1..1]|`@PolicyId`|The **Unique ID** of the **Policy**|
+|&emsp;&emsp;&emsp;L&nbsp;**`Rules`**|PolicyMatch(O)|[1..*]|`<Rule>`|A container for statements that the request must match|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`AttributeId`**|string(R)|[1..1]|`<AttributeDesignator>`|The attribute ID to check for similar values|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`Value`**|string(R)|[1..1]|`<AttributeValue>`|The value to compare with the request|
+|&emsp;&emsp;&emsp;L&nbsp;**`Subjects`**|PolicyMatch(O)|[1..*]|`<Subject>`|The subjects that this policy will apply to|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`AttributeId`**|string(R)|[1..1]|`<AttributeDesignator>`|The subject attributes to match|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`Value`**|string(R)|[1..1]|`<AttributeValue>`|The subject value to compare with the request|
+|&emsp;&emsp;&emsp;L&nbsp;**`Roles`**|PolicyMatch(O)|[1..1]|`<Roles>`|The roles that must be present in the request|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`AttributeId`**|string(R)|[1..1]|`<AttributeDesignator>`|The role attributes to match|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`Value`**|string(R)|[1..1]|`<AttributeValue>`|The role values that must be present in the request|
+|&emsp;&emsp;&emsp;L&nbsp;**`Resources`**|PolicyMatch(O)|[1..1]|`<Resources>`|The specific resources that this policy constrains|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`AttributeId`**|string(R)|[1..1]|`<AttributeDesignator>`|The resource attributes to match|
+|&emsp;&emsp;&emsp;&emsp;L&nbsp;**`Value`**|string(R)|[1..1]|`<AttributeValue>`|The resource values that must be present in the request|
+
 
 ### AND/OR Semantics
 **XACML 2.0** features functions that can perform certain operations on attributes or collections of attributes.
@@ -316,6 +334,7 @@ Below is a snippet showing how multiple values and attributed can be combined.
       "value": "urn:oid:2.16.578.1.12.4.1.1.9060"
   }
 ]
+// Permit the request
 "effect": "Permit"
 //...
 ```
@@ -323,7 +342,7 @@ Below is a snippet showing how multiple values and attributed can be combined.
 
 This how the XACML XML will be mapped from the DTO. 
 ```xml
-<xacml:Rule RuleId="urn:rule:fd5473b8530640faa53b0449d3c05a80" Effect="Deny">
+<xacml:Rule RuleId="urn:rule:fd5473b8530640faa53b0449d3c05a80" Effect="Permit">
     <xacml:Condition>
         <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
             <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">

@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
@@ -19,20 +20,12 @@ public static class TestDataGeneratorService
             var creationTime =
                 DateTime.UtcNow.AddSeconds(-rng.Next(1_000_000_000));
 
-
             var documentEntry = new DocumentEntryDto()
             {
-                Author = new()
-                {
-                    Person = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Persons),
-                    Department = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Departments),
-                    Organization = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Organizations),
-                    Role = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Roles),
-                    Speciality = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Specialities),
-                },
+                Author = GetRandomAuthors(documentEntryValues.PossibleDocumentEntryValues.Authors, Random.Shared.Next(4)),
                 AvailabilityStatus = PickRandom(documentEntryValues.PossibleDocumentEntryValues.AvailabilityStatuses),
                 ClassCode = PickRandom(documentEntryValues.PossibleDocumentEntryValues.ClassCodes),
-                ConfidentialityCode = PickRandom(documentEntryValues.PossibleDocumentEntryValues.ConfidentialityCodes),
+                ConfidentialityCode = PickRandomAmount(documentEntryValues.PossibleDocumentEntryValues.ConfidentialityCodes, Random.Shared.Next(4)).ToList(),
                 CreationTime = creationTime.AddSeconds(-rng.Next(10_000)),
                 EventCodeList = PickRandom(documentEntryValues.PossibleDocumentEntryValues.EventCodeLists),
                 FormatCode = PickRandom(documentEntryValues.PossibleDocumentEntryValues.FormatCodes),
@@ -58,14 +51,7 @@ public static class TestDataGeneratorService
 
             var submissionSet = new SubmissionSetDto()
             {
-                Author = new()
-                {
-                    Person = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Persons),
-                    Department = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Departments),
-                    Organization = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Organizations),
-                    Role = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Roles),
-                    Speciality = PickRandom(documentEntryValues.PossibleDocumentEntryValues.Authors.Specialities),
-                },
+                Author = GetRandomAuthors(documentEntryValues.PossibleDocumentEntryValues.Authors, Random.Shared.Next(4)),
                 AvailabilityStatus = PickRandom(documentEntryValues.PossibleDocumentEntryValues.AvailabilityStatuses),
                 HomeCommunityId = documentEntry.HomeCommunityId,
                 Id = Guid.NewGuid().ToString(),
@@ -94,9 +80,28 @@ public static class TestDataGeneratorService
         return registryObjects;
     }
 
-    public static void UploadFilesFromRegistryObjectsAndfiles(List<byte[]> files, List<RegistryObjectDto> registryObjects)
+    private static List<AuthorInfo>? GetRandomAuthors(TestAuthors authors, int amount)
     {
-        throw new NotImplementedException();
+        var authorInfo = new List<AuthorInfo>();
+
+        for (int i = 0; i < amount; i++)
+        {
+            authorInfo.Add(new()
+            {
+                Person = PickRandom(authors.Persons),
+                Department = PickRandom(authors.Departments),
+                Organization = PickRandom(authors.Organizations),
+                Role = PickRandom(authors.Roles),
+                Speciality = PickRandom(authors.Specialities),
+            });
+        }
+
+        return authorInfo.Count == 0 ? null : authorInfo;
+    }
+
+    private static IEnumerable<T> PickRandomAmount<T>(IEnumerable<T> inputs, int amount)
+    {
+        return inputs.PickRandom(amount);
     }
 
     internal static T PickRandom<T>(IEnumerable<T> inputs)

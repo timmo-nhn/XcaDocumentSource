@@ -1,11 +1,13 @@
 ﻿using Abc.Xacml.Context;
+using Microsoft.AspNetCore.Http;
 
 namespace XcaXds.Commons.Services;
 
 
 public class PolicyRequestMapperJsonWebTokenService
 {
-    public static async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(string inputJson)
+    //FIXME maybe some day, do something about JWT aswell?!
+    public static async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(IHeaderDictionary headers)
     {
         XacmlContextRequest contextRequest = null;
         return contextRequest;

@@ -8,7 +8,6 @@ public class PolicyDto
     public List<PolicyMatch>? Rules { get; set; }
     public List<PolicyMatch>? Subjects { get; set; }
     public List<PolicyMatch>? Roles { get; set; }
-    public List<PolicyMatch>? Organizations { get; set; }
     public List<PolicyMatch>? Resources { get; set; }
     public List<string>? Actions { get; set; }
     public string? Effect { get; set; }

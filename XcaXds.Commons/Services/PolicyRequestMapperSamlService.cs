@@ -312,7 +312,7 @@ public static class PolicyRequestMapperSamlService
 
         if (assertion.Count == 0)
         {
-            throw new Exception("No SAML Assertion found in the SOAP envelope.");
+            return null;
         }
 
         return assertion[0]?.OuterXml;

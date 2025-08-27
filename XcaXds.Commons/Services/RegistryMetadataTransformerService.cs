@@ -119,7 +119,7 @@ public static class RegistryMetadataTransformerService
             if (registryObject is ExtrinsicObjectType extrinsicObject)
             {
                 var documentEntryDto = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
-                
+
                 if (documentEntryDto == null) continue;
 
                 listDto.Add(documentEntryDto);
@@ -129,7 +129,7 @@ public static class RegistryMetadataTransformerService
             if (registryObject is RegistryPackageType registryPackage)
             {
                 var submissionSetDto = TransformRegistryPackageToSubmissionSetDto(registryPackage);
-                
+
                 if (submissionSetDto == null) continue;
 
                 listDto.Add(submissionSetDto);
@@ -166,7 +166,7 @@ public static class RegistryMetadataTransformerService
 
         var submissionSetDto = new SubmissionSetDto();
 
-        submissionSetDto.Author = GetAuthorFromRegistryPackage(registryPackage);
+        submissionSetDto.Author = GetAuthorsFromRegistryPackage(registryPackage);
         submissionSetDto.AvailabilityStatus = registryPackage.Status;
         submissionSetDto.HomeCommunityId = registryPackage.Home;
         submissionSetDto.Id = registryPackage.Id;
@@ -223,23 +223,27 @@ public static class RegistryMetadataTransformerService
         return null;
     }
 
-    private static AuthorInfo? GetAuthorFromRegistryPackage(RegistryPackageType? registryPackage)
+    private static List<AuthorInfo>? GetAuthorsFromRegistryPackage(RegistryPackageType? registryPackage)
     {
-        var authorClassification = registryPackage?.GetFirstClassification(Constants.Xds.Uuids.SubmissionSet.Author);
+        var authorClassifications = registryPackage?.GetClassifications(Constants.Xds.Uuids.SubmissionSet.Author);
+        if (authorClassifications.Length == 0) return null;
 
-        if (authorClassification != null)
+        var authorList = new List<AuthorInfo>();
+
+        foreach (var authorClassification in authorClassifications)
         {
-            var author = new AuthorInfo();
-            author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
-            author.Department = GetAuthorDepartmentFromClassification(authorClassification);
-            author.Person = GetAuthorPersonFromClassification(authorClassification);
-            author.Role = GetAuthorRoleFromClassificaiton(authorClassification);
-            author.Speciality = GetAuthorSpecialityFromClassification(authorClassification);
+            var author = new AuthorInfo
+            {
+                Organization = GetAuthorOrganizationFromClassification(authorClassification),
+                Department = GetAuthorDepartmentFromClassification(authorClassification),
+                Person = GetAuthorPersonFromClassification(authorClassification),
+                Role = GetAuthorRoleFromClassificaiton(authorClassification),
+                Speciality = GetAuthorSpecialityFromClassification(authorClassification)
+            };
 
-            return author;
+            authorList.Add(author);
         }
-
-        return null;
+        return authorList;
     }
 
     private static DocumentEntryDto TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject)
@@ -251,7 +255,7 @@ public static class RegistryMetadataTransformerService
         documentMetadata.Author = GetAuthorFromExtrinsicObject(extrinsicObject);
         documentMetadata.AvailabilityStatus = extrinsicObject.Status;
         documentMetadata.ClassCode = GetClassCodeFromExtrinsicObject(extrinsicObject);
-        documentMetadata.ConfidentialityCode = GetConfidentialityCodeFromExtrinsicObject(extrinsicObject);
+        documentMetadata.ConfidentialityCode = GetConfidentialityCodesFromExtrinsicObject(extrinsicObject);
         documentMetadata.CreationTime = GetCreationTimeFromExtrinsicObject(extrinsicObject);
         documentMetadata.UniqueId = GetDocumentUniqueIdFromExtrinsicObject(extrinsicObject);
         documentMetadata.EventCodeList = GetEventCodeListFromExtrinsicObject(extrinsicObject);
@@ -472,14 +476,18 @@ public static class RegistryMetadataTransformerService
         return null;
     }
 
-    private static CodedValue? GetConfidentialityCodeFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
+    private static List<CodedValue>? GetConfidentialityCodesFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
 
-        var confCodeClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
+        var confCodeClassifications = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
 
-        if (confCodeClassification != null)
+        var codedValueConfCodes = new List<CodedValue>();
+
+        foreach (var confCodeClassification in confCodeClassifications)
         {
-            return MapClassificationToCodedValue(confCodeClassification);
+            if (confCodeClassification == null) continue;
+
+            codedValueConfCodes.Add(MapClassificationToCodedValue(confCodeClassification));
         }
 
         return null;
@@ -515,19 +523,25 @@ public static class RegistryMetadataTransformerService
         };
     }
 
-    private static AuthorInfo GetAuthorFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
+    private static List<AuthorInfo>? GetAuthorFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
-        var authorClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.Author);
+        var authorClassifications = extrinsicObject?.GetClassifications(Constants.Xds.Uuids.DocumentEntry.Author);
 
-        if (authorClassification != null)
+        if (authorClassifications != null)
         {
-            var author = new AuthorInfo();
-            author.Organization = GetAuthorOrganizationFromClassification(authorClassification);
-            author.Department = GetAuthorDepartmentFromClassification(authorClassification);
-            author.Person = GetAuthorPersonFromClassification(authorClassification);
-            author.Role = GetAuthorRoleFromClassificaiton(authorClassification);
-            author.Speciality = GetAuthorSpecialityFromClassification(authorClassification);
-            return author;
+            var authorList = new List<AuthorInfo>();
+            foreach (var authorClassification in authorClassifications)
+            {
+                var author = new AuthorInfo()
+                {
+                    Organization = GetAuthorOrganizationFromClassification(authorClassification),
+                    Department = GetAuthorDepartmentFromClassification(authorClassification),
+                    Person = GetAuthorPersonFromClassification(authorClassification),
+                    Role = GetAuthorRoleFromClassificaiton(authorClassification),
+                    Speciality = GetAuthorSpecialityFromClassification(authorClassification)
+                };
+            }
+            return authorList;
         }
         return null;
 
@@ -1011,14 +1025,18 @@ public static class RegistryMetadataTransformerService
         var confCode = documentEntryMetadata.ConfidentialityCode;
         if (confCode == null) return;
 
-        var confCodeClassification = MapCodedValueToClassification(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode, confCode);
+        var confCodeClassifications = MapCodedValueToMultipleClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode, confCode);
 
 
-        if (confCodeClassification != null)
+        if (confCodeClassifications != null)
         {
-            confCodeClassification.ClassifiedObject = extrinsicObject.Id;
+            foreach (var classification in confCodeClassifications)
+            {
+                classification.ClassifiedObject = extrinsicObject.Id;
+            }
+
             extrinsicObject.Classification ??= [];
-            extrinsicObject.Classification = [.. extrinsicObject.Classification, confCodeClassification];
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, .. confCodeClassifications];
         }
     }
 
@@ -1047,23 +1065,26 @@ public static class RegistryMetadataTransformerService
 
     private static void GetAuthorClassificationFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
-        var authorClassification = new ClassificationType()
+        foreach (var authorInfo in documentEntryMetadata.Author ?? [])
         {
-            ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
-            ClassifiedObject = extrinsicObject.Id
-        };
-        extrinsicObject.Classification ??= [];
+            var authorClassification = new ClassificationType()
+            {
+                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
+                ClassifiedObject = extrinsicObject.Id
+            };
 
-        var author = documentEntryMetadata.Author;
-        if (author != null)
-        {
-            GetAuthorPersonSlotFromAuthor(authorClassification, author);
-            GetAuthorInstitutionSlotFromAuthor(authorClassification, author);
-            GetAuthorRoleSlotFromAuthor(authorClassification, author);
-            GetAuthorSpecialitySlotFromAuthor(authorClassification, author);
+            extrinsicObject.Classification ??= [];
+
+            var author = documentEntryMetadata.Author;
+            if (author != null)
+            {
+                GetAuthorPersonSlotFromAuthor(authorClassification, authorInfo);
+                GetAuthorInstitutionSlotFromAuthor(authorClassification, authorInfo);
+                GetAuthorRoleSlotFromAuthor(authorClassification, authorInfo);
+                GetAuthorSpecialitySlotFromAuthor(authorClassification, authorInfo);
+            }
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, authorClassification];
         }
-
-        extrinsicObject.Classification = [.. extrinsicObject.Classification, authorClassification];
     }
 
     private static void GetAuthorSpecialitySlotFromAuthor(ClassificationType classification, AuthorInfo documentAuthor)
@@ -1293,16 +1314,19 @@ public static class RegistryMetadataTransformerService
 
     private static void GetAuthorClassificationFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
     {
-        var authorClassification = new ClassificationType();
         var submissionSetAuthor = submissionSetMetadata.Author;
         if (submissionSetAuthor == null) return;
 
-        GetAuthorInstitutionSlotFromAuthor(authorClassification, submissionSetAuthor);
-        GetAuthorPersonSlotFromAuthor(authorClassification, submissionSetAuthor);
-        GetAuthorRoleSlotFromAuthor(authorClassification, submissionSetAuthor);
-        GetAuthorSpecialitySlotFromAuthor(authorClassification, submissionSetAuthor);
+        foreach (var author in submissionSetAuthor)
+        {
+            var authorClassification = new ClassificationType();
+            GetAuthorInstitutionSlotFromAuthor(authorClassification, author);
+            GetAuthorPersonSlotFromAuthor(authorClassification, author);
+            GetAuthorRoleSlotFromAuthor(authorClassification, author);
+            GetAuthorSpecialitySlotFromAuthor(authorClassification, author);
 
-        registryPackage.Classification = [.. registryPackage.Classification, authorClassification];
+            registryPackage.Classification = [.. registryPackage.Classification, authorClassification];
+        }
     }
 
     private static ExternalIdentifierType MapCodedValueToExternalIdentifier(string? externalIdentifierName, string? codedValue)
@@ -1347,17 +1371,23 @@ public static class RegistryMetadataTransformerService
         };
     }
 
-    private static ClassificationType MapCodedValueToClassification(string healthCareFacilityTypeCode, CodedValue? confCode)
+    private static ClassificationType MapCodedValueToClassification(string classificationScheme, CodedValue? confCode)
     {
         if (confCode == null) return null;
 
         return new()
         {
-            ClassificationScheme = healthCareFacilityTypeCode,
+            ClassificationScheme = classificationScheme,
             NodeRepresentation = confCode?.Code,
             Name = confCode?.DisplayName != null ? new() { LocalizedString = [new() { Value = confCode.DisplayName }] } : null,
             Slot = confCode?.CodeSystem != null ? [new() { Name = Constants.Xds.SlotNames.CodingScheme, ValueList = new() { Value = [confCode.CodeSystem] } }] : null
         };
 
     }
+
+    private static ClassificationType[] MapCodedValueToMultipleClassifications(string classificationScheme, List<CodedValue> codedValues)
+    {
+        return codedValues.Select(cv => MapCodedValueToClassification(classificationScheme, cv)).ToArray();
+    }
+
 }

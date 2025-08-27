@@ -10,8 +10,6 @@ namespace XcaXds.WebService.Controllers;
 [Tags("RESTful Registry/Repository (CRUD)")]
 [ApiController]
 [Route("api/rest")]
-[Consumes("application/json")]
-[Produces("application/json")]
 [UsePolicyEnforcementPoint]
 public class RestfulRegistryRepositoryController : ControllerBase
 {
@@ -26,6 +24,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         _featureManager = featureManager;
     }
 
+    [Produces("application/json")]
     [HttpGet("document-list")]
     public async Task<IActionResult> GetDocumentList(string? id, string? status, DateTime serviceStartTimeFrom, DateTime serviceStopTimeTo, int pageNumber = 1, int pageSize = 10)
     {
@@ -55,6 +54,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         return BadRequest(entries);
     }
 
+    [Produces("application/json")]
     [HttpGet("document")]
     public async Task<IActionResult> GetDocument([FromQuery] string? home, [FromQuery] string? repository, [FromQuery] string? document)
     {
@@ -80,6 +80,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
         }
     }
 
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [HttpPost("upload")]
     public async Task<IActionResult> UploadDocument([FromBody] DocumentReferenceDto documentReferenceDto)
     {
@@ -100,6 +102,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
         return BadRequest(uploadResponse);
     }
 
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [HttpPut("update")]
     public async Task<IActionResult> UpdateDocument(bool? replace, [FromBody] DocumentReferenceDto documentReference)
     {
@@ -120,6 +124,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
         return BadRequest(updateResponse);
     }
 
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [HttpPatch("patch")]
     public async Task<IActionResult> PatchDocument([FromBody] DocumentReferenceDto documentReference)
     {
@@ -134,6 +140,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
         return Ok("ok");
     }
 
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [HttpDelete("delete")]
     public async Task<IActionResult> DeleteDocument(string id)
     {

@@ -2,7 +2,7 @@
 
 public class SubmissionSetDto : RegistryObjectDto
 {
-    public AuthorInfo? Author { get; set; }
+    public List<AuthorInfo>? Author { get; set; }
     public string? AvailabilityStatus { get; set; }
     public string? HomeCommunityId { get; set; }
     public CodedValue? PatientId { get; set; }

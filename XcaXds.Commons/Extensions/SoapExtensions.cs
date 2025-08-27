@@ -29,7 +29,7 @@ public static class SoapExtensions
                         Code = new()
                         {
                             Value = faultCode,
-                            Subcode = string.IsNullOrWhiteSpace(detail) ? null : new() { Value = subCode ?? string.Empty }
+                            Subcode = string.IsNullOrWhiteSpace(subCode) ? null : new() { Value = subCode ?? string.Empty }
                         },
                         Reason = new()
                         {
