@@ -121,7 +121,7 @@ Upon initalization of the `FileBasedPolicyRepository`, all the files in the `Pol
 
 
 ## DTOs for policy and Policy Set
-**PJD.XcaDocumentSource** features a DTO for Policies and Policy Sets. This allows for easier creation and storage of policies. Complex XACML-classes and concepts are abstracted behind simpler JSON structure.  
+**PJD.XcaDocumentSource** features a DTO for Policies and Policy Sets. This allows for easier creation and storage of policies. XACML-classes and concepts are abstracted behind a simpler JSON structure.  
 By default, the `PolicySetDto` generated from the policies in the Policy Repository defaults to the `deny-overrides` (`urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides`)-combining algorithm.  
 If any child (Policy/Rule) evaluates to Deny, the result is Deny.  
 Otherwise, the next strongest decision applies (e.g. Permit if any Permit, otherwise NotApplicable).
@@ -192,7 +192,7 @@ This how the XACML XML will be mapped from the DTO.
     </xacml:Condition>
 </xacml:Rule>
 ```
-*The XACML-rule created from the Policy DTO*
+*The XACML-rule created from the Policy DTO above*
 
 ### Action-mapping
 The XACML 2.0 specification does not enforce specific values for the `<Action>`-segment of a `<Policy>` or `<Request>`.  
