@@ -286,6 +286,12 @@ Separating them into their own attributes also allows for fine-grained control o
 By default, the `PolicySetDto` generated from the policies in the Policy Repository defaults to the `deny-overrides` (`urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides`)-combining algorithm.  
 If any child (Policy/Rule) evaluates to Deny, the result is Deny, regardless whether other policies or rules Permit.
 
+### Data Model
+|Field|Optionality/Constraints|XACML-equivalent|Comments|
+|--|--|--|--|
+|**`PolicySetDto`**|PolicySetDto (R)||The top-level Policy Set DTO|
+|&emsp;**`SetId`**|string(R)||The Unique ID of the Policy Set|
+
 ### AND/OR Semantics
 **XACML 2.0** features functions that can perform certain operations on attributes or collections of attributes.
 In DTO-semantics, this has been simplified for easier configuration and setup.

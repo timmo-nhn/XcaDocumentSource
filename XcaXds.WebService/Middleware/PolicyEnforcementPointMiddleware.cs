@@ -88,7 +88,6 @@ public class PolicyEnforcementPointMiddleware
                 };
 
                 var samlTokenValidator = new Saml2SecurityTokenHandler();
-                var status = samlTokenValidator.ValidateToken(samlTokenString);
 
                 var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(samlTokenString);
                 xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(samlToken, xacmlAction, XacmlVersion.Version20);
