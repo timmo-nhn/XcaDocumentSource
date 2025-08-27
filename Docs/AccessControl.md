@@ -46,6 +46,24 @@ pep --6.2\.--> in
 
 &emsp;6.2.&nbsp;*The **PEP** denies the request*
 
+## Requests and Policies
+In the user authorization domain, there are three parts; the Requests, the Policies and the Evaluation Engine.
+The Evaluation Engine contains the Policies, and is able to validate an incoming Request based on this.
+
+```mermaid
+%%{init: {'theme':'dark'}}%%
+flowchart LR
+
+subgraph "Evaluation Engine"
+  direction TB
+  pol[(&emsp;Policies&emsp;)]
+  eval[Evaluation]
+end
+
+req[XACML Request]
+req-->eval
+```
+
 ## Policy Enforcement Point
 **The Policy Enforcement Point** (PEP) sits in front of an API-endpoint (such as the SOAP-endpoints) and intercepts (enforces a policy upon) the request by parsing the authentication details from the request and sending it to the Policy Decision Point (PDP), to authorize the request.
 
@@ -119,12 +137,145 @@ permitdeny --Permit-->repep
 The default implementation of the policy repository is of a simple file-system storage. Policies are found in `<Solution>\XcaXds.Source\PolicyRepository\` and each policy is stored as a separate JSON-file.  
 Upon initalization of the `FileBasedPolicyRepository`, all the files in the `PolicyRepository`-folder is read and parsed as **PolicyDto** types, which are added to a **PolicySetDto** which is maintained through Dependency Injection as a **Singleton**-instance.
 
+## XACML Request
+The XACML-Request is generated from fields in the SAML-token or Json Web Token (JWT). Every eligible attribute is transformed from **HL7 XML Schema Instance (XSI)** snippet into a `CodedValue`, which is then added as up to three attributes in the XACML-request, appending `:code`, `:codeSystem` or `:displayName` to the end.
+
+```xml
+<PurposeOfUse xmlns="urn:hl7-org:v3" xsi:type="CE" code="TREAT" codeSystem="urn:oid:2.16.840.1.113883.1.11.20448" codeSystemName="PurposeOfUse (HL7)" displayName="Treatment"/>
+```
+***HL7 XSI Snippet** for the `PurposeOfUse`-attribute*
+
+
+```xml
+<xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code" 
+    DataType="http://www.w3.org/2001/XMLSchema#string">
+  <xacml-context:AttributeValue>TREAT</xacml-context:AttributeValue>
+</xacml-context:Attribute>
+<xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem" 
+    DataType="http://www.w3.org/2001/XMLSchema#string">
+  <xacml-context:AttributeValue>urn:oid:2.16.840.1.113883.1.11.20448</xacml-context:AttributeValue>
+</xacml-context:Attribute>
+```
+*The **HL7 XSI Snippet** when parsed by the **PEP**; with `:code` and `:codeSystem` separated out into two distinct attributes*
+
+<details>
+<summary><big><strong> 🔎 View full XML XACML-Request</strong></big></summary>
+
+```xml
+<xacml-context:Request xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os">
+  <xacml-context:Subject SubjectCategory="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:subject-id" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>KVART GREVLING</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>LE</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>urn:oid:2.16.578.1.12.4.1.1.9060</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:displayName" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>Lege</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:2.0:subject:npi" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>565505933</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>TREAT</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>urn:oid:2.16.840.1.113883.1.11.20448</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:displayName" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>Treatment</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:no:ehelse:saml:1.0:subject:SecurityLevel" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>4</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>KVART GREVLING</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>VOSS HERAD</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id:code" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>960510542</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:organization-id:codeSystem" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>urn:oid:2.16.578.1.12.4.1.4.101</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:child-organization:code" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>874593842</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:child-organization:codeSystem" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>urn:oid:2.16.578.1.12.4.1.4.101</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role:code" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>LE</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role:codeSystem" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>urn:oid:2.16.578.1.12.4.1.1.9060</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role:displayName" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>Lege</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xspa:1.0:subject:npi" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>565505933</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+  </xacml-context:Subject>
+  <xacml-context:Resource>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:resource:resource-id:code" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>29698496140</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:resource:resource-id:codeSystem" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>2.16.578.1.12.4.1.4.1</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id:code" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>29698496140</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id:codeSystem" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>2.16.578.1.12.4.1.4.1</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+  </xacml-context:Resource>
+  <xacml-context:Action>
+    <xacml-context:Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" 
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>ReadDocumentList</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+  </xacml-context:Action>
+  <xacml-context:Environment />
+</xacml-context:Request>
+```
+*Full XACML request with fields parsed from SAML-token*
+
+</details>
 
 ## DTOs for policy and Policy Set
 **PJD.XcaDocumentSource** features a DTO for Policies and Policy Sets. This allows for easier creation and storage of policies. XACML-classes and concepts are abstracted behind a simpler JSON structure.  
 By default, the `PolicySetDto` generated from the policies in the Policy Repository defaults to the `deny-overrides` (`urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides`)-combining algorithm.  
-If any child (Policy/Rule) evaluates to Deny, the result is Deny.  
-Otherwise, the next strongest decision applies (e.g. Permit if any Permit, otherwise NotApplicable).
+If any child (Policy/Rule) evaluates to Deny, the result is Deny, regardless whether other policies or rules Permit.
 
 ### AND/OR Semantics
 **XACML 2.0** features functions that can perform certain operations on attributes or collections of attributes.
@@ -137,7 +288,7 @@ Multi-value fields are also supported; any `value` property separated by semicol
 Below is a snippet showing how multiple values and attributed can be combined.
 ```json
 //....
-"Rules":[
+"rules":[
   // If this attribute has...
   {
     "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
@@ -209,7 +360,7 @@ For SOAP-requests, **PJD.XcaDocumentSource** maps from the `<Action>` in the `<H
 ```json
 {
   "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
-  "Rules": [
+  "rules": [
     {
       "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
       "value": "4"
@@ -257,7 +408,7 @@ API-endpoints for performing CRUD-operations on policies are available. These se
 GET <baseurl>/api/policy/getall?xml=true
 ```
 <details>
-<summary><big><strong> View example JSON Response</strong></big></summary>
+<summary><big><strong> 🔎 View example JSON Response</strong></big></summary>
 
 ```json
 {
@@ -310,11 +461,12 @@ GET <baseurl>/api/policy/getall?xml=true
   ]
 }
 ```
+*PolicySet DTO*
 
 </details>
 
 <details>
-<summary><big><strong> View example XML Response</strong></big></summary>
+<summary><big><strong> 🔎 View example XML Response</strong></big></summary>
 
 ```xml
   <xacml:PolicySet PolicySetId="urn:uuid:62427a73-0c33-45dc-b269-70ea80d0fac5" PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" Version="1.0" xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os">
@@ -458,6 +610,7 @@ GET <baseurl>/api/policy/getall?xml=true
     </xacml:Policy>
   </xacml:PolicySet>
 ```
+*The PolicySet DTO when transformed into a XML XACML PolicySet*
 
 </details>
 
@@ -471,7 +624,7 @@ Gets a single policy. Can return it either as **DTO JSON**-format or **XML XACML
 GET <baseurl>/api/policy/getsingle?id=deny-certain-roles&xml=true
 ```
 <details>
-<summary><big><strong> View example JSON Response</strong></big></summary>
+<summary><big><strong> 🔎 View example JSON Response</strong></big></summary>
 
 ```json
 {
@@ -498,11 +651,12 @@ GET <baseurl>/api/policy/getsingle?id=deny-certain-roles&xml=true
     "effect": "Deny"
 }
 ```
+*A single Policy DTO*
 
 </details>
 
 <details>
-<summary><big><strong> View example XML Response</strong></big></summary>
+<summary><big><strong> 🔎 View example XML Response</strong></big></summary>
 
 ```xml
 <xacml:Policy xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os" PolicyId="urn:uuid:deny-certain-roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" Version="1.0">
@@ -550,6 +704,7 @@ GET <baseurl>/api/policy/getsingle?id=deny-certain-roles&xml=true
     </xacml:Rule>
 </xacml:Policy>
 ```
+*The same Policy when transformed into an XML XACML Policy*
 
 </details>
 

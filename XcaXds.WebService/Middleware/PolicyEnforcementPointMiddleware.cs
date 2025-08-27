@@ -1,4 +1,5 @@
 ﻿using Abc.Xacml.Context;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
@@ -79,7 +80,17 @@ public class PolicyEnforcementPointMiddleware
             case "application/soap+xml":
 
                 var xacmlAction = PolicyRequestMapperSamlService.MapXacmlActionFromSoapAction(PolicyRequestMapperSamlService.GetActionFromSoapEnvelope(requestBody));
-                var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(PolicyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody));
+                var samlTokenString = PolicyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody);
+
+                var validations = new TokenValidationParameters()
+                {
+                    
+                };
+
+                var samlTokenValidator = new Saml2SecurityTokenHandler();
+                var status = samlTokenValidator.ValidateToken(samlTokenString);
+
+                var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(samlTokenString);
                 xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(samlToken, xacmlAction, XacmlVersion.Version20);
 
                 break;
