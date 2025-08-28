@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
@@ -18,16 +19,14 @@ namespace XcaXds.WebService.Controllers;
 public class XdsRepositoryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
-    private readonly HttpClient _httpClient;
     private readonly XdsRepositoryService _repositoryService;
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRepositoryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
+    public XdsRepositoryController(ILogger<XdsRegistryController> logger, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
     {
         _logger = logger;
-        _httpClient = httpClient;
         _repositoryService = repositoryService;
         _registryService = registryService;
         _xdsConfig = xdsConfig;
@@ -53,30 +52,28 @@ public class XdsRepositoryController : ControllerBase
             case Constants.Xds.OperationContract.Iti43Action:
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
 
-                var documentFetchResponse = await _repositoryService.RetrieveDocumentSet(soapEnvelope);
-                if (documentFetchResponse.IsSuccess is false)
+                var iti43response = await _repositoryService.RetrieveDocumentSet(soapEnvelope);
+                if (iti43response.IsSuccess is false)
                 {
                     break;
                 }
 
-                if (_xdsConfig.MultipartResponseForIti43 is true)
+                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true)
                 {
-                    var multipartContent = _repositoryService.ConvertToMultipartResponse(documentFetchResponse.Value);
+                    var multipartContent = _repositoryService.ConvertToMultipartResponse(iti43response.Value);
 
-                    var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    var response = new HttpResponseMessage(HttpStatusCode.OK)
                     {
                         Content = multipartContent
                     };
 
-                    return new ContentResult
-                    {
-                        StatusCode = (int)HttpStatusCode.OK,
-                        Content = responseMessage.Content.ReadAsStringAsync().Result,
-                        ContentType = Constants.MimeTypes.MultipartRelated
-                    };
+                    requestTimer.Stop();
+                    _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+
+                    return new HttpResponseMessageResult(response);
                 }
 
-                responseEnvelope = documentFetchResponse.Value;
+                responseEnvelope = iti43response.Value;
                 responseEnvelope.Header = new()
                 {
                     Action = soapEnvelope.GetCorrespondingResponseAction(),

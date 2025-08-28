@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
@@ -89,11 +90,11 @@ public class XdsRespondingGatewayController : ControllerBase
                     break;
                 }
 
-                if (_xdsConfig.MultipartResponseForIti43 is true)
+                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true)
                 {
                     var multipartContent = _xdsRepositoryService.ConvertToMultipartResponse(iti39Response.Value);
 
-                    var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    var response = new HttpResponseMessage(HttpStatusCode.OK)
                     {
                         Content = multipartContent
                     };
@@ -101,12 +102,7 @@ public class XdsRespondingGatewayController : ControllerBase
                     requestTimer.Stop();
                     _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
-                    return new ContentResult
-                    {
-                        StatusCode = (int)HttpStatusCode.OK,
-                        Content = await responseMessage.Content.ReadAsStringAsync(),
-                        ContentType = Constants.MimeTypes.MultipartRelated
-                    };
+                    return new HttpResponseMessageResult(response);
                 }
                 responseEnvelope = iti39Response.Value;
                 break;

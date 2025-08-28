@@ -503,16 +503,23 @@ GET <baseurl>/api/policy/getall?xml=true
 <summary><big><strong> 🔎 View example XML Response</strong></big></summary>
 
 ```xml
-  <xacml:PolicySet PolicySetId="urn:uuid:62427a73-0c33-45dc-b269-70ea80d0fac5" PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" Version="1.0" xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os">
+  <xacml:PolicySet PolicySetId="urn:uuid:62427a73-0c33-45dc-b269-70ea80d0fac5" 
+    PolicyCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" 
+    Version="1.0" 
+    xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os">
     <xacml:Target />
-    <xacml:Policy PolicyId="urn:uuid:90bd12ea-1a26-417f-a035-f3708f4e0198" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" Version="1.0">
+    <xacml:Policy PolicyId="urn:uuid:90bd12ea-1a26-417f-a035-f3708f4e0198" 
+      RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" 
+      Version="1.0">
       <xacml:CombinerParameters />
       <xacml:Target>
         <xacml:Actions>
           <xacml:Action>
             <xacml:ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
               <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ReadDocumentList</xacml:AttributeValue>
-              <xacml:ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" />
+              <xacml:ActionAttributeDesignator
+                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                DataType="http://www.w3.org/2001/XMLSchema#string" />
             </xacml:ActionMatch>
           </xacml:Action>
         </xacml:Actions>
@@ -523,20 +530,26 @@ GET <baseurl>/api/policy/getall?xml=true
             <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
               <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">4</xacml:AttributeValue>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                <xacml:SubjectAttributeDesignator AttributeId="urn:no:ehelse:saml:1.0:subject:SecurityLevel" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                <xacml:SubjectAttributeDesignator
+                  AttributeId="urn:no:ehelse:saml:1.0:subject:SecurityLevel"
+                  DataType="http://www.w3.org/2001/XMLSchema#string" />
               </xacml:Apply>
             </xacml:Apply>
             <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LE</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SP</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
             </xacml:Apply>
@@ -544,13 +557,17 @@ GET <baseurl>/api/policy/getall?xml=true
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oid:2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
             </xacml:Apply>
@@ -558,25 +575,33 @@ GET <baseurl>/api/policy/getall?xml=true
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">TREAT</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ETREAT</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">COC</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator 
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">BTG</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator 
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code" 
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
             </xacml:Apply>
@@ -584,13 +609,17 @@ GET <baseurl>/api/policy/getall?xml=true
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oid:2.16.840.1.113883.1.11.20448</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator 
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem" 
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">2.16.840.1.113883.1.11.20448</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator 
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem" 
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
             </xacml:Apply>
@@ -598,7 +627,9 @@ GET <baseurl>/api/policy/getall?xml=true
         </xacml:Condition>
       </xacml:Rule>
     </xacml:Policy>
-    <xacml:Policy PolicyId="urn:uuid:deny-certain-roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" Version="1.0">
+    <xacml:Policy PolicyId="urn:uuid:deny-certain-roles"
+      RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides"
+      Version="1.0">
       <xacml:CombinerParameters />
       <xacml:Target />
       <xacml:Rule RuleId="urn:rule:740cc207a25240a5a98632b86c302b69" Effect="Deny">
@@ -608,19 +639,25 @@ GET <baseurl>/api/policy/getall?xml=true
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XX</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">VE</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">FB</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
             </xacml:Apply>
@@ -628,13 +665,17 @@ GET <baseurl>/api/policy/getall?xml=true
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oid:2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem"
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
               <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                 <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
                 <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                  <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string" />
+                  <xacml:SubjectAttributeDesignator 
+                    AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" 
+                    DataType="http://www.w3.org/2001/XMLSchema#string" />
                 </xacml:Apply>
               </xacml:Apply>
             </xacml:Apply>
@@ -693,49 +734,60 @@ GET <baseurl>/api/policy/getsingle?id=deny-certain-roles&xml=true
 <summary><big><strong> 🔎 View example XML Response</strong></big></summary>
 
 ```xml
-<xacml:Policy xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os" PolicyId="urn:uuid:deny-certain-roles" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" Version="1.0">
-    <xacml:CombinerParameters/>
-    <xacml:Target/>
-    <xacml:Rule RuleId="urn:rule:fd5473b8530640faa53b0449d3c05a80" Effect="Deny">
-        <xacml:Condition>
-            <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
-                <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
-                    <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XX</xacml:AttributeValue>
-                        <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                            <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                        </xacml:Apply>
-                    </xacml:Apply>
-                    <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">VE</xacml:AttributeValue>
-                        <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                            <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                        </xacml:Apply>
-                    </xacml:Apply>
-                    <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">FB</xacml:AttributeValue>
-                        <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                            <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                        </xacml:Apply>
-                    </xacml:Apply>
-                </xacml:Apply>
-                <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
-                    <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oid:2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
-                        <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                            <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                        </xacml:Apply>
-                    </xacml:Apply>
-                    <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
-                        <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
-                            <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                        </xacml:Apply>
-                    </xacml:Apply>
-                </xacml:Apply>
-            </xacml:Apply>
-        </xacml:Condition>
-    </xacml:Rule>
+<xacml:Policy xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os" 
+  PolicyId="urn:uuid:deny-certain-roles" 
+  RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides" 
+  Version="1.0">
+  <xacml:CombinerParameters/>
+  <xacml:Target/>
+  <xacml:Rule RuleId="urn:rule:fd5473b8530640faa53b0449d3c05a80" Effect="Deny">
+      <xacml:Condition>
+          <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+              <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+                  <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                      <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">XX</xacml:AttributeValue>
+                      <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                          <xacml:SubjectAttributeDesignator
+                            AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                      </xacml:Apply>
+                  </xacml:Apply>
+                  <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                      <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">VE</xacml:AttributeValue>
+                      <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                          <xacml:SubjectAttributeDesignator
+                            AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                      </xacml:Apply>
+                  </xacml:Apply>
+                  <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                      <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">FB</xacml:AttributeValue>
+                      <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                          <xacml:SubjectAttributeDesignator
+                            AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:code"
+                            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                      </xacml:Apply>
+                  </xacml:Apply>
+              </xacml:Apply>
+              <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:or">
+                  <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                      <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">urn:oid:2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
+                      <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                          <xacml:SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                      </xacml:Apply>
+                  </xacml:Apply>
+                  <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                      <xacml:AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">2.16.578.1.12.4.1.1.9060</xacml:AttributeValue>
+                      <xacml:Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+                          <xacml:SubjectAttributeDesignator
+                            AttributeId="urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem"
+                            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                      </xacml:Apply>
+                  </xacml:Apply>
+              </xacml:Apply>
+          </xacml:Apply>
+      </xacml:Condition>
+  </xacml:Rule>
 </xacml:Policy>
 ```
 *The same Policy when transformed into an XML XACML Policy*

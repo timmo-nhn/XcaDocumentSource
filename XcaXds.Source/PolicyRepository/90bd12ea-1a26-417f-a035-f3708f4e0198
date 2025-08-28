@@ -23,7 +23,8 @@
         }
     ],
     "actions": [
-        "ReadDocumentList"
+        "ReadDocumentList",
+        "ReadDocuments"
     ],
     "effect": "Permit"
 }

@@ -39,9 +39,16 @@ public partial class RepositoryWrapper
             return null; 
         }
 
+        var documentContent = _repository.Read(documentUniqueId);
+
+        if (documentContent == null)
+        {
+            return documentContent;
+        }
+
         if (_appConfig.WrapRetrievedDocumentInCda == false)
         {
-            return _repository.Read(documentUniqueId);
+            return documentContent;
         }
 
         _logger.LogInformation($"WrapRetrievedDocumentInCda Enabled");
