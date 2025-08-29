@@ -155,9 +155,9 @@ public class PolicyEnforcementPointMiddleware
 
             soapEnvelopeResponse.Body ??= new();
             soapEnvelopeResponse.Body.RegistryResponse = registryResponse;
+            httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
-            httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 
             return;
         }
