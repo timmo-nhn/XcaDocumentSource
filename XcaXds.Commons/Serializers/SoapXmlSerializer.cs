@@ -54,8 +54,6 @@ public class SoapXmlSerializer
         {
             var xmlContent = streamReader.ReadToEnd();
 
-            Console.WriteLine(xmlContent);
-
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xmlContent);
 

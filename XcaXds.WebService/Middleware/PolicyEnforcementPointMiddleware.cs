@@ -58,7 +58,6 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-        _logger.LogInformation("Request Content-type: " + httpContext.Request.ContentType);
 
         var endpoint = httpContext.GetEndpoint();
         var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
@@ -78,6 +77,7 @@ public class PolicyEnforcementPointMiddleware
 
         XacmlContextRequest? xacmlRequest = null;
 
+        _logger.LogInformation($"Request Content-type: {contentType}");
 
         switch (contentType)
         {
@@ -90,6 +90,7 @@ public class PolicyEnforcementPointMiddleware
                 {
                     break;
                 }
+
                 if (_xdsConfig.ValidateSamlTokenIntegrity)
                 {
                     var validations = new TokenValidationParameters()
@@ -131,8 +132,11 @@ public class PolicyEnforcementPointMiddleware
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
 
+        _logger.LogInformation($"Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}\n");
+
         if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision == XacmlContextDecision.Permit))
         {
+
             await _next(httpContext);
         }
         else
@@ -150,6 +154,9 @@ public class PolicyEnforcementPointMiddleware
                     RelatesTo = soapEnvelopeObject.Header.MessageId,
                 }
             };
+
+            _logger.LogInformation($"Policy Enforcement Point has denied the request: id {soapEnvelopeObject.Header.MessageId}");
+
             var registryResponse = new RegistryResponseType();
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
 
