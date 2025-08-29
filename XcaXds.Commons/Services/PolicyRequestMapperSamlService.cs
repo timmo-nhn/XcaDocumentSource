@@ -1,10 +1,10 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
@@ -34,7 +34,7 @@ public static class PolicyRequestMapperSamlService
         return await GetXacmlRequestFromSamlToken(samlToken, action, xacmlVersion);
     }
 
-    public static async Task<XacmlContextRequest>GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, XacmlVersion xacmlVersion)
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, XacmlVersion xacmlVersion)
     {
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
@@ -48,6 +48,31 @@ public static class PolicyRequestMapperSamlService
 
         switch (xacmlVersion)
         {
+            case XacmlVersion.Version20:
+
+                var subjectAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
+
+                // Resource
+                var xacmlResourceAttribute = subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
+
+                var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
+
+                var actionAttribute = new XacmlContextAttribute(
+                    new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = xacmlActionString });
+
+                var xacmlAction = new XacmlContextAction(actionAttribute);
+
+                // Subject
+                var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && sa.AttributeId.OriginalString.Contains("subject")));
+
+                // Environment
+                var xacmlEnvironment = new XacmlContextEnvironment();
+
+                request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject, xacmlEnvironment);
+
+                return request;
+
+
             case XacmlVersion.Version30:
                 var xacmlAllAttributes = MapSamlAttributesToXacml30Properties(samltokenAuthorizationAttributes, xacmlActionString);
 
@@ -83,29 +108,6 @@ public static class PolicyRequestMapperSamlService
 
                 return request;
 
-
-            case XacmlVersion.Version20:
-                var subjectAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
-
-                // Resource
-                var xacmlResourceAttribute = subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
-
-                var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
-
-                var actionAttribute = new XacmlContextAttribute(
-                    new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = xacmlActionString });
-
-                var xacmlAction = new XacmlContextAction(actionAttribute);
-
-                // Subject
-                var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && sa.AttributeId.OriginalString.Contains("subject")));
-
-                // Environment
-                var xacmlEnvironment = new XacmlContextEnvironment();
-
-                request = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject, xacmlEnvironment);
-
-                return request;
 
             default:
                 return null;
@@ -171,21 +173,26 @@ public static class PolicyRequestMapperSamlService
 
         foreach (var attribute in samltokenAuthorizationAttributes)
         {
-            foreach (var attributeValue in attribute.Values)
-            {
-                var attributeValueAsCodedValue = GetSamlAttributeValueAsCodedValue(attributeValue);
+            var attributeValue = attribute.Values.FirstOrDefault(); // Never have i ever: seen a SAML-AttributeStatement with more than one Value
+            if (attributeValue == null) continue;
 
-                var valueExistsAlready = subjectAttributes
-                    .Any(att => att.AttributeValues
-                        .Any(avs =>
-                            avs.Value == attributeValueAsCodedValue.Code ||
-                            avs.Value == attributeValueAsCodedValue.CodeSystem ||
-                            avs.Value == attributeValueAsCodedValue.DisplayName
-                        ));
+            var attributeValueAsCodedValue = GetSamlAttributeValueAsCodedValue(attributeValue);
+
+
+            var valueExistsAlready = subjectAttributes
+                .Any(att => att.AttributeValues
+                    .Any(avs =>
+                        avs.Value == attributeValueAsCodedValue.Code ||
+                        avs.Value == attributeValueAsCodedValue.CodeSystem ||
+                        avs.Value == attributeValueAsCodedValue.DisplayName
+                    ));
+
+            try
+            {
 
                 // If its structured codedvalue format or just plain text
-                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.Code) && 
-                    string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem) && 
+                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.Code) &&
+                    string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem) &&
                     string.IsNullOrWhiteSpace(attributeValueAsCodedValue.DisplayName))
                 {
                     subjectAttributes.Add(
@@ -221,6 +228,11 @@ public static class PolicyRequestMapperSamlService
                             new Uri(Constants.Xacml.DataType.String),
                             new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.DisplayName }));
                 }
+            }
+            catch (UriFormatException urix)
+            {
+                throw new InvalidOperationException(
+                    $"Invalid URI in attribute: {attribute.Name}", urix);
             }
         }
 
