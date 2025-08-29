@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Xml;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using XcaXds.Commons.Commons;
@@ -24,7 +25,9 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
     [Fact]
     public async Task CrossGatewayQuery()
     {
-        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData", "IntegrationTests"));
+        var testDataFiles = Directory.GetFiles(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "TestData", "IntegrationTests"));
+
         var patients = _restfulRegistryService.GetPatientIdentifiersInRegistry();
 
         // Ensure the registry has stuff to work with
@@ -46,7 +49,15 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             Assert.Fail("Where did the test data go?!");
         }
 
-        var soapEnvelope = new StringContent(File.ReadAllText(iti38), Encoding.UTF8, Constants.MimeTypes.SoapXml);
+        var crossGatewayQuery = new XmlDocument();
+        var xmlContent = File.ReadAllText(iti38);
+        crossGatewayQuery.LoadXml(xmlContent);
+
+        var samlAttributes = crossGatewayQuery.GetElementsByTagName("saml:AttributeStatement");
+
+        var purposeAttributes = samlAttributes[0].ChildNodes;
+
+        var soapEnvelope = new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml);
         var response = await _client.PostAsync("/XCA/services/RespondingGatewayService", soapEnvelope);
         var responseBody = await response.Content.ReadAsStringAsync();
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);

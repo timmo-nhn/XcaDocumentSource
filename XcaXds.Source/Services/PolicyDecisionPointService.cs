@@ -11,7 +11,7 @@ public class PolicyDecisionPointService
     {
         _policyRepositoryWrapper = policyRepositoryWrapper;
     }
-    public XacmlContextResponse EvaluateRequest(XacmlContextRequest xacmlRequest)
+    public XacmlContextResponse EvaluateRequest(XacmlContextRequest? xacmlRequest)
     {
         return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest);
     }

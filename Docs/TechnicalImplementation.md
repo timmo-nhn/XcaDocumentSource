@@ -31,6 +31,8 @@ subgraph "XcaDocumentSource"
     pep[PEP]
     xcares[XCA<br>Responding Gateway]
 
+    pdp[PDP]
+
     subgraph "Services"
         restep["REST-endpoints<br><pre>/api/rest"]
         regep[XDS Registry Endpoint<br><pre>/RegistryService]
@@ -57,7 +59,7 @@ epr--REST-based requests<br>(CRUD)-->pep--REST-based requests-->restep
 nhnxca --ITI-38/ITI-39--> pep
 
 pep --ITI-38/ITI-39--> xcares
-pep <--Access control--> PDP
+pep <--Access control--> pdp
 
 xcares --Forwards ITI-38--> regep
 xcares --Forwards ITI-39--> repep
@@ -92,12 +94,12 @@ nhnxca[NHN XCA<br>Initiating Gateway]
 subgraph "XcaDocumentSource"
     pep[PEP]
     xcares[XCA<br>Responding Gateway]
+    pdp[PDP]
 
     subgraph "Services"
         restep["REST-endpoints<br><pre>/api/rest"]
         regep[XDS Registry Endpoint<br><pre>/RegistryService]
         repep[XDS Repository Endpoint<br><pre>/RepositoryService]
-
         rests["RestfulRegistryService"]
 
         regs[XdsRegistryService]
@@ -118,7 +120,7 @@ epr--REST-based requests<br>(CRUD)-->pep--REST-based requests-->restep
 nhnxca--ITI-38/ITI-39-->pep
 
 pep-->xcares
-pep<--Access control-->PDP
+pep<--Access control-->pdp
 
 xcares --Forwards ITI-38--> regep
 xcares --Forwards ITI-39--> repep

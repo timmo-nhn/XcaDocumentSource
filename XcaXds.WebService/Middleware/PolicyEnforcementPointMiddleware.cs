@@ -112,6 +112,10 @@ public class PolicyEnforcementPointMiddleware
         }
 
         //FIXME maybe some day, do something about JWT aswell?!
+        if (xacmlRequest == null && (contentType == Constants.MimeTypes.Json || contentType == Constants.MimeTypes.FhirJson))
+        {
+        }
+
         if (xacmlRequest == null && contentType == Constants.MimeTypes.SoapXml)
         {
             var soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "No saml token found in SOAP-message").Value;
@@ -121,7 +125,7 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-        string xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var policySetXml = XacmlSerializer.SerializeXacmlToXml(_debug_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 

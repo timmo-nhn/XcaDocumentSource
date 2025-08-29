@@ -2,6 +2,7 @@
 using Abc.Xacml.Policy;
 using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.MicrosoftExtensions;
 using System.Text;
 using System.Xml;
 using XcaXds.Commons.Commons;
@@ -135,15 +136,21 @@ public class PolicyManagementController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPatch("patch")]
-    public IActionResult PatchPolicy([FromBody]PolicyDto policyDto, string? id)
+    public IActionResult PatchPolicy([FromBody]PolicyDto policyDto, string? newId, bool? append)
     {
-        policyDto.SetDefaultValues();
-        var response = _policyRepositoryService.PartiallyUpdatePolicy(policyDto, id);
 
-        var apiResponse = new RestfulApiResponse()
+        var apiResponse = new RestfulApiResponse();
+
+        if (_policyRepositoryService.GetSinglePolicy(newId) != null)
         {
-            Success = response
-        };
+            apiResponse.AddError("Conflict", "New ID cannot be the same as an existing ID");
+            apiResponse.Success = false;
+            return Conflict(apiResponse);
+        }
+
+        var response = _policyRepositoryService.PartiallyUpdatePolicy(policyDto, newId, append ?? false);
+
+        apiResponse.Success = response;
 
         if (apiResponse.Success)
         {

@@ -89,9 +89,16 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
     }
 
-    public bool UpdatePolicy(PolicyDto? xacmlPolicy, string policyId)
+    public bool UpdatePolicy(PolicyDto policyDto, string? policyId = null)
     {
+        if (policyDto == null) return false;
 
-        throw new NotImplementedException();
+        if (policyId != policyDto.Id)
+        {
+            // If this is true, it's assumed that the user wants to rename the policy
+            
+        }
+
+        return true;
     }
 }

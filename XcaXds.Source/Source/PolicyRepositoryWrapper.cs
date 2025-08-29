@@ -53,14 +53,14 @@ public class PolicyRepositoryWrapper
         return policySet;
     }
 
-    public PolicyDto? GetPolicy(string id)
+    public PolicyDto? GetPolicy(string? id)
     {
         return policySet.Policies?.FirstOrDefault(pol => pol.Id == id);
     }
 
-    public bool AddPolicy(PolicyDto policyDto)
+    public bool AddPolicy(PolicyDto? policyDto)
     {
-        if (GetPolicy(policyDto.Id) != null)
+        if (GetPolicy(policyDto?.Id) != null || policyDto == null)
         {
             return false;
         }
@@ -84,21 +84,21 @@ public class PolicyRepositoryWrapper
         return _policyRepository.UpdatePolicy(policyDto, id);
     }
 
-    public bool PartiallyUpdatePolicy(PolicyDto patch, string? id)
+    public bool PartiallyUpdatePolicy(PolicyDto patch, string? id, bool append)
     {
         if (policySet.Policies == null) return false;
 
         var policy = policySet.Policies.FirstOrDefault(p => p.Id == (id ?? patch.Id));
         if (policy == null) return false;
 
-        // FIXME: add custom merging logic for DTOs
-        ObjectMerger.MergeObjects(policy, patch);
+        policy.MergeWith(patch, append);
+
         RefreshEvaluationEngine();
 
         return _policyRepository.UpdatePolicy(policy, policy.Id);
     }
 
-    public bool DeletePolicy(string id)
+    public bool DeletePolicy(string? id)
     {
         var deleteResult = _policyRepository.DeletePolicy(id);
         if (!deleteResult) return false;
@@ -107,7 +107,7 @@ public class PolicyRepositoryWrapper
         return true;
     }
 
-    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest xacmlContextRequest)
+    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest)
     {
         var xmlDocument = new XmlDocument();
         return _evaluationEngine.Evaluate(xacmlContextRequest, xmlDocument);

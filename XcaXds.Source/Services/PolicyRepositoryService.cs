@@ -22,34 +22,34 @@ public class PolicyRepositoryService
         return _policyRepositoryWrapper.GetPoliciesAsPolicySet();
     }
 
-    public PolicyDto? GetSinglePolicy(string id)
+    public PolicyDto? GetSinglePolicy(string? id)
     {
         return _policyRepositoryWrapper.GetPolicy(id);
     }
 
-    public bool AddPolicy(PolicyDto policyDto)
+    public bool AddPolicy(PolicyDto? policyDto)
     {
         return _policyRepositoryWrapper.AddPolicy(policyDto);
     }
 
-    public bool DeletePolicy(string id)
+    public bool DeletePolicy(string? id)
     {
         return _policyRepositoryWrapper.DeletePolicy(id);
     }
 
-    public XacmlPolicySet GetPoliciesAsXacmlPolicySet()
+    public XacmlPolicySet? GetPoliciesAsXacmlPolicySet()
     {
         var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet();
         return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
 
-    public bool UpdatePolicy(PolicyDto policyDto, string id)
+    public bool UpdatePolicy(PolicyDto policyDto, string? id)
     {
         return _policyRepositoryWrapper.UpdatePolicy(policyDto, id);
     }
 
-    public bool PartiallyUpdatePolicy(PolicyDto policyDto, string? id)
+    public bool PartiallyUpdatePolicy(PolicyDto policyDto, string? id, bool append)
     {
-        return _policyRepositoryWrapper.PartiallyUpdatePolicy(policyDto, id);
+        return _policyRepositoryWrapper.PartiallyUpdatePolicy(policyDto, id, append);
     }
 }
