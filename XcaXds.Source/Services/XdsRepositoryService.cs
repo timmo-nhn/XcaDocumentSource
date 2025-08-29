@@ -269,54 +269,40 @@ public class XdsRepositoryService
 
     public MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
     {
-        var multipart = new MultipartContent("related", "boundary_" + Guid.NewGuid());
-        multipart.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("type", "\"application/xop+xml\""));
-
+        var documents = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
+        var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
 
-        // Attach documents
-        var documents = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
-        var documentContents = new List<ByteArrayContent>();
-    
-        if (documents != null)
+        multipart.Headers.ContentType = new MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated, Encoding.UTF8.BodyName);
+
+        if (documents != null && multipart != null)
         {
             foreach (var document in documents)
             {
-                // Generate a unique Content-ID for the document part
-                var contentId = $"<{Guid.NewGuid()}@tempuri.org>";
-
-                // Replace inline base64 with an XOP Include
-                document.Include = new IncludeType
+                var multipartInclude = new IncludeType()
                 {
-                    href = $"cid:{contentId.Trim('<', '>')}" // cid: without angle brackets
+                    href = document.RepositoryUniqueId + document.DocumentUniqueId
                 };
 
-                // Add the binary part to multipart
-                var byteContent = new ByteArrayContent(document.Document);
-                byteContent.Headers.ContentType = new MediaTypeHeaderValue(document.MimeType);
-                byteContent.Headers.Add("Content-ID", contentId);
-                byteContent.Headers.Add("Content-Transfer-Encoding", "binary");
+                var include = sxmls.SerializeSoapMessageToXmlString(multipartInclude);
+
+                var documentBytes = document.Document;
+                document.Include = multipartInclude;
                 document.Document = null;
 
-                documentContents.Add(byteContent);
+
+                var documentString = Encoding.UTF8.GetString(documentBytes);
+
+                multipart.Add(new StringContent(documentString, Encoding.UTF8, document.MimeType));
             }
         }
 
-        // Create soap message string now that document content has been removed from the soapenvelope object and put into the xop:Includes
-        var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content;
+        var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
 
-        var soapContent = new StringContent(soapString, Encoding.UTF8, Constants.MimeTypes.SoapXml);
-        soapContent.Headers.ContentType.Parameters.Add(new NameValueHeaderValue("charset", "\"utf-8\""));
-        soapContent.Headers.Add("Content-ID", "<root.message@cxf.apache.org>"); // typical root part
-
-        multipart.Add(soapContent);
-
-        foreach (var docContent in documentContents)
-        {
-            multipart.Add(docContent);
-        }
+        multipart.Add(new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
 
         return multipart;
     }
+
 }

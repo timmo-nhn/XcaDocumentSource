@@ -47,10 +47,7 @@ public class FileBasedRegistry : IRegistry
         {
             var backup = File.ReadAllText(_registryFile);
 
-            if (!string.IsNullOrWhiteSpace(backup) || backup != "[]")
-            {
-                File.WriteAllText(_registryFile + $".backup_{DateTime.UtcNow.ToString(Constants.Hl7.Dtm.DtmYyFormat)}", backup);
-            }
+            File.WriteAllText(_registryFile + $".backup_{DateTime.UtcNow.ToString(Constants.Hl7.Dtm.DtmYyFormat)}", backup);
 
             File.WriteAllText(_registryFile, RegistryJsonSerializer.Serialize(dtos));
             return true;

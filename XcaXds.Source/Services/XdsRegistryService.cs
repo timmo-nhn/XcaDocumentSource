@@ -86,14 +86,9 @@ public partial class XdsRegistryService
 
         var adhocQueryRequest = soapEnvelope.Body.AdhocQueryRequest;
 
-        if (adhocQueryRequest == null)
-        {
-            registryResponse.AddError(XdsErrorCodes.XDSUnknownStoredQuery, $"Missing or malformed AdhocQueryRequest", "XDS Registry");
-        }
-
         var filteredElements = new List<IdentifiableType>();
 
-        switch (adhocQueryRequest?.AdhocQuery?.Id)
+        switch (adhocQueryRequest?.AdhocQuery.Id)
         {
             case Constants.Xds.StoredQueries.FindDocuments:
                 var findDocumentsSearchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
@@ -279,7 +274,7 @@ public partial class XdsRegistryService
             //    break;
         }
 
-        if (adhocQueryRequest?.ResponseOption != null)
+        if (adhocQueryRequest.ResponseOption != null)
         {
             switch (adhocQueryRequest.ResponseOption.ReturnType)
             {
@@ -322,7 +317,7 @@ public partial class XdsRegistryService
             }
         };
         _logger.LogInformation($"Registry Stored Query Complete, returned {filteredElements.Count} XDSEntries");
-        return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = registryResponse.Status switch { Constants.Xds.ResponseStatusTypes.Success => true, Constants.Xds.ResponseStatusTypes.PartialSuccess => true, _ => false } };
+        return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
     }
 
     public async Task<SoapRequestResult<SoapEnvelope>> DeleteDocumentSetAsync(SoapEnvelope soapEnvelope)
