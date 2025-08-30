@@ -109,6 +109,11 @@ public class PolicyRepositoryWrapper
 
     public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest)
     {
+        if (_policySet.Policies?.Count == 0)
+        {
+            _logger.LogWarning("No policies are set up. XcaDocumentSource will deny all requests!");
+        }
+
         var xmlDocument = new XmlDocument();
         return _evaluationEngine.Evaluate(xacmlContextRequest, xmlDocument);
     }

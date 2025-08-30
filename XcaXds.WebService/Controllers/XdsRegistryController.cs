@@ -15,6 +15,7 @@ namespace XcaXds.WebService.Controllers;
 [ApiController]
 [Route("Registry/services")]
 [UsePolicyEnforcementPoint]
+[UseAuditLogging]
 public class XdsRegistryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
@@ -41,7 +42,7 @@ public class XdsRegistryController : ControllerBase
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation($"Received request for action: {action}");
 
         switch (action)
         {

@@ -2501,3 +2501,52 @@ public static class Hl7
         N
     }
 }
+
+public enum ActorType
+{
+    HELSEPERSONELL,
+    INNBYGGER,
+    VERIFIKASJONSPERSONELL,
+    SAKSBEHANDLER,
+
+}
+
+public enum AccessBasis
+{
+    SEGSELV,
+    FULLMAKT,
+    VERGEMAL,
+    FORELDREREPRESENTASJON,
+
+    // GP Accessbasis
+    UNNTAK,
+    SAMTYKKE,
+    AKUTT,
+    FORHOYET_SAMTYKKE,
+    FORHOYET_AKUTT
+}
+
+public enum AnonymizeUser
+{
+    AMK,
+    LEGEVAKT
+}
+
+public enum Issuer
+{
+    helsenorge,
+    helseID
+}
+
+public enum MessageType
+{
+    NotApplicable,
+    ClinicalDocument,
+    Unknown
+}
+public enum XcaAction
+{
+    InitiatingGatewayQuery,
+    InitiatingGatewayRetrieve,
+    Unknown
+}

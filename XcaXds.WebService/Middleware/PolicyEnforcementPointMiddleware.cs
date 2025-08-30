@@ -44,6 +44,10 @@ public class PolicyEnforcementPointMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
+        Stopwatch sw = Stopwatch.StartNew();
+        
+        _logger.LogInformation("PEP intialized...");
+
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! 'PEP bypass for local requests' is enabled in production!");
 
         // If the request is from localhost and environment is development we can ignore PEP.
@@ -123,6 +127,9 @@ public class PolicyEnforcementPointMiddleware
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content ?? string.Empty);
             httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
+
+            sw.Stop();
+            _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
 
@@ -132,11 +139,12 @@ public class PolicyEnforcementPointMiddleware
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
 
-        _logger.LogInformation($"Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}\n");
+        _logger.LogInformation($"Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}");
 
         if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision == XacmlContextDecision.Permit))
         {
-
+            sw.Stop();
+            _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             await _next(httpContext);
         }
         else
@@ -166,6 +174,8 @@ public class PolicyEnforcementPointMiddleware
 
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
 
+            sw.Stop();
+            _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
     }

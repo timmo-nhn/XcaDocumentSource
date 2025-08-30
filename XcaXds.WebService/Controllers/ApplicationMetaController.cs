@@ -12,14 +12,14 @@ namespace XcaXds.WebService.Controllers;
 
 [ApiController]
 [Route("api")]
-public class ApplicationMetadataController : ControllerBase
+public class ApplicationMetaController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
 
-    public ApplicationMetadataController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
+    public ApplicationMetaController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
@@ -72,5 +72,32 @@ public class ApplicationMetadataController : ControllerBase
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedTestRegistryObjects);
 
         return Ok("Metadata generated");
+    }
+
+    [Tags("_Purge registry and repository! ⚠️")]
+    [HttpGet("get-nuke-key")]
+    public async Task<IActionResult> GetNukeKey()
+    {
+        var datetime = DateTime.Now.ToString("ddMMyyhhMM");
+        return Ok(new { nukeKey = datetime, superSecret = true });
+    }
+
+    [Tags("_Purge registry and repository! ⚠️")]
+    [HttpGet("nuke")]
+    public async Task<IActionResult> NukeRegistryRepository(string nukeKey)
+    {
+        var datetime = DateTime.Now.ToString("ddMMyyhhMM");
+        if (datetime != nukeKey) return BadRequest("Invalid Nuke key, get nuke key from the 'get-nuke-key'-endpoint");
+
+        var documentIds = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(dent => dent.Id).ToList();
+        
+        var amount = documentIds.Count;
+
+        _logger.LogInformation($"Fetched {amount} for nuking");
+
+        _registryWrapper.SetDocumentRegistryContentWithDtos(new List<RegistryObjectDto>());
+        documentIds.ForEach(docid => _repositoryWrapper.DeleteSingleDocument(docid));
+
+        return Ok($"Nuked {amount} entries!");
     }
 }

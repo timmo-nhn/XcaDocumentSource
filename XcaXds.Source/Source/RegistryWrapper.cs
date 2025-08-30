@@ -46,9 +46,9 @@ public class RegistryWrapper
         return new XmlDocumentRegistry { RegistryObjectList = registryObjs };
     }
 
-    public bool SetDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
+    public bool SetDocumentRegistryContentWithDtos(List<RegistryObjectDto>? registryObjectDtos)
     {
-        if (registryObjectDtos.Count == 0) return false;
+        if (registryObjectDtos == null) return false;
 
         _documentRegistry.WriteRegistry(registryObjectDtos);
         _jsonDocumentRegistry = registryObjectDtos;

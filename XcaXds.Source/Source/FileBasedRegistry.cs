@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -10,9 +11,12 @@ public class FileBasedRegistry : IRegistry
     internal string _registryPath;
     internal string _registryFile;
     private readonly object _lock = new();
+    private readonly ILogger<FileBasedRegistry> _logger;
 
-    public FileBasedRegistry()
+    public FileBasedRegistry(ILogger<FileBasedRegistry> logger)
     {
+        _logger = logger;
+
         // When running in a container the path will be different
         var customPath = Environment.GetEnvironmentVariable("REGISTRY_FILE_PATH");
         if (!string.IsNullOrWhiteSpace(customPath))
@@ -35,9 +39,8 @@ public class FileBasedRegistry : IRegistry
         {
             var json = File.ReadAllText(_registryFile);
             var registryContent = RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(json);
-            Console.WriteLine($"read {registryContent?.Count} entries from {_registryPath}");
-
-            return registryContent;
+            _logger.LogInformation($"Read {registryContent?.Count ?? 0} entries from {_registryPath}");
+            return registryContent ?? new List<RegistryObjectDto>();
         }
     }
 

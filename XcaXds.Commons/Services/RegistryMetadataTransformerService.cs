@@ -1109,7 +1109,7 @@ public static class RegistryMetadataTransformerService
     private static void GetAuthorRoleSlotFromAuthor(ClassificationType classification, AuthorInfo documentAuthor)
     {
         var authorRole = documentAuthor?.Role;
-        if (authorRole == null) return;
+        if (authorRole == null || authorRole.Code == null) return;
 
         var authorRoleCx = new CX()
         {

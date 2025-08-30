@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -665,6 +666,90 @@ public static class Constants
             public const string WD17 = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
             public const string Policy_OS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
             public const string Context_OS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
+        }
+    }
+
+    public static class AuditLogging
+    {
+        public class SamlToken
+        {
+            // SAML-token values
+            public const string organization_id = "urn:oasis:names:tc:xspa:1.0:subject:organization-id";
+            public const string child_organization_id = "urn:oasis:names:tc:xspa:1.0:subject:child-organization";
+            public const string national_patient_id = "urn:oasis:names:tc:xspa:2.0:subject:npi";
+            public const string subject_role = "urn:oasis:names:tc:xspa:1.0:subject:role";
+            public const string subject_id = "urn:oasis:names:tc:xspa:1.0:subject:subject-id";
+            public const string subject_purposeOfUse = "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse";
+            public const string xua_acp = "urn:ihe:iti:xua:2012:acp";
+            public const string resource_id = "urn:oasis:names:tc:xacml:2.0:resource:resource-id";
+            public const string tf_resource_id = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+            public const string tf_purposeOfUse = "urn:oasis:names:tc:xacml:2.0:action:purpose";
+        }
+
+        public class XcaAction
+        {
+            public const string ITI18 = "ITI-18";
+            public const string ITI39 = "ITI-39";
+        }
+
+
+        // purposeOfUse Code values
+        public const string TREAT = "TREAT";
+        public const string ETREAT = "ETREAT";
+        public const string COC = "COC";
+
+        // old purposeOfUse Codes
+        public const string subject_of_care = "1"; // TREAT
+        public const string emergency_care = "2"; // ETREAT
+        public const string management_qa = "5"; // COC
+
+        // citizen codes
+        public const string OPPSLAG_HELSENORGE = "13";
+
+        // ACP-fields
+        public class ACP
+        {
+            public const string segselv = "segselv";
+            public const string fullmakt = "2.16.578.1.12.4.1.7.2.1.4";
+            public const string cannot_consent = "2.16.578.1.12.4.1.7.2.1.3";
+            public const string verge = "2.16.578.1.12.4.1.7.2.1.2";
+            public const string foreldre = "2.16.578.1.12.4.1.7.2.1.1";
+        }
+
+        public class LoggerNames
+        {
+            public const string AT_SENSE_XUA = "at.sense.xua.module.handler.XUAOutHandler";
+            //public const string HTTP_WIRE = "httpclient.wire.content";   
+            public const string HTTP_WIRE = "org.apache.http.wire";
+            public const string ACTION_CLASS = "at.sense.util.operationtemplate.OperationLogger";
+            public const string AUDIT_MESSAGE_WRITER = "at.sense.logging.atna.content.AuditMessageWriter";
+        }
+
+        public class RegexPatterns
+        {
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string ConfidentialityCode = @"confidentialityCode\s+code=\\?\""([^\""]+)\\\""";
+
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string DocumentSourceName = @"<name>([^<]+)</name>";
+
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string DocumentTitle = @"<title>([^<]+)</title>";
+
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string DocumentEffectiveTime = @"<effectiveTime value=\\?\""([^\""]+)\\?\""";
+
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string HomeCommunityId = @"<ns.:HomeCommunityId>([^<]+)";
+
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string RepositoryUniqueId = @"<ns.:RepositoryUniqueId>([^<]+)";
+
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string DocumentUniqueId = @"<ns.:DocumentUniqueId>([^<]+)";
+
+            [StringSyntax(StringSyntaxAttribute.Regex)]
+            public const string DocumentIdWithOid = @"[\.\d]+\^[\w\d]+";
         }
     }
 }
