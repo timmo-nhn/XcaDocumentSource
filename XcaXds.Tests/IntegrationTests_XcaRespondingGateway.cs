@@ -1,5 +1,9 @@
-﻿using System.Text;
+﻿using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
 using System.Xml;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using XcaXds.Commons.Commons;
@@ -25,8 +29,10 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
     [Fact]
     public async Task CrossGatewayQuery()
     {
-        var testDataFiles = Directory.GetFiles(Path.Combine(
-            AppContext.BaseDirectory, "..", "..", "..", "TestData", "IntegrationTests"));
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
         var patients = _restfulRegistryService.GetPatientIdentifiersInRegistry();
 
@@ -42,22 +48,43 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             var testDataGenerationResponse = await _client.PostAsync("/api/generate-test-data", testData);
         }
 
-        var iti38 = testDataFiles.FirstOrDefault(f => f.Contains("iti38"));
+        var iti38 = integrationTestFiles.FirstOrDefault(f => f.Contains("iti38"));
 
         if (iti38 == null)
         {
-            Assert.Fail("Where did the test data go?!");
+            Assert.Fail("Where did the integration test data go?!");
         }
 
         var crossGatewayQuery = new XmlDocument();
         var xmlContent = File.ReadAllText(iti38);
         crossGatewayQuery.LoadXml(xmlContent);
 
-        var samlAttributes = crossGatewayQuery.GetElementsByTagName("saml:AttributeStatement");
+        var nsmgr = new XmlNamespaceManager(crossGatewayQuery.NameTable);
+        nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
 
-        var purposeAttributes = samlAttributes[0].ChildNodes;
+        var roleAttrValueNode = crossGatewayQuery.SelectSingleNode(
+            "//saml:Attribute[@Name='urn:oasis:names:tc:xspa:1.0:subject:role']/saml:AttributeValue",
+            nsmgr
+        );
+
+        if (roleAttrValueNode != null)
+        {
+            var roleXmlString = Regex.Replace(HttpUtility.HtmlDecode(roleAttrValueNode.InnerText), @"\bxsi:\b", "");
+
+            var roleDoc = new XmlDocument();
+            roleDoc.LoadXml(roleXmlString);
+
+            var roleNode = roleDoc.DocumentElement;
+            if (roleNode != null)
+            {
+                roleNode.SetAttribute("code", "PS");
+
+                var updatedRoleXml = roleNode.OuterXml;
+            }
+        }
 
         var soapEnvelope = new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml);
+
         var response = await _client.PostAsync("/XCA/services/RespondingGatewayService", soapEnvelope);
         var responseBody = await response.Content.ReadAsStringAsync();
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);

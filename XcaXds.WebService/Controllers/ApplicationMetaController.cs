@@ -92,8 +92,12 @@ public class ApplicationMetaController : ControllerBase
         var documentIds = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(dent => dent.Id).ToList();
         
         var amount = documentIds.Count;
-
         _logger.LogInformation($"Fetched {amount} for nuking");
+
+        if (amount == 0)
+        {
+            return Ok("Nothing to nuke");
+        }
 
         _registryWrapper.SetDocumentRegistryContentWithDtos(new List<RegistryObjectDto>());
         documentIds.ForEach(docid => _repositoryWrapper.DeleteSingleDocument(docid));

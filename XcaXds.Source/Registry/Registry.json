@@ -1,1 +1,1910 @@
-[]
+[
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "999537634",
+          "organizationName": "M\u00F8rkved Legesenter",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {},
+        "person": {
+          "id": "08884699909",
+          "firstName": "FREDELIG",
+          "lastName": "BOT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "198",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Nyresykdommer"
+        }
+      },
+      {
+        "organization": {
+          "id": "915070280",
+          "organizationName": "NESBRU LEGESENTER A/S",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213167",
+          "organizationName": "Gynekologisk seksjon - Helse M\u00F8re og Romsdal",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "45927700178",
+          "firstName": "USYMMETRISK",
+          "lastName": "FARFAR",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "11",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Utskrivende sykepleier"
+        },
+        "speciality": {}
+      },
+      {
+        "organization": {},
+        "department": {
+          "id": "4213078",
+          "organizationName": "Barne- og ungdomsavdeling - UNN Troms\u00F8",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "13890497696",
+          "firstName": "EPISK",
+          "lastName": "GAUPE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "9",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Prim\u00E6rkontakt"
+        },
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": [
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      }
+    ],
+    "creationTime": "2016-07-13T07:06:07.9461001Z",
+    "formatCode": {
+      "code": "urn:no:ehelse:document:pdf",
+      "displayName": "FormatCodes"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.901",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Hjemmesykepleie"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "02906499765",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "FORDEKT",
+      "lastName": "HIMMEL"
+    },
+    "mimeType": "application/rtf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "4"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2016-07-13T02:45:55.9461001Z",
+    "serviceStopTime": "2016-07-13T06:19:34.9461001Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "27888498775",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Rettferdig",
+      "lastName": "Savanne",
+      "birthTime": "1984-08-27T00:00:00Z",
+      "gender": "M"
+    },
+    "title": "XcaDS - Poliklinisk vurdering - Psykisk helsevern",
+    "typeCode": {
+      "code": "A02-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Individuell plan"
+    },
+    "uniqueId": "6f61ddc9-7dfc-4f23-ac1f-df1cbec71019",
+    "id": "7a61fa01-2376-4936-bf4e-4cd93fbdb16b"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2016-07-13T07:45:01.9461001Z",
+    "title": "Epikrise - TIA-utredning",
+    "uniqueId": ".1090.2990.2478",
+    "sourceId": ".2863.1957.12",
+    "id": "6c77addf-60e6-4ee0-b3e8-f06496c9667d"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "6c77addf-60e6-4ee0-b3e8-f06496c9667d",
+    "submissionSetStatus": "Current",
+    "targetObject": "7a61fa01-2376-4936-bf4e-4cd93fbdb16b",
+    "id": "8ae49d17-5928-4596-a902-5b4e55bea79e"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "958935420",
+          "organizationName": "OSLO KOMMUNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213089",
+          "organizationName": "Rehabilitering S\u00F8r - Sunnaas sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "14811249255",
+          "firstName": "GREI",
+          "lastName": "METER",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "17",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Forl\u00F8pskoordinator kreft"
+        },
+        "speciality": {
+          "code": "151",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Nukle\u00E6rmedisin"
+        }
+      },
+      {
+        "organization": {
+          "id": "981275721",
+          "organizationName": "STIFTELSEN BETANIEN HOSPITAL SKIEN",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213156",
+          "organizationName": "Reumatologisk poliklinikk - Skien Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "24826397280",
+          "firstName": "MINIMALISTISK",
+          "lastName": "EKSPEDITOR",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "12",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Instituerende lege"
+        },
+        "speciality": {
+          "code": "523",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Pedodonti"
+        }
+      },
+      {
+        "organization": {
+          "id": "996374653",
+          "organizationName": "GL\u00F8SHAUGEN LEGESENTER DA",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213178",
+          "organizationName": "Barn og unges psykiske helse - Levanger DPS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "03920999971",
+          "firstName": "RETT",
+          "lastName": "SAU",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "6",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Fastlege"
+        },
+        "speciality": {
+          "code": "37",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Nevrologi"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "E00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Bildediagnostikk"
+    },
+    "confidentialityCode": [
+      {
+        "code": "NORN_EPO",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Nektet, eget \u00F8nske"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      }
+    ],
+    "creationTime": "2017-05-09T15:23:19.9533281Z",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.909",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Andre helsetjenester"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "24826397280",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "MINIMALISTISK",
+      "lastName": "EKSPEDITOR"
+    },
+    "mimeType": "text/plain",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "4"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2017-05-09T11:38:06.9533281Z",
+    "serviceStopTime": "2017-05-09T13:10:30.9533281Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "12119000465",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Malin",
+      "lastName": "Fos Bogen",
+      "birthTime": "1990-11-12T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "XcaDS - Vurdering av samtykkekompetanse",
+    "typeCode": {
+      "code": "J01-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Sykmeldinger og trygdesaker"
+    },
+    "uniqueId": "3291c175-30f6-49a0-82fe-23555ee7e1a1",
+    "id": "e8173ccb-42de-49b5-895e-08127e63dc72"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "984027737",
+          "organizationName": "HARALDSPLASS DIAKONALE SYKEHUS AS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213056",
+          "organizationName": "Kreftavdeling - Sykehuset Innlandet",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "02910999438",
+          "firstName": "FINTFOLENDE",
+          "lastName": "KJOPMANN",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "45",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "\u00F8re-, nese-, halssykdommer"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2017-05-09T15:27:23.9533281Z",
+    "title": "Psykiatrisk observasjon - F\u00F8rste innleggelse",
+    "uniqueId": ".3555.740.1047",
+    "sourceId": ".2859.3573.3054",
+    "id": "fb08e896-a632-4b39-9469-acbc0bc92532"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "fb08e896-a632-4b39-9469-acbc0bc92532",
+    "submissionSetStatus": "Current",
+    "targetObject": "e8173ccb-42de-49b5-895e-08127e63dc72",
+    "id": "61dc597b-258f-4e7d-ba3e-cd76380751ac"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "915638449",
+          "organizationName": "Loddefjord Legesenter",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {},
+        "person": {
+          "id": "14811249255",
+          "firstName": "GREI",
+          "lastName": "METER",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "17",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Forl\u00F8pskoordinator kreft"
+        },
+        "speciality": {
+          "code": "193",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Ford\u00F8yelsessykdommer"
+        }
+      },
+      {
+        "organization": {
+          "id": "997506499",
+          "organizationName": "OSLO KOMMUNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213145",
+          "organizationName": "Nevropsykiatrisk team - Helse Nord",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "21877699800",
+          "firstName": "TROFAST",
+          "lastName": "SVIGERINNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "82",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Gastroenterologisk kirurgi"
+        }
+      },
+      {
+        "organization": {
+          "id": "312865068",
+          "organizationName": "ALLSIDIG VIRKELIG KATT M\u00F8BELFORRETNING",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213189",
+          "organizationName": "Infeksjonsmedisinsk vaktteam - OUS Ullev\u00E5l",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "09892399333",
+          "firstName": "UVITENDE",
+          "lastName": "GORILLA",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "20",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Kontaktpsykolog"
+        },
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": [],
+    "creationTime": "2013-10-22T19:08:45.9534183Z",
+    "formatCode": {
+      "code": "urn:no:ehelse:document:pdf",
+      "displayName": "FormatCodes"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.902",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Fysioterapitjeneste"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "10816898728",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "LILLA",
+      "lastName": "ALT"
+    },
+    "mimeType": "text/plain",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "9",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "9"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2013-10-22T18:48:46.9534183Z",
+    "serviceStopTime": "2013-10-22T18:56:26.9534183Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "12119000465",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Malin",
+      "lastName": "Fos Bogen",
+      "birthTime": "1990-11-12T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "XcaDS - Ergoterapeutisk kartlegging - Hjemmebes\u00F8k",
+    "typeCode": {
+      "code": "C04-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Patologi, histologi og cytologi"
+    },
+    "uniqueId": "be248ca2-f2c4-4e23-a04c-6018f13c222b",
+    "id": "458103e0-60ca-4250-bc0d-5f79d9007809"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "998570328",
+          "organizationName": "Munkholmen Legesenter",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213012",
+          "organizationName": "Infeksjonsmedisin - St. Olavs hospital",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "30880948314",
+          "firstName": "TORR",
+          "lastName": "MILJOGIFT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "983544622",
+          "organizationName": "HELSEDIREKTORATET",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213067",
+          "organizationName": "Psykiatrisk akuttmottak - Vestre Viken",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "27905697442",
+          "firstName": "MATEHOLDEN",
+          "lastName": "DOR",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2013-10-22T21:35:09.9534183Z",
+    "title": "Henvisning til bildediagnostikk - MR Caput",
+    "uniqueId": ".3766.2494.3938",
+    "sourceId": ".3923.1965.718",
+    "id": "f445ae2f-5afa-4934-8cd5-2756a0fd26b0"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "f445ae2f-5afa-4934-8cd5-2756a0fd26b0",
+    "submissionSetStatus": "Current",
+    "targetObject": "458103e0-60ca-4250-bc0d-5f79d9007809",
+    "id": "93d98c5c-5544-41d9-8947-9315cc24c1af"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "979543883",
+          "organizationName": "DIPS AS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213067",
+          "organizationName": "Psykiatrisk akuttmottak - Vestre Viken",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "31837998495",
+          "firstName": "LIDENSKAPELIG",
+          "lastName": "PLIKT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "23",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "\u00D8nsket behandler"
+        },
+        "speciality": {
+          "code": "193",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Ford\u00F8yelsessykdommer"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": [
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "NORN_EPO",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Nektet, eget \u00F8nske"
+      }
+    ],
+    "creationTime": "2015-02-07T12:48:55.9535002Z",
+    "formatCode": {
+      "code": "urn:no:ehelse:document:pdf",
+      "displayName": "FormatCodes"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.903",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Helsestasjons- og skolehelsetjeneste"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "12891848933",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "LATTERMILD",
+      "lastName": "GLOSE"
+    },
+    "mimeType": "text/plain",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "4"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2015-02-07T09:24:24.9535002Z",
+    "serviceStopTime": "2015-02-07T11:23:41.9535002Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "27888498775",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Rettferdig",
+      "lastName": "Savanne",
+      "birthTime": "1984-08-27T00:00:00Z",
+      "gender": "M"
+    },
+    "title": "XcaDS - Foresp\u00F8rsel om tverrfaglig vurdering",
+    "typeCode": {
+      "code": "D09-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "\u00D8ye"
+    },
+    "uniqueId": "dfb6f418-63f6-4d04-a0b6-d5f5bed09668",
+    "id": "42003cee-673e-46af-b540-e9f0b854c329"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "983974899",
+          "organizationName": "UNIVERSITETSSYKEHUSET NORD-NORGE HF",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213178",
+          "organizationName": "Barn og unges psykiske helse - Levanger DPS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "10925099231",
+          "firstName": "DYPSINDIG",
+          "lastName": "ODDE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "32",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Klinisk nevrofysiologi"
+        }
+      },
+      {
+        "organization": {
+          "id": "960510542",
+          "organizationName": "VOSS HERAD",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {},
+        "person": {
+          "id": "26866896762",
+          "firstName": "ALDRENDE",
+          "lastName": "HANDLINGSEVNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "4",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Journalansvarlig"
+        },
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "983544622",
+          "organizationName": "HELSEDIREKTORATET",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213178",
+          "organizationName": "Barn og unges psykiske helse - Levanger DPS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "09892399333",
+          "firstName": "UVITENDE",
+          "lastName": "GORILLA",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "81",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Barnekirurgi"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2015-02-07T13:21:22.9535002Z",
+    "title": "Henvisning til bildediagnostikk - MR Caput",
+    "uniqueId": ".3005.3018.201",
+    "sourceId": ".3670.399.3413",
+    "id": "c49457f1-c6d7-430c-b281-c0926956c604"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "c49457f1-c6d7-430c-b281-c0926956c604",
+    "submissionSetStatus": "Current",
+    "targetObject": "42003cee-673e-46af-b540-e9f0b854c329",
+    "id": "2abd1584-d2a1-4fa2-805a-28c8c452fb8d"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "915638449",
+          "organizationName": "Loddefjord Legesenter",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213134",
+          "organizationName": "Lungeavdelingen - \u00E5lesund Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "26866896762",
+          "firstName": "ALDRENDE",
+          "lastName": "HANDLINGSEVNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "19",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Kontaktlege"
+        },
+        "speciality": {
+          "code": "560",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Endodonti"
+        }
+      },
+      {
+        "organization": {
+          "id": "999537634",
+          "organizationName": "M\u00F8rkved Legesenter",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213123",
+          "organizationName": "Akuttmottak - Kristiansund Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "03920999971",
+          "firstName": "RETT",
+          "lastName": "SAU",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "151",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Nukle\u00E6rmedisin"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": [
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      }
+    ],
+    "creationTime": "2024-04-03T21:38:59.9535317Z",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.101",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Alminnelige somatiske sykehus"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "08884699909",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "FREDELIG",
+      "lastName": "BOT"
+    },
+    "mimeType": "application/pdf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "8",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "8"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2024-04-03T17:23:56.9535317Z",
+    "serviceStopTime": "2024-04-03T19:17:05.9535317Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "13116900216",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Line",
+      "lastName": "Danser",
+      "birthTime": "1969-11-13T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "XcaDS - Ergoterapeutisk kartlegging - Hjemmebes\u00F8k",
+    "typeCode": {
+      "code": "F04-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Svangerskap og f\u00F8dsel"
+    },
+    "uniqueId": "64a72d3f-082a-4fd7-ac0c-d39cb976bcf4",
+    "id": "9d841981-3f2d-43b4-8665-c9ae493686d1"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "915933149",
+          "organizationName": "DIREKTORATET FOR E-HELSE MELDT TIL OPPH\u00F8R",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213134",
+          "organizationName": "Lungeavdelingen - \u00E5lesund Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "26878897330",
+          "firstName": "FASCINERENDE",
+          "lastName": "RADIOSTASJON",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "11",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Utskrivende sykepleier"
+        },
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "986106839",
+          "organizationName": "HAUGESUND SANITETSFORENINGS REVMATISMESYKEHUS AS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213178",
+          "organizationName": "Barn og unges psykiske helse - Levanger DPS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "26866896762",
+          "firstName": "ALDRENDE",
+          "lastName": "HANDLINGSEVNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "5",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Informasjonsansvarlig"
+        },
+        "speciality": {
+          "code": "40",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Psykiatri"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2024-04-03T21:45:49.9535317Z",
+    "title": "Barnelegevurdering - Astmautredning",
+    "uniqueId": ".3935.1337.3690",
+    "sourceId": ".3696.660.1462",
+    "id": "75265135-2356-4a8f-96fc-2b891358826c"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "75265135-2356-4a8f-96fc-2b891358826c",
+    "submissionSetStatus": "Current",
+    "targetObject": "9d841981-3f2d-43b4-8665-c9ae493686d1",
+    "id": "fb05bf06-ceb1-45a9-b0a3-bcd7bb539653"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "983974899",
+          "organizationName": "UNIVERSITETSSYKEHUSET NORD-NORGE HF",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213045",
+          "organizationName": "Hudpoliklinikken - Diakonhjemmet Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "41837701048",
+          "firstName": "KRY",
+          "lastName": "FLOYTE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "10",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Utskrivende lege"
+        },
+        "speciality": {
+          "code": "192",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Endokrinologi"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "B00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Kontinuerlig/l\u00F8pende journal"
+    },
+    "confidentialityCode": [
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      }
+    ],
+    "creationTime": "2002-06-09T00:50:26.9535526Z",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.101",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Alminnelige somatiske sykehus"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "08884699909",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "FREDELIG",
+      "lastName": "BOT"
+    },
+    "mimeType": "application/rtf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "7",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "7"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2002-06-08T23:04:03.9535526Z",
+    "serviceStopTime": "2002-06-09T01:04:31.9535526Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "12119000465",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Malin",
+      "lastName": "Fos Bogen",
+      "birthTime": "1990-11-12T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "XcaDS - Kontrollnotat - Kronisk sykdomsoppf\u00F8lging",
+    "typeCode": {
+      "code": "D11-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Endokrinologi"
+    },
+    "uniqueId": "db2377bb-8da8-49d2-a85e-ff0ace87d48d",
+    "id": "01f9d694-635f-40fe-a87e-706da26edb7f"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "999988921",
+          "organizationName": "CGM Vision BHT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {},
+        "person": {
+          "id": "09917999055",
+          "firstName": "PLUTSELIG",
+          "lastName": "SILD",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "17",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Forl\u00F8pskoordinator kreft"
+        },
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "986664203",
+          "organizationName": "Sj\u00F8siden Legesenter",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213034",
+          "organizationName": "Nevrokirurgi - Haukeland universitetssjukehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "03850398185",
+          "firstName": "LIVSTRETT",
+          "lastName": "HOPPE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "938801363",
+          "organizationName": "SARPSBORG KOMMUNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213012",
+          "organizationName": "Infeksjonsmedisin - St. Olavs hospital",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "13913746753",
+          "firstName": "VARM",
+          "lastName": "OVERSKRIFT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2002-06-09T03:16:58.9535526Z",
+    "title": "CT-beskrivelse - Abdomen og bekken",
+    "uniqueId": ".2761.2387.2395",
+    "sourceId": ".1380.1510.3597",
+    "id": "bfd40046-89dc-4eb0-ad70-509c7fdb03e0"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "bfd40046-89dc-4eb0-ad70-509c7fdb03e0",
+    "submissionSetStatus": "Current",
+    "targetObject": "01f9d694-635f-40fe-a87e-706da26edb7f",
+    "id": "f238a2b6-eead-49d6-97f4-5a37422e6f9b"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "999944442",
+          "organizationName": "B\u00E6remeisen Fastlegekontor",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213178",
+          "organizationName": "Barn og unges psykiske helse - Levanger DPS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "09892399333",
+          "firstName": "UVITENDE",
+          "lastName": "GORILLA",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "17",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Forl\u00F8pskoordinator kreft"
+        },
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "974628570",
+          "organizationName": "Indre Salten Legevakt",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213045",
+          "organizationName": "Hudpoliklinikken - Diakonhjemmet Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "31837998495",
+          "firstName": "LIDENSKAPELIG",
+          "lastName": "PLIKT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "6",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Fastlege"
+        },
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": [
+      {
+        "code": "NORN_FORANS",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Nektet, foreldreansvarlig"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      }
+    ],
+    "creationTime": "2011-07-12T12:20:02.9535703Z",
+    "formatCode": {
+      "code": "urn:no:ehelse:document:pdf",
+      "displayName": "FormatCodes"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.224",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Poliklinikker i psykisk helsevern for barn og unge"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "24826397280",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "MINIMALISTISK",
+      "lastName": "EKSPEDITOR"
+    },
+    "mimeType": "text/plain",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "3",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "3"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2011-07-12T10:57:09.9535703Z",
+    "serviceStopTime": "2011-07-12T12:59:14.9535703Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "12119000465",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Malin",
+      "lastName": "Fos Bogen",
+      "birthTime": "1990-11-12T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "XcaDS - CT-beskrivelse - Abdomen og bekken",
+    "typeCode": {
+      "code": "I01-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Henvisninger"
+    },
+    "uniqueId": "668e69ca-fdc3-4368-9369-5f82baaaac8a",
+    "id": "3ca01148-ce17-4362-96b2-1461f412afc5"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "999537634",
+          "organizationName": "M\u00F8rkved Legesenter",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213090",
+          "organizationName": "Geriatrisk sengepost - Lovisenberg Diakonale Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "09917999055",
+          "firstName": "PLUTSELIG",
+          "lastName": "SILD",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2011-07-12T14:05:29.9535703Z",
+    "title": "Kirurgisk epikrise - Kolecystektomi",
+    "uniqueId": ".1004.1142.1290",
+    "sourceId": ".1841.1443.3484",
+    "id": "0ba6d53c-2df9-4d6d-9843-1d65cd319f68"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "0ba6d53c-2df9-4d6d-9843-1d65cd319f68",
+    "submissionSetStatus": "Current",
+    "targetObject": "3ca01148-ce17-4362-96b2-1461f412afc5",
+    "id": "ecea286b-8942-4086-9f82-a4fe10ded584"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "974724960",
+          "organizationName": "Sykehuset Innlandet, Hamar",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213090",
+          "organizationName": "Geriatrisk sengepost - Lovisenberg Diakonale Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "10816898728",
+          "firstName": "LILLA",
+          "lastName": "ALT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "6",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Fastlege"
+        },
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "981275721",
+          "organizationName": "STIFTELSEN BETANIEN HOSPITAL SKIEN",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213112",
+          "organizationName": "Gastroenterologisk avdeling - B\u00E6rum Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "03920999971",
+          "firstName": "RETT",
+          "lastName": "SAU",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "6",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Fastlege"
+        },
+        "speciality": {
+          "code": "198",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Nyresykdommer"
+        }
+      },
+      {
+        "organization": {
+          "id": "974724960",
+          "organizationName": "Sykehuset Innlandet, Hamar",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {},
+        "person": {
+          "id": "12891848933",
+          "firstName": "LATTERMILD",
+          "lastName": "GLOSE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "83",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Karkirurgi"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": [
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      }
+    ],
+    "creationTime": "2023-12-04T10:52:42.9535874Z",
+    "formatCode": {
+      "code": "urn:no:ehelse:document:pdf",
+      "displayName": "FormatCodes"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "88.996",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Asylmottak"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "41837701048",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "KRY",
+      "lastName": "FLOYTE"
+    },
+    "mimeType": "application/pdf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "3",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "3"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2023-12-04T08:48:02.9535874Z",
+    "serviceStopTime": "2023-12-04T12:14:01.9535874Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "12119000465",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Malin",
+      "lastName": "Fos Bogen",
+      "birthTime": "1990-11-12T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "XcaDS - Journaltillegg - Supplerende funn",
+    "typeCode": {
+      "code": "A12-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Utskrivings-/Pasientorientering"
+    },
+    "uniqueId": "73107ac9-4d97-47ce-b74a-5f4ee33175e0",
+    "id": "8debd207-5626-497e-aa04-51e17899a5af"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "983974899",
+          "organizationName": "UNIVERSITETSSYKEHUSET NORD-NORGE HF",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213167",
+          "organizationName": "Gynekologisk seksjon - Helse M\u00F8re og Romsdal",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "31837998495",
+          "firstName": "LIDENSKAPELIG",
+          "lastName": "PLIKT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {}
+      },
+      {
+        "organization": {
+          "id": "983974899",
+          "organizationName": "UNIVERSITETSSYKEHUSET NORD-NORGE HF",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213145",
+          "organizationName": "Nevropsykiatrisk team - Helse Nord",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "26866896762",
+          "firstName": "ALDRENDE",
+          "lastName": "HANDLINGSEVNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "8",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Koordinator Individuell plan"
+        },
+        "speciality": {
+          "code": "198",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Nyresykdommer"
+        }
+      },
+      {
+        "organization": {
+          "id": "922307814",
+          "organizationName": "HELSEPLATTFORMEN AS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213045",
+          "organizationName": "Hudpoliklinikken - Diakonhjemmet Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "26866896762",
+          "firstName": "ALDRENDE",
+          "lastName": "HANDLINGSEVNE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "301",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Akutt- og mottaksmedisin"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2023-12-04T12:30:51.9535874Z",
+    "title": "Journalnotat - Kontrolltime hjertesvikt",
+    "uniqueId": ".3260.1516.3305",
+    "sourceId": ".3406.1350.1822",
+    "id": "79a931c1-a84a-4973-80ad-3f996ebfabf2"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "79a931c1-a84a-4973-80ad-3f996ebfabf2",
+    "submissionSetStatus": "Current",
+    "targetObject": "8debd207-5626-497e-aa04-51e17899a5af",
+    "id": "86efb4f0-41c5-48ff-9ac6-cbef16a43df2"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "993187178",
+          "organizationName": "Legevakta i Trondheim",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213101",
+          "organizationName": "Ortopedisk poliklinikk - Sykehuset \u00F8stfold",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "41837701048",
+          "firstName": "KRY",
+          "lastName": "FLOYTE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "19",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Kontaktlege"
+        },
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "C00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Pr\u00F8vesvar, vev og v\u00E6sker"
+    },
+    "confidentialityCode": [
+      {
+        "code": "NORU",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Utsatt innsyn for innbygger"
+      },
+      {
+        "code": "NORN_ALL",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Nektet, alle"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.578.1.12.4.1.1.9603",
+        "displayName": "Normal"
+      }
+    ],
+    "creationTime": "2017-11-18T05:38:07.9536095Z",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.907",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Ambulansetjenester"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "24826397280",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "MINIMALISTISK",
+      "lastName": "EKSPEDITOR"
+    },
+    "mimeType": "application/pdf",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "4"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2017-11-18T01:23:30.9536095Z",
+    "serviceStopTime": "2017-11-18T05:28:02.9536095Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "12119000465",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Malin",
+      "lastName": "Fos Bogen",
+      "birthTime": "1990-11-12T00:00:00Z",
+      "gender": "F"
+    },
+    "title": "XcaDS - Observasjonsnotat - Endringer i tilstand",
+    "typeCode": {
+      "code": "C02-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Blodbank og immunologi"
+    },
+    "uniqueId": "1805e823-6802-4f95-a645-0056eca59b76",
+    "id": "ed1b21bd-3c93-45ce-8c97-9236b8166de6"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "974724960",
+          "organizationName": "Sykehuset Innlandet, Hamar",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213056",
+          "organizationName": "Kreftavdeling - Sykehuset Innlandet",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "24849698172",
+          "firstName": "EKTE",
+          "lastName": "RYNKE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "13",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Innleggende lege"
+        },
+        "speciality": {}
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "27888498775",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2017-11-18T06:19:37.9536095Z",
+    "title": "Observasjonsnotat - Fall i blodtrykk",
+    "uniqueId": ".2446.868.2068",
+    "sourceId": ".2486.505.3212",
+    "id": "04de29fe-36dc-4bb9-a859-f179a2b4ef93"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "04de29fe-36dc-4bb9-a859-f179a2b4ef93",
+    "submissionSetStatus": "Current",
+    "targetObject": "ed1b21bd-3c93-45ce-8c97-9236b8166de6",
+    "id": "6fed26cb-40d3-4f3c-bb0e-2ae02857bc09"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [
+      {
+        "organization": {
+          "id": "912719103",
+          "organizationName": "PRIDOK AS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213178",
+          "organizationName": "Barn og unges psykiske helse - Levanger DPS",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "565505933",
+          "firstName": "KVART",
+          "lastName": "GREVLING",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "31",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Medisinsk biokjemi"
+        }
+      },
+      {
+        "organization": {
+          "id": "974628570",
+          "organizationName": "Indre Salten Legevakt",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {},
+        "person": {
+          "id": "13913746753",
+          "firstName": "VARM",
+          "lastName": "OVERSKRIFT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "4",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Journalansvarlig"
+        },
+        "speciality": {
+          "code": "16",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Hud og veneriske sykdommer"
+        }
+      },
+      {
+        "organization": {
+          "id": "312865068",
+          "organizationName": "ALLSIDIG VIRKELIG KATT M\u00F8BELFORRETNING",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213134",
+          "organizationName": "Lungeavdelingen - \u00E5lesund Sykehus",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "24849698172",
+          "firstName": "EKTE",
+          "lastName": "RYNKE",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {},
+        "speciality": {
+          "code": "198",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Nyresykdommer"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "A00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Epikriser og Sammenfatninger"
+    },
+    "confidentialityCode": [],
+    "creationTime": "2013-10-24T14:23:36.9536262Z",
+    "formatCode": {
+      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
+    },
+    "hash": "7E1120A643FD01068482DFCDA1F802E0",
+    "healthCareFacilityTypeCode": {
+      "code": "86.107",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Rehabiliterings- og opptreningsinstitusjoner"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "nb-NO",
+    "legalAuthenticator": {
+      "id": "565505933",
+      "idSystem": "2.16.578.1.12.4.1.4.4",
+      "firstName": "KVART",
+      "lastName": "GREVLING"
+    },
+    "mimeType": "text/plain",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "practiceSettingCode": {
+      "code": "6",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "6"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "135724",
+    "serviceStartTime": "2013-10-24T12:55:43.9536262Z",
+    "serviceStopTime": "2013-10-24T16:08:39.9536262Z",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "27888498775",
+        "system": "2.16.578.1.12.4.1.4.1"
+      },
+      "firstName": "Rettferdig",
+      "lastName": "Savanne",
+      "birthTime": "1984-08-27T00:00:00Z",
+      "gender": "M"
+    },
+    "title": "XcaDS - Observasjonsnotat - Fall i blodtrykk",
+    "typeCode": {
+      "code": "I02-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Brev"
+    },
+    "uniqueId": "00c71196-777f-49e2-9f40-aa09fe09bff6",
+    "id": "ceffd55e-b9b4-4ef7-98f7-7cc260ef721e"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {
+          "id": "312865068",
+          "organizationName": "ALLSIDIG VIRKELIG KATT M\u00F8BELFORRETNING",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.101"
+        },
+        "department": {
+          "id": "4213056",
+          "organizationName": "Kreftavdeling - Sykehuset Innlandet",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.102"
+        },
+        "person": {
+          "id": "13913746753",
+          "firstName": "VARM",
+          "lastName": "OVERSKRIFT",
+          "assigningAuthority": "2.16.578.1.12.4.1.4.4"
+        },
+        "role": {
+          "code": "19",
+          "codeSystem": "2.16.578.1.12.4.1.1.9034",
+          "displayName": "Kontaktlege"
+        },
+        "speciality": {
+          "code": "558",
+          "codeSystem": "2.16.578.1.12.4.1.1.7426",
+          "displayName": "Oral-kirurgi og oralmedisin"
+        }
+      }
+    ],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "patientId": {
+      "code": "13116900216",
+      "codeSystem": "2.16.578.1.12.4.1.4.1"
+    },
+    "submissionTime": "2013-10-24T16:49:04.9536262Z",
+    "title": "Konsilnotat - Hudavdeling",
+    "uniqueId": ".1449.87.3832",
+    "sourceId": ".80.781.884",
+    "id": "b0218d29-0e96-46e8-9b7f-52f5364cf100"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "b0218d29-0e96-46e8-9b7f-52f5364cf100",
+    "submissionSetStatus": "Current",
+    "targetObject": "ceffd55e-b9b4-4ef7-98f7-7cc260ef721e",
+    "id": "a3be9660-c8b6-4815-b643-99c275c79763"
+  }
+]

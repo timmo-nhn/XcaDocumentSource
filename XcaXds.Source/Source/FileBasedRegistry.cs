@@ -13,6 +13,11 @@ public class FileBasedRegistry : IRegistry
     private readonly object _lock = new();
     private readonly ILogger<FileBasedRegistry> _logger;
 
+    public FileBasedRegistry()
+    {
+        
+    }
+
     public FileBasedRegistry(ILogger<FileBasedRegistry> logger)
     {
         _logger = logger;
@@ -39,7 +44,9 @@ public class FileBasedRegistry : IRegistry
         {
             var json = File.ReadAllText(_registryFile);
             var registryContent = RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(json);
-            _logger.LogInformation($"Read {registryContent?.Count ?? 0} entries from {_registryPath}");
+
+            _logger?.LogInformation($"Read {registryContent?.Count ?? 0} entries from {_registryPath}");
+
             return registryContent ?? new List<RegistryObjectDto>();
         }
     }
