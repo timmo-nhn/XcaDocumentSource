@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
@@ -75,7 +76,8 @@ public class PolicyEnforcementPointMiddleware
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
 
-        var requestBody = await GetHttpRequestBody(httpContext.Request);
+        var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
+
         _logger.LogInformation($"Request Body:\n{requestBody}");
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
@@ -86,6 +88,7 @@ public class PolicyEnforcementPointMiddleware
 
         switch (contentType)
         {
+            case Constants.MimeTypes.XopXml:
             case Constants.MimeTypes.SoapXml:
 
                 var xacmlAction = PolicyRequestMapperSamlService.MapXacmlActionFromSoapAction(PolicyRequestMapperSamlService.GetActionFromSoapEnvelope(requestBody));
@@ -181,14 +184,6 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
-    }
-
-    public static async Task<string> GetHttpRequestBody(HttpRequest httpRequest)
-    {
-        using var reader = new StreamReader(httpRequest.Body, leaveOpen: true);
-        var bodyContent = await reader.ReadToEndAsync();
-        httpRequest.Body.Position = 0; // Reset stream position for next reader
-        return bodyContent;
     }
 }
 

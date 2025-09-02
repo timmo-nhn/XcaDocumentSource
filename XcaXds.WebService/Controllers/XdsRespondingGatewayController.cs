@@ -31,7 +31,7 @@ public class XdsRespondingGatewayController : ControllerBase
         _xdsRegistryService = xdsRegistryService;
     }
 
-    [Consumes("application/soap+xml", "application/xml", "multipart/related")]
+    [Consumes("application/soap+xml", "application/xml", "multipart/related", "application/xop+xml")]
     [Produces("application/soap+xml", "application/xop+xml", "application/octet-stream", "multipart/related")]
     [HttpPost("RespondingGatewayService")]
     public async Task<IActionResult> HandleRespondingGatewayRequests([FromBody] SoapEnvelope soapEnvelope)

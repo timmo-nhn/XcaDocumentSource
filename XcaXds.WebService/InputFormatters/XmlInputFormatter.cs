@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
@@ -31,7 +32,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
         var request = bindingContext.HttpContext.Request;
         var response = bindingContext.HttpContext.Response;
 
-        if (!request.ContentType?.Contains("xml") ?? true)
+        if (request.ContentType != null && !(request.ContentType.Contains(Constants.MimeTypes.SoapXml) || request.ContentType.Contains(Constants.MimeTypes.XopXml)))
         {
             await CreateStatus500SoapError("InvalidContentType", "The request content type is not XML.", response);
             bindingContext.Result = ModelBindingResult.Failed();
@@ -49,7 +50,14 @@ public class SoapEnvelopeModelBinder : IModelBinder
 
         try
         {
-            var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(xmlContent);
+            var xmlString = string.Empty;
+
+            using (var sr = new StreamReader(xmlContent))
+            {
+                xmlString = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(sr.ReadToEnd());
+            }
+
+            var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(xmlString);
 
             bindingContext.Result = ModelBindingResult.Success(soapEnvelope);
         }

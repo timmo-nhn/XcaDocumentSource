@@ -5,6 +5,9 @@ using Abc.Xacml;
 using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
 using Abc.Xacml.Runtime;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
+using Moq;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
@@ -78,8 +81,9 @@ public class UnitTests_PolicyAuthorization
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
+        var mockLogger = new Mock<ILogger<FileBasedPolicyRepository>>();
 
-        var policyWrapper = new PolicyRepositoryWrapper(new FileBasedPolicyRepository());
+        var policyWrapper = new PolicyRepositoryWrapper(new FileBasedPolicyRepository(mockLogger.Object));
 
 
         XacmlContextRequest xacmlObject = await PolicyRequestMapperSamlService.GetXacml20RequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
