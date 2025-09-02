@@ -15,6 +15,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
     private readonly ILogger<FileBasedPolicyRepository> _logger;
     public FileBasedPolicyRepository(ILogger<FileBasedPolicyRepository> logger)
     {
+        _logger = logger;
         // When running in a container the path will be different
         var customPath = Environment.GetEnvironmentVariable("POLICY_REPOSITORY_FILE_PATH");
         if (!string.IsNullOrWhiteSpace(customPath))
@@ -59,8 +60,8 @@ public class FileBasedPolicyRepository : IPolicyRepository
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error while deserializing {policyFilePath}");
-                    _logger.LogError(ex.ToString());
+                    _logger.LogWarning($"Error while deserializing Policy with ID: {policyFilePath.Split("\\").Last()}");
+                    _logger.LogWarning(ex.ToString());
                 }
             }
         }
