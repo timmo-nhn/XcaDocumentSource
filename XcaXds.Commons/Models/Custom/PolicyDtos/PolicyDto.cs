@@ -1,12 +1,11 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
 
 namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicyDto
 {
     public string? Id { get; set; }
-    public List<PolicyMatch>? Rules { get; set; }
+    public List<List<PolicyMatch>>? Rules { get; set; }
     public List<PolicyMatch>? Subjects { get; set; }
     public List<PolicyMatch>? Roles { get; set; }
     public List<PolicyMatch>? Resources { get; set; }
@@ -15,35 +14,38 @@ public class PolicyDto
 
     public void MergeWith(PolicyDto? patch, bool append)
     {
-        foreach (var patchRule in patch?.Rules ?? [])
+        foreach (var patchRules in patch?.Rules ?? [])
         {
-            var idx = Rules.FindIndex(rule => rule.AttributeId == patchRule.AttributeId);
+            foreach (var patchRule in patchRules)
+            {
+                var idx = patchRules.FindIndex(rule => rule.AttributeId == patchRule.AttributeId);
 
-            if (idx < 0)
-            {
-                Rules.Add(patchRule);
-                continue;
-            }
+                if (idx < 0)
+                {
+                    patchRules.Add(patchRule);
+                    continue;
+                }
 
-            if (append == true)
-            {
-                var existing = Rules[idx];
-                Rules[idx] = new PolicyMatch()
+                if (append == true)
                 {
-                    AttributeId = existing.AttributeId,
-                    Value = string.Join(';', (existing.Value + ";" + patchRule.Value)
-                    .TrimStart(';').TrimEnd(';')
-                    .Split(";")
-                    .Distinct())
-                };
-            }
-            else
-            {
-                Rules[idx] = new PolicyMatch
+                    var existing = patchRules[idx];
+                    patchRules[idx] = new PolicyMatch()
+                    {
+                        AttributeId = existing.AttributeId,
+                        Value = string.Join(';', (existing.Value + ";" + patchRule.Value)
+                        .TrimStart(';').TrimEnd(';')
+                        .Split(";")
+                        .Distinct())
+                    };
+                }
+                else
                 {
-                    AttributeId = patchRule.AttributeId,
-                    Value = patchRule.Value
-                };
+                    patchRules[idx] = new PolicyMatch
+                    {
+                        AttributeId = patchRule.AttributeId,
+                        Value = patchRule.Value
+                    };
+                }
             }
         }
 

@@ -5,6 +5,7 @@ using Abc.Xacml;
 using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
@@ -36,23 +37,15 @@ public class UnitTests_PolicyMappingDto
 
         foreach (var file in requests)
         {
-            var policyXmlString = File.ReadAllText(file);
-            
-            XacmlPolicy policy;
+            var jsonContent = File.ReadAllText(file);
+            var policyDto = JsonSerializer.Deserialize<PolicyDto>(jsonContent, Constants.JsonDefaultOptions.DefaultSettings);
 
-            using (XmlReader reader = XmlReader.Create(new StringReader(policyXmlString)))
-            {
-                var serialize = new Xacml20ProtocolSerializer();
-                policy = serialize.ReadPolicy(reader);
-            }
+            var xacmlPolicy = PolicyDtoTransformerService.TransformPolicyDtoToXacmlVersion20Policy(policyDto);
 
-            var policyDto = PolicyDtoTransformerService.TransformXacmlVersion20PolicyToPolicyDto(policy);
+            var xacmlPolicyString = XacmlSerializer.SerializeXacmlToXml(xacmlPolicy, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
+            var policyDtoRecreated = PolicyDtoTransformerService.TransformXacmlVersion20PolicyToPolicyDto(xacmlPolicy);
 
-
-            var policyJson = JsonSerializer.Serialize(policyDto, Constants.JsonDefaultOptions.DefaultSettings);
-
-            var xacmlPolicyReCreated = PolicyDtoTransformerService.TransformPolicyDtoToXacmlVersion20Policy(policyDto);
         }
     }
 }

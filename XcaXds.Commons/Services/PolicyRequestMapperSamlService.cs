@@ -38,7 +38,7 @@ public static class PolicyRequestMapperSamlService
     {
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
-        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel"));
+        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel") || att.Name.Contains("urn:ihe:iti"));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 

@@ -17,6 +17,7 @@ public static class PolicyDtoTransformerService
 
         policyDto.Id = xacmlPolicy.PolicyId.ToString();
 
+
         var actions = xacmlPolicy.Target.Actions
             .SelectMany(action => action.Matches
             .Select(match => match.AttributeValue.Value))
@@ -88,44 +89,51 @@ public static class PolicyDtoTransformerService
 
         if (policyDto.Rules != null && policyDto.Rules.Count != 0)
         {
+
+            var orClauseRules = new XacmlApply(new Uri(Constants.Xacml.Functions.Or));
             var xacmlRule = new XacmlRule(xacmlEffect);
-            var andClause = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
-
-            foreach (var rule in policyDto.Rules)
+            foreach (var rules in policyDto.Rules)
             {
-                var values = rule.Value?.Split(";");
+                var andClause = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
 
-                if (values?.Length > 1)
+                foreach (var rule in rules)
                 {
-                    var orClause = new XacmlApply(new Uri(Constants.Xacml.Functions.Or));
-                    foreach (var value in values)
+                    var values = rule.Value?.Split(";");
+
+                    if (values?.Length > 1)
+                    {
+                        var orClause = new XacmlApply(new Uri(Constants.Xacml.Functions.Or));
+                        foreach (var value in values)
+                        {
+                            var stringEqual = new XacmlApply(new Uri(Constants.Xacml.Functions.StringEqual));
+                            stringEqual.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), value));
+
+                            var stringOneAndOnly = new XacmlApply(new Uri(Constants.Xacml.Functions.StringOneAndOnly));
+                            stringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String)));
+                            stringEqual.Parameters.Add(stringOneAndOnly);
+
+                            orClause.Parameters.Add(stringEqual);
+                        }
+                        andClause.Parameters.Add(orClause);
+                    }
+                    else
                     {
                         var stringEqual = new XacmlApply(new Uri(Constants.Xacml.Functions.StringEqual));
-                        stringEqual.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), value));
+                        stringEqual.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), values?.FirstOrDefault()));
 
                         var stringOneAndOnly = new XacmlApply(new Uri(Constants.Xacml.Functions.StringOneAndOnly));
                         stringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String)));
                         stringEqual.Parameters.Add(stringOneAndOnly);
-
-                        orClause.Parameters.Add(stringEqual);
+                        andClause.Parameters.Add(stringEqual);
                     }
-                    andClause.Parameters.Add(orClause);
-                }
-                else
-                {
-                    var stringEqual = new XacmlApply(new Uri(Constants.Xacml.Functions.StringEqual));
-                    stringEqual.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), values?.FirstOrDefault()));
 
-                    var stringOneAndOnly = new XacmlApply(new Uri(Constants.Xacml.Functions.StringOneAndOnly));
-                    stringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String)));
-                    stringEqual.Parameters.Add(stringOneAndOnly);
-                    andClause.Parameters.Add(stringEqual);
                 }
+                orClauseRules.Parameters.Add(andClause);
+
             }
-
             xacmlRule.Condition = new()
             {
-                Property = andClause
+                Property = orClauseRules
             };
             xacmlPolicy.Rules.Add(xacmlRule);
         }

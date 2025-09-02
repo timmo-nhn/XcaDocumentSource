@@ -1,10 +1,4 @@
-﻿using Abc.Xacml;
-using Abc.Xacml.Policy;
-using Hl7.Fhir.Model;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.MicrosoftExtensions;
-using System.Text;
-using System.Xml;
+﻿using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
@@ -26,10 +20,10 @@ public class PolicyManagementController : ControllerBase
     private readonly PolicyRepositoryService _policyRepositoryService;
 
     public PolicyManagementController
-        (ILogger<XdsRegistryController> logger, 
+        (ILogger<XdsRegistryController> logger,
         ApplicationConfig xdsConfig,
-        RegistryWrapper registryWrapper, 
-        RepositoryWrapper repositoryWrapper, 
+        RegistryWrapper registryWrapper,
+        RepositoryWrapper repositoryWrapper,
         PolicyRepositoryService policyRepositoryService
         )
     {
@@ -40,37 +34,37 @@ public class PolicyManagementController : ControllerBase
         _policyRepositoryService = policyRepositoryService;
     }
 
-    [Produces("application/json","application/xml")]
+    [Produces("application/json", "application/xml")]
     [HttpGet("getall")]
     public IActionResult GetAllPolicies(bool xml = false)
     {
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
-        
+
         if (xml)
         {
             var xacmlPolicySet = PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySet);
-            
+
             var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
-            
+
             return Content(xmlPolicySet, Constants.MimeTypes.Xml);
-            
+
         }
 
         return Ok(policySet);
     }
 
-    [Produces("application/json","application/xml")]
+    [Produces("application/json", "application/xml")]
     [HttpGet("getsingle")]
     public IActionResult GetSinglePolicy(string id, bool xml = false)
     {
         var policySet = _policyRepositoryService.GetSinglePolicy(id);
-        
+
         if (xml)
         {
             var xacmlPolicySet = PolicyDtoTransformerService.TransformPolicyDtoToXacmlVersion20Policy(policySet);
-            
+
             var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
-            
+
             return Content(xmlPolicySet, Constants.MimeTypes.Xml);
         }
 
@@ -80,7 +74,7 @@ public class PolicyManagementController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPost("upload")]
-    public IActionResult CreatePolicy([FromBody]PolicyDto policyDto)
+    public IActionResult CreatePolicy([FromBody] PolicyDto policyDto)
     {
         policyDto.SetDefaultValues();
         var response = _policyRepositoryService.AddPolicy(policyDto);
@@ -109,7 +103,7 @@ public class PolicyManagementController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPut("update")]
-    public IActionResult UpdatePolicy([FromBody]PolicyDto policyDto, string? id)
+    public IActionResult UpdatePolicy([FromBody] PolicyDto policyDto, string? id)
     {
         var apiResponse = new RestfulApiResponse();
 
@@ -136,7 +130,7 @@ public class PolicyManagementController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPatch("patch")]
-    public IActionResult PatchPolicy([FromBody]PolicyDto policyDto, string? newId, bool? append)
+    public IActionResult PatchPolicy([FromBody] PolicyDto policyDto, string? newId, bool? append)
     {
 
         var apiResponse = new RestfulApiResponse();
