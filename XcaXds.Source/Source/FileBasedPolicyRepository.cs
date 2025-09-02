@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Abc.Xacml.Policy;
+using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
@@ -11,8 +12,8 @@ public class FileBasedPolicyRepository : IPolicyRepository
 {
     private string _policyRepositoryPath;
     private readonly object _lock = new();
-
-    public FileBasedPolicyRepository()
+    private readonly ILogger<FileBasedPolicyRepository> _logger;
+    public FileBasedPolicyRepository(ILogger<FileBasedPolicyRepository> logger)
     {
         // When running in a container the path will be different
         var customPath = Environment.GetEnvironmentVariable("POLICY_REPOSITORY_FILE_PATH");
@@ -42,16 +43,23 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
             foreach (var policyFilePath in policyFiles)
             {
-                var policyFileContent = File.ReadAllText(policyFilePath);
-                var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent, Constants.JsonDefaultOptions.DefaultSettings);
-                if (policyDto?.Id != null)
+                try
                 {
-                    // Normalize so OID values arent prefixed with "urn:oid:"
-                    policyDto.Subjects?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
-                    policyDto.Resources?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
+                    var policyFileContent = File.ReadAllText(policyFilePath);
+                    var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent, Constants.JsonDefaultOptions.DefaultSettings);
+                    if (policyDto?.Id != null)
+                    {
+                        // Normalize so OID values arent prefixed with "urn:oid:"
+                        policyDto.Subjects?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
+                        policyDto.Resources?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
 
-                    policySetDto.Policies ??= new();
-                    policySetDto.Policies.Add(policyDto);
+                        policySetDto.Policies ??= new();
+                        policySetDto.Policies.Add(policyDto);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Error while deserializing {policyFilePath}");
                 }
             }
         }

@@ -4,6 +4,9 @@ using System.Xml;
 using Abc.Xacml;
 using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
+using Moq;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Serializers;
@@ -17,7 +20,8 @@ public class UnitTests_PolicyMappingDto
     [Fact]
     public async Task AuthZ_EvaluateFromService()
     {
-        var repository = new FileBasedPolicyRepository();
+
+        var repository = new FileBasedPolicyRepository(new Mock<ILogger<FileBasedPolicyRepository>>().Object);
         var policyWrapper = new PolicyRepositoryWrapper(repository);
 
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
