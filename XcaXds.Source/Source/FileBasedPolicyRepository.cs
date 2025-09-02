@@ -59,7 +59,8 @@ public class FileBasedPolicyRepository : IPolicyRepository
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Error while deserializing {policyFilePath}");
+                    _logger.LogError($"Error while deserializing {policyFilePath}");
+                    _logger.LogError(ex.ToString());
                 }
             }
         }
