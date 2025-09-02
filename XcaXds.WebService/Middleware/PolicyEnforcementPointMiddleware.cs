@@ -1,4 +1,5 @@
 ﻿using Abc.Xacml.Context;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
@@ -72,16 +73,21 @@ public class PolicyEnforcementPointMiddleware
             await _next(httpContext); // Skip PEP check
             return;
         }
-
+        
         httpContext.Request.EnableBuffering(); // Allows multiple reads
-
-
+        
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
-
+        
         _logger.LogInformation($"Request Body:\n{requestBody}");
+        
+        if (requestBody.StartsWith("--MIMEBoundary"))
+        {
+            _logger.LogInformation($"Reading multipart request body");
+            requestBody = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(requestBody);
+        }
+
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
-
         XacmlContextRequest? xacmlRequest = null;
 
         _logger.LogInformation($"Request Content-type: {contentType}");
@@ -125,7 +131,7 @@ public class PolicyEnforcementPointMiddleware
         {
         }
 
-        if (xacmlRequest == null && contentType == Constants.MimeTypes.SoapXml)
+        if (xacmlRequest == null && (contentType == Constants.MimeTypes.SoapXml || contentType == Constants.MimeTypes.XopXml))
         {
             var soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "No saml token found in SOAP-message").Value;
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);

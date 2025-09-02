@@ -72,7 +72,7 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             });
         }
 
-        var crossGatewayQuery = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-iti40-request.xml"))));
+        var crossGatewayQuery = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml"))));
         var kjSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_KJ01"))));
         var hnSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_HN01"))));
 
@@ -183,9 +183,9 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             });
         }
 
-        var crossGatewayRetrieve = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-iti40-request.xml"))));
+        var crossGatewayRetrieve = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml"))));
 
-        var crossGatewayRetrieveMultipart = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-iti40-request-multipart.txt"))).Replace("\n", "\r\n").Replace("\r\r\n", "\r\n");
+        var crossGatewayRetrieveMultipart = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request-multipart.txt"))).Replace("\n", "\r\n").Replace("\r\r\n", "\r\n");
 
 
         if (crossGatewayRetrieve == null || crossGatewayRetrieveMultipart == null)

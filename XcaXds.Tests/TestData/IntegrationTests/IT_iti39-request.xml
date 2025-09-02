@@ -22,20 +22,12 @@ For Integration tests to work properly, its recommended to not touch these files
     </s:Header>
     <s:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <AdhocQueryRequest xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
-            <ResponseOption returnType="LeafClass" returnComposedObjects="true" />
-            <AdhocQuery xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d">
-                <Slot name="$XDSDocumentEntryPatientId">
-                    <ValueList>
-                        <Value>'13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO'</Value>
-                    </ValueList>
-                </Slot>
-                <Slot name="$XDSDocumentEntryStatus">
-                    <ValueList>
-                        <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
-                    </ValueList>
-                </Slot>
-            </AdhocQuery>
-        </AdhocQueryRequest>
-    </s:Body>
+		<ns3:RetrieveDocumentSetRequest xmlns:ns3="urn:ihe:iti:xds-b:2007">
+			<ns3:DocumentRequest>
+				<ns3:HomeCommunityId>urn:oid:2.16.578.1.12.4.5.100.15</ns3:HomeCommunityId>
+				<ns3:RepositoryUniqueId>2.16.578.1.12.4.5.100.15.25</ns3:RepositoryUniqueId>
+				<ns3:DocumentUniqueId>8f3b8038-5122-4e1b-8af4-29bb8759e8ae</ns3:DocumentUniqueId>
+			</ns3:DocumentRequest>
+		</ns3:RetrieveDocumentSetRequest>
+	</s:Body>
 </s:Envelope>

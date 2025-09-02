@@ -60,12 +60,12 @@ public class FileBasedPolicyRepository : IPolicyRepository
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Error while deserializing Policy with ID: {policyFilePath.Split("\\").Last()}");
+                    _logger.LogWarning($"Error while deserializing Policy with ID: {policyFilePath.Split("/").Last()}");
                     _logger.LogWarning(ex.ToString());
                 }
             }
         }
-
+        _logger.LogInformation($"Successfully read {policySetDto.Policies?.Count ?? 0} policies from repository");
         return policySetDto;
     }
 

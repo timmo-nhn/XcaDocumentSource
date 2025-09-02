@@ -149,7 +149,7 @@ Content-ID: <0.dab1d70f258a850f002aa2ab5645aaa9622f017d951cfe8d@apache.org>
 		</sense:context>
 	</soapenv:Header>
 	<soapenv:Body>
-		<ns3:RetrieveDocumentSetRequest xmlns:ns3="urn:ihe:iti:xds-b:2007" xmlns:ns8="urn:ihe:iti:rmd:2017" xmlns:ns7="urn:ihe:rad:xdsi-b:2009" xmlns:ns6="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0" xmlns:ns5="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0" xmlns:ns4="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0" xmlns:ns2="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+		<ns3:RetrieveDocumentSetRequest xmlns:ns3="urn:ihe:iti:xds-b:2007">
 			<ns3:DocumentRequest>
 				<ns3:HomeCommunityId>urn:oid:2.16.578.1.12.4.5.100.15</ns3:HomeCommunityId>
 				<ns3:RepositoryUniqueId>2.16.578.1.12.4.5.100.15.25</ns3:RepositoryUniqueId>
