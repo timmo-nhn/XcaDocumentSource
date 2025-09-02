@@ -18,23 +18,21 @@ namespace XcaXds.WebService.Controllers;
 public class XdsRepositoryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
-    private readonly HttpClient _httpClient;
     private readonly XdsRepositoryService _repositoryService;
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRepositoryController(ILogger<XdsRegistryController> logger, HttpClient httpClient, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
+    public XdsRepositoryController(ILogger<XdsRegistryController> logger, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
     {
         _logger = logger;
-        _httpClient = httpClient;
         _repositoryService = repositoryService;
         _registryService = registryService;
         _xdsConfig = xdsConfig;
         _featureManager = featureManager;
     }
 
-    [Consumes("application/soap+xml", "application/xml")]
+    [Consumes("application/soap+xml", "application/xml", "multipart/related")]
     [Produces("application/soap+xml", ["application/xop+xml", "application/octet-stream"])]
     [HttpPost("RepositoryService")]
     public async Task<IActionResult> RepositoryService([FromBody] SoapEnvelope soapEnvelope)

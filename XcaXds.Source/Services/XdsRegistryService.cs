@@ -274,7 +274,7 @@ public partial class XdsRegistryService
             //    break;
         }
 
-        if (adhocQueryRequest.ResponseOption != null)
+        if (adhocQueryRequest?.ResponseOption != null)
         {
             switch (adhocQueryRequest.ResponseOption.ReturnType)
             {

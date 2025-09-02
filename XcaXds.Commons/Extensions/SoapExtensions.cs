@@ -163,11 +163,26 @@ public static class SoapExtensions
     }
 
 
-    public static string GetResponseAction(string action)
+    public static void PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(SoapEnvelope soapEnvelopeResponse, RegistryResponseType registryResponse)
     {
-        throw new NotImplementedException();
+        switch (soapEnvelopeResponse.Header.Action)
+        {
+            case Constants.Xds.OperationContract.Iti18Reply:
+            case Constants.Xds.OperationContract.Iti18ReplyAsync:
+            case Constants.Xds.OperationContract.Iti38Reply:
+            case Constants.Xds.OperationContract.Iti38ReplyAsync:
+                soapEnvelopeResponse.Body ??= new();
+                soapEnvelopeResponse.Body.AdhocQueryResponse ??= new();
+                soapEnvelopeResponse.Body.AdhocQueryResponse.RegistryErrorList ??= new();
+                soapEnvelopeResponse.Body.AdhocQueryResponse.RegistryErrorList = registryResponse.RegistryErrorList;
+                soapEnvelopeResponse.Body.AdhocQueryResponse.Status = registryResponse.Status;
+                break;
+
+            default:
+                soapEnvelopeResponse.Body ??= new();
+                soapEnvelopeResponse.Body.RegistryResponse ??= new();
+                soapEnvelopeResponse.Body.RegistryResponse = registryResponse;
+                break;
+        }
     }
-
-
-
 }

@@ -302,7 +302,7 @@ If any child (Policy/Rule) evaluates to Deny, the result is Deny, regardless whe
 |&emsp;L&nbsp;**`Policies`**|List&lt;PolicyDto&gt;(R)|[1..1]|`/PolicySet/Policies[]`|The List of Policies for this PolicySet|
 |&emsp;&emsp;L&nbsp;**`PolicyDto`**|PolicyDto(R)|[1..*]|`<Policy>`|A **Policy DTO**|
 |&emsp;&emsp;&emsp;L&nbsp;**`id`**|string(R)|[1..1]|`@PolicyId`|The **Unique ID** of the **Policy**|
-|&emsp;&emsp;&emsp;L&nbsp;**`Rules`**|PolicyMatch(O)|[1..*]|`<Rule>`|A container for statements that the request must match|
+|&emsp;&emsp;&emsp;L&nbsp;**`Rules`**|List&lt;PolicyMatch&gt;(O)|[1..*]|`<Rule><Condition>`|A container for statements that the request must match|
 |&emsp;&emsp;&emsp;&emsp;L&nbsp;**`AttributeId`**|string(R)|[1..1]|`<AttributeDesignator>`|The attribute ID to check for similar values|
 |&emsp;&emsp;&emsp;&emsp;L&nbsp;**`Value`**|string(R)|[1..1]|`<AttributeValue>`|The value to compare with the request|
 |&emsp;&emsp;&emsp;L&nbsp;**`Subjects`**|PolicyMatch(O)|[1..*]|`<Subject>`|The subjects that this policy will apply to|
@@ -328,17 +328,26 @@ Below is a snippet showing how multiple values and attributed can be combined.
 ```json
 //....
 "rules":[
-  // If this attribute has...
-  {
-    "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-    // ... a value of either "LE" OR "SP"...
-    "value": "LE;SP" 
-  },
-  //...AND this attribute has this value...
-  {
-      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-      "value": "urn:oid:2.16.578.1.12.4.1.1.9060"
-  }
+  [
+    // If this attribute has...
+    {
+      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+      // ... a value of either "LE" OR "SP"...
+      "value": "LE;SP" 
+    },
+    //...AND this attribute has this value...
+    {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+        "value": "urn:oid:2.16.578.1.12.4.1.1.9060"
+    }
+  ],
+  [
+    // OR this rule set
+    {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:othervalue",
+        "value": "anotherpotentialvalue"
+    }
+  ]
 ]
 // Permit the request
 "effect": "Permit"
@@ -401,26 +410,28 @@ For SOAP-requests, **PJD.XcaDocumentSource** maps from the `<Action>` in the `<H
 {
   "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
   "rules": [
-    {
-      "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
-      "value": "4"
-    },
-    {
-      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-      "value": "LE;SP"
-    },
-    {
-      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-      "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
-    },
-    {
-      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
-      "value": "TREAT;ETREAT;COC;BTG"
-    },
-    {
-      "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
-      "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
-    }
+    [
+      {
+        "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
+        "value": "4"
+      },
+      {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+        "value": "LE;SP"
+      },
+      {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+        "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+      },
+      {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
+        "value": "TREAT;ETREAT;COC;BTG"
+      },
+      {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
+        "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
+      }
+    ]
   ],
   "actions": [
     "ReadDocumentList"
@@ -458,26 +469,28 @@ GET <baseurl>/api/policy/getall?xml=true
     {
       "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
       "rules": [
-        {
-          "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
-          "value": "4"
-        },
-        {
-          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-          "value": "LE;SP"
-        },
-        {
-          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-          "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
-        },
-        {
-          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
-          "value": "TREAT;ETREAT;COC;BTG"
-        },
-        {
-          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
-          "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
-        }
+        [
+          {
+            "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
+            "value": "4"
+          },
+          {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+            "value": "LE;SP"
+          },
+          {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+            "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+          },
+          {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
+            "value": "TREAT;ETREAT;COC;BTG"
+          },
+          {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
+            "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
+          }
+        ]
       ],
       "actions": [
         "ReadDocumentList"
@@ -487,14 +500,16 @@ GET <baseurl>/api/policy/getall?xml=true
     {
       "id": "deny-certain-roles",
       "rules": [
-        {
-          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-          "value": "XX;VE;FB"
-        },
-        {
-          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-          "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
-        }
+        [
+          {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+            "value": "XX;VE;FB"
+          },
+          {
+            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+            "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+          }
+        ]
       ],
       "effect": "Deny"
     }
@@ -670,6 +685,7 @@ GET <baseurl>/api/policy/getsingle?id=deny-certain-roles&xml=true
 {
     "id": "deny-certain-roles",
     "rules": [
+      [
         {
             "matchId": null,
             "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
@@ -682,6 +698,7 @@ GET <baseurl>/api/policy/getsingle?id=deny-certain-roles&xml=true
             "dataType": null,
             "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
         }
+      ]
     ],
     "subjects": null,
     "roles": null,

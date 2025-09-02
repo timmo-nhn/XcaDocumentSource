@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
@@ -51,9 +52,22 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
         // Ensure policies are set up correctly
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
+
+        var tempPolicyName = "IT_CrossGatewayQuery";
+
         if (policySet.Policies?.Count == 0)
         {
-
+            _policyRepositoryService.AddPolicy(new PolicyDto()
+            {
+                Id = tempPolicyName,
+                Rules = 
+                [[
+                    new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:code", Value = "LE;SP;PS" },
+                    new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem", Value = "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060" }
+                ]],
+                Actions = ["ReadDocumentList"],
+                Effect = "Permit",
+            });
         }
 
         var crossGatewayQuery = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("iti38"))));
@@ -66,20 +80,10 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             Assert.Fail("Where did the integration test data go?!");
         }
 
-        var soapEnvelope = new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml);
-
-        var response = await _client.PostAsync("/XCA/services/RespondingGatewayService", soapEnvelope);
-        var responseBody = await response.Content.ReadAsStringAsync();
-        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-
-        var soapObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(responseBody);
-
-
 
         var nsmgr = new XmlNamespaceManager(crossGatewayQuery.NameTable);
         nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
         nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-
 
 
         var securityNode = crossGatewayQuery.SelectSingleNode("//wsse:Security", nsmgr);
@@ -91,6 +95,8 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
             securityNode.AppendChild(importedKjToken);
         }
+
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
         var roleAttrValueNode = crossGatewayQuery.SelectSingleNode(
             "//saml:Attribute[@Name='urn:oasis:names:tc:xspa:1.0:subject:role']/saml:AttributeValue", nsmgr
@@ -106,20 +112,30 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             var roleNode = roleDoc.DocumentElement;
             if (roleNode != null)
             {
-                roleNode.SetAttribute("code", "PS");
+                // Set the role to something else
+                roleNode.SetAttribute("code", "HIBB");
 
                 var updatedRoleXml = roleNode.OuterXml;
 
-                roleAttrValueNode.InnerText = roleNode.OuterXml.Replace("<", "&lt;").Replace(">", "&gt;");
+                roleAttrValueNode.InnerText = roleNode.OuterXml;
             }
+
+
         }
+        var secondResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService",
+            new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml)
+        );
 
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        var firstResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+        var secondResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(secondResponse.Content.ReadAsStream());
 
-        Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
-    }
+        _policyRepositoryService.DeletePolicy(tempPolicyName);
 
-    private void CrossGatewayQuery_NodeInserted(object sender, XmlNodeChangedEventArgs e)
-    {
-        throw new NotImplementedException();
+        Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+
+        Assert.Equal(1, secondResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length);
+        Assert.Equal(System.Net.HttpStatusCode.OK, secondResponse.StatusCode);
     }
 }

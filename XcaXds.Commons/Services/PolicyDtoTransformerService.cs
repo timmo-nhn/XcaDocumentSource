@@ -92,9 +92,13 @@ public static class PolicyDtoTransformerService
 
             var orClauseRules = new XacmlApply(new Uri(Constants.Xacml.Functions.Or));
             var xacmlRule = new XacmlRule(xacmlEffect);
+
+            var andClause = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
+
+
             foreach (var rules in policyDto.Rules)
             {
-                var andClause = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
+                andClause = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
 
                 foreach (var rule in rules)
                 {
@@ -129,13 +133,25 @@ public static class PolicyDtoTransformerService
 
                 }
                 orClauseRules.Parameters.Add(andClause);
+            }
+
+            if (policyDto.Rules.Count == 1)
+            {
+                xacmlRule.Condition = new()
+                {
+                    Property = andClause
+                };
+                xacmlPolicy.Rules.Add(xacmlRule);
 
             }
-            xacmlRule.Condition = new()
+            else
             {
-                Property = orClauseRules
-            };
-            xacmlPolicy.Rules.Add(xacmlRule);
+                xacmlRule.Condition = new()
+                {
+                    Property = orClauseRules
+                };
+                xacmlPolicy.Rules.Add(xacmlRule);
+            }
         }
 
         if (policyDto.Actions != null && policyDto.Actions.Count != 0)

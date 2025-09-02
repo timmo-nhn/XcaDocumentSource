@@ -46,7 +46,7 @@ public class PolicyEnforcementPointMiddleware
     {
         Stopwatch sw = Stopwatch.StartNew();
         
-        _logger.LogInformation("PEP intialized...");
+        _logger.LogInformation("Running through Policy Enforcement Point middleware...");
 
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! 'PEP bypass for local requests' is enabled in production!");
 
@@ -76,6 +76,7 @@ public class PolicyEnforcementPointMiddleware
 
 
         var requestBody = await GetHttpRequestBody(httpContext.Request);
+        _logger.LogInformation($"Request Body:\n{requestBody}");
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
 
@@ -125,8 +126,9 @@ public class PolicyEnforcementPointMiddleware
         {
             var soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "No saml token found in SOAP-message").Value;
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content ?? string.Empty);
             httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
+
+            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content ?? string.Empty);
 
             sw.Stop();
             _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
@@ -169,7 +171,8 @@ public class PolicyEnforcementPointMiddleware
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
 
             soapEnvelopeResponse.Body ??= new();
-            soapEnvelopeResponse.Body.RegistryResponse = registryResponse;
+            SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
+        
             httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
