@@ -55,7 +55,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
             request.EnableBuffering();
             var xmlString = string.Empty;
 
-            if (request.ContentType.Contains(Constants.MimeTypes.XopXml))
+            if (request.ContentType != null && (request.ContentType.Contains(Constants.MimeTypes.XopXml) || request.ContentType.Contains(Constants.MimeTypes.MultipartRelated)))
             {
                 xmlString = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(bindingContext.HttpContext);
             }
