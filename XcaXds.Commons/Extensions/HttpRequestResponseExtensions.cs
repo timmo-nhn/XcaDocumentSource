@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
+using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -14,27 +18,41 @@ public static class HttpRequestResponseExtensions
         return bodyContent;
     }
 
-    public static async Task<string> ReadMultipartContentFromRequest(string bodyContent)
+    public static async Task<string> ReadMultipartContentFromRequest(HttpContext httpContext)
     {
-        if (!bodyContent.Trim().StartsWith("--MIMEBoundary")) return bodyContent;
+        var sb = new StringBuilder();
 
-        var normalizedContent = bodyContent.Replace("\n", "\r\n").Replace("\r\r\n", "\r\n").Replace("\r\r\r\n", "\r\n");
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(normalizedContent));
-        var boundary = "MIMEBoundary_cab1d70f258a850f002aa2ab5645aaa9622f017d951cfe8d";
-
-        var reader = new MultipartReader(boundary, stream);
-
-        MultipartSection? section;
-
-        var wholeContent = string.Empty;
-
-        while ((section = await reader.ReadNextSectionAsync()) != null)
+        if (!MediaTypeHeaderValue.TryParse(httpContext.Request.ContentType, out MediaTypeHeaderValue? mediaTypeHeaderValue)
+        || !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
-            var contentType = section.ContentType;
-            using var sr = new StreamReader(section.Body, Encoding.UTF8);
-            wholeContent += await sr.ReadToEndAsync();
+            var boundary = HttpRequestResponseExtensions.GetBoundary(mediaTypeHeaderValue, 70);
 
+            var multipartReader = new MultipartReader(boundary, httpContext.Request.Body);
+            while (await multipartReader.ReadNextSectionAsync() is { } section)
+            {
+                using (var sr = new StreamReader(section.Body))
+                {
+                    sb.Append(await sr.ReadToEndAsync());
+                }
+            }
         }
-        return wholeContent;
+
+        httpContext.Request.Body.Position = 0;
+        return sb.ToString();
     }
+
+    public static string GetBoundary(MediaTypeHeaderValue contentType, int lengthLimit)
+    {
+        var boundary = HeaderUtilities.RemoveQuotes(contentType.Boundary);
+        if (StringSegment.IsNullOrEmpty(boundary))
+        {
+            throw new InvalidDataException("Missing content-type boundary.");
+        }
+        if (boundary.Length > lengthLimit)
+        {
+            throw new InvalidDataException($"Multipart boundary length limit {lengthLimit} exceeded.");
+        }
+        return boundary.ToString();
+    }
+
 }

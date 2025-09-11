@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
@@ -201,12 +202,18 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
         var securityNode = crossGatewayRetrieve.SelectSingleNode("//wsse:Security", nsmgr);
 
-
         var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
+        var mimeBoundary = Regex.Match(crossGatewayRetrieveMultipart, "--(?<boundary>MIMEBoundary_.*?)\n").Groups.Values.LastOrDefault()?.Value.Trim();
 
+        var multipartRequest = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.XopXml);
+        var multipartBoundary = new NameValueHeaderValue("boundary", mimeBoundary);
+        multipartRequest.Headers.ContentType?.Parameters.Add(multipartBoundary);
 
-        var secondResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.XopXml));
-        var content = await secondResponse.Content.ReadAsStringAsync();
+        var secondResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequest);
+        
+        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        
+        var secondContent = await secondResponse.Content.ReadAsStringAsync();
     }
 }

@@ -1,8 +1,10 @@
-﻿using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 
@@ -52,15 +54,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
         {
             request.EnableBuffering();
 
-            string rawBody;
-            using (var sr = new StreamReader(request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true))
-            {
-                rawBody = await sr.ReadToEndAsync();
-            }
-
-            request.Body.Position = 0;
-
-            var xmlString = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(rawBody);
+            var xmlString = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(bindingContext.HttpContext);
 
             var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(xmlString);
 

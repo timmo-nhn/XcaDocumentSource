@@ -1,10 +1,9 @@
 ﻿using Abc.Xacml.Context;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
-using System.Text;
+using Microsoft.Net.Http.Headers;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
@@ -13,6 +12,8 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
+using Microsoft.AspNetCore.WebUtilities;
+using XcaXds.Commons.Models.Hl7.DataType;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -47,7 +48,7 @@ public class PolicyEnforcementPointMiddleware
     public async Task InvokeAsync(HttpContext httpContext)
     {
         Stopwatch sw = Stopwatch.StartNew();
-        
+
         _logger.LogInformation("Running through Policy Enforcement Point middleware...");
 
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! 'PEP bypass for local requests' is enabled in production!");
@@ -73,17 +74,16 @@ public class PolicyEnforcementPointMiddleware
             await _next(httpContext); // Skip PEP check
             return;
         }
-        
+
         httpContext.Request.EnableBuffering(); // Allows multiple reads
-        
+
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
-        
+
         _logger.LogInformation($"Request Body:\n{requestBody}");
-        
-        if (requestBody.StartsWith("--MIMEBoundary"))
+
+        if (requestBody.StartsWith("--MIMEBoundary") || httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("MIMEBoundary")))
         {
-            _logger.LogInformation($"Reading multipart request body");
-            requestBody = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(requestBody);
+            requestBody = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(httpContext);
         }
 
 
@@ -181,7 +181,7 @@ public class PolicyEnforcementPointMiddleware
 
             soapEnvelopeResponse.Body ??= new();
             SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
-        
+
             httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);

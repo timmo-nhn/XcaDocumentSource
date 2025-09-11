@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.FeatureManagement;
 using System.Collections;
 using XcaXds.Commons.Interfaces;
@@ -38,6 +39,8 @@ public class Program
             options.InputFormatters.Insert(0, new Hl7InputFormatter());
             //options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
             //options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
+            options.ValueProviderFactories.RemoveType<FormFileValueProviderFactory>();
+
         })
         .AddXmlSerializerFormatters();
 
