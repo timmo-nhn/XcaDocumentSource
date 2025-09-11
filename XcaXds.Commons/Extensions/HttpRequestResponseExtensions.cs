@@ -25,7 +25,7 @@ public static class HttpRequestResponseExtensions
         if (!MediaTypeHeaderValue.TryParse(httpContext.Request.ContentType, out MediaTypeHeaderValue? mediaTypeHeaderValue)
         || !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
-            var boundary = HttpRequestResponseExtensions.GetBoundary(mediaTypeHeaderValue, 70);
+            var boundary = GetBoundary(mediaTypeHeaderValue, 70);
 
             var multipartReader = new MultipartReader(boundary, httpContext.Request.Body);
             while (await multipartReader.ReadNextSectionAsync() is { } section)

@@ -49,7 +49,6 @@ public class PolicyEnforcementPointMiddleware
     {
         Stopwatch sw = Stopwatch.StartNew();
 
-        _logger.LogInformation("Running through Policy Enforcement Point middleware...");
 
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! 'PEP bypass for local requests' is enabled in production!");
 
@@ -74,6 +73,8 @@ public class PolicyEnforcementPointMiddleware
             await _next(httpContext); // Skip PEP check
             return;
         }
+
+        _logger.LogInformation("Running through Policy Enforcement Point middleware...");
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
@@ -180,9 +181,10 @@ public class PolicyEnforcementPointMiddleware
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
 
             soapEnvelopeResponse.Body ??= new();
+            httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
+            
             SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
 
-            httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
 

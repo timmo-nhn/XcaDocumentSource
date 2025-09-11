@@ -53,8 +53,20 @@ public class SoapEnvelopeModelBinder : IModelBinder
         try
         {
             request.EnableBuffering();
+            var xmlString = string.Empty;
 
-            var xmlString = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(bindingContext.HttpContext);
+            if (request.ContentType.Contains(Constants.MimeTypes.XopXml))
+            {
+                xmlString = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(bindingContext.HttpContext);
+            }
+            else
+            {
+                using (var sr = new StreamReader(xmlContent))
+                {
+                    xmlString = sr.ReadToEnd();
+                }
+            }
+
 
             var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(xmlString);
 

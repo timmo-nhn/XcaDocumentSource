@@ -27,6 +27,13 @@ public class ApplicationMetaController : ControllerBase
         _repositoryWrapper = repositoryWrapper;
     }
 
+    [Produces("application/json")]
+    [HttpGet("about/registryobjects")]
+    public async Task<IActionResult> CountRegistryObjects()
+    {
+        return Ok(new{count = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects().RegistryObjectList.Count});
+    }
+
 
     [Produces("application/json")]
     [HttpGet("about/config")]
