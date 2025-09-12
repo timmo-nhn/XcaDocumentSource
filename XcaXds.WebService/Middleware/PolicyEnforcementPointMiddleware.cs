@@ -79,17 +79,17 @@ public class PolicyEnforcementPointMiddleware
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
-        _logger.LogInformation("Request headers");
+        _logger.LogDebug("Request headers");
         var sb = new StringBuilder();
         foreach (var item in httpContext.Request.Headers)
         {
             sb.AppendLine(item.Key + ": " + item.Value);
         }
-        _logger.LogInformation(sb.ToString());
+        _logger.LogDebug(sb.ToString());
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
-        _logger.LogInformation($"Request Body:\n{requestBody}");
+        _logger.LogDebug($"Request Body:\n{requestBody}");
 
         if (requestBody.StartsWith("--MIMEBoundary") || httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("MIMEBoundary")))
         {
@@ -156,7 +156,8 @@ public class PolicyEnforcementPointMiddleware
         }
 
         var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        _logger.LogInformation($"XACML request:\n{xacmlRequestString}");
+        _logger.LogDebug($"XACML request:\n{xacmlRequestString}");
+
         var policySetXml = XacmlSerializer.SerializeXacmlToXml(_debug_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
@@ -194,7 +195,6 @@ public class PolicyEnforcementPointMiddleware
             httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
             
             SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
-
 
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
 

@@ -37,10 +37,6 @@ public class Program
             options.ModelBinderProviders.Insert(0, new DocumentEntryDtoModelBinderProvider());
             options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
             options.InputFormatters.Insert(0, new Hl7InputFormatter());
-            //options.InputFormatters.Insert(0, new XmlSerializerInputFormatter(options));
-            //options.OutputFormatters.Insert(0, new XmlSerializerOutputFormatter());
-            options.ValueProviderFactories.RemoveType<FormFileValueProviderFactory>();
-
         })
         .AddXmlSerializerFormatters();
 
