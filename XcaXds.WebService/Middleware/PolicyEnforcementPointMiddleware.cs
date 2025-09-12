@@ -156,7 +156,7 @@ public class PolicyEnforcementPointMiddleware
         }
 
         var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-
+        _logger.LogInformation($"XACML request:\n{xacmlRequestString}");
         var policySetXml = XacmlSerializer.SerializeXacmlToXml(_debug_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
