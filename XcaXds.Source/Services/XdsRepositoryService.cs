@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net.Http.Headers;
+using System.Reflection.Metadata;
+using System.Text;
+using Microsoft.Extensions.Logging;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
-using System.Net.Http.Headers;
-using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models;
@@ -206,6 +207,16 @@ public class XdsRepositoryService
         registryResponse.EvaluateStatusCode();
         retrieveResponse.RegistryResponse = registryResponse;
 
+        _logger.LogInformation($"Retrieved {retrieveResponse.DocumentResponse.Length} document(s)");
+
+        for (int i = 0; i < retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError.Length; i++)
+        {
+            var error = retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError[i];
+            if (error == null) continue;
+
+            _logger.LogWarning($"ERROR #{i+1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+        }
+
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
         {
             IsSuccess = true,
@@ -264,7 +275,22 @@ public class XdsRepositoryService
 
         }
         registryResponse.EvaluateStatusCode();
+        if (registryResponse.Status == Constants.Xds.ResponseStatusTypes.Success)
+        {
+            _logger.LogInformation($"Deleted {removeDocuments.Length} document(s)");
+        }
+
+        for (int i = 0; i < registryResponse.RegistryErrorList?.RegistryError.Length; i++)
+        {
+            var error = registryResponse.RegistryErrorList?.RegistryError[i];
+            if (error == null) continue;
+
+            _logger.LogWarning($"ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+        }
+
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+
+
     }
 
     public MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)

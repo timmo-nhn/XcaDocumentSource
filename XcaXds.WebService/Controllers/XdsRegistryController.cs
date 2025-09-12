@@ -104,6 +104,7 @@ public class XdsRegistryController : ControllerBase
                     responseEnvelope.Body = new();
                     responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body;
                 }
+
                 break;
 
             default:
