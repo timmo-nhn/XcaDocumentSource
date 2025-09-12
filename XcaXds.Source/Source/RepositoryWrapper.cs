@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.Extensions.Logging;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
@@ -27,16 +28,19 @@ public partial class RepositoryWrapper
 
     public byte[]? GetDocumentFromRepository(string homeCommunityId, string repositoryUniqueId, string documentUniqueId)
     {
+        homeCommunityId = homeCommunityId.NoUrn();
+        repositoryUniqueId = repositoryUniqueId.NoUrn();
+
         if (_appConfig.HomeCommunityId != homeCommunityId)
         {
             _logger.LogInformation($"Got document request with invalid HomeCommunityId {homeCommunityId}, Expected: {_appConfig.HomeCommunityId} ");
             return null;
         }
 
-        if (repositoryUniqueId.Substring(repositoryUniqueId.LastIndexOf('/') + 1) != _appConfig.RepositoryUniqueId) 
+        if (repositoryUniqueId.Substring(repositoryUniqueId.LastIndexOf('/') + 1) != _appConfig.RepositoryUniqueId)
         {
             _logger.LogInformation($"Got document request with invalid RepositoryUniqueId {repositoryUniqueId}, Expected: {_appConfig.RepositoryUniqueId}");
-            return null; 
+            return null;
         }
 
         if (_appConfig.WrapRetrievedDocumentInCda == false)
