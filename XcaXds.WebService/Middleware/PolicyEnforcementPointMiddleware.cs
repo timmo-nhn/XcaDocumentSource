@@ -14,6 +14,7 @@ using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 using Microsoft.AspNetCore.WebUtilities;
 using XcaXds.Commons.Models.Hl7.DataType;
+using System.Text;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -77,6 +78,14 @@ public class PolicyEnforcementPointMiddleware
         _logger.LogInformation("Running through Policy Enforcement Point middleware...");
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
+
+        _logger.LogInformation("Request headers");
+        var sb = new StringBuilder();
+        foreach (var item in httpContext.Request.Headers)
+        {
+            sb.AppendLine(item.Key + ": " + item.Value);
+        }
+        _logger.LogInformation(sb.ToString());
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
