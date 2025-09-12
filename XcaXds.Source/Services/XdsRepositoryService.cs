@@ -150,8 +150,8 @@ public class XdsRepositoryService
         foreach (var document in documentRequests)
         {
             var docId = document.DocumentUniqueId;
-            var repoId = document.RepositoryUniqueId;
-            var home = document.HomeCommunityId;
+            var repoId = document.RepositoryUniqueId?.NoUrn();
+            var home = document.HomeCommunityId?.NoUrn();
 
             if (string.IsNullOrEmpty(docId))
             {
