@@ -96,6 +96,7 @@ public class PolicyEnforcementPointMiddleware
         switch (contentType)
         {
             case Constants.MimeTypes.XopXml:
+            case Constants.MimeTypes.MultipartRelated:
             case Constants.MimeTypes.SoapXml:
 
                 var xacmlAction = PolicyRequestMapperSamlService.MapXacmlActionFromSoapAction(PolicyRequestMapperSamlService.GetActionFromSoapEnvelope(requestBody));
@@ -132,7 +133,7 @@ public class PolicyEnforcementPointMiddleware
         {
         }
 
-        if (xacmlRequest == null && (contentType == Constants.MimeTypes.SoapXml || contentType == Constants.MimeTypes.XopXml))
+        if (xacmlRequest == null && (contentType == Constants.MimeTypes.SoapXml || contentType == Constants.MimeTypes.XopXml || contentType == Constants.MimeTypes.MultipartRelated))
         {
             var soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "No saml token found in SOAP-message").Value;
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);

@@ -206,14 +206,21 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
         var mimeBoundary = Regex.Match(crossGatewayRetrieveMultipart, "--(?<boundary>MIMEBoundary_.*?)\n").Groups.Values.LastOrDefault()?.Value.Trim();
 
-        var multipartRequest = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.XopXml);
+        var multipartRequestXop = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.XopXml);
         var multipartBoundary = new NameValueHeaderValue("boundary", mimeBoundary);
-        multipartRequest.Headers.ContentType?.Parameters.Add(multipartBoundary);
+        multipartRequestXop.Headers.ContentType?.Parameters.Add(multipartBoundary);
 
-        var secondResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequest);
+        var secondResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestXop);
+
+        var multipartRequestMultipart = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.MultipartRelated);
+        var multipartBoundaryMultipart = new NameValueHeaderValue("boundary", mimeBoundary);
+        multipartRequestMultipart.Headers.ContentType?.Parameters.Add(multipartBoundaryMultipart);
+
+        var thirdResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestMultipart);
+        
         
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
-        
         var secondContent = await secondResponse.Content.ReadAsStringAsync();
+        var thirdContent = await thirdResponse.Content.ReadAsStringAsync();
     }
 }
