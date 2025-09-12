@@ -18,7 +18,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-
         // Begin builder
 
         builder.Logging.ClearProviders(); // Clear default logging providers
@@ -30,6 +29,8 @@ public class Program
                 options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
             })
         );
+        
+        builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 
         builder.Services.AddControllers(options =>
