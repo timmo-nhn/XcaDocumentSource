@@ -207,9 +207,9 @@ public class XdsRepositoryService
         registryResponse.EvaluateStatusCode();
         retrieveResponse.RegistryResponse = registryResponse;
 
-        _logger.LogInformation($"Retrieved {retrieveResponse.DocumentResponse.Length} document(s)");
+        _logger.LogInformation($"Retrieved {retrieveResponse?.DocumentResponse?.Length ?? 0} document(s)");
 
-        for (int i = 0; i < retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError.Length; i++)
+        for (int i = 0; i < retrieveResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length; i++)
         {
             var error = retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError[i];
             if (error == null) continue;
