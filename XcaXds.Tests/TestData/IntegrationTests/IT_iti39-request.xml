@@ -7,7 +7,7 @@ For Integration tests to work properly, its recommended to not touch these files
     xmlns:a="http://www.w3.org/2005/08/addressing"
     xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
     <s:Header>
-        <a:Action s:mustUnderstand="1">urn:ihe:iti:2007:CrossGatewayQuery</a:Action>
+        <a:Action s:mustUnderstand="1">urn:ihe:iti:2007:CrossGatewayRetrieve</a:Action>
         <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>
         <a:ReplyTo>
             <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>
