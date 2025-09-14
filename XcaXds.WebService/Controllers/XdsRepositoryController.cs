@@ -59,7 +59,7 @@ public class XdsRepositoryController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43 is true)
                 {
-                    var multipartContent = _repositoryService.ConvertToMultipartResponse(documentFetchResponse.Value);
+                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(documentFetchResponse.Value);
 
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {

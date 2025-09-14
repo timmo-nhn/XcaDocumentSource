@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using System.Net.Http;
 using System.Text;
-using System.Text.RegularExpressions;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -54,5 +55,49 @@ public static class HttpRequestResponseExtensions
         }
         return boundary.ToString();
     }
+
+
+    public static MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
+    {
+        var documentResponses = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
+        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+
+        var documentContents = new List<HttpContent>();
+
+        if (documentResponses != null)
+        {
+            foreach (var documentResponse in documentResponses)
+            {
+                // The multipart section content
+                var documentString = documentResponse.Document.InnerText;
+                var stringContent = new StringContent(documentString, Encoding.UTF8, documentResponse.MimeType);
+                stringContent.Headers.Add("Content-ID", [documentResponse.DocumentUniqueId]);
+
+                documentContents.Add(stringContent);
+
+                // The corresponding <Include>-part in the DocumentResponse
+                documentResponse.SetXopInclude($"cid:{documentResponse.DocumentUniqueId}");
+
+                var gobb = sxmls.SerializeSoapMessageToXmlString(documentResponse);
+            }
+        }
+
+        var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
+        var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml);
+
+
+        var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
+
+        multipart.Add(soapContent);
+
+        foreach (var docContent in documentContents)
+            multipart.Add(docContent);
+
+        multipart.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated, Encoding.UTF8.BodyName);
+
+
+        return multipart;
+    }
+
 
 }

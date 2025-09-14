@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Buffers.Text;
+using System.Net.Http.Headers;
 using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -293,42 +294,5 @@ public class XdsRepositoryService
 
     }
 
-    public MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
-    {
-        var documents = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
-        var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
-
-        multipart.Headers.ContentType = new MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated, Encoding.UTF8.BodyName);
-
-        if (documents != null && multipart != null)
-        {
-            foreach (var document in documents)
-            {
-                var multipartInclude = new IncludeType()
-                {
-                    href = document.RepositoryUniqueId + document.DocumentUniqueId
-                };
-
-                var include = sxmls.SerializeSoapMessageToXmlString(multipartInclude);
-
-                var documentBytes = document.Document;
-                document.Include = multipartInclude;
-                document.Document = null;
-
-
-                var documentString = Encoding.UTF8.GetString(documentBytes);
-
-                multipart.Add(new StringContent(documentString, Encoding.UTF8, document.MimeType));
-            }
-        }
-
-        var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
-
-        multipart.Add(new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml));
-
-
-        return multipart;
-    }
 
 }

@@ -1,3 +1,4 @@
+using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 
@@ -16,20 +17,36 @@ public partial class DocumentResponseType
     [XmlElement(Order = 2)]
     public string DocumentUniqueId;
 
-    [XmlElement(Order = 3)]
-    public string? NewRepositoryUniqueId;
-
-    [XmlElement(Order = 4)]
-    public string? NewDocumentUniqueId;
-
-    [XmlElement(ElementName = "mimeType", Order = 5)]
+    [XmlElement(ElementName = "mimeType", Order = 3)]
     public string? MimeType;
 
-    [XmlElement(DataType = "base64Binary", Order = 6)]
-    public byte[]? Document;
+    [XmlAnyElement("Document", Order = 4)]
+    public XmlElement? Document { get; set; }
 
-    [XmlElement("Include", Namespace = Constants.Soap.Namespaces.XopInclude, Order = 7)]
-    public IncludeType? Include { get; set; }
+        /// <summary>
+    /// Sets the document as inline base64 content
+    /// </summary>
+    public void SetInlineDocument(byte[] data)
+    {
+        var xmlDoc = new XmlDocument();
+        var docElement = xmlDoc.CreateElement("Document", "urn:ihe:iti:xds-b:2007");
+        docElement.InnerText = Convert.ToBase64String(data);
+        Document = docElement;
+    }
 
+    /// <summary>
+    /// Sets the document as a XOP Include element
+    /// </summary>
+    public void SetXopInclude(string href)
+    {
+        var xmlDoc = new XmlDocument();
+        var docElement = xmlDoc.CreateElement("Document", "urn:ihe:iti:xds-b:2007");
+
+        var include = xmlDoc.CreateElement("Include", "http://www.w3.org/2004/08/xop/include");
+        include.SetAttribute("href", href);
+
+        docElement.AppendChild(include);
+        Document = docElement;
+    }
 
 }

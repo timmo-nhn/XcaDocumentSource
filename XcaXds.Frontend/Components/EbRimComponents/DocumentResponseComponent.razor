@@ -44,8 +44,8 @@ else if (documentResponse.MimeType == "application/pdf")
 } 
 else if (documentResponse.MimeType == "text/plain")
 {
-    <p>@System.Text.Encoding.UTF8.GetString(documentResponse.Document!)</p>
-}
+    @*     <p>@System.Text.Encoding.UTF8.GetString((byte[])documentResponse.DocumentOrInclude)</p>
+ *@}
 else if (documentResponse.MimeType != null && documentResponse.MimeType.Contains("image"))
 {
     <img base Class="mb-3" src="@($"data:{documentResponse.MimeType};base64,{base64Content}")" />
@@ -62,7 +62,7 @@ else
     private SoapXmlSerializer sxmls = new(XmlSettings.Soap);
 
     private string base64Content;
-    
+
     private string documentTextContent;
 
     private ClinicalDocument clinicalDocument;
@@ -70,15 +70,13 @@ else
     protected async override void OnParametersSet()
     {
         Console.WriteLine($"DocumentResponse: {documentResponse}");
-        if (documentResponse?.Document == null) return;
+        if (documentResponse?.Document.Value == null) return;
 
-        base64Content = Convert.ToBase64String(documentResponse.Document);
-        documentTextContent = Encoding.UTF8.GetString(documentResponse.Document);
+        base64Content = documentResponse.Document.Value;
+        documentTextContent = documentResponse.Document.Value;
         if (documentTextContent.Contains("<ClinicalDocument"))
         {
             clinicalDocument = sxmls.DeserializeSoapMessage<ClinicalDocument>(documentTextContent);
         }
-
     }
-
 }

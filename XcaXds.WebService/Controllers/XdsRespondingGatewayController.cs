@@ -91,7 +91,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43 is true)
                 {
-                    var multipartContent = _xdsRepositoryService.ConvertToMultipartResponse(iti39Response.Value);
+                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti39Response.Value);
 
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {
@@ -101,12 +101,13 @@ public class XdsRespondingGatewayController : ControllerBase
                     requestTimer.Stop();
                     _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
-                    return new ContentResult
+                    var contentResult = new ContentResult
                     {
                         StatusCode = (int)HttpStatusCode.OK,
                         Content = await responseMessage.Content.ReadAsStringAsync(),
                         ContentType = Constants.MimeTypes.MultipartRelated
                     };
+                    return contentResult;
                 }
                 responseEnvelope = iti39Response.Value;
                 break;

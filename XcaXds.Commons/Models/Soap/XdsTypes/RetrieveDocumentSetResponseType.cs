@@ -19,14 +19,16 @@ public partial class RetrieveDocumentSetResponseType
         {
             return;
         }
+
         var documentResponse = new DocumentResponseType()
         {
-            Document = document,
             DocumentUniqueId = docId,
             HomeCommunityId = home,
             RepositoryUniqueId = repoId,
             MimeType = mimeType
         };
+
+        documentResponse.SetInlineDocument(document);
 
         DocumentResponse ??= [];
         DocumentResponse = [.. DocumentResponse, documentResponse];
