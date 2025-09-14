@@ -55,7 +55,7 @@ public partial class RepositoryWrapper
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == documentUniqueId);
+        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.UniqueId == documentUniqueId);
 
         var submissionSet = documentRegistry
             .OfType<SubmissionSetDto>()

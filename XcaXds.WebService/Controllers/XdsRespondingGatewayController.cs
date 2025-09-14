@@ -93,6 +93,13 @@ public class XdsRespondingGatewayController : ControllerBase
                 {
                     var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti39Response.Value);
 
+                    string contentId = null;
+
+                    if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
+                    {
+                        contentId = contentIdValues.First();
+                    }
+
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {
                         Content = multipartContent
@@ -107,6 +114,12 @@ public class XdsRespondingGatewayController : ControllerBase
                         Content = await responseMessage.Content.ReadAsStringAsync(),
                         ContentType = Constants.MimeTypes.MultipartRelated
                     };
+
+                    if (contentId != null)
+                    {
+                        contentResult.ContentType += $"; start=\"{contentId}\"";
+                    }
+
                     return contentResult;
                 }
                 responseEnvelope = iti39Response.Value;

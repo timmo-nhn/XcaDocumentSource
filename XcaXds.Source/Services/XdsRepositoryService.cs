@@ -37,7 +37,7 @@ public class XdsRepositoryService
 
         if (registryObjectList == null)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, "Missing RegistryObjectlist", "XDS Repository");
+            registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, "Missing RegistryObjectlist", _xdsConfig.HomeCommunityId);
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
@@ -109,7 +109,7 @@ public class XdsRepositoryService
             {
                 if (document != null && _repositoryWrapper.CheckIfFileExistsInRepository(document.Id.NoUrn()))
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Non unique ID in repository {document.Id}".Trim(), "XDS Repository");
+                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Non unique ID in repository {document.Id}".Trim(), _xdsConfig.HomeCommunityId);
                 }
             }
         }
@@ -125,7 +125,7 @@ public class XdsRepositoryService
 
         if (oversizedDocuments?.Count > 0)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Documents submitted are too large!\nIDs: {string.Join(", ", oversizedDocuments.Select(od => od.Id))}", "XDS Repository");
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Documents submitted are too large!\nIDs: {string.Join(", ", oversizedDocuments.Select(od => od.Id))}", _xdsConfig.HomeCommunityId);
         }
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
@@ -138,14 +138,14 @@ public class XdsRepositoryService
 
         if (iti43envelopeBody == null)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing iti43envelopeBody in RetrieveDocumentSetRequest", "XDS Repository");
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing iti43envelopeBody in RetrieveDocumentSetRequest", _xdsConfig.HomeCommunityId);
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
         var documentRequests = iti43envelopeBody.DocumentRequest;
         if (documentRequests == null || documentRequests.Length == 0)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RetrieveDocumentSetRequest", "XDS Repository");
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RetrieveDocumentSetRequest", _xdsConfig.HomeCommunityId);
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
@@ -157,17 +157,22 @@ public class XdsRepositoryService
 
             if (string.IsNullOrEmpty(docId))
             {
-                registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {docId}".Trim(), "XDS Repository");
+                registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {docId}".Trim(), _xdsConfig.HomeCommunityId);
                 continue;
             }
-            if (home != _xdsConfig.HomeCommunityId || string.IsNullOrEmpty(home))
+            if (string.IsNullOrEmpty(home))
             {
-                registryResponse.AddError(XdsErrorCodes.XDSMissingHomeCommunityId, $"Missing or unknown HomeCommunityID {home}".Trim(), "XDS Repository");
+                registryResponse.AddError(XdsErrorCodes.XDSMissingHomeCommunityId, $"Missing HomeCommunityID. Excpected {_xdsConfig.HomeCommunityId}", _xdsConfig.HomeCommunityId);
+                continue;
+            }
+            if (home != _xdsConfig.HomeCommunityId)
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownCommunity, $"Unknown HomeCommunityID {home}".Trim(), _xdsConfig.HomeCommunityId);
                 continue;
             }
             if (repoId != _xdsConfig.RepositoryUniqueId)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}".Trim(), "XDS Repository");
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}".Trim(), _xdsConfig.HomeCommunityId);
                 continue;
             }
 
@@ -244,7 +249,7 @@ public class XdsRepositoryService
 
         if (removeDocuments == null || removeDocuments.Length == 0)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RemoveDocumentRequest", "XDS Repository");
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RemoveDocumentRequest", _xdsConfig.HomeCommunityId);
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
@@ -291,8 +296,5 @@ public class XdsRepositoryService
 
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
 
-
     }
-
-
 }

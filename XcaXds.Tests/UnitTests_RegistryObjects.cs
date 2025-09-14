@@ -178,7 +178,7 @@ public class UnitTests_RegistryObjects
 
         foreach (var documentEntry in documentEntries)
         {
-            if (repoService.Read(documentEntry.Id) == null)
+            if (repoService.Read(documentEntry.UniqueId) == null)
             {
                 duds.Add($"{documentEntry.Id} for patient {documentEntry.SourcePatientInfo?.FirstName} {documentEntry.SourcePatientInfo?.LastName} (id: {documentEntry.PatientId.Code}) is a dud!!");
             }

@@ -68,7 +68,6 @@ public static class TestDataGeneratorService
                 SourceObject = submissionSet.Id,
                 SubmissionSetStatus = "Current",
                 TargetObject = documentEntry.Id,
-
             };
 
             registryObjects.Add(documentEntry);

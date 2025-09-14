@@ -133,7 +133,7 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
         var secondResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(secondResponse.Content.ReadAsStream());
 
         _policyRepositoryService.DeletePolicy(tempPolicyName);
-
+        var gobb = await firstResponse.Content.ReadAsStringAsync();
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
@@ -217,7 +217,6 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
         multipartRequestMultipart.Headers.ContentType?.Parameters.Add(multipartBoundaryMultipart);
 
         var thirdResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestMultipart);
-        
         
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
         var secondContent = await secondResponse.Content.ReadAsStringAsync();

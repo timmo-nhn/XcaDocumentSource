@@ -84,7 +84,7 @@ public static class HttpRequestResponseExtensions
 
         var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
         var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml);
-
+        soapContent.Headers.Add("Content-ID", [soapEnvelope.Header.MessageId]);
 
         var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
 
@@ -95,9 +95,6 @@ public static class HttpRequestResponseExtensions
 
         multipart.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated, Encoding.UTF8.BodyName);
 
-
         return multipart;
     }
-
-
 }

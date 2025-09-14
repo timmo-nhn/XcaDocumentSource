@@ -72,7 +72,7 @@ public class ApplicationMetaController : ControllerBase
                 generatedTestObject.RepositoryUniqueId = _xdsConfig.RepositoryUniqueId;
                 generatedTestObject.HomeCommunityId = _xdsConfig.HomeCommunityId;
 
-                _repositoryWrapper.StoreDocument(generatedTestObject.Id, randomFileAsByteArray, generatedTestObject.PatientId.Code);
+                _repositoryWrapper.StoreDocument(generatedTestObject.UniqueId, randomFileAsByteArray, generatedTestObject.PatientId.Code);
             }
         }
 
