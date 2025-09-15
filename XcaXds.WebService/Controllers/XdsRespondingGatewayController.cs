@@ -91,7 +91,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43 is true)
                 {
-                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti39Response.Value);
+                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti39Response.Value, out var boundary);
 
                     string contentId = null;
 
@@ -117,11 +117,15 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     if (contentId != null)
                     {
-                        contentResult.ContentType += $"; start=\"{contentId}\"";
+                        contentResult.ContentType += $"; boundary=\"{boundary}\"; start=\"{contentId}\"";
                     }
 
+                    _logger.LogInformation(contentResult.Content);
+                    _logger.LogInformation(contentResult.ContentType);
+                    
                     return contentResult;
                 }
+
                 responseEnvelope = iti39Response.Value;
                 break;
 

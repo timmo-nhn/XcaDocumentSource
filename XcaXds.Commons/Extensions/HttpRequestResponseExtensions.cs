@@ -44,6 +44,13 @@ public static class HttpRequestResponseExtensions
         return sb.ToString();
     }
 
+    public static string GetBoundary(string requestBody)
+    {
+        var firstLine = requestBody.Trim().Split().FirstOrDefault();
+
+        return firstLine;
+    }
+
     public static string GetBoundary(MediaTypeHeaderValue contentType, int lengthLimit)
     {
         var boundary = HeaderUtilities.RemoveQuotes(contentType.Boundary);
@@ -59,7 +66,7 @@ public static class HttpRequestResponseExtensions
     }
 
 
-    public static MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope)
+    public static MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope, out string boundary)
     {
         var documentResponses = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
         var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
@@ -89,8 +96,10 @@ public static class HttpRequestResponseExtensions
         var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml);
         soapContent.Headers.Add("Content-ID", [$"<{soapEnvelope.GetHashCode()}@xcadocumentsource.com>"]);
 
-        var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
+        boundary = $"MIMEBoundary_{Guid.NewGuid().ToString().Replace("-", "")}{Guid.NewGuid().ToString().Replace("-", "")}";
 
+        var multipart = new MultipartContent("related", boundary);
+       
         multipart.Add(soapContent);
 
         foreach (var docContent in documentContents)

@@ -59,13 +59,12 @@ public class XdsRepositoryController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43 is true)
                 {
-                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti43Response.Value);
+                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti43Response.Value, out var boundary);
 
                     string contentId = null;
 
                     if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
                     {
-                        contentId = contentIdValues.First();
                         contentId = contentIdValues.First().TrimStart('<').TrimEnd('>');
                     }
 
@@ -86,8 +85,11 @@ public class XdsRepositoryController : ControllerBase
 
                     if (contentId != null)
                     {
-                        contentResult.ContentType += $"; start=\"{contentId}\"";
+                        contentResult.ContentType += $"; boundary=\"{boundary}\"; start=\"{contentId}\"";
                     }
+
+                    _logger.LogInformation(contentResult.Content);
+                    _logger.LogInformation(contentResult.ContentType);
 
                     return contentResult;
                 }
