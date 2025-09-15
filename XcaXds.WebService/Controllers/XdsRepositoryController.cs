@@ -85,7 +85,7 @@ public class XdsRepositoryController : ControllerBase
 
                     if (contentId != null)
                     {
-                        contentResult.ContentType += $"; boundary=\"{boundary}\"; start=\"{contentId}\"";
+                        contentResult.ContentType += $"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"";
                     }
 
                     _logger.LogInformation(contentResult.ContentType);
