@@ -90,7 +90,9 @@ public static class HttpRequestResponseExtensions
         var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
         var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.XopXml);
         soapContent.Headers.Add("Content-ID", [$"<{soapEnvelope.GetHashCode()}@xcadocumentsource.com>"]);
-        soapContent.Headers.ContentType.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue("type", Constants.MimeTypes.SoapXml));
+        soapContent.Headers.ContentType?.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue("type", Constants.MimeTypes.SoapXml));
+        soapContent.Headers.ContentEncoding.Add("binary");
+
         boundary = $"MIMEBoundary_{Guid.NewGuid().ToString().Replace("-", "")}";
 
         var multipart = new MultipartContent("related", boundary);
