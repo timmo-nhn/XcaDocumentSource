@@ -97,7 +97,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
                     {
-                        contentId = contentIdValues.First().TrimStart('<').TrimEnd('>');
+                        contentId = contentIdValues.First();
                     }
 
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
