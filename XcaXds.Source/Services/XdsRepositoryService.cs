@@ -180,7 +180,7 @@ public class XdsRepositoryService
 
             byte[] renamedFile;
 
-            if (file != null)
+            if (file != null && file.Length != 0)
             {
                 var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);
                 if (mimeType == "application/pdf")

@@ -51,30 +51,48 @@ public class XdsRepositoryController : ControllerBase
             case Constants.Xds.OperationContract.Iti43Action:
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
 
-                var documentFetchResponse = await _repositoryService.RetrieveDocumentSet(soapEnvelope);
-                if (documentFetchResponse.IsSuccess is false)
+                var iti43Response = await _repositoryService.RetrieveDocumentSet(soapEnvelope);
+                if (iti43Response.IsSuccess is false)
                 {
                     break;
                 }
 
                 if (_xdsConfig.MultipartResponseForIti43 is true)
                 {
-                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(documentFetchResponse.Value);
+                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti43Response.Value);
+
+                    string contentId = null;
+
+                    if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
+                    {
+                        contentId = contentIdValues.First();
+                        contentId = contentIdValues.First().TrimStart('<').TrimEnd('>');
+                    }
 
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {
                         Content = multipartContent
                     };
 
-                    return new ContentResult
+                    requestTimer.Stop();
+                    _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+
+                    var contentResult = new ContentResult
                     {
                         StatusCode = (int)HttpStatusCode.OK,
-                        Content = responseMessage.Content.ReadAsStringAsync().Result,
+                        Content = await responseMessage.Content.ReadAsStringAsync(),
                         ContentType = Constants.MimeTypes.MultipartRelated
                     };
+
+                    if (contentId != null)
+                    {
+                        contentResult.ContentType += $"; start=\"{contentId}\"";
+                    }
+
+                    return contentResult;
                 }
 
-                responseEnvelope = documentFetchResponse.Value;
+                responseEnvelope = iti43Response.Value;
                 responseEnvelope.Header = new()
                 {
                     Action = soapEnvelope.GetCorrespondingResponseAction(),

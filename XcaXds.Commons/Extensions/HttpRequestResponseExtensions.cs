@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 
@@ -71,7 +73,8 @@ public static class HttpRequestResponseExtensions
                 // The multipart section content
                 var documentString = documentResponse.Document.InnerText;
                 var stringContent = new StringContent(documentString, Encoding.UTF8, documentResponse.MimeType);
-                stringContent.Headers.Add("Content-ID", [documentResponse.DocumentUniqueId]);
+
+                stringContent.Headers.Add("Content-ID", [$"<{documentResponse.GetHashCode()}@xcadocumentsource.com>"]);
 
                 documentContents.Add(stringContent);
 
@@ -84,7 +87,7 @@ public static class HttpRequestResponseExtensions
 
         var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
         var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml);
-        soapContent.Headers.Add("Content-ID", [soapEnvelope.Header.MessageId]);
+        soapContent.Headers.Add("Content-ID", [$"<{soapEnvelope.GetHashCode()}@xcadocumentsource.com>"]);
 
         var multipart = new MultipartContent("related", Guid.NewGuid().ToString());
 

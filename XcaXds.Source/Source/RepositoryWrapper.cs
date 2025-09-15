@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using System.Text;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -73,15 +73,18 @@ public partial class RepositoryWrapper
 
         var documentAsString = Encoding.UTF8.GetString(documentDto.Data ?? []);
 
-        if (documentAsString.StartsWith("<ClinicalDocument"))
+        if (!string.IsNullOrWhiteSpace(documentAsString))
         {
-            _logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument format");
-            cdaXml = documentAsString;
-        }
-        else
-        {
-            var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
-            cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
+            if (documentAsString.StartsWith("<ClinicalDocument"))
+            {
+                _logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument format");
+                cdaXml = documentAsString;
+            }
+            else
+            {
+                var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
+                cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
+            }
         }
 
         return Encoding.UTF8.GetBytes(cdaXml);
