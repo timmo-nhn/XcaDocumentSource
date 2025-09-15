@@ -73,13 +73,15 @@ public static class HttpRequestResponseExtensions
                 // The multipart section content
                 var documentString = documentResponse.Document.InnerText;
                 var stringContent = new StringContent(documentString, Encoding.UTF8, documentResponse.MimeType);
+                
+                var contentId = $"{documentResponse.GetHashCode()}@xcadocumentsource.com";
 
-                stringContent.Headers.Add("Content-ID", [$"<{documentResponse.GetHashCode()}@xcadocumentsource.com>"]);
+                stringContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
 
                 documentContents.Add(stringContent);
 
                 // The corresponding <Include>-part in the DocumentResponse
-                documentResponse.SetXopInclude($"cid:{documentResponse.DocumentUniqueId}");
+                documentResponse.SetXopInclude($"cid:{contentId}");
 
                 var gobb = sxmls.SerializeSoapMessageToXmlString(documentResponse);
             }
