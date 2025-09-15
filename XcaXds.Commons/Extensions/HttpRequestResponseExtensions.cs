@@ -88,7 +88,7 @@ public static class HttpRequestResponseExtensions
         }
 
         var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
-        var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.SoapXml);
+        var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.XopXml);
         soapContent.Headers.Add("Content-ID", [$"<{soapEnvelope.GetHashCode()}@xcadocumentsource.com>"]);
 
         boundary = $"MIMEBoundary_{Guid.NewGuid().ToString().Replace("-", "")}";

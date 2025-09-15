@@ -120,8 +120,8 @@ public class XdsRespondingGatewayController : ControllerBase
                         contentResult.ContentType += $"; boundary=\"{boundary}\"; start=\"{contentId}\"";
                     }
 
-                    _logger.LogInformation(contentResult.Content);
                     _logger.LogInformation(contentResult.ContentType);
+                    _logger.LogInformation(contentResult.Content);
                     
                     return contentResult;
                 }
