@@ -91,7 +91,7 @@ public static class HttpRequestResponseExtensions
         var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.XopXml);
         soapContent.Headers.Add("Content-ID", [$"<{soapEnvelope.GetHashCode()}@xcadocumentsource.com>"]);
         soapContent.Headers.ContentType?.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue("type", Constants.MimeTypes.SoapXml));
-        soapContent.Headers.ContentEncoding.Add("binary");
+        soapContent.Headers.Add("Content-Transfer-Encoding", "binary");
 
         boundary = $"MIMEBoundary_{Guid.NewGuid().ToString().Replace("-", "")}";
 
