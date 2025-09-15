@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
@@ -76,22 +77,15 @@ public class XdsRepositoryController : ControllerBase
                     requestTimer.Stop();
                     _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
-                    var contentResult = new ContentResult
-                    {
-                        StatusCode = (int)HttpStatusCode.OK,
-                        Content = await responseMessage.Content.ReadAsStringAsync(),
-                        ContentType = Constants.MimeTypes.MultipartRelated
-                    };
+                    var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
-                    if (contentId != null)
-                    {
-                        contentResult.ContentType += $"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"";
-                    }
+                    var streamResult = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
 
-                    _logger.LogInformation(contentResult.ContentType);
-                    _logger.LogInformation(contentResult.Content);
+                    _logger.LogInformation(streamResult.ContentType);
 
-                    return contentResult;
+                    _logger.LogInformation(Encoding.UTF8.GetString(bytes));
+
+                    return streamResult;
                 }
 
                 responseEnvelope = iti43Response.Value;

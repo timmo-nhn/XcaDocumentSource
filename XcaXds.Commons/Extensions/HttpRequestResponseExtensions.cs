@@ -77,6 +77,7 @@ public static class HttpRequestResponseExtensions
                 var contentId = $"{documentResponse.GetHashCode()}@xcadocumentsource.com";
 
                 stringContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
+                stringContent.Headers.Add("Content-Transfer-Encoding", "binary");
 
                 documentContents.Add(stringContent);
 
