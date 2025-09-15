@@ -28,7 +28,7 @@ public static class HttpRequestResponseExtensions
         if (!MediaTypeHeaderValue.TryParse(httpContext.Request.ContentType, out MediaTypeHeaderValue? mediaTypeHeaderValue)
         || !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
-            var boundary = GetBoundary(mediaTypeHeaderValue, 70);
+            var boundary = GetBoundary(mediaTypeHeaderValue, 512);
 
             var multipartReader = new MultipartReader(boundary, httpContext.Request.Body);
             while (await multipartReader.ReadNextSectionAsync() is { } section)
@@ -42,13 +42,6 @@ public static class HttpRequestResponseExtensions
 
         httpContext.Request.Body.Position = 0;
         return sb.ToString();
-    }
-
-    public static string GetBoundary(string requestBody)
-    {
-        var firstLine = requestBody.Trim().Split().FirstOrDefault();
-
-        return firstLine;
     }
 
     public static string GetBoundary(MediaTypeHeaderValue contentType, int lengthLimit)
