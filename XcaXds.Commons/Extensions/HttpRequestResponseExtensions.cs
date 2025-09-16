@@ -74,7 +74,7 @@ public static class HttpRequestResponseExtensions
                 var documentString = documentResponse.Document.InnerText;
                 var stringContent = new StringContent(documentString, Encoding.UTF8, documentResponse.MimeType);
                 
-                var contentId = $"{documentResponse.GetHashCode()}@xcadocumentsource.com";
+                var contentId = $"{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com";
 
                 stringContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
                 stringContent.Headers.Add("Content-Transfer-Encoding", "binary");
@@ -83,14 +83,12 @@ public static class HttpRequestResponseExtensions
 
                 // The corresponding <Include>-part in the DocumentResponse
                 documentResponse.SetXopInclude($"cid:{contentId}");
-
-                var gobb = sxmls.SerializeSoapMessageToXmlString(documentResponse);
             }
         }
 
         var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
         var soapContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.XopXml);
-        soapContent.Headers.Add("Content-ID", [$"<{soapEnvelope.GetHashCode()}@xcadocumentsource.com>"]);
+        soapContent.Headers.Add("Content-ID", [$"<{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com>"]);
         soapContent.Headers.ContentType?.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue("type", $"\"{Constants.MimeTypes.SoapXml}\""));
         soapContent.Headers.Add("Content-Transfer-Encoding", "binary");
 

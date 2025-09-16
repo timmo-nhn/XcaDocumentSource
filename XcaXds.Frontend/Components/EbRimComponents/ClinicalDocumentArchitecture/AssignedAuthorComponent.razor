@@ -1,9 +1,0 @@
-﻿@using XcaXds.Commons.Models.ClinicalDocument
-
-<h3>AssignedAuthor</h3>
-<p>ID: @AssignedAuthor.Id</p>
-<p>Name: <NameComponent Name="@AssignedAuthor.AssignedPerson.Name.FirstOrDefault()" /> </p>
-@code {
-    [Parameter]
-    public AssignedAuthor AssignedAuthor { get; set; }
-}

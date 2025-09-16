@@ -24,11 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Tests", "XcaXds.Test
 		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Frontend", "XcaXds.Frontend\XcaXds.Frontend.csproj", "{9C18D988-5621-487A-901B-4AC247E62CD5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F78BEC81-CA21-4566-9B35-7729F14E6D60} = {F78BEC81-CA21-4566-9B35-7729F14E6D60}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abc.Xacml", "Abc.Xacml\Abc.Xacml.csproj", "{DAB8EC5C-A59B-4D60-BB23-925AA80D9CA5}"
 EndProject
 Global
