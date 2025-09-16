@@ -2,6 +2,8 @@
 using System.Net.Http.Headers;
 using System.Reflection.Metadata;
 using System.Text;
+using Hl7.FhirPath.Sprache;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
@@ -182,6 +184,15 @@ public class XdsRepositoryService
 
             if (file != null && file.Length != 0)
             {
+                var inputString = Encoding.UTF8.GetString(file);
+
+                if (Base64.IsValid(inputString))
+                {
+                    var base64Document = Convert.FromBase64String(inputString);
+                    file = new byte[base64Document.Length];
+                    file = base64Document;
+                }
+
                 var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);
                 if (mimeType == "application/pdf")
                 {

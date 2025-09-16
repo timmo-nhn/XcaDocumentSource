@@ -73,25 +73,13 @@ public static class HttpRequestResponseExtensions
             {
                 if (string.IsNullOrWhiteSpace(documentResponse.Document?.InnerText)) continue;
 
-                // The multipart section content
-                var documentContent = new byte[0];
 
-                if (Base64.IsValid(documentResponse.Document.InnerText))
-                {
-                    // Document is base64 encoded, decode and turn into bytearray (will be case64 encoded again in the HTTP response)
-                    var documentBytes = Convert.FromBase64String(documentResponse.Document.InnerText);
-                    documentContent = new byte[documentBytes.Length];
-                    documentContent = documentBytes;
-                }
-                else
-                {
-                    // Document is NOT base64 encoded, just convert to bytearray (will be case64 encoded again in the HTTP response)
-                    var documentBytes = Encoding.UTF8.GetBytes(documentResponse.Document.InnerText);
-                    documentContent = new byte[documentBytes.Length];
-                    documentContent = documentBytes;
-                }
+                // Document is NOT base64 encoded, just convert to bytearray (will be case64 encoded again in the HTTP response)
+                var documentBytes = Encoding.UTF8.GetBytes(documentResponse.Document.InnerText);
+                //documentContent = new byte[documentBytes.Length];
+                //documentContent = documentBytes;
 
-                var documentByteArrayContent = new ByteArrayContent(documentContent);
+                var documentByteArrayContent = new ByteArrayContent(documentBytes);
                 
                 var contentId = $"{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com";
 

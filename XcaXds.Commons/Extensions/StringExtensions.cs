@@ -24,14 +24,6 @@ public static class StringExtensions
 
     public static string? GetMimetypeFromMagicNumber(byte[] input)
     {
-        var inputString = Encoding.UTF8.GetString(input);
-
-        if (Base64.IsValid(inputString))
-        {
-            var base64Document = Convert.FromBase64String(inputString);
-            input = new byte[base64Document.Length];
-            input = base64Document;
-        }
 
         // Make sure the input is large enough to check for magic numbers
         if (input.Length < 4)
