@@ -69,7 +69,7 @@ public static class CdaTransformerService
     {
         var authorList = new List<Author>();
 
-        foreach (var author in submissionSet.Author)
+        foreach (var author in submissionSet.Author ?? new List<AuthorInfo>())
         {
             var cdaAauthor = new Author();
 
