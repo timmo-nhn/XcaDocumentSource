@@ -95,6 +95,8 @@ public static class HttpRequestResponseExtensions
                 
                 var contentId = $"{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com";
 
+                documentByteArrayContent.Headers.ContentType = new(documentResponse.MimeType);
+
                 documentByteArrayContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
                 documentByteArrayContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
                 documentByteArrayContent.Headers.Add("Content-Transfer-Encoding", "binary");
