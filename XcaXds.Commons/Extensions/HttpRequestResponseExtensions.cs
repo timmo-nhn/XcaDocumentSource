@@ -73,11 +73,21 @@ public static class HttpRequestResponseExtensions
             {
                 if (string.IsNullOrWhiteSpace(documentResponse.Document?.InnerText)) continue;
 
+                var documentBytes = new byte[0];
 
-                // Document is NOT base64 encoded, just convert to bytearray (will be case64 encoded again in the HTTP response)
-                var documentBytes = Encoding.UTF8.GetBytes(documentResponse.Document.InnerText);
-                //documentContent = new byte[documentBytes.Length];
-                //documentContent = documentBytes;
+                if (Base64.IsValid(documentResponse.Document.InnerText) && documentResponse.MimeType == Constants.MimeTypes.Hl7v3Xml)
+                {
+                    var documentContent = Convert.FromBase64String(documentResponse.Document.InnerText);
+                    documentBytes = new byte[documentContent.Length];
+                    documentBytes = documentContent;
+                }
+                else
+                {
+                    var documentContent = Encoding.UTF8.GetBytes(documentResponse.Document.InnerText);
+                    documentBytes = new byte[documentContent.Length];
+                    documentBytes = documentContent;
+                }
+
 
                 var documentByteArrayContent = new ByteArrayContent(documentBytes);
                 

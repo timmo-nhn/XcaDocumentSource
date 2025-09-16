@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
@@ -61,7 +60,7 @@ public static class CdaTransformerService
         var nonXmlBody = new NonXmlBody();
         nonXmlBody.Text ??= new();
         nonXmlBody.Text.MediaType = documentEntry.MimeType;
-        nonXmlBody.Text.Text = Encoding.UTF8.GetString(document.Data);
+        nonXmlBody.Text.Text = Convert.ToBase64String(document.Data ?? []);
 
         return nonXmlBody;
     }
