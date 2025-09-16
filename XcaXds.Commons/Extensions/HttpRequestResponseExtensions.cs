@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using System.Buffers.Text;
 using System.Security.Cryptography;
 using System.Text;
 using XcaXds.Commons.Commons;
@@ -70,16 +71,35 @@ public static class HttpRequestResponseExtensions
         {
             foreach (var documentResponse in documentResponses)
             {
+                if (string.IsNullOrWhiteSpace(documentResponse.Document?.InnerText)) continue;
+
                 // The multipart section content
-                var documentString = documentResponse.Document.InnerText;
-                var stringContent = new StringContent(documentString, Encoding.UTF8, documentResponse.MimeType);
+                var documentContent = new byte[0];
+
+                if (Base64.IsValid(documentResponse.Document.InnerText))
+                {
+                    // Document is base64 encoded, decode and turn into bytearray (will be case64 encoded again in the HTTP response)
+                    var documentBytes = Convert.FromBase64String(documentResponse.Document.InnerText);
+                    documentContent = new byte[documentBytes.Length];
+                    documentContent = documentBytes;
+                }
+                else
+                {
+                    // Document is NOT base64 encoded, just convert to bytearray (will be case64 encoded again in the HTTP response)
+                    var documentBytes = Encoding.UTF8.GetBytes(documentResponse.Document.InnerText);
+                    documentContent = new byte[documentBytes.Length];
+                    documentContent = documentBytes;
+                }
+
+                var documentByteArrayContent = new ByteArrayContent(documentContent);
                 
                 var contentId = $"{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com";
 
-                stringContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
-                stringContent.Headers.Add("Content-Transfer-Encoding", "binary");
+                documentByteArrayContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
+                documentByteArrayContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
+                documentByteArrayContent.Headers.Add("Content-Transfer-Encoding", "binary");
 
-                documentContents.Add(stringContent);
+                documentContents.Add(documentByteArrayContent);
 
                 // The corresponding <Include>-part in the DocumentResponse
                 documentResponse.SetXopInclude($"cid:{contentId}");

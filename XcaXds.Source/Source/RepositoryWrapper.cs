@@ -88,7 +88,6 @@ public partial class RepositoryWrapper
         }
 
         return Encoding.UTF8.GetBytes(cdaXml);
-
     }
 
     public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart)
