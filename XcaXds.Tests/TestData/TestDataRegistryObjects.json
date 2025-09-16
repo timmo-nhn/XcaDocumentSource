@@ -2307,9 +2307,7 @@
       }
     ],
     "mimeTypes": [
-      "text/plain",
-      "application/pdf",
-      "application/rtf"
+      "application/pdf"
     ],
     "objectTypes": [
       "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1"

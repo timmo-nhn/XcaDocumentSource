@@ -23,6 +23,8 @@ public static class StringExtensions
 
     public static string? GetMimetypeFromMagicNumber(byte[] input)
     {
+        var gobb =string.Join(",", input);
+
         // Make sure the input is large enough to check for magic numbers
         if (input.Length < 4)
         {

@@ -54,7 +54,7 @@ public class ApplicationMetaController : ControllerBase
 
         var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, entriesToGenerate);
 
-        var files = jsonTestData.Documents.Select(file => Encoding.UTF8.GetBytes(file));
+        var files = jsonTestData.Documents.Select(file => Convert.FromBase64String(file));
 
         foreach (var generatedTestObject in generatedTestRegistryObjects.OfType<DocumentEntryDto>())
         {

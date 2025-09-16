@@ -278,9 +278,10 @@ public class XdsRepositoryService
                 registryResponse.AddWarning(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing RepositoryId or HomeCommunityId {document.RepositoryUniqueId}".Trim());
                 continue;
             }
-
         }
+
         registryResponse.EvaluateStatusCode();
+
         if (registryResponse.Status == Constants.Xds.ResponseStatusTypes.Success)
         {
             _logger.LogInformation($"Deleted {removeDocuments.Length} document(s)");
