@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Buffers.Text;
+using System.Text;
 using System.Xml;
 using XcaXds.Commons.Models.Hl7.DataType;
 
@@ -23,7 +24,14 @@ public static class StringExtensions
 
     public static string? GetMimetypeFromMagicNumber(byte[] input)
     {
-        var gobb =string.Join(",", input);
+        var inputString = Encoding.UTF8.GetString(input);
+
+        if (Base64.IsValid(inputString))
+        {
+            var base64Document = Convert.FromBase64String(inputString);
+            input = new byte[base64Document.Length];
+            input = base64Document;
+        }
 
         // Make sure the input is large enough to check for magic numbers
         if (input.Length < 4)
