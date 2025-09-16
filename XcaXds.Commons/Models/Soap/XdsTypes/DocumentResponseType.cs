@@ -42,7 +42,7 @@ public partial class DocumentResponseType
         var xmlDoc = new XmlDocument();
         var docElement = xmlDoc.CreateElement("Document", "urn:ihe:iti:xds-b:2007");
 
-        var include = xmlDoc.CreateElement("Include", "http://www.w3.org/2004/08/xop/include");
+        var include = xmlDoc.CreateElement("xop", "Include", "http://www.w3.org/2004/08/xop/include");
         include.SetAttribute("href", href);
 
         docElement.AppendChild(include);
