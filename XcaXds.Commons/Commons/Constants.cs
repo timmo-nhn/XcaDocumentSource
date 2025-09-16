@@ -21,7 +21,6 @@ public static class Constants
 
         public static readonly XmlWriterSettings DefaultXmlWriterSettingsInline = new()
         {
-            Indent = true,
             Encoding = Encoding.UTF8,
             OmitXmlDeclaration = true,
         };
