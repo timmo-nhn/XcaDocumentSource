@@ -62,7 +62,7 @@ public static class HttpRequestResponseExtensions
     public static MultipartContent ConvertToMultipartResponse(SoapEnvelope soapEnvelope, out string boundary)
     {
         var documentResponses = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline);
 
         var documentContents = new List<HttpContent>();
 
