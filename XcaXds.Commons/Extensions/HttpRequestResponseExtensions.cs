@@ -98,7 +98,6 @@ public static class HttpRequestResponseExtensions
                 documentByteArrayContent.Headers.ContentType = new(documentResponse.MimeType);
 
                 documentByteArrayContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
-                documentByteArrayContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
                 documentByteArrayContent.Headers.Add("Content-Transfer-Encoding", "binary");
 
                 documentContents.Add(documentByteArrayContent);
