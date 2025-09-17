@@ -54,6 +54,11 @@ public static class Constants
 
     public static class Soap
     {
+        public static class Addresses
+        {
+            public const string Anonymous = "http://www.w3.org/2005/08/addressing/anonymous";
+        }
+
         public static class Namespaces
         {
             public const string SoapEnvelope = "http://www.w3.org/2003/05/soap-envelope";

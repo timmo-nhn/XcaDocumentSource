@@ -60,6 +60,7 @@ public static class CdaTransformerService
         var nonXmlBody = new NonXmlBody();
         nonXmlBody.Text ??= new();
         nonXmlBody.Text.MediaType = documentEntry.MimeType;
+        nonXmlBody.Text.Representation = "B64";
         nonXmlBody.Text.Text = Convert.ToBase64String(document.Data ?? []);
 
         return nonXmlBody;

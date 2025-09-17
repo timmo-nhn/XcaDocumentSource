@@ -44,6 +44,11 @@ public class XdsRespondingGatewayController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
+        if (soapEnvelope.Header.ReplyTo?.Address != Constants.Soap.Addresses.Anonymous)
+        {
+            action += "Async";
+        }
+
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti38ActionAsync:
@@ -72,6 +77,33 @@ public class XdsRespondingGatewayController : ControllerBase
 
 
             case Constants.Xds.OperationContract.Iti39ActionAsync:
+
+                var replyTo = soapEnvelope.Header.ReplyTo?.Address?.ToString();
+
+                if (string.IsNullOrEmpty(replyTo))
+                    throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
+
+                var messageId = soapEnvelope.Header.MessageId;
+
+                _ = Task.Run(async () =>
+                {
+                    var response = await _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
+
+                    var soapResponse = new SoapEnvelope()
+                    {
+                        Header = new SoapHeader()
+                        {
+                            Action = action,
+                            RelatesTo = messageId,
+                            To = replyTo
+                        },
+                        Body = new() { RetrieveDocumentSetResponse = response.Value?.Body.RetrieveDocumentSetResponse }
+                    };
+
+                    soapResponse.GetCorrespondingResponseAction();
+
+                    HttpRequestResponseExtensions.SendAsyncResponse(replyTo, messageId, action, response);
+                });
 
                 break;
 

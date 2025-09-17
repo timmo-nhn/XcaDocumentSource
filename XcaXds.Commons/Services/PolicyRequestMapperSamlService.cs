@@ -336,27 +336,19 @@ public static class PolicyRequestMapperSamlService
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
-            case Constants.Xds.OperationContract.Iti18ActionAsync:
             case Constants.Xds.OperationContract.Iti38Action:
-            case Constants.Xds.OperationContract.Iti38ActionAsync:
                 return Constants.Xacml.Actions.ReadDocumentList;
 
             case Constants.Xds.OperationContract.Iti43Action:
-            case Constants.Xds.OperationContract.Iti43ActionAsync:
             case Constants.Xds.OperationContract.Iti39Action:
-            case Constants.Xds.OperationContract.Iti39ActionAsync:
                 return Constants.Xacml.Actions.ReadDocuments;
 
             case Constants.Xds.OperationContract.Iti41Action:
-            case Constants.Xds.OperationContract.Iti41ActionAsync:
             case Constants.Xds.OperationContract.Iti42Action:
-            case Constants.Xds.OperationContract.Iti42ActionAsync:
                 return Constants.Xacml.Actions.Create;
 
             case Constants.Xds.OperationContract.Iti62Action:
-            case Constants.Xds.OperationContract.Iti62ActionAsync:
             case Constants.Xds.OperationContract.Iti86Action:
-            case Constants.Xds.OperationContract.Iti86ActionAsync:
                 return Constants.Xacml.Actions.Delete;
 
             default:
