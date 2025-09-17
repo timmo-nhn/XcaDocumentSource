@@ -102,7 +102,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     soapResponse.GetCorrespondingResponseAction();
 
-                    HttpRequestResponseExtensions.SendAsyncResponse(replyTo, messageId, action, response);
+                    //HttpRequestResponseExtensions.SendAsyncResponse(replyTo, messageId, action, response);
                 });
 
                 break;
