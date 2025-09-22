@@ -27,11 +27,18 @@ public class ApplicationMetaController : ControllerBase
         _repositoryWrapper = repositoryWrapper;
     }
 
+
     [Produces("application/json")]
     [HttpGet("about/registryobjects")]
     public async Task<IActionResult> CountRegistryObjects()
     {
-        return Ok(new{count = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects().RegistryObjectList.Count});
+        var objects = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var documentEntries = objects.OfType<DocumentEntryDto>().Count();
+        var submissionSets = objects.OfType<SubmissionSetDto>().Count();
+        var associations = objects.OfType<AssociationDto>().Count();
+        
+        return Ok(new{ documentEntries, submissionSets, associations });
     }
 
 
@@ -41,6 +48,7 @@ public class ApplicationMetaController : ControllerBase
     {
         return Ok(_xdsConfig);
     }
+
 
     [HttpPost("generate-test-data")]
     public async Task<IActionResult> GenerateTestData([FromBody] JsonElement resourceJson, [FromQuery] int entriesToGenerate)

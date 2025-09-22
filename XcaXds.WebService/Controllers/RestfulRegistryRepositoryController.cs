@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Hl7.Fhir.Utility;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Services;
+using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
@@ -14,12 +16,14 @@ public class RestfulRegistryRepositoryController : ControllerBase
 {
     private readonly ILogger<RestfulRegistryRepositoryController> _logger;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
+    private readonly RegistryWrapper _registryWrapper;
     private readonly IVariantFeatureManager _featureManager;
 
-    public RestfulRegistryRepositoryController(ILogger<RestfulRegistryRepositoryController> logger, RestfulRegistryRepositoryService registryRestfulService, IVariantFeatureManager featureManager)
+    public RestfulRegistryRepositoryController(ILogger<RestfulRegistryRepositoryController> logger, RestfulRegistryRepositoryService registryRestfulService, IVariantFeatureManager featureManager, RegistryWrapper registryWrapper)
     {
         _logger = logger;
         _restfulRegistryService = registryRestfulService;
+        _registryWrapper = registryWrapper;
         _featureManager = featureManager;
     }
 
@@ -51,6 +55,34 @@ public class RestfulRegistryRepositoryController : ControllerBase
         for (int i = 0; i < entries.Errors.Count; i++) _logger.LogError($"\n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
 
         return BadRequest(entries);
+    }
+
+    [Produces("application/json")]
+    [HttpGet("document-entry")]
+    public async Task<IActionResult> GetDocumentEntry(string? id)
+    {
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
+
+        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+        {
+            id = patientId;
+        }
+
+        var requestTimer = Stopwatch.StartNew();
+
+        var entry = _registryWrapper.GetDocumentRegistryContentAsDtos().FirstOrDefault(robj => robj.Id == id);
+
+        requestTimer.Stop();
+
+        _logger.LogInformation($"Completed action: document-entry");
+
+        if (entry != null)
+        {
+            _logger.LogInformation($"Successfully retrieved {entry.Id} in {requestTimer.ElapsedMilliseconds} ms");
+            return Ok(entry);
+        }
+
+        return NotFound();
     }
 
     [Produces("application/json")]
