@@ -2,6 +2,7 @@
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -85,7 +86,7 @@ public partial class RepositoryWrapper
             else
             {
                 var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
-                cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
+                cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
             }
         }
 
