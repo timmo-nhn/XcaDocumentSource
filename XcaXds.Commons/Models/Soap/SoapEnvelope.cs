@@ -38,7 +38,9 @@ public class SoapEnvelope
             Constants.Xds.OperationContract.Iti42Action => Constants.Xds.OperationContract.Iti42Reply,
             Constants.Xds.OperationContract.Iti43Action => Constants.Xds.OperationContract.Iti43Reply,
             Constants.Xds.OperationContract.Iti38Action => Constants.Xds.OperationContract.Iti38Reply,
+            Constants.Xds.OperationContract.Iti38ActionAsync => Constants.Xds.OperationContract.Iti38Reply,
             Constants.Xds.OperationContract.Iti39Action => Constants.Xds.OperationContract.Iti39Reply,
+            Constants.Xds.OperationContract.Iti39ActionAsync => Constants.Xds.OperationContract.Iti39Reply,
             Constants.Xds.OperationContract.Iti62Action => Constants.Xds.OperationContract.Iti62Reply,
             Constants.Xds.OperationContract.Iti86Action => Constants.Xds.OperationContract.Iti86Reply,
             _ => string.Empty

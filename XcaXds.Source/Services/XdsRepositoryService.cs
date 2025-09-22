@@ -239,7 +239,7 @@ public class XdsRepositoryService
             IsSuccess = true,
             Value = new SoapEnvelope()
             {
-                Header = iti43envelope.Header,
+                Header = SoapExtensions.GetResponseHeaderFromRequest(iti43envelope),
                 Body = new()
                 {
                     RetrieveDocumentSetResponse = retrieveResponse

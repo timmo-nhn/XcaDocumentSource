@@ -12,41 +12,62 @@ public class PolicyDto
     public List<string>? Actions { get; set; }
     public string? Effect { get; set; }
 
-    public void MergeWith(PolicyDto? patch, bool append)
+    public void MergeWith(PolicyDto? patch, bool? append = false)
     {
-        foreach (var patchRules in patch?.Rules ?? [])
+        if (patch == null || patch.Rules == null) return;
+
+        if (Rules == null)
         {
-            foreach (var patchRule in patchRules)
+            Rules = patch.Rules;
+            return;
+        }
+
+        for (int orIdx = 0; orIdx < patch.Rules.Count; orIdx++)
+        {
+            var patchOrGroup = patch.Rules[orIdx];
+
+            if (orIdx >= Rules.Count)
             {
-                var idx = patchRules.FindIndex(rule => rule.AttributeId == patchRule.AttributeId);
+                Rules.Add(new List<PolicyMatch>(patchOrGroup));
+                continue;
+            }
 
-                if (idx < 0)
-                {
-                    patchRules.Add(patchRule);
-                    continue;
-                }
+            var targetOrGroup = Rules[orIdx];
+            var dict = targetOrGroup.ToDictionary(r => r.AttributeId, r => r);
 
-                if (append == true)
+            foreach (var patchRule in patchOrGroup)
+            {
+                if (dict.TryGetValue(patchRule.AttributeId, out var existing))
                 {
-                    var existing = patchRules[idx];
-                    patchRules[idx] = new PolicyMatch()
+                    if (append == true)
                     {
-                        AttributeId = existing.AttributeId,
-                        Value = string.Join(';', (existing.Value + ";" + patchRule.Value)
-                        .TrimStart(';').TrimEnd(';')
-                        .Split(";")
-                        .Distinct())
-                    };
+                        var mergedValues = (existing.Value + ";" + patchRule.Value)
+                            .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                            .Distinct()
+                            .ToList();
+
+                        dict[patchRule.AttributeId] = new PolicyMatch
+                        {
+                            AttributeId = existing.AttributeId,
+                            Value = string.Join(";", mergedValues)
+                        };
+                    }
+                    else
+                    {
+                        dict[patchRule.AttributeId] = new PolicyMatch
+                        {
+                            AttributeId = patchRule.AttributeId,
+                            Value = patchRule.Value
+                        };
+                    }
                 }
                 else
                 {
-                    patchRules[idx] = new PolicyMatch
-                    {
-                        AttributeId = patchRule.AttributeId,
-                        Value = patchRule.Value
-                    };
+                    dict[patchRule.AttributeId] = patchRule;
                 }
             }
+
+            Rules[orIdx] = dict.Values.ToList();
         }
 
         foreach (var patchRule in patch?.Subjects ?? [])

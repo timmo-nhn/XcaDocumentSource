@@ -162,6 +162,13 @@ public static class SoapExtensions
         }
     }
 
+    public static SoapHeader GetResponseHeaderFromRequest(SoapEnvelope envelope)
+    {
+        return new SoapHeader()
+        {
+            Action = envelope.GetCorrespondingResponseAction(),
+        };
+    }
 
     public static void PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(SoapEnvelope soapEnvelopeResponse, RegistryResponseType registryResponse)
     {

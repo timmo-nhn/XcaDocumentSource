@@ -1,0 +1,33 @@
+<!-- 
+                        ===========NOTE!============
+For Integration tests to work properly, its recommended to not touch these files. 
+                Use the testdata files in the directory above 
+-->
+<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+    xmlns:a="http://www.w3.org/2005/08/addressing"
+    xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <s:Header>
+        <a:Action s:mustUnderstand="1">urn:ihe:iti:2007:CrossGatewayRetrieve</a:Action>
+        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>
+        <a:ReplyTo>
+            <a:Address>http://192.168.2.4:9080/XcaService/InitiatingGatewayReceiver.svc</a:Address>
+        </a:ReplyTo>
+        <a:To s:mustUnderstand="1">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <u:Timestamp xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+                <u:Created>2025-07-31T18:49:15Z</u:Created>
+                <u:Expires>2025-07-31T19:04:15Z</u:Expires>
+            </u:Timestamp>
+        </wsse:Security>
+    </s:Header>
+    <s:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<ns3:RetrieveDocumentSetRequest xmlns:ns3="urn:ihe:iti:xds-b:2007">
+			<ns3:DocumentRequest>
+				<ns3:HomeCommunityId>urn:oid:2.16.578.1.12.4.5.100.15</ns3:HomeCommunityId>
+				<ns3:RepositoryUniqueId>2.16.578.1.12.4.5.100.15.25</ns3:RepositoryUniqueId>
+				<ns3:DocumentUniqueId>8f3b8038-5122-4e1b-8af4-29bb8759e8ae</ns3:DocumentUniqueId>
+			</ns3:DocumentRequest>
+		</ns3:RetrieveDocumentSetRequest>
+	</s:Body>
+</s:Envelope>

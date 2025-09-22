@@ -10,9 +10,11 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
 using XcaXds.Tests.Helpers;
+using static XcaXds.Commons.Commons.Constants.AuditLogging;
 
 namespace XcaXds.Tests;
 
@@ -134,6 +136,7 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
         _policyRepositoryService.DeletePolicy(tempPolicyName);
         var gobb = await firstResponse.Content.ReadAsStringAsync();
+
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
@@ -194,10 +197,10 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             Assert.Fail("Where did the integration test data go?!");
         }
 
-
         var nsmgr = new XmlNamespaceManager(crossGatewayRetrieve.NameTable);
         nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
         nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
+
 
 
         var securityNode = crossGatewayRetrieve.SelectSingleNode("//wsse:Security", nsmgr);
@@ -224,46 +227,14 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
     }
 
     [Fact]
-    public async Task Async_CrossGatewayRetrieve()
+    public async Task Async_CrossGatewayQuery()
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-        var patients = _restfulRegistryService.GetPatientIdentifiersInRegistry();
-
-        // Ensure the registry has stuff to work with
-        if (patients?.Count == 0)
-        {
-            var testData = new StringContent(
-                File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json"))),
-                Encoding.UTF8,
-                Constants.MimeTypes.Json
-                );
-
-            var testDataGenerationResponse = await _client.PostAsync("/api/generate-test-data", testData);
-        }
-
-        // Ensure policies are set up correctly
-        var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
-
-        var tempPolicyName = "IT_CrossGatewayRetrieve";
-
-        if (policySet.Policies?.Count == 0)
-        {
-            _policyRepositoryService.AddPolicy(new PolicyDto()
-            {
-                Id = tempPolicyName,
-                Rules =
-                [[
-                    new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:code", Value = "LE;SP;PS" },
-                    new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem", Value = "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060" }
-                ]],
-                Actions = ["ReadDocuments"],
-                Effect = "Permit",
-            });
-        }
+        await SetupRegistryRepositoryAndPolicy();
 
         var crossGatewayRetrieve = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml"))));
 
@@ -304,13 +275,51 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
         var thirdContent = await thirdResponse.Content.ReadAsStringAsync();
     }
 
+
     [Fact]
-    public async Task Async_CrossGatewayQuery()
+    public async Task Async_CrossGatewayRetrieve()
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+
+        await SetupRegistryRepositoryAndPolicy();
+
+        var crossGatewayRetrieve = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request_async.xml"))));
+        var kjSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_KJ01"))));
+
+        if (crossGatewayRetrieve == null)
+        {
+            Assert.Fail("Where did the integration test data go?!");
+        }
+
+        var nsmgr = new XmlNamespaceManager(crossGatewayRetrieve.NameTable);
+        nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
+        nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
+
+
+
+        var securityNode = crossGatewayRetrieve.SelectSingleNode("//wsse:Security", nsmgr);
+
+        if (securityNode != null)
+        {
+            var importedKjToken = crossGatewayRetrieve.ImportNode(kjSamlToken.DocumentElement, true);
+
+            securityNode.AppendChild(importedKjToken);
+        }
+
+        var firstResponse = await _client.PostAsync("XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+
+        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+    }
+
+
+
+    internal async Task SetupRegistryRepositoryAndPolicy()
+    {
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
 
         var patients = _restfulRegistryService.GetPatientIdentifiersInRegistry();
 
@@ -329,7 +338,7 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
         // Ensure policies are set up correctly
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
 
-        var tempPolicyName = "IT_CrossGatewayRetrieve";
+        var tempPolicyName = "IT_CrossGateway";
 
         if (policySet.Policies?.Count == 0)
         {
@@ -341,47 +350,9 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
                     new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:code", Value = "LE;SP;PS" },
                     new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem", Value = "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060" }
                 ]],
-                Actions = ["ReadDocuments"],
+                Actions = ["ReadDocuments", "ReadDocumentList"],
                 Effect = "Permit",
             });
         }
-
-        var crossGatewayRetrieve = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml"))));
-
-        var crossGatewayRetrieveMultipart = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request-multipart.txt"))).Replace("\n", "\r\n").Replace("\r\r\n", "\r\n");
-
-
-        if (crossGatewayRetrieve == null || crossGatewayRetrieveMultipart == null)
-        {
-            Assert.Fail("Where did the integration test data go?!");
-        }
-
-
-        var nsmgr = new XmlNamespaceManager(crossGatewayRetrieve.NameTable);
-        nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
-        nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-
-
-        var securityNode = crossGatewayRetrieve.SelectSingleNode("//wsse:Security", nsmgr);
-
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
-
-        var mimeBoundary = Regex.Match(crossGatewayRetrieveMultipart, "--(?<boundary>MIMEBoundary_.*?)\n").Groups.Values.LastOrDefault()?.Value.Trim();
-
-        var multipartRequestXop = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.XopXml);
-        var multipartBoundary = new NameValueHeaderValue("boundary", mimeBoundary);
-        multipartRequestXop.Headers.ContentType?.Parameters.Add(multipartBoundary);
-
-        var secondResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestXop);
-
-        var multipartRequestMultipart = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.MultipartRelated);
-        var multipartBoundaryMultipart = new NameValueHeaderValue("boundary", mimeBoundary);
-        multipartRequestMultipart.Headers.ContentType?.Parameters.Add(multipartBoundaryMultipart);
-
-        var thirdResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestMultipart);
-
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
-        var secondContent = await secondResponse.Content.ReadAsStringAsync();
-        var thirdContent = await thirdResponse.Content.ReadAsStringAsync();
     }
 }

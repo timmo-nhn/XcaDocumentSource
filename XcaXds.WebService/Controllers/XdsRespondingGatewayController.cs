@@ -74,8 +74,6 @@ public class XdsRespondingGatewayController : ControllerBase
                 break;
 
 
-
-
             case Constants.Xds.OperationContract.Iti39ActionAsync:
 
                 var replyTo = soapEnvelope.Header.ReplyTo?.Address?.ToString();
@@ -87,7 +85,8 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 _ = Task.Run(async () =>
                 {
-                    var response = await _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
+
+                    var response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
 
                     var soapResponse = new SoapEnvelope()
                     {
@@ -97,15 +96,18 @@ public class XdsRespondingGatewayController : ControllerBase
                             RelatesTo = messageId,
                             To = replyTo
                         },
-                        Body = new() { RetrieveDocumentSetResponse = response.Value?.Body.RetrieveDocumentSetResponse }
                     };
 
-                    soapResponse.GetCorrespondingResponseAction();
+                    soapResponse.Header.Action = soapResponse.GetCorrespondingResponseAction();
 
-                    //HttpRequestResponseExtensions.SendAsyncResponse(replyTo, messageId, action, response);
                 });
 
-                break;
+                requestTimer.Stop();
+
+                _logger.LogInformation($"Accepted async action: {action.Replace("Async","")} in {requestTimer.ElapsedMilliseconds} ms");
+
+
+                return Accepted(SoapExtensions.CreateAsyncAcceptedMessage(soapEnvelope));
 
 
             case Constants.Xds.OperationContract.Iti39Action:

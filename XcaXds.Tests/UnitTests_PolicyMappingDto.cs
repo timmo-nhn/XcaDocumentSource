@@ -52,4 +52,33 @@ public class UnitTests_PolicyMappingDto
 
         }
     }
+
+    [Fact]
+    public async Task MergePolicies()
+    {
+        var policy1 = new PolicyDto()
+        {
+            Actions = ["ReadDocument"],
+            Effect = "Permit",
+            Rules = 
+            [
+                [new("urn:oasis:names:tc:xspa:1.0:subject:role:code", "LE")]
+            ]
+        };
+
+        var policy2 = new PolicyDto()
+        {
+            Actions = ["ReadDocument"],
+            Effect = "Permit",
+            Rules = 
+            [
+                [new("urn:oasis:names:tc:xspa:1.0:subject:role:code", "SP")]
+            ]
+        };
+
+
+        policy1.MergeWith(policy2, true);
+    }
+
+
 }

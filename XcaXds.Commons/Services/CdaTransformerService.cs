@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Buffers.Text;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
@@ -60,8 +62,16 @@ public static class CdaTransformerService
         var nonXmlBody = new NonXmlBody();
         nonXmlBody.Text ??= new();
         nonXmlBody.Text.MediaType = documentEntry.MimeType;
-        nonXmlBody.Text.Representation = "B64";
-        nonXmlBody.Text.Text = Convert.ToBase64String(document.Data ?? []);
+
+        if (!string.IsNullOrWhiteSpace(nonXmlBody.Text.MediaType) && (nonXmlBody.Text.MediaType == Constants.MimeTypes.Text || nonXmlBody.Text.MediaType.Contains("json")))
+        {
+            nonXmlBody.Text.Text = Encoding.UTF8.GetString(document.Data ?? []);
+        }
+        else
+        {
+            nonXmlBody.Text.Representation = "B64";
+            nonXmlBody.Text.Text = Convert.ToBase64String(document.Data ?? []);
+        }
 
         return nonXmlBody;
     }
