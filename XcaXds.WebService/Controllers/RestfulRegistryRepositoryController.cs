@@ -1,11 +1,9 @@
-﻿using Hl7.Fhir.Utility;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
-using XcaXds.WebService.Attributes;
 
 namespace XcaXds.WebService.Controllers;
 

@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 
@@ -19,14 +21,16 @@ public class XdsRespondingGatewayController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly ApplicationConfig _xdsConfig;
+    private readonly HttpClient _httpClient;
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager)
+    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager, HttpClient httpClient)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
+        _httpClient = httpClient;
         _xdsRepositoryService = xdsRepositoryService;
         _featureManager = featureManager;
         _xdsRegistryService = xdsRegistryService;
@@ -86,19 +90,32 @@ public class XdsRespondingGatewayController : ControllerBase
                 _ = Task.Run(async () =>
                 {
 
-                    var response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
+                    var response = await _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
 
-                    var soapResponse = new SoapEnvelope()
+                    var sxmls = new SoapXmlSerializer();
+
+                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(response.Value, out var boundary);
+
+                    string contentId = null;
+
+                    if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
                     {
-                        Header = new SoapHeader()
-                        {
-                            Action = action,
-                            RelatesTo = messageId,
-                            To = replyTo
-                        },
+                        contentId = contentIdValues.First();
+                    }
+
+                    var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = multipartContent
                     };
 
-                    soapResponse.Header.Action = soapResponse.GetCorrespondingResponseAction();
+                    requestTimer.Stop();
+                    _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+
+                    var bytes = await multipartContent.ReadAsByteArrayAsync();
+                    var content = new ByteArrayContent(bytes);
+                    content.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                        $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\""
+                    );
 
                 });
 
