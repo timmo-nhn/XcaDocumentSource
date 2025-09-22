@@ -22,10 +22,10 @@ public static class TestDataGeneratorService
 
             var documentEntry = new DocumentEntryDto()
             {
-                Author = GetRandomAuthors(documentEntryValues.PossibleDocumentEntryValues.Authors, Random.Shared.Next(4))?.Distinct().ToList(),
+                Author = GetRandomAuthors(documentEntryValues.PossibleDocumentEntryValues.Authors, Random.Shared.Next(3) + 1)?.Distinct().ToList(),
                 AvailabilityStatus = PickRandom(documentEntryValues.PossibleDocumentEntryValues.AvailabilityStatuses),
                 ClassCode = PickRandom(documentEntryValues.PossibleDocumentEntryValues.ClassCodes),
-                ConfidentialityCode = PickRandomAmount(documentEntryValues.PossibleDocumentEntryValues.ConfidentialityCodes, Random.Shared.Next(4))?.Distinct().ToList(),
+                ConfidentialityCode = PickRandomAmount(documentEntryValues.PossibleDocumentEntryValues.ConfidentialityCodes, Random.Shared.Next(3) + 1)?.Distinct().ToList(),
                 CreationTime = creationTime.AddSeconds(-rng.Next(10_000)),
                 EventCodeList = PickRandom(documentEntryValues.PossibleDocumentEntryValues.EventCodeLists),
                 FormatCode = PickRandom(documentEntryValues.PossibleDocumentEntryValues.FormatCodes),
@@ -51,7 +51,7 @@ public static class TestDataGeneratorService
 
             var submissionSet = new SubmissionSetDto()
             {
-                Author = GetRandomAuthors(documentEntryValues.PossibleDocumentEntryValues.Authors, Random.Shared.Next(4))?.Distinct().ToList(),
+                Author = GetRandomAuthors(documentEntryValues.PossibleDocumentEntryValues.Authors, Random.Shared.Next(3) + 1)?.Distinct().ToList(),
                 AvailabilityStatus = PickRandom(documentEntryValues.PossibleDocumentEntryValues.AvailabilityStatuses),
                 HomeCommunityId = documentEntry.HomeCommunityId,
                 Id = Guid.NewGuid().ToString(),

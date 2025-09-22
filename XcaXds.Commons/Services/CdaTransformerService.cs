@@ -86,7 +86,7 @@ public static class CdaTransformerService
 
             cdaAauthor.Time = SetAuthorTime(submissionSet);
 
-            cdaAauthor.AssignedAuthor = SetAssignedAuthor(submissionSet);
+            cdaAauthor.AssignedAuthor = SetAssignedAuthor(author);
 
             authorList.Add(cdaAauthor);
         }
@@ -94,22 +94,20 @@ public static class CdaTransformerService
         return authorList;
     }
 
-    private static AssignedAuthor SetAssignedAuthor(SubmissionSetDto submissionSet)
+    private static AssignedAuthor SetAssignedAuthor(AuthorInfo authorInfo)
     {
         var assignedAuthor = new AssignedAuthor();
 
-        var firstSubmissionAuthor = submissionSet.Author?.FirstOrDefault();
-
-        if (firstSubmissionAuthor != null && firstSubmissionAuthor.Person != null)
+        if (authorInfo != null && authorInfo.Person != null)
         {
             assignedAuthor.Id ??= new();
             assignedAuthor.Id.Add(new()
             {
-                Extension = firstSubmissionAuthor.Person.Id ?? string.Empty,
-                Root = firstSubmissionAuthor.Person.AssigningAuthority ?? string.Empty
+                Extension = authorInfo.Person.Id ?? string.Empty,
+                Root = authorInfo.Person.AssigningAuthority ?? string.Empty
             });
 
-            assignedAuthor.AssignedPerson = SetAssignedPerson(firstSubmissionAuthor.Person);
+            assignedAuthor.AssignedPerson = SetAssignedPerson(authorInfo.Person);
         }
         return assignedAuthor;
     }

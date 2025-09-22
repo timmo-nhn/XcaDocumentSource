@@ -246,11 +246,9 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             Assert.Fail("Where did the integration test data go?!");
         }
 
-
         var nsmgr = new XmlNamespaceManager(crossGatewayRetrieve.NameTable);
         nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
         nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-
 
         var securityNode = crossGatewayRetrieve.SelectSingleNode("//wsse:Security", nsmgr);
 

@@ -76,7 +76,7 @@ public class UnitTests_ClinicalDocument
 
         var document = new DocumentDto()
         {
-            Data = repository.Read(documentEntry.Id),
+            Data = repository.Read(documentEntry.UniqueId),
             DocumentId = documentEntry.Id,
         };
 

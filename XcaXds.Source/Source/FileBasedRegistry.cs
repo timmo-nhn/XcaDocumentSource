@@ -15,7 +15,11 @@ public class FileBasedRegistry : IRegistry
 
     public FileBasedRegistry()
     {
-        
+        string baseDirectory = AppContext.BaseDirectory;
+        _registryPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
+        _registryFile = Path.Combine(_registryPath, "Registry.json");
+        EnsureRegistryFileExists();
+
     }
 
     public FileBasedRegistry(ILogger<FileBasedRegistry> logger)
