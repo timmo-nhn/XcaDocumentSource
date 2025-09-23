@@ -60,8 +60,8 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 var iti38AsyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
 
-                iti38AsyncReplyTo.Replace("10.89.0.90", "pjd-ehs.test.nhn.no");
-
+                iti38AsyncReplyTo = iti38AsyncReplyTo.Replace("10.89.0.90", "pjd-ehs.test.nhn.no");
+                
                 if (string.IsNullOrEmpty(iti38AsyncReplyTo))
                     throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
 
@@ -119,7 +119,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 var iti39AyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
 
-                iti39AyncReplyTo.Replace("10.89.0.90","pjd-ehs.test.nhn.no");
+                iti38AsyncReplyTo = iti39AyncReplyTo.Replace("10.89.0.90","pjd-ehs.test.nhn.no");
 
 
                 if (string.IsNullOrEmpty(iti39AyncReplyTo))
