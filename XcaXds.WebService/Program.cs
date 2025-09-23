@@ -32,6 +32,7 @@ public class Program
         
         builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
+        builder.Services.AddHttpClient();
 
         builder.Services.AddControllers(options =>
         {

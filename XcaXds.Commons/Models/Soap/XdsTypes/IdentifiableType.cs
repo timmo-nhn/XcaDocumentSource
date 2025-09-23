@@ -90,7 +90,16 @@ public partial class IdentifiableType
     public SlotType[] GetSlots(string slotName)
     {
         if (Slot == null) return [new SlotType()];
-        return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
+        try
+        {
+            return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
     }
 
     public SlotType? GetFirstSlot(string slotName)

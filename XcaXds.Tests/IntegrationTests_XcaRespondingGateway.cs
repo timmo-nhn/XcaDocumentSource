@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
@@ -21,6 +26,7 @@ namespace XcaXds.Tests;
 
 public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicationFactory<WebService.Program>>
 {
+
     private readonly HttpClient _client;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly PolicyRepositoryService _policyRepositoryService;
@@ -229,6 +235,10 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
     [Fact]
     public async Task Async_CrossGatewayQuery()
     {
+        var receivedRequests = new List<string>();
+
+        var replyToUrl = "/XCA/services/RespondingGatewayService/replyto";
+
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
@@ -236,47 +246,53 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
         await SetupRegistryRepositoryAndPolicy();
 
-        var crossGatewayRetrieve = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml"))));
-
-        var crossGatewayRetrieveMultipart = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request-multipart.txt"))).Replace("\n", "\r\n").Replace("\r\r\n", "\r\n");
+        var crossGatewayRetrieve = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request_async.xml"))));
 
 
-        if (crossGatewayRetrieve == null || crossGatewayRetrieveMultipart == null)
+        var kjSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_KJ01"))));
+
+
+        if (crossGatewayRetrieve == null || crossGatewayRetrieve == null)
         {
             Assert.Fail("Where did the integration test data go?!");
         }
 
         var nsmgr = new XmlNamespaceManager(crossGatewayRetrieve.NameTable);
         nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
+        nsmgr.AddNamespace("s", "http://www.w3.org/2003/05/soap-envelope");
+        nsmgr.AddNamespace("a", "http://www.w3.org/2005/08/addressing");
         nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
 
         var securityNode = crossGatewayRetrieve.SelectSingleNode("//wsse:Security", nsmgr);
 
+        var replyToNode = crossGatewayRetrieve.SelectSingleNode("//s:Header/a:ReplyTo/a:Address", nsmgr);
+
+        if (replyToNode != null)
+        {
+            replyToNode.InnerText = replyToUrl;
+        }
+
+        if (securityNode != null)
+        {
+            var importedKjToken = crossGatewayRetrieve.ImportNode(kjSamlToken.DocumentElement, true);
+
+            securityNode.AppendChild(importedKjToken);
+        }
+
         var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
-        var mimeBoundary = Regex.Match(crossGatewayRetrieveMultipart, "--(?<boundary>MIMEBoundary_.*?)\n").Groups.Values.LastOrDefault()?.Value.Trim();
-
-        var multipartRequestXop = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.XopXml);
-        var multipartBoundary = new NameValueHeaderValue("boundary", mimeBoundary);
-        multipartRequestXop.Headers.ContentType?.Parameters.Add(multipartBoundary);
-
-        var secondResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestXop);
-
-        var multipartRequestMultipart = new StringContent(crossGatewayRetrieveMultipart, Encoding.UTF8, Constants.MimeTypes.MultipartRelated);
-        var multipartBoundaryMultipart = new NameValueHeaderValue("boundary", mimeBoundary);
-        multipartRequestMultipart.Headers.ContentType?.Parameters.Add(multipartBoundaryMultipart);
-
-        var thirdResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestMultipart);
-
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
-        var secondContent = await secondResponse.Content.ReadAsStringAsync();
-        var thirdContent = await thirdResponse.Content.ReadAsStringAsync();
     }
 
 
     [Fact]
     public async Task Async_CrossGatewayRetrieve()
     {
+        var receivedRequests = new List<string>();
+
+        var replyToUrl = "XCA/services/RespondingGatewayService/replyto";
+
+
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
@@ -294,11 +310,18 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
 
         var nsmgr = new XmlNamespaceManager(crossGatewayRetrieve.NameTable);
         nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
+        nsmgr.AddNamespace("s", "http://www.w3.org/2003/05/soap-envelope");
+        nsmgr.AddNamespace("a", "http://www.w3.org/2005/08/addressing");
         nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
 
-
-
         var securityNode = crossGatewayRetrieve.SelectSingleNode("//wsse:Security", nsmgr);
+
+        var replyToNode = crossGatewayRetrieve.SelectSingleNode("//s:Header/a:ReplyTo/a:Address", nsmgr);
+
+        if (replyToNode != null)
+        {
+            replyToNode.InnerText = replyToUrl;
+        }
 
         if (securityNode != null)
         {
@@ -308,6 +331,8 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
         }
 
         var firstResponse = await _client.PostAsync("XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+
+        Assert.Equal(System.Net.HttpStatusCode.Accepted, firstResponse.StatusCode);
 
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
     }
