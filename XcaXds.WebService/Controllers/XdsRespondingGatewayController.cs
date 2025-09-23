@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using XcaXds.Commons.Commons;
@@ -58,6 +59,8 @@ public class XdsRespondingGatewayController : ControllerBase
             case Constants.Xds.OperationContract.Iti38ActionAsync:
 
                 var iti38AsyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
+
+                iti38AsyncReplyTo.Replace("10.89.0.90", "pjd-ehs.test.nhn.no");
 
                 if (string.IsNullOrEmpty(iti38AsyncReplyTo))
                     throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
@@ -116,6 +119,9 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 var iti39AyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
 
+                iti39AyncReplyTo.Replace("10.89.0.90","pjd-ehs.test.nhn.no");
+
+
                 if (string.IsNullOrEmpty(iti39AyncReplyTo))
                     throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
 
@@ -125,7 +131,6 @@ public class XdsRespondingGatewayController : ControllerBase
                 {
                     try
                     {
-
                         var response = await _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
 
                         var sxmls = new SoapXmlSerializer();
