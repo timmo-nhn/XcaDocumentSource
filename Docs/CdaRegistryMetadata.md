@@ -7,4 +7,4 @@ The `CdaTransformerService` contains a method `TransformRegistryObjectsToClinica
 ## On-The-Fly CDA Document generation from RegistryObjectDtos
 **PJD.XcaDocumentSource** supports generating a **CDA document** dynamically from Registry Object DTOs (`DocumentEntryDto` and `SubmissionSetDto`) using the static class `CdaTransformerService`. This is useful when wanting to return more detailed document response when fetching a document from the repository.  
 
-The `appsettings.json`-parameter `WrapRetrievedDocumentInCda` toggles this functionality, making any document request (either via REST or SOAP) return the document data wrapped in a XML-serialized CDA document generated from the document metadata corresponding to the document being retrieved.
+The `appsettings.json`-parameter `WrapRetrievedDocumentInCda` toggles this functionality, making any document request (either via REST or SOAP), which does not contain structured XML, return the document data wrapped in a XML-serialized CDA document generated from the document metadata corresponding to the document being retrieved.
