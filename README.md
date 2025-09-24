@@ -112,8 +112,8 @@ Covering the SOAP-message format and the XDS profile and transactions involved i
 
 ## Interacting With the Document Registry/Repository
 
-### [📨 SOAP-endpoints/ITI-messages (SOAP-transactions)](/Docs/XdsTransactions.md)
-Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoints, as well as examples.
+### [📨 SOAP-endpoints/ITI-messages (SOAP-transactions) and Multipart](/Docs/XdsTransactions.md)
+Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoints, as well as examples. Also describes MTOM/multipart request handling in **XcaDocumentSource**
 
 ### [👩‍💻 REST-endpoints (CRUD-transactions)](/Docs/RestTransactions.md)
 Describes the REST-endpoints of the solution, allowing for quick and easy CRUD-operations on the Document Registry and Repository.

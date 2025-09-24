@@ -405,7 +405,7 @@ Remove objects is used to remove objects from the **Document Registry**. A list 
 Multipart requests and responses are ways of separating binary or attachment data from the request or response, which makes processing the message easier.  
 A multipart request has the `multipart/related` mimetype, and the request is divided into multiple parts, separated by **Mime Boundaries**.
 
-**Mime Boundaries** are markers in the HTTP response body content, signaling to the consumer that another part of the multipart-response is beginning and ending. Each mime part of the multipart response starts with two dashes (`--`) then an **unique identifier** (the id is often prefixed with `MIMEBoundary_`).  
+**Mime Boundaries** are markers in the HTTP response body content, signaling to the consuming system that another part of the multipart-response is beginning and ending. Each mime part of the multipart response starts with two dashes (`--`) then an **unique identifier** (the identifier is often prefixed with `MIMEBoundary_`).  
 
 The **unique identifier** is the same for all the parts in the multipart response, and the `Content-ID` mime part header is used to unqiuely identify each mime part.
 Below the boundary, some headers for the mime part is defined, like its content type and a `Content-ID`. The end of the multipart content is defines with a multipart boundary, but this time also ending with two dashes (`--`).  
