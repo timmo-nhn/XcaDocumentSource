@@ -124,8 +124,4 @@ public static class HttpRequestResponseExtensions
 
         return multipart;
     }
-
-    public static void SendAsyncResponse(string replyTo, SoapEnvelope responseEnvelope)
-    {
-    }
 }
