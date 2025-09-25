@@ -9,11 +9,11 @@ namespace XcaXds.WebService.Middleware;
 public class SessionIdTraceMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<PolicyEnforcementPointMiddleware> _logger;
+    private readonly ILogger<SessionIdTraceMiddleware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
 
-    public SessionIdTraceMiddleware(RequestDelegate next, ILogger<PolicyEnforcementPointMiddleware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env)
+    public SessionIdTraceMiddleware(RequestDelegate next, ILogger<SessionIdTraceMiddleware> logger, ApplicationConfig xdsConfig, IWebHostEnvironment env)
     {
         _logger = logger;
         _next = next;
