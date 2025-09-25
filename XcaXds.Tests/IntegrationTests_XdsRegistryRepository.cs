@@ -24,14 +24,14 @@ using static XcaXds.Commons.Commons.Constants.AuditLogging;
 namespace XcaXds.Tests;
 
 
-public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicationFactory<WebService.Program>>
+public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicationFactory<WebService.Program>>
 {
 
     private readonly HttpClient _client;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly PolicyRepositoryService _policyRepositoryService;
 
-    public IntegrationTests_XcaRespondingGateway(WebApplicationFactory<WebService.Program> factory)
+    public IntegrationTests_XcaRegistryRepository(WebApplicationFactory<WebService.Program> factory)
     {
         _client = factory.CreateClient();
         using var scope = factory.Services.CreateScope();
@@ -40,46 +40,13 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
     }
 
     [Fact]
-    public async Task CrossGatewayQuery()
+    public async Task RegistryStoredQuery()
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-        var patients = _restfulRegistryService.GetPatientIdentifiersInRegistry();
-
-        // Ensure the registry has stuff to work with
-        if (patients?.Count == 0)
-        {
-            var testData = new StringContent(
-                File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json"))),
-                Encoding.UTF8,
-                Constants.MimeTypes.Json
-                );
-
-            var testDataGenerationResponse = await _client.PostAsync("/api/generate-test-data", testData);
-        }
-
-        // Ensure policies are set up correctly
-        var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
-
-        var tempPolicyName = "IT_CrossGatewayQuery";
-
-        if (policySet.Policies?.Count == 0)
-        {
-            _policyRepositoryService.AddPolicy(new PolicyDto()
-            {
-                Id = tempPolicyName,
-                Rules = 
-                [[
-                    new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:code", Value = "LE;SP;PS" },
-                    new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem", Value = "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060" }
-                ]],
-                Actions = ["ReadDocumentList"],
-                Effect = "Permit",
-            });
-        }
 
         var crossGatewayQuery = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml"))));
         var kjSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_KJ01"))));
@@ -107,47 +74,16 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             securityNode.AppendChild(importedKjToken);
         }
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
-        var roleAttrValueNode = crossGatewayQuery.SelectSingleNode(
-            "//saml:Attribute[@Name='urn:oasis:names:tc:xspa:1.0:subject:role']/saml:AttributeValue", nsmgr
-        );
-
-        if (roleAttrValueNode != null)
-        {
-            var roleXmlString = Regex.Replace(HttpUtility.HtmlDecode(roleAttrValueNode.InnerText), @"\bxsi:\b", "");
-
-            var roleDoc = new XmlDocument();
-            roleDoc.LoadXml(roleXmlString);
-
-            var roleNode = roleDoc.DocumentElement;
-            if (roleNode != null)
-            {
-                // Set the role to something else
-                roleNode.SetAttribute("code", "HIBB");
-
-                var updatedRoleXml = roleNode.OuterXml;
-
-                roleAttrValueNode.InnerText = roleNode.OuterXml;
-            }
-        }
-
-        var secondResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService",
-            new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml)
-        );
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var firstResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(firstResponse.Content.ReadAsStream());
-        var secondResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(secondResponse.Content.ReadAsStream());
 
-        _policyRepositoryService.DeletePolicy(tempPolicyName);
-        var gobb = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-
-        Assert.Equal(1, secondResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length);
-        Assert.Equal(System.Net.HttpStatusCode.OK, secondResponse.StatusCode);
     }
 
 
