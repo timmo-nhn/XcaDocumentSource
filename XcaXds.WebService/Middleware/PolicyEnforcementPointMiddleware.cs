@@ -5,6 +5,7 @@ using System.Text;
 using Abc.Xacml.Context;
 using Hl7.Fhir.Model.CdsHooks;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using Microsoft.Net.Http.Headers;
@@ -17,6 +18,7 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -104,6 +106,8 @@ public class PolicyEnforcementPointMiddleware
         var contentType = httpContext.Request.ContentType?.Split(";").First();
         XacmlContextRequest? xacmlRequest = null;
 
+        bool tokenIsValid = true;
+        
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
         switch (contentType)
@@ -123,13 +127,13 @@ public class PolicyEnforcementPointMiddleware
 
                 if (_xdsConfig.ValidateSamlTokenIntegrity)
                 {
-                    var validations = new TokenValidationParameters()
-                    {
+                    var validations = new Saml2SecurityTokenHandler();
+                    var validator = new Saml2Validator(_xdsConfig.HelseidCertTEST);
 
-                    };
+                    tokenIsValid = validator.ValidateSamlToken(samlTokenString);
+                    if (!tokenIsValid) break;
+
                 }
-
-                var samlTokenValidator = new Saml2SecurityTokenHandler();
 
                 var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(samlTokenString);
                 xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(samlToken, xacmlAction, XacmlVersion.Version20);
@@ -149,7 +153,17 @@ public class PolicyEnforcementPointMiddleware
 
         if (xacmlRequest == null && (contentType == Constants.MimeTypes.SoapXml || contentType == Constants.MimeTypes.XopXml || contentType == Constants.MimeTypes.MultipartRelated))
         {
-            var soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "No saml token found in SOAP-message").Value;
+            var soapEnvelope = new SoapEnvelope();
+
+            if (tokenIsValid)
+            {
+                soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "No saml token found in SOAP-message").Value;
+            }
+            else
+            {
+                soapEnvelope = SoapExtensions.CreateSoapFault("Sender", null, "Invalid saml token in SOAP-message").Value;
+            }
+
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 

@@ -9,4 +9,6 @@ public class ApplicationConfig
     public bool IgnorePEPForLocalhostRequests { get; set; }
     public int DocumentUploadSizeLimitKb { get; set; }
     public bool ValidateSamlTokenIntegrity { get; set; }
+    public string? HelseidCertTEST { get; set; }
+    public string? HelseidCertPROD { get; set; }
 }
