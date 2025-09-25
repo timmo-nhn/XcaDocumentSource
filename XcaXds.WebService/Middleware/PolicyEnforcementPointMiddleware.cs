@@ -1,20 +1,22 @@
-﻿using Abc.Xacml.Context;
+﻿using System.Diagnostics;
+using System.Net;
+using System.Reflection.PortableExecutable;
+using System.Text;
+using Abc.Xacml.Context;
+using Hl7.Fhir.Model.CdsHooks;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using System.Diagnostics;
-using System.Net;
 using Microsoft.Net.Http.Headers;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
-using Microsoft.AspNetCore.WebUtilities;
-using XcaXds.Commons.Models.Hl7.DataType;
-using System.Text;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -60,11 +62,11 @@ public class PolicyEnforcementPointMiddleware
 
         if (requestIsLocal && _xdsConfig.IgnorePEPForLocalhostRequests == true && _env.IsDevelopment() == true)
         {
-            _logger.LogWarning("Policy Enforcement Point middleware was bypassed for requests from localhost.");
+            _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed for requests from localhost.");
             await _next(httpContext);
             return;
         }
-
+        
 
         var endpoint = httpContext.GetEndpoint();
         var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
@@ -75,21 +77,23 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-        _logger.LogInformation("Running through Policy Enforcement Point middleware...");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed for requests from localhost.");
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
-        _logger.LogInformation("Request headers");
         var sb = new StringBuilder();
+
+        sb.AppendLine($"{httpContext.TraceIdentifier} - Request headers");
         foreach (var item in httpContext.Request.Headers)
         {
             sb.AppendLine(item.Key + ": " + item.Value);
         }
+
         _logger.LogInformation(sb.ToString());
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
-        _logger.LogInformation($"Request Body:\n{requestBody}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Body:\n{requestBody}");
 
         if (requestBody.StartsWith("--MIMEBoundary") || httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("MIMEBoundary")))
         {
@@ -100,13 +104,14 @@ public class PolicyEnforcementPointMiddleware
         var contentType = httpContext.Request.ContentType?.Split(";").First();
         XacmlContextRequest? xacmlRequest = null;
 
-        _logger.LogInformation($"Request Content-type: {contentType}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
         switch (contentType)
         {
             case Constants.MimeTypes.XopXml:
             case Constants.MimeTypes.MultipartRelated:
             case Constants.MimeTypes.SoapXml:
+            case Constants.MimeTypes.Xml:
 
                 var xacmlAction = PolicyRequestMapperSamlService.MapXacmlActionFromSoapAction(PolicyRequestMapperSamlService.GetActionFromSoapEnvelope(requestBody));
                 var samlTokenString = PolicyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody);
@@ -151,23 +156,23 @@ public class PolicyEnforcementPointMiddleware
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content ?? string.Empty);
 
             sw.Stop();
-            _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
 
         var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        _logger.LogInformation($"XACML request:\n{xacmlRequestString}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
 
         var policySetXml = XacmlSerializer.SerializeXacmlToXml(_debug_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
 
-        _logger.LogInformation($"Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}");
 
         if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision == XacmlContextDecision.Permit))
         {
             sw.Stop();
-            _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             await _next(httpContext);
         }
         else
@@ -186,7 +191,7 @@ public class PolicyEnforcementPointMiddleware
                 }
             };
 
-            _logger.LogInformation($"Policy Enforcement Point has denied the request: id {soapEnvelopeObject.Header.MessageId}");
+            _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request: id {soapEnvelopeObject.Header.MessageId}");
 
             var registryResponse = new RegistryResponseType();
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
@@ -199,7 +204,7 @@ public class PolicyEnforcementPointMiddleware
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
 
             sw.Stop();
-            _logger.LogInformation($"Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
     }

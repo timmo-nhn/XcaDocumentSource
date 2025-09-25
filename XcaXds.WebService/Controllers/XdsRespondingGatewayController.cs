@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using XcaXds.Commons.Commons;
@@ -17,7 +19,6 @@ namespace XcaXds.WebService.Controllers;
 [Tags("SOAP Endpoints (IHE XDS/XCA)")]
 [ApiController]
 [Route("XCA/services")]
-[UsePolicyEnforcementPoint]
 public class XdsRespondingGatewayController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
@@ -40,6 +41,7 @@ public class XdsRespondingGatewayController : ControllerBase
     [Consumes("application/soap+xml", "application/xml", "multipart/related", "application/xop+xml")]
     [Produces("application/soap+xml", "application/xop+xml", "application/octet-stream", "multipart/related")]
     [HttpPost("RespondingGatewayService")]
+    [UsePolicyEnforcementPoint]
     public async Task<IActionResult> HandleRespondingGatewayRequests([FromBody] SoapEnvelope soapEnvelope)
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
@@ -47,7 +49,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
         if (soapEnvelope.Header.ReplyTo?.Address != Constants.Soap.Addresses.Anonymous)
         {
@@ -125,7 +127,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 if (string.IsNullOrEmpty(iti39AyncReplyTo))
                     throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
 
-                var iti39AsyncMessageId = soapEnvelope.Header.MessageId;
+                var iti39AsyncMessageId = Request.HttpContext.TraceIdentifier;
 
                 _ = Task.Run(async () =>
                 {
@@ -161,12 +163,12 @@ public class XdsRespondingGatewayController : ControllerBase
                         var replyToResponse = await client.PostAsync(iti39AyncReplyTo, content);
 
                         requestTimer.Stop();
-                        _logger.LogInformation($"ReplyTo Endpoint status: {replyToResponse.StatusCode}");
-                        _logger.LogInformation($"Completed async action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                        _logger.LogInformation($"{iti39AsyncMessageId} - ReplyTo Endpoint status: {replyToResponse.StatusCode}");
+                        _logger.LogInformation($"{iti39AsyncMessageId} - Completed async action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation($"Async exception thrown!\n{ex.ToString()}");
+                        _logger.LogInformation($"{iti39AsyncMessageId} - Async exception thrown!\n{ex.ToString()}");
 
                         throw;
                     }
@@ -174,7 +176,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 requestTimer.Stop();
 
-                _logger.LogInformation($"Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
+                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
 
 
                 return Accepted();
@@ -217,9 +219,9 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     var streamResult = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
 
-                    _logger.LogInformation(streamResult.ContentType);
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - " + streamResult.ContentType);
 
-                    _logger.LogInformation(Encoding.UTF8.GetString(bytes));
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - " + Encoding.UTF8.GetString(bytes));
 
                     return streamResult;
                 }
@@ -228,19 +230,20 @@ public class XdsRespondingGatewayController : ControllerBase
                 break;
 
             default:
-                _logger.LogInformation($"Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
                 requestTimer.Stop();
-                _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
 
         requestTimer.Stop();
-        _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
         return Ok(responseEnvelope);
     }
 
     [HttpPost("RespondingGatewayService/replyto")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> FakeReplyToEndpoint([FromBody] SoapEnvelope soapEnvelope)
     {
         return Ok("Replied to");

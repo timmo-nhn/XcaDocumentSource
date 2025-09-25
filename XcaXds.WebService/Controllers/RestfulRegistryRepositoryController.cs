@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
-using System.Diagnostics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
@@ -42,15 +43,15 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"Completed action: document-list");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-list");
 
         if (entries.Success)
         {
-            _logger.LogInformation($"Successfully retrieved {entries.DocumentListEntries.Count} entries in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {entries.DocumentListEntries.Count} entries in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(entries);
         }
 
-        for (int i = 0; i < entries.Errors.Count; i++) _logger.LogError($"\n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
+        for (int i = 0; i < entries.Errors.Count; i++) _logger.LogError($"{Request.HttpContext.TraceIdentifier} - \n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
 
         return BadRequest(entries);
     }
@@ -72,11 +73,11 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"Completed action: document-entry");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry");
 
         if (entry != null)
         {
-            _logger.LogInformation($"Successfully retrieved {entry.Id} in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {entry.Id} in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(entry);
         }
 
@@ -95,16 +96,16 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"Completed action: get-document");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: get-document");
 
         if (entries.Document != null)
         {
-            _logger.LogInformation($"Successfully retrieved document with id: {entries.Document.DocumentId} in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved document with id: {entries.Document.DocumentId} in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(entries);
         }
         else
         {
-            _logger.LogInformation($"Successfully retrieved 0 documents in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved 0 documents in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(entries);
         }
     }
@@ -124,7 +125,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         if (uploadResponse.Success)
         {
-            _logger.LogInformation($"Successfully uploaded document and metadata in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully uploaded document and metadata in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(uploadResponse);
         }
 
@@ -146,7 +147,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         if (updateResponse.Success)
         {
-            _logger.LogInformation($"Successfully updated document and metadata in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully updated document and metadata in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(updateResponse);
         }
 

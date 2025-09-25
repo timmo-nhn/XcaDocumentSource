@@ -45,7 +45,7 @@ public class XdsRepositoryController : ControllerBase
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
         switch (soapEnvelope.Header.Action)
         {
@@ -75,15 +75,15 @@ public class XdsRepositoryController : ControllerBase
                     };
 
                     requestTimer.Stop();
-                    _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
                     var streamResult = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
 
-                    _logger.LogInformation(streamResult.ContentType);
+                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + streamResult.ContentType);
 
-                    _logger.LogInformation(Encoding.UTF8.GetString(bytes));
+                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + Encoding.UTF8.GetString(bytes));
 
                     return streamResult;
                 }
@@ -167,14 +167,14 @@ public class XdsRepositoryController : ControllerBase
                 break;
 
             default:
-                _logger.LogInformation($"Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
                 requestTimer.Stop();
-                _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
 
         requestTimer.Stop();
-        _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
         return Ok(responseEnvelope);
     }

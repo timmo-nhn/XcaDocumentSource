@@ -125,8 +125,8 @@ public class Program
         app.UseRouting();
 
         // Middleware, only enabled for endpoints with attributes
+        app.UseMiddleware<SessionIdTraceMiddleware>();
         app.UseMiddleware<PolicyEnforcementPointMiddleware>();
-        app.UseMiddleware<AuditLoggingMiddleware>();
 
         if (app.Environment.IsDevelopment())
         {

@@ -42,7 +42,7 @@ public class XdsRegistryController : ControllerBase
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"Received request for action: {action}");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action}");
 
         switch (action)
         {
@@ -84,7 +84,7 @@ public class XdsRegistryController : ControllerBase
                 }
                 else
                 {
-                    _logger.LogError("Error while updating registry", registryUploadResponse.Value?.Body.Fault);
+                    _logger.LogError($"{Request.HttpContext.TraceIdentifier} - Error while updating registry", registryUploadResponse.Value?.Body.Fault);
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
 
                     registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList.RegistryError];
@@ -108,14 +108,14 @@ public class XdsRegistryController : ControllerBase
                 break;
 
             default:
-                _logger.LogInformation($"Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
                 requestTimer.Stop();
-                _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
 
         requestTimer.Stop();
-        _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
         registryResponse.EvaluateStatusCode();
         return Ok(responseEnvelope);
     }

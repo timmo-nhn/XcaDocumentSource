@@ -212,7 +212,7 @@ public class XdsRepositoryService
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex.Message + ex.StackTrace);
+                        _logger.LogError($"{iti43envelope.Header.MessageId} \n" + ex.ToString());
                     }
 
                     // Get the modified file bytes and replace the original file variable
@@ -224,14 +224,14 @@ public class XdsRepositoryService
         registryResponse.EvaluateStatusCode();
         retrieveResponse.RegistryResponse = registryResponse;
 
-        _logger.LogInformation($"Retrieved {retrieveResponse?.DocumentResponse?.Length ?? 0} document(s)");
+        _logger.LogInformation($"{iti43envelope.Header.MessageId} - Retrieved {retrieveResponse?.DocumentResponse?.Length ?? 0} document(s)");
 
         for (int i = 0; i < retrieveResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length; i++)
         {
             var error = retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError[i];
             if (error == null) continue;
 
-            _logger.LogWarning($"ERROR #{i+1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+            _logger.LogWarning($"{iti43envelope.Header.MessageId} - ERROR #{i+1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
         }
 
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
@@ -295,7 +295,7 @@ public class XdsRepositoryService
 
         if (registryResponse.Status == Constants.Xds.ResponseStatusTypes.Success)
         {
-            _logger.LogInformation($"Deleted {removeDocuments.Length} document(s)");
+            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Deleted {removeDocuments.Length} document(s)");
         }
 
         for (int i = 0; i < registryResponse.RegistryErrorList?.RegistryError.Length; i++)
@@ -303,10 +303,9 @@ public class XdsRepositoryService
             var error = registryResponse.RegistryErrorList?.RegistryError[i];
             if (error == null) continue;
 
-            _logger.LogWarning($"ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+            _logger.LogWarning($"{soapEnvelope.Header.MessageId} - ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
         }
 
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
-
     }
 }
