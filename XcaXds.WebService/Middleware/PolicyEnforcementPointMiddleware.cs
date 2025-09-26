@@ -123,10 +123,12 @@ public class PolicyEnforcementPointMiddleware
                     var validations = new Saml2SecurityTokenHandler();
                     var validator = new Saml2Validator(_xdsConfig.HelseidCert);
 
-                    tokenIsValid = validator.ValidateSamlToken(samlTokenString);
-                    if (!tokenIsValid)
+                    tokenIsValid = validator.ValidateSamlToken(samlTokenString, out var message);
+
+                    if (tokenIsValid == false)
                     {
-                        _logger.LogInformation($"{httpContext.TraceIdentifier} - Saml token is valid!");
+                        _logger.LogInformation($"{httpContext.TraceIdentifier} - Invalid SAML-token!");
+                        _logger.LogInformation($"{httpContext.TraceIdentifier} - {message}");
                         break;
                     }
 
