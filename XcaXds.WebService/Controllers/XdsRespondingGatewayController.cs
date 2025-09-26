@@ -21,14 +21,14 @@ namespace XcaXds.WebService.Controllers;
 [Route("XCA/services")]
 public class XdsRespondingGatewayController : ControllerBase
 {
-    private readonly ILogger<XdsRegistryController> _logger;
+    private readonly ILogger<XdsRespondingGatewayController> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRespondingGatewayController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager, IHttpClientFactory httpClientFactory)
+    public XdsRespondingGatewayController(ILogger<XdsRespondingGatewayController> logger, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;

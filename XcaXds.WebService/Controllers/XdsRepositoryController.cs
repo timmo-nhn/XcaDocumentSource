@@ -18,13 +18,13 @@ namespace XcaXds.WebService.Controllers;
 [UsePolicyEnforcementPoint]
 public class XdsRepositoryController : ControllerBase
 {
-    private readonly ILogger<XdsRegistryController> _logger;
+    private readonly ILogger<XdsRepositoryController> _logger;
     private readonly XdsRepositoryService _repositoryService;
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
 
-    public XdsRepositoryController(ILogger<XdsRegistryController> logger, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
+    public XdsRepositoryController(ILogger<XdsRepositoryController> logger, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
     {
         _logger = logger;
         _repositoryService = repositoryService;

@@ -47,7 +47,6 @@ public class SessionIdTraceMiddleware
 
                 httpContext.TraceIdentifier = soapEnvelope.Header.MessageId ?? Guid.NewGuid().ToString();
 
-
                 break;
 
             default:
