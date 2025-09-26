@@ -121,7 +121,7 @@ public class PolicyEnforcementPointMiddleware
                 if (_xdsConfig.ValidateSamlTokenIntegrity)
                 {
                     var validations = new Saml2SecurityTokenHandler();
-                    var validator = new Saml2Validator(_xdsConfig.HelseidCertTEST);
+                    var validator = new Saml2Validator(_xdsConfig.HelseidCert);
 
                     tokenIsValid = validator.ValidateSamlToken(samlTokenString);
                     if (!tokenIsValid)
