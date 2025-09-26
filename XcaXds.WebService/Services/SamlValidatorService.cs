@@ -13,6 +13,11 @@ public class Saml2Validator
     {
         _saml2Handler = new Saml2SecurityTokenHandler();
 
+        if (string.IsNullOrWhiteSpace(cert))
+        {
+            throw new Exception("HelseID certificate missing! SAML-token cannot be validated!");
+        }
+
         var idpCert = new X509Certificate2(Convert.FromBase64String(cert));
         var signingKey = new X509SecurityKey(idpCert);
 
