@@ -12,7 +12,7 @@ public static class ConfigBinder
             RepositoryUniqueId = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__RepositoryUniqueId").Value,
             DocumentUploadSizeLimitKb = int.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__DocumentUploadSizeLimitKb").Value ?? "0"),
             WrapRetrievedDocumentInCda = bool.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__WrapRetrievedDocumentInCda").Value ?? "false"),
-            MultipartResponseForIti43 = bool.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__MultipartResponseForIti43").Value ?? "true"),
+            MultipartResponseForIti43AndIti39 = bool.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__MultipartResponseForIti43AndIti39").Value ?? "true"),
             HelseidCertTEST = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelseidCertTEST").Value,
             HelseidCertPROD = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelseidCertPROD").Value,
         };

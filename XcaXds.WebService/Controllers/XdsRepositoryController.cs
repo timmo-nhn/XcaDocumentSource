@@ -58,7 +58,7 @@ public class XdsRepositoryController : ControllerBase
                     break;
                 }
 
-                if (_xdsConfig.MultipartResponseForIti43 is true)
+                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true)
                 {
                     var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti43Response.Value, out var boundary);
 
