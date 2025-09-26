@@ -27,7 +27,8 @@ public class Saml2Validator
             ClockSkew = TimeSpan.FromMinutes(5),
 
             IssuerSigningKey = signingKey,
-
+            ValidateAudience = false,
+            ValidateIssuer = false,
             ValidateIssuerSigningKey = true,
             ValidateLifetime = true,
             RequireSignedTokens = true,
