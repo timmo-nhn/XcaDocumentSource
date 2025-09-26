@@ -34,8 +34,9 @@ public class Saml2Validator
         };
     }
 
-    public bool ValidateSamlToken(string samlXml)
+    public bool ValidateSamlToken(string samlXml, out string? validationMessage)
     {
+        validationMessage = string.Empty;
         var token = _saml2Handler.ReadSaml2Token(samlXml);
         try
         {
@@ -53,6 +54,7 @@ public class Saml2Validator
         }
         catch (Exception ex)
         {
+            validationMessage = ex.Message;
             return false;
         }
     }
