@@ -13,14 +13,14 @@ namespace XcaXds.WebService.Controllers;
 [Route("api/policy")]
 public class PolicyManagementController : ControllerBase
 {
-    private readonly ILogger<XdsRegistryController> _logger;
+    private readonly ILogger<PolicyManagementController> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly PolicyRepositoryService _policyRepositoryService;
 
     public PolicyManagementController
-        (ILogger<XdsRegistryController> logger,
+        (ILogger<PolicyManagementController> logger,
         ApplicationConfig xdsConfig,
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
@@ -35,7 +35,7 @@ public class PolicyManagementController : ControllerBase
     }
 
     [Produces("application/json", "application/xml")]
-    [HttpGet("getall")]
+    [HttpGet("get-all")]
     public IActionResult GetAllPolicies(bool xml = false)
     {
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
@@ -54,7 +54,7 @@ public class PolicyManagementController : ControllerBase
     }
 
     [Produces("application/json", "application/xml")]
-    [HttpGet("getsingle")]
+    [HttpGet("get-single")]
     public IActionResult GetSinglePolicy(string id, bool xml = false)
     {
         var policySet = _policyRepositoryService.GetSinglePolicy(id);
