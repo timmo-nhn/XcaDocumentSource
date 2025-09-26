@@ -1,17 +1,10 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using Abc.Xacml.Context;
-using Hl7.Fhir.Model.CdsHooks;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+﻿using Abc.Xacml.Context;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using Microsoft.Net.Http.Headers;
+using System.Diagnostics;
+using System.Net;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
@@ -68,7 +61,7 @@ public class PolicyEnforcementPointMiddleware
             await _next(httpContext);
             return;
         }
-        
+
 
         var endpoint = httpContext.GetEndpoint();
         var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
@@ -107,7 +100,7 @@ public class PolicyEnforcementPointMiddleware
         XacmlContextRequest? xacmlRequest = null;
 
         bool tokenIsValid = true;
-        
+
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
         switch (contentType)
@@ -131,9 +124,15 @@ public class PolicyEnforcementPointMiddleware
                     var validator = new Saml2Validator(_xdsConfig.HelseidCertTEST);
 
                     tokenIsValid = validator.ValidateSamlToken(samlTokenString);
-                    if (!tokenIsValid) break;
+                    if (!tokenIsValid)
+                    {
+                        _logger.LogInformation($"{httpContext.TraceIdentifier} - Saml token is valid!");
+                        break;
+                    }
 
                 }
+
+                _logger.LogInformation($"{httpContext.TraceIdentifier} - Saml token is valid!");
 
                 var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(samlTokenString);
                 xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(samlToken, xacmlAction, XacmlVersion.Version20);
@@ -212,7 +211,7 @@ public class PolicyEnforcementPointMiddleware
 
             soapEnvelopeResponse.Body ??= new();
             httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
-            
+
             SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
 
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
