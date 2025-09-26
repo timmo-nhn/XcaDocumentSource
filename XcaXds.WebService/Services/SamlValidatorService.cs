@@ -25,10 +25,12 @@ public class Saml2Validator
         {
 
             ClockSkew = TimeSpan.FromMinutes(5),
+            ValidAudiences = ["https://ptr1xds-reg.prod.drift.nhn.no/", "https://xds-web.test.nhn.no/", "nhn:dokumentdeling-saml"],
+            ValidIssuers = ["https://helseid-xdssaml.prod.drift.nhn.no", "https://helseid-xdssaml.test.nhn.no", "sikkerhet.helsenorge.no"],
 
             IssuerSigningKey = signingKey,
-            ValidateAudience = false,
-            ValidateIssuer = false,
+            ValidateAudience = true,
+            ValidateIssuer = true,
             ValidateIssuerSigningKey = true,
             ValidateLifetime = true,
             RequireSignedTokens = true,
