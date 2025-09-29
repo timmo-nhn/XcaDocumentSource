@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -37,8 +36,8 @@ public class ApplicationMetaController : ControllerBase
         var documentEntries = objects.OfType<DocumentEntryDto>().Count();
         var submissionSets = objects.OfType<SubmissionSetDto>().Count();
         var associations = objects.OfType<AssociationDto>().Count();
-        
-        return Ok(new{ documentEntries, submissionSets, associations });
+
+        return Ok(new { documentEntries, submissionSets, associations });
     }
 
 
@@ -51,7 +50,7 @@ public class ApplicationMetaController : ControllerBase
 
 
     [HttpPost("generate-test-data")]
-    public async Task<IActionResult> GenerateTestData([FromBody] JsonElement resourceJson, [FromQuery] int entriesToGenerate)
+    public async Task<IActionResult> GenerateTestData([FromBody] JsonElement resourceJson, [FromQuery] int entriesToGenerate, [FromQuery] int secondsToPotentiallyGoBack)
     {
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(resourceJson.GetRawText());
         if (jsonTestData == null) return BadRequest("No content provided");
@@ -60,7 +59,7 @@ public class ApplicationMetaController : ControllerBase
 
         entriesToGenerate = entriesToGenerate == 0 ? 10 : entriesToGenerate;
 
-        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, entriesToGenerate);
+        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, entriesToGenerate, secondsToPotentiallyGoBack);
 
         var files = jsonTestData.Documents.Select(file => Convert.FromBase64String(file));
 
@@ -105,7 +104,7 @@ public class ApplicationMetaController : ControllerBase
         if (datetime != nukeKey) return BadRequest("Invalid Nuke key, get nuke key from the 'get-nuke-key'-endpoint");
 
         var documentIds = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(dent => dent.Id).ToList();
-        
+
         var amount = documentIds.Count;
         _logger.LogInformation($"Fetched {amount} for nuking");
 

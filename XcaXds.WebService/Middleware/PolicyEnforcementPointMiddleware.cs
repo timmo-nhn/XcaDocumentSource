@@ -46,8 +46,6 @@ public class PolicyEnforcementPointMiddleware
     public async Task InvokeAsync(HttpContext httpContext)
     {
         Stopwatch sw = Stopwatch.StartNew();
-
-
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! 'PEP bypass for local requests' is enabled in production!");
 
         // If the request is from localhost and environment is development we can ignore PEP.
@@ -58,6 +56,8 @@ public class PolicyEnforcementPointMiddleware
         if (requestIsLocal && _xdsConfig.IgnorePEPForLocalhostRequests == true && _env.IsDevelopment() == true)
         {
             _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed for requests from localhost.");
+            sw.Stop();
+            _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             await _next(httpContext);
             return;
         }
@@ -68,6 +68,8 @@ public class PolicyEnforcementPointMiddleware
 
         if (enforceAttr == null || enforceAttr.Enabled == false)
         {
+            sw.Stop();
+            _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             await _next(httpContext); // Skip PEP check
             return;
         }

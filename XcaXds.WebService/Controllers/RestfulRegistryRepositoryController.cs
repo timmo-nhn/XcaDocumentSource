@@ -16,13 +16,15 @@ public class RestfulRegistryRepositoryController : ControllerBase
     private readonly ILogger<RestfulRegistryRepositoryController> _logger;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly RegistryWrapper _registryWrapper;
+    private readonly RepositoryWrapper _repositoryWrapper;
     private readonly IVariantFeatureManager _featureManager;
 
-    public RestfulRegistryRepositoryController(ILogger<RestfulRegistryRepositoryController> logger, RestfulRegistryRepositoryService registryRestfulService, IVariantFeatureManager featureManager, RegistryWrapper registryWrapper)
+    public RestfulRegistryRepositoryController(ILogger<RestfulRegistryRepositoryController> logger, RestfulRegistryRepositoryService registryRestfulService, IVariantFeatureManager featureManager, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
     {
         _logger = logger;
         _restfulRegistryService = registryRestfulService;
         _registryWrapper = registryWrapper;
+        _repositoryWrapper = repositoryWrapper;
         _featureManager = featureManager;
     }
 
@@ -69,16 +71,31 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         var requestTimer = Stopwatch.StartNew();
 
-        var entry = _registryWrapper.GetDocumentRegistryContentAsDtos().FirstOrDefault(robj => robj.Id == id);
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
+        var association = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.SourceObject == id || assoc.TargetObject == id);
+        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == association?.TargetObject);
+        var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(docEnt => docEnt.Id == association?.SourceObject);
+
+        var documentReference = new DocumentReferenceDto()
+        {
+            Association = association,
+            DocumentEntry = documentEntry,
+            SubmissionSet = submissionSet,
+            Document = new()
+            {
+                Data = _repositoryWrapper.GetDocumentFromRepository(documentEntry.HomeCommunityId, documentEntry.RepositoryUniqueId, documentEntry.UniqueId),
+                DocumentId = documentEntry.UniqueId
+            }
+        };
         requestTimer.Stop();
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry");
 
-        if (entry != null)
+        if (documentEntry != null)
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {entry.Id} in {requestTimer.ElapsedMilliseconds} ms");
-            return Ok(entry);
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {documentEntry.Id} in {requestTimer.ElapsedMilliseconds} ms");
+            return Ok(documentReference);
         }
 
         return NotFound();
@@ -163,11 +180,11 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         var requestTimer = Stopwatch.StartNew();
 
-        _restfulRegistryService.PartiallyUpdateDocumentMetadata(documentReference);
+        var response = _restfulRegistryService.PartiallyUpdateDocumentMetadata(documentReference);
 
         requestTimer.Stop();
 
-        return Ok("ok");
+        return Ok(response);
     }
 
     [Produces("application/json")]

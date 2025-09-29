@@ -15,7 +15,6 @@ namespace XcaXds.WebService.Controllers;
 [ApiController]
 [Route("Registry/services")]
 [UsePolicyEnforcementPoint]
-[UseAuditLogging]
 public class XdsRegistryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;

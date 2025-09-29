@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Buffers.Text;
+﻿using Hl7.Fhir.Model;
 using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument;
@@ -10,7 +9,45 @@ using TS = XcaXds.Commons.Models.ClinicalDocument.Types.TS;
 
 namespace XcaXds.Commons.Services;
 
-public static class CdaTransformerService
+public static partial class CdaTransformerService
+{
+    public static DocumentReferenceDto TransformClinicalDocumentToRegistryObjects(ClinicalDocument clinicalDocument)
+    {
+        var documentReference = new DocumentReferenceDto();
+
+        documentReference.DocumentEntry = GetDoumentEntryFromClinicalDocument(clinicalDocument);
+
+        return documentReference;
+    }
+
+    private static DocumentEntryDto? GetDoumentEntryFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var documentEntry = new DocumentEntryDto();
+
+        documentEntry.Author = GetAuthorInfoFromClinicalDocument(clinicalDocument);
+
+        return documentEntry;
+    }
+
+    private static List<AuthorInfo>? GetAuthorInfoFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        if (clinicalDocument.RecordTarget?.FirstOrDefault()?.PatientRole?.ProviderOrganization == null) return null;
+
+        var authorInfo = new AuthorInfo();
+
+        var cdaAuthor = clinicalDocument.Author?.FirstOrDefault()?.AssignedAuthor;
+
+        var authorCdaName = cdaAuthor?.AssignedPerson;
+
+        var authorNames = authorCdaName?.Name?.SelectMany(an => an.Given);
+
+        
+
+        return [authorInfo];
+    }
+}
+
+public static partial class CdaTransformerService
 {
     /// <summary>
     /// Parse a provide and register request and transform into a CDA document.<para/>

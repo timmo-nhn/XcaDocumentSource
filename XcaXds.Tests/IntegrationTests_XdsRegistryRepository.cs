@@ -47,7 +47,6 @@ public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicati
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-
         var crossGatewayQuery = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml"))));
         var kjSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_KJ01"))));
         var hnSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_HN01"))));
@@ -78,7 +77,7 @@ public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicati
 
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        var firstResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
