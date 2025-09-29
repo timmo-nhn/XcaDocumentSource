@@ -43,10 +43,10 @@ public class SoapXmlSerializer
     {
         var byteArray = Encoding.UTF8.GetBytes(xmlString);
         var memStream = new MemoryStream(byteArray);
-        return DeserializeSoapMessage<T>(memStream);
+        return DeserializeXmlString<T>(memStream);
     }
 
-    public T DeserializeSoapMessage<T>(Stream xmlStream)
+    public T DeserializeXmlString<T>(Stream xmlStream)
     {
         var serializer = new XmlSerializer(typeof(T));
 

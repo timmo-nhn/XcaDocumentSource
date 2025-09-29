@@ -1,0 +1,14 @@
+{
+  "id": "deny-certain-roles",
+  "Rules": [
+      {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+        "value": "XX;VE;FB"
+      },
+      {
+        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+        "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+      }
+  ],
+  "effect": "Deny"
+}

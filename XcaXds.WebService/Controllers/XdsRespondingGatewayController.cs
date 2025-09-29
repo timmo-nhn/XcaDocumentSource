@@ -206,7 +206,7 @@ public class XdsRespondingGatewayController : ControllerBase
                     {
                         contentId = contentIdValues.First();
                     }
-
+                    
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {
                         Content = multipartContent

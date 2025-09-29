@@ -1,6 +1,6 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using System.Security.Cryptography.X509Certificates;
 
 namespace XcaXds.WebService.Services;
 
@@ -23,7 +23,6 @@ public class Saml2Validator
 
         _validationParameters = new TokenValidationParameters
         {
-
             ClockSkew = TimeSpan.FromMinutes(5),
             ValidAudiences = ["https://ptr1xds-reg.prod.drift.nhn.no/", "https://xds-web.test.nhn.no/", "nhn:dokumentdeling-saml"],
             ValidIssuers = ["https://helseid-xdssaml.prod.drift.nhn.no", "https://helseid-xdssaml.test.nhn.no", "sikkerhet.helsenorge.no"],
@@ -51,6 +50,9 @@ public class Saml2Validator
 
             if (!chain.Build(x509Key.Certificate))
             {
+                validationMessage = string.Join(", ",
+                    chain.ChainStatus.Select(s => $"{s.Status}: {s.StatusInformation}"));
+                validationMessage = $"Certificate chain invalid: {validationMessage}";
                 return false;
             }
             return true;

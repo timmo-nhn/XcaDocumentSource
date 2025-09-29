@@ -513,8 +513,8 @@ public class XdsOnFhirService
         }
 
 
-        var authorSpeciality = Hl7Object.Parse<CX>(authorClassification.GetSlots(Constants.Xds.SlotNames.AuthorSpecialty)?.GetValues().FirstOrDefault());
-        var authorRole = Hl7Object.Parse<CX>(authorClassification.GetSlots(Constants.Xds.SlotNames.AuthorRole)?.GetValues().FirstOrDefault());
+        var authorSpeciality = Hl7Object.Parse<CX>(authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorSpecialty)?.GetValues().FirstOrDefault());
+        var authorRole = Hl7Object.Parse<CX>(authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorRole)?.GetValues().FirstOrDefault());
 
         if (authorSpeciality != null && authorRole != null)
         {

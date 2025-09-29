@@ -137,8 +137,8 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
         );
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        var firstResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(firstResponse.Content.ReadAsStream());
-        var secondResponseSoap = sxmls.DeserializeSoapMessage<SoapEnvelope>(secondResponse.Content.ReadAsStream());
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+        var secondResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(secondResponse.Content.ReadAsStream());
 
         _policyRepositoryService.DeletePolicy(tempPolicyName);
         var gobb = await firstResponse.Content.ReadAsStringAsync();

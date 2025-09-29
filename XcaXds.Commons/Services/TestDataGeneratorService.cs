@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Services;
 
 public static class TestDataGeneratorService
 {
-    public static List<RegistryObjectDto> GenerateRegistryObjectsFromTestData(Test_DocumentReference documentEntryValues, int amount)
+    public static List<RegistryObjectDto> GenerateRegistryObjectsFromTestData(Test_DocumentReference documentEntryValues, int amount, int secondsToPotentiallyGoBack = 1_000_000)
     {
         var registryObjects = new List<RegistryObjectDto>();
 
@@ -18,7 +18,7 @@ public static class TestDataGeneratorService
         {
             var rng = new Random();
             var creationTime =
-                DateTime.UtcNow.AddSeconds(-rng.Next(1_000_000_000));
+                DateTime.UtcNow.AddSeconds(-rng.Next(secondsToPotentiallyGoBack));
 
             var documentEntry = new DocumentEntryDto()
             {
