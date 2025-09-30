@@ -1,6 +1,5 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using Hl7.Fhir.Model;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
@@ -36,6 +35,11 @@ public static partial class CdaTransformerService
         documentEntry.HomeCommunityId = GetHomeCommunityIdFromClinicalDocument(clinicalDocument);
 
         return documentEntry;
+    }
+
+    private static string? GetHomeCommunityIdFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        throw new NotImplementedException();
     }
 
     private static string? GetHashFromClinicalDocument(ClinicalDocument clinicalDocument)

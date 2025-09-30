@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Services;
 
 public static class TestDataGeneratorService
 {
-    public static List<RegistryObjectDto> GenerateRegistryObjectsFromTestData(Test_DocumentReference documentEntryValues, int amount, int secondsToPotentiallyGoBack = 1_000_000)
+    public static List<RegistryObjectDto> GenerateRegistryObjectsFromTestData(Test_DocumentReference documentEntryValues, int amount)
     {
         var registryObjects = new List<RegistryObjectDto>();
 
@@ -17,8 +17,7 @@ public static class TestDataGeneratorService
         while (maxCount < amount)
         {
             var rng = new Random();
-            var creationTime =
-                DateTime.UtcNow.AddSeconds(-rng.Next(secondsToPotentiallyGoBack));
+            var creationTime = DateTime.UtcNow.AddSeconds(-rng.Next(100_000_000));
 
             var documentEntry = new DocumentEntryDto()
             {
@@ -37,7 +36,7 @@ public static class TestDataGeneratorService
                 LegalAuthenticator = PickRandom(documentEntryValues.PossibleDocumentEntryValues.LegalAuthenticators),
                 MimeType = PickRandom(documentEntryValues.PossibleDocumentEntryValues.MimeTypes),
                 ObjectType = PickRandom(documentEntryValues.PossibleDocumentEntryValues.ObjectTypes),
-                PatientId = PickRandom(documentEntryValues.PossibleDocumentEntryValues.PatientIdentifiers),
+                PatientId = PickRandom(documentEntryValues.PossibleDocumentEntryValues.SourcePatientInfos.Select(spi => new CodedValue() { Code = spi.PatientId?.Id, CodeSystem = spi.PatientId?.System })),
                 PracticeSettingCode = PickRandom(documentEntryValues.PossibleDocumentEntryValues.PracticeSettingCodes),
                 RepositoryUniqueId = PickRandom(documentEntryValues.PossibleDocumentEntryValues.RepositoryUniqueIds),
                 ServiceStartTime = creationTime.AddSeconds(-rng.Next(10_000, 20_000)),

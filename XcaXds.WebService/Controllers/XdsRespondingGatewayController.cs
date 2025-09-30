@@ -1,18 +1,16 @@
-using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -27,8 +25,17 @@ public class XdsRespondingGatewayController : ControllerBase
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
+    private readonly MonitoringStatusService _monitoringService;
 
-    public XdsRespondingGatewayController(ILogger<XdsRespondingGatewayController> logger, ApplicationConfig xdsConfig, XdsRegistryService xdsRegistryService, XdsRepositoryService xdsRepositoryService, IVariantFeatureManager featureManager, IHttpClientFactory httpClientFactory)
+    public XdsRespondingGatewayController(
+        ILogger<XdsRespondingGatewayController> logger,
+        ApplicationConfig xdsConfig,
+        XdsRegistryService xdsRegistryService,
+        XdsRepositoryService xdsRepositoryService,
+        IVariantFeatureManager featureManager,
+        IHttpClientFactory httpClientFactory,
+        MonitoringStatusService monitoringService
+        )
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
@@ -36,6 +43,7 @@ public class XdsRespondingGatewayController : ControllerBase
         _featureManager = featureManager;
         _xdsRegistryService = xdsRegistryService;
         _httpClientFactory = httpClientFactory;
+        _monitoringService = monitoringService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related", "application/xop+xml")]
@@ -63,7 +71,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 var iti38AsyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
 
                 iti38AsyncReplyTo = iti38AsyncReplyTo.Replace("10.89.0.90", "pjd-ehs.test.nhn.no");
-                
+
                 if (string.IsNullOrEmpty(iti38AsyncReplyTo))
                     throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
 
@@ -121,7 +129,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 var iti39AyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
 
-                iti38AsyncReplyTo = iti39AyncReplyTo.Replace("10.89.0.90","pjd-ehs.test.nhn.no");
+                iti38AsyncReplyTo = iti39AyncReplyTo.Replace("10.89.0.90", "pjd-ehs.test.nhn.no");
 
 
                 if (string.IsNullOrEmpty(iti39AyncReplyTo))
@@ -178,7 +186,6 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
 
-
                 return Accepted();
 
 
@@ -206,7 +213,7 @@ public class XdsRespondingGatewayController : ControllerBase
                     {
                         contentId = contentIdValues.First();
                     }
-                    
+
                     var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
                     {
                         Content = multipartContent
@@ -214,6 +221,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     requestTimer.Stop();
                     _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                    _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
@@ -238,6 +246,8 @@ public class XdsRespondingGatewayController : ControllerBase
 
         requestTimer.Stop();
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+
+        _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 
         return Ok(responseEnvelope);
     }

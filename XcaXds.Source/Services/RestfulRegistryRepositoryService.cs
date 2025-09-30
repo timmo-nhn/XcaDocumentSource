@@ -310,7 +310,14 @@ public class RestfulRegistryRepositoryService
         var apiResponse = new RestfulApiResponse();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var deleteResponse = _repositoryWrapper.DeleteSingleDocument(id);
+        var documentEntryForDocument = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(de => de.Id == id);
+
+        var deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument.Id);
+
+        if (deleteResponse == false)
+        {
+            deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument.UniqueId);
+        }
 
         if (deleteResponse == false)
         {
