@@ -1,9 +1,11 @@
-﻿using Hl7.Fhir.Model;
+﻿using System.Security.Cryptography;
 using System.Text;
+using Hl7.Fhir.Model;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Serializers;
 using CE = XcaXds.Commons.Models.ClinicalDocument.Types.CE;
 using TS = XcaXds.Commons.Models.ClinicalDocument.Types.TS;
 
@@ -25,8 +27,94 @@ public static partial class CdaTransformerService
         var documentEntry = new DocumentEntryDto();
 
         documentEntry.Author = GetAuthorInfoFromClinicalDocument(clinicalDocument);
+        documentEntry.AvailabilityStatus = Constants.Xds.StatusValues.Approved;
+        documentEntry.ClassCode = GetClassCodeFromClinicalDocument(clinicalDocument);
+        documentEntry.ConfidentialityCode = GetConfidentialityCodeFromClinicalDocument(clinicalDocument);
+        documentEntry.CreationTime = GetCreationTimeFromClinicalDocument(clinicalDocument);
+        documentEntry.FormatCode = GetFormatCodeFromClinicalDocument(clinicalDocument);
+        documentEntry.Hash = GetHashFromClinicalDocument(clinicalDocument);
+        documentEntry.HomeCommunityId = GetHomeCommunityIdFromClinicalDocument(clinicalDocument);
 
         return documentEntry;
+    }
+
+    private static string? GetHashFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var sxmls = new SoapXmlSerializer();
+        var cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
+        if (cdaXml == null) return null;
+
+        using var md5 = MD5.Create();
+        var inputBytes = Encoding.UTF8.GetBytes(cdaXml);
+        var hashBytes = md5.ComputeHash(inputBytes);
+
+        return Convert.ToHexString(hashBytes);
+    }
+
+    private static CodedValue? GetFormatCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var formatCode = clinicalDocument.Code;
+        if (formatCode == null) return null;
+
+        return new()
+        {
+            Code = formatCode.Code,
+            CodeSystem = formatCode.CodeSystem,
+            DisplayName = formatCode.DisplayName
+        };
+    }
+
+    private static DateTime? GetCreationTimeFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        return clinicalDocument.EffectiveTime.EffectiveTime.UtcDateTime;
+    }
+
+    private static List<CodedValue>? GetConfidentialityCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var cdaConfidentialityCode = clinicalDocument.ConfidentialityCode;
+        if (cdaConfidentialityCode == null) return null;
+
+        return [new() 
+        { 
+            Code = cdaConfidentialityCode.Code, 
+            CodeSystem = cdaConfidentialityCode.CodeSystem, 
+            DisplayName = cdaConfidentialityCode.DisplayName 
+        }];
+    }
+
+    private static CodedValue? GetClassCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        return new CodedValue()
+        { 
+            // https://finnkode.helsedirektoratet.no/adm/collections/9602?q=9602
+            Code = clinicalDocument.Code?.Code switch
+            {
+                string code when code.StartsWith("A") => "A00-1",
+                string code when code.StartsWith("B") => "B00-1",
+                string code when code.StartsWith("C") => "C00-1",
+                string code when code.StartsWith("D") => "D00-1",
+                string code when code.StartsWith("E") => "E00-1",
+                string code when code.StartsWith("F") => "F00-1",
+                string code when code.StartsWith("I") => "I00-1",
+                string code when code.StartsWith("J") => "J00-1",
+                string code when code.StartsWith("S") => "S00-1",
+                _ => clinicalDocument.Code?.Code
+            },
+            CodeSystem = clinicalDocument.Code?.CodeSystem,
+            DisplayName = clinicalDocument.Code?.Code switch
+            {
+                string code when code.StartsWith("A") => "Epikriser og sammenfatninger",
+                string code when code.StartsWith("B") => "Kontinuerlig/løpende journal",
+                string code when code.StartsWith("C") => "Prøvesvar, vev og væsker",
+                string code when code.StartsWith("D") => "Organfunksjon",
+                string code when code.StartsWith("E") => "Bildediagnostikk",
+                string code when code.StartsWith("F") => "Kurve, observasjon og behandling",
+                string code when code.StartsWith("I") => "Korrespondanse",
+                string code when code.StartsWith("J") => "Attester, melding og erklæringer",
+                string code when code.StartsWith("S") => "Test og scoring",
+                _ => clinicalDocument.Code?.DisplayName
+            }
+        };
     }
 
     private static List<AuthorInfo>? GetAuthorInfoFromClinicalDocument(ClinicalDocument clinicalDocument)
@@ -35,16 +123,91 @@ public static partial class CdaTransformerService
 
         var authorInfo = new AuthorInfo();
 
-        var cdaAuthor = clinicalDocument.Author?.FirstOrDefault()?.AssignedAuthor;
+        var assignedAuthor = clinicalDocument.Author?.FirstOrDefault()?.AssignedAuthor;
+        authorInfo.Person = GetAuthorPersonFromClinicalDocument(assignedAuthor);
 
-        var authorCdaName = cdaAuthor?.AssignedPerson;
+        var department = clinicalDocument.Author?.FirstOrDefault()?.AssignedAuthor?.RepresentedOrganization;
+        authorInfo.Department = GetAuthorDepartmentFromClinicalDocument(department);
 
-        var authorNames = authorCdaName?.Name?.SelectMany(an => an.Given);
-
-        
+        var organization = clinicalDocument.Author?.FirstOrDefault()?.AssignedAuthor?.RepresentedOrganization?.AsOrganizationPartOf?.WholeOrganization;
+        authorInfo.Organization = GetAuthorOrganizationFromClinicalDocument(organization);
 
         return [authorInfo];
     }
+
+
+    private static AuthorPerson? GetAuthorPersonFromClinicalDocument(AssignedAuthor? assignedAuthor)
+    {
+        if (assignedAuthor == null) return null;
+
+        var authorPerson = new AuthorPerson();
+
+        var authorCdaName = assignedAuthor?.AssignedPerson;
+
+        var authorNames = authorCdaName?.Name?
+            .SelectMany(nme =>
+            {
+                var prefix = nme.Prefix?.Select(g => g.Value) ?? Enumerable.Empty<string>();
+                var given = nme.Given?.Select(g => g.Value) ?? Enumerable.Empty<string>();
+                var family = nme.Family?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+                var suffix = nme.Suffix?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+                return new[]
+                {
+                    string.Join(" ", prefix.Concat(given)),
+                    string.Join(" ", family.Concat(suffix))
+                };
+            }).ToList();
+
+        authorPerson = new()
+        {
+            FirstName = authorNames?.FirstOrDefault(),
+            LastName = authorNames?.LastOrDefault()
+        };
+
+        var cdaAuthorId = assignedAuthor?.Id?.FirstOrDefault();
+
+        authorPerson.Id = cdaAuthorId?.Extension;
+        authorPerson.AssigningAuthority = cdaAuthorId?.Root;
+
+        return authorPerson;
+    }
+
+    private static AuthorOrganization? GetAuthorDepartmentFromClinicalDocument(Organization? department)
+    {
+        if (department == null) return null;
+
+        var authorDepartment = new AuthorOrganization();
+
+        authorDepartment.AssigningAuthority = department.Id?.FirstOrDefault()?.Root;
+        authorDepartment.Id = department.Id?.FirstOrDefault()?.Extension;
+        authorDepartment.OrganizationName = department.Name?.FirstOrDefault()?.XmlText;
+
+        return authorDepartment;
+    }
+
+    private static AuthorOrganization? GetAuthorOrganizationFromClinicalDocument(Organization? organization)
+    {
+        if (organization == null) return null;
+
+        var authorOrganization = new AuthorOrganization();
+
+        authorOrganization.AssigningAuthority = organization.Id?.FirstOrDefault()?.Root;
+        authorOrganization.Id = organization.Id?.FirstOrDefault()?.Extension;
+        authorOrganization.OrganizationName = organization.Name?.FirstOrDefault()?.XmlText;
+
+        return authorOrganization;
+    }
+
+    private static CodedValue? GetAuthorSpecialityFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static CodedValue? GetAuthorRoleFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        throw new NotImplementedException();
+    }
+
 }
 
 public static partial class CdaTransformerService
@@ -134,7 +297,6 @@ public static partial class CdaTransformerService
     private static AssignedAuthor SetAssignedAuthor(AuthorInfo authorInfo)
     {
         var assignedAuthor = new AssignedAuthor();
-
         if (authorInfo != null && authorInfo.Person != null)
         {
             assignedAuthor.Id ??= new();
@@ -145,6 +307,12 @@ public static partial class CdaTransformerService
             });
 
             assignedAuthor.AssignedPerson = SetAssignedPerson(authorInfo.Person);
+            assignedAuthor.Code = new()
+            {
+                Code = authorInfo.Role?.Code,
+                CodeSystem = authorInfo.Role?.CodeSystem,
+                DisplayName = authorInfo.Role?.DisplayName,
+            };
         }
         return assignedAuthor;
     }
