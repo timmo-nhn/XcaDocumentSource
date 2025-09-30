@@ -8,6 +8,7 @@ using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
+using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
@@ -86,6 +87,7 @@ public class Program
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<RepositoryWrapper>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
+        builder.Services.AddSingleton<MonitoringStatusService>();
         builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();

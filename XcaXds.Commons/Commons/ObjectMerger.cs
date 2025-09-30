@@ -11,7 +11,7 @@ public static class ObjectMerger
     {
         if (target == null) return;
 
-        var props = target.GetType().GetProperties();
+        var props = target.GetType().GetProperties().Where(prop => prop.GetValue(target) != null);
 
         foreach (var property in props)
         {

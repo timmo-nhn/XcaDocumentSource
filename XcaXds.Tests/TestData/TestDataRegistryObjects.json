@@ -2312,23 +2312,6 @@
     "objectTypes": [
       "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1"
     ],
-    "patientIdentifiers": [
-      {
-        "code": "13116900216",
-        "codeSystem": "2.16.578.1.12.4.1.4.1",
-        "displayName": null
-      },
-      {
-        "code": "12119000465",
-        "codeSystem": "2.16.578.1.12.4.1.4.1",
-        "displayName": null
-      },
-      {
-        "code": "27888498775",
-        "codeSystem": "2.16.578.1.12.4.1.4.1",
-        "displayName": null
-      }
-    ],
     "practiceSettingCodes": [
       {
         "code": "1",
@@ -2396,6 +2379,7 @@
         "displayName": "9"
       }
     ],
+
     "repositoryUniqueIds": [
       null
     ],
@@ -2414,6 +2398,36 @@
         "firstName": "Line",
         "lastName": "Danser",
         "birthTime": "1969-11-13T00:00:00.000Z",
+        "gender": "F"
+      },
+      {
+        "patientId": {
+          "id": "02835998374",
+          "system": "2.16.578.1.12.4.1.4.1"
+        },
+        "firstName": "Autorisert",
+        "lastName": "Jul",
+        "birthTime": "1959-03-02T00:00:00Z",
+        "gender": "M"
+      },
+      {
+        "patientId": {
+          "id": "17855599120",
+          "system": "2.16.578.1.12.4.1.4.1"
+        },
+        "firstName": "Usnobbet",
+        "lastName": "Klokke",
+        "birthTime": "1955-05-17T00:00:00Z",
+        "gender": "M"
+      },
+      {
+        "patientId": {
+          "id": "08777634659",
+          "system": "2.16.578.1.12.4.1.4.1"
+        },
+        "firstName": "Ulydig",
+        "lastName": "Bolle",
+        "birthTime": "1976-12-08T00:00:00Z",
         "gender": "F"
       },
       {

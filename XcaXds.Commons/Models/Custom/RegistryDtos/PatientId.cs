@@ -2,6 +2,6 @@
 
 public class PatientId
 {
-    public string Id { get; set; }
-    public string System { get; set; }
+    public string? Id { get; set; }
+    public string? System { get; set; }
 }

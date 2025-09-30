@@ -15,8 +15,8 @@ public class Test_DocumentEntryValues
     public List<LegalAuthenticator> LegalAuthenticators { get; set; }
     public List<string> MimeTypes { get; set; }
     public List<string> ObjectTypes { get; set; }
-    public List<CodedValue> PatientIdentifiers { get; set; }
-    public List<CodedValue> PracticeSettingCodes { get; set; }
+    public List<CodedValue>? PatientIdentifiers { get; set; }
+    public List<CodedValue>? PracticeSettingCodes { get; set; }
     public List<string> RepositoryUniqueIds { get; set; }
     public List<DateTime> ServiceStartTimes { get; set; }
     public List<DateTime> ServiceStopTimes { get; set; }
