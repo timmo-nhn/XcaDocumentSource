@@ -85,4 +85,22 @@ public class UnitTests_ClinicalDocument
         var cdaXml = sxmls.SerializeSoapMessageToXmlString(cdaDocument).Content;
         var cdaDocumentAgain = sxmls.DeserializeSoapMessage<ClinicalDocument>(cdaXml);
     }
+
+    [Fact]
+    public async Task TransformCdaToRegistryObjects()
+    {
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
+
+        foreach (var file in testDataFiles.Where(fl => fl.Contains("cda",StringComparison.CurrentCultureIgnoreCase)) ?? [])
+        {
+            var cdaXml = File.ReadAllText(file);
+
+            var sxmls = new SoapXmlSerializer();
+
+            var cdaDocument = sxmls.DeserializeSoapMessage<ClinicalDocument>(cdaXml);
+
+            var documentReference = CdaTransformerService.TransformClinicalDocumentToRegistryObjects(cdaDocument);
+
+        }
+    }
 }
