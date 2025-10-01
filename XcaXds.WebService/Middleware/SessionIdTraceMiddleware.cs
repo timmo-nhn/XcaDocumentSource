@@ -30,7 +30,7 @@ public class SessionIdTraceMiddleware
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
-        if (httpContext.Request.ContentType != null && (httpContext.Request.ContentType.Contains(Constants.MimeTypes.XopXml) || httpContext.Request.ContentType.Contains(Constants.MimeTypes.MultipartRelated)))
+        if (httpContext.Request.ContentType != null && (httpContext.Request.ContentType.Contains(Constants.MimeTypes.MultipartRelated)))
         {
             requestBody = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(httpContext);
         }
@@ -44,7 +44,7 @@ public class SessionIdTraceMiddleware
 
                 var sxmls = new SoapXmlSerializer();
 
-                var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestBody);
+                var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestBody.Trim());
 
                 httpContext.TraceIdentifier = soapEnvelope.Header.MessageId ?? Guid.NewGuid().ToString();
 
