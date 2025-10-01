@@ -189,6 +189,15 @@ public static class PolicyRequestMapperSamlService
 
             try
             {
+                // If-statements to fix Helsenorge STS values not being proper GUIDs
+                if (attribute.Name.Contains("SecurityLevel"))
+                {
+                    attribute.Name = "urn:no:ehelse:saml:1.0:subject:SecurityLevel";
+                }
+                if (attribute.Name.Contains("Scope"))
+                {
+                    attribute.Name = "urn:no:ehelse:saml:1.0:subject:Scope";
+                }
 
                 // If its structured codedvalue format or just plain text
                 if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.Code) &&
