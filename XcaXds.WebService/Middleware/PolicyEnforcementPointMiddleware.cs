@@ -92,10 +92,11 @@ public class PolicyEnforcementPointMiddleware
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Body:\n{requestBody}");
 
-        if (requestBody.StartsWith("--MIMEBoundary") || httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("MIMEBoundary")))
+        if (httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("boundary")))
         {
             requestBody = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(httpContext);
         }
+        requestBody = requestBody.Trim();
 
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
