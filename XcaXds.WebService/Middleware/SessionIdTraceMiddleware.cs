@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Commons;
+﻿using Hl7.Fhir.Model.CdsHooks;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
@@ -29,7 +30,7 @@ public class SessionIdTraceMiddleware
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
-        if (requestBody.StartsWith("--MIMEBoundary") || httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("MIMEBoundary")))
+        if (httpContext.Request.ContentType != null && (httpContext.Request.ContentType.Contains(Constants.MimeTypes.XopXml) || httpContext.Request.ContentType.Contains(Constants.MimeTypes.MultipartRelated)))
         {
             requestBody = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(httpContext);
         }
