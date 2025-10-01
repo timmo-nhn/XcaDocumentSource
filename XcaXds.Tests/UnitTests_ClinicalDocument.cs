@@ -1,3 +1,4 @@
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
@@ -13,7 +14,7 @@ public class UnitTests_ClinicalDocument
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         foreach (var file in testDataFiles)
         {
@@ -37,7 +38,7 @@ public class UnitTests_ClinicalDocument
     //{
     //    var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
-    //    var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+    //    var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
     //    foreach (var file in testDataFiles)
     //    {
@@ -99,8 +100,9 @@ public class UnitTests_ClinicalDocument
 
             var cdaDocument = sxmls.DeserializeSoapMessage<ClinicalDocument>(cdaXml);
 
-            var documentReference = CdaTransformerService.TransformClinicalDocumentToRegistryObjects(cdaDocument);
+            var documentReference = CdaTransformerService.TransformClinicalDocumentToRegistryObjects(cdaDocument, "2.16.578.1.12.4.5.100.1", "2.16.578.1.12.4.5.100.1.2");
 
+            var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(documentReference);
         }
     }
 }

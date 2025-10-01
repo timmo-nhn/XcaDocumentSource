@@ -3,6 +3,7 @@ using Hl7.Fhir.Serialization;
 using Hl7.Fhir.Utility;
 using Microsoft.Extensions.Logging;
 using Moq;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
@@ -47,7 +48,7 @@ public class UnitTests_Fhir
 
         var adhocquery = xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
 
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var adhocquerystring = sxmls.SerializeSoapMessageToXmlString(adhocquery);
     }

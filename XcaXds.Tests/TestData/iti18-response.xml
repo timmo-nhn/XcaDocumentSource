@@ -1,0 +1,3288 @@
+<Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2003/05/soap-envelope">
+  <Header>
+    <Action xmlns="http://www.w3.org/2005/08/addressing">urn:ihe:iti:2007:CrossGatewayQueryResponse</Action>
+    <RelatesTo xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</RelatesTo>
+  </Header>
+  <Body>
+    <AdhocQueryResponse status="urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+      <RegistryObjectList xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+        <ExtrinsicObject id="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>19980121032910</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>13890497696^^EPISK^GAUPE^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>19980121010457</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>19980121021127</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Overvåkningsnotat - Intensivavdeling" />
+          </Name>
+          <Classification id="b7da8872-c3ba-4ed2-b1dc-a4c34fda133c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>10816898728^ALT^LILLA^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>OSLO UNIVERSITETSSYKEHUS HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^993467049</Value>
+                <Value />
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>9^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>57^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="b530afda-4255-4095-a6b1-6c0e597c85f9" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>10816898728^ALT^LILLA^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>DIPS AS^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^979543883</Value>
+                <Value>Kreftavdeling - Sykehuset Innlandet^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213056</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>13^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="7c64a6c6-418f-4a2e-9763-8b9eb5914f12" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" nodeRepresentation="D00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Organfunksjon" />
+            </Name>
+          </Classification>
+          <Classification id="dae72a3f-eaa8-4257-91e9-09e40f326c45" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="591e1838-6479-4795-a01f-c1059a6e56d5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="229fdc6d-dbbc-4ebb-b9fb-c89af3d13b7d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="784b229e-c599-41dc-9336-386bd62530ba" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="1f39acc2-2957-4afe-87ce-3763b80fb63b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" nodeRepresentation="86.101">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Alminnelige somatiske sykehus" />
+            </Name>
+          </Classification>
+          <Classification id="264219bb-1a1a-49f1-9391-7c353198844a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="2" />
+            </Name>
+          </Classification>
+          <Classification id="40b61164-1110-4912-9c86-39cd7f12b5b6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="C05-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Klinisk farmakologi" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="9aa257d8-06e6-4d3a-b9ae-f090a7c3d994" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="ce9f072e-9c21-40a8-8a8b-82ca96227716" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="d64e34ac-1ecf-4100-9e71-d6589d90a4a9" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="997a2840-3fa2-44da-9cbc-a2a5b070e3fb">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="08058298-bf4e-4adf-8c5a-21630ee5abc2" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20000220050901</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>03866197813^^SELVHJULPEN^BRETT^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20000220003455</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20000220034922</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Innkomstskjema - Fødeavdeling" />
+          </Name>
+          <Classification id="0a83a12f-9e1e-451a-8c40-653cdd6933d2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="08058298-bf4e-4adf-8c5a-21630ee5abc2">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>10925099231^ODDE^DYPSINDIG^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Mørkved Legesenter^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^999537634</Value>
+                <Value>Infeksjonsmedisinsk vaktteam - OUS Ullevål^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213189</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>192^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="02da583d-e9d2-4572-90e7-37d8a573433e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" nodeRepresentation="E00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Bildediagnostikk" />
+            </Name>
+          </Classification>
+          <Classification id="23c7f912-2d04-42ec-b864-4d15fc1868f0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="1f2b1e8d-623e-4140-9fe8-87c1dac27e28" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="a726d96c-4719-4ad1-a45e-1aab98ed8bf5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="00691ea7-763b-4a21-90bf-346a0a47e34c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="977f5dec-0c27-47aa-8d07-471903cd17d6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" nodeRepresentation="87.303">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Bofellesskap for eldre og funksjonshemmede med fast tilknyttet personell deler av døgnet" />
+            </Name>
+          </Classification>
+          <Classification id="3e92cc0c-79b8-401c-9618-7d69d0686850" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="2" />
+            </Name>
+          </Classification>
+          <Classification id="01178f8f-fde8-4869-9f95-18800aa2582a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="F02-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Anestesi- og opr. Rapporter" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="2c981a66-265c-4abf-a3e2-d50b8e8cc8c6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="f712e4ab-947e-4c13-88b8-29b8e9411f94" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="08058298-bf4e-4adf-8c5a-21630ee5abc2" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="27647023-7a48-4674-b8a0-366f3bf36536">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="45206491-0d7c-4746-9509-8b5023bb77f0" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20070111131338</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>26878897330^^FASCINERENDE^RADIOSTASJON^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20070111115319</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20070111141208</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>27888498775^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|27888498775^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Savanne^Rettferdig</Value>
+              <Value>PID-7|19840827</Value>
+              <Value>PID-8|M</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Oppfølging etter innleggelse - Medisinsk vurdering" />
+          </Name>
+          <Classification id="9a3c1ea1-c48a-4c2b-b7a5-74baf5b8119f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="45206491-0d7c-4746-9509-8b5023bb77f0">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>03850398185^HOPPE^LIVSTRETT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Sykehuset Innlandet, Hamar^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^974724960</Value>
+                <Value>Geriatrisk sengepost - Lovisenberg Diakonale Sykehus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213090</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>19^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="87c5d733-482c-4b98-bbb5-3c621b11ba2a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="45206491-0d7c-4746-9509-8b5023bb77f0" nodeRepresentation="E00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Bildediagnostikk" />
+            </Name>
+          </Classification>
+          <Classification id="4f68e223-00f4-4541-bc69-95261b1c60da" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="45206491-0d7c-4746-9509-8b5023bb77f0" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="30af2f50-f8ed-460c-be52-2ec1343f98fe" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="45206491-0d7c-4746-9509-8b5023bb77f0" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="61a04f68-21d3-419f-a6e9-f0753dab1bdc" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="45206491-0d7c-4746-9509-8b5023bb77f0" nodeRepresentation="87.102">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Somatiske sykehjem" />
+            </Name>
+          </Classification>
+          <Classification id="2a9f9b3f-f006-48a1-a685-b0b88c183c3c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="17fe913f-cc6b-4419-9b76-c7b1034ca704" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="D10-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Hud" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="c3298420-95e6-4529-8724-4d93fe36d1dc" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="45206491-0d7c-4746-9509-8b5023bb77f0" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="bbe91008-73a1-4244-974a-c519bbdc6731" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="45206491-0d7c-4746-9509-8b5023bb77f0" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="4955f740-0be2-49f3-9e67-039f0a00ad6c">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="e0aba4e6-7b8b-4337-a3c7-599da65397c4" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20120920090337</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>27905697442^^MATEHOLDEN^DOR^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20120920074740</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20120920091934</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>12119000465^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|12119000465^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Fos Bogen^Malin</Value>
+              <Value>PID-7|19901112</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Pasientnotat - Samtykke og informasjon" />
+          </Name>
+          <Classification id="8fdc57b9-c3ef-4675-b354-efa155c99430" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="e0aba4e6-7b8b-4337-a3c7-599da65397c4">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>41837701048^FLOYTE^KRY^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>VOSS HERAD^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^960510542</Value>
+                <Value>Anestesiavdeling - Ahus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213001</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>2^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="9e1eeb19-495d-4b7a-bcb7-28257ec7bdc6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="e0aba4e6-7b8b-4337-a3c7-599da65397c4" nodeRepresentation="D00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Organfunksjon" />
+            </Name>
+          </Classification>
+          <Classification id="61dd1df7-9c62-407a-93b8-3cb985c91dd3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="e0aba4e6-7b8b-4337-a3c7-599da65397c4" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="09a35ebf-2e08-4bf9-b54c-8405f4818d91" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="e0aba4e6-7b8b-4337-a3c7-599da65397c4" nodeRepresentation="87.202">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Omsorgsinstitusjoner for rusmiddelmisbrukere" />
+            </Name>
+          </Classification>
+          <Classification id="557e6ee8-47cc-45d1-90a7-b857a17e8fb0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="5">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="5" />
+            </Name>
+          </Classification>
+          <Classification id="ef84aff7-768f-45d9-b7c3-dbcb0f8ea1d7" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="B02-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Journalnotat" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="54eb4872-120f-43a5-a0d5-1ecc53f984b2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="e0aba4e6-7b8b-4337-a3c7-599da65397c4" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="47b43365-4967-4bb6-a1b2-0d812a940bbb" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="e0aba4e6-7b8b-4337-a3c7-599da65397c4" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="84bf8218-82a1-481d-96f1-5e6f872427a0">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="7eb41867-9b05-4176-b8b0-1f4e90775fc2" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20190326223022</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>24894497366^^HANDLAGET^BASS^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20190326200200</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20190327000928</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>12119000465^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|12119000465^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Fos Bogen^Malin</Value>
+              <Value>PID-7|19901112</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Konsultasjonsnotat - Fastlege" />
+          </Name>
+          <Classification id="114ad868-d29d-4f32-a16b-1ad86edd9179" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="7eb41867-9b05-4176-b8b0-1f4e90775fc2">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>02906499765^HIMMEL^FORDEKT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>PRIDOK AS^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^912719103</Value>
+                <Value>Infeksjonsmedisin - St. Olavs hospital^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213012</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="7aeac15a-90fb-409a-959c-a3d789fb41b7" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="7eb41867-9b05-4176-b8b0-1f4e90775fc2" nodeRepresentation="I00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Korrespondanse" />
+            </Name>
+          </Classification>
+          <Classification id="b3ae8d7c-35ac-40ec-9064-b110b5b67bf1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="7eb41867-9b05-4176-b8b0-1f4e90775fc2" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="78cb0fe5-dd94-4444-abac-8cbd0f358ec0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="7eb41867-9b05-4176-b8b0-1f4e90775fc2" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="8e4935df-abca-4ece-8114-28b433206151" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="7eb41867-9b05-4176-b8b0-1f4e90775fc2" nodeRepresentation="86.905">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Klinisk psykologtjeneste" />
+            </Name>
+          </Classification>
+          <Classification id="11f6bc57-2614-4944-afe6-dca255389018" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="8e85507f-657e-49c4-9d38-7e14de63ae1a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="A13-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Poliklinisk epikrise" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="bebc4715-ead9-4860-b896-b1000c376a73" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="7eb41867-9b05-4176-b8b0-1f4e90775fc2" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="c2a6d520-46fc-4f93-bf64-a79d207574eb" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="7eb41867-9b05-4176-b8b0-1f4e90775fc2" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="b8037eb4-f10e-489a-bdb4-20ce4e27a628">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="01023b9f-2c21-4cf9-aef6-f809eb4ad957" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20200414152950</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>08884699909^^FREDELIG^BOT^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20200414133126</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20200414160637</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Medisinsk oppsummering etter utskrivelse" />
+          </Name>
+          <Classification id="c9ee4a07-a5e3-4f59-9db8-e41543ec35e6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>21877699800^SVIGERINNE^TROFAST^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>GLøSHAUGEN LEGESENTER DA^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^996374653</Value>
+                <Value>Barne- og ungdomsavdeling - UNN Tromsø^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213078</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>4^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="cfe81b48-a40c-47a5-841b-994943c19fa8" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" nodeRepresentation="I00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Korrespondanse" />
+            </Name>
+          </Classification>
+          <Classification id="5ccc2ab4-5420-40f7-85c9-869d4e01f1a8" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="1d7a5e8b-560c-42b7-a2b6-ee1b41c2e8c1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="3c86b133-016c-4b45-87c7-371e88032ae1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="7aa9baab-b7eb-4d51-b472-efe66bb0976a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="1cae3b5e-70de-40ef-8274-f977fcab488a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" nodeRepresentation="86.101">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Alminnelige somatiske sykehus" />
+            </Name>
+          </Classification>
+          <Classification id="58af36f3-41ef-4d4f-a9f3-18cbe43ce44d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="9">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="9" />
+            </Name>
+          </Classification>
+          <Classification id="d0a57653-e4ce-467e-bbf3-1294e390d010" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="A12-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Utskrivings-/Pasientorientering" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="f84ce31b-26a8-4ee5-81bd-732ef32d7441" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="40c62e06-3cc3-4775-9de8-46021440549a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="01023b9f-2c21-4cf9-aef6-f809eb4ad957" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="224fda3a-b3a7-4929-b07f-1803b2bda589">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="e6923f04-319b-4ed7-8b69-2165b070c59a" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20090522083452</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>26866896762^^ALDRENDE^HANDLINGSEVNE^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20090522051923</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20090522080855</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Pasientnotat - Samtykke og informasjon" />
+          </Name>
+          <Classification id="dcd9a29a-1b2c-4a9f-b0e2-0dc7b484132c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="e6923f04-319b-4ed7-8b69-2165b070c59a" nodeRepresentation="A00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Epikriser og Sammenfatninger" />
+            </Name>
+          </Classification>
+          <Classification id="a08fd010-0a94-4f38-acd3-f91e201b61c1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="e6923f04-319b-4ed7-8b69-2165b070c59a" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="de0d3353-f7a0-4c43-80a1-1c1ed50a140a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="e6923f04-319b-4ed7-8b69-2165b070c59a" nodeRepresentation="NORS">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Sperret" />
+            </Name>
+          </Classification>
+          <Classification id="8463bab4-00df-4ab7-ad25-d899d0fcccba" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="e6923f04-319b-4ed7-8b69-2165b070c59a" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="3e5b0859-b399-4d1b-8ba3-603505d72fbe" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="e6923f04-319b-4ed7-8b69-2165b070c59a" nodeRepresentation="86.903">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Helsestasjons- og skolehelsetjeneste" />
+            </Name>
+          </Classification>
+          <Classification id="41310f8e-aaf7-4517-85d4-02951ba77835" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="b5b4d65d-0a70-4780-b162-d2f81631d521" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="B02-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Journalnotat" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="a5313343-7f5c-4a4a-a6ce-aa9cb8cfd7d3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="e6923f04-319b-4ed7-8b69-2165b070c59a" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="af193ddc-9c05-4671-9a9e-cb9733bc4da7" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="e6923f04-319b-4ed7-8b69-2165b070c59a" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="2f8da0a0-f028-415d-b959-477267c4262a">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="6eb7ce55-5524-4657-a30b-03dc7c079ae5" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>19980823201201</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>03866197813^^SELVHJULPEN^BRETT^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>19980823165646</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>19980823212332</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Behandlingsnotat - Somatiske plager" />
+          </Name>
+          <Classification id="4831cf9f-23d4-4c8e-a468-82a0f228bfa3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" nodeRepresentation="E00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Bildediagnostikk" />
+            </Name>
+          </Classification>
+          <Classification id="207861d3-c882-4337-b18a-8d4641cbdc06" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" nodeRepresentation="NORS">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Sperret" />
+            </Name>
+          </Classification>
+          <Classification id="8feaf30c-ada8-433a-828e-e3887cdfb63f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="59fdd029-83c3-4b4c-bfb4-222ce16ce1f3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="1cbc2204-65ff-455e-8eb1-1c2eaefb4d97" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="8400717b-ef50-47fa-bdb6-8775be845e4d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" nodeRepresentation="88.998">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Kommunale sosialkontortjenester" />
+            </Name>
+          </Classification>
+          <Classification id="504ea6f4-009b-47e3-b4bc-0c38ba2ea6fe" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="7a0e7709-81e4-4c4f-99cb-306ac9897f9f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="C03-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Mikrobiologi, virologi og serologi" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="d0e916c4-f550-482a-a2b0-20a4cf9c77a6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="4daf25f4-f69d-49aa-b5f2-2f4e3e325be3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="6eb7ce55-5524-4657-a30b-03dc7c079ae5" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="e0856a7d-b9f3-43d1-bf35-dc2b3660abb1">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="7bc074c3-0ad6-498c-85c6-23a29f31f16a" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20160425085454</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>09892399333^^UVITENDE^GORILLA^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20160425055617</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20160425085400</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Legemiddelinteraksjoner - Klinisk vurdering" />
+          </Name>
+          <Classification id="e8f81ae4-98ee-4438-b68b-ba29c05a6e49" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>02906499765^HIMMEL^FORDEKT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HELSE BERGEN HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974724</Value>
+                <Value>Anestesiavdeling - Ahus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213001</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>12^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="e16b429e-53fe-4bf3-a7ba-9f1ba616560f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>45927700178^FARFAR^USYMMETRISK^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HELSE STAVANGER HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974678</Value>
+                <Value>Lungeavdelingen - ålesund Sykehus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213134</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>152^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="2ef152ae-0c7c-47bf-8441-4ed241d9d0b0" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" nodeRepresentation="A00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Epikriser og Sammenfatninger" />
+            </Name>
+          </Classification>
+          <Classification id="385a9318-a926-4ff6-bb5a-63f489fcd2db" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="a738e597-f431-423d-8c32-6318899e458c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="db90559b-bd4d-4642-8219-95a5754aba2f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" nodeRepresentation="NORN_KUT">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, klart utilrådelig" />
+            </Name>
+          </Classification>
+          <Classification id="8ad9789f-44b1-4a6c-92e5-c8498cba94de" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="9d438798-1681-413f-9228-41af2ce0011e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" nodeRepresentation="88.994">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Varig tilrettelagt arbeid" />
+            </Name>
+          </Classification>
+          <Classification id="f12c654e-8838-47b7-b691-9723494ab074" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="8">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="8" />
+            </Name>
+          </Classification>
+          <Classification id="f6897530-118c-4535-a9bd-cea76073f07a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="A13-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Poliklinisk epikrise" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="6f20a996-c0d4-48aa-8466-0e599ec0e74a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="adfee97a-4b16-410d-9d08-6caf0abdadca" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="7bc074c3-0ad6-498c-85c6-23a29f31f16a" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="9ba9b548-e3b1-47ae-bb5c-70bb141f7e1b">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="8e8a36d5-5ea9-44ad-963d-2d6726c7c148" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20090428095623</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>24849698172^^EKTE^RYNKE^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20090428074833</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20090428093157</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Konsultasjonsnotat - Fastlege" />
+          </Name>
+          <Classification id="028f4633-398f-4fa2-8253-88b928bb6a44" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="8e8a36d5-5ea9-44ad-963d-2d6726c7c148" nodeRepresentation="A00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Epikriser og Sammenfatninger" />
+            </Name>
+          </Classification>
+          <Classification id="58d7c9ee-29db-46dd-8bf6-76218535bc4e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="8e8a36d5-5ea9-44ad-963d-2d6726c7c148" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="fa23c70a-530a-4e95-b53b-d2264a5ac2f6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="8e8a36d5-5ea9-44ad-963d-2d6726c7c148" nodeRepresentation="88.996">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Asylmottak" />
+            </Name>
+          </Classification>
+          <Classification id="e90e7683-4ec3-412d-a272-d15d654039d3" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="7">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="7" />
+            </Name>
+          </Classification>
+          <Classification id="26b25a44-4261-4c10-88c5-73d52231eca1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="D05-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Gyn/Reproduksjon" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="1d30612d-7714-46b1-b453-35fa20029130" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="8e8a36d5-5ea9-44ad-963d-2d6726c7c148" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="7d6ca949-e268-4ed5-9428-d8040a7ff481" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="8e8a36d5-5ea9-44ad-963d-2d6726c7c148" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="dca3b868-8e2d-4762-a83a-655f6205fea8">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="6069d6f7-7d16-4929-932d-9004b0c866ad" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20250528124318</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>31835998439^^FLOTT^PLEKTER^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20250528100020</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20250528132730</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Overvåkningsnotat - Intensivavdeling" />
+          </Name>
+          <Classification id="a941ff8d-f7d7-47bc-8256-4d0f4490588c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="6069d6f7-7d16-4929-932d-9004b0c866ad">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>26860749563^BOKSTAV^ENTUSIASTISK^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HELSE FøRDE HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974732</Value>
+                <Value>Lungeavdelingen - ålesund Sykehus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213134</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>17^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>5^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="e50a3a8a-a44d-487e-b758-4bd4f66c8249" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="6069d6f7-7d16-4929-932d-9004b0c866ad" nodeRepresentation="I00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Korrespondanse" />
+            </Name>
+          </Classification>
+          <Classification id="96802de0-6e81-4f04-9d14-ad40c388fd30" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="6069d6f7-7d16-4929-932d-9004b0c866ad" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="de6bb136-19aa-4bbb-aff3-bdd698e4a4ba" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="6069d6f7-7d16-4929-932d-9004b0c866ad" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="7afd8605-0a11-47df-96fa-f9556beb7cda" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="6069d6f7-7d16-4929-932d-9004b0c866ad" nodeRepresentation="86.101">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Alminnelige somatiske sykehus" />
+            </Name>
+          </Classification>
+          <Classification id="24c560ad-1ead-4344-9372-80e3567be0ee" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="db6feb59-81ad-466c-9ff6-90acb4c43e16" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="B03-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Poliklinisk notat" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="2710eaca-6426-43ae-b3b7-3a28b9720d56" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="6069d6f7-7d16-4929-932d-9004b0c866ad" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="bf1b8f3b-814b-428c-b1cb-f40a3854b9d1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="6069d6f7-7d16-4929-932d-9004b0c866ad" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="c5afe930-f870-436a-bc5b-35e3f73f1e5b">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="b476d96c-c759-4806-b373-311413b523f9" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20230508210005</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>10816898728^^LILLA^ALT^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20230508180247</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20230508195609</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Psykiatrisk observasjon - Første innleggelse" />
+          </Name>
+          <Classification id="35932a0b-afc3-4471-b124-c5af5dc5ed0c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="b476d96c-c759-4806-b373-311413b523f9">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>21877699800^SVIGERINNE^TROFAST^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Byåsen Legesenter A/S^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^930161012</Value>
+                <Value />
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="32f38990-4baf-41eb-85ad-4ad93ad9ab24" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="b476d96c-c759-4806-b373-311413b523f9">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>41837701048^FLOYTE^KRY^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Legevakta i Trondheim^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^993187178</Value>
+                <Value>Infeksjonsmedisinsk vaktteam - OUS Ullevål^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213189</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>601^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="37aa7e20-9bb9-4bd3-a6a5-937dc63f6f17" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="b476d96c-c759-4806-b373-311413b523f9">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>03850398185^HOPPE^LIVSTRETT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Bæremeisen Fastlegekontor^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^999944442</Value>
+                <Value>Anestesiavdeling - Ahus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213001</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="5919b4f4-854d-44b6-8143-c948a7cd7517" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="b476d96c-c759-4806-b373-311413b523f9" nodeRepresentation="A00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Epikriser og Sammenfatninger" />
+            </Name>
+          </Classification>
+          <Classification id="ed66c6b5-09dc-4c5b-9034-bc4aa59b7532" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="b476d96c-c759-4806-b373-311413b523f9" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="ae4413e6-cb82-458f-b121-cfd7b7d33d75" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="b476d96c-c759-4806-b373-311413b523f9" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="3af1fa35-6028-4eb6-be76-7c798bc63564" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="b476d96c-c759-4806-b373-311413b523f9" nodeRepresentation="87.201">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Psykiatriske sykehjem" />
+            </Name>
+          </Classification>
+          <Classification id="9a7235dc-0046-4eb6-bc27-cb9079ff529f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="4fa02b3f-d825-47ae-ab84-5c00fe56a449" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="D05-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Gyn/Reproduksjon" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="2c80c10d-b7d3-4e9e-abe5-117253ccb610" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="b476d96c-c759-4806-b373-311413b523f9" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="0db4e7ee-ec16-4b5f-8404-8665fb15f09b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="b476d96c-c759-4806-b373-311413b523f9" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="403c3c6a-2590-4c14-92e2-1da2cc421dc6">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="fce713d7-5532-4e67-9e33-a222db8dc241" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20240828023533</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>30880948314^^TORR^MILJOGIFT^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20240828003033</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20240828025128</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Operasjonsbeskrivelse - Appendektomi" />
+          </Name>
+          <Classification id="306082d4-cac3-45a1-96db-8e96adb27b25" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="fce713d7-5532-4e67-9e33-a222db8dc241">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>10816898728^ALT^LILLA^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>OSLO KOMMUNE^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^958935420</Value>
+                <Value />
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>23^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>5^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="a7723680-5fef-42a3-b260-89e832043e33" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="fce713d7-5532-4e67-9e33-a222db8dc241" nodeRepresentation="A00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Epikriser og Sammenfatninger" />
+            </Name>
+          </Classification>
+          <Classification id="8635341a-b335-4515-92e3-93333907533b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="fce713d7-5532-4e67-9e33-a222db8dc241" nodeRepresentation="NORN_FFH">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, fare for helsepersonell" />
+            </Name>
+          </Classification>
+          <Classification id="ccaf1a89-d9a6-4d1a-8638-854b293b593a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="fce713d7-5532-4e67-9e33-a222db8dc241" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="0ac70e8a-7dac-4769-8874-9d480e1076c1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="fce713d7-5532-4e67-9e33-a222db8dc241" nodeRepresentation="86.102">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Somatiske spesialsykehus" />
+            </Name>
+          </Classification>
+          <Classification id="b600026b-a3c2-42dc-8e17-0ef7022ab4d2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="34928784-c61b-4d0a-b28f-76c482de764f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="A05-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Fysioterapisammenfatning" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="8b606978-aae7-45f4-a848-04b09479ccab" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="fce713d7-5532-4e67-9e33-a222db8dc241" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="ef8bc191-2077-43bc-93a4-4168da8e0a44" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="fce713d7-5532-4e67-9e33-a222db8dc241" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="d25fc0d0-2335-457c-a85e-083dcaa4db41">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="f8493064-a555-4db8-a2a3-41c8053de02d" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20230415213506</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>26860749563^^ENTUSIASTISK^BOKSTAV^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20230415180449</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20230415202700</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Pasientnotat - Samtykke og informasjon" />
+          </Name>
+          <Classification id="d729e48b-7ba3-4fe8-b5e7-122ff630861a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="f8493064-a555-4db8-a2a3-41c8053de02d">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>13890497696^GAUPE^EPISK^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HAUGESUND SANITETSFORENINGS REVMATISMESYKEHUS AS^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^986106839</Value>
+                <Value>Gynekologisk seksjon - Helse Møre og Romsdal^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213167</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="d57c37c4-0ccc-4a20-b51e-92f6aab5698b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="f8493064-a555-4db8-a2a3-41c8053de02d" nodeRepresentation="F00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Kurve, observasjon og behandling" />
+            </Name>
+          </Classification>
+          <Classification id="708b5acd-9ffa-4f45-9c2e-ff07d36fe0bd" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="f8493064-a555-4db8-a2a3-41c8053de02d" nodeRepresentation="NORN_FFH">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, fare for helsepersonell" />
+            </Name>
+          </Classification>
+          <Classification id="4fefab60-d111-49fc-821b-a6137c9f3756" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="f8493064-a555-4db8-a2a3-41c8053de02d" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="55085ff3-02ef-4eb7-98d4-a42bddceb86d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="f8493064-a555-4db8-a2a3-41c8053de02d" nodeRepresentation="NORN_EPO">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, eget ønske" />
+            </Name>
+          </Classification>
+          <Classification id="19323b85-dd93-4147-932b-6bfc4a7ae1a7" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="f8493064-a555-4db8-a2a3-41c8053de02d" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="be846f7b-6e56-4bd1-932d-70156f4f5587" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="f8493064-a555-4db8-a2a3-41c8053de02d" nodeRepresentation="88.992">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Familieverntjenester" />
+            </Name>
+          </Classification>
+          <Classification id="da81cb7a-7673-4f41-91be-f328be99005b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="5">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="5" />
+            </Name>
+          </Classification>
+          <Classification id="8caa1e17-517a-48f6-859a-2ce783464779" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="D02-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Lunge" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="3d37c1c2-62eb-4ab0-ac81-f59b3c7a9b90" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="f8493064-a555-4db8-a2a3-41c8053de02d" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="d599bc0e-5f31-486c-a3ed-1378a3389559" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="f8493064-a555-4db8-a2a3-41c8053de02d" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="2234be28-0837-4ded-af23-d7911053ea6d">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20240602043633</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>13890497696^^EPISK^GAUPE^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20240602013652</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20240602053213</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Overvåkningsnotat - Intensivavdeling" />
+          </Name>
+          <Classification id="690cd8dc-7c80-4357-825c-02e2288f6450" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>30880948314^MILJOGIFT^TORR^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>DIPS AS^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^979543883</Value>
+                <Value>Anestesiavdeling - Ahus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213001</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>14^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="57208f70-71c8-4052-a058-4fefe4129a8f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" nodeRepresentation="S00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Test og scoring" />
+            </Name>
+          </Classification>
+          <Classification id="b696fe96-2f59-4536-b7b0-6141b6195529" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="d9aad219-916d-4bc2-b80b-0cd8c13647ad" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="9b6fd986-5a0e-436a-8628-8c4351f188e6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="f20e6699-21ac-410c-aa25-672e2c42f1da" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" nodeRepresentation="86.101">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Alminnelige somatiske sykehus" />
+            </Name>
+          </Classification>
+          <Classification id="6710bab7-84ee-49c2-9171-dead7138adb6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="1" />
+            </Name>
+          </Classification>
+          <Classification id="011de680-ea65-452a-b2f4-41bf8e81f4e4" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="F04-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Svangerskap og fødsel" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="9c0b5f63-03dd-4f56-b0e4-6fb98be9d36e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="91b30b9d-284b-47ea-8c65-bf6aa630a6d1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="0d51e4e7-2e1c-42aa-b8d9-c089b75ad99c" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="f11b7057-1656-4c4d-b629-c76b4a379146">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20221202020713</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>09892399333^^UVITENDE^GORILLA^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20221201231634</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20221202031433</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Foreløpig epikrise - Midlertidig vurdering" />
+          </Name>
+          <Classification id="d6f07e4f-44b2-40cb-85af-29fd94797bb2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>31835998439^PLEKTER^FLOTT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Diakonhjemmet Sykehus AS^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^982791952</Value>
+                <Value>Lungeavdelingen - ålesund Sykehus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213134</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>16^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>193^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="862bace6-f450-4fe2-9b11-99cd39107a66" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>09917999055^SILD^PLUTSELIG^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HELSEDIREKTORATET^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983544622</Value>
+                <Value>Radiologi Seksjon Sør - Sørlandet sykehus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213023</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="7f570704-5358-45be-ace9-67281c51c85d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>03866197813^BRETT^SELVHJULPEN^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HELSE STAVANGER HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974678</Value>
+                <Value>Anestesiavdeling - Ahus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213001</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="87ac86b7-0e37-4f90-b512-baf91b407417" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" nodeRepresentation="A00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Epikriser og Sammenfatninger" />
+            </Name>
+          </Classification>
+          <Classification id="dc0fe078-07f5-4e33-8695-5614e622e909" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="70fd50a3-962a-4462-8945-91910cdaebbc" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" nodeRepresentation="NORN_FFL">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, fare for liv" />
+            </Name>
+          </Classification>
+          <Classification id="80464787-f438-4ad7-b4d1-2a918c759074" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="fb209eb2-3bd2-4db3-8d9a-33947cd71841" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="c4947efa-2313-4154-a185-439580a3d336" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" nodeRepresentation="86.101">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Alminnelige somatiske sykehus" />
+            </Name>
+          </Classification>
+          <Classification id="5b2edac6-728d-47dd-b7fa-616e3f1f557a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="4e654cec-8d89-4064-b18c-34d9acd9a3e6" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="J01-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Sykmeldinger og trygdesaker" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="1953b51a-9cf0-4e9d-a4a6-9ee0b68b54a2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="e027db2e-8928-48ac-bd5e-8d7e865d51b7" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="d32ec66b-9c9f-4945-b5b8-1dcf7a4109c0" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="0bb351bf-4890-4a13-a631-e0ff99c0141b">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="b86f693f-ef2d-45ea-a049-8feddf7bde3e" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20220928155444</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>31837998495^^LIDENSKAPELIG^PLIKT^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20220928135303</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20220928153225</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Nevrologisk status - Kontroll Parkinson" />
+          </Name>
+          <Classification id="34d2de65-ece0-47ca-9e60-72551a8d1c0b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>10816898728^ALT^LILLA^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>BODø KOMMUNE HELSE OG OMSORG^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^974790920</Value>
+                <Value>Kreftavdeling - Sykehuset Innlandet^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213056</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>34^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="29153f81-182c-4a4e-a20f-8c9917678869" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>14811249255^METER^GREI^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>GLøSHAUGEN LEGESENTER DA^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^996374653</Value>
+                <Value>Gastroenterologisk avdeling - Bærum Sykehus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213112</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="06bf9145-2a24-41fd-bf69-7796a5c64018" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" nodeRepresentation="A00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Epikriser og Sammenfatninger" />
+            </Name>
+          </Classification>
+          <Classification id="5db98a9c-1d5a-4f91-a861-2b6888aea273" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" nodeRepresentation="NORN_FFL">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, fare for liv" />
+            </Name>
+          </Classification>
+          <Classification id="85142f43-bd93-4a53-bc68-a14db6243493" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" nodeRepresentation="NORN_FORANS">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, foreldreansvarlig" />
+            </Name>
+          </Classification>
+          <Classification id="dfdefc0d-d39f-4737-8583-7319985c0295" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="ac5215d2-bcf5-4cf9-891a-5753aa889b13" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="3e190754-fa37-46a0-bcfc-0c537fe7903c" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" nodeRepresentation="86.101">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Alminnelige somatiske sykehus" />
+            </Name>
+          </Classification>
+          <Classification id="75c1c350-46c5-4791-824f-08eadb286499" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="8">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="8" />
+            </Name>
+          </Classification>
+          <Classification id="76cdeaf2-187c-4f37-bcde-e0ab088f320d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="C02-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Blodbank og immunologi" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="97b777bb-c760-4ef2-aca0-0f803ff20162" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="860300ba-8501-4c65-b590-8117b9d15cfe" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="b86f693f-ef2d-45ea-a049-8feddf7bde3e" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="412b219c-9b26-4b1c-8217-cff2b5955f5b">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="f34bd891-06d2-486d-8331-48015f426ed5" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20220819204014</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>26866896762^^ALDRENDE^HANDLINGSEVNE^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20220819180923</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20220819213316</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Anestesiopplysninger - Elektiv kirurgi" />
+          </Name>
+          <Classification id="e9dbf4fb-e832-471a-8727-66312770992f" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>13913746753^OVERSKRIFT^VARM^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Indre Salten Legevakt^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^974628570</Value>
+                <Value>Gynekologisk seksjon - Helse Møre og Romsdal^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213167</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>190^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="b8cc1b92-f7f3-4730-a7ab-29d234ccf8a7" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>27905697442^DOR^MATEHOLDEN^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Byåsen Legesenter A/S^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^930161012</Value>
+                <Value>Gastroenterologisk avdeling - Bærum Sykehus^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213112</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>15^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="528f5a6f-0269-4844-89e4-bc94e4af1cab" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>03920999971^SAU^RETT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HARALDSPLASS DIAKONALE SYKEHUS AS^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^984027737</Value>
+                <Value>Nevropsykiatrisk team - Helse Nord^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213145</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>82^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="db47b9a2-91ed-44e1-a480-1cebe7113ddf" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5" nodeRepresentation="S00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Test og scoring" />
+            </Name>
+          </Classification>
+          <Classification id="6666d9c3-ef97-4f19-bfdc-8e45bf98294d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="e1d386d0-dc70-4cc8-adc6-4047761acfc5" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5" nodeRepresentation="NORN_FFL">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet, fare for liv" />
+            </Name>
+          </Classification>
+          <Classification id="363c0f30-77b9-4e70-853a-1cdd871b6983" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="945ae135-636c-4d43-bb4f-b251d10c813b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="aecce3b5-1672-4a62-a071-9585667b8d4a" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="f34bd891-06d2-486d-8331-48015f426ed5" nodeRepresentation="86.101">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Alminnelige somatiske sykehus" />
+            </Name>
+          </Classification>
+          <Classification id="489a2162-2710-4459-9cb4-de7d3d8e5971" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="9">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="9" />
+            </Name>
+          </Classification>
+          <Classification id="5b33f8fd-e7e6-4e2d-8cf1-32be5d9bfcf4" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="D09-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Øye" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="729c73b0-4f95-4fc5-966b-174f6d06bc7d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="f34bd891-06d2-486d-8331-48015f426ed5" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="1db8d31d-36e9-46bf-84eb-fa4962997e04" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="f34bd891-06d2-486d-8331-48015f426ed5" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="71906da9-c867-4300-9f0d-ecdc10aa2726">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="430d1cdc-355e-4178-859c-3d9c7fd23e03" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20230903011626</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>41837701048^^KRY^FLOYTE^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20230902220034</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20230903011027</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Diagnostisk utredning og funn" />
+          </Name>
+          <Classification id="f2ee2ed5-0526-46fe-b2aa-5de7442708f2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="430d1cdc-355e-4178-859c-3d9c7fd23e03">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>41837701048^FLOYTE^KRY^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>OSLO UNIVERSITETSSYKEHUS HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^993467049</Value>
+                <Value>Kreftavdeling - Sykehuset Innlandet^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213056</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>18^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="519952a2-c093-4ce9-99a4-cff6913d2177" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="430d1cdc-355e-4178-859c-3d9c7fd23e03">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>09892399333^GORILLA^UVITENDE^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HELSE FONNA HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974694</Value>
+                <Value>Gynekologisk seksjon - Helse Møre og Romsdal^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213167</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="6a316b87-152d-4781-8682-a9f3dee5a9ba" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="430d1cdc-355e-4178-859c-3d9c7fd23e03" nodeRepresentation="J00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Attester, melding og erklæringer" />
+            </Name>
+          </Classification>
+          <Classification id="9691e06c-9c1a-41f6-87dc-5e72d2924960" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="430d1cdc-355e-4178-859c-3d9c7fd23e03" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="ae31c127-20bf-4a7c-9f1b-4afc602ccd30" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="430d1cdc-355e-4178-859c-3d9c7fd23e03" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="ccabb49d-4374-48cb-a9fd-74fdb5f571da" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="430d1cdc-355e-4178-859c-3d9c7fd23e03" nodeRepresentation="urn:no:ehelse:document:pdf">
+            <Name>
+              <LocalizedString value="FormatCodes" />
+            </Name>
+          </Classification>
+          <Classification id="d16ed37a-f1ab-47c2-80f0-7ad2561ec60b" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="430d1cdc-355e-4178-859c-3d9c7fd23e03" nodeRepresentation="88.994">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Varig tilrettelagt arbeid" />
+            </Name>
+          </Classification>
+          <Classification id="9c3940e5-c1cb-4ae7-98c8-55aee8d82680" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="311210ac-2bb4-40ec-999e-de3126e3a93d" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="F09-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Ambulansejournal" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="a7a96c85-284e-4e9c-872a-fe1e4d060069" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="430d1cdc-355e-4178-859c-3d9c7fd23e03" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="38ec8b4f-ccf4-40b4-aadd-9406fb7c281e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="430d1cdc-355e-4178-859c-3d9c7fd23e03" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="ee548fea-fdad-4776-9c86-7c95fdf28095">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+        <ExtrinsicObject id="19c08886-d939-4f82-9881-94c3fe924644" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/pdf">
+          <Slot name="creationTime">
+            <ValueList>
+              <Value>20230920102537</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="hash">
+            <ValueList>
+              <Value>1F9556BD59F6E4AEF5DE94EA8D469E2F</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="languageCode">
+            <ValueList>
+              <Value>nb-NO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="legalAuthenticator">
+            <ValueList>
+              <Value>09917999055^^PLUTSELIG^SILD^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="repositoryUniqueId">
+            <ValueList>
+              <Value>2.16.578.1.12.4.5.100.1.2</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStartTime">
+            <ValueList>
+              <Value>20230920070014</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="serviceStopTime">
+            <ValueList>
+              <Value>20230920091745</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="size">
+            <ValueList>
+              <Value>59061</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientId">
+            <ValueList>
+              <Value>13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+            </ValueList>
+          </Slot>
+          <Slot name="sourcePatientInfo">
+            <ValueList>
+              <Value>PID-3|13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</Value>
+              <Value>PID-5|Danser^Line</Value>
+              <Value>PID-7|19691113</Value>
+              <Value>PID-8|F</Value>
+            </ValueList>
+          </Slot>
+          <Name>
+            <LocalizedString value="XcaDS - Innkomstnotat - Akutt innleggelse" />
+          </Name>
+          <Classification id="974e53da-2570-4b8a-aa10-0704a6641695" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>03850398185^HOPPE^LIVSTRETT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>HELSE FONNA HF^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^983974694</Value>
+                <Value />
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>17^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="fb796a27-553f-4268-8b9f-286b56ba55c2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>31835998439^PLEKTER^FLOTT^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>MIDTBYEN LEGESENTER KONGSVINGER DA^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^994919806</Value>
+                <Value>Psykiatrisk akuttmottak - Vestre Viken^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213067</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>6^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value />
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="624c415a-ebc3-44f8-a264-47bc4be07814" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:93606bcf-9494-43ec-9b4e-a7748d1a838d" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644">
+            <Slot name="authorPerson">
+              <ValueList>
+                <Value>21877699800^SVIGERINNE^TROFAST^^^^^^&amp;2.16.578.1.12.4.1.4.4&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorInstitution">
+              <ValueList>
+                <Value>Munkholmen Legesenter^^^^^&amp;2.16.578.1.12.4.1.4.101&amp;ISO^^^^998570328</Value>
+                <Value>Barn og unges psykiske helse - Levanger DPS^^^^^&amp;2.16.578.1.12.4.1.4.102&amp;ISO^^^^4213178</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorRole">
+              <ValueList>
+                <Value>7^^^&amp;2.16.578.1.12.4.1.1.9034&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+            <Slot name="authorSpecialty">
+              <ValueList>
+                <Value>197^^^&amp;2.16.578.1.12.4.1.1.7426&amp;ISO</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="bb4edaa1-f624-4eaa-9c31-da7c00b6fb07" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:41a5887f-8865-4c09-adf7-e362475b143a" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644" nodeRepresentation="C00-1">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Prøvesvar, vev og væsker" />
+            </Name>
+          </Classification>
+          <Classification id="53fb076f-08a4-429f-937a-92a57d75dc59" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644" nodeRepresentation="NORN_ANG">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Nektet – andre grunner" />
+            </Name>
+          </Classification>
+          <Classification id="70ea6e70-4c11-4514-8d8d-f63dbc40fd68" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f4f85eac-e6cb-4883-b524-f2705394840f" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644" nodeRepresentation="N">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9603</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Normal" />
+            </Name>
+          </Classification>
+          <Classification id="df9175ce-7032-4aa3-a623-2095745e5533" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:a09d5840-386c-46f2-b5ad-9c3699a4309d" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644" nodeRepresentation="urn:ihe:iti:xds:2017:mimeTypeSufficient">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode</Value>
+              </ValueList>
+            </Slot>
+          </Classification>
+          <Classification id="c93fdd31-faa9-490b-9da0-db19608725af" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f33fb8ac-18af-42cc-ae0e-ed0b0bdb91e1" classifiedObject="19c08886-d939-4f82-9881-94c3fe924644" nodeRepresentation="86.225">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.1303</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Rusmiddelpoliklinikker" />
+            </Name>
+          </Classification>
+          <Classification id="096e2ac3-bfa7-41f0-acff-2f90f083e5e7" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:cccf5598-8b07-4b77-a05e-ae952c785ead" nodeRepresentation="4">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.8653</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="4" />
+            </Name>
+          </Classification>
+          <Classification id="de614e11-9144-44df-9b7f-e4c3c8ea0584" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" classificationScheme="urn:uuid:f0306f51-975f-434e-a61c-c59651d33983" nodeRepresentation="J01-2">
+            <Slot name="codingScheme">
+              <ValueList>
+                <Value>2.16.578.1.12.4.1.1.9602</Value>
+              </ValueList>
+            </Slot>
+            <Name>
+              <LocalizedString value="Sykmeldinger og trygdesaker" />
+            </Name>
+          </Classification>
+          <ExternalIdentifier id="b0d44b60-f997-42a4-a68e-6633c740bb4e" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="19c08886-d939-4f82-9881-94c3fe924644" identificationScheme="urn:uuid:58a6f841-87b3-4a3e-92fd-a8ffeff98427" value="13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.patientId" />
+            </Name>
+          </ExternalIdentifier>
+          <ExternalIdentifier id="55338178-81f5-4d47-8157-0b309c242193" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" registryObject="19c08886-d939-4f82-9881-94c3fe924644" identificationScheme="urn:uuid:2e82c1f6-a085-4c72-9da3-8640a32e42ab" value="2ab4afd7-3d53-4a2c-9b92-945dbcb2fcb0">
+            <Name>
+              <LocalizedString value="XDSDocumentEntry.uniqueId" />
+            </Name>
+          </ExternalIdentifier>
+        </ExtrinsicObject>
+      </RegistryObjectList>
+    </AdhocQueryResponse>
+  </Body>
+</Envelope>

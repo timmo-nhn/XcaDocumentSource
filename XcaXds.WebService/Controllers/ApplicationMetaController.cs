@@ -109,7 +109,7 @@ public class ApplicationMetaController : ControllerBase
         {
             var randomFileAsByteArray = files.ElementAt(Random.Shared.Next(files.Count()));
 
-            if (generatedTestObject?.PatientId?.Code != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
+            if (generatedTestObject?.SourcePatientInfo?.PatientId?.Id != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
             {
                 generatedTestObject.Title = "XcaDS - " + generatedTestObject.Title;
                 generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
@@ -121,7 +121,7 @@ public class ApplicationMetaController : ControllerBase
                 generatedTestObject.RepositoryUniqueId = _xdsConfig.RepositoryUniqueId;
                 generatedTestObject.HomeCommunityId = _xdsConfig.HomeCommunityId;
 
-                _repositoryWrapper.StoreDocument(generatedTestObject.UniqueId, randomFileAsByteArray, generatedTestObject.PatientId.Code);
+                _repositoryWrapper.StoreDocument(generatedTestObject.UniqueId, randomFileAsByteArray, generatedTestObject.SourcePatientInfo.PatientId.Id);
             }
         }
 

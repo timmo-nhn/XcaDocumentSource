@@ -38,7 +38,7 @@ public class XdsRepositoryController : ControllerBase
     [HttpPost("RepositoryService")]
     public async Task<IActionResult> RepositoryService([FromBody] SoapEnvelope soapEnvelope)
     {
-        var xmlSerializer = new SoapXmlSerializer(XmlSettings.Soap);
+        var xmlSerializer = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
         var action = soapEnvelope.Header.Action;
