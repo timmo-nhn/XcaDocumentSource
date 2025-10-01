@@ -165,7 +165,7 @@ public class RestfulRegistryRepositoryService
 
         if (documentReference.Document != null)
         {
-            _repositoryWrapper.StoreDocument(documentReference.Document.DocumentId, documentReference.Document.Data, documentReference.DocumentEntry.PatientId.Code);
+            _repositoryWrapper.StoreDocument(documentReference.Document.DocumentId, documentReference.Document.Data, documentReference.DocumentEntry.SourcePatientInfo?.PatientId?.Id);
 
         }
 
@@ -217,9 +217,9 @@ public class RestfulRegistryRepositoryService
 
             _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
 
-            if (inputDocumentReference.Document != null && inputDocumentReference.Document.Data.Length != 0 && inputDocumentReference.DocumentEntry?.PatientId?.Code != null)
+            if (inputDocumentReference.Document != null && inputDocumentReference.Document.Data?.Length != 0 && inputDocumentReference.DocumentEntry?.SourcePatientInfo?.PatientId?.Id != null)
             {
-                var storeResult = _repositoryWrapper.StoreDocument(inputDocumentReference.Document.DocumentId, inputDocumentReference.Document.Data, inputDocumentReference.DocumentEntry.PatientId.Code);
+                var storeResult = _repositoryWrapper.StoreDocument(inputDocumentReference.Document.DocumentId, inputDocumentReference.Document.Data, inputDocumentReference.DocumentEntry.SourcePatientInfo.PatientId.Id);
                 if (storeResult == false)
                 {
                     updateResponse.AddError("UploadError", "Error while uploading document");

@@ -170,7 +170,6 @@ public static class RegistryMetadataTransformerService
         submissionSetDto.AvailabilityStatus = registryPackage.Status;
         submissionSetDto.HomeCommunityId = registryPackage.Home;
         submissionSetDto.Id = registryPackage.Id;
-        submissionSetDto.PatientId = GetPatientIdFromRegistryPackage(registryPackage);
         submissionSetDto.SourceId = GetSourceIdFromRegistryPackage(registryPackage);
         submissionSetDto.SubmissionTime = GetSubmissionTimeFromRegistryPackage(registryPackage);
         submissionSetDto.Title = GetTitleFromRegistryPackage(registryPackage);
@@ -204,23 +203,6 @@ public static class RegistryMetadataTransformerService
     private static string? GetSourceIdFromRegistryPackage(RegistryPackageType registryPackage)
     {
         return registryPackage.GetFirstExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.SourceId)?.Value;
-    }
-
-    private static CodedValue? GetPatientIdFromRegistryPackage(RegistryPackageType? registryPackage)
-    {
-        var patientIdExtIder = registryPackage?.GetFirstExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.PatientId)?.Value;
-        var patientIdValue = Hl7Object.Parse<CX>(patientIdExtIder);
-
-        if (patientIdValue?.IdNumber != null)
-        {
-            return new()
-            {
-                Code = patientIdValue?.IdNumber,
-                CodeSystem = patientIdValue?.AssigningAuthority?.UniversalId
-            };
-        }
-
-        return null;
     }
 
     private static List<AuthorInfo>? GetAuthorsFromRegistryPackage(RegistryPackageType? registryPackage)
@@ -268,7 +250,6 @@ public static class RegistryMetadataTransformerService
         documentMetadata.LegalAuthenticator = GetLegalAuthenticatorFromExtrinsicObject(extrinsicObject);
         documentMetadata.MimeType = extrinsicObject.MimeType;
         documentMetadata.ObjectType = extrinsicObject.ObjectType;
-        documentMetadata.PatientId = GetPatientIdFromExtrinsicObject(extrinsicObject);
         documentMetadata.PracticeSettingCode = GetPracticeSettingCodeFromExtrinsicObject(extrinsicObject);
         documentMetadata.RepositoryUniqueId = GetRepositoryUniqueIdFromExtrinsicObject(extrinsicObject);
         documentMetadata.Size = GetSizeFromExtrinsicObject(extrinsicObject);
@@ -367,23 +348,6 @@ public static class RegistryMetadataTransformerService
         if (practiceSettingClassification != null)
         {
             return MapClassificationToCodedValue(practiceSettingClassification);
-        }
-
-        return null;
-    }
-
-    private static CodedValue? GetPatientIdFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
-    {
-        var patientIdExtIder = extrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.PatientId)?.Value;
-        var patIdPid = Hl7Object.Parse<CX>(patientIdExtIder);
-
-        if (patIdPid != null)
-        {
-            return new()
-            {
-                Code = patIdPid?.IdNumber,
-                CodeSystem = patIdPid?.AssigningAuthority?.UniversalId
-            };
         }
 
         return null;
@@ -768,7 +732,6 @@ public static class RegistryMetadataTransformerService
         GetAuthorClassificationFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetAvailabilitystatusFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetHomeCommunityIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
-        GetPatientIdFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetSourceIdExternalIdentifierFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetSubmissionTimeSlotFromSubmissionSetDto(registryPackage, submissionSetMetadata);
         GetTitleNameLocalizedStringFromSubmissionSetDto(registryPackage, submissionSetMetadata);
@@ -824,7 +787,7 @@ public static class RegistryMetadataTransformerService
     {
         extrinsicObject.ExternalIdentifier ??= [];
 
-        var patientIdExtId = MapCodedValueToExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.PatientId, documentEntryMetadata.PatientId);
+        var patientIdExtId = MapCodedValueToExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.PatientId, documentEntryMetadata.SourcePatientInfo?.PatientId);
         if (patientIdExtId != null)
         {
             patientIdExtId.RegistryObject = extrinsicObject.Id;
@@ -1149,7 +1112,8 @@ public static class RegistryMetadataTransformerService
                     UniversalIdType = string.IsNullOrWhiteSpace(author.Organization.AssigningAuthority) ? null : Constants.Hl7.UniversalIdType.Iso
                 }
             };
-            organization = org;
+
+            authorInstitutionSlot.ValueList.Value = [.. authorInstitutionSlot.ValueList.Value ?? [], org.Serialize()];
         }
 
         if (author.Department != null)
@@ -1164,11 +1128,11 @@ public static class RegistryMetadataTransformerService
                     UniversalIdType = string.IsNullOrWhiteSpace(author.Department.AssigningAuthority) ? null : Constants.Hl7.UniversalIdType.Iso
                 }
             };
-            department = dpt;
 
+            authorInstitutionSlot.ValueList.Value = [.. authorInstitutionSlot.ValueList.Value ?? [], dpt.Serialize()];
         }
 
-        authorInstitutionSlot.ValueList.Value = [organization.Serialize(), department.Serialize()];
+        if (authorInstitutionSlot.ValueList?.Value == null || authorInstitutionSlot.ValueList?.Value.Length == 0) return;
 
         classification.AddSlot(authorInstitutionSlot);
     }
@@ -1284,17 +1248,6 @@ public static class RegistryMetadataTransformerService
         }
     }
 
-    private static void GetPatientIdFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
-    {
-        var externalIdentifier = MapCodedValueToExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.PatientId, submissionSetMetadata.PatientId);
-
-        if (externalIdentifier != null)
-        {
-            externalIdentifier.RegistryObject = registryPackage.Id;
-            registryPackage.ExternalIdentifier = [.. registryPackage.ExternalIdentifier, externalIdentifier];
-        }
-    }
-
     private static void GetSubmissionTimeSlotFromSubmissionSetDto(RegistryPackageType registryPackage, SubmissionSetDto submissionSetMetadata)
     {
         var dateValue = submissionSetMetadata.SubmissionTime;
@@ -1334,6 +1287,15 @@ public static class RegistryMetadataTransformerService
         if (!string.IsNullOrWhiteSpace(externalIdentifierName) && !string.IsNullOrWhiteSpace(codedValue))
         {
             return MapCodedValueToExternalIdentifier(externalIdentifierName, new CodedValue() { Code = codedValue });
+        }
+        return null;
+    }
+
+    private static ExternalIdentifierType MapCodedValueToExternalIdentifier(string? externalIdentifierName, PatientId? codedValue)
+    {
+        if (!string.IsNullOrWhiteSpace(externalIdentifierName) && codedValue != null)
+        {
+            return MapCodedValueToExternalIdentifier(externalIdentifierName, new CodedValue() { Code = codedValue.Id, CodeSystem = codedValue.System });
         }
         return null;
     }

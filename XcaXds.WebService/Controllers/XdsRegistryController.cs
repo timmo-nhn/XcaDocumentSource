@@ -34,7 +34,6 @@ public class XdsRegistryController : ControllerBase
     public async Task<IActionResult> RegistryService([FromBody] SoapEnvelope soapEnvelope)
     {
         var registryResponse = new RegistryResponseType();
-        var xmlSerializer = new SoapXmlSerializer(XmlSettings.Soap);
 
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
         var action = soapEnvelope.Header.Action;

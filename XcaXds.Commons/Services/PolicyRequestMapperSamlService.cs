@@ -301,7 +301,7 @@ public static class PolicyRequestMapperSamlService
 
     public static string? GetActionFromSoapEnvelope(string? inputSoapEnvelope)
     {
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(inputSoapEnvelope);
 
         return soapEnvelopeObject.Header.Action;

@@ -17,7 +17,6 @@ public class DocumentEntryDto : RegistryObjectDto
     public LegalAuthenticator? LegalAuthenticator { get; set; }
     public string? MimeType { get; set; }
     public string? ObjectType { get; set; }
-    public CodedValue? PatientId { get; set; }
     public CodedValue? PracticeSettingCode { get; set; }
     public string? RepositoryUniqueId { get; set; }
     public string? Size { get; set; }

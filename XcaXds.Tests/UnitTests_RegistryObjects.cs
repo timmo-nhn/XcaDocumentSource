@@ -26,7 +26,7 @@ public class UnitTests_RegistryObjects
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
 
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("PnR")));
         var fileContent = await reader.ReadToEndAsync();
@@ -74,7 +74,7 @@ public class UnitTests_RegistryObjects
             return;
         }
 
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
         var testDataFiles = Directory.GetFiles(registryPath);
@@ -94,7 +94,7 @@ public class UnitTests_RegistryObjects
     [Fact]
     public async Task Registry_ReadWriteRegistry()
     {
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
         var testDataFiles = Directory.GetFiles(registryPath);
@@ -150,14 +150,14 @@ public class UnitTests_RegistryObjects
         {
             var randomFileAsByteArray = files.ElementAt(new Random().Next(files.Count()));
 
-            if (generatedTestObject?.PatientId?.Code != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
+            if (generatedTestObject?.SourcePatientInfo?.PatientId?.Id != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
             {
                 generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
                 using (var md5 = MD5.Create())
                 {
                     generatedTestObject.Hash = BitConverter.ToString(md5.ComputeHash(randomFileAsByteArray)).Replace("-", "");
                 }
-                repoService.Write(generatedTestObject.Id, randomFileAsByteArray, generatedTestObject.PatientId.Code);
+                repoService.Write(generatedTestObject.Id, randomFileAsByteArray, generatedTestObject?.SourcePatientInfo?.PatientId?.Id);
             }
         }
 
@@ -180,7 +180,7 @@ public class UnitTests_RegistryObjects
         {
             if (repoService.Read(documentEntry.UniqueId) == null)
             {
-                duds.Add($"{documentEntry.Id} for patient {documentEntry.SourcePatientInfo?.FirstName} {documentEntry.SourcePatientInfo?.LastName} (id: {documentEntry.PatientId.Code}) is a dud!!");
+                duds.Add($"{documentEntry.Id} for patient {documentEntry.SourcePatientInfo?.FirstName} {documentEntry.SourcePatientInfo?.LastName} (id: {documentEntry?.SourcePatientInfo?.PatientId?.Id}) is a dud!!");
             }
         }
 

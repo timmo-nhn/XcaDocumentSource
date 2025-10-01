@@ -2,6 +2,7 @@
 
 using System;
 using Microsoft.AspNetCore.Mvc;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Serializers;
 
@@ -49,7 +50,7 @@ public static class ErrorResponseFactory
 
     private static IActionResult CreateSoapErrorResponse(ActionContext context)
     {
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var soapFault = SoapExtensions.CreateSoapFault
         (

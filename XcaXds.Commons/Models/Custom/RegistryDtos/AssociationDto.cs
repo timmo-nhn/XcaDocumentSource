@@ -1,8 +1,10 @@
-﻿namespace XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Commons.Commons;
+
+namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
 public class AssociationDto : RegistryObjectDto
 {
-    public string? AssociationType { get; set; }
+    public string? AssociationType { get; set; } = Constants.Xds.AssociationType.HasMember;
     /// <summary>
     /// Usually the RegistryPackage/SubmissionSet
     /// </summary>

@@ -5,41 +5,199 @@ using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
-using CE = XcaXds.Commons.Models.ClinicalDocument.Types.CE;
-using TS = XcaXds.Commons.Models.ClinicalDocument.Types.TS;
 
 namespace XcaXds.Commons.Services;
 
 public static partial class CdaTransformerService
 {
-    public static DocumentReferenceDto TransformClinicalDocumentToRegistryObjects(ClinicalDocument clinicalDocument)
+    public static DocumentReferenceDto TransformClinicalDocumentToRegistryObjects(ClinicalDocument clinicalDocument, string? homeCommunityId = null, string? repositoryUniqueId = null)
     {
         var documentReference = new DocumentReferenceDto();
 
-        documentReference.DocumentEntry = GetDoumentEntryFromClinicalDocument(clinicalDocument);
+        var documentEntry = new DocumentEntryDto
+        {
+            Author = GetAuthorInfoFromClinicalDocument(clinicalDocument),
+            AvailabilityStatus = Constants.Xds.StatusValues.Approved,
+            ClassCode = GetClassCodeFromClinicalDocument(clinicalDocument),
+            ConfidentialityCode = GetConfidentialityCodeFromClinicalDocument(clinicalDocument),
+            CreationTime = GetCreationTimeFromClinicalDocument(clinicalDocument),
+            FormatCode = GetFormatCodeFromClinicalDocument(clinicalDocument),
+            Hash = GetHashFromClinicalDocument(clinicalDocument),
+            HomeCommunityId = homeCommunityId,
+            LanguageCode = GetLanguageCodeFromClinicalDocument(clinicalDocument),
+            LegalAuthenticator = GetLegalAuthenticatorFromClinicalDocument(clinicalDocument),
+            MimeType = Constants.MimeTypes.Hl7v3Xml,
+            ObjectType = Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries,
+            RepositoryUniqueId = GetRepositoryUniqueIdFromClinicalDocument(clinicalDocument) ?? repositoryUniqueId,
+            ServiceStartTime = GetEffectiveTimeFromClinicalDocument(clinicalDocument),
+            ServiceStopTime = GetEffectiveTimeFromClinicalDocument(clinicalDocument),
+            Size = GetSizeFromClinicalDocument(clinicalDocument),
+            SourcePatientInfo = GetSourcePatientInfoFromClinicalDocument(clinicalDocument),
+            Title = clinicalDocument.Title,
+            TypeCode = GetTypeCodeFromClinicalDocument(clinicalDocument),
+            UniqueId = GetUniqueIdFromClinicalDocument(clinicalDocument)
+        };
+
+        var submissionSet = new SubmissionSetDto()
+        {
+            Author = documentEntry.Author,
+            AvailabilityStatus = documentEntry.AvailabilityStatus,
+            HomeCommunityId = documentEntry.HomeCommunityId,
+            SourceId = documentEntry.RepositoryUniqueId,
+            SubmissionTime = documentEntry.CreationTime,
+            Title = documentEntry.Title,
+            UniqueId = GetUniqueIdFromClinicalDocument(clinicalDocument)
+        };
+
+        var association = new AssociationDto()
+        {
+            SourceObject = submissionSet.Id,
+            TargetObject = documentEntry.Id
+        };
+
+        var sxmls = new SoapXmlSerializer();
+        var cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument);
+
+        var document = new DocumentDto()
+        {
+            Data = Encoding.UTF8.GetBytes(cdaXml.Content),
+            DocumentId = documentEntry.UniqueId
+        };
+
+        documentReference.DocumentEntry = documentEntry;
+        documentReference.SubmissionSet = submissionSet;
+        documentReference.Association = association;
+        documentReference.Document = document;
 
         return documentReference;
     }
 
-    private static DocumentEntryDto? GetDoumentEntryFromClinicalDocument(ClinicalDocument clinicalDocument)
+    private static string GetUniqueIdFromClinicalDocument(ClinicalDocument clinicalDocument)
     {
-        var documentEntry = new DocumentEntryDto();
+        var clinicalDocumentId = clinicalDocument.Id.Extension;
+        if (string.IsNullOrWhiteSpace(clinicalDocumentId)) throw new ArgumentNullException(nameof(clinicalDocumentId) + " must have an unique Identifier!");
 
-        documentEntry.Author = GetAuthorInfoFromClinicalDocument(clinicalDocument);
-        documentEntry.AvailabilityStatus = Constants.Xds.StatusValues.Approved;
-        documentEntry.ClassCode = GetClassCodeFromClinicalDocument(clinicalDocument);
-        documentEntry.ConfidentialityCode = GetConfidentialityCodeFromClinicalDocument(clinicalDocument);
-        documentEntry.CreationTime = GetCreationTimeFromClinicalDocument(clinicalDocument);
-        documentEntry.FormatCode = GetFormatCodeFromClinicalDocument(clinicalDocument);
-        documentEntry.Hash = GetHashFromClinicalDocument(clinicalDocument);
-        documentEntry.HomeCommunityId = GetHomeCommunityIdFromClinicalDocument(clinicalDocument);
-
-        return documentEntry;
+        return clinicalDocumentId;
     }
 
-    private static string? GetHomeCommunityIdFromClinicalDocument(ClinicalDocument clinicalDocument)
+    private static CodedValue? GetTypeCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
     {
-        throw new NotImplementedException();
+        var cdaTypeCode = clinicalDocument.Code;
+
+        return new()
+        {
+            Code = cdaTypeCode.Code,
+            CodeSystem = cdaTypeCode.CodeSystem,
+            DisplayName = cdaTypeCode.DisplayName
+        };
+    }
+
+    private static SourcePatientInfo? GetSourcePatientInfoFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var patientRole = clinicalDocument.RecordTarget?.FirstOrDefault(pr => pr.PatientRole?.Id != null)?.PatientRole;
+
+        if (patientRole == null) throw new ArgumentNullException("No PatientRole in ClinicalDocument");
+
+        var authorNames = patientRole.Patient?.Name?
+        .SelectMany(nme =>
+        {
+            var prefix = nme.Prefix?.Select(g => g.Value) ?? Enumerable.Empty<string>();
+            var given = nme.Given?.Select(g => g.Value) ?? Enumerable.Empty<string>();
+            var family = nme.Family?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+            var suffix = nme.Suffix?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+
+            return new[]
+            {
+                string.Join(" ", prefix.Concat(given)),
+                string.Join(" ", family.Concat(suffix))
+            };
+        }).ToList();
+
+        var patientGender = patientRole.Patient?.AdministrativeGenderCode?.Code switch
+        {
+            "0" => "U",
+            "1" => "M",
+            "2" => "F",
+            "9" => "O",
+            _ => "U"
+        };
+
+        return new()
+        {
+            BirthTime = patientRole.Patient?.BirthTime?.EffectiveTime.UtcDateTime,
+            FirstName = authorNames?.FirstOrDefault(),
+            LastName = authorNames?.LastOrDefault(),
+            Gender = patientGender,
+            PatientId = new() { Id = patientRole.Id.FirstOrDefault()?.Extension, System = patientRole.Id.FirstOrDefault()?.Root }
+        };
+    }
+
+    private static string? GetSizeFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var sxmls = new SoapXmlSerializer();
+
+        var cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument);
+
+        return cdaXml.Content?.Length.ToString() ?? "0";
+    }
+
+    private static DateTime? GetEffectiveTimeFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        return clinicalDocument.EffectiveTime.EffectiveTime.UtcDateTime;
+    }
+
+    private static string? GetRepositoryUniqueIdFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var repositoryId = clinicalDocument.Id.Root;
+        if (string.IsNullOrWhiteSpace(repositoryId)) return null;
+
+        return repositoryId;
+    }
+
+    private static Models.Custom.RegistryDtos.LegalAuthenticator? GetLegalAuthenticatorFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var assignedAuthor = clinicalDocument.Author.FirstOrDefault()?.AssignedAuthor;
+
+        if (assignedAuthor == null) return null;
+
+        var legalAuthenticator = new Models.Custom.RegistryDtos.LegalAuthenticator();
+
+        var authorCdaName = assignedAuthor?.AssignedPerson;
+
+        var authorNames = authorCdaName?.Name?
+            .SelectMany(nme =>
+            {
+                var prefix = nme.Prefix?.Select(g => g.Value) ?? Enumerable.Empty<string>();
+                var given = nme.Given?.Select(g => g.Value) ?? Enumerable.Empty<string>();
+                var family = nme.Family?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+                var suffix = nme.Suffix?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+                return new[]
+                {
+                    string.Join(" ", prefix.Concat(given)),
+                    string.Join(" ", family.Concat(suffix))
+                };
+            }).ToList();
+
+        legalAuthenticator = new()
+        {
+            FirstName = authorNames?.FirstOrDefault(),
+            LastName = authorNames?.LastOrDefault()
+        };
+
+        var cdaAuthorId = assignedAuthor?.Id?.FirstOrDefault();
+
+        legalAuthenticator.Id = cdaAuthorId?.Extension;
+        legalAuthenticator.IdSystem = cdaAuthorId?.Root;
+
+        return legalAuthenticator;
+    }
+
+    private static string? GetLanguageCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
+    {
+        var realmCode = clinicalDocument.RealmCode?.FirstOrDefault()?.Code;
+        if (string.IsNullOrWhiteSpace(realmCode)) return null;
+
+        return realmCode;
     }
 
     private static string? GetHashFromClinicalDocument(ClinicalDocument clinicalDocument)
@@ -78,18 +236,18 @@ public static partial class CdaTransformerService
         var cdaConfidentialityCode = clinicalDocument.ConfidentialityCode;
         if (cdaConfidentialityCode == null) return null;
 
-        return [new() 
-        { 
-            Code = cdaConfidentialityCode.Code, 
-            CodeSystem = cdaConfidentialityCode.CodeSystem, 
-            DisplayName = cdaConfidentialityCode.DisplayName 
+        return [new()
+        {
+            Code = cdaConfidentialityCode.Code,
+            CodeSystem = cdaConfidentialityCode.CodeSystem,
+            DisplayName = cdaConfidentialityCode.DisplayName
         }];
     }
 
     private static CodedValue? GetClassCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
     {
         return new CodedValue()
-        { 
+        {
             // https://finnkode.helsedirektoratet.no/adm/collections/9602?q=9602
             Code = clinicalDocument.Code?.Code switch
             {
@@ -201,17 +359,6 @@ public static partial class CdaTransformerService
 
         return authorOrganization;
     }
-
-    private static CodedValue? GetAuthorSpecialityFromClinicalDocument(ClinicalDocument clinicalDocument)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static CodedValue? GetAuthorRoleFromClinicalDocument(ClinicalDocument clinicalDocument)
-    {
-        throw new NotImplementedException();
-    }
-
 }
 
 public static partial class CdaTransformerService
@@ -502,12 +649,12 @@ public static partial class CdaTransformerService
 
     private static II? SetPatientRoleId(DocumentEntryDto documentEntry)
     {
-        if (documentEntry.PatientId == null) return null;
+        if (documentEntry.SourcePatientInfo?.PatientId?.Id == null || documentEntry.SourcePatientInfo?.PatientId?.System == null) return null;
 
         return new()
         {
-            Root = documentEntry?.PatientId?.CodeSystem,
-            Extension = documentEntry?.PatientId?.Code
+            Root = documentEntry.SourcePatientInfo.PatientId.System,
+            Extension = documentEntry.SourcePatientInfo.PatientId.Id
         };
     }
 

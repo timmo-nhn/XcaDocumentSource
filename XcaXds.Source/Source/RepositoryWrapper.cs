@@ -54,7 +54,7 @@ public partial class RepositoryWrapper
         _logger.LogInformation($"WrapRetrievedDocumentInCda Enabled");
 
 
-        var sxmls = new SoapXmlSerializer(XmlSettings.Soap);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
