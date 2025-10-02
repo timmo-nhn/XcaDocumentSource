@@ -101,40 +101,53 @@ public static class RegistryMetadataTransformerService
     public static List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(List<IdentifiableType> registryObjectList)
     {
         var listDto = new List<RegistryObjectDto>();
+        var currentType = string.Empty;
+        var currentId = string.Empty;
 
-        foreach (var registryObject in registryObjectList)
+        try
         {
-            if (registryObject == null) continue;
-
-            if (registryObject is AssociationType association)
+            foreach (var registryObject in registryObjectList)
             {
-                var associationDto = TransformAssociationToAssociationDto(association);
+                if (registryObject == null) continue;
+                currentType = registryObject.GetType().Name;
 
-                if (associationDto == null) continue;
+                if (registryObject is AssociationType association)
+                {
+                    currentId = association.Id;
+                    var associationDto = TransformAssociationToAssociationDto(association);
 
-                listDto.Add(associationDto);
-                continue;
+                    if (associationDto == null) continue;
+
+                    listDto.Add(associationDto);
+                    continue;
+                }
+
+                if (registryObject is ExtrinsicObjectType extrinsicObject)
+                {
+                    currentId = extrinsicObject.Id;
+                    var documentEntryDto = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
+
+                    if (documentEntryDto == null) continue;
+
+                    listDto.Add(documentEntryDto);
+                    continue;
+                }
+
+                if (registryObject is RegistryPackageType registryPackage)
+                {
+                    currentId = registryPackage.Id;
+                    var submissionSetDto = TransformRegistryPackageToSubmissionSetDto(registryPackage);
+
+                    if (submissionSetDto == null) continue;
+
+                    listDto.Add(submissionSetDto);
+                    continue;
+                }
             }
-
-            if (registryObject is ExtrinsicObjectType extrinsicObject)
-            {
-                var documentEntryDto = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
-
-                if (documentEntryDto == null) continue;
-
-                listDto.Add(documentEntryDto);
-                continue;
-            }
-
-            if (registryObject is RegistryPackageType registryPackage)
-            {
-                var submissionSetDto = TransformRegistryPackageToSubmissionSetDto(registryPackage);
-
-                if (submissionSetDto == null) continue;
-
-                listDto.Add(submissionSetDto);
-                continue;
-            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {currentId}\n\tType: {currentType}\n\tIndex: {listDto.Count}\n\tError: {ex.Message}");
         }
 
         return listDto;

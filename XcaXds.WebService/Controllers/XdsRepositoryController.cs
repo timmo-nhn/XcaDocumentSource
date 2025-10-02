@@ -128,6 +128,11 @@ public class XdsRepositoryController : ControllerBase
 
                 if (repositoryDocumentExists.IsSuccess is false)
                 {
+                    var registryError = repositoryDocumentExists.Value?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.FirstOrDefault();
+                    if (registryError != null)
+                    {
+                        _logger.LogError($"Error while updating Registry:\n\tError: {registryError.ErrorCode}\n\tCodeContext: {registryError.CodeContext}\n\tLocation: {registryError.Location}");
+                    }
                     responseEnvelope = repositoryDocumentExists.Value;
                     break;
                 }

@@ -74,7 +74,8 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Error while updating registry");
+        _logger.LogError(registryUpdateResult.Value);
+        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry\nError: {registryUpdateResult.Value}",_xdsConfig.HomeCommunityId);
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
