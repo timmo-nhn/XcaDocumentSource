@@ -41,6 +41,8 @@ public class ApplicationMetaController : ControllerBase
         var entries = healthReport.Entries;
         var status = healthReport.Status.ToString();
 
+        var uptimeInSeconds = double.Round((DateTimeOffset.Now - _monitoringService.StartupTime).TotalSeconds);
+
         var stats = _monitoringService.ResponseTimes?.Items
             .GroupBy(itm => itm.Key)
             .Select(g => new
@@ -56,7 +58,9 @@ public class ApplicationMetaController : ControllerBase
         var healthCheck = new
         {
             HealthReport = healthReport,
-            stats
+            stats,
+            uptimeInSeconds,
+            _monitoringService.StartupTime
         };
 
         var healthCheckJson = JsonSerializer.Serialize(healthCheck, Constants.JsonDefaultOptions.DefaultSettings);
