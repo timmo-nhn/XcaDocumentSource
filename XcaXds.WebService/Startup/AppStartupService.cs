@@ -1,4 +1,8 @@
 ﻿
+using Microsoft.AspNetCore.Identity.Data;
+using XcaXds.Commons.Commons;
+using XcaXds.WebService.Services;
+
 namespace XcaXds.WebService.Startup;
 
 public class AppStartupService : IHostedService
@@ -7,19 +11,25 @@ public class AppStartupService : IHostedService
     private readonly ILogger<AppStartupService> _logger;
     private readonly IHostEnvironment _env;
     private readonly IConfiguration _config;
-
+    private readonly MonitoringStatusService _monitoringService;
     private readonly ApplicationConfig _appConfig;
 
-    public AppStartupService(ILogger<AppStartupService> logger, IHostEnvironment env, IConfiguration config, ApplicationConfig appConfig)
+    public AppStartupService(ILogger<AppStartupService> logger, IHostEnvironment env, IConfiguration config, ApplicationConfig appConfig, MonitoringStatusService monitoringService)
     {
         _logger = logger;
         _env = env;
         _config = config;
         _appConfig = appConfig;
+        _monitoringService = monitoringService;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        var startupTime = DateTime.Now;
+        _logger.LogInformation($"Startup Time (UTC): {startupTime.ToString("O")}");
+
+        _monitoringService.StartupTime = startupTime;
+
         if (_env.IsProduction())
         {
             if (_appConfig.HomeCommunityId == "2.16.578.1.12.4.5.100.1")
