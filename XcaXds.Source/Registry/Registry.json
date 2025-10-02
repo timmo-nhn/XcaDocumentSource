@@ -1,16 +1,6 @@
 [
   {
     "$type": "SubmissionSetDto",
-    "author": [
-      {
-        "organization": {},
-        "person": {
-          "firstName": "GR\u00D8NN",
-          "lastName": "VITS"
-        }
-      }
-    ],
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
     "submissionTime": "2025-10-01T00:00:00",
     "title": "SubmissionSet-17855599120-01.10.2025 13:48:22",
     "uniqueId": "2.16.578.1.12.4.5.7.4.72091.2153.87243",
@@ -77,5 +67,84 @@
     "submissionSetStatus": "Original",
     "targetObject": "1c24a8cc-88bc-4e21-977e-ee8e11274282",
     "id": "a0ee2e47-141e-4ccc-8bc6-e197264fa0f9"
+  },
+  {
+    "$type": "SubmissionSetDto",
+    "author": [
+      {
+        "organization": {},
+        "person": {
+          "firstName": "GR\u00D8NN",
+          "lastName": "VITS"
+        }
+      }
+    ],
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "submissionTime": "2025-10-02T00:00:00",
+    "title": "SubmissionSet-04881098402-02.10.2025 14:03:56",
+    "uniqueId": "2.16.578.1.12.4.5.7.4.58471.1914.92931",
+    "sourceId": "2.16.578.1.12.4.5.100.15",
+    "id": "09f5fb73-f053-449a-a52d-d7a8e7a24f2e"
+  },
+  {
+    "$type": "DocumentEntryDto",
+    "author": [],
+    "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "classCode": {
+      "code": "C00-1",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Pr\u00F8vesvar, vev og v\u00E6sker"
+    },
+    "creationTime": "2025-09-05T00:00:00",
+    "formatCode": {
+      "code": "urn:hl7-org:sdwg:ccda-nonXMLBody:2.1",
+      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode",
+      "displayName": "urn:hl7-org:sdwg:ccda-nonXMLBody:2.1"
+    },
+    "hash": "B607A9576A84DE65C6D95DEF1C093DA9B7501576",
+    "healthCareFacilityTypeCode": {
+      "code": "86.101",
+      "codeSystem": "2.16.578.1.12.4.1.1.1303",
+      "displayName": "Alminnelige somatiske sykehus"
+    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "languageCode": "no-NO",
+    "mimeType": "text/xml",
+    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
+    "practiceSettingCode": {
+      "code": "4",
+      "codeSystem": "2.16.578.1.12.4.1.1.8653",
+      "displayName": "Legevakt"
+    },
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "size": "57679",
+    "serviceStartTime": "2025-09-25T02:00:00",
+    "serviceStopTime": "2025-09-26T02:00:00",
+    "sourcePatientInfo": {
+      "patientId": {
+        "id": "a7f53653-dbb2-49fa-8e3b-93d4054fec35",
+        "system": "2.16.578.1.12.4.1.7.3.2.1"
+      },
+      "firstName": "MELANKOLSK",
+      "lastName": "HABITT",
+      "birthTime": "2010-08-04T00:00:00",
+      "gender": "U"
+    },
+    "title": "Mikrobiologiske Unders\u00F8kelser",
+    "typeCode": {
+      "code": "C03-2",
+      "codeSystem": "2.16.578.1.12.4.1.1.9602",
+      "displayName": "Mikrobiologi, virologi og serologi"
+    },
+    "uniqueId": "8b386857-1620-4bf0-aeaf-07489ee727c4",
+    "id": "8b386857-1620-4bf0-aeaf-07489ee727c4"
+  },
+  {
+    "$type": "AssociationDto",
+    "associationType": "urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember",
+    "sourceObject": "09f5fb73-f053-449a-a52d-d7a8e7a24f2e",
+    "submissionSetStatus": "Original",
+    "targetObject": "8b386857-1620-4bf0-aeaf-07489ee727c4",
+    "id": "42d03cf3-56ac-4cb5-82b1-c58cd6cca6c5"
   }
 ]

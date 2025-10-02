@@ -1257,7 +1257,7 @@ public static class RegistryMetadataTransformerService
         var homeCommunityId = submissionSetMetadata.HomeCommunityId;
         if (homeCommunityId != null)
         {
-            registryPackage.AddSlot(Constants.Xds.SlotNames.SubmissionTime, [homeCommunityId]);
+            registryPackage.AddSlot(Constants.Xds.SlotNames.HomeCommunityId, [homeCommunityId]);
         }
     }
 
