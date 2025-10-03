@@ -120,8 +120,8 @@ public partial class XdsRegistryService
                     .ByDocumentEntryHealthcareFacilityTypeCode(findDocumentsSearchParameters.XdsDocumentEntryHealthcareFacilityTypeCode);
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryEventCodeList(findDocumentsSearchParameters.XdsDocumentEntryEventCodeList);
-                //registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
-                    //.ByDocumentEntryConfidentialityCode(findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode);
+                registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
+                    .ByDocumentEntryConfidentialityCode(findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode);
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryAuthorPerson(findDocumentsSearchParameters.XdsDocumentEntryAuthorPerson);
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
