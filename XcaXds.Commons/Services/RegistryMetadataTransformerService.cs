@@ -467,7 +467,7 @@ public static class RegistryMetadataTransformerService
             codedValueConfCodes.Add(MapClassificationToCodedValue(confCodeClassification));
         }
 
-        return null;
+        return codedValueConfCodes;
     }
 
     private static CodedValue? GetClassCodeFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
