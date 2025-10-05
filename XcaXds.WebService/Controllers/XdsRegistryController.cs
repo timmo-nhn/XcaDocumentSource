@@ -85,7 +85,9 @@ public class XdsRegistryController : ControllerBase
                     _logger.LogError($"{Request.HttpContext.TraceIdentifier} - Error while updating registry", registryUploadResponse.Value?.Body.Fault);
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
 
-                    registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList.RegistryError];
+                    registryResponse.RegistryErrorList ??= new();
+                    
+                    registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError];
 
                     responseEnvelope = SoapExtensions.CreateSoapResultRegistryResponse(registryResponse).Value;
                 }
