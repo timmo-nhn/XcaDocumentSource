@@ -13,7 +13,7 @@ public static class ConfigBinder
             DocumentUploadSizeLimitKb = int.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__DocumentUploadSizeLimitKb").Value ?? "0"),
             WrapRetrievedDocumentInCda = bool.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__WrapRetrievedDocumentInCda").Value ?? "false"),
             MultipartResponseForIti43AndIti39 = bool.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__MultipartResponseForIti43AndIti39").Value ?? "true"),
-            HelseidCert = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelseidCert").Value,
+            HelseidCert = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelseidCert").Value
         };
     }
 }
