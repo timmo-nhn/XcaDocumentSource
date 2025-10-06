@@ -1,32 +1,21 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Xml;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
 using XcaXds.Tests.Helpers;
-using static XcaXds.Commons.Commons.Constants.AuditLogging;
 
 namespace XcaXds.Tests;
 
 
 public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-
     private readonly HttpClient _client;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly PolicyRepositoryService _policyRepositoryService;
@@ -161,7 +150,7 @@ public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicati
         multipartRequestMultipart.Headers.ContentType?.Parameters.Add(multipartBoundaryMultipart);
 
         var thirdResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestMultipart);
-        
+
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
         var secondContent = await secondResponse.Content.ReadAsStringAsync();
         var thirdContent = await thirdResponse.Content.ReadAsStringAsync();

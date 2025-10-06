@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.FeatureManagement;
 using System.Collections;
 using XcaXds.Commons.Interfaces;
@@ -30,7 +29,7 @@ public class Program
                 options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
             })
         );
-        
+
         builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
         builder.Services.AddHttpClient();
@@ -103,7 +102,7 @@ public class Program
         // Health check
         builder.Services.AddHealthChecks();
 
-        // Feature Toggle (located in XcaXds.WebService/Appsettings.json)
+        // Feature Toggle (located in XcaXds.WebService/appsettings.json)
         builder.Services.AddFeatureManagement();
 
         builder.Services.AddEndpointsApiExplorer();

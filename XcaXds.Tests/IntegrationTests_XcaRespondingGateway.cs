@@ -1,25 +1,16 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
 using XcaXds.Tests.Helpers;
-using static XcaXds.Commons.Commons.Constants.AuditLogging;
 
 namespace XcaXds.Tests;
 
@@ -71,7 +62,7 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
             _policyRepositoryService.AddPolicy(new PolicyDto()
             {
                 Id = tempPolicyName,
-                Rules = 
+                Rules =
                 [[
                     new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:code", Value = "LE;SP;PS" },
                     new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem", Value = "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060" }
@@ -226,7 +217,7 @@ public class IntegrationTests_XcaRespondingGateway : IClassFixture<WebApplicatio
         multipartRequestMultipart.Headers.ContentType?.Parameters.Add(multipartBoundaryMultipart);
 
         var thirdResponse = await _client.PostAsync("https://localhost:7176/XCA/services/RespondingGatewayService", multipartRequestMultipart);
-        
+
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
         var secondContent = await secondResponse.Content.ReadAsStringAsync();
         var thirdContent = await thirdResponse.Content.ReadAsStringAsync();
