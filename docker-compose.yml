@@ -17,18 +17,5 @@ services:
     networks:
       - xcanet
 
-  admin:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    environment:
-      - ASPNETCORE_URLS=http://+:5001
-      - DOTNET_RUNNING_IN_CONTAINER=true
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5001:5001"
-    networks:
-      - xcanet
-
 networks:
   xcanet:
