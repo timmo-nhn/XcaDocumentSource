@@ -9,17 +9,17 @@ public class Saml2Validator
     private readonly Saml2SecurityTokenHandler _saml2Handler;
     private readonly TokenValidationParameters _validationParameters;
 
-    public Saml2Validator(string cert)
+    public Saml2Validator(string[] signingCertificates)
     {
         _saml2Handler = new Saml2SecurityTokenHandler();
 
-        if (string.IsNullOrWhiteSpace(cert))
+        if (signingCertificates == null)
         {
-            throw new Exception("HelseID certificate missing! SAML-token cannot be validated!");
+            throw new Exception("Signing certificate missing! SAML-token cannot be validated!");
         }
 
-        var idpCert = new X509Certificate2(Convert.FromBase64String(cert));
-        var signingKey = new X509SecurityKey(idpCert);
+        var idpCert = signingCertificates.Select(cs => new X509Certificate2(Convert.FromBase64String(cs)));
+        var signingKeys = idpCert.Select(idpC => new X509SecurityKey(idpC));
 
         _validationParameters = new TokenValidationParameters
         {
@@ -27,7 +27,7 @@ public class Saml2Validator
             ValidAudiences = ["https://ptr1xds-reg.prod.drift.nhn.no/", "https://xds-web.test.nhn.no/", "nhn:dokumentdeling-saml"],
             ValidIssuers = ["https://helseid-xdssaml.prod.drift.nhn.no", "https://helseid-xdssaml.test.nhn.no", "sikkerhet.helsenorge.no"],
 
-            IssuerSigningKey = signingKey,
+            IssuerSigningKeys = signingKeys,
             ValidateAudience = true,
             ValidateIssuer = true,
             ValidateIssuerSigningKey = true,
