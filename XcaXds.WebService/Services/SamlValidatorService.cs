@@ -43,19 +43,25 @@ public class Saml2Validator
         try
         {
             var principal = _saml2Handler.ValidateToken(samlXml, _validationParameters, out var validatedToken);
-
-            var x509Key = (X509SecurityKey)_validationParameters.IssuerSigningKey;
-            var chain = new X509Chain();
-            chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
-
-            if (!chain.Build(x509Key.Certificate))
+            var results = new List<bool>();
+            foreach (var signingKey in _validationParameters.IssuerSigningKeys)
             {
-                validationMessage = string.Join(", ",
-                    chain.ChainStatus.Select(s => $"{s.Status}: {s.StatusInformation}"));
-                validationMessage = $"Certificate chain invalid: {validationMessage}";
-                return false;
+                var x509Key = (X509SecurityKey)signingKey;
+                var chain = new X509Chain();
+                chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
+
+                if (!chain.Build(x509Key.Certificate))
+                {
+                    validationMessage = string.Join(", ",
+                        chain.ChainStatus.Select(s => $"{s.Status}: {s.StatusInformation}"));
+                    validationMessage = $"Certificate chain invalid: {validationMessage}";
+                    results.Add(false);
+                }
+
+                results.Add(true);
             }
-            return true;
+
+            return results.Any(res => res == true);
         }
         catch (Exception ex)
         {
