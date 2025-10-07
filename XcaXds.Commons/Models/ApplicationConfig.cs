@@ -10,4 +10,5 @@ public class ApplicationConfig
     public int DocumentUploadSizeLimitKb { get; set; }
     public bool ValidateSamlTokenIntegrity { get; set; }
     public string? HelseidCert { get; set; }
+    public string? HelsenorgeCert { get; set; }
 }

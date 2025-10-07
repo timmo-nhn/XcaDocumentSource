@@ -90,7 +90,7 @@ public class PolicyEnforcementPointMiddleware
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Body:\n{requestBody}");
+        _logger.LogDebug($"{httpContext.TraceIdentifier} - Request Body:\n{requestBody}");
 
         if (httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("boundary")))
         {
@@ -124,7 +124,7 @@ public class PolicyEnforcementPointMiddleware
                 if (_xdsConfig.ValidateSamlTokenIntegrity)
                 {
                     var validations = new Saml2SecurityTokenHandler();
-                    var validator = new Saml2Validator(_xdsConfig.HelseidCert);
+                    var validator = new Saml2Validator([_xdsConfig.HelseidCert, _xdsConfig.HelsenorgeCert]);
 
                     tokenIsValid = validator.ValidateSamlToken(samlTokenString, out var message);
 
@@ -134,7 +134,6 @@ public class PolicyEnforcementPointMiddleware
                         _logger.LogInformation($"{httpContext.TraceIdentifier} - {message}");
                         break;
                     }
-
                 }
 
                 _logger.LogInformation($"{httpContext.TraceIdentifier} - Saml token is valid!");
@@ -179,7 +178,7 @@ public class PolicyEnforcementPointMiddleware
         }
 
         var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
+        _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
 
         var policySetXml = XacmlSerializer.SerializeXacmlToXml(_debug_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
