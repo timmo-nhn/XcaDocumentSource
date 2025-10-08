@@ -35,7 +35,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         var policySetDto = new PolicySetDto()
         {
-            CombiningAlgorithm = Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_PermitOverrides,
+            CombiningAlgorithm = Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_DenyOverrides,
         };
 
         lock (_lock)
