@@ -44,6 +44,7 @@ public class Saml2Validator
         {
             var principal = _saml2Handler.ValidateToken(samlXml, _validationParameters, out var validatedToken);
             var results = new List<bool>();
+
             foreach (var signingKey in _validationParameters.IssuerSigningKeys)
             {
                 var x509Key = (X509SecurityKey)signingKey;
