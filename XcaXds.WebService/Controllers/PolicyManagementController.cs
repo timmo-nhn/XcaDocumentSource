@@ -5,7 +5,6 @@ using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
-using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -14,23 +13,12 @@ namespace XcaXds.WebService.Controllers;
 public class PolicyManagementController : ControllerBase
 {
     private readonly ILogger<PolicyManagementController> _logger;
-    private readonly ApplicationConfig _xdsConfig;
-    private readonly RegistryWrapper _registryWrapper;
-    private readonly RepositoryWrapper _repositoryWrapper;
     private readonly PolicyRepositoryService _policyRepositoryService;
 
-    public PolicyManagementController
-        (ILogger<PolicyManagementController> logger,
-        ApplicationConfig xdsConfig,
-        RegistryWrapper registryWrapper,
-        RepositoryWrapper repositoryWrapper,
+    public PolicyManagementController(
         PolicyRepositoryService policyRepositoryService
         )
     {
-        _logger = logger;
-        _xdsConfig = xdsConfig;
-        _registryWrapper = registryWrapper;
-        _repositoryWrapper = repositoryWrapper;
         _policyRepositoryService = policyRepositoryService;
     }
 
