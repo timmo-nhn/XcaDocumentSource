@@ -68,7 +68,7 @@ public static class PolicyDtoTransformerService
         if (policyDto == null) return null;
 
         var target = new XacmlTarget();
-        var xacmlPolicy = new XacmlPolicy(new Uri(Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_DenyOverrides), target);
+        var xacmlPolicy = new XacmlPolicy(new Uri(Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_PermitOverrides), target);
 
         XacmlEffectType xacmlEffect;
 
