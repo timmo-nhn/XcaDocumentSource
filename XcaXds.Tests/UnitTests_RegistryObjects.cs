@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Cryptography;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
@@ -153,10 +154,8 @@ public class UnitTests_RegistryObjects
             if (generatedTestObject?.SourcePatientInfo?.PatientId?.Id != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
             {
                 generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
-                using (var md5 = MD5.Create())
-                {
-                    generatedTestObject.Hash = BitConverter.ToString(md5.ComputeHash(randomFileAsByteArray)).Replace("-", "");
-                }
+                generatedTestObject.Hash = BitConverter.ToString(SHA1.HashData(randomFileAsByteArray)).Replace("-", "").ToLowerInvariant();
+
                 repoService.Write(generatedTestObject.Id, randomFileAsByteArray, generatedTestObject?.SourcePatientInfo?.PatientId?.Id);
             }
         }

@@ -275,6 +275,8 @@ public partial class XdsRegistryService
             //    break;
         }
 
+        filteredElements.ObfuscateRestrictedDocumentEntries();
+
         if (adhocQueryRequest?.ResponseOption != null)
         {
             switch (adhocQueryRequest.ResponseOption.ReturnType)
@@ -394,7 +396,7 @@ public partial class XdsRegistryService
             }
 
             // Document Hash slot
-            var documentHash = Convert.ToHexString(SHA1.HashData(assocDocument.Value));
+            var documentHash = BitConverter.ToString(SHA1.HashData(assocDocument.Value)).Replace("-", "").ToLowerInvariant();
 
             // Check if the submissionset already has a hash, and if its the same as the calculated hash
             var extrinsicObjectHash = assocExtrinsicObject.GetSlots("Hash").FirstOrDefault()?.GetFirstValue();

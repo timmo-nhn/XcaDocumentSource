@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Runtime;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -117,11 +118,7 @@ public class ApplicationMetaController : ControllerBase
             {
                 generatedTestObject.Title = "XcaDS - " + generatedTestObject.Title;
                 generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
-                using (var md5 = MD5.Create())
-                {
-                    generatedTestObject.Hash = BitConverter.ToString(md5.ComputeHash(randomFileAsByteArray)).Replace("-", "");
-                }
-
+                generatedTestObject.Hash = BitConverter.ToString(SHA1.HashData(randomFileAsByteArray)).Replace("-", "").ToLowerInvariant();
                 generatedTestObject.RepositoryUniqueId = _xdsConfig.RepositoryUniqueId;
                 generatedTestObject.HomeCommunityId = _xdsConfig.HomeCommunityId;
 
@@ -143,13 +140,13 @@ public class ApplicationMetaController : ControllerBase
     }
 
     [Tags("_Purge registry and repository! ⚠️")]
-    [HttpGet("nuke")]
+    [HttpDelete("nuke")]
     public async Task<IActionResult> NukeRegistryRepository(string nukeKey)
     {
         var datetime = DateTime.Now.ToString("ddMMyyhhMM");
         if (datetime != nukeKey) return BadRequest("Invalid Nuke key, get nuke key from the 'get-nuke-key'-endpoint");
 
-        var documentIds = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(dent => dent.Id).ToList();
+        var documentIds = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(dent => dent.UniqueId).ToList();
 
         var amount = documentIds.Count;
         _logger.LogInformation($"Fetched {amount} for nuking");

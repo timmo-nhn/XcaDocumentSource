@@ -1381,6 +1381,81 @@
     "confidentialityCodes": [
       {
         "code": "N",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Normal"
+      },
+      {
+        "code": "R",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Restricted"
+      },
+      {
+        "code": "V",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Very Restricted"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Normal"
+      },
+      {
+        "code": "R",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Restricted"
+      },
+      {
+        "code": "V",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Very Restricted"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Normal"
+      },
+      {
+        "code": "R",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Restricted"
+      },
+      {
+        "code": "V",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Very Restricted"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Normal"
+      },
+      {
+        "code": "R",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Restricted"
+      },
+      {
+        "code": "V",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Very Restricted"
+      },
+      {
+        "code": "N",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Normal"
+      },
+      {
+        "code": "R",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Restricted"
+      },
+      {
+        "code": "V",
+        "codeSystem": "2.16.840.1.113883.5.25",
+        "displayName": "Very Restricted"
+      },
+      {
+        "code": "N",
         "displayName": "Normal",
         "codeSystem": "2.16.578.1.12.4.1.1.9603"
       },
