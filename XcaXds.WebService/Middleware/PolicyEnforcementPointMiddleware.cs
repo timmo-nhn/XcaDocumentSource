@@ -1,4 +1,5 @@
 ﻿using Abc.Xacml.Context;
+using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
@@ -21,8 +22,8 @@ public class PolicyEnforcementPointMiddleware
     private readonly ILogger<PolicyEnforcementPointMiddleware> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
-    private readonly PolicyRepositoryService _debug_policyRepositoryService;
     private readonly PolicyDecisionPointService _policyDecisionPointService;
+    private readonly IVariantFeatureManager _featureManager;
 
 
     public PolicyEnforcementPointMiddleware(
@@ -30,16 +31,16 @@ public class PolicyEnforcementPointMiddleware
         ILogger<PolicyEnforcementPointMiddleware> logger,
         ApplicationConfig xdsConfig,
         IWebHostEnvironment env,
-        PolicyRepositoryService debug_policyRepositoryService,
-        PolicyDecisionPointService policyDecisionPointService
+        PolicyDecisionPointService policyDecisionPointService,
+        IVariantFeatureManager featureManager
         )
     {
         _logger = logger;
         _next = next;
         _xdsConfig = xdsConfig;
         _env = env;
-        _debug_policyRepositoryService = debug_policyRepositoryService;
         _policyDecisionPointService = policyDecisionPointService;
+        _featureManager = featureManager;
     }
 
 
@@ -180,7 +181,6 @@ public class PolicyEnforcementPointMiddleware
         var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
 
-        var policySetXml = XacmlSerializer.SerializeXacmlToXml(_debug_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
 

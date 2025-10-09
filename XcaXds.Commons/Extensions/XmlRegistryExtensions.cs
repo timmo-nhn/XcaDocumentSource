@@ -3,7 +3,9 @@ using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -614,5 +616,154 @@ public static class Commons
     public static IdentifiableType GetById(this IEnumerable<IdentifiableType> identifiableTypes, string id)
     {
         return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
+    }
+
+    /// <summary>
+    /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
+    /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
+    /// </summary>
+    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes)
+    {
+        foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
+        {
+            // Skip if the entry is just "Normal" classified (No obfuscation needed)
+            if (extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
+                .Any(ccode => new[]
+                {
+                    "NORN_ALL", "NORN_ANG", "NORN_EPO", "NORN_FFH",
+                    "NORN_FFL", "NORN_FOR", "NORN_FORANS", "NORN_FPB",
+                    "NORN_KUT", "NORN_UNGDOM", "NORS", "NORU", "V", "R"
+                }.Contains(ccode.NodeRepresentation)) == false) continue;
+
+            extrinsicObject.Id = Guid.Empty.ToString();
+
+            if (extrinsicObject.Name.LocalizedString.FirstOrDefault() != null)
+            {
+                extrinsicObject.Name.LocalizedString.First().Value = "Sperret";
+            }
+
+            foreach (var slot in extrinsicObject.Slot ?? [])
+            {
+                ObfuscateSlot(slot);
+            }
+
+            foreach (var classification in extrinsicObject.Classification)
+            {
+                ObfuscateClassification(classification);
+            }
+
+            foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier)
+            {
+                ObfuscateExternalIdentifier(externalIdentifier);
+            }
+        }
+
+        return identifiableTypes;
+    }
+
+    private static void ObfuscateExternalIdentifier(ExternalIdentifierType externalIdentifier)
+    {
+        switch (externalIdentifier.IdentificationScheme)
+        {
+            case Constants.Xds.Uuids.DocumentEntry.UniqueId:
+                externalIdentifier.RegistryObject = Guid.Empty.ToString();
+                externalIdentifier.Value = "*****";
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private static void ObfuscateClassification(ClassificationType classification)
+    {
+        switch (classification.ClassificationScheme)
+        {
+            case Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode:
+            case Constants.Xds.Uuids.DocumentEntry.ClassCode:
+            case Constants.Xds.Uuids.DocumentEntry.TypeCode:
+            case Constants.Xds.Uuids.DocumentEntry.Author:
+                classification.ClassifiedObject = Guid.Empty.ToString();
+                classification.NodeRepresentation = "*****";
+
+                if (classification.Name != null)
+                {
+                    classification.Name.LocalizedString = classification.Name.LocalizedString.Select(nm => new LocalizedStringType() { Value = "*****" }).ToArray();
+                }
+                foreach (var slot in classification.Slot)
+                {
+                    ObfuscateSlot(slot);
+                }
+                break;
+                
+            default:
+
+                break;
+        }
+    }
+
+    private static void ObfuscateSlot(SlotType slot)
+    {
+        switch (slot.Name)
+        {
+            case Constants.Xds.SlotNames.AuthorPerson:
+            case Constants.Xds.SlotNames.LegalAuthenticator:
+                for (int i = 0; i < slot.ValueList.Value.Length; i++)
+                {
+                    var value = slot.ValueList.Value[i];
+
+                    if (value != null)
+                    {
+                        var structuredValue = Hl7Object.Parse<XCN>(value);
+                        if (structuredValue == null) return;
+
+                        structuredValue.PersonIdentifier = string.IsNullOrWhiteSpace(structuredValue.PersonIdentifier) ? null : "*****";
+                        structuredValue.FamilyName = string.IsNullOrWhiteSpace(structuredValue.FamilyName) ? null : "*****";
+                        structuredValue.MiddleName = string.IsNullOrWhiteSpace(structuredValue.MiddleName) ? null : "*****";
+                        structuredValue.GivenName = string.IsNullOrWhiteSpace(structuredValue.GivenName) ? null : "*****";
+                        structuredValue.Prefix = string.IsNullOrWhiteSpace(structuredValue.Prefix) ? null : "*****";
+                        structuredValue.Suffix = string.IsNullOrWhiteSpace(structuredValue.Suffix) ? null : "*****";
+                        structuredValue.Degree = string.IsNullOrWhiteSpace(structuredValue.Degree) ? null : "*****";
+
+                        slot.ValueList.Value[0] = structuredValue.Serialize();
+                    }
+                }
+                break;
+
+            case Constants.Xds.SlotNames.AuthorInstitution:
+                for (int i = 0; i < slot.ValueList.Value.Length; i++)
+                {
+                    var value = slot.ValueList.Value[i];
+
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        var structuredValue = Hl7Object.Parse<XON>(value);
+                        if (structuredValue == null) return;
+
+                        // Dont obfuscate the value for organization or the last value
+                        if (structuredValue.AssigningAuthority.UniversalId == Constants.Oid.Brreg || i == slot.ValueList.Value.Length) continue;
+
+                        structuredValue.OrganizationIdentifier = string.IsNullOrWhiteSpace(structuredValue.OrganizationIdentifier) ? null : "*****";
+                        structuredValue.IdNumber = string.IsNullOrWhiteSpace(structuredValue.IdNumber) ? null : "*****";
+                        structuredValue.OrganizationName = string.IsNullOrWhiteSpace(structuredValue.OrganizationName) ? null : "*****";
+
+                        slot.ValueList.Value[i] = structuredValue.Serialize();
+                    }
+                }
+
+                break;
+
+            case Constants.Xds.SlotNames.AuthorSpecialty:
+            case Constants.Xds.SlotNames.AuthorRole:
+            case Constants.Xds.SlotNames.CodingScheme:
+                for (int i = 0; i < slot.ValueList.Value.Length; i++)
+                {
+                    slot.ValueList.Value[i] = "*****";
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 }

@@ -206,11 +206,9 @@ public static partial class CdaTransformerService
         var cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument).Content;
         if (cdaXml == null) return null;
 
-        using var md5 = MD5.Create();
         var inputBytes = Encoding.UTF8.GetBytes(cdaXml);
-        var hashBytes = md5.ComputeHash(inputBytes);
 
-        return Convert.ToHexString(hashBytes);
+        return BitConverter.ToString(SHA1.HashData(inputBytes)).Replace("-", "").ToLowerInvariant();
     }
 
     private static CodedValue? GetFormatCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
