@@ -517,7 +517,8 @@ public static class RegistryMetadataTransformerService
                     Role = GetAuthorRoleFromClassificaiton(authorClassification),
                     Speciality = GetAuthorSpecialityFromClassification(authorClassification)
                 };
-            }
+				authorList.Add(author);
+			}
             return authorList;
         }
         return null;
