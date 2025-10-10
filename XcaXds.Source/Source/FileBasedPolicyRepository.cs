@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
-using Abc.Xacml.Policy;
+﻿using Abc.Xacml.Policy;
+using Hl7.Fhir.Model;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
@@ -102,7 +103,9 @@ public class FileBasedPolicyRepository : IPolicyRepository
     public bool UpdatePolicy(PolicyDto policyDto, string? policyId = null)
     {
         if (policyDto == null) return false;
-
+        // FIXME add better update handling stuff?
+        DeletePolicy(policyDto.Id);
+        AddPolicy(policyDto);
         if (policyId != policyDto.Id)
         {
             // If this is true, it's assumed that the user wants to rename the policy

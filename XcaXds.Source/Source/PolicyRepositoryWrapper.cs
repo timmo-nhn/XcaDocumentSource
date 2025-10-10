@@ -75,7 +75,9 @@ public class PolicyRepositoryWrapper
     {
         if (policySet.Policies == null) return false;
 
-        var idx = policySet.Policies.FindIndex(p => p.Id == id);
+        id ??= policyDto.Id;
+
+        var idx = policySet.Policies.FindIndex(p => p.Id == policyDto.Id);
         if (idx < 0) return false;
 
         policySet.Policies[idx] = policyDto;
