@@ -1,7 +1,6 @@
 ﻿namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
-public class 
-    PolicyMatch
+public class PolicyMatch
 {
     public PolicyMatch(string attributeId, string value)
     {
