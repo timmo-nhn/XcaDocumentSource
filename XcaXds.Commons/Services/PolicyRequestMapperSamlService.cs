@@ -1,6 +1,7 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens.Saml;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -24,18 +25,12 @@ public static class PolicyRequestMapperSamlService
         return handler.ReadSaml2Token(inputSamlToken);
     }
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(string inputSamlToken, string action, XacmlVersion xacmlVersion)
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion)
     {
-        if (inputSamlToken == null || action == null)
-        {
-            return null;
-        }
-        var samlToken = ReadSamlToken(inputSamlToken);
-        return await GetXacmlRequestFromSamlToken(samlToken, action, xacmlVersion);
-    }
+        var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSamlToken(Saml2SecurityToken samlToken, string action, XacmlVersion xacmlVersion)
-    {
+        var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
+
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
         var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel") || att.Name.Contains("urn:ihe:iti"));
@@ -50,10 +45,13 @@ public static class PolicyRequestMapperSamlService
         {
             case XacmlVersion.Version20:
 
-                var subjectAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
-
+                var requestAttributes = MapRequestAttributesToXacml20Properties(soapEnvelope);
+                var samlAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
+                
                 // Resource
-                var xacmlResourceAttribute = subjectAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id"));
+                var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();
+
+                xacmlResourceAttribute.AddRange(requestAttributes);
 
                 var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
@@ -63,7 +61,9 @@ public static class PolicyRequestMapperSamlService
                 var xacmlAction = new XacmlContextAction(actionAttribute);
 
                 // Subject
-                var xacmlSubject = new XacmlContextSubject(subjectAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && sa.AttributeId.OriginalString.Contains("subject")));
+                var subjectAttributes = samlAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && sa.AttributeId.OriginalString.Contains("subject")).ToList();
+                subjectAttributes.AddRange(requestAttributes);
+                var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 
                 // Environment
                 var xacmlEnvironment = new XacmlContextEnvironment();
@@ -112,6 +112,45 @@ public static class PolicyRequestMapperSamlService
             default:
                 return null;
         }
+    }
+
+    private static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope)
+    {
+        var documentRequests = soapEnvelope.Body?.RetrieveDocumentSetRequest?.DocumentRequest;
+
+        var xacmlRequestAttributes = new List<XacmlContextAttribute>();
+
+        foreach (var documentRequest in documentRequests ?? [])
+        {
+            if (documentRequest.DocumentUniqueId != null)
+            {
+                xacmlRequestAttributes.Add(
+                    new XacmlContextAttribute(
+                        new Uri("urn:no:nhn:xcads:document:uniqueid"),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = documentRequest.DocumentUniqueId }));
+            }
+
+            if (documentRequest.RepositoryUniqueId != null)
+            {
+                xacmlRequestAttributes.Add(
+                    new XacmlContextAttribute(
+                        new Uri("urn:no:nhn:xcads:document:homecommunityid"),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = documentRequest.HomeCommunityId }));
+            }
+
+            if (documentRequest.HomeCommunityId != null)
+            {
+                xacmlRequestAttributes.Add(
+                    new XacmlContextAttribute(
+                        new Uri("urn:no:nhn:xcads:document:repositoryuniqueid"),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = documentRequest.RepositoryUniqueId }));
+            }
+        }
+        return xacmlRequestAttributes;
+
     }
 
     private static List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
@@ -293,22 +332,7 @@ public static class PolicyRequestMapperSamlService
         };
     }
 
-    public static async Task<XacmlContextRequest?> GetXacml30RequestFromSoapEnvelope(string inputSoapEnvelope)
-    {
-        var samlAssertion = GetSamlTokenFromSoapEnvelope(inputSoapEnvelope);
-        var action = MapXacmlActionFromSoapAction(GetActionFromSoapEnvelope(inputSoapEnvelope));
-        return await GetXacmlRequestFromSamlToken(samlAssertion, action, XacmlVersion.Version30);
-    }
-
-    public static async Task<XacmlContextRequest?> GetXacml20RequestFromSoapEnvelope(string inputSoapEnvelope)
-    {
-        var samlAssertion = GetSamlTokenFromSoapEnvelope(inputSoapEnvelope);
-        var action = MapXacmlActionFromSoapAction(GetActionFromSoapEnvelope(inputSoapEnvelope));
-        return await GetXacmlRequestFromSamlToken(samlAssertion, action, XacmlVersion.Version20);
-    }
-
-
-    public static string? GetActionFromSoapEnvelope(string? inputSoapEnvelope)
+    public static string? GetActionFromSoapEnvelopeString(string? inputSoapEnvelope)
     {
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(inputSoapEnvelope);
@@ -341,7 +365,6 @@ public static class PolicyRequestMapperSamlService
 
     public static string MapXacmlActionFromSoapAction(string action)
     {
-        // Action
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
@@ -364,5 +387,4 @@ public static class PolicyRequestMapperSamlService
                 return Constants.Xacml.Actions.Unknown;
         }
     }
-
 }

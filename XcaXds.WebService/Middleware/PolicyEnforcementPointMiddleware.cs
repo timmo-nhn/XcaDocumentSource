@@ -75,8 +75,6 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed for requests from localhost.");
-
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
         var sb = new StringBuilder();
@@ -87,11 +85,12 @@ public class PolicyEnforcementPointMiddleware
             sb.AppendLine(item.Key + ": " + item.Value);
         }
 
-        _logger.LogInformation(sb.ToString());
+        _logger.LogDebug(sb.ToString());
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
         _logger.LogDebug($"{httpContext.TraceIdentifier} - Request Body:\n{requestBody}");
+
 
         if (httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("boundary")))
         {
@@ -114,7 +113,6 @@ public class PolicyEnforcementPointMiddleware
             case Constants.MimeTypes.SoapXml:
             case Constants.MimeTypes.Xml:
 
-                var xacmlAction = PolicyRequestMapperSamlService.MapXacmlActionFromSoapAction(PolicyRequestMapperSamlService.GetActionFromSoapEnvelope(requestBody));
                 var samlTokenString = PolicyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody);
 
                 if (string.IsNullOrEmpty(samlTokenString))
@@ -139,14 +137,14 @@ public class PolicyEnforcementPointMiddleware
 
                 _logger.LogInformation($"{httpContext.TraceIdentifier} - Saml token is valid!");
 
-                var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(samlTokenString);
-                xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(samlToken, xacmlAction, XacmlVersion.Version20);
+                
+                var soapEnvelope = new SoapXmlSerializer().DeserializeSoapMessage<SoapEnvelope>(requestBody);
+
+                xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSoapEnvelope(soapEnvelope, XacmlVersion.Version20);
 
                 break;
 
             default:
-            case Constants.MimeTypes.Json:
-                xacmlRequest = await PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(httpContext.Request.Headers);
                 break;
         }
 
@@ -180,7 +178,6 @@ public class PolicyEnforcementPointMiddleware
 
         var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
-
 
         var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
 

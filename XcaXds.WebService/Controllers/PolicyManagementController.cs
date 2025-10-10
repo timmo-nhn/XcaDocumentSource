@@ -120,7 +120,7 @@ public class PolicyManagementController : ControllerBase
         if (response)
         {
             apiResponse.Success = true;
-            apiResponse.SetMessage($"Created Policy with id {policyDto.Id}");
+            apiResponse.SetMessage($"Updated Policy with id {policyDto.Id}");
             return Ok(apiResponse);
         }
 
