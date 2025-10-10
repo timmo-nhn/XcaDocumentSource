@@ -199,6 +199,22 @@ public class RestfulRegistryRepositoryController : ControllerBase
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id);
 
         requestTimer.Stop();
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully deleted document: {id}, and metadata in {requestTimer.ElapsedMilliseconds} ms");
+        return Ok(deleteResponse);
+    }
+
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [HttpDelete("delete-all-data-for-patient")]
+    public async Task<IActionResult> DeleteAllDataForPatient(string patientIdentifier)
+    {
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
+
+        var requestTimer = Stopwatch.StartNew();
+
+        var deleteResponse = _restfulRegistryService.DeleteAllDataForPatient(patientIdentifier);
+
+        requestTimer.Stop();
 
         return Ok(deleteResponse);
     }

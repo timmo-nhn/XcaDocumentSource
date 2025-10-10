@@ -403,8 +403,28 @@ public class RestfulRegistryRepositoryService
         return patientIdentifiers;
     }
 
-    public void PurgeRegistryRepository()
+    public RestfulApiResponse DeleteAllDataForPatient(string patientIdentifier)
     {
-        throw new NotImplementedException();
+        var response = new RestfulApiResponse();
+
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var documentEntries = documentRegistry.OfType<DocumentEntryDto>().Where(de => de.SourcePatientInfo?.PatientId?.Id == patientIdentifier).ToList();
+
+        if (documentEntries.Count == 0)
+        {
+            response.SetMessage($"No Metadata found for patient {patientIdentifier}");
+            response.Success = false;
+            return response;
+        }
+
+        foreach (var documentEntry in documentEntries)
+        {
+            DeleteDocumentAndMetadata(documentEntry.Id);
+        }
+
+        response.SetMessage($"Deleted {documentEntries.Count()} entries for patient {patientIdentifier}");
+
+        return response;
     }
 }
