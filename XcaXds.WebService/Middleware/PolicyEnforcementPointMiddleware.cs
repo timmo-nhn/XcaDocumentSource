@@ -23,7 +23,6 @@ public class PolicyEnforcementPointMiddleware
     private readonly ApplicationConfig _xdsConfig;
     private readonly IWebHostEnvironment _env;
     private readonly PolicyDecisionPointService _policyDecisionPointService;
-    private readonly IVariantFeatureManager _featureManager;
     private readonly MonitoringStatusService _monitoringService;
 
 
@@ -33,16 +32,14 @@ public class PolicyEnforcementPointMiddleware
         ApplicationConfig xdsConfig,
         IWebHostEnvironment env,
         PolicyDecisionPointService policyDecisionPointService,
-        IVariantFeatureManager featureManager,
         MonitoringStatusService monitoringService
         )
     {
-        _logger = logger;
         _next = next;
+        _logger = logger;
         _xdsConfig = xdsConfig;
         _env = env;
         _policyDecisionPointService = policyDecisionPointService;
-        _featureManager = featureManager;
         _monitoringService = monitoringService;
     }
 
@@ -110,6 +107,8 @@ public class PolicyEnforcementPointMiddleware
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
+        Issuer xacmlRequestAppliesTo = Issuer.Unknown;
+
         switch (contentType)
         {
             case Constants.MimeTypes.XopXml:
@@ -144,8 +143,8 @@ public class PolicyEnforcementPointMiddleware
                 var soapEnvelope = new SoapXmlSerializer().DeserializeSoapMessage<SoapEnvelope>(requestBody);
                 var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
 
-                xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSoapEnvelope(soapEnvelope, samlToken, XacmlVersion.Version20);
-
+                xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, out var appliesTo);
+                xacmlRequestAppliesTo = appliesTo;
                 break;
 
             default:
@@ -187,7 +186,7 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
 
-        var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest);
+        var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest, xacmlRequestAppliesTo);
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}");
 

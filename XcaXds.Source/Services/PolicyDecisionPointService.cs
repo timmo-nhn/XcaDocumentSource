@@ -1,4 +1,5 @@
 ﻿using Abc.Xacml.Context;
+using XcaXds.Commons.Commons;
 using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
@@ -12,7 +13,7 @@ public class PolicyDecisionPointService
         _policyRepositoryWrapper = policyRepositoryWrapper;
     }
 
-    public XacmlContextResponse EvaluateRequest(XacmlContextRequest? xacmlRequest)
+    public XacmlContextResponse EvaluateRequest(XacmlContextRequest? xacmlRequest, Issuer xacmlRequestAppliesTo)
     {
         return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest);
     }
