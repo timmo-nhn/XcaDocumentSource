@@ -176,7 +176,7 @@ public class PolicyEnforcementPointMiddleware
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content ?? string.Empty);
 
             sw.Stop();
-            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:policyenforcementpoint:tokeninvalid", sw.ElapsedMilliseconds);
+            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:tokeninvalid", sw.ElapsedMilliseconds);
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
@@ -195,7 +195,7 @@ public class PolicyEnforcementPointMiddleware
         {
             sw.Stop();
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
-            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:policyenforcementpoint:permit", sw.ElapsedMilliseconds);
+            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:permit", sw.ElapsedMilliseconds);
             await _next(httpContext);
         }
         else
@@ -227,7 +227,7 @@ public class PolicyEnforcementPointMiddleware
             await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
 
             sw.Stop();
-            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:policyenforcementpoint:deny", sw.ElapsedMilliseconds);
+            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
