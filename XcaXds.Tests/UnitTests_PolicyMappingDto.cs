@@ -20,13 +20,12 @@ public class UnitTests_PolicyMappingDto
     [Fact]
     public async Task AuthZ_EvaluateFromService()
     {
-
         var repository = new FileBasedPolicyRepository(new Mock<ILogger<FileBasedPolicyRepository>>().Object);
         var policyWrapper = new PolicyRepositoryWrapper(repository);
 
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
-        XacmlContextRequest xacmlObject = await PolicyRequestMapperSamlService.GetXacml20RequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8));
+        XacmlContextRequest xacmlObject = await PolicyRequestMapperSamlService.GetXacmlRequestFromSoapEnvelope(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), Commons.Commons.XacmlVersion.Version20);
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);

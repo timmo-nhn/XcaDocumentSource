@@ -1,7 +1,5 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens.Saml;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -27,8 +25,21 @@ public static class PolicyRequestMapperSamlService
 
     public static async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion)
     {
-        var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        return await GetXacmlRequestFromSoapEnvelope(soapEnvelope, samlToken, xacmlVersion);
+    }
 
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(string soapEnvelope, XacmlVersion xacmlVersion)
+    {
+        var sxmls = new SoapXmlSerializer();
+        var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(soapEnvelope);
+
+        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
+        return await GetXacmlRequestFromSoapEnvelope(soapEnvelopeObject, samlToken, xacmlVersion);
+    }
+
+    public static async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion)
+    {
         var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
 
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
@@ -47,7 +58,7 @@ public static class PolicyRequestMapperSamlService
 
                 var requestAttributes = MapRequestAttributesToXacml20Properties(soapEnvelope);
                 var samlAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
-                
+
                 // Resource
                 var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();
 

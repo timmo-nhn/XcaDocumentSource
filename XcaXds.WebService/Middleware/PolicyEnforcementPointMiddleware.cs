@@ -137,10 +137,10 @@ public class PolicyEnforcementPointMiddleware
 
                 _logger.LogInformation($"{httpContext.TraceIdentifier} - Saml token is valid!");
 
-                
                 var soapEnvelope = new SoapXmlSerializer().DeserializeSoapMessage<SoapEnvelope>(requestBody);
+                var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
 
-                xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSoapEnvelope(soapEnvelope, XacmlVersion.Version20);
+                xacmlRequest = await PolicyRequestMapperSamlService.GetXacmlRequestFromSoapEnvelope(soapEnvelope, samlToken, XacmlVersion.Version20);
 
                 break;
 
@@ -192,7 +192,7 @@ public class PolicyEnforcementPointMiddleware
         else
         {
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-
+      
             var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestBody);
 
             var soapEnvelopeResponse = new SoapEnvelope()
