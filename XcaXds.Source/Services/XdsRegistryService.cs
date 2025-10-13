@@ -143,6 +143,8 @@ public partial class XdsRegistryService
                 }
                 filteredElements = [.. registryFindDocumentEntriesResult];
 
+                _logger.LogDebug($"Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
+                _logger.LogInformation($"Returned {filteredElements.Count} ExtrinsicObjects for AdhocQuery Type FindDocuments ({adhocQueryRequest?.AdhocQuery.Id})");
 
                 break;
 
@@ -275,7 +277,12 @@ public partial class XdsRegistryService
             //    break;
         }
 
-        filteredElements.ObfuscateRestrictedDocumentEntries();
+        filteredElements.ObfuscateRestrictedDocumentEntries(out var count);
+        
+        if (count > 0)
+        {
+            _logger.LogInformation($"{count} entries obfuscated");
+        }
 
         if (adhocQueryRequest?.ResponseOption != null)
         {

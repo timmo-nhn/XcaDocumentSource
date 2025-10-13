@@ -622,8 +622,10 @@ public static class Commons
     /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes)
+    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, out int obfuscatedEntriesCount)
     {
+        obfuscatedEntriesCount = 0;
+
         foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
         {
             // Skip if the entry is just "Normal" classified (No obfuscation needed)
@@ -634,7 +636,7 @@ public static class Commons
                     "NORN_FFL", "NORN_FOR", "NORN_FORANS", "NORN_FPB",
                     "NORN_KUT", "NORN_UNGDOM", "NORS", "NORU", "V", "R"
                 }.Contains(ccode.NodeRepresentation)) == false) continue;
-
+            obfuscatedEntriesCount++;
             extrinsicObject.Id = Guid.Empty.ToString();
 
             if (extrinsicObject.Name.LocalizedString.FirstOrDefault() != null)
