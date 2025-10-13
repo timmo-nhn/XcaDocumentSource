@@ -1,9 +1,12 @@
-﻿using XcaXds.Commons.Commons;
+﻿using System.Text.Json.Serialization;
+using XcaXds.Commons.Commons;
 
 namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicyDto
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Issuer AppliesTo { get; set; }
     public string? Id { get; set; }
     public List<List<PolicyMatch>>? Rules { get; set; }
     public List<PolicyMatch>? Subjects { get; set; }

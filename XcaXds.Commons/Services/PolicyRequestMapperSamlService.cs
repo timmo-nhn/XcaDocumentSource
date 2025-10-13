@@ -23,26 +23,33 @@ public static class PolicyRequestMapperSamlService
         return handler.ReadSaml2Token(inputSamlToken);
     }
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion)
+    public static XacmlContextRequest GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, out Issuer appliesTo)
     {
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
-        return await GetXacmlRequestFromSoapEnvelope(soapEnvelope, samlToken, xacmlVersion);
+        var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, out appliesTo);
     }
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(string soapEnvelope, XacmlVersion xacmlVersion)
+    public static XacmlContextRequest GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, out Issuer appliesTo)
     {
         var sxmls = new SoapXmlSerializer();
         var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(soapEnvelope);
 
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
-        return await GetXacmlRequestFromSoapEnvelope(soapEnvelopeObject, samlToken, xacmlVersion);
+        var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
+        return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, out appliesTo);
     }
 
-    public static async Task<XacmlContextRequest> GetXacmlRequestFromSoapEnvelope(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, out Issuer appliesTo)
     {
         var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
 
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+
+        appliesTo = GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
+
+        if (appliesTo == Issuer.Unknown)
+        {
+            return null;
+        }
 
         var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel") || att.Name.Contains("urn:ihe:iti"));
 
@@ -123,6 +130,19 @@ public static class PolicyRequestMapperSamlService
             default:
                 return null;
         }
+    }
+
+    private static Issuer GetIssuerEnumFromSamlTokenIssuer(string value)
+    {
+        if (value.Contains("helseid"))
+        {
+            return Issuer.HelseId;
+        }
+        if (value.Contains("helsenorge"))
+        {
+            return Issuer.Helsenorge;
+        }
+        return Issuer.Unknown;
     }
 
     private static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope)
