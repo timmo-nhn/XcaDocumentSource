@@ -1,32 +1,33 @@
 {
-  "id": "readdocuments-lege",
-  "rules": [
-    [
-      {
-        "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
-        "value": "4"
-      },
-      {
-        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-        "value": "LE"
-      },
-      {
-        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-        "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
-      },
-      {
-        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
-        "value": "TREAT;ETREAT"
-      },
-      {
-        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
-        "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
-      }
-    ]
+    "appliesTo": "HelseId",
+    "id": "readdocuments-lege",
+    "rules": [
+        [
+            {
+                "attributeId": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
+                "value": "4"
+            },
+            {
+                "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+                "value": "LE"
+            },
+            {
+                "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+                "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+            },
+            {
+                "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:code",
+                "value": "TREAT;ETREAT"
+            },
+            {
+                "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse:codeSystem",
+                "value": "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448"
+            }
+        ]
 
-  ],
-  "actions": [
-    "ReadDocuments"
-  ],
-  "effect": "Permit"
+    ],
+    "actions": [
+        "ReadDocuments"
+    ],
+    "effect": "Permit"
 }

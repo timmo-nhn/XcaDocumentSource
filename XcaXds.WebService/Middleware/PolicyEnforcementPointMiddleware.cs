@@ -1,4 +1,5 @@
 ﻿using Abc.Xacml.Context;
+using Abc.Xacml.Policy;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
@@ -107,7 +108,8 @@ public class PolicyEnforcementPointMiddleware
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
-        Issuer xacmlRequestAppliesTo = Issuer.Unknown;
+        var xacmlRequestAppliesTo = Issuer.Unknown;
+        var xacmlDecisionResult = XacmlDecisionResult.NotApplicable;
 
         switch (contentType)
         {
@@ -186,7 +188,8 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
 
-        var evaluateResponse = _policyDecisionPointService.EvaluateRequest(xacmlRequest, xacmlRequestAppliesTo);
+        var evaluateResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest, xacmlRequestAppliesTo);
+
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}");
 

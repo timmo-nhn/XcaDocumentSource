@@ -1,0 +1,116 @@
+<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+    xmlns:a="http://www.w3.org/2005/08/addressing"
+    xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+    <s:Header>
+        <a:Action s:mustUnderstand="1">urn:ihe:iti:2007:CrossGatewayQuery</a:Action>
+        <a:MessageID>urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d</a:MessageID>
+        <a:ReplyTo>
+            <a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>
+        </a:ReplyTo>
+        <a:To s:mustUnderstand="1">https://ttr1xds-reg01.test.drift.nhn.no/xca/xca-iti18</a:To>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+			<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_6ceb5186-dc67-41bb-b734-4eb013aaec82" IssueInstant="2025-08-29T09:41:56.145Z" Version="2.0">
+				<saml:Issuer>sikkerhet.helsenorge.no</saml:Issuer>
+				<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+					<SignedInfo>
+						<CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+						<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+						<Reference URI="#_6ceb5186-dc67-41bb-b734-4eb013aaec82">
+							<Transforms>
+								<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+								<Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+							</Transforms>
+							<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+							<DigestValue>xhpxRJTIcs1hqs1QMCRb0nhYGkkZi7oGJDoaZWmrOVk=</DigestValue>
+						</Reference>
+					</SignedInfo>
+					<SignatureValue>DBj7wSLgZw4gy3zzsDh0mjvO8P65mWK/O040tfYWVbLCJ+zu20pfHIJvsGgp3gI6YWZ3El2O5MzMKDI3lTLB+m88dITzZXBXkXVz0+zURWmGC9V7in3Fz8lNLdROm5BipiJndy62y+0GiKq534Sx/i9xXoix69FzYvGRhyz2t12txBRjFd5SOFGF3koe9RwRFsmaNELvAWV4ed8i9h5tmHjpnXfNaNQx4HKWk+EZ0QvLdChIgPfAEY0ndlKLaGPd7DoGHvnKAGWZ1VCPdF03YkXjPJGr9UdN8lj9ils2yBxVuDLG1UkBqV+19os7ZAzsx9YjOVqhFHYSwjdUIPKj8Nw9IomKcpwWBPQcloCpQibdky4DmIPv3TYW0KuXfgfu/ZTiUcqX750keTRMEFQBLj1qrXK9QB6LIrS4phfGlSmLyrx22MgL0auEzV5is4AGIaU0Soi5nUMakNuSUJaacJgsQUKl3v5rNr847DhEw8ultCsEsmpNt+/iAPEIXEH2</SignatureValue>
+					<KeyInfo>
+						<X509Data>
+							<X509Certificate>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</X509Certificate>
+						</X509Data>
+					</KeyInfo>
+				</Signature>
+				<saml:Subject>
+					<saml:NameID>27888498775</saml:NameID>
+					<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+				</saml:Subject>
+				<saml:Conditions NotBefore="2025-08-29T09:41:56.145Z" NotOnOrAfter="2025-08-29T10:01:56.145Z">
+					<saml:AudienceRestriction>
+						<saml:Audience>https://xds-web.test.nhn.no/</saml:Audience>
+					</saml:AudienceRestriction>
+				</saml:Conditions>
+				<saml:AttributeStatement>
+					<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:subject-id">
+						<saml:AttributeValue>Rettferdig Savanne</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization">
+						<saml:AttributeValue>Norsk Helsenett</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization-id">
+						<saml:AttributeValue>994598759</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="urn:ihe:iti:xca:2010:homeCommunityId">
+						<saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="urn:oasis:names:tc:xspa:2.0:subject:npi">
+						<saml:AttributeValue>27888498775</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="urn:ihe:iti:xua:2017:subject:provider-identifier">
+						<saml:AttributeValue>&lt;id xmlns="urn:hl7-org:v3" type="II" extension="27888498775" root="2.16.578.1.12.4.1.4.1" displayable="false" /&gt;</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
+						<saml:AttributeValue>&lt;PurposeOfUse xmlns="urn:hl7-org:v3" type="CE" code="13" codeSystem="1.0.14265.1" codeSystemName="ISO 14265 Classification of Purposes for processing personal health information" displayName="Subject of care uses"/&gt;</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="urn:oasis:names:tc:xacml:2.0:resource:resource-id">
+						<saml:AttributeValue>21821999925^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="SecurityLevel">
+						<saml:AttributeValue>4</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="Scope">
+						<saml:AttributeValue>innsynregisterbruk,innsynregisterinnhold,innsynpasientjournal,prover</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="client_id">
+						<saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1.1</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute FriendlyName="Patient Privacy Policy Acknowledgement Document" Name="urn:ihe:iti:bppc:2007:docid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+						<saml:AttributeValue xmlns:a="http://www.w3.org/2001/XMLSchema-instance"
+							xmlns:tn="http://www.w3.org/2001/XMLSchema" a:Type="tn:anyURI">urn:oid:2.16.578.1.12.4.1.7.2.2.1</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute FriendlyName="Patient Privacy Policy Identifier" Name="urn:ihe:iti:xua:2012:acp" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+						<saml:AttributeValue xmlns:a="http://www.w3.org/2001/XMLSchema-instance"
+							xmlns:tn="http://www.w3.org/2001/XMLSchema" a:Type="tn:anyURI">urn:oid:2.16.578.1.12.4.1.7.2.1.1</saml:AttributeValue>
+					</saml:Attribute>
+				</saml:AttributeStatement>
+				<saml:AuthnStatement AuthnInstant="2025-08-29T09:41:56.154Z" SessionNotOnOrAfter="2025-08-29T10:01:56.154Z">
+					<saml:AuthnContext>
+						<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</saml:AuthnContextClassRef>
+					</saml:AuthnContext>
+				</saml:AuthnStatement>
+			</saml:Assertion>
+			<u:Timestamp xmlns:u="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+                <u:Created>2025-07-31T18:49:15Z</u:Created>
+                <u:Expires>2025-07-31T19:04:15Z</u:Expires>
+            </u:Timestamp>
+        </wsse:Security>
+    </s:Header>
+    <s:Body xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <AdhocQueryRequest xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0">
+            <ResponseOption returnType="LeafClass" returnComposedObjects="true" />
+            <AdhocQuery xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d">
+                <Slot name="$XDSDocumentEntryPatientId">
+                    <ValueList>
+                        <Value>'13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO'</Value>
+                    </ValueList>
+                </Slot>
+                <Slot name="$XDSDocumentEntryStatus">
+                    <ValueList>
+                        <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
+                    </ValueList>
+                </Slot>
+            </AdhocQuery>
+        </AdhocQueryRequest>
+    </s:Body>
+</s:Envelope>

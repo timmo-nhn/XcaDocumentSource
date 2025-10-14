@@ -13,8 +13,8 @@ public class PolicyDecisionPointService
         _policyRepositoryWrapper = policyRepositoryWrapper;
     }
 
-    public XacmlContextResponse EvaluateRequest(XacmlContextRequest? xacmlRequest, Issuer xacmlRequestAppliesTo)
+    public XacmlContextResponse EvaluateXacmlRequest(XacmlContextRequest? xacmlRequest, Issuer xacmlRequestAppliesTo)
     {
-        return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest);
+        return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest, xacmlRequestAppliesTo);
     }
 }
