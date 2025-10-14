@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
@@ -23,28 +24,27 @@ public static class PolicyRequestMapperSamlService
         return handler.ReadSaml2Token(inputSamlToken);
     }
 
-    public static XacmlContextRequest GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, out Issuer appliesTo)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo)
     {
         var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
-        return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, out appliesTo);
+        return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, appliesTo);
     }
 
-    public static XacmlContextRequest GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, out Issuer appliesTo)
+    public static XacmlContextRequest? GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo)
     {
         var sxmls = new SoapXmlSerializer();
         var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(soapEnvelope);
 
         var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
-        return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, out appliesTo);
+        return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, out Issuer appliesTo)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo)
     {
         var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
 
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
-        appliesTo = GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
 
         if (appliesTo == Issuer.Unknown)
         {
@@ -132,7 +132,7 @@ public static class PolicyRequestMapperSamlService
         }
     }
 
-    private static Issuer GetIssuerEnumFromSamlTokenIssuer(string value)
+    public static Issuer GetIssuerEnumFromSamlTokenIssuer(string value)
     {
         if (value.Contains("helseid"))
         {
@@ -192,7 +192,7 @@ public static class PolicyRequestMapperSamlService
         {
             foreach (var attributeValue in samlAttribute.Values)
             {
-                var attributeValueAsCodedValue = GetSamlAttributeValueAsCodedValue(attributeValue);
+                var attributeValueAsCodedValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(attributeValue);
 
                 // If its structured codedvalue format or just plain text
                 if (attributeValueAsCodedValue != null)
@@ -246,7 +246,7 @@ public static class PolicyRequestMapperSamlService
             var attributeValue = attribute.Values.FirstOrDefault(); // Never have i ever: seen a SAML-AttributeStatement with more than one Value
             if (attributeValue == null) continue;
 
-            var attributeValueAsCodedValue = GetSamlAttributeValueAsCodedValue(attributeValue);
+            var attributeValueAsCodedValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(attributeValue);
 
 
             var valueExistsAlready = subjectAttributes
@@ -318,50 +318,6 @@ public static class PolicyRequestMapperSamlService
         return subjectAttributes;
     }
 
-    private static CodedValue GetSamlAttributeValueAsCodedValue(string attributeValue)
-    {
-        string code = null;
-        string codeSystem = null;
-        string displayName = null;
-
-        try
-        {
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(Regex.Replace(attributeValue, @"\bxsi:\b", ""));
-            var attributes = xmlDocument.ChildNodes[0]?.Attributes;
-
-            var type = attributes?.GetNamedItem("type")?.Value;
-
-            code = attributes?.GetNamedItem("code")?.Value ?? attributes?.GetNamedItem("extension")?.Value;
-            codeSystem = attributes?.GetNamedItem("codeSystem")?.Value ?? attributes?.GetNamedItem("root")?.Value;
-            displayName = attributes?.GetNamedItem("displayName")?.Value;
-        }
-        catch (Exception)
-        {
-            var hl7Value = Hl7Object.Parse<CX>(attributeValue);
-            if (hl7Value?.AssigningAuthority?.UniversalId == null)
-            {
-                return new()
-                {
-                    Code = attributeValue,
-                };
-            }
-        }
-
-        var hl7ObjectValue = Hl7Object.Parse<CX>(attributeValue);
-        if (hl7ObjectValue != null && hl7ObjectValue.AssigningAuthority != null)
-        {
-            code ??= hl7ObjectValue.IdNumber;
-            codeSystem ??= hl7ObjectValue.AssigningAuthority.UniversalId;
-        }
-
-        return new()
-        {
-            Code = code,
-            CodeSystem = codeSystem,
-            DisplayName = displayName
-        };
-    }
 
     public static string? GetActionFromSoapEnvelopeString(string? inputSoapEnvelope)
     {

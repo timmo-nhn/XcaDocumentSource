@@ -529,7 +529,11 @@ public static class Constants
             }
         }
 
-
+        public static class Saml
+        {
+            public const string AcpNullValue = "urn:oid:2.16.578.1.12.4.1.7.2.1.0";
+            public const string BppcNullValue = "urn:oid:2.16.578.1.12.4.1.7.2.2.0";
+        }
     }
     public static class MimeTypes
     {
@@ -674,23 +678,54 @@ public static class Constants
         }
     }
 
+    public static class Saml
+    {
+        public static class Attribute
+        {
+            // --- XSPA core subject attributes ---
+            public const string SubjectId = "urn:oasis:names:tc:xspa:1.0:subject:subject-id";
+            public const string Organization = "urn:oasis:names:tc:xspa:1.0:subject:organization";
+            public const string OrganizationId = "urn:oasis:names:tc:xspa:1.0:subject:organization-id";
+            public const string ChildOrganization = "urn:oasis:names:tc:xspa:1.0:subject:child-organization";
+            public const string Role = "urn:oasis:names:tc:xspa:1.0:subject:role";
+            public const string PurposeOfUse = "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse";
+            public const string Npi = "urn:oasis:names:tc:xspa:2.0:subject:npi";
+
+            // --- IHE / XUA / XCA / BPPC ---
+            public const string HomeCommunityIdXca = "urn:ihe:iti:xca:2010:homeCommunityId";
+            public const string ProviderIdentifier = "urn:ihe:iti:xua:2017:subject:provider-identifier";
+            public const string BppcDocId = "urn:ihe:iti:bppc:2007:docid";
+            public const string XuaAcp = "urn:ihe:iti:xua:2012:acp";
+
+            // --- XACML attributes ---
+            public const string ResourceId10 = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+            public const string ResourceId20 = "urn:oasis:names:tc:xacml:2.0:resource:resource-id";
+            public const string SubjectRole20 = "urn:oasis:names:tc:xacml:2.0:subject:role";
+            public const string ActionPurpose20 = "urn:oasis:names:tc:xacml:2.0:action:purpose";
+
+            // --- eHelse-specific attributes ---
+            public const string EhelseHomeCommunityId = "urn:no:ehelse:saml:1.0:subject:homeCommunityId";
+            public const string EhelseSecurityLevel = "urn:no:ehelse:saml:1.0:subject:SecurityLevel";
+            public const string EhelseScope = "urn:no:ehelse:saml:1.0:subject:Scope";
+            public const string EhelseClientId = "urn:no:ehelse:saml:1.0:subject:client_id";
+            public const string EhelseAuthenticationMethod = "urn:no:ehelse:saml:1.0:subject:Authentication_method";
+            public const string EhelseHealthcareService = "urn:no:ehelse:saml:1.1:subject:healthcareservice";
+
+            // --- NHN Trust Framework extensions ---
+            public const string TrustChildOrgName = "urn:nhn:trust-framework:1.0:ext:subject:child-organization-name";
+            public const string TrustResourceChildOrg = "urn:nhn:trust-framework:1.0:ext:resource:child-organization";
+            public const string TrustResourceChildOrgId = "urn:nhn:trust-framework:1.0:ext:resource:child-organization-id";
+            public const string TrustHealthcareService = "urn:nhn:trust-framework:1.0:ext:care-relationship:healthcare-service";
+            public const string TrustPurposeOfUseDetails = "urn:nhn:trust-framework:1.0:ext:care-relationship:purpose-of-use-details";
+            public const string TrustDecisionRef = "urn:nhn:trust-framework:1.0:ext:care-relationship:decision-ref";
+
+            // --- Generic / misc ---
+            public const string SamlSubjectId = "urn:oasis:names:tc:SAML:attribute:subject-id";
+        }
+    }
+
     public static class AuditLogging
     {
-        public class SamlToken
-        {
-            // SAML-token values
-            public const string organization_id = "urn:oasis:names:tc:xspa:1.0:subject:organization-id";
-            public const string child_organization_id = "urn:oasis:names:tc:xspa:1.0:subject:child-organization";
-            public const string national_patient_id = "urn:oasis:names:tc:xspa:2.0:subject:npi";
-            public const string subject_role = "urn:oasis:names:tc:xspa:1.0:subject:role";
-            public const string subject_id = "urn:oasis:names:tc:xspa:1.0:subject:subject-id";
-            public const string subject_purposeOfUse = "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse";
-            public const string xua_acp = "urn:ihe:iti:xua:2012:acp";
-            public const string resource_id = "urn:oasis:names:tc:xacml:2.0:resource:resource-id";
-            public const string tf_resource_id = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
-            public const string tf_purposeOfUse = "urn:oasis:names:tc:xacml:2.0:action:purpose";
-        }
-
         public class XcaAction
         {
             public const string ITI18 = "ITI-18";
