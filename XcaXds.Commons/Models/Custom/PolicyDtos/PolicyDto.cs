@@ -127,6 +127,7 @@ public class PolicyDto
 
     public void SetDefaultValues()
     {
+        Id = string.IsNullOrWhiteSpace(Id) ? Guid.NewGuid().ToString() : Id;
         if (Subjects != null)
         {
             foreach (var item in Subjects)

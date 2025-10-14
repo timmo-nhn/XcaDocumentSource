@@ -1,13 +1,16 @@
 {
-  "id": "document-deny-test",
-  "Rules": [[
-    {
-      "attributeId": "urn:no:nhn:xcads:document:uniqueid",
-      "value": "13fa8361-dd8f-43fd-a33c-93f3237306c3"
-    }
-  ]],
-  "actions": [
-    "ReadDocuments"
-  ],
-  "effect": "Deny"
+    "appliesTo": "HelseId",
+    "id": "document-deny-test",
+    "Rules": [
+        [
+            {
+                "attributeId": "urn:no:nhn:xcads:document:uniqueid",
+                "value": "13fa8361-dd8f-43fd-a33c-93f3237306c3"
+            }
+        ]
+    ],
+    "actions": [
+        "ReadDocuments"
+    ],
+    "effect": "Deny"
 }

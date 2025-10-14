@@ -1,7 +1,7 @@
-﻿using Abc.Xacml.Context;
+﻿using System.Xml;
+using Abc.Xacml.Context;
 using Abc.Xacml.Runtime;
 using Microsoft.Extensions.Logging;
-using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
@@ -12,24 +12,13 @@ namespace XcaXds.Source.Source;
 public class PolicyRepositoryWrapper
 {
     private PolicySetDto _policySetPractitioner = new();
-    private PolicySetDto _policySetCitizen = new();
-
-    internal PolicySetDto policySetPractitioner
+    private readonly object _lock = new();
+    internal PolicySetDto policySet
     {
         get => _policySetPractitioner;
         set
         {
             _policySetPractitioner = value;
-            RefreshEvaluationEngine();
-        }
-    }
-
-    internal PolicySetDto policySetCitizen
-    {
-        get => _policySetCitizen;
-        set
-        {
-            _policySetCitizen = value;
             RefreshEvaluationEngine();
         }
     }
@@ -44,37 +33,46 @@ public class PolicyRepositoryWrapper
     {
         _logger = logger;
         _policyRepository = policyRepository;
-        policySetPractitioner = _policyRepository.GetAllPolicies();
+        policySet = _policyRepository.GetAllPolicies();
     }
 
     // For use in unit tests
     public PolicyRepositoryWrapper(FileBasedPolicyRepository policyRepository)
     {
         _policyRepository = policyRepository;
-        policySetPractitioner = _policyRepository.GetAllPolicies();
+        policySet = _policyRepository.GetAllPolicies();
     }
 
     private void RefreshEvaluationEngine()
     {
-        _evaluationEnginePractitioner = new EvaluationEngine(
-            PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetPractitioner)
-        );
+        lock (_lock)
+        {
+            _evaluationEnginePractitioner = new EvaluationEngine(
+                PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
+                {
+                    CombiningAlgorithm = policySet.CombiningAlgorithm,
+                    SetId = policySet.SetId,
+                    Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.HelseId).ToList()
+                }));
 
-        _evaluationEngineCitizen = new EvaluationEngine(
-            PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetCitizen)
-        );
+            _evaluationEngineCitizen = new EvaluationEngine(
+                PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
+                {
+                    CombiningAlgorithm = policySet.CombiningAlgorithm,
+                    SetId = policySet.SetId,
+                    Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.Helsenorge).ToList()
+                }));
+        }
     }
 
     public PolicySetDto GetPoliciesAsPolicySet()
     {
-        return policySetPractitioner;
+        return policySet;
     }
 
     public PolicyDto? GetPolicy(string? id)
     {
-        var practitionerPolicies = policySetPractitioner.Policies?.FirstOrDefault(pol => pol.Id == id);
-        var citizenPolicies = policySetCitizen.Policies?.FirstOrDefault(pol => pol.Id == id);
-        return citizenPolicies ?? practitionerPolicies;
+        return policySet.Policies?.FirstOrDefault(pol => pol.Id == id);
     }
 
     public bool AddPolicy(PolicyDto? policyDto)
@@ -83,57 +81,36 @@ public class PolicyRepositoryWrapper
         {
             return false;
         }
-        switch (policyDto.AppliesTo)
-        {
-            case Issuer.Helsenorge:
-                policySetCitizen.Policies ??= new();
-                policySetCitizen.Policies.Add(policyDto);
-                break;
 
-            case Issuer.HelseId:
-                policySetPractitioner.Policies ??= new();
-                policySetPractitioner.Policies.Add(policyDto);
-                break;
+        var addPolicy = _policyRepository.AddPolicy(policyDto);
 
-            default:
-                break;
-        }
+        if (!addPolicy) return false;
+
+        policySet.Policies ??= new();
+        policySet.Policies.Add(policyDto);
+
         RefreshEvaluationEngine();
-        return _policyRepository.AddPolicy(policyDto);
+        return true;
     }
 
     public bool UpdatePolicy(PolicyDto policyDto, string id)
     {
-        switch (policyDto.AppliesTo)
-        {
-            case Issuer.Helsenorge:
-                if (policySetCitizen.Policies == null) return false;
+        if (policySet.Policies == null) return false;
 
-                id ??= policyDto.Id;
+        id ??= policyDto.Id;
 
-                var idx = policySetCitizen.Policies.FindIndex(p => p.Id == policyDto.Id);
-                if (idx < 0) return false;
+        var idx = policySet.Policies.FindIndex(p => p.Id == policyDto.Id);
+        if (idx < 0) return false;
 
-                policySetCitizen.Policies[idx] = policyDto;
-                break;
+        var updatePolicy = _policyRepository.UpdatePolicy(policyDto, id);
 
-            case Issuer.HelseId:
-                if (policySetPractitioner.Policies == null) return false;
+        if (!updatePolicy) return false;
 
-                id ??= policyDto.Id;
+        policySet.Policies[idx] = policyDto;
 
-                var idxPrac = policySetPractitioner.Policies.FindIndex(p => p.Id == policyDto.Id);
-                if (idxPrac < 0) return false;
-
-                policySetCitizen.Policies[idxPrac] = policyDto;
-                break;
-
-            default:
-                break;
-        }
         RefreshEvaluationEngine();
 
-        return _policyRepository.UpdatePolicy(policyDto, id);
+        return true;
     }
 
     public bool PartiallyUpdatePolicy(PolicyDto patch, string? id, bool append)
@@ -145,9 +122,13 @@ public class PolicyRepositoryWrapper
 
         policy.MergeWith(patch, append);
 
+        var patchPolicy = _policyRepository.UpdatePolicy(policy, policy.Id);
+
+        if (!patchPolicy) return false;
+
         RefreshEvaluationEngine();
 
-        return _policyRepository.UpdatePolicy(policy, policy.Id);
+        return true;
     }
 
     public bool DeletePolicy(string? id)
@@ -155,18 +136,27 @@ public class PolicyRepositoryWrapper
         var deleteResult = _policyRepository.DeletePolicy(id);
         if (!deleteResult) return false;
 
-        policySet = _policyRepository.GetAllPolicies(); // triggers engine refresh automatically
+        policySet = _policyRepository.GetAllPolicies();
         return true;
     }
 
-    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest)
+    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest, Issuer appliesTo)
     {
         if (_policySetPractitioner.Policies?.Count == 0)
         {
             _logger.LogWarning("No policies are set up. XcaDocumentSource will deny all requests!");
         }
 
-        var xmlDocument = new XmlDocument();
-        return _evaluationEnginePractitioner.Evaluate(xacmlContextRequest, xmlDocument);
+        switch (appliesTo)
+        {
+            case Issuer.Helsenorge:
+                return _evaluationEngineCitizen.Evaluate(xacmlContextRequest, new XmlDocument());
+
+            case Issuer.HelseId:
+                return _evaluationEnginePractitioner.Evaluate(xacmlContextRequest, new XmlDocument());
+
+            default:
+                return _evaluationEnginePractitioner.Evaluate(xacmlContextRequest, new XmlDocument());
+        }
     }
 }

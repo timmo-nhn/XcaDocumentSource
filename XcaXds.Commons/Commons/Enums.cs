@@ -2534,9 +2534,9 @@ public enum AnonymizeUser
 
 public enum Issuer
 {
+    Unknown,
     Helsenorge,
     HelseId,
-    Unknown
 }
 
 public enum MessageType

@@ -301,6 +301,7 @@ If any child (Policy/Rule) evaluates to Deny, the result is Deny, regardless whe
 |&emsp;L&nbsp;**`CombiningAlgorithm`**|string(R)|[1..1]|`@CombiningAlgorithm`|Algorithm used to combine the result of multiple policies|
 |&emsp;L&nbsp;**`Policies`**|List&lt;PolicyDto&gt;(R)|[1..1]|`/PolicySet/Policies[]`|The List of Policies for this PolicySet|
 |&emsp;&emsp;L&nbsp;**`PolicyDto`**|PolicyDto(R)|[1..*]|`<Policy>`|A **Policy DTO**|
+|&emsp;&emsp;&emsp;L&nbsp;**`appliesTo`**|Enum(Issuer)(R)|[1..1]|`N/A`|The User type which the policy applies to|
 |&emsp;&emsp;&emsp;L&nbsp;**`id`**|string(R)|[1..1]|`@PolicyId`|The **Unique ID** of the **Policy**|
 |&emsp;&emsp;&emsp;L&nbsp;**`Rules`**|List&lt;PolicyMatch&gt;(O)|[1..*]|`<Rule><Condition>`|A container for statements that the request must match|
 |&emsp;&emsp;&emsp;&emsp;L&nbsp;**`AttributeId`**|string(R)|[1..1]|`<AttributeDesignator>`|The attribute ID to check for similar values|
@@ -408,6 +409,7 @@ For SOAP-requests, **PJD.XcaDocumentSource** maps from the `<Action>` in the `<H
 ### Example #1 - Allow certain types of healthcare personell
 ```json
 {
+  "appliesTo": "HelseId",
   "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
   "rules": [
     [
@@ -468,6 +470,7 @@ GET <baseurl>/api/policy/getall?xml=true
   "policies": [
     {
       "id": "90bd12ea-1a26-417f-a035-f3708f4e0198",
+      "appliesTo": "HelseId",
       "rules": [
         [
           {
@@ -499,6 +502,7 @@ GET <baseurl>/api/policy/getall?xml=true
     },
     {
       "id": "deny-certain-roles",
+      "appliesTo": "HelseId",
       "rules": [
         [
           {
@@ -683,29 +687,30 @@ GET <baseurl>/api/policy/getsingle?id=deny-certain-roles&xml=true
 
 ```json
 {
-    "id": "deny-certain-roles",
-    "rules": [
-      [
-        {
-            "matchId": null,
-            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-            "dataType": null,
-            "value": "XX;VE;FB"
-        },
-        {
-            "matchId": null,
-            "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-            "dataType": null,
-            "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
-        }
-      ]
-    ],
-    "subjects": null,
-    "roles": null,
-    "organizations": null,
-    "resources": null,
-    "actions": null,
-    "effect": "Deny"
+  "id": "deny-certain-roles",
+  "appliesTo": "HelseId",
+  "rules": [
+    [
+      {
+          "matchId": null,
+          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+          "dataType": null,
+          "value": "XX;VE;FB"
+      },
+      {
+          "matchId": null,
+          "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+          "dataType": null,
+          "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+      }
+    ]
+  ],
+  "subjects": null,
+  "roles": null,
+  "organizations": null,
+  "resources": null,
+  "actions": null,
+  "effect": "Deny"
 }
 ```
 *A single Policy DTO*
