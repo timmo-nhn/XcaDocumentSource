@@ -145,7 +145,12 @@ public class PolicyEnforcementPointMiddleware
                 var soapEnvelope = new SoapXmlSerializer().DeserializeSoapMessage<SoapEnvelope>(requestBody);
                 var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
 
-                xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, out var appliesTo);
+                var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
+
+                xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo);
+
+                var soapRequestEvaluation = _policyDecisionPointService.EvaluateSoapRequest(soapEnvelope, samlToken, appliesTo);
+
                 xacmlRequestAppliesTo = appliesTo;
                 break;
 
