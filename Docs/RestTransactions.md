@@ -13,6 +13,7 @@ Uploads a Document reference and/or document to the registry. The input type is 
 | Request Object | `DocumentReference` | 
 | Response Object | `RestfulApiResponse` |
 
+
 #### Example 
 ##### Request
 ```

@@ -1,13 +1,16 @@
-﻿using Abc.Xacml.Context;
-using Abc.Xacml.Policy;
-using Microsoft.IdentityModel.Tokens.Saml2;
+﻿using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Abc.Xacml.Context;
+using Abc.Xacml.Policy;
+using Microsoft.IdentityModel.Tokens.Saml2;
+using Microsoft.Win32;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Services;
@@ -24,22 +27,22 @@ public static class PolicyRequestMapperSamlService
         return handler.ReadSaml2Token(inputSamlToken);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, List<RegistryObjectDto> documentRegistry)
     {
         var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
-        return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, appliesTo);
+        return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo)
+    public static XacmlContextRequest? GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, List<RegistryObjectDto> documentRegistry)
     {
         var sxmls = new SoapXmlSerializer();
         var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(soapEnvelope);
 
         var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
-        return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo);
+        return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, List<RegistryObjectDto> documentRegistry)
     {
         var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
 
@@ -51,7 +54,7 @@ public static class PolicyRequestMapperSamlService
             return null;
         }
 
-        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel") || att.Name.Contains("urn:ihe:iti"));
+        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel") || att.Name.Contains("Scope") || att.Name.Contains("urn:ihe:iti") || att.Name.Contains("acp"));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
@@ -62,8 +65,7 @@ public static class PolicyRequestMapperSamlService
         switch (xacmlVersion)
         {
             case XacmlVersion.Version20:
-
-                var requestAttributes = MapRequestAttributesToXacml20Properties(soapEnvelope);
+                var requestAttributes = MapRequestAttributesToXacml20Properties(soapEnvelope, documentRegistry);
                 var samlAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
 
                 // Resource
@@ -79,7 +81,7 @@ public static class PolicyRequestMapperSamlService
                 var xacmlAction = new XacmlContextAction(actionAttribute);
 
                 // Subject
-                var subjectAttributes = samlAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && sa.AttributeId.OriginalString.Contains("subject")).ToList();
+                var subjectAttributes = samlAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && (sa.AttributeId.OriginalString.Contains("subject")|| sa.AttributeId.OriginalString.Contains("acp"))).ToList();
                 subjectAttributes.AddRange(requestAttributes);
                 var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 
@@ -145,11 +147,30 @@ public static class PolicyRequestMapperSamlService
         return Issuer.Unknown;
     }
 
-    private static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope)
+    private static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope, List<RegistryObjectDto> documentRegistry)
     {
         var documentRequests = soapEnvelope.Body?.RetrieveDocumentSetRequest?.DocumentRequest;
 
+        var adhocQueryPatientId = soapEnvelope.Body?.AdhocQueryRequest?.AdhocQuery?.GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();
+        var adhocQueryPatientValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(adhocQueryPatientId);
+
         var xacmlRequestAttributes = new List<XacmlContextAttribute>();
+        
+        if (adhocQueryPatientValue.Code != null || adhocQueryPatientValue.CodeSystem != null)
+        {
+            xacmlRequestAttributes.Add(
+                new XacmlContextAttribute(
+                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:code"),
+                    new Uri(Constants.Xacml.DataType.String),
+                    new XacmlContextAttributeValue() { Value = adhocQueryPatientValue.Code }));
+
+            xacmlRequestAttributes.Add(
+                new XacmlContextAttribute(
+                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:codeSystem"),
+                    new Uri(Constants.Xacml.DataType.String),
+                    new XacmlContextAttributeValue() { Value = adhocQueryPatientValue.CodeSystem }));
+        }
+
 
         foreach (var documentRequest in documentRequests ?? [])
         {
@@ -157,7 +178,7 @@ public static class PolicyRequestMapperSamlService
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri("urn:no:nhn:xcads:document:uniqueid"),
+                        new Uri(Constants.Xacml.CustomAttributes.DocumentUniqueId),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentRequest.DocumentUniqueId }));
             }
@@ -166,7 +187,7 @@ public static class PolicyRequestMapperSamlService
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri("urn:no:nhn:xcads:document:homecommunityid"),
+                        new Uri(Constants.Xacml.CustomAttributes.HomeCommunityId),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentRequest.HomeCommunityId }));
             }
@@ -175,13 +196,37 @@ public static class PolicyRequestMapperSamlService
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri("urn:no:nhn:xcads:document:repositoryuniqueid"),
+                        new Uri(Constants.Xacml.CustomAttributes.RepositoryUniqueId),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentRequest.RepositoryUniqueId }));
             }
-        }
-        return xacmlRequestAttributes;
 
+            var documentEntryForDocument = documentRegistry.OfType<DocumentEntryDto>()
+                .FirstOrDefault(de => 
+                de.UniqueId == documentRequest.DocumentUniqueId && 
+                de.RepositoryUniqueId == documentRequest.RepositoryUniqueId &&
+                de.HomeCommunityId == documentRequest.HomeCommunityId);
+            
+            if (!string.IsNullOrWhiteSpace(documentEntryForDocument?.SourcePatientInfo?.PatientId?.Id))
+            {
+                xacmlRequestAttributes.Add(
+                    new XacmlContextAttribute(
+                        new Uri($"{Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier}:code"),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = documentEntryForDocument.SourcePatientInfo.PatientId.Id }));
+            }
+            
+            if (!string.IsNullOrWhiteSpace(documentEntryForDocument?.SourcePatientInfo?.PatientId?.System))
+            {
+                xacmlRequestAttributes.Add(
+                    new XacmlContextAttribute(
+                        new Uri($"{Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier}:codeSystem"),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = documentEntryForDocument.SourcePatientInfo.PatientId.System }));
+            }
+        }
+
+        return xacmlRequestAttributes;
     }
 
     private static List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
@@ -203,7 +248,6 @@ public static class PolicyRequestMapperSamlService
                         var xacmlAttribute = new XacmlAttribute(new Uri(samlAttribute.Name + ":code"), false);
                         var xacmlAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), attributeValueAsCodedValue.Code);
                         xacmlAttribute.AttributeValues.Add(xacmlAttributeValue);
-
                         xacmlAllAttributes.Add(xacmlAttribute);
 
                     }
@@ -256,6 +300,7 @@ public static class PolicyRequestMapperSamlService
                         avs.Value == attributeValueAsCodedValue.CodeSystem ||
                         avs.Value == attributeValueAsCodedValue.DisplayName
                     ));
+            if (valueExistsAlready) continue;
 
             try
             {

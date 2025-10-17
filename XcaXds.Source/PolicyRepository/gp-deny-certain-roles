@@ -1,6 +1,6 @@
 {
     "appliesTo": "HelseId",
-    "id": "deny-certain-roles",
+    "id": "gp-deny-certain-roles",
     "Rules": [
         {
             "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",

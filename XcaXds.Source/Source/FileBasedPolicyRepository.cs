@@ -30,6 +30,11 @@ public class FileBasedPolicyRepository : IPolicyRepository
         }
     }
 
+    public string GetPolicyRepositoryPath()
+    {
+        return _policyRepositoryPath;
+    }
+
     public PolicySetDto GetAllPolicies()
     {
         var target = new XacmlTarget();

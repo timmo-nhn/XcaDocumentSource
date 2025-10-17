@@ -12,6 +12,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
+using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
 
@@ -25,6 +26,9 @@ public class PolicyEnforcementPointMiddleware
     private readonly IWebHostEnvironment _env;
     private readonly PolicyDecisionPointService _policyDecisionPointService;
     private readonly MonitoringStatusService _monitoringService;
+    private readonly PolicyRepositoryService _policyRepositoryService;
+    private readonly RegistryWrapper _registryWrapper;
+
 
 
     public PolicyEnforcementPointMiddleware(
@@ -33,7 +37,9 @@ public class PolicyEnforcementPointMiddleware
         ApplicationConfig xdsConfig,
         IWebHostEnvironment env,
         PolicyDecisionPointService policyDecisionPointService,
-        MonitoringStatusService monitoringService
+        MonitoringStatusService monitoringService,
+        PolicyRepositoryService policyRepositoryService,
+        RegistryWrapper registryWrapper
         )
     {
         _next = next;
@@ -42,6 +48,8 @@ public class PolicyEnforcementPointMiddleware
         _env = env;
         _policyDecisionPointService = policyDecisionPointService;
         _monitoringService = monitoringService;
+        _policyRepositoryService = policyRepositoryService;
+        _registryWrapper = registryWrapper;
     }
 
 
@@ -147,9 +155,8 @@ public class PolicyEnforcementPointMiddleware
 
                 var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
 
-                xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo);
-
-                var soapRequestEvaluation = _policyDecisionPointService.EvaluateSoapRequest(soapEnvelope, samlToken, appliesTo);
+                var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+                xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
 
                 xacmlRequestAppliesTo = appliesTo;
                 break;
@@ -189,6 +196,7 @@ public class PolicyEnforcementPointMiddleware
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {
+            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }

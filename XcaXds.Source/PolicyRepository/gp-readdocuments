@@ -1,6 +1,6 @@
 {
     "appliesTo": "HelseId",
-    "id": "readdocuments-lege",
+    "id": "gp-readdocuments",
     "rules": [
         [
             {
@@ -27,6 +27,7 @@
 
     ],
     "actions": [
+        "ReadDocumentList",
         "ReadDocuments"
     ],
     "effect": "Permit"

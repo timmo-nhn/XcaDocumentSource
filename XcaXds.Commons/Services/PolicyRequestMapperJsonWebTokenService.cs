@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Services;
 public class PolicyRequestMapperJsonWebTokenService
 {
     //FIXME maybe some day, do something about JWT aswell?!
-    public static async Task<XacmlContextRequest?> GetXacml20RequestFromJsonWebToken(IHeaderDictionary headers)
+    public static XacmlContextRequest? GetXacml20RequestFromJsonWebToken(IHeaderDictionary headers)
     {
         XacmlContextRequest contextRequest = null;
         return contextRequest;

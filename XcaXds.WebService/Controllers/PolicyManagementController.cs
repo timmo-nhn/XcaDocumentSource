@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Abc.Xacml.Context;
+using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
+using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
+using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -14,12 +17,14 @@ public class PolicyManagementController : ControllerBase
 {
     private readonly ILogger<PolicyManagementController> _logger;
     private readonly PolicyRepositoryService _policyRepositoryService;
+    private readonly PolicyDecisionPointService _policyDecisionPointService;
+    private readonly RegistryWrapper _registryWrapper;
 
-    public PolicyManagementController(
-        PolicyRepositoryService policyRepositoryService
-        )
+    public PolicyManagementController(PolicyRepositoryService policyRepositoryService, PolicyDecisionPointService policyDecisionPointService, RegistryWrapper registryWrapper)
     {
         _policyRepositoryService = policyRepositoryService;
+        _policyDecisionPointService = policyDecisionPointService;
+        _registryWrapper = registryWrapper;
     }
 
     [Produces("application/json", "application/xml")]
@@ -162,5 +167,25 @@ public class PolicyManagementController : ControllerBase
 
         apiResponse.SetMessage($"Policy {id} not found");
         return NotFound(apiResponse);
+    }
+
+    [Consumes("application/soap+xml")]
+    [Produces("application/json")]
+    [HttpPost("evaluate-soap-request")]
+    public async Task<IActionResult> GetXacmlRequest([FromBody] SoapEnvelope soapEnvelope)
+    {
+        var response = new RestfulApiResponse();
+        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        var issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
+
+        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, issuer, _registryWrapper.GetDocumentRegistryContentAsDtos());
+
+        var evaluationResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest, issuer);
+
+        var result = evaluationResponse.Results.Select(res => res.Decision).FirstOrDefault().ToString();
+
+        response.SetMessage($"Result from policy evaluation: {result}");
+
+        return Ok(response);
     }
 }
