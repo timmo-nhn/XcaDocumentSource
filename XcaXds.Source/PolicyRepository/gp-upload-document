@@ -1,6 +1,6 @@
 {
     "appliesTo": "HelseId",
-    "id": "upload-document",
+    "id": "gp-upload-document",
     "rules": [
         [
             {

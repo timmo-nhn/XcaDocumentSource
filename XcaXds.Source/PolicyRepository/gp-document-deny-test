@@ -1,6 +1,6 @@
 {
     "appliesTo": "HelseId",
-    "id": "document-deny-test",
+    "id": "gp-document-deny-test",
     "Rules": [
         [
             {

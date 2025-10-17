@@ -1,0 +1,20 @@
+{
+    "appliesTo": "Helsenorge",
+    "id": "cz-deny-if-different-resource-id",
+    "description": "If the Citizen is trying to access data for another patient, the correct acp value must be specified",
+    "rules": [
+        [
+            {
+                "attributeId": "urn:ihe:iti:xua:2017:subject:provider-identifier:code",
+                "compareAttributes": true,
+                "compareRule": "NotEquals",
+                "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:code"
+            },
+            {
+                "attributeId": "urn:ihe:iti:xua:2012:acp",
+                "value": "urn:oid:2.16.578.1.12.4.1.7.2.1.1;urn:oid:2.16.578.1.12.4.1.7.2.1.2;urn:oid:2.16.578.1.12.4.1.7.2.1.3"
+            }
+        ]
+    ],
+    "effect": "Deny"
+} 

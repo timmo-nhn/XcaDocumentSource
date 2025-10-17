@@ -1,6 +1,6 @@
 {
     "appliesTo": "HelseId",
-    "id": "deny-certain-roles",
+    "id": "gp-deny2",
     "Rules": [
         [
             {

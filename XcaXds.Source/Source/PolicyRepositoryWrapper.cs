@@ -13,6 +13,9 @@ public class PolicyRepositoryWrapper
 {
     private PolicySetDto _policySetPractitioner = new();
     private readonly object _lock = new();
+    private readonly FileSystemWatcher _watcher;
+    private readonly string _policyRepositoryPath;
+
     internal PolicySetDto policySet
     {
         get => _policySetPractitioner;
@@ -34,6 +37,17 @@ public class PolicyRepositoryWrapper
         _logger = logger;
         _policyRepository = policyRepository;
         policySet = _policyRepository.GetAllPolicies();
+
+        _policyRepositoryPath = _policyRepository.GetPolicyRepositoryPath();
+
+        _watcher = new FileSystemWatcher(_policyRepositoryPath)
+        {
+            NotifyFilter = NotifyFilters.LastWrite
+        };
+
+        _watcher.Changed += OnConfigFileChanged;
+        _watcher.EnableRaisingEvents = true;
+
     }
 
     // For use in unit tests
@@ -157,6 +171,19 @@ public class PolicyRepositoryWrapper
 
             default:
                 return _evaluationEnginePractitioner.Evaluate(xacmlContextRequest, new XmlDocument());
+        }
+    }
+
+    private void OnConfigFileChanged(object sender, FileSystemEventArgs e)
+    {
+        try
+        {
+            RefreshEvaluationEngine();
+            _logger.LogInformation($"{Path.GetFileName(_policyRepositoryPath)} reloaded successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reloading policy repository.");
         }
     }
 }

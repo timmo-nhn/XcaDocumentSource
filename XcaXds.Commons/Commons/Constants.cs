@@ -523,6 +523,7 @@ public static class Constants
                 public const string Confidentiality = "2.16.578.1.12.4.1.1.9603";
                 public const string EventCode = "2.16.578.1.12.4.1.1.7210";
             }
+
             public static class Hl7
             {
                 public const string Confidentiality = "2.16.840.1.113883.5.25";
@@ -531,8 +532,77 @@ public static class Constants
 
         public static class Saml
         {
-            public const string AcpNullValue = "urn:oid:2.16.578.1.12.4.1.7.2.1.0";
-            public const string BppcNullValue = "urn:oid:2.16.578.1.12.4.1.7.2.2.0";
+            public static class Acp
+            {
+                // Citizen OID values
+
+                /// <summary>
+                /// CUSTOM OID: No representation overrides (represents themself)
+                /// </summary>
+                public const string NullValue = "urn:oid:2.16.578.1.12.4.1.7.2.1.0";
+
+                /// <summary>
+                /// Represent citizen under 12 years of age
+                /// </summary>
+                public const string RepresentCitizenUnder12 = "urn:oid:2.16.578.1.12.4.1.7.2.1.1";
+
+                /// <summary>
+                /// Represent another cititzen
+                /// </summary>
+                public const string RepresentAnotherCitizen = "urn:oid:2.16.578.1.12.4.1.7.2.1.2";
+
+                /// <summary>
+                /// Represent citizen unable to give consent
+                /// </summary>
+                public const string RepresentedUnableToConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.3";
+
+                // Healthcare practitioner OID values
+
+                /// <summary>
+                /// Healthcare professional [subject] is not obliged to retrieve patient's consent to [resource] open and see patient's healthcare data, e.g. "patient's regular physician" (fastlege)
+                /// </summary>
+                public const string NotObligedToConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.4";
+
+                /// <summary>
+                /// Healthcare professional [subject] has been given explicit consent from patient [resource] to open and see patient's healthcare data, including locked data
+                /// </summary>
+                public const string ExcplicitConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.5";
+
+                /// <summary>
+                /// Healthcare professional [subject] is not able to retrieve consent from current patient [resource] (e.g. patient is unconscious)
+                /// </summary>
+                public const string UnableToConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.6";
+
+                /// <summary>
+                /// Healthcare professional [subject] has documented reasons to unlock all available healthcare data for current patient [resource] in an emergency/catastrophic situation
+                /// </summary>
+                public const string ExceptionToConcent = "urn:oid:2.16.578.1.12.4.1.7.2.1.7";
+
+                /// <summary>
+                /// Healthcare professional [subject] has retrieved consent from patient [resource] to open and see patient's healthcare data
+                /// </summary>
+                public const string HasConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.8";
+
+            }
+
+            public static class Bppc
+            {
+                /// <summary>
+                /// CUSTOM OID: Null value
+                /// </summary>
+                public const string NullValue = "urn:oid:2.16.578.1.12.4.1.7.2.2.0";
+
+                /// <summary>
+                /// Consent from an analog channel
+                /// </summary>
+                public const string AnalogChannel = "urn:oid:2.16.578.1.12.4.1.7.2.2.1";
+
+                /// <summary>
+                /// Consent from a digital channel
+                /// </summary>
+                public const string DigitalChannel = "urn:oid:2.16.578.1.12.4.1.7.2.2.2";
+            }
+
         }
     }
     public static class MimeTypes
@@ -606,6 +676,7 @@ public static class Constants
             public const string And = "urn:oasis:names:tc:xacml:1.0:function:and";
             public const string Or = "urn:oasis:names:tc:xacml:1.0:function:or";
             public const string StringOneAndOnly = "urn:oasis:names:tc:xacml:1.0:function:string-one-and-only";
+            public const string Not = "urn:oasis:names:tc:xacml:1.0:function:not";
         }
         public static class CombiningAlgorithms
         {
@@ -646,6 +717,15 @@ public static class Constants
             public const string ResourceId = "urn:oasis:names:tc:xacml:2.0:resource:resource-id";
             public const string Role = "urn:oasis:names:tc:xspa:1.0:subject:role";
         }
+        
+        public static class CustomAttributes
+        {
+            public const string DocumentEntryPatientIdentifier = "urn:no:nhn:xcads:document:patient-identifier";
+            public const string AdhocQueryPatientIdentifier = "urn:no:nhn:xcads:adhocquery:patient-identifier";
+            public const string DocumentUniqueId = "urn:no:nhn:xcads:document:uniqueid";
+            public const string RepositoryUniqueId = "urn:no:nhn:xcads:document:repositoryuniqueid";
+            public const string HomeCommunityId = "urn:no:nhn:xcads:document:homecommunityid";
+        }
 
         public static class Category
         {
@@ -675,6 +755,14 @@ public static class Constants
             public const string WD17 = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
             public const string Policy_OS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
             public const string Context_OS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
+        }
+
+        public static class StatusCodes
+        {
+            public const string MissingAttribute = "urn:oasis:names:tc:xacml:1.0:status:missing-attribute";
+            public const string Ok = "urn:oasis:names:tc:xacml:1.0:status:ok";
+            public const string ProcessingError = "urn:oasis:names:tc:xacml:1.0:status:processing-error";
+            public const string SyntaxError = "urn:oasis:names:tc:xacml:1.0:status:syntax-error ";
         }
     }
 

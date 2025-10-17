@@ -74,6 +74,14 @@
 					<saml:Attribute Name="client_id">
 						<saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1.1</saml:AttributeValue>
 					</saml:Attribute>
+					<saml:Attribute FriendlyName="Patient Privacy Policy Acknowledgement Document" Name="urn:ihe:iti:bppc:2007:docid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+						<saml:AttributeValue xmlns:a="http://www.w3.org/2001/XMLSchema-instance"
+							xmlns:tn="http://www.w3.org/2001/XMLSchema" a:Type="tn:anyURI">urn:oid:2.16.578.1.12.4.1.7.2.2.1</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute FriendlyName="Patient Privacy Policy Identifier" Name="urn:ihe:iti:xua:2012:acp" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+						<saml:AttributeValue xmlns:a="http://www.w3.org/2001/XMLSchema-instance"
+							xmlns:tn="http://www.w3.org/2001/XMLSchema" a:Type="tn:anyURI">urn:oid:2.16.578.1.12.4.1.7.2.1.1</saml:AttributeValue>
+					</saml:Attribute>
 				</saml:AttributeStatement>
 				<saml:AuthnStatement AuthnInstant="2025-08-29T09:41:56.154Z" SessionNotOnOrAfter="2025-08-29T10:01:56.154Z">
 					<saml:AuthnContext>

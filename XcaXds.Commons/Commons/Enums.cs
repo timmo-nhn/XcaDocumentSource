@@ -1,5 +1,11 @@
 namespace XcaXds.Commons.Commons;
 
+public enum CompareRule
+{
+    Equals,
+    NotEquals
+}
+
 public enum XacmlVersion
 {
     Version20,

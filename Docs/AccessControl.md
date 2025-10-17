@@ -101,7 +101,6 @@ subgraph "XcaDocumentSource"
             regep[Registry Endpoint<br><pre>/RegistryService]
             repep[Repository Endpoint<br><pre>/RepositoryService]
             othr["Other endpoints with  [Usepolicyenforcementpoint]"]
-
         end
     end
     subgraph "PDP/PAP Service"
@@ -130,6 +129,37 @@ permitdeny --Permit-->repep
 **PJD.XcaDocumentSource** uses the `Abc.Xacml`-library to generate, serialize and evaluate policy requests.  
 [Abc.Xacml - github.com ↗](https://github.com/abc-software/abc.xacml)
 
+### Business logic
+**PJD.XcaDocumentSource** has specific business rules that go out of the scope of the **XACML**-policy evaluation, and describes more domain-specific rules for access control.  
+
+#### Access Control Policy (ACP)
+The ACP field (Attribute Name: `urn:ihe:iti:xua:2012:acp`) is a policy identifier, signaling which access control policy is relevant for this request.  
+The values are a set of OIDs:
+|OID|Description|
+|---|---|
+|nil/null - no value|**Healthcare professional** OR **citizen** (_subject_) is not obliged to any overrides for opening and seeing patient's healthcare data (_resource_) <br> e.g. Citizen (patient) represents themself|
+|`2.16.578.1.12.4.1.7.2.1.1`|**Citizen** (_subject_) is has parent representation for child under the age of 12 (_resource_)|
+|`2.16.578.1.12.4.1.7.2.1.2`|**Citizen** (_subject_) has retrieved consent to represent another citizen (_resource_)|
+|`2.16.578.1.12.4.1.7.2.1.3`|**Citizen** (_subject_) represents on behalf of citizen unable to give consent (_resource_).|
+|`2.16.578.1.12.4.1.7.2.1.4`|**Healthcare professional** (_subject_) is not obliged to retrieve patient's consent to  open and see patient's healthcare data (_resource_), e.g. "patient's regular physician" (fastlege)|
+|`2.16.578.1.12.4.1.7.2.1.5`	|**Healthcare professional** (_subject_) has been given explicit consent from patient (_resource_) to open and see patient's healthcare data, including locked data|
+|`2.16.578.1.12.4.1.7.2.1.6`	|**Healthcare professional** (_subject_) is not able to retrieve consent from current patient (_resource_) (e.g. patient is unconscious)|
+|`2.16.578.1.12.4.1.7.2.1.7`	|**Healthcare professional** (_subject_) has documented reasons to unlock all available healthcare data for current patient (_resource_) in an emergency/catastrophic situation|
+|`2.16.578.1.12.4.1.7.2.1.8`	|**Healthcare professional** (_subject_) has retrieved consent from patient (_resource_) to open and see patient's healthcare data|
+
+##### Example
+```xml
+<Attribute FriendlyName="Patient Privacy Policy Identifier" 
+  Name="urn:ihe:iti:xua:2012:acp" 
+  NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+  <AttributeValue xmlns:a=http://www.w3.org/2001/XMLSchema-instance 
+    xmlns:tn="http://www.w3.org/2001/XMLSchema" 
+    a:type="tn:anyURI">urn:oid:2.16.578.1.12.4.1.7.2.1.1</AttributeValue>
+</Attribute>
+```
+#### Usage of ACP with other SAML-attributes
+The **ACP** field is used in conjunction with the `urn:oasis:names:tc:xacml:2.0:resource:resource-id` and `urn:ihe:iti:xua:2017:subject:provider-identifier` SAML-attributes to 
+
 
 ## Policy Repository
 The default implementation of the policy repository is of a simple file-system storage. Policies are found in `<Solution>\XcaXds.Source\PolicyRepository\` and each policy is stored as a separate JSON-file.  
@@ -137,6 +167,18 @@ Upon initalization of the `FileBasedPolicyRepository`, all the files in the `Pol
 
 ## XACML Request
 A XACML request features attributes which state who and what kind of user is attempting to perform a certain action. This request is evaluated by the Evaluation Engine, which contains the policies defining the access rights to the content of the system.
+
+### Custom attributes for XACML requests
+
+
+|Code|Description|
+|--|--|
+|`urn:no:nhn:xcads:document:patient-identifier` |The patient identifier defined in the document entry for the document being requested |
+|`urn:no:nhn:xcads:adhocquery:patient-identifier` |The Patient identifier in the AdhocQuery request (`$XDSDocumentEntryPatientId`)|
+|`urn:no:nhn:xcads:document:uniqueid` |The unqiue identifier for the document being requested (DocumentUniqueId)|
+|`urn:no:nhn:xcads:document:repositoryuniqueid` |The OID for the Repository (RepositoryUniqueId) |
+|`urn:no:nhn:xcads:document:homecommunityid` |The OID for the HomeCommunity (HomeCommunityId)|
+
 
 
 ### Converting SAML-attributes to XACML-attributes
@@ -397,7 +439,7 @@ This how the XACML XML will be mapped from the DTO.
 
 ### Action-mapping
 The XACML 2.0 specification does not enforce specific values for the `<Action>`-segment of a `<Policy>` or `<Request>`.  
-For SOAP-requests, **PJD.XcaDocumentSource** maps from the `<Action>` in the `<Header>` to specific values for the appropriate action.
+For SOAP-requests, **PJD.XcaDocumentSource** maps from the `<Action>` in the Soap Envelope `<Header>` to specific values for the appropriate action.
 
 |XACML-action|SOAP-action
 |--|--|
