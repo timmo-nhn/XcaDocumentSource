@@ -117,9 +117,10 @@ public class FileBasedRepository : IRepository
     {
         var parentDir = Directory.GetParent(_repositoryPath)?.FullName;
         var currentId = Path.GetFileName(Directory.GetFileSystemEntries(parentDir).FirstOrDefault());
-        
+
         oldId = currentId;
 
+        if (currentId == null) return false;
         if (parentDir == null) return false;
 
         var newDir = Path.Combine(parentDir, repositoryOid);

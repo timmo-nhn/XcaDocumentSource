@@ -81,7 +81,7 @@ public class AppStartupService : IHostedService
     {
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        _logger.LogInformation("Normalizing registry entries with ");
+        _logger.LogInformation("Normalizing registry entries");
 
         foreach (var registryObject in registryContent.OfType<DocumentEntryDto>())
         {
