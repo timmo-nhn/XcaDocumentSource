@@ -52,6 +52,8 @@ public class FileBasedPolicyRepository : IPolicyRepository
             {
                 try
                 {
+                    if (IsTemporaryFile(policyFilePath)) continue;
+
                     var policyFileContent = File.ReadAllText(policyFilePath);
                     var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent, Constants.JsonDefaultOptions.DefaultSettings);
                     if (policyDto?.Id != null)
@@ -118,5 +120,10 @@ public class FileBasedPolicyRepository : IPolicyRepository
         }
 
         return true;
+    }
+
+    private bool IsTemporaryFile(string fileName)
+    {
+        return fileName.EndsWith("~") || fileName.EndsWith(".tmp", StringComparison.CurrentCultureIgnoreCase) || Path.GetFileName(fileName).StartsWith("~$");
     }
 }

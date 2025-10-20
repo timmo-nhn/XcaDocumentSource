@@ -54,7 +54,14 @@ public static class PolicyRequestMapperSamlService
             return null;
         }
 
-        var samltokenAuthorizationAttributes = statements.Where(att => att.Name.Contains("xacml") || att.Name.Contains("xspa") || att.Name.Contains("SecurityLevel") || att.Name.Contains("Scope") || att.Name.Contains("urn:ihe:iti") || att.Name.Contains("acp"));
+        var samltokenAuthorizationAttributes = statements.Where(att => 
+        att.Name.Contains("xacml") ||
+        att.Name.Contains("xspa") ||
+        att.Name.Contains("SecurityLevel") ||
+        att.Name.Contains("Scope") || 
+        att.Name.Contains("urn:ihe:iti") || 
+        att.Name.Contains("acp") || 
+        att.Name.Contains("provider-identifier"));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
@@ -293,14 +300,15 @@ public static class PolicyRequestMapperSamlService
             var attributeValueAsCodedValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(attributeValue);
 
 
-            var valueExistsAlready = subjectAttributes
-                .Any(att => att.AttributeValues
-                    .Any(avs =>
-                        avs.Value == attributeValueAsCodedValue.Code ||
-                        avs.Value == attributeValueAsCodedValue.CodeSystem ||
-                        avs.Value == attributeValueAsCodedValue.DisplayName
-                    ));
-            if (valueExistsAlready) continue;
+            //var valueExistsAlready = subjectAttributes
+            //    .Any(att => att.AttributeValues
+            //        .Any(avs =>
+            //            avs.Value == attributeValueAsCodedValue.Code ||
+            //            avs.Value == attributeValueAsCodedValue.CodeSystem ||
+            //            avs.Value == attributeValueAsCodedValue.DisplayName
+            //        ));
+
+            //if (valueExistsAlready) continue;
 
             try
             {
@@ -358,6 +366,15 @@ public static class PolicyRequestMapperSamlService
                 throw new InvalidOperationException(
                     $"Invalid URI in attribute: {attribute.Name}", urix);
             }
+        }
+
+        if (subjectAttributes.Any(att => att.AttributeId.ToString() == Constants.Saml.Attribute.XuaAcp) == false)
+        {
+            subjectAttributes.Add(
+            new XacmlContextAttribute(
+                new Uri(Constants.Saml.Attribute.XuaAcp + ":code"),
+                new Uri(Constants.Xacml.DataType.String),
+                new XacmlContextAttributeValue() { Value = Constants.Oid.Saml.Acp.NullValue}));
         }
 
         return subjectAttributes;

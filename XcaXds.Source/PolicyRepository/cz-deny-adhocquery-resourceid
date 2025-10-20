@@ -1,0 +1,18 @@
+{
+    "appliesTo": "Helsenorge",
+    "id": "cz-deny-adhocquery-resourceid",
+    "rules": [
+        [
+            {
+                "attributeId": "urn:no:nhn:xcads:adhocquery:patient-identifier:code",
+                "compareAttributes": true,
+                "compareRule": "NotEquals",
+                "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:code"
+            }
+        ]
+    ],
+    "actions": [
+        "ReadDocumentList"
+    ],
+    "effect": "Permit"
+}

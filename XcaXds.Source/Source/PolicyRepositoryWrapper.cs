@@ -84,6 +84,35 @@ public class PolicyRepositoryWrapper
         return policySet;
     }
 
+    public PolicySetDto GetPoliciesAsPolicySet(Issuer issuer)
+    {
+        return issuer switch
+        {
+            Issuer.HelseId => new PolicySetDto()
+            {
+                CombiningAlgorithm = policySet.CombiningAlgorithm,
+                SetId = policySet.SetId,
+                Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.HelseId).ToList()
+            },
+
+            Issuer.Helsenorge => new PolicySetDto()
+            {
+                CombiningAlgorithm = policySet.CombiningAlgorithm,
+                SetId = policySet.SetId,
+                Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.Helsenorge).ToList()
+            },
+
+            _ => new PolicySetDto()
+            {
+                CombiningAlgorithm = policySet.CombiningAlgorithm,
+                SetId = policySet.SetId,
+                Policies = policySet.Policies
+            }
+        };
+    }
+
+
+
     public PolicyDto? GetPolicy(string? id)
     {
         return policySet.Policies?.FirstOrDefault(pol => pol.Id == id);
@@ -160,7 +189,7 @@ public class PolicyRepositoryWrapper
         {
             _logger.LogWarning("No policies are set up. XcaDocumentSource will deny all requests!");
         }
-
+        
         switch (appliesTo)
         {
             case Issuer.Helsenorge:
@@ -176,14 +205,18 @@ public class PolicyRepositoryWrapper
 
     private void OnConfigFileChanged(object sender, FileSystemEventArgs e)
     {
-        try
+        Task.Delay(500).ContinueWith(_ =>
         {
-            RefreshEvaluationEngine();
-            _logger.LogInformation($"{Path.GetFileName(_policyRepositoryPath)} reloaded successfully.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error reloading policy repository.");
-        }
+            try
+            {
+                policySet = _policyRepository.GetAllPolicies();
+                RefreshEvaluationEngine();
+                _logger.LogInformation($"{Path.GetFileName(_policyRepositoryPath)} reloaded successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reloading policy repository.");
+            }
+        });
     }
 }
