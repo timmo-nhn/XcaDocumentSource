@@ -66,7 +66,7 @@ public class PolicyRepositoryWrapper
                 {
                     CombiningAlgorithm = policySet.CombiningAlgorithm,
                     SetId = policySet.SetId,
-                    Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.HelseId).ToList()
+                    Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.HelseId) ?? false).ToList()
                 }));
 
             _evaluationEngineCitizen = new EvaluationEngine(
@@ -74,7 +74,7 @@ public class PolicyRepositoryWrapper
                 {
                     CombiningAlgorithm = policySet.CombiningAlgorithm,
                     SetId = policySet.SetId,
-                    Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.Helsenorge).ToList()
+                    Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.Helsenorge) ?? false).ToList()
                 }));
         }
     }
@@ -92,14 +92,14 @@ public class PolicyRepositoryWrapper
             {
                 CombiningAlgorithm = policySet.CombiningAlgorithm,
                 SetId = policySet.SetId,
-                Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.HelseId).ToList()
+                Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.HelseId) ?? false).ToList()
             },
 
             Issuer.Helsenorge => new PolicySetDto()
             {
                 CombiningAlgorithm = policySet.CombiningAlgorithm,
                 SetId = policySet.SetId,
-                Policies = policySet.Policies?.Where(pol => pol.AppliesTo == Issuer.Helsenorge).ToList()
+                Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.Helsenorge) ?? false).ToList()
             },
 
             _ => new PolicySetDto()

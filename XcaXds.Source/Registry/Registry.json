@@ -44,7 +44,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Arbeidstrening for ordin\u00E6rt arbeidsmarked"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "no-NO",
     "mimeType": "text/xml",
     "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
@@ -53,7 +53,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "Legevakt"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "57679",
     "serviceStartTime": "2025-09-24T02:00:00",
     "serviceStopTime": "2025-09-25T02:00:00",
@@ -95,11 +95,11 @@
         }
       }
     ],
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-10-02T00:00:00",
     "title": "SubmissionSet-04881098402-02.10.2025 14:03:56",
     "uniqueId": "2.16.578.1.12.4.5.7.4.58471.1914.92931",
-    "sourceId": "2.16.578.1.12.4.5.100.15",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "09f5fb73-f053-449a-a52d-d7a8e7a24f2e"
   },
   {
@@ -122,7 +122,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Rehabiliterings- og opptreningsinstitusjoner"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "23876997983",
@@ -137,7 +137,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "Legevakt"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "57679",
     "serviceStartTime": "2025-09-25T02:00:00",
     "serviceStopTime": "2025-09-26T02:00:00",
@@ -189,10 +189,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-08-07T03:41:32.2352108Z",
     "title": "Forel\u00F8pig epikrise - Midlertidig vurdering",
     "uniqueId": ".1141.1481.1218",
-    "sourceId": ".1246.2516.1722",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "53ceeea9-08e5-4e59-b321-a9e314fe39dd"
   },
   {
@@ -308,7 +309,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Hjemmehjelp"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
@@ -323,7 +324,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "7"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-01-16T04:48:40.9695684Z",
     "serviceStopTime": "2023-01-16T08:14:49.9695684Z",
@@ -391,10 +392,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-01-16T08:47:17.9695684Z",
     "title": "Epikrise - Psykomotorisk fysioterapi",
     "uniqueId": ".2339.3719.3401",
-    "sourceId": ".3937.3687.1509",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "71f7fec3-d868-4514-a33e-fa5a57767060"
   },
   {
@@ -463,7 +465,6 @@
       "codeSystem": "2.16.578.1.12.4.1.1.9602",
       "displayName": "Epikriser og Sammenfatninger"
     },
-    "confidentialityCode": null,
     "creationTime": "2024-09-25T23:27:10.9777337Z",
     "formatCode": {
       "code": "urn:no:ehelse:document:pdf",
@@ -475,7 +476,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Sosialtjenester for rusmiddelmisbrukere uten botilbud"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13890497696",
@@ -490,7 +491,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-09-25T21:07:09.9777337Z",
     "serviceStopTime": "2024-09-25T23:31:57.9777337Z",
@@ -538,10 +539,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-09-28T23:15:41.5887555Z",
     "title": "Foresp\u00F8rsel om tverrfaglig vurdering",
     "uniqueId": ".1115.239.2349",
-    "sourceId": ".2809.1868.1113",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "49edc693-fcb4-4fca-9330-f701284ca3e0"
   },
   {
@@ -604,7 +606,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
@@ -619,7 +621,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-01-03T17:14:46.5887675Z",
     "serviceStopTime": "2023-01-03T21:33:03.5887675Z",
@@ -715,10 +717,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-01-03T21:38:48.5887675Z",
     "title": "EKG-vurdering - Brystsmerter",
     "uniqueId": ".1861.3639.3964",
-    "sourceId": ".2126.1016.776",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "dbf24d52-98e8-4263-b093-7bf77e64df64"
   },
   {
@@ -762,10 +765,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-09-26T00:21:41.9777337Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Psykologvurdering - Angstproblematikk",
     "uniqueId": ".2162.2015.120",
-    "sourceId": ".3033.1475.2651",
     "id": "56d5df84-dea5-4f5d-b990-bd990d9bd77c"
   },
   {
@@ -809,10 +812,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2023-03-06T00:27:32.147396Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Henvisning til bildediagnostikk - MR Caput",
     "uniqueId": ".2786.3893.595",
-    "sourceId": ".913.1610.2184",
     "id": "57612501-d816-46d9-a04a-302994bcabf6"
   },
   {
@@ -857,7 +860,6 @@
       "codeSystem": "2.16.578.1.12.4.1.1.9602",
       "displayName": "Kurve, observasjon og behandling"
     },
-    "confidentialityCode": null,
     "creationTime": "2024-12-01T10:33:19.9778153Z",
     "formatCode": {
       "code": "urn:no:ehelse:document:pdf",
@@ -869,7 +871,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
@@ -884,7 +886,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "2"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-12-01T07:38:21.9778153Z",
     "serviceStopTime": "2024-12-01T08:31:34.9778153Z",
@@ -936,10 +938,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-04-11T14:30:23.1474911Z",
     "title": "Psykiatrisk observasjon - F\u00F8rste innleggelse",
     "uniqueId": ".989.2394.483",
-    "sourceId": ".3.3798.3670",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "8fafe7c0-b234-4d50-9c4f-1ef73b5a0ba4"
   },
   {
@@ -1027,7 +1030,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Sosialtjenester for rusmiddelmisbrukere uten botilbud"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03866197813",
@@ -1042,7 +1045,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-04-20T07:50:56.1475163Z",
     "serviceStopTime": "2023-04-20T11:17:44.1475163Z",
@@ -1094,10 +1097,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-04-20T11:56:22.1475163Z",
     "title": "Akutt journalnotat - Brannskade",
     "uniqueId": ".164.210.3006",
-    "sourceId": ".2681.469.1448",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "971676b7-dcdc-4749-80b2-ef07e690181b"
   },
   {
@@ -1157,10 +1161,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-12-01T11:00:54.9778153Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Forel\u00F8pig epikrise - Midlertidig vurdering",
     "uniqueId": ".1681.1166.1581",
-    "sourceId": ".3616.190.1289",
     "id": "20975519-d801-44e8-9622-743b18ebe1b0"
   },
   {
@@ -1228,10 +1232,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2025-04-06T00:31:04.1477075Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Medisinsk oppsummering etter utskrivelse",
     "uniqueId": ".515.471.2471",
-    "sourceId": ".1611.761.862",
     "id": "01f3442d-e82c-4e27-9e03-d0ae75bd20f7"
   },
   {
@@ -1334,7 +1338,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Hjemmesykepleie"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "27905697442",
@@ -1349,7 +1353,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-02-17T20:19:02.9778415Z",
     "serviceStopTime": "2024-02-18T00:08:01.9778415Z",
@@ -1401,10 +1405,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-02-18T01:46:24.9778415Z",
     "title": "Behandlingsnotat - Smertepoliklinikk",
     "uniqueId": ".3182.1843.2443",
-    "sourceId": ".2022.901.1109",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "532dcf1a-1f9b-4964-8592-7d94fd08f838"
   },
   {
@@ -1520,7 +1525,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Barnehager"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
@@ -1535,7 +1540,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "1"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-08-03T13:03:03.9779825Z",
     "serviceStopTime": "2024-08-03T15:53:29.9779825Z",
@@ -1583,10 +1588,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-03-28T23:41:18.0530182Z",
     "title": "Postoperativ vurdering - Hofteprotese",
     "uniqueId": ".2321.1673.2421",
-    "sourceId": ".2705.983.1131",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "1bf60eb5-3dba-4d15-a0dc-b0f1706219d0"
   },
   {
@@ -1694,7 +1700,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
@@ -1709,7 +1715,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-10-14T10:30:22.0530375Z",
     "serviceStopTime": "2022-10-14T15:22:48.0530375Z",
@@ -1757,10 +1763,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-10-14T15:18:50.0530375Z",
     "title": "Smertekartlegging - Langvarige plager",
     "uniqueId": ".3699.238.2968",
-    "sourceId": ".2544.1426.2",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "c698ceea-ebc5-4854-a79e-78044e8766a3"
   },
   {
@@ -1828,10 +1835,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-08-03T16:01:19.9779825Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Anestesiopplysninger - Elektiv kirurgi",
     "uniqueId": ".2133.592.329",
-    "sourceId": ".874.2489.2759",
     "id": "a6a2dd64-e4c8-438a-b98b-fd404711c927"
   },
   {
@@ -1924,7 +1931,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
@@ -1939,7 +1946,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "1"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-12-26T16:29:13.053127Z",
     "serviceStopTime": "2023-12-26T21:17:52.053127Z",
@@ -2031,10 +2038,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-12-26T21:13:54.053127Z",
     "title": "Innkomstnotat - Akutt innleggelse",
     "uniqueId": ".2781.1480.2829",
-    "sourceId": ".2796.3394.672",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "8927b2e1-ca1b-42f7-af81-a752b8711721"
   },
   {
@@ -2098,7 +2106,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Avlastningsboliger/-institusjoner"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
@@ -2113,7 +2121,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "7"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-03-05T13:27:48.9780135Z",
     "serviceStopTime": "2024-03-05T16:44:12.9780135Z",
@@ -2177,10 +2185,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-03-05T18:50:25.9780135Z",
     "title": "Foresp\u00F8rsel om second opinion",
     "uniqueId": ".759.1979.3710",
-    "sourceId": ".1528.3146.3562",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "07127cfe-2895-4cd6-b879-fe6ea3c7b396"
   },
   {
@@ -2277,7 +2286,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Omsorgsinstitusjoner ellers"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
@@ -2292,7 +2301,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "8"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-12-20T15:25:37.0532587Z",
     "serviceStopTime": "2022-12-20T18:04:41.0532587Z",
@@ -2348,10 +2357,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-12-20T20:27:11.0532587Z",
     "title": "Overv\u00E5kningsnotat - Intensivavdeling",
     "uniqueId": ".3681.1958.2832",
-    "sourceId": ".373.741.2262",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "2c826646-5989-49c4-89bf-b33ed5175e03"
   },
   {
@@ -2466,7 +2476,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Barneboliger"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
@@ -2481,7 +2491,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-02-20T23:58:23.0532738Z",
     "serviceStopTime": "2024-02-21T01:34:39.0532738Z",
@@ -2577,10 +2587,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-02-21T03:47:49.0532738Z",
     "title": "Foresp\u00F8rsel om second opinion",
     "uniqueId": ".303.2587.1965",
-    "sourceId": ".979.2956.1205",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "95350d22-3a76-42cc-a2a2-b66e847e9f75"
   },
   {
@@ -2645,7 +2656,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Aldershjem"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
@@ -2660,7 +2671,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-12-08T02:45:56.9780454Z",
     "serviceStopTime": "2022-12-08T05:55:18.9780454Z",
@@ -2784,75 +2795,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "classCode": {
-      "code": "A00-1",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Epikriser og Sammenfatninger"
-    },
-    "confidentialityCode": [
-      {
-        "code": "NORN_UNGDOM",
-        "codeSystem": "2.16.578.1.12.4.1.1.9603",
-        "displayName": "Nektet, ungdom"
-      },
-      {
-        "code": "NORN_ALL",
-        "codeSystem": "2.16.578.1.12.4.1.1.9603",
-        "displayName": "Nektet, alle"
-      },
-      {
-        "code": "R",
-        "codeSystem": "2.16.840.1.113883.5.25",
-        "displayName": "Restricted"
-      }
-    ],
-    "creationTime": "2025-05-21T09:45:15.2198529Z",
-    "formatCode": {
-      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
-    },
-    "hash": "bd2d344b71a07e9fa0ba32800d3d6346b79785d3",
-    "healthCareFacilityTypeCode": {
-      "code": "86.101",
-      "codeSystem": "2.16.578.1.12.4.1.1.1303",
-      "displayName": "Alminnelige somatiske sykehus"
-    },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "languageCode": "nb-NO",
-    "legalAuthenticator": {
-      "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.4",
-      "firstName": "GREI",
-      "lastName": "METER"
-    },
-    "mimeType": "application/pdf",
-    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
-    "practiceSettingCode": {
-      "code": "6",
-      "codeSystem": "2.16.578.1.12.4.1.1.8653",
-      "displayName": "6"
-    },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
-    "size": "59061",
-    "serviceStartTime": "2025-05-21T08:16:21.2198529Z",
-    "serviceStopTime": "2025-05-21T09:38:45.2198529Z",
-    "sourcePatientInfo": {
-      "patientId": {
-        "id": "12119000465",
-        "system": "2.16.578.1.12.4.1.4.1"
-      },
-      "firstName": "Malin",
-      "lastName": "Fos Bogen",
-      "birthTime": "1990-11-12T00:00:00Z",
-      "gender": "F"
-    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "title": "XcaDS - Tverrfaglig behandlingsplan - Rehabilitering",
-    "typeCode": {
-      "code": "E01-2",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Bildediagnostiske svar"
-    },
     "uniqueId": "d513d905-c81c-4995-ac8c-bbd60cd70c64",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "86cff5a6-737b-418c-80a4-724043ff1f9f"
   },
   {
@@ -2908,10 +2854,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-12-08T07:03:10.9780454Z",
     "title": "Epikrise - Psykiatrisk d\u00F8gnopphold",
     "uniqueId": ".99.3591.3352",
-    "sourceId": ".110.949.2593",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "476a430d-d78a-4e9b-bbd6-3b374e39e1c4"
   },
   {
@@ -2978,7 +2925,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Somatiske poliklinikker"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "16920997949",
@@ -2993,7 +2940,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-12-29T15:26:55.9780798Z",
     "serviceStopTime": "2024-12-29T17:54:41.9780798Z",
@@ -3065,10 +3012,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-12-29T18:53:48.9780798Z",
     "title": "Utskrivingsrapport - Ortopedisk avdeling",
     "uniqueId": ".1949.1018.793",
-    "sourceId": ".227.790.3004",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "de66e8dd-df04-4719-96a0-8ffed30e5076"
   },
   {
@@ -3132,7 +3080,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
@@ -3147,7 +3095,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-02-26T03:46:23.2199804Z",
     "serviceStopTime": "2023-02-26T07:28:41.2199804Z",
@@ -3219,10 +3167,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-02-26T07:23:44.2199804Z",
     "title": "Konsultasjonsnotat - Fastlege",
     "uniqueId": ".3693.201.2099",
-    "sourceId": ".873.1313.1413",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "5328de53-d8b7-4723-9ae2-2c2ab22b1cf4"
   },
   {
@@ -3273,11 +3222,6 @@
           "lastName": "BOT",
           "assigningAuthority": "2.16.578.1.12.4.1.4.4"
         },
-        "role": {
-          "code": "20",
-          "codeSystem": "2.16.578.1.12.4.1.1.9034",
-          "displayName": "Kontaktpsykolog"
-        },
         "role": {},
         "speciality": {
           "code": "199",
@@ -3315,7 +3259,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03866197813",
@@ -3330,7 +3274,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-10-08T04:50:11.220028Z",
     "serviceStopTime": "2024-10-08T07:32:05.220028Z",
@@ -3402,10 +3346,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-10-08T09:14:14.220028Z",
     "title": "Overv\u00E5kningsnotat - Intensivavdeling",
     "uniqueId": ".3725.2141.2231",
-    "sourceId": ".632.3342.3297",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "18ef3e8b-40a4-4e4b-ac05-cec429db4c9e"
   },
   {
@@ -3520,7 +3465,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Bofellesskap for psykisk utviklingshemmede"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
@@ -3535,7 +3480,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "6"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-12-30T18:10:17.2200504Z",
     "serviceStopTime": "2024-12-30T21:57:59.2200504Z",
@@ -3639,10 +3584,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-12-30T23:04:06.2200504Z",
     "title": "Samtalenotat - Lege og pasient",
     "uniqueId": ".1304.1187.1631",
-    "sourceId": ".2248.1778.3094",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "90933353-3b48-4b32-a61a-f874ddeac658"
   },
   {
@@ -3734,7 +3680,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Asylmottak"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
@@ -3749,7 +3695,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "2"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-10-14T06:37:50.9780995Z",
     "serviceStopTime": "2022-10-14T07:26:18.9780995Z",
@@ -3869,65 +3815,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "classCode": {
-      "code": "D00-1",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Organfunksjon"
-    },
-    "confidentialityCode": [
-      {
-        "code": "N",
-        "codeSystem": "2.16.578.1.12.4.1.1.9603",
-        "displayName": "Normal"
-      }
-    ],
-    "creationTime": "2024-12-04T19:54:05.2361931Z",
-    "formatCode": {
-      "code": "urn:no:ehelse:document:pdf",
-      "displayName": "FormatCodes"
-    },
-    "hash": "1F9556BD59F6E4AEF5DE94EA8D469E2F",
-    "healthCareFacilityTypeCode": {
-      "code": "86.901",
-      "codeSystem": "2.16.578.1.12.4.1.1.1303",
-      "displayName": "Hjemmesykepleie"
-    },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "languageCode": "nb-NO",
-    "legalAuthenticator": {
-      "id": "02906499765",
-      "idSystem": "2.16.578.1.12.4.1.4.4",
-      "firstName": "FORDEKT",
-      "lastName": "HIMMEL"
-    },
-    "mimeType": "application/pdf",
-    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
-    "practiceSettingCode": {
-      "code": "4",
-      "codeSystem": "2.16.578.1.12.4.1.1.8653",
-      "displayName": "4"
-    },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
-    "size": "59061",
-    "serviceStartTime": "2024-12-04T19:06:37.2361931Z",
-    "serviceStopTime": "2024-12-04T19:32:21.2361931Z",
-    "sourcePatientInfo": {
-      "patientId": {
-        "id": "17855599120",
-        "system": "2.16.578.1.12.4.1.4.1"
-      },
-      "firstName": "Usnobbet",
-      "lastName": "Klokke",
-      "birthTime": "1955-05-17T00:00:00Z",
-      "gender": "M"
-    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "title": "XcaDS - Oppf\u00F8lging etter innleggelse - Medisinsk vurdering",
-    "typeCode": {
-      "code": "F01-2",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Kurve"
-    },
     "uniqueId": "9834b392-aca7-4078-9a0e-6f423961d964",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "ffc5dec9-bece-44b6-a053-7a9f8d5bf820"
   },
   {
@@ -3979,10 +3870,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-10-14T09:27:54.9780995Z",
     "title": "Funnbeskrivelse - R\u00F8ntgen thorax",
     "uniqueId": ".1473.376.2440",
-    "sourceId": ".1339.1708.1069",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "1b1d2dff-702d-4a2e-a6dc-f043ad0debc3"
   },
   {
@@ -4029,11 +3921,6 @@
           "lastName": "BOKSTAV",
           "assigningAuthority": "2.16.578.1.12.4.1.4.4"
         },
-        "role": {
-          "code": "14",
-          "codeSystem": "2.16.578.1.12.4.1.1.9034",
-          "displayName": "Ansvarlig jordmor"
-        },
         "role": {},
         "speciality": {}
       }
@@ -4062,7 +3949,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Spesialisert legetjeneste, unntatt psykiatrisk legetjeneste"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
@@ -4077,7 +3964,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-09-20T22:36:46.9781253Z",
     "serviceStopTime": "2025-09-21T00:52:58.9781253Z",
@@ -4125,10 +4012,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-06-26T00:51:26.397829Z",
     "title": "Foresp\u00F8rsel om second opinion",
     "uniqueId": ".335.2105.2663",
-    "sourceId": ".1968.1866.28",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "9a82abbd-4b12-4ec6-92c3-dff307e55280"
   },
   {
@@ -4239,7 +4127,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13913746753",
@@ -4254,7 +4142,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-09-09T10:33:41.397855Z",
     "serviceStopTime": "2024-09-09T13:48:37.397855Z",
@@ -4350,10 +4238,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-09-21T01:30:13.9781253Z",
     "title": "Utskrivingsrapport - Ortopedisk avdeling",
     "uniqueId": ".766.3513.2679",
-    "sourceId": ".3453.1479.2215",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "fc75acad-1c04-4654-abc5-864573c16abb"
   },
   {
@@ -4450,7 +4339,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03866197813",
@@ -4465,7 +4354,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "7"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-08-11T00:56:14.978152Z",
     "serviceStopTime": "2022-08-11T04:09:44.978152Z",
@@ -4557,10 +4446,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-10-25T22:36:24.3979369Z",
     "title": "EKG-vurdering - Brystsmerter",
     "uniqueId": ".769.3040.737",
-    "sourceId": ".1955.1363.3272",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "1b8dd265-9e3a-4ede-a68f-ec38fc57008c"
   },
   {
@@ -4627,7 +4517,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Familieverntjenester"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
@@ -4642,7 +4532,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-09-25T01:28:50.3979639Z",
     "serviceStopTime": "2023-09-25T05:16:12.3979639Z",
@@ -4690,10 +4580,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-08-11T04:08:56.978152Z",
     "title": "Journalnotat - Vurdering av behandlingsrespons",
     "uniqueId": ".3924.2826.575",
-    "sourceId": ".4007.2591.465",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "73e20b4e-8320-4d16-9017-ef2dbaa44901"
   },
   {
@@ -4761,7 +4652,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Asylmottak"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
@@ -4776,7 +4667,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-05-05T18:05:08.3979911Z",
     "serviceStopTime": "2023-05-05T19:45:22.3979911Z",
@@ -4824,10 +4715,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-05-05T21:12:33.3979911Z",
     "title": "Akuttjournal innkomstnotat",
     "uniqueId": ".2574.81.1509",
-    "sourceId": ".447.2356.3068",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "d889b5a3-8b86-4305-85b4-843e33bebca5"
   },
   {
@@ -4983,7 +4875,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Arbeidstrening for ordin\u00E6rt arbeidsmarked"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "14811249255",
@@ -4998,7 +4890,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-10-30T02:18:08.3981028Z",
     "serviceStopTime": "2024-10-30T06:43:10.3981028Z",
@@ -5050,10 +4942,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-10-30T07:25:32.3981028Z",
     "title": "Henvisning til bildediagnostikk - MR Caput",
     "uniqueId": ".2774.1185.1090",
-    "sourceId": ".2384.4074.1055",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "7f436773-60f9-4787-beb9-cf05c1a20d4c"
   },
   {
@@ -5112,7 +5005,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Fysioterapitjeneste"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03920999971",
@@ -5127,7 +5020,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "7"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-11-05T20:26:30.9781751Z",
     "serviceStopTime": "2022-11-06T01:11:39.9781751Z",
@@ -5175,10 +5068,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-10-22T16:23:55.3981445Z",
     "title": "Klinisk vurdering og anbefalt behandlingsforl\u00F8p",
     "uniqueId": ".3461.1228.3936",
-    "sourceId": ".891.3438.87",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "8ccd2eb5-c76d-4c0c-b979-a16ce371fd87"
   },
   {
@@ -5282,10 +5176,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2022-11-06T01:38:49.9781751Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Diagnostisk utredning og funn",
     "uniqueId": ".550.2403.3703",
-    "sourceId": ".1262.88.4092",
     "id": "51508b87-ff98-4c00-9e7a-026bdeeef2b9"
   },
   {
@@ -5348,7 +5242,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Bofellesskap for psykisk utviklingshemmede"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
@@ -5363,7 +5257,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "5"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-04-26T12:08:57.9782033Z",
     "serviceStopTime": "2024-04-26T15:54:06.9782033Z",
@@ -5435,10 +5329,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-04-24T07:26:22.5687491Z",
     "title": "Tverrfaglig behandlingsplan - Rehabilitering",
     "uniqueId": ".161.1206.2920",
-    "sourceId": ".2455.1677.2146",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "e7be9a63-58a1-4dbf-adac-50829eb0b82b"
   },
   {
@@ -5518,10 +5413,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-04-26T17:16:49.9782033Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Skadebeskrivelse - Idrettsulykke",
     "uniqueId": ".3973.1959.3407",
-    "sourceId": ".3092.903.704",
     "id": "48d73e03-a1be-49d3-a3bc-f9ccdd192b1b"
   },
   {
@@ -5615,11 +5510,7 @@
           "displayName": "Nukle\u00E6rmedisin"
         }
       },
-      {
-        "code": "NORN_UNGDOM",
-        "codeSystem": "2.16.578.1.12.4.1.1.9603",
-        "displayName": "Nektet, ungdom"
-      }
+      {}
     ],
     "creationTime": "2023-09-01T13:13:18.2364748Z",
     "formatCode": {
@@ -5632,7 +5523,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Varig tilrettelagt arbeid"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
@@ -5647,7 +5538,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "1"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-09-01T09:57:32.2364748Z",
     "serviceStopTime": "2023-09-01T13:26:09.2364748Z",
@@ -5719,10 +5610,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-02-07T02:46:19.5689288Z",
     "title": "Foresp\u00F8rsel om videre utredning",
     "uniqueId": ".580.2111.2744",
-    "sourceId": ".2402.745.1946",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "0eb9f7a0-fa88-4f80-a4c6-cf01a28563a2"
   },
   {
@@ -5796,7 +5688,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Institusjoner i psykisk helsevern for voksne"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
@@ -5811,7 +5703,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "2"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-06-30T12:52:23.9782259Z",
     "serviceStopTime": "2023-06-30T15:41:31.9782259Z",
@@ -5883,10 +5775,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-06-30T17:55:49.9782259Z",
     "title": "Farmas\u00F8ytisk vurdering - Reseptkontroll",
     "uniqueId": ".47.147.155",
-    "sourceId": ".765.2539.2771",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "75f27f2d-5199-414d-9e06-7ce95af1b9fd"
   },
   {
@@ -5994,10 +5887,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-09-04T14:56:00.5690775Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Skadebeskrivelse - Idrettsulykke",
     "uniqueId": ".3261.3597.869",
-    "sourceId": ".1423.921.3714",
     "id": "ba866d22-a82a-4ece-bf1e-8f25c880aca6"
   },
   {
@@ -6094,7 +5987,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Barneverntjenester"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
@@ -6109,7 +6002,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-04-19T00:26:34.9782515Z",
     "serviceStopTime": "2024-04-19T03:53:59.9782515Z",
@@ -6205,10 +6098,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-09-25T15:44:36.8614418Z",
     "title": "Tverrfaglig oppsummering - ALS-pasient",
     "uniqueId": ".1271.546.2601",
-    "sourceId": ".817.966.304",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "3405fee2-5d85-4ca7-95f8-8176b2fc94fb"
   },
   {
@@ -6305,7 +6199,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09892399333",
@@ -6320,7 +6214,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-11-08T15:27:10.8614639Z",
     "serviceStopTime": "2022-11-08T18:06:50.8614639Z",
@@ -6368,10 +6262,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-11-08T20:16:16.8614639Z",
     "title": "Vurdering av medikamentell behandling",
     "uniqueId": ".1026.4003.730",
-    "sourceId": ".3829.3507.1929",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "5f5e628b-6075-445c-b56f-2edd801ff090"
   },
   {
@@ -6451,10 +6346,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-06-02T18:31:54.2365377Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Nevropsykologisk vurdering - Demensutredning",
     "uniqueId": ".3059.3271.1686",
-    "sourceId": ".1197.3456.4081",
     "id": "4592a07e-1d24-48ac-b566-f214f793d634"
   },
   {
@@ -6517,7 +6412,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02880748680",
@@ -6532,7 +6427,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-11-01T18:39:30.8614857Z",
     "serviceStopTime": "2024-11-01T23:19:24.8614857Z",
@@ -6604,10 +6499,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-11-01T23:08:12.8614857Z",
     "title": "Tilsynsrapport - Internt tilsyn",
     "uniqueId": ".3012.78.2145",
-    "sourceId": ".2400.552.462",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "9c42d135-5e7e-41ed-a6d4-7b0dd80b09e4"
   },
   {
@@ -6678,7 +6574,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Institusjoner i psykisk helsevern for voksne"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13913746753",
@@ -6693,7 +6589,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "2"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-10-06T12:42:48.8615069Z",
     "serviceStopTime": "2022-10-06T15:51:51.8615069Z",
@@ -6793,10 +6689,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-10-06T16:19:36.8615069Z",
     "title": "Preoperativ vurdering og risikoanalyse",
     "uniqueId": ".1686.308.854",
-    "sourceId": ".410.1371.1728",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "e44abd63-bdd5-4348-8da6-63a880834a00"
   },
   {
@@ -6884,10 +6781,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
-    "submissionTime": "2023-01-21T16:18:49.8615895Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Attest - Helseerkl\u00E6ring for arbeid",
     "uniqueId": ".2650.1847.885",
-    "sourceId": ".3852.167.4003",
     "id": "adbe8201-43d6-4371-ac09-2192509c8833"
   },
   {
@@ -6980,7 +6877,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Omsorgsinstitusjoner for rusmiddelmisbrukere"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02906499765",
@@ -6995,7 +6892,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-01-07T01:13:01.861614Z",
     "serviceStopTime": "2023-01-07T04:18:27.861614Z",
@@ -7083,10 +6980,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-01-07T04:46:56.861614Z",
     "title": "Preoperativ vurdering og risikoanalyse",
     "uniqueId": ".348.2385.2481",
-    "sourceId": ".1005.3134.1261",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "fc1674e5-a5a3-499e-a590-4594f3ccbe26"
   },
   {
@@ -7174,7 +7072,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24894497366",
@@ -7189,7 +7087,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-02-26T10:51:06.8616378Z",
     "serviceStopTime": "2025-02-26T11:39:12.8616378Z",
@@ -7241,10 +7139,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-02-26T14:06:48.8616378Z",
     "title": "Anamnese - Kroniske magesmerter",
     "uniqueId": ".3094.3337.3981",
-    "sourceId": ".1509.4008.95",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "5e767103-e24d-406f-b922-c8f30189b9cd"
   },
   {
@@ -7335,7 +7234,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Fysioterapitjeneste"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "23876997983",
@@ -7350,7 +7249,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-08-07T12:43:52.8616576Z",
     "serviceStopTime": "2025-08-07T13:59:02.8616576Z",
@@ -7430,10 +7329,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-04-19T04:36:45.9782515Z",
     "title": "Fysioterapinotat - Postoperativ oppf\u00F8lging",
     "uniqueId": ".3899.3905.2173",
-    "sourceId": ".4030.3730.3498",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "5d4c5df7-65e1-457d-9f36-dc729654c84c"
   },
   {
@@ -7574,7 +7474,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
@@ -7589,7 +7489,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-05-03T00:45:17.8616985Z",
     "serviceStopTime": "2023-05-03T05:36:23.8616985Z",
@@ -7657,10 +7557,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-05-03T05:43:58.8616985Z",
     "title": "Anestesiopplysninger - Elektiv kirurgi",
     "uniqueId": ".3073.3467.3482",
-    "sourceId": ".3397.1769.2548",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "986e1f57-4b36-41be-b6f3-9381c62e00a7"
   },
   {
@@ -7723,7 +7624,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Legetjenester innen psykisk helsevern"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31835998439",
@@ -7738,7 +7639,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-01-21T19:44:18.9782772Z",
     "serviceStopTime": "2024-01-21T20:06:21.9782772Z",
@@ -7806,10 +7707,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2022-09-18T22:25:39.8617197Z",
     "title": "Avsluttende behandlingsrapport",
     "uniqueId": ".1533.385.1561",
-    "sourceId": ".3032.3971.3834",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "54a1db26-e0f5-4608-b238-58c1356a307e"
   },
   {
@@ -7893,10 +7795,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-01-21T22:24:20.9782772Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Journalnotat - Kontrolltime hjertesvikt",
     "uniqueId": ".3577.2787.1942",
-    "sourceId": ".2100.3639.1074",
     "id": "14271837-d884-4d0c-8d79-c6cdcc3fd2f4"
   },
   {
@@ -7994,7 +7896,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "12891848933",
@@ -8009,7 +7911,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "1"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-01-02T12:36:41.978303Z",
     "serviceStopTime": "2025-01-02T14:29:30.978303Z",
@@ -8085,10 +7987,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-01-02T15:51:07.978303Z",
     "title": "Observasjonsnotat - Fall i blodtrykk",
     "uniqueId": ".3724.1972.4042",
-    "sourceId": ".3381.1316.2020",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "8cd51aa1-dfcf-4b3e-b8b2-b73006e33f70"
   },
   {
@@ -8128,10 +8031,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
-    "submissionTime": "2024-06-26T03:13:37.0263709Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Samtalenotat - Lege og pasient",
     "uniqueId": ".2886.3116.3437",
-    "sourceId": ".2711.3406.2318",
     "id": "71f9e593-9815-4624-83be-8011b1f3a69a"
   },
   {
@@ -8204,7 +8107,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Barnehager"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "30880948314",
@@ -8219,7 +8122,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-07-10T23:13:43.0264084Z",
     "serviceStopTime": "2023-07-11T04:03:57.0264084Z",
@@ -8323,10 +8226,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-07-11T04:02:34.0264084Z",
     "title": "Pasientrapporterte plager - Ustrukturert",
     "uniqueId": ".546.2676.3207",
-    "sourceId": ".2710.4016.805",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "5eeadf98-1137-441f-a889-f5ce2c89bfa2"
   },
   {
@@ -8386,10 +8290,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "submissionTime": "2024-09-01T16:56:03.0264542Z",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "title": "Foresp\u00F8rsel om tverrfaglig vurdering",
     "uniqueId": ".1231.112.3780",
-    "sourceId": ".2403.557.3799",
     "id": "5ea1a83d-3d91-4974-8cf4-03e4ae8aa56d"
   },
   {
@@ -8472,7 +8376,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Fritidsklubber for barn og ungdom"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "02910999438",
@@ -8487,7 +8391,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-07-11T04:37:50.9783285Z",
     "serviceStopTime": "2025-07-11T08:02:45.9783285Z",
@@ -8603,75 +8507,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "classCode": {
-      "code": "A00-1",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Epikriser og Sammenfatninger"
-    },
-    "confidentialityCode": [
-      {
-        "code": "N",
-        "codeSystem": "2.16.840.1.113883.5.25",
-        "displayName": "Normal"
-      },
-      {
-        "code": "R",
-        "codeSystem": "2.16.840.1.113883.5.25",
-        "displayName": "Restricted"
-      },
-      {
-        "code": "N",
-        "codeSystem": "2.16.578.1.12.4.1.1.9603",
-        "displayName": "Normal"
-      }
-    ],
-    "creationTime": "2025-09-09T19:50:45.026486Z",
-    "formatCode": {
-      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
-    },
-    "hash": "bd2d344b71a07e9fa0ba32800d3d6346b79785d3",
-    "healthCareFacilityTypeCode": {
-      "code": "88.911",
-      "codeSystem": "2.16.578.1.12.4.1.1.1303",
-      "displayName": "Barnehager"
-    },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "languageCode": "nb-NO",
-    "legalAuthenticator": {
-      "id": "10816898728",
-      "idSystem": "2.16.578.1.12.4.1.4.4",
-      "firstName": "LILLA",
-      "lastName": "ALT"
-    },
-    "mimeType": "application/pdf",
-    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
-    "practiceSettingCode": {
-      "code": "4",
-      "codeSystem": "2.16.578.1.12.4.1.1.8653",
-      "displayName": "4"
-    },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
-    "size": "59061",
-    "serviceStartTime": "2025-09-09T15:42:16.026486Z",
-    "serviceStopTime": "2025-09-09T19:35:50.026486Z",
-    "sourcePatientInfo": {
-      "patientId": {
-        "id": "13116900216",
-        "system": "2.16.578.1.12.4.1.4.1"
-      },
-      "firstName": "Line",
-      "lastName": "Danser",
-      "birthTime": "1969-11-13T00:00:00Z",
-      "gender": "F"
-    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "title": "XcaDS - Labrapport - Blodpr\u00F8ver og infeksjonsstatus",
-    "typeCode": {
-      "code": "D01-2",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Hjerte og kretsl\u00F8p"
-    },
     "uniqueId": "fd9cee56-42fd-48b7-b991-d086f60d54dc",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "c2fbacef-26ea-4175-abe1-2e3eeccb7dad"
   },
   {
@@ -8719,10 +8558,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-07-11T10:00:16.9783285Z",
     "title": "Observasjonsnotat - Endringer i tilstand",
     "uniqueId": ".1363.1298.3665",
-    "sourceId": ".264.2260.616",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "7b0b5e83-82cd-42f3-8e26-13a4610d1900"
   },
   {
@@ -8819,7 +8659,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Fritidsklubber for barn og ungdom"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "09917999055",
@@ -8834,7 +8674,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-06-02T20:33:33.0265036Z",
     "serviceStopTime": "2024-06-03T00:26:23.0265036Z",
@@ -8886,10 +8726,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-06-03T00:41:18.0265036Z",
     "title": "Henvisning til bildediagnostikk - MR Caput",
     "uniqueId": ".3653.3095.1108",
-    "sourceId": ".1703.3938.2097",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "7163e6d1-b506-4bef-b412-5aef4200a94d"
   },
   {
@@ -8992,7 +8833,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03850398185",
@@ -9007,7 +8848,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-12-17T03:57:29.0265196Z",
     "serviceStopTime": "2023-12-17T07:52:13.0265196Z",
@@ -9107,10 +8948,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-12-17T08:55:33.0265196Z",
     "title": "Tverrfaglig behandlingsplan - Rehabilitering",
     "uniqueId": ".2539.3454.3468",
-    "sourceId": ".2027.2128.1828",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "d409c3a7-a79a-4799-99c0-08cd7538e4c3"
   },
   {
@@ -9223,7 +9065,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Ambulansetjenester"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13890497696",
@@ -9238,7 +9080,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-01-31T19:28:23.0265352Z",
     "serviceStopTime": "2023-01-31T21:26:26.0265352Z",
@@ -9326,10 +9168,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-01-31T22:27:10.0265352Z",
     "title": "Postoperativ notat - Observasjon og plan",
     "uniqueId": ".1885.2580.202",
-    "sourceId": ".2703.2172.571",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "d27914a6-5152-4588-9d7d-f4da04170ac9"
   },
   {
@@ -9424,7 +9267,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "08884699909",
@@ -9439,7 +9282,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "8"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-03-02T19:15:48.9783548Z",
     "serviceStopTime": "2024-03-02T23:24:20.9783548Z",
@@ -9491,10 +9334,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-12-24T22:37:55.0266289Z",
     "title": "Pasientrapporterte plager - Ustrukturert",
     "uniqueId": ".2683.1020.2172",
-    "sourceId": ".2549.147.121",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "0f4d49f0-b497-4b5b-8d8c-bae663d950c7"
   },
   {
@@ -9553,7 +9397,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
@@ -9568,7 +9412,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-01-18T18:35:12.0266433Z",
     "serviceStopTime": "2024-01-18T20:46:27.0266433Z",
@@ -9660,10 +9504,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-01-18T23:22:08.0266433Z",
     "title": "Tiltaksplan - Psykososiale behov",
     "uniqueId": ".474.161.1809",
-    "sourceId": ".2439.2737.2210",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "24549884-624e-448b-b6f0-4c9593f04d22"
   },
   {
@@ -9751,7 +9596,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Skolefritidsordninger"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24826397280",
@@ -9766,7 +9611,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "3"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-02-28T05:38:54.0266575Z",
     "serviceStopTime": "2023-02-28T08:08:32.0266575Z",
@@ -9834,10 +9679,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-02-28T08:37:31.0266575Z",
     "title": "Pasientrapporterte plager - Ustrukturert",
     "uniqueId": ".159.2562.3104",
-    "sourceId": ".1982.1022.1923",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "649f81b2-5c6c-4afb-81cb-6dc35a470030"
   },
   {
@@ -9929,7 +9775,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
@@ -9944,7 +9790,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-01-29T01:11:06.0266727Z",
     "serviceStopTime": "2023-01-29T02:43:19.0266727Z",
@@ -10024,70 +9870,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "classCode": {
-      "code": "J00-1",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Attester, melding og erkl\u00E6ringer"
-    },
-    "confidentialityCode": [
-      {
-        "code": "N",
-        "codeSystem": "2.16.578.1.12.4.1.1.9603",
-        "displayName": "Normal"
-      },
-      {
-        "code": "R",
-        "codeSystem": "2.16.840.1.113883.5.25",
-        "displayName": "Restricted"
-      }
-    ],
-    "creationTime": "2024-11-14T00:07:48.0266883Z",
-    "formatCode": {
-      "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-      "codeSystem": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"
-    },
-    "hash": "bd2d344b71a07e9fa0ba32800d3d6346b79785d3",
-    "healthCareFacilityTypeCode": {
-      "code": "86.101",
-      "codeSystem": "2.16.578.1.12.4.1.1.1303",
-      "displayName": "Alminnelige somatiske sykehus"
-    },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "languageCode": "nb-NO",
-    "legalAuthenticator": {
-      "id": "14811249255",
-      "idSystem": "2.16.578.1.12.4.1.4.4",
-      "firstName": "GREI",
-      "lastName": "METER"
-    },
-    "mimeType": "application/pdf",
-    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
-    "practiceSettingCode": {
-      "code": "8",
-      "codeSystem": "2.16.578.1.12.4.1.1.8653",
-      "displayName": "8"
-    },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
-    "size": "59061",
-    "serviceStartTime": "2024-11-13T19:54:57.0266883Z",
-    "serviceStopTime": "2024-11-13T23:24:33.0266883Z",
-    "sourcePatientInfo": {
-      "patientId": {
-        "id": "02835998374",
-        "system": "2.16.578.1.12.4.1.4.1"
-      },
-      "firstName": "Autorisert",
-      "lastName": "Jul",
-      "birthTime": "1959-03-02T00:00:00Z",
-      "gender": "M"
-    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "title": "XcaDS - Sikkerhetsvurdering - Pasient med voldsrisiko",
-    "typeCode": {
-      "code": "C03-2",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Mikrobiologi, virologi og serologi"
-    },
     "uniqueId": "9d77e922-4484-4ba3-ab44-1ec27732cde3",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "c02c4201-38ba-4358-aff6-9a8f7aa37ba5"
   },
   {
@@ -10139,10 +9925,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-03-02T23:36:19.9783548Z",
     "title": "Tiltaksplan - Psykososiale behov",
     "uniqueId": ".1603.3666.3594",
-    "sourceId": ".607.583.3220",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "7390d417-4f68-4fd5-971e-639ff1976a28"
   },
   {
@@ -10250,7 +10037,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "31837998495",
@@ -10265,7 +10052,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "3"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-06-28T06:32:03.1740881Z",
     "serviceStopTime": "2025-06-28T10:16:27.1740881Z",
@@ -10317,10 +10104,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-12-15T16:54:37.2370611Z",
     "title": "Vurdering av samtykkekompetanse",
     "uniqueId": ".953.54.212",
-    "sourceId": ".387.1407.2507",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "735047ec-f6e3-4d9d-8d8e-71766672248b"
   },
   {
@@ -10403,7 +10191,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Omsorgsinstitusjoner ellers"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13890497696",
@@ -10418,7 +10206,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2022-12-02T23:00:11.1741447Z",
     "serviceStopTime": "2022-12-03T00:20:33.1741447Z",
@@ -10510,65 +10298,10 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-    "classCode": {
-      "code": "A00-1",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Epikriser og Sammenfatninger"
-    },
-    "confidentialityCode": [
-      {
-        "code": "N",
-        "codeSystem": "2.16.578.1.12.4.1.1.9603",
-        "displayName": "Normal"
-      }
-    ],
-    "creationTime": "2024-04-26T09:47:53.1741612Z",
-    "formatCode": {
-      "code": "urn:no:ehelse:document:pdf",
-      "displayName": "FormatCodes"
-    },
-    "hash": "bd2d344b71a07e9fa0ba32800d3d6346b79785d3",
-    "healthCareFacilityTypeCode": {
-      "code": "86.101",
-      "codeSystem": "2.16.578.1.12.4.1.1.1303",
-      "displayName": "Alminnelige somatiske sykehus"
-    },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
-    "languageCode": "nb-NO",
-    "legalAuthenticator": {
-      "id": "24826397280",
-      "idSystem": "2.16.578.1.12.4.1.4.4",
-      "firstName": "MINIMALISTISK",
-      "lastName": "EKSPEDITOR"
-    },
-    "mimeType": "application/pdf",
-    "objectType": "urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1",
-    "practiceSettingCode": {
-      "code": "4",
-      "codeSystem": "2.16.578.1.12.4.1.1.8653",
-      "displayName": "4"
-    },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
-    "size": "59061",
-    "serviceStartTime": "2024-04-26T09:05:44.1741612Z",
-    "serviceStopTime": "2024-04-26T11:10:09.1741612Z",
-    "sourcePatientInfo": {
-      "patientId": {
-        "id": "17855599120",
-        "system": "2.16.578.1.12.4.1.4.1"
-      },
-      "firstName": "Usnobbet",
-      "lastName": "Klokke",
-      "birthTime": "1955-05-17T00:00:00Z",
-      "gender": "M"
-    },
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "title": "XcaDS - Vaksinasjonsstatus - Oppdatering",
-    "typeCode": {
-      "code": "D06-2",
-      "codeSystem": "2.16.578.1.12.4.1.1.9602",
-      "displayName": "Nervesystemet"
-    },
     "uniqueId": "d50baf66-b784-4a12-9005-ae7e7107bbea",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "8c652091-9ea7-42b4-bbc7-2e6fff430af5"
   },
   {
@@ -10648,10 +10381,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-04-26T12:21:15.1741612Z",
     "title": "Legemiddelgjennomgang - Sykehjemspasient",
     "uniqueId": ".1367.1112.45",
-    "sourceId": ".917.2407.812",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "18842f11-db02-49a8-9409-9f0bbed2f09f"
   },
   {
@@ -10719,7 +10453,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Sosialtjenester for rusmiddelmisbrukere uten botilbud"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "24849698172",
@@ -10734,7 +10468,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-01-12T18:22:00.1741906Z",
     "serviceStopTime": "2024-01-12T23:32:37.1741906Z",
@@ -10806,10 +10540,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-01-12T23:47:15.1741906Z",
     "title": "Konsultasjonsrapport - Spesialisthelsetjeneste",
     "uniqueId": ".3772.3686.1847",
-    "sourceId": ".3812.2278.277",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "352a1f29-666f-4413-bdfc-f1d7608c024d"
   },
   {
@@ -10922,7 +10657,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03866197813",
@@ -10937,7 +10672,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-09-29T03:21:47.174205Z",
     "serviceStopTime": "2025-09-29T06:20:03.174205Z",
@@ -11013,10 +10748,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-09-29T08:12:58.174205Z",
     "title": "Vurdering av samtykkekompetanse",
     "uniqueId": ".3694.1366.2902",
-    "sourceId": ".9.3368.1519",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "ac9654cb-f0d5-41ee-9d3e-ee414008d2b9"
   },
   {
@@ -11108,7 +10844,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "13913746753",
@@ -11123,7 +10859,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "6"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-04-16T01:53:51.1742207Z",
     "serviceStopTime": "2023-04-16T04:18:45.1742207Z",
@@ -11199,10 +10935,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-04-16T04:53:06.1742207Z",
     "title": "Preoperativ vurdering og risikoanalyse",
     "uniqueId": ".846.1499.1609",
-    "sourceId": ".1537.1582.1758",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "3a1c6048-80ce-457a-8d60-9d85ba90df38"
   },
   {
@@ -11314,7 +11051,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Arbeidstrening for ordin\u00E6rt arbeidsmarked"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "03866197813",
@@ -11329,7 +11066,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "3"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2025-09-25T13:07:47.1742352Z",
     "serviceStopTime": "2025-09-25T14:36:05.1742352Z",
@@ -11429,10 +11166,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-09-25T16:40:12.1742352Z",
     "title": "Epikrise - Utskrivelse fra indremedisin",
     "uniqueId": ".2787.3218.2945",
-    "sourceId": ".3995.3117.548",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "67dca4af-5876-4023-ab90-b532ae25e690"
   },
   {
@@ -11549,7 +11287,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26866896762",
@@ -11564,7 +11302,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-11-19T00:59:07.9783737Z",
     "serviceStopTime": "2024-11-19T01:51:21.9783737Z",
@@ -11668,10 +11406,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2025-01-22T14:02:08.1742521Z",
     "title": "Tverrfaglig oppsummering - ALS-pasient",
     "uniqueId": ".4071.226.2345",
-    "sourceId": ".2200.4000.3578",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "97e1101a-a9bd-4885-904d-5246593d5cfc"
   },
   {
@@ -11735,7 +11474,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Institusjoner i psykisk helsevern for barn og unge"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "21877699800",
@@ -11750,7 +11489,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "8"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-02-23T16:10:50.1742697Z",
     "serviceStopTime": "2023-02-23T19:21:03.1742697Z",
@@ -11826,10 +11565,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2023-02-23T20:01:00.1742697Z",
     "title": "Journalnotat - Mistanke om infeksjon",
     "uniqueId": ".1967.2384.2858",
-    "sourceId": ".616.2568.284",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "f28da8b4-8f76-4386-971c-e4876c6570db"
   },
   {
@@ -11896,7 +11636,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Hjemmesykepleie"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10816898728",
@@ -11911,7 +11651,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "4"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-03-04T02:26:58.1742838Z",
     "serviceStopTime": "2023-03-04T05:53:29.1742838Z",
@@ -12002,10 +11742,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-04-12T06:17:18.1743177Z",
     "title": "Utskrivingsrapport - Ortopedisk avdeling",
     "uniqueId": ".1744.3218.2443",
-    "sourceId": ".709.2055.879",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "f271dee6-d230-4439-8491-baea0a284e58"
   },
   {
@@ -12088,7 +11829,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Rehabiliterings- og opptreningsinstitusjoner"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "26878897330",
@@ -12103,7 +11844,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "9"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2024-05-15T22:30:48.1743322Z",
     "serviceStopTime": "2024-05-15T22:49:34.1743322Z",
@@ -12175,10 +11916,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-05-16T01:31:52.1743322Z",
     "title": "Epikrise - Psykomotorisk fysioterapi",
     "uniqueId": ".1684.86.327",
-    "sourceId": ".320.3478.1138",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "c16a4b24-eca4-4965-b21e-4a938f9f1679"
   },
   {
@@ -12241,7 +11983,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.1303",
       "displayName": "Alminnelige somatiske sykehus"
     },
-    "homeCommunityId": "2.16.578.1.12.4.5.100.1",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "languageCode": "nb-NO",
     "legalAuthenticator": {
       "id": "10925099231",
@@ -12256,7 +11998,7 @@
       "codeSystem": "2.16.578.1.12.4.1.1.8653",
       "displayName": "8"
     },
-    "repositoryUniqueId": "2.16.578.1.12.4.5.100.1.2",
+    "repositoryUniqueId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "size": "59061",
     "serviceStartTime": "2023-11-17T07:50:38.1743463Z",
     "serviceStopTime": "2023-11-17T08:58:03.1743463Z",
@@ -12312,10 +12054,11 @@
       }
     ],
     "availabilityStatus": "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+    "homeCommunityId": "2.16.578.1.12.4.5.100.2.1.1",
     "submissionTime": "2024-11-19T04:20:44.9783737Z",
     "title": "Attest - Helseerkl\u00E6ring for arbeid",
     "uniqueId": ".433.307.2084",
-    "sourceId": ".1489.2884.1214",
+    "sourceId": "2.16.578.1.12.4.5.100.2.1.1.2",
     "id": "563ce0e3-24e4-4883-b954-159cb88b3806"
   },
   {

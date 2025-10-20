@@ -73,7 +73,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
                 }
             }
         }
-        _logger.LogInformation($"Successfully read {policySetDto.Policies?.Count ?? 0} policies from repository");
+        _logger.LogInformation($"Successfully read {policySetDto.Policies?.Count ?? 0} policies from policy repository");
         return policySetDto;
     }
 

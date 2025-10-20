@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Collections;
+using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
@@ -39,8 +40,10 @@ public class Program
             options.ModelBinderProviders.Insert(0, new DocumentEntryDtoModelBinderProvider());
             options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
             options.InputFormatters.Insert(0, new Hl7InputFormatter());
+
         })
-        .AddXmlSerializerFormatters();
+        .AddXmlSerializerFormatters()
+        .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -50,7 +53,6 @@ public class Program
                 return ErrorResponseFactory.CreateErrorResponse(actionContext);
             };
         });
-
 
         builder.Configuration.AddEnvironmentVariables();
 
