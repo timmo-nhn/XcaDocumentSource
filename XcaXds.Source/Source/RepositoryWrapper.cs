@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Xml;
-using System.Xml.Linq;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
@@ -78,7 +77,7 @@ public partial class RepositoryWrapper
 
         if (!string.IsNullOrWhiteSpace(documentAsString))
         {
-            if (documentAsString.StartsWith("<ClinicalDocument") || GlobalExtensions.TryThis(() => { var xmlDocument = new XmlDocument(); xmlDocument.LoadXml(documentAsString);}))
+            if (documentAsString.StartsWith("<ClinicalDocument") || GlobalExtensions.TryThis(() => { var xmlDocument = new XmlDocument(); xmlDocument.LoadXml(documentAsString); }))
             {
                 _logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument or XML format");
                 cdaXml = documentAsString;
@@ -108,4 +107,8 @@ public partial class RepositoryWrapper
         return _repository.Read(documentUniqueId) != null;
     }
 
+    public bool SetNewRepositoryOid(string repositoryUniqueId, out string oldId)
+    {
+        return _repository.SetNewOid(repositoryUniqueId, out oldId);
+    }
 }

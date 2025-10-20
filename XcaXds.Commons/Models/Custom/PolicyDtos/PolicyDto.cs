@@ -5,8 +5,8 @@ namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicyDto
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public Issuer AppliesTo { get; set; }
+
+    public List<Issuer>? AppliesTo { get; set; }
     public string? Id { get; set; }
     public string? Description { get; set; }
     public List<List<PolicyMatch>>? Rules { get; set; }

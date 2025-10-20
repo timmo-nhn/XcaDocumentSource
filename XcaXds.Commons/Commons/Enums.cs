@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace XcaXds.Commons.Commons;
 
 public enum CompareRule
@@ -2538,6 +2540,7 @@ public enum AnonymizeUser
     LEGEVAKT
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Issuer
 {
     Unknown,

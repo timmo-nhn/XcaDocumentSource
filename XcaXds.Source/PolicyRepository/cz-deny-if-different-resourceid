@@ -1,5 +1,5 @@
 {
-    "appliesTo": "Helsenorge",
+    "appliesTo": ["Helsenorge", "HelseId"],
     "id": "cz-deny-if-different-resourceid",
     "description": "If the Citizen is trying to access data for another patient, the correct acp value must be specified",
     "rules": [

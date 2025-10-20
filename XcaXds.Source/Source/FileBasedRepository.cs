@@ -113,4 +113,21 @@ public class FileBasedRepository : IRepository
         return !string.IsNullOrEmpty(input) && SafeFileNameRegex.IsMatch(input);
     }
 
+    public bool SetNewOid(string repositoryOid, out string oldId)
+    {
+        var parentDir = Directory.GetParent(_repositoryPath)?.FullName;
+        var currentId = Path.GetFileName(Directory.GetFileSystemEntries(parentDir).FirstOrDefault());
+        
+        oldId = currentId;
+
+        if (parentDir == null) return false;
+
+        var newDir = Path.Combine(parentDir, repositoryOid);
+        var currentDir = Path.Combine(parentDir, currentId);
+
+        if (newDir == currentDir) return false;
+        
+        Directory.Move(currentDir, Path.Combine(parentDir, repositoryOid));
+        return true;
+    }
 }

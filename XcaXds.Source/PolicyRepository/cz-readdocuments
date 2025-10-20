@@ -1,5 +1,5 @@
 {
-    "appliesTo": "Helsenorge",
+    "appliesTo": ["Helsenorge"],
     "id": "cz-readdocuments",
     "rules": [
         [
