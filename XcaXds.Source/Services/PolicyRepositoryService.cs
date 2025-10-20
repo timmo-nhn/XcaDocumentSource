@@ -1,5 +1,6 @@
 ﻿using Abc.Xacml.Policy;
 using Microsoft.Extensions.Logging;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
@@ -40,6 +41,12 @@ public class PolicyRepositoryService
     public XacmlPolicySet? GetPoliciesAsXacmlPolicySet()
     {
         var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet();
+        return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
+    }
+
+    public XacmlPolicySet? GetPoliciesAsXacmlPolicySet(Issuer issuer)
+    {
+        var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet(issuer);
         return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
 

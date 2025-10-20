@@ -120,16 +120,6 @@ public class PolicyDecisionPointService
         return new XacmlContextResponse(contextResult);
     }
 
-    private XacmlContextResponse EvaluatePractitionerAdhocQuery(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, string action)
-    {
-        throw new NotImplementedException();
-    }
-
-    private XacmlContextResponse EvaluateSoapRequestAndSamlToken(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, string action, Issuer requestAppliesTo)
-    {
-        throw new NotImplementedException();
-    }
-
     public XacmlContextResponse EvaluateXacmlRequest(XacmlContextRequest? xacmlRequest, Issuer xacmlRequestAppliesTo)
     {
         return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest, xacmlRequestAppliesTo);
