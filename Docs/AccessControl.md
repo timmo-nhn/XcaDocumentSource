@@ -137,7 +137,7 @@ The ACP field (Attribute Name: `urn:ihe:iti:xua:2012:acp`) is a policy identifie
 The values are a set of OIDs:
 |OID|Description|
 |---|---|
-|nil/null - no value|**Healthcare professional** OR **citizen** (_subject_) is not obliged to any overrides for opening and seeing patient's healthcare data (_resource_) <br> e.g. Citizen (patient) represents themself|
+|nil/null - no value (SAML-token)<br>*or*<br>`2.16.578.1.12.4.1.7.2.1.0`(In XACML-request)|**Healthcare professional** OR **citizen** (_subject_) is not obliged to any overrides for opening and seeing patient's healthcare data (_resource_) <br> e.g. Citizen (patient) represents themself|
 |`2.16.578.1.12.4.1.7.2.1.1`|**Citizen** (_subject_) is has parent representation for child under the age of 12 (_resource_)|
 |`2.16.578.1.12.4.1.7.2.1.2`|**Citizen** (_subject_) has retrieved consent to represent another citizen (_resource_)|
 |`2.16.578.1.12.4.1.7.2.1.3`|**Citizen** (_subject_) represents on behalf of citizen unable to give consent (_resource_).|
