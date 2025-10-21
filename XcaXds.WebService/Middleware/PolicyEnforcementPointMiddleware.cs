@@ -3,6 +3,7 @@ using Abc.Xacml.Policy;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -54,6 +55,13 @@ public class PolicyEnforcementPointMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
+        if (_xdsConfig.BypassPolicyEnforcementPoint)
+        {
+            _logger.LogWarning("BypassPolicyEnforcementPoint is true! Policy Enforcement Point was bypassed.");
+            await _next(httpContext);
+            return;
+        }
+
         Stopwatch sw = Stopwatch.StartNew();
         Debug.Assert(!_env.IsProduction() || !_xdsConfig.IgnorePEPForLocalhostRequests, "Warning! 'PEP bypass for local requests' is enabled in production!");
 

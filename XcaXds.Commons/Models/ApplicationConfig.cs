@@ -7,6 +7,7 @@ public class ApplicationConfig
     public string? HomeCommunityId { get; set; }
     public string? RepositoryUniqueId { get; set; }
     public bool IgnorePEPForLocalhostRequests { get; set; }
+    public bool BypassPolicyEnforcementPoint { get; set; }
     public int DocumentUploadSizeLimitKb { get; set; }
     public bool ValidateSamlTokenIntegrity { get; set; }
     public string? HelseidCert { get; set; }
