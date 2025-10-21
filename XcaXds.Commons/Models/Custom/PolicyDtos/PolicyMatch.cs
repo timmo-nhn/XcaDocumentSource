@@ -5,10 +5,17 @@ namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicyMatch
 {
-    public PolicyMatch(string attributeId, bool? compareAttributes, string value)
+    public PolicyMatch(string attributeId, CompareRule compareRule, string value)
     {
         AttributeId = attributeId;
-        CompareAttributes = compareAttributes;
+        CompareAttributes = true;
+        CompareRule = compareRule;
+        Value = value;
+    }
+
+    public PolicyMatch(string attributeId, string value)
+    {
+        AttributeId = attributeId;
         Value = value;
     }
 

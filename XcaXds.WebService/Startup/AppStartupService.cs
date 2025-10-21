@@ -90,18 +90,12 @@ public class AppStartupService : IHostedService
     {
         var policy01 = new PolicyDto()
         {
-            Id = "cs-deny-adhocquery-resourceid",
+            Id = "cz-deny-adhocquery-resourceid",
             AppliesTo = [Issuer.Helsenorge],
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
-            Rules = 
+            Rules =
             [[
-                new() 
-                { 
-                    AttributeId = Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code",
-                    CompareAttributes = true,
-                    CompareRule = CompareRule.NotEquals,
-                    Value = Constants.Saml.Attribute.ResourceId20 + ":code"
-                }
+                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code")
             ]],
             Actions = ["ReadDocumentList"],
             Effect = "Deny"
@@ -109,43 +103,76 @@ public class AppStartupService : IHostedService
 
         var policy02 = new PolicyDto()
         {
-            Id = "cz-deny-if-different-resourceid",
-            AppliesTo = [Issuer.Helsenorge],
-            Description = "If the Citizen is trying to access data for another patient, the correct acp value must be specified",
-            Rules = 
+            Id = "cz-gp-deny-if-different-resourceid",
+            AppliesTo = [Issuer.Helsenorge, Issuer.HelseId],
+            Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
+            Rules =
             [[
-                new() 
-                { 
-                    AttributeId = Constants.Saml.Attribute.ProviderIdentifier + ":code",
-                    CompareAttributes = true,
-                    CompareRule = CompareRule.NotEquals,
-                    Value = Constants.Saml.Attribute.ResourceId20 + ":code"
-                }
+                new(Constants.Saml.Attribute.ProviderIdentifier + ":code",CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Saml.Attribute.ProviderIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                
+                new(Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                
+                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                
+                new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
             ]],
-            Actions = ["ReadDocumentList"],
+            Actions = ["ReadDocumentList", "ReadDocument"],
             Effect = "Deny"
         };
 
         var policy03 = new PolicyDto()
         {
-            Id = "cz-deny-if-different-resourceid",
+            Id = "cz-readdocumentlist-documents",
             AppliesTo = [Issuer.Helsenorge],
-            Description = "If the Citizen is trying to access data for another patient, the correct acp value must be specified",
-            Rules = 
+            Rules =
             [[
-                new() 
-                { 
-                    AttributeId = Constants.Saml.Attribute.ProviderIdentifier + ":code",
-                    CompareAttributes = true,
-                    CompareRule = CompareRule.NotEquals,
-                    Value = Constants.Saml.Attribute.ResourceId20 + ":code"
-                }
+                new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
+
+                new(Constants.Saml.Attribute.Role + ":code", "13"),
+                new(Constants.Saml.Attribute.Role + ":codeSystem", "1.0.14265.1")
             ]],
-            Actions = ["ReadDocumentList"],
+            Actions = ["ReadDocumentList", "ReadDocuments"],
+            Effect = "Permit"
+        };
+
+        var policy04 = new PolicyDto()
+        {
+            Id = "gp-deny2",
+            AppliesTo = [Issuer.HelseId],
+            Rules =
+            [[
+                new(Constants.Saml.Attribute.Role + ":code", "XX;VE;FB"),
+                new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060")
+            ]],
             Effect = "Deny"
         };
 
+        var policy05 = new PolicyDto()
+        {
+            Id = "gp-readdocumentlist-readdocument",
+            AppliesTo = [Issuer.HelseId],
+            Rules =
+            [[
+                new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
+
+                new(Constants.Saml.Attribute.Role + ":code", "LE;SP;PS"),
+                new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"),
+
+                new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT"),
+                new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448")
+            ]],
+            Actions = ["Create"],
+            Effect = "Permit"
+        };
+
         _policyRepositoryWrapper.AddPolicy(policy01);
+        _policyRepositoryWrapper.AddPolicy(policy02);
+        _policyRepositoryWrapper.AddPolicy(policy03);
+        _policyRepositoryWrapper.AddPolicy(policy04);
+        _policyRepositoryWrapper.AddPolicy(policy05);
     }
 
     /// <summary>
@@ -173,7 +200,7 @@ public class AppStartupService : IHostedService
         _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent);
 
         var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
-        
+
         if (newIdSet)
         {
             _logger.LogInformation($"New Repository Unique Id set: '{_appConfig.RepositoryUniqueId}' (old: '{oldId}')");

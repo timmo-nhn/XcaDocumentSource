@@ -1,5 +1,4 @@
 ﻿using Abc.Xacml.Policy;
-using Hl7.Fhir.Model;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
@@ -102,12 +101,28 @@ public class FileBasedPolicyRepository : IPolicyRepository
         {
             File.Delete(filePath);
         }
-        
+
         return true;
 
     }
 
-    public bool UpdatePolicy(PolicyDto policyDto, string? policyId = null)
+    public bool DeleteAllPolicies(string? id)
+    {
+        var policyFiles = Directory.GetFiles(_policyRepositoryPath);
+
+        lock (_lock)
+        {
+            foreach (var file in policyFiles)
+            {
+                File.Delete(file);
+            }
+        }
+
+        return true;
+
+    }
+
+    public bool UpdatePolicy(PolicyDto? policyDto, string? policyId = null)
     {
         if (policyDto == null) return false;
         // FIXME add better update handling stuff?
@@ -116,7 +131,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
         if (policyId != policyDto.Id)
         {
             // If this is true, it's assumed that the user wants to rename the policy
-            
+
         }
 
         return true;
