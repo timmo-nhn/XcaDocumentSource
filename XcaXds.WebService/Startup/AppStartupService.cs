@@ -46,8 +46,6 @@ public class AppStartupService : IHostedService
                 _logger.LogCritical($"\n\n========  Fatal! Default RepositoryUniqueId in production =======\nUsing default Repository Unique Id {_appConfig.RepositoryUniqueId}!\nWhen deploying the application, please change this to an unique OID\n\n");
                 throw new InvalidOperationException("Default HomeCommunityId used in production environment.");
             }
-
-            _logger.LogWarning($"\n\n========  Warning! Default HomeCommunityId =======\nUsing default HomeCommunity Id {_appConfig.HomeCommunityId}! \nWhen deploying the application, please change this to an unique OID\n\n");
         }
 
         _logger.LogInformation("Starting XcaDocumentSource...");
@@ -62,7 +60,7 @@ public class AppStartupService : IHostedService
             _logger.LogWarning($"\n\n========  Warning! Default RepositoryUniqueId =======\nUsing default Repository Unique Id {_appConfig.RepositoryUniqueId}!\nWhen deploying the application, please change this to an unique OID\n\n");
         }
 
-        NormalizeOidsWithRegistryRepositoryContent();
+        NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
         return Task.CompletedTask;
     }
@@ -77,7 +75,7 @@ public class AppStartupService : IHostedService
     /// Normalize the metadata and repository ID with the configuration from appsettings.json
     /// This is useful if the OIDs for the application has changed, and the repositoryIds and HomecommunityIds are now different
     /// </summary>
-    private void NormalizeOidsWithRegistryRepositoryContent()
+    private void NormalizeAppconfigOidsWithRegistryRepositoryContent()
     {
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
 

@@ -5,7 +5,6 @@ namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicyDto
 {
-
     public List<Issuer>? AppliesTo { get; set; }
     public string? Id { get; set; }
     public string? Description { get; set; }
@@ -32,7 +31,7 @@ public class PolicyDto
 
             if (orIdx >= Rules.Count)
             {
-                Rules.Add(new List<PolicyMatch>(patchOrGroup));
+                Rules.Add(patchOrGroup);
                 continue;
             }
 

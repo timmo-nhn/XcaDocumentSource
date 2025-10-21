@@ -1,6 +1,5 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
-using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
@@ -216,7 +215,7 @@ public class PolicyEnforcementPointMiddleware
         else
         {
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-      
+
             var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestBody);
 
             var soapEnvelopeResponse = new SoapEnvelope()
