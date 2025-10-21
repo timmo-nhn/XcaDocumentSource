@@ -59,4 +59,9 @@ public class PolicyRepositoryService
     {
         return _policyRepositoryWrapper.PartiallyUpdatePolicy(policyDto, id, append);
     }
+
+    public bool DeleteAllPolicies()
+    {
+        return _policyRepositoryWrapper.DeleteAllPolicies();
+    }
 }

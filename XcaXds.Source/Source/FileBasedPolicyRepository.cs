@@ -103,10 +103,9 @@ public class FileBasedPolicyRepository : IPolicyRepository
         }
 
         return true;
-
     }
 
-    public bool DeleteAllPolicies(string? id)
+    public bool DeleteAllPolicies()
     {
         var policyFiles = Directory.GetFiles(_policyRepositoryPath);
 
@@ -119,7 +118,6 @@ public class FileBasedPolicyRepository : IPolicyRepository
         }
 
         return true;
-
     }
 
     public bool UpdatePolicy(PolicyDto? policyDto, string? policyId = null)
