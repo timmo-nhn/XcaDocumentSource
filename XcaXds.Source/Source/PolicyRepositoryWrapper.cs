@@ -112,7 +112,6 @@ public class PolicyRepositoryWrapper
     }
 
 
-
     public PolicyDto? GetPolicy(string? id)
     {
         return policySet.Policies?.FirstOrDefault(pol => pol.Id == id);
