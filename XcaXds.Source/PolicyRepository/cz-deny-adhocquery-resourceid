@@ -1,5 +1,7 @@
 {
-  "appliesTo": ["Helsenorge"],
+  "appliesTo": [
+    "helsenorge"
+  ],
   "id": "cz-deny-adhocquery-resourceid",
   "description": "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
   "rules": [

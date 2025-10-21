@@ -1,0 +1,58 @@
+{
+  "appliesTo": [
+    "helsenorge",
+    "helseId"
+  ],
+  "id": "cz-gp-deny-if-different-resourceid",
+  "description": "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
+  "rules": [
+    [
+      {
+        "attributeId": "urn:ihe:iti:xua:2017:subject:provider-identifier:code",
+        "compareAttributes": true,
+        "compareRule": "NotEquals",
+        "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:code"
+      },
+      {
+        "attributeId": "urn:ihe:iti:xua:2017:subject:provider-identifier:codeSystem",
+        "compareAttributes": true,
+        "compareRule": "NotEquals",
+        "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:codeSystem"
+      },
+      {
+        "attributeId": "urn:no:nhn:xcads:document:patient-identifier:code",
+        "compareAttributes": true,
+        "compareRule": "NotEquals",
+        "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:code"
+      },
+      {
+        "attributeId": "urn:no:nhn:xcads:document:patient-identifier:codeSystem",
+        "compareAttributes": true,
+        "compareRule": "NotEquals",
+        "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:codeSystem"
+      },
+      {
+        "attributeId": "urn:no:nhn:xcads:adhocquery:patient-identifier:code",
+        "compareAttributes": true,
+        "compareRule": "NotEquals",
+        "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:code"
+      },
+      {
+        "attributeId": "urn:no:nhn:xcads:adhocquery:patient-identifier:codeSystem",
+        "compareAttributes": true,
+        "compareRule": "NotEquals",
+        "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id:codeSystem"
+      },
+      {
+        "attributeId": "urn:ihe:iti:xua:2012:acp:code",
+        "compareRule": "Equals",
+        "value": "urn:oid:2.16.578.1.12.4.1.7.2.1.0"
+      }
+    ]
+  ],
+  "actions": [
+    "ReadDocumentList",
+    "ReadDocument"
+  ],
+  "effect": "Deny"
+}

@@ -169,6 +169,26 @@ public class PolicyManagementController : ControllerBase
         return NotFound(apiResponse);
     }
 
+    [Produces("application/json")]
+    [HttpDelete("delete-all-policies")]
+    public async Task<IActionResult> DeleteAllPolicies(string id)
+    {
+        var response = _policyRepositoryService.DeletePolicy(id);
+        var apiResponse = new RestfulApiResponse()
+        {
+            Success = response
+        };
+
+        if (apiResponse.Success)
+        {
+            apiResponse.SetMessage($"Succesfully deleted id {id}");
+            return Ok(apiResponse);
+        }
+
+        apiResponse.SetMessage($"Policy {id} not found");
+        return NotFound(apiResponse);
+    }
+
     [Consumes("application/soap+xml")]
     [Produces("application/json")]
     [HttpPost("evaluate-soap-request")]
