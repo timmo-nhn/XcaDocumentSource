@@ -1,4 +1,6 @@
-﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Source;
 using XcaXds.WebService.Services;
 
@@ -14,8 +16,18 @@ public class AppStartupService : IHostedService
     private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
+    private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
 
-    public AppStartupService(ILogger<AppStartupService> logger, IHostEnvironment env, IConfiguration config, ApplicationConfig appConfig, MonitoringStatusService monitoringService, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
+    public AppStartupService(
+        ILogger<AppStartupService> logger,
+        IHostEnvironment env,
+        IConfiguration config,
+        ApplicationConfig appConfig,
+        MonitoringStatusService monitoringService,
+        RegistryWrapper registryWrapper,
+        RepositoryWrapper repositoryWrapper,
+        PolicyRepositoryWrapper policyRepositoryWrapper
+        )
     {
         _logger = logger;
         _env = env;
@@ -24,6 +36,7 @@ public class AppStartupService : IHostedService
         _monitoringService = monitoringService;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
+        _policyRepositoryWrapper = policyRepositoryWrapper;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -64,6 +77,8 @@ public class AppStartupService : IHostedService
 
         NormalizeOidsWithRegistryRepositoryContent();
 
+        AddDefaultAccessControlPolicies();
+
         return Task.CompletedTask;
     }
 
@@ -71,6 +86,68 @@ public class AppStartupService : IHostedService
     {
         _logger.LogInformation("Stopping XcaDocumentSource...");
         return Task.CompletedTask;
+    }
+
+    private void AddDefaultAccessControlPolicies()
+    {
+        var policy01 = new PolicyDto()
+        {
+            Id = "cs-deny-adhocquery-resourceid",
+            AppliesTo = [Issuer.Helsenorge],
+            Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
+            Rules = 
+            [[
+                new() 
+                { 
+                    AttributeId = Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code",
+                    CompareAttributes = true,
+                    CompareRule = CompareRule.NotEquals,
+                    Value = Constants.Saml.Attribute.ResourceId20 + ":code"
+                }
+            ]],
+            Actions = ["ReadDocumentList"],
+            Effect = "Deny"
+        };
+
+        var policy02 = new PolicyDto()
+        {
+            Id = "cz-deny-if-different-resourceid",
+            AppliesTo = [Issuer.Helsenorge],
+            Description = "If the Citizen is trying to access data for another patient, the correct acp value must be specified",
+            Rules = 
+            [[
+                new() 
+                { 
+                    AttributeId = Constants.Saml.Attribute.ProviderIdentifier + ":code",
+                    CompareAttributes = true,
+                    CompareRule = CompareRule.NotEquals,
+                    Value = Constants.Saml.Attribute.ResourceId20 + ":code"
+                }
+            ]],
+            Actions = ["ReadDocumentList"],
+            Effect = "Deny"
+        };
+
+        var policy03 = new PolicyDto()
+        {
+            Id = "cz-deny-if-different-resourceid",
+            AppliesTo = [Issuer.Helsenorge],
+            Description = "If the Citizen is trying to access data for another patient, the correct acp value must be specified",
+            Rules = 
+            [[
+                new() 
+                { 
+                    AttributeId = Constants.Saml.Attribute.ProviderIdentifier + ":code",
+                    CompareAttributes = true,
+                    CompareRule = CompareRule.NotEquals,
+                    Value = Constants.Saml.Attribute.ResourceId20 + ":code"
+                }
+            ]],
+            Actions = ["ReadDocumentList"],
+            Effect = "Deny"
+        };
+
+        _policyRepositoryWrapper.AddPolicy(policy01);
     }
 
     /// <summary>
