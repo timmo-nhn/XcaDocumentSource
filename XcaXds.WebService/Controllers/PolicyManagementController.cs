@@ -1,5 +1,4 @@
-﻿using Abc.Xacml.Context;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
@@ -173,20 +172,14 @@ public class PolicyManagementController : ControllerBase
     [HttpDelete("delete-all-policies")]
     public async Task<IActionResult> DeleteAllPolicies(string id)
     {
-        var response = _policyRepositoryService.DeletePolicy(id);
+        var result = _policyRepositoryService.DeleteAllPolicies();
         var apiResponse = new RestfulApiResponse()
         {
-            Success = response
+            Success = result
         };
 
-        if (apiResponse.Success)
-        {
-            apiResponse.SetMessage($"Succesfully deleted id {id}");
-            return Ok(apiResponse);
-        }
-
-        apiResponse.SetMessage($"Policy {id} not found");
-        return NotFound(apiResponse);
+        apiResponse.SetMessage($"Succesfully deleted all policies");
+        return Ok(apiResponse);
     }
 
     [Consumes("application/soap+xml")]

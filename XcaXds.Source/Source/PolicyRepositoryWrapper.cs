@@ -218,4 +218,9 @@ public class PolicyRepositoryWrapper
             }
         });
     }
+
+    public bool DeleteAllPolicies()
+    {
+        return _policyRepository.DeleteAllPolicies();
+    }
 }
