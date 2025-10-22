@@ -692,7 +692,7 @@ public static class Commons
                 {
                     classification.Name.LocalizedString = classification.Name.LocalizedString.Select(nm => new LocalizedStringType() { Value = "*****" }).ToArray();
                 }
-                foreach (var slot in classification.Slot)
+                foreach (var slot in classification.Slot ?? [])
                 {
                     ObfuscateSlot(slot);
                 }
