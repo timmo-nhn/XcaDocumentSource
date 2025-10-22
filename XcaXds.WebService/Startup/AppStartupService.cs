@@ -88,7 +88,7 @@ public class AppStartupService : IHostedService
 
     private void AddDefaultAccessControlPolicies()
     {
-        var policy01 = new PolicyDto()
+        var cz_deny_adhocquery_resourceid = new PolicyDto()
         {
             Id = "cz-deny-adhocquery-resourceid",
             AppliesTo = [Issuer.Helsenorge],
@@ -101,7 +101,7 @@ public class AppStartupService : IHostedService
             Effect = "Deny"
         };
 
-        var policy02 = new PolicyDto()
+        var cz_gp_deny_if_different_resourceid = new PolicyDto()
         {
             Id = "cz-gp-deny-if-different-resourceid",
             AppliesTo = [Issuer.Helsenorge, Issuer.HelseId],
@@ -110,20 +110,20 @@ public class AppStartupService : IHostedService
             [[
                 new(Constants.Saml.Attribute.ProviderIdentifier + ":code",CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                 new(Constants.Saml.Attribute.ProviderIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
-                
+
                 new(Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                 new(Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
-                
+
                 new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                 new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
-                
+
                 new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
             ]],
             Actions = ["ReadDocumentList", "ReadDocument"],
             Effect = "Deny"
         };
 
-        var policy03 = new PolicyDto()
+        var cz_readdocumentlist_documents = new PolicyDto()
         {
             Id = "cz-readdocumentlist-documents",
             AppliesTo = [Issuer.Helsenorge],
@@ -138,7 +138,7 @@ public class AppStartupService : IHostedService
             Effect = "Permit"
         };
 
-        var policy04 = new PolicyDto()
+        var gp_deny_certain_roles = new PolicyDto()
         {
             Id = "gp-deny2",
             AppliesTo = [Issuer.HelseId],
@@ -150,7 +150,7 @@ public class AppStartupService : IHostedService
             Effect = "Deny"
         };
 
-        var policy05 = new PolicyDto()
+        var gp_readdocumentlist_readdocument_create = new PolicyDto()
         {
             Id = "gp-readdocumentlist-readdocument",
             AppliesTo = [Issuer.HelseId],
@@ -164,15 +164,14 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT"),
                 new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448")
             ]],
-            Actions = ["Create"],
             Effect = "Permit"
         };
 
-        _policyRepositoryWrapper.AddPolicy(policy01);
-        _policyRepositoryWrapper.AddPolicy(policy02);
-        _policyRepositoryWrapper.AddPolicy(policy03);
-        _policyRepositoryWrapper.AddPolicy(policy04);
-        _policyRepositoryWrapper.AddPolicy(policy05);
+        _policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid);
+        //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
+        _policyRepositoryWrapper.AddPolicy(cz_readdocumentlist_documents);
+        _policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
+        _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument_create);
     }
 
     /// <summary>
