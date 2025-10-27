@@ -163,7 +163,7 @@ public static class PolicyRequestMapperSamlService
 
         var xacmlRequestAttributes = new List<XacmlContextAttribute>();
         
-        if (adhocQueryPatientValue.Code != null || adhocQueryPatientValue.CodeSystem != null)
+        if (adhocQueryPatientValue?.Code != null || adhocQueryPatientValue?.CodeSystem != null)
         {
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
