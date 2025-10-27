@@ -9,6 +9,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -23,14 +24,23 @@ public class XdsRepositoryController : ControllerBase
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
+    private readonly AuditLoggingService _auditLoggingService;
 
-    public XdsRepositoryController(ILogger<XdsRepositoryController> logger, XdsRepositoryService repositoryService, XdsRegistryService registryService, ApplicationConfig xdsConfig, IVariantFeatureManager featureManager)
+    public XdsRepositoryController(
+        ILogger<XdsRepositoryController> logger, 
+        XdsRepositoryService repositoryService, 
+        XdsRegistryService registryService, 
+        ApplicationConfig xdsConfig, 
+        IVariantFeatureManager featureManager, 
+        AuditLoggingService auditLoggingService
+        )
     {
         _logger = logger;
         _repositoryService = repositoryService;
         _registryService = registryService;
         _xdsConfig = xdsConfig;
         _featureManager = featureManager;
+        _auditLoggingService = auditLoggingService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related")]
@@ -177,6 +187,8 @@ public class XdsRepositoryController : ControllerBase
                 _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
+
+        _auditLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         requestTimer.Stop();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");

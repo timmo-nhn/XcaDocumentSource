@@ -8,8 +8,10 @@ namespace XcaXds.Commons.Extensions;
 
 public class SamlExtensions
 {
-    public static CodedValue GetSamlAttributeValueAsCodedValue(string attributeValue)
+    public static CodedValue? GetSamlAttributeValueAsCodedValue(string? attributeValue)
     {
+        if (attributeValue == null) return null;
+
         string code = null;
         string codeSystem = null;
         string displayName = null;

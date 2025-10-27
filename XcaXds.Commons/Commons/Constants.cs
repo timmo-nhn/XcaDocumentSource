@@ -503,6 +503,11 @@ public static class Constants
         {
             public const string PidBase = "PID-";
         }
+
+        public static class CodeSystems
+        {
+            public const string IsoHealthRecordLifecycleEvent = "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle";
+        }
     }
 
     public static class Oid
@@ -527,6 +532,7 @@ public static class Constants
             public static class Hl7
             {
                 public const string Confidentiality = "2.16.840.1.113883.5.25";
+                public const string AuditEventId = "2.16.840.1.113883.4.642.3.462";
             }
         }
 

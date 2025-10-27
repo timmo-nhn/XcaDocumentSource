@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Runtime;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -101,7 +99,7 @@ public class ApplicationMetaController : ControllerBase
         entriesToGenerate = entriesToGenerate == 0 ? 10 : entriesToGenerate;
 
         var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos.FirstOrDefault(spi => spi?.PatientId?.Id == patientIdentifier);
-            
+
         if (sourcePatientInfoForPatient != null)
         {
             jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [sourcePatientInfoForPatient];
@@ -130,6 +128,13 @@ public class ApplicationMetaController : ControllerBase
 
         return Ok("Metadata generated");
     }
+
+    [HttpGet("debug-patient-identifiers")]
+    public async Task<IActionResult> PatientIdentifiers()
+    {
+        return Ok();
+    }
+
 
     [Tags("_Purge registry and repository! ⚠️")]
     [HttpGet("get-nuke-key")]
