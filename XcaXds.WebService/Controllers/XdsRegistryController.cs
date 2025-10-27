@@ -5,9 +5,9 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Serializers;
 using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -20,12 +20,19 @@ public class XdsRegistryController : ControllerBase
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
+    private readonly AuditLoggingService _auditLoggingService;
 
-    public XdsRegistryController(ILogger<XdsRegistryController> logger, XdsRegistryService registryService, IVariantFeatureManager featureManager)
+    public XdsRegistryController(
+        ILogger<XdsRegistryController> logger, 
+        XdsRegistryService registryService, 
+        IVariantFeatureManager featureManager, 
+        AuditLoggingService auditLoggingService
+        )
     {
         _logger = logger;
         _registryService = registryService;
         _featureManager = featureManager;
+        _auditLoggingService = auditLoggingService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related")]
@@ -86,7 +93,7 @@ public class XdsRegistryController : ControllerBase
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
 
                     registryResponse.RegistryErrorList ??= new();
-                    
+
                     registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError];
 
                     responseEnvelope = SoapExtensions.CreateSoapResultRegistryResponse(registryResponse).Value;
@@ -113,6 +120,8 @@ public class XdsRegistryController : ControllerBase
                 _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
+
+        _auditLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         requestTimer.Stop();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");

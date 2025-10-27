@@ -26,6 +26,7 @@ public class XdsRespondingGatewayController : ControllerBase
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
     private readonly MonitoringStatusService _monitoringService;
+    private readonly AuditLoggingService _auditLoggingService;
 
     public XdsRespondingGatewayController(
         ILogger<XdsRespondingGatewayController> logger,
@@ -34,7 +35,8 @@ public class XdsRespondingGatewayController : ControllerBase
         XdsRepositoryService xdsRepositoryService,
         IVariantFeatureManager featureManager,
         IHttpClientFactory httpClientFactory,
-        MonitoringStatusService monitoringService
+        MonitoringStatusService monitoringService,
+        AuditLoggingService auditLoggingService
         )
     {
         _logger = logger;
@@ -44,6 +46,7 @@ public class XdsRespondingGatewayController : ControllerBase
         _xdsRegistryService = xdsRegistryService;
         _httpClientFactory = httpClientFactory;
         _monitoringService = monitoringService;
+        _auditLoggingService = auditLoggingService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related", "application/xop+xml")]
@@ -243,6 +246,9 @@ public class XdsRespondingGatewayController : ControllerBase
 
         requestTimer.Stop();
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+
+
+        _auditLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 

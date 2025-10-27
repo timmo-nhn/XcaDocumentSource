@@ -234,7 +234,7 @@ public class XdsOnFhirService
             if (patientResource != null)
             {
                 documentReference.Contained.Add(patientResource);
-                documentReference.Subject = GetResourceAsResourceReference(patientResource);
+                documentReference.Subject = Hl7FhirExtensions.GetResourceAsResourceReference(patientResource);
             }
 
             // Add Author
@@ -242,7 +242,7 @@ public class XdsOnFhirService
             if (authorResources != null)
             {
                 documentReference.Contained.AddRange(authorResources);
-                documentReference.Author = GetResourceAsResourceReference(authorResources);
+                documentReference.Author = Hl7FhirExtensions.GetResourceAsResourceReference(authorResources);
             }
 
             // Authenticator
@@ -250,7 +250,7 @@ public class XdsOnFhirService
             if (authenticator != null)
             {
                 documentReference.Contained.Add(authenticator);
-                documentReference.Authenticator = GetResourceAsResourceReference(authenticator);
+                documentReference.Authenticator = Hl7FhirExtensions.GetResourceAsResourceReference(authenticator);
             }
 
             // RelatesTo
@@ -761,16 +761,5 @@ public class XdsOnFhirService
             Value = AddUrnOidIfOid(uniqueId),
             System = AddUrnOidIfOid(sourceId)
         };
-    }
-
-    // Helpers
-    private static ResourceReference GetResourceAsResourceReference(Resource resource)
-    {
-        return new ResourceReference() { Reference = $"#{resource.Id}" };
-    }
-
-    private static List<ResourceReference> GetResourceAsResourceReference(List<Resource> resource)
-    {
-        return resource.Select(res => GetResourceAsResourceReference(res)).ToList();
     }
 }

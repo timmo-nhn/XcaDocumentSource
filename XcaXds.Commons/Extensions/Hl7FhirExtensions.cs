@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Commons;
+﻿using Hl7.Fhir.Model;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 
@@ -112,6 +113,16 @@ public static class Hl7FhirExtensions
             IdNumber = inputNin,
             AssigningAuthority = oid
         };
+    }
+
+    public static ResourceReference GetResourceAsResourceReference(Resource resource)
+    {
+        return new ResourceReference() { Reference = $"#{resource.Id}" };
+    }
+
+    public static List<ResourceReference> GetResourceAsResourceReference(List<Resource> resource)
+    {
+        return resource.Select(res => GetResourceAsResourceReference(res)).ToList();
     }
 
 }
