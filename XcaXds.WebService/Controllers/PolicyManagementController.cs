@@ -170,7 +170,7 @@ public class PolicyManagementController : ControllerBase
 
     [Produces("application/json")]
     [HttpDelete("delete-all-policies")]
-    public async Task<IActionResult> DeleteAllPolicies(string id)
+    public async Task<IActionResult> DeleteAllPolicies()
     {
         var result = _policyRepositoryService.DeleteAllPolicies();
         var apiResponse = new RestfulApiResponse()
