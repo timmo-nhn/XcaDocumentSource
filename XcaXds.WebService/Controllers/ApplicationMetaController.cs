@@ -102,7 +102,8 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("debug-patient-identifiers")]
     public async Task<IActionResult> PatientIdentifiers()
     {
-        return Ok();
+        var patientIdentifiers = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(de => de.SourcePatientInfo).DistinctBy(pid => new { pid?.PatientId?.Id, pid?.PatientId?.System }).ToList();
+        return Ok(patientIdentifiers);
     }
 
 
