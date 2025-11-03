@@ -1,5 +1,8 @@
-﻿namespace XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
+namespace XcaXds.Commons.Models.Custom.RegistryDtos;
+
+[ComplexType]
 public class AuthorPerson
 {
     public string? Id { get; set; }

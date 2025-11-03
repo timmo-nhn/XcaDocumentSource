@@ -9,7 +9,7 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 public class TS : ANY
 {
     [XmlIgnore]
-    public DateTimeOffset EffectiveTime { get; set; } = default;
+    public DateTimeOffset EffectiveTime { get; set; }
 
     private string _dateFormat;
 

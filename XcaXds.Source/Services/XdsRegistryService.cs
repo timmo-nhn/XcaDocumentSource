@@ -333,13 +333,22 @@ public partial class XdsRegistryService
     {
         var registryResponse = new RegistryResponseType();
         var removeObjectsRequest = soapEnvelope.Body.RemoveObjectsRequest;
-        var registryContent = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
+        
+        var registryDtoContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var objectRefList = removeObjectsRequest.ObjectRefList.ObjectRef;
+        var objectRefList = removeObjectsRequest?.ObjectRefList?.ObjectRef;
+        var objectRefIds = objectRefList.Select(orl => orl.Id).ToHashSet();
 
+        int removedDocumentsCount = 0;
 
-        var removedDocumentsCount = registryContent.RegistryObjectList.RemoveAll(registryObject =>
-            objectRefList.Any(or => or.Id == registryObject.Id));
+        foreach (var ro in registryDtoContent)
+        {
+            if (objectRefIds.Contains(ro.Id))
+            {
+                if (_registryWrapper.DeleteDocumentEntryFromRegistry(ro))
+                    removedDocumentsCount++;
+            }
+        }
 
         // Skip if nothing was removed
         if (removedDocumentsCount == 0)
@@ -348,7 +357,6 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromXml(registryContent);
         registryResponse.EvaluateStatusCode();
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }

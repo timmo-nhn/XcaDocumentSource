@@ -18,31 +18,20 @@
       "id": "who-1",
       "identifier": [
         {
-          "system": "https://helseid-xdssaml.test.nhn.no",
-          "value": "06828399789"
+          "system": "sikkerhet.helsenorge.no",
+          "value": "27888498775"
         }
       ]
     }
   ],
   "type": {
     "system": "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle",
-    "code": "originate",
-    "display": "Originate/Retain Record Lifecycle Event"
+    "code": "access",
+    "display": "Access/View Record Lifecycle Event"
   },
-  "action": "C",
-  "recorded": "2025-10-22T22:37:28.8006148+02:00",
+  "action": "R",
+  "recorded": "2025-11-03T08:25:56.6022694+01:00",
   "outcome": "0",
-  "purposeOfEvent": [
-    {
-      "coding": [
-        {
-          "system": "urn:oid:2.16.840.1.113883.1.11.20448",
-          "code": "TREAT",
-          "display": "Treatment"
-        }
-      ]
-    }
-  ],
   "agent": [
     {
       "who": {
@@ -50,18 +39,7 @@
       },
       "requestor": true,
       "policy": [
-        "_6aaebd1c-09dc-4667-b3fe-dcc150211a52"
-      ],
-      "purposeOfUse": [
-        {
-          "coding": [
-            {
-              "system": "urn:oid:2.16.840.1.113883.1.11.20448",
-              "code": "TREAT",
-              "display": "Treatment"
-            }
-          ]
-        }
+        "_6ceb5186-dc67-41bb-b734-4eb013aaec82"
       ]
     }
   ]

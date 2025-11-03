@@ -44,7 +44,7 @@ public class SessionIdTraceMiddleware
 
                 var sxmls = new SoapXmlSerializer();
 
-                var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestBody.Trim());
+                var soapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody.Trim());
 
                 httpContext.TraceIdentifier = soapEnvelope.Header.MessageId ?? Guid.NewGuid().ToString();
 

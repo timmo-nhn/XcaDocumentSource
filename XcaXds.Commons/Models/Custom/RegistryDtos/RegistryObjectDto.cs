@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
@@ -13,5 +12,6 @@ public class RegistryObjectDto
     {
         Id = Guid.NewGuid().ToString();
     }
+
     public string Id { get; set; }
 }

@@ -3,7 +3,6 @@ using Abc.Xacml.Policy;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Net;
-using System.Security.Cryptography;
 using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -28,8 +27,6 @@ public class PolicyEnforcementPointMiddleware
     private readonly MonitoringStatusService _monitoringService;
     private readonly PolicyRepositoryService _policyRepositoryService;
     private readonly RegistryWrapper _registryWrapper;
-
-
 
     public PolicyEnforcementPointMiddleware(
         RequestDelegate next,
@@ -79,7 +76,6 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-
         var endpoint = httpContext.GetEndpoint();
         var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
 
@@ -124,7 +120,6 @@ public class PolicyEnforcementPointMiddleware
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
         var xacmlRequestAppliesTo = Issuer.Unknown;
-        var xacmlDecisionResult = XacmlDecisionResult.NotApplicable;
 
         switch (contentType)
         {
@@ -157,7 +152,7 @@ public class PolicyEnforcementPointMiddleware
 
                 _logger.LogInformation($"{httpContext.TraceIdentifier} - Saml token is valid!");
 
-                var soapEnvelope = new SoapXmlSerializer().DeserializeSoapMessage<SoapEnvelope>(requestBody);
+                var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(requestBody);
                 var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
 
                 var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
@@ -224,7 +219,7 @@ public class PolicyEnforcementPointMiddleware
         {
             var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-            var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(requestBody);
+            var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody);
 
             var soapEnvelopeResponse = new SoapEnvelope()
             {

@@ -9,7 +9,7 @@ namespace XcaXds.Source.Source;
 
 public class RegistryWrapper
 {
-    internal volatile List<RegistryObjectDto> _jsonDocumentRegistry = null;
+    internal volatile List<RegistryObjectDto> _registryObjectList = null;
 
     private readonly IRegistry _documentRegistry;
 
@@ -20,21 +20,21 @@ public class RegistryWrapper
 
     public List<RegistryObjectDto> GetDocumentRegistryContentAsDtos()
     {
-        if (_jsonDocumentRegistry != null)
-            return _jsonDocumentRegistry;
+        if (_registryObjectList != null)
+            return _registryObjectList;
 
-        if (_jsonDocumentRegistry == null)
+        if (_registryObjectList == null)
         {
             try
             {
-                _jsonDocumentRegistry = _documentRegistry.ReadRegistry();
+                _registryObjectList = _documentRegistry.ReadRegistry();
             }
             catch (Exception ex)
             {
-                _jsonDocumentRegistry = new();
+                _registryObjectList = new();
             }
         }
-        return _jsonDocumentRegistry;
+        return _registryObjectList;
     }
 
     public XmlDocumentRegistry GetDocumentRegistryContentAsRegistryObjects()
@@ -51,7 +51,7 @@ public class RegistryWrapper
         if (registryObjectDtos == null) return false;
 
         _documentRegistry.WriteRegistry(registryObjectDtos);
-        _jsonDocumentRegistry = registryObjectDtos;
+        _registryObjectList = registryObjectDtos;
         return true;
     }
 
@@ -60,12 +60,24 @@ public class RegistryWrapper
         return UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
     }
 
+    public bool DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
+    {
+        if (registryObjectDto == null) return false;
+
+        var deleteResponse = _documentRegistry.DeleteRegistryItem(registryObjectDto.Id);
+
+        _registryObjectList = _documentRegistry.ReadRegistry();
+
+
+        return deleteResponse;
+    }
+
     public bool UpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
     {
         if (registryObjectDtos.Count == 0) return false;
-        _jsonDocumentRegistry ??= GetDocumentRegistryContentAsDtos();
-        _jsonDocumentRegistry.AddRange(registryObjectDtos);
-        _documentRegistry.WriteRegistry(_jsonDocumentRegistry);
+        _registryObjectList ??= GetDocumentRegistryContentAsDtos();
+        _documentRegistry.UpdateRegistry(registryObjectDtos);
+        _registryObjectList = _documentRegistry.ReadRegistry();
         return true;
     }
 

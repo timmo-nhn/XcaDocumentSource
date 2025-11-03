@@ -36,7 +36,7 @@ public static class PolicyRequestMapperSamlService
     public static XacmlContextRequest? GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, List<RegistryObjectDto> documentRegistry)
     {
         var sxmls = new SoapXmlSerializer();
-        var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(soapEnvelope);
+        var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(soapEnvelope);
 
         var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
         return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
@@ -384,7 +384,7 @@ public static class PolicyRequestMapperSamlService
     public static string? GetActionFromSoapEnvelopeString(string? inputSoapEnvelope)
     {
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        var soapEnvelopeObject = sxmls.DeserializeSoapMessage<SoapEnvelope>(inputSoapEnvelope);
+        var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(inputSoapEnvelope);
 
         return soapEnvelopeObject.Header.Action;
     }

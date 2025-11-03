@@ -312,6 +312,14 @@ public class RestfulRegistryRepositoryService
 
         var documentEntryForDocument = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(de => de.Id == id);
 
+        if (documentEntryForDocument == null)
+        {
+            _logger.LogWarning($"Error while deleting document");
+            apiResponse.AddError("DeleteError", $"RegistryObject {id} not found");
+            return apiResponse; 
+        }
+        
+            
         var deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument.Id);
 
         if (deleteResponse == false)
@@ -343,18 +351,19 @@ public class RestfulRegistryRepositoryService
             var documentEntry = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.TargetObject);
             var submissionSet = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
 
-            docentryCount += documentRegistry.RemoveAll(x => x.Id == documentEntry?.Id);
-            submissionSetCount += documentRegistry.RemoveAll(x => x.Id == submissionSet?.Id);
-            associationCount += documentRegistry.RemoveAll(x => x.Id == association.Id);
-        }
+            if (documentEntry != null)
+            {
+                _registryWrapper.DeleteDocumentEntryFromRegistry(documentEntry);
+                docentryCount++;
+            }
+            if (submissionSet != null)
+            {
+                _registryWrapper.DeleteDocumentEntryFromRegistry(submissionSet);
+                submissionSetCount++;
+            }
 
-        var deleteUpdate = _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
-
-        if (deleteUpdate == false)
-        {
-            _logger.LogWarning($"Error while updating registry");
-            apiResponse.AddError("RegistryUpdateError", $"Error while deleting document {id}");
-            return apiResponse;
+            _registryWrapper.DeleteDocumentEntryFromRegistry(association);
+            associationCount++;
         }
 
         apiResponse.SetMessage($"Successfully removed {docentryCount} DocumentEntries, {submissionSetCount} SubmissisonSets and {associationCount} Associations");

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.FeatureManagement;
 using System.Collections;
 using System.Text.Json.Serialization;
@@ -89,7 +91,7 @@ public class Program
         builder.Services.AddSingleton<RepositoryWrapper>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
         builder.Services.AddSingleton<MonitoringStatusService>();
-        builder.Services.AddSingleton<IRegistry, FileBasedRegistry>();
+        builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<AuditLoggingService>();
@@ -104,6 +106,11 @@ public class Program
 
         // Health check
         builder.Services.AddHealthChecks();
+
+        // Database context
+
+        builder.Services.AddDbContextFactory<SqliteRegistryDbContext>(options =>
+            options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\""));
 
         // Feature Toggle (located in XcaXds.WebService/appsettings.json)
         builder.Services.AddFeatureManagement();
@@ -138,12 +145,10 @@ public class Program
             app.UseSwaggerUI();
         }
 
-
         foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
         {
             Console.WriteLine($"{entry.Key}={entry.Value}");
         }
-
 
         var runningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? "false");
         Console.WriteLine($"Running in container: {runningInContainer}");

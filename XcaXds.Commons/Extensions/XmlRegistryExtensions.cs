@@ -581,7 +581,6 @@ public static class Commons
         return documentEntries.Concat(folderAssociations);
     }
 
-
     public static IEnumerable<IdentifiableType> GetFolder(this IEnumerable<IdentifiableType> source, string entryUuid)
     {
         return source.OfType<RegistryPackageType>().Where(rp =>

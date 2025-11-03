@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Security.Cryptography;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -94,36 +93,7 @@ public class ApplicationMetaController : ControllerBase
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(resourceJson.GetRawText());
         if (jsonTestData == null) return BadRequest("No content provided");
 
-        jsonTestData.PossibleSubmissionSetValues.Authors ??= jsonTestData.PossibleDocumentEntryValues.Authors;
-
-        entriesToGenerate = entriesToGenerate == 0 ? 10 : entriesToGenerate;
-
-        var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos.FirstOrDefault(spi => spi?.PatientId?.Id == patientIdentifier);
-
-        if (sourcePatientInfoForPatient != null)
-        {
-            jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [sourcePatientInfoForPatient];
-        }
-        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, entriesToGenerate);
-
-        var files = jsonTestData.Documents.Select(file => Convert.FromBase64String(file));
-
-        foreach (var generatedTestObject in generatedTestRegistryObjects.OfType<DocumentEntryDto>())
-        {
-            var randomFileAsByteArray = files.ElementAt(Random.Shared.Next(files.Count()));
-
-            if (generatedTestObject?.SourcePatientInfo?.PatientId?.Id != null && generatedTestObject.Id != null && randomFileAsByteArray != null)
-            {
-                generatedTestObject.Title = "XcaDS - " + generatedTestObject.Title;
-                generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
-                generatedTestObject.Hash = BitConverter.ToString(SHA1.HashData(randomFileAsByteArray)).Replace("-", "").ToLowerInvariant();
-                generatedTestObject.RepositoryUniqueId = _xdsConfig.RepositoryUniqueId;
-                generatedTestObject.HomeCommunityId = _xdsConfig.HomeCommunityId;
-
-                _repositoryWrapper.StoreDocument(generatedTestObject.UniqueId, randomFileAsByteArray, generatedTestObject.SourcePatientInfo.PatientId.Id);
-            }
-        }
-
+        var generatedTestRegistryObjects = RegistryMetadataGeneratorService.GenerateRandomizedTestData(_xdsConfig, jsonTestData, _repositoryWrapper, entriesToGenerate, patientIdentifier);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedTestRegistryObjects);
 
         return Ok("Metadata generated");

@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
@@ -23,7 +24,9 @@ public class UnitTests_PolicyAuthorization
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), XacmlVersion.Version30, out _);
+        var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
+
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -52,7 +55,9 @@ public class UnitTests_PolicyAuthorization
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), XacmlVersion.Version20, out _);
+        var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
+
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -85,12 +90,14 @@ public class UnitTests_PolicyAuthorization
 
         var policyWrapper = new PolicyRepositoryWrapper(new FileBasedPolicyRepository(mockLogger.Object));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), XacmlVersion.Version20, out _);
+        var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
+
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
 
-        var evalResult = policyWrapper.EvaluateRequest_V20(xacmlObject);
+        var evalResult = policyWrapper.EvaluateRequest_V20(xacmlObject, Issuer.HelseId);
 
         Assert.Equal(XacmlContextDecision.Permit, evalResult.Results.FirstOrDefault()?.Decision);
     }

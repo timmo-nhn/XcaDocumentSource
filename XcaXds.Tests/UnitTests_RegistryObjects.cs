@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Security.Cryptography;
-using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
@@ -8,6 +8,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
+using XcaXds.Source.Models.DatabaseDtos;
 using XcaXds.Source.Source;
 using Xunit.Abstractions;
 
@@ -32,7 +33,7 @@ public class UnitTests_RegistryObjects
         using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("PnR")));
         var fileContent = await reader.ReadToEndAsync();
 
-        var docc = sxmls.DeserializeSoapMessage<SoapEnvelope>(fileContent);
+        var docc = sxmls.DeserializeXmlString<SoapEnvelope>(fileContent);
 
         try
         {
@@ -82,7 +83,7 @@ public class UnitTests_RegistryObjects
         using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.xml")));
 
         var content = await reader.ReadToEndAsync();
-        var registryContent = sxmls.DeserializeSoapMessage<XmlDocumentRegistry>(content);
+        var registryContent = sxmls.DeserializeXmlString<XmlDocumentRegistry>(content);
 
 
         var documentDtoEntries = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
@@ -188,5 +189,36 @@ public class UnitTests_RegistryObjects
         {
             Console.WriteLine(duds.ToString());
         }
+    }
+
+    [Fact]
+    public async Task Registry_DatabaseStuff()
+    {
+        var repositoryService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = "2.16.578.1.12.4.5.100.1.2", HomeCommunityId = "2.16.578.1.12.4.5.100.1" });
+
+        var registryService = new FileBasedRegistry();
+
+        var registryContent = registryService.ReadRegistry();
+        var databasePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
+
+        var options = new DbContextOptionsBuilder<SqliteRegistryDbContext>()
+            .UseSqlite($"Data Source={databasePath}\\Registry.db")
+            .Options;
+
+        using var db = new SqliteRegistryDbContext(options);
+
+        var doc = new DbDocumentEntry
+        {
+            HomeCommunityId = "123213"
+        };
+
+        db.Database.EnsureCreated();
+        db.RegistryObjects.Add(doc);
+
+        db.SaveChanges();
+
+        var found = db.RegistryObjects.OfType<DbDocumentEntry>()
+            .Where(d => d.HomeCommunityId == "123123")
+            .ToList();
     }
 }
