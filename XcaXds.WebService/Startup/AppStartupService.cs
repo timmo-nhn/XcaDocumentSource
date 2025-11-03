@@ -189,7 +189,13 @@ public class AppStartupService : IHostedService
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
         if (registryContent?.Count == 0 || registryContent == null) return;
 
-        _logger.LogInformation("Normalizing registry entries");
+        if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
+            registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))
+        {
+            return;
+        }
+
+        _logger.LogInformation("New OID Detected! Normalizing registry entries");
 
         foreach (var registryObject in registryContent.OfType<DocumentEntryDto>())
         {
@@ -215,16 +221,21 @@ public class AppStartupService : IHostedService
 
     private void MigrateFromJsonRegistryToDatabase()
     {
-        var registry = new FileBasedRegistry();
+        var fileBasedRegistry = new FileBasedRegistry();
         
         // If false, no need to migrate
-        if (registry.RegistryExists() == false) return;
+        if (fileBasedRegistry.RegistryExists() == false) return;
 
         // If already migrated, no need to migrate again :P
-        if (registry.IsFileRegistryAsMigrated()) return;
+        if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
 
-        var jsonRegistryObjects = registry.ReadRegistry();
+        _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
+
+        var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
+
+        _logger.LogInformation($"Migrating {jsonRegistryObjects.Count} RegistryObjects");
+
         _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects);
-        registry.MarkFileRegistryAsMigrated();
+        fileBasedRegistry.MarkFileRegistryAsMigrated();
     }
 }
