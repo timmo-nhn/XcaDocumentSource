@@ -15,8 +15,18 @@ public class FileBasedRegistry : IRegistry
 
     public FileBasedRegistry()
     {
-        string baseDirectory = AppContext.BaseDirectory;
-        _registryPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
+        // When running in a container the path will be different
+        var customPath = Environment.GetEnvironmentVariable("REGISTRY_FILE_PATH");
+        if (!string.IsNullOrWhiteSpace(customPath))
+        {
+            _registryPath = customPath;
+        }
+        else
+        {
+            string baseDirectory = AppContext.BaseDirectory;
+            _registryPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
+        }
+
         _registryFile = Path.Combine(_registryPath, "Registry.json");
     }
 
