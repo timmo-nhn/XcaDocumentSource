@@ -132,7 +132,7 @@
 		<ProvideAndRegisterDocumentSetRequest xmlns="urn:ihe:iti:xds-b:2007">
 			<SubmitObjectsRequest xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0">
 				<RegistryObjectList xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
-					<ExtrinsicObject id="Document01" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/xml" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+					<ExtrinsicObject id="Document02" home="2.16.578.1.12.4.5.100.1" objectType="urn:uuid:7edca82f-054d-47f2-a032-9b2a5b5186c1" status="urn:oasis:names:tc:ebxml-regrep:StatusType:Approved" mimeType="application/xml" xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
 						<Slot name="creationTime">
 							<ValueList>
 								<Value>20250206141356</Value>
@@ -271,7 +271,7 @@
 							</Name>
 						</ExternalIdentifier>
 					</ExtrinsicObject>
-					<RegistryPackage id="SubmissionSet01" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
+					<RegistryPackage id="SubmissionSet02" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:RegistryPackage">
 						<Slot name="submissionTime">
 							<ValueList>
 								<Value>20041225235050</Value>
@@ -283,7 +283,7 @@
 						<Description>
 							<LocalizedString value="Annual physical"/>
 						</Description>
-						<Classification classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d" classifiedObject="SubmissionSet01" nodeRepresentation="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_11">
+						<Classification classificationScheme="urn:uuid:a7058bb9-b4e4-4307-ba5b-e3f0ab85e12d" classifiedObject="SubmissionSet02" nodeRepresentation="" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_11">
 							<Slot name="authorPerson">
 								<ValueList>
 									<Value>^Dopplemeyer^Sherry^^^</Value>
@@ -306,7 +306,7 @@
 								</ValueList>
 							</Slot>
 						</Classification>
-						<Classification classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="SubmissionSet01" nodeRepresentation="History and Physical" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_12">
+						<Classification classificationScheme="urn:uuid:aa543740-bdda-424e-8c96-df4873be8500" classifiedObject="SubmissionSet02" nodeRepresentation="History and Physical" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Classification" id="id_12">
 							<Slot name="codingScheme">
 								<ValueList>
 									<Value>Connect-a-thon contentTypeCodes</Value>
@@ -316,23 +316,23 @@
 								<LocalizedString value="History and Physical"/>
 							</Name>
 						</Classification>
-						<ExternalIdentifier identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" value="1.2009.9.1.2456" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_13" registryObject="SubmissionSet01">
+						<ExternalIdentifier identificationScheme="urn:uuid:96fdda7c-d067-4183-912e-bf5ee74998a8" value="1.2009.9.1.2456" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_13" registryObject="SubmissionSet02">
 							<Name>
 								<LocalizedString value="XDSSubmissionSet.uniqueId"/>
 							</Name>
 						</ExternalIdentifier>
-						<ExternalIdentifier identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" value="1.3.6.1.4.1.21367.2009.1.2.1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_14" registryObject="SubmissionSet01">
+						<ExternalIdentifier identificationScheme="urn:uuid:554ac39e-e3fe-47fe-b233-965d2a147832" value="1.3.6.1.4.1.21367.2009.1.2.1" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_14" registryObject="SubmissionSet02">
 							<Name>
 								<LocalizedString value="XDSSubmissionSet.sourceId"/>
 							</Name>
 						</ExternalIdentifier>
-						<ExternalIdentifier identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="76cc765a442f410^^^&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_15" registryObject="SubmissionSet01">
+						<ExternalIdentifier identificationScheme="urn:uuid:6b5aea1a-874d-4603-a4bc-96a0a7b38446" value="76cc765a442f410^^^&amp;1.3.6.1.4.1.21367.2005.3.7&amp;ISO" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:ExternalIdentifier" id="id_15" registryObject="SubmissionSet02">
 							<Name>
 								<LocalizedString value="XDSSubmissionSet.patientId"/>
 							</Name>
 						</ExternalIdentifier>
 					</RegistryPackage>
-					<Association associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="SubmissionSet01" targetObject="Document01" id="ID_1216346_2" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
+					<Association associationType="urn:oasis:names:tc:ebxml-regrep:AssociationType:HasMember" sourceObject="SubmissionSet02" targetObject="Document02" id="Dodddddcument02" objectType="urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association">
 						<Slot name="SubmissionSetStatus">
 							<ValueList>
 								<Value>Original</Value>
@@ -341,7 +341,7 @@
 					</Association>
 				</RegistryObjectList>
 			</SubmitObjectsRequest>
-			<Document id="Document01"
+			<Document id="Document02"
                 xmlns="urn:ihe:iti:xds-b:2007">
 				PHJpbTpBc3NvY2lhdGlvbiBhc3NvY2lhdGlvblR5cGU9InVybjpvYXNpczpuYW1lczp0YzplYnhtbC1yZWdyZXA6QXNzb2NpYXRpb25UeXBlOlJQTEMiIHNvdXJjZU9iamVjdD0iRXh0cmluc2ljT2JqZWN0X0RvY3VtZW50MDAxIiB0YXJnZXRPYmplY3Q9IkRvY3VtZW50MDEiIGlkPSJBc3NvY2lhdGlvbjAwMSIgb2JqZWN0VHlwZT0idXJuOm9hc2lzOm5hbWVzOnRjOmVieG1sLXJlZ3JlcDpPYmplY3RUeXBlOlJlZ2lzdHJ5T2JqZWN0OkFzc29jaWF0aW9uIj4NCiAgICA8cmltOlNsb3QgbmFtZT0iU3VibWlzc2lvblNldFN0YXR1cyI+DQogICAgICAgIDxyaW06VmFsdWVMaXN0Pg0KICAgICAgICAgICAgPHJpbTpWYWx1ZT5PcmlnaW5hbDwvcmltOlZhbHVlPg0KICAgICAgICA8L3JpbTpWYWx1ZUxpc3Q+DQogICAgPC9yaW06U2xvdD4NCjwvcmltOkFzc29jaWF0aW9uPg0K
 			</Document>

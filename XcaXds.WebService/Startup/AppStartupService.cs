@@ -75,6 +75,8 @@ public class AppStartupService : IHostedService
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
+        //MigrateFromJsonRegistryToDatabase();
+
         if (_env.IsProduction() == false)
         {
             AddDefaultAccessControlPolicies();
@@ -185,6 +187,7 @@ public class AppStartupService : IHostedService
     private void NormalizeAppconfigOidsWithRegistryRepositoryContent()
     {
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        if (registryContent?.Count == 0 || registryContent == null) return;
 
         _logger.LogInformation("Normalizing registry entries");
 
@@ -208,5 +211,20 @@ public class AppStartupService : IHostedService
         {
             _logger.LogInformation($"New Repository Unique Id set: '{_appConfig.RepositoryUniqueId}' (old: '{oldId}')");
         }
+    }
+
+    private void MigrateFromJsonRegistryToDatabase()
+    {
+        var registry = new FileBasedRegistry();
+        
+        // If false, no need to migrate
+        if (registry.RegistryExists() == false) return;
+
+        // If already migrated, no need to migrate again :P
+        if (registry.IsFileRegistryAsMigrated()) return;
+
+        var jsonRegistryObjects = registry.ReadRegistry();
+        _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects);
+        registry.MarkFileRegistryAsMigrated();
     }
 }

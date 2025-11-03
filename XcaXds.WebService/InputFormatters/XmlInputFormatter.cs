@@ -69,7 +69,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
             }
 
 
-            var soapEnvelope = sxmls.DeserializeSoapMessage<SoapEnvelope>(xmlString);
+            var soapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(xmlString);
 
             bindingContext.Result = ModelBindingResult.Success(soapEnvelope);
         }

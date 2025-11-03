@@ -24,13 +24,13 @@ public class UnitTests_PolicyMappingDto
         var policyWrapper = new PolicyRepositoryWrapper(repository);
 
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
-
-        XacmlContextRequest xacmlObject = await PolicyRequestMapperSamlService.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), Commons.Commons.XacmlVersion.Version20);
+        var registry = new FileBasedRegistry();
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), Commons.Commons.XacmlVersion.Version20,Issuer.HelseId, registry.ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
 
-        var evaluateResponse = policyWrapper.EvaluateRequest_V20(xacmlObject);
+        var evaluateResponse = policyWrapper.EvaluateRequest_V20(xacmlObject, Issuer.HelseId);
     }
 
     [Fact]

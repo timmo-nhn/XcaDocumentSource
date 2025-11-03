@@ -18,8 +18,6 @@ public class FileBasedRegistry : IRegistry
         string baseDirectory = AppContext.BaseDirectory;
         _registryPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
         _registryFile = Path.Combine(_registryPath, "Registry.json");
-        EnsureRegistryFileExists();
-
     }
 
     public FileBasedRegistry(ILogger<FileBasedRegistry> logger)
@@ -39,11 +37,11 @@ public class FileBasedRegistry : IRegistry
         }
 
         _registryFile = Path.Combine(_registryPath, "Registry.json");
-        EnsureRegistryFileExists();
     }
 
     public List<RegistryObjectDto> ReadRegistry()
     {
+        EnsureRegistryFileExists();
         lock (_lock)
         {
             var json = File.ReadAllText(_registryFile);
@@ -57,10 +55,47 @@ public class FileBasedRegistry : IRegistry
 
     public bool WriteRegistry(List<RegistryObjectDto> dtos)
     {
+        EnsureRegistryFileExists();
         lock (_lock)
         {
             File.WriteAllText(_registryFile, RegistryJsonSerializer.Serialize(dtos));
             return true;
+        }
+    }
+
+    public bool UpdateRegistry(List<RegistryObjectDto> dtos)
+    {
+        var registry = ReadRegistry();
+        registry.AddRange(dtos);
+        return WriteRegistry(registry);
+    }
+
+    public bool DeleteRegistryItem(string id)
+    {
+        var registry = ReadRegistry();
+        var itemToDelete = registry.FirstOrDefault(x => x.Id == id);
+        if (itemToDelete == null) return false;
+
+        registry.Remove(itemToDelete);
+        return WriteRegistry(registry);
+    }
+
+    public void MarkFileRegistryAsMigrated()
+    {
+        lock (_lock)
+        {
+            if (Directory.Exists(_registryPath))
+            {
+                using (File.Create(Path.Combine(_registryPath, ".migrated"))) { }
+            }
+        }
+    }
+
+    public bool IsFileRegistryAsMigrated()
+    {
+        lock (_lock)
+        {
+            return File.Exists(Path.Combine(_registryPath, ".migrated"));
         }
     }
 
@@ -83,4 +118,11 @@ public class FileBasedRegistry : IRegistry
         }
     }
 
+    public bool RegistryExists()
+    {
+        lock (_lock)
+        {
+            return File.Exists(Path.Combine(_registryFile));
+        }
+    }
 }

@@ -1157,8 +1157,8 @@ public static class RegistryMetadataTransformerService
         if (authorPerson == null) return;
 
         var lastNameParts = authorPerson.LastName?.Split(' ');
-        var middleName = lastNameParts.Length > 1 ? lastNameParts?.FirstOrDefault() : null;
-        var lastName = lastNameParts.Length > 1 ? string.Join(" ", lastNameParts?.Skip(1)) : lastNameParts.FirstOrDefault();
+        var middleName = lastNameParts?.Length > 1 ? lastNameParts?.FirstOrDefault() : null;
+        var lastName = lastNameParts?.Length > 1 ? string.Join(" ", lastNameParts?.Skip(1)) : lastNameParts?.FirstOrDefault();
         var authorXcn = new XCN()
         {
             PersonIdentifier = authorPerson.Id,

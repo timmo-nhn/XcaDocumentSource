@@ -483,11 +483,21 @@ public static partial class CdaTransformerService
 
     private static TS SetAuthorTime(SubmissionSetDto submissionSet)
     {
-        return new()
+        var ts = new TS();
+
+        if (submissionSet.SubmissionTime.HasValue)
         {
-            EffectiveTime = submissionSet.SubmissionTime.HasValue ? submissionSet.SubmissionTime.Value : DateTime.MinValue,
-            Value = submissionSet.SubmissionTime.HasValue ? submissionSet.SubmissionTime.Value.ToString(Constants.Hl7.Dtm.DtmFormat) : null,
-        };
+            ts.EffectiveTime = new DateTimeOffset(submissionSet.SubmissionTime.Value);
+
+            ts.Value = submissionSet.SubmissionTime.Value.ToString(Constants.Hl7.Dtm.DtmFormat);
+        }
+        else
+        {
+            ts.EffectiveTime = default;
+            ts.Value = null;
+        }
+
+        return ts;
     }
 
     private static Custodian SetClinicalDocumentCustodian(SubmissionSetDto submissionsSet)

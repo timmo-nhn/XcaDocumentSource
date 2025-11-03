@@ -271,7 +271,7 @@ public class XdsRepositoryService
             {
                 if (document.DocumentUniqueId is null)
                 {
-                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {document.DocumentUniqueId}".Trim());
+                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id: {document.DocumentUniqueId}".Trim());
                     continue;
                 }
 
@@ -280,7 +280,7 @@ public class XdsRepositoryService
 
                 if (removeResult is false)
                 {
-                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found {document.DocumentUniqueId}".Trim());
+                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found. Id: {document.DocumentUniqueId}".Trim());
                     continue;
                 }
             }

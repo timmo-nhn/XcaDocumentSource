@@ -74,6 +74,10 @@ public class RestfulRegistryRepositoryController : ControllerBase
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
         var association = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.SourceObject == id || assoc.TargetObject == id);
+
+        if (association == null) return NotFound();
+
+
         var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == association?.TargetObject);
         var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(docEnt => docEnt.Id == association?.SourceObject);
 
