@@ -96,6 +96,7 @@ public class Program
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<AuditLoggingService>();
 
+
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
 
