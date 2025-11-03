@@ -75,7 +75,7 @@ public class AppStartupService : IHostedService
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
-        //MigrateFromJsonRegistryToDatabase();
+        MigrateFromJsonRegistryToDatabase();
 
         if (_env.IsProduction() == false)
         {
