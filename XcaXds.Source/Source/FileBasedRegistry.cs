@@ -122,7 +122,13 @@ public class FileBasedRegistry : IRegistry
     {
         lock (_lock)
         {
-            return File.Exists(Path.Combine(_registryFile));
+            var exists = File.Exists(Path.Combine(_registryFile));
+
+            if (!exists) return false;
+
+            var hasContent = ReadRegistry().Count != 0;
+
+            return hasContent;
         }
     }
 }
