@@ -84,7 +84,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 {
                     try
                     {
-                        var response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+                        var response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
 
                         var sxmls = new SoapXmlSerializer();
                         var soapXml = sxmls.SerializeSoapMessageToXmlString(response.Value).Content;
@@ -121,7 +121,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
-                var iti38Response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+                var iti38Response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
 
                 responseEnvelope = iti38Response.Value;
@@ -141,7 +141,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 {
                     try
                     {
-                        var response = await _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
+                        var response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
 
                         var sxmls = new SoapXmlSerializer();
 
@@ -194,7 +194,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-39 to ITI-43 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti43Action);
-                var iti39Response = await _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
+                var iti39Response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
                 iti39Response.Value?.SetAction(Constants.Xds.OperationContract.Iti39Reply);
 
                 if (iti39Response.IsSuccess is false)

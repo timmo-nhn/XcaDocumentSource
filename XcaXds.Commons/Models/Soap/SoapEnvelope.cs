@@ -28,6 +28,7 @@ public class SoapEnvelope
 
     public void SetAction(string action)
     {
+        if (Header == null) return;
         Header.Action = action;
     }
     public string GetCorrespondingResponseAction()

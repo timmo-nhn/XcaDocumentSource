@@ -2,8 +2,12 @@
 using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
 using Abc.Xacml.Runtime;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
@@ -12,21 +16,20 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
-using XacmlVersion = XcaXds.Commons.Commons.XacmlVersion;
 
 namespace XcaXds.Tests;
 
 public class UnitTests_PolicyAuthorization
 {
     [Fact]
-    public async Task AuthZ_Xacml30_Policy_ShouldPermit()
+    public void AuthZ_Xacml30_Policy_ShouldPermit()
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -50,14 +53,14 @@ public class UnitTests_PolicyAuthorization
     }
 
     [Fact]
-    public async Task AuthZ_Xacml20_Policy_ShouldPermit()
+    public void AuthZ_Xacml20_Policy_ShouldPermit()
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -81,7 +84,7 @@ public class UnitTests_PolicyAuthorization
     }
 
     [Fact]
-    public async Task AuthZ_Xacml20_PolicyService()
+    public void AuthZ_Xacml20_PolicyService()
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "Policies"));
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
@@ -92,7 +95,7 @@ public class UnitTests_PolicyAuthorization
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -100,5 +103,30 @@ public class UnitTests_PolicyAuthorization
         var evalResult = policyWrapper.EvaluateRequest_V20(xacmlObject, Issuer.HelseId);
 
         Assert.Equal(XacmlContextDecision.Permit, evalResult.Results.FirstOrDefault()?.Decision);
+    }
+
+    [Fact]
+    public void Authz_Xacml20_JwtToXacml()
+    {
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
+
+        var mockLogger = new Mock<ILogger<FileBasedPolicyRepository>>();
+
+        var jwtToken = File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("JsonWebToken01.json")));
+        var fhirProvideDocumentBundle = File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("fhir_provideDocumentBundle.json")));
+
+        var fhirParser = new FhirJsonParser();
+        var handler = new JwtSecurityTokenHandler();
+
+        if (!handler.CanReadToken(jwtToken))
+        {
+            Assert.Fail("Invalid JWT token format.");
+        }
+
+        var token = handler.ReadJwtToken(jwtToken);
+
+        var fhirBundle = fhirParser.Parse<Resource>(fhirProvideDocumentBundle);
+
+        var xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle);
     }
 }

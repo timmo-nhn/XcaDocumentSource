@@ -62,7 +62,7 @@ public class XdsRepositoryController : ControllerBase
             case Constants.Xds.OperationContract.Iti43Action:
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
 
-                var iti43Response = await _repositoryService.RetrieveDocumentSet(soapEnvelope);
+                var iti43Response = _repositoryService.RetrieveDocumentSet(soapEnvelope);
                 if (iti43Response.IsSuccess is false)
                 {
                     break;
@@ -116,7 +116,7 @@ public class XdsRepositoryController : ControllerBase
                     responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Receiver", $"Unknown").Value;
                 }
 
-                var submittedDocumentsTooLarge = await _repositoryService.CheckIfDocumentsAreTooLarge(soapEnvelope);
+                var submittedDocumentsTooLarge = _repositoryService.CheckIfDocumentsAreTooLarge(soapEnvelope);
 
                 if (submittedDocumentsTooLarge.IsSuccess is false)
                 {
@@ -134,7 +134,7 @@ public class XdsRepositoryController : ControllerBase
                     break;
                 }
 
-                var repositoryDocumentExists = await _repositoryService.CheckIfDocumentExistsInRepository(soapEnvelope);
+                var repositoryDocumentExists = _repositoryService.CheckIfDocumentExistsInRepository(soapEnvelope);
 
                 if (repositoryDocumentExists.IsSuccess is false)
                 {
@@ -147,7 +147,7 @@ public class XdsRepositoryController : ControllerBase
                     break;
                 }
 
-                var registerDocumentSetResponse = await _registryService.AppendToRegistryAsync(iti42Message.Value);
+                var registerDocumentSetResponse = _registryService.AppendToRegistryAsync(iti42Message.Value);
 
                 if (registerDocumentSetResponse.IsSuccess is false)
                 {
@@ -155,7 +155,7 @@ public class XdsRepositoryController : ControllerBase
                     break;
                 }
 
-                var documentUploadResponse = await _repositoryService.UploadContentToRepository(soapEnvelope);
+                var documentUploadResponse = _repositoryService.UploadContentToRepository(soapEnvelope);
 
                 if (documentUploadResponse.IsSuccess is false)
                 {
@@ -174,7 +174,7 @@ public class XdsRepositoryController : ControllerBase
                 break;
 
             case Constants.Xds.OperationContract.Iti86Action:
-                var removeDocumentsResponse = await _repositoryService.RemoveDocuments(soapEnvelope);
+                var removeDocumentsResponse = _repositoryService.RemoveDocuments(soapEnvelope);
                 if (removeDocumentsResponse.IsSuccess)
                 {
                     responseEnvelope = removeDocumentsResponse.Value;

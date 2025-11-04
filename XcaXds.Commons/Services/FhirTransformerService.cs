@@ -1,5 +1,12 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Support;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Models.Soap.Actions;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Services;
 
@@ -31,3 +38,4 @@ public static class FhirTransformerService
         return author;
     }
 }
+

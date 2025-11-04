@@ -86,8 +86,12 @@ public static class SoapExtensions
                 Body = message.Body
             }
         };
-        resultEnvelope.Value.Header.Action = message.Header.Action;
-        resultEnvelope.Value.Header.RelatesTo = message.Header.MessageId;
+
+        if (resultEnvelope.Value.Header != null)
+        {
+            resultEnvelope.Value.Header.Action = message.Header.Action;
+            resultEnvelope.Value.Header.RelatesTo = message.Header.MessageId;
+        }
 
 
         if (resultEnvelope.Value.Body.RegistryResponse is not null)

@@ -57,9 +57,12 @@ public partial class SlotType
             for (int i = 0; i < ValueList.Value.Length; i++)
             {
                 var curVal = ValueList.Value[i];
-                var multipleValues = curVal.Split("','").ToList();
-                resultList = [.. resultList, .. multipleValues];
-                ValueList.Value[i] = ValueList.Value[i];
+                if (curVal != null)
+                {
+                    var multipleValues = curVal.Split("','").ToList();
+                    resultList = [.. resultList, .. multipleValues];
+                    ValueList.Value[i] = ValueList.Value[i];
+                }
             }
             resultList = resultList.Select(val => val.Trim().Trim(['(', ')']).Trim('\'')).ToList();
             return resultList.ToArray();
