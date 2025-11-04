@@ -13,9 +13,11 @@ namespace XcaXds.WebService.Services;
 public class AuditLoggingService
 {
     private readonly ILogger<AuditLoggingService> _logger;
-    public AuditLoggingService(ILogger<AuditLoggingService> logger)
+    private readonly ApplicationConfig _appConfig;
+    public AuditLoggingService(ILogger<AuditLoggingService> logger, ApplicationConfig appConfig)
     {
         _logger = logger;
+        _appConfig = appConfig;
     }
 
     public void CreateAuditLogForSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
@@ -77,7 +79,7 @@ public class AuditLoggingService
                     new Coding()
                     {
                         Code = purposeOfUseValue?.Code,
-                        System = purposeOfUseValue?.CodeSystem,
+                        System = $"urn:oid:{purposeOfUseValue?.CodeSystem}",
                         Display = purposeOfUseValue?.DisplayName
                     }
                 }
@@ -91,7 +93,7 @@ public class AuditLoggingService
             {
                 new Identifier
                 {
-                    System = samlToken.Assertion.Issuer.Value,
+                    System = $"{samlToken.Assertion.Issuer.Value}",
                     Value = samlToken.Assertion.Subject.NameId.Value
                 }
             }
@@ -109,6 +111,11 @@ public class AuditLoggingService
                 PurposeOfUse = auditEvent.PurposeOfEvent,
                 Policy = [samlToken.Id]
             }
+        };
+
+        auditEvent.Source = new AuditEvent.SourceComponent()
+        {
+            Type =[ new() {Code = _appConfig.RepositoryUniqueId }]
         };
 
         return auditEvent;

@@ -222,15 +222,9 @@ public class AppStartupService : IHostedService
     private void MigrateFromJsonRegistryToDatabase()
     {
         var fileBasedRegistry = new FileBasedRegistry();
-
-        _logger.LogInformation("Checking if registry needs to be migrated");
-
+        
         // If false, no need to migrate
-        if (fileBasedRegistry.RegistryExists() == false)
-        {
-            _logger.LogInformation("Json registry doesnt exist. No need for migration");
-            return;
-        }
+        if (fileBasedRegistry.RegistryExists() == false) return;
 
         // If already migrated, no need to migrate again :P
         if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;

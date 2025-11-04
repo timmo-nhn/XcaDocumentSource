@@ -123,6 +123,11 @@ public class PolicyEnforcementPointMiddleware
 
         switch (contentType)
         {
+            case Constants.MimeTypes.Json:
+            case Constants.MimeTypes.FhirJson:
+                //xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(httpContext.Request.Headers);
+                break;
+
             case Constants.MimeTypes.XopXml:
             case Constants.MimeTypes.MultipartRelated:
             case Constants.MimeTypes.SoapXml:

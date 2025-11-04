@@ -54,7 +54,7 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti18Action:
                 if (!await _featureManager.IsEnabledAsync("Iti18RegistryStoredQuery")) return NotFound();
 
-                var registryQueryResponse = await _registryService.RegistryStoredQueryAsync(soapEnvelope);
+                var registryQueryResponse = _registryService.RegistryStoredQueryAsync(soapEnvelope);
 
                 responseEnvelope = registryQueryResponse.Value;
                 responseEnvelope.Header = new()
@@ -69,7 +69,7 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti42Action:
                 if (!await _featureManager.IsEnabledAsync("Iti42RegisterDocumentSet")) return NotFound();
 
-                var registryUploadResponse = await _registryService.AppendToRegistryAsync(soapEnvelope);
+                var registryUploadResponse = _registryService.AppendToRegistryAsync(soapEnvelope);
 
                 if (registryUploadResponse.IsSuccess)
                 {
@@ -103,7 +103,7 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti62Action:
                 if (!await _featureManager.IsEnabledAsync("Iti62DeleteDocumentSet")) return NotFound();
 
-                var deleteDocumentSetResponse = await _registryService.DeleteDocumentSetAsync(soapEnvelope);
+                var deleteDocumentSetResponse = _registryService.DeleteDocumentSetAsync(soapEnvelope);
                 if (deleteDocumentSetResponse.IsSuccess)
                 {
                     responseEnvelope.Header ??= new();

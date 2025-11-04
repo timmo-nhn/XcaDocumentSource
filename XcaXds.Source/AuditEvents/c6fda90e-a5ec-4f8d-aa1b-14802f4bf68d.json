@@ -18,8 +18,8 @@
       "id": "who-1",
       "identifier": [
         {
-          "system": "sikkerhet.helsenorge.no",
-          "value": "27888498775"
+          "system": "urn:oid:https://helseid-xdssaml.test.nhn.no",
+          "value": "06828399789"
         }
       ]
     }
@@ -30,8 +30,19 @@
     "display": "Access/View Record Lifecycle Event"
   },
   "action": "R",
-  "recorded": "2025-11-03T08:25:56.6022694+01:00",
+  "recorded": "2025-11-04T14:54:24.7623201+01:00",
   "outcome": "0",
+  "purposeOfEvent": [
+    {
+      "coding": [
+        {
+          "system": "urn:oid:urn:oid:2.16.840.1.113883.1.11.20448",
+          "code": "TREAT",
+          "display": "Treatment"
+        }
+      ]
+    }
+  ],
   "agent": [
     {
       "who": {
@@ -39,8 +50,26 @@
       },
       "requestor": true,
       "policy": [
-        "_6ceb5186-dc67-41bb-b734-4eb013aaec82"
+        "_6aaebd1c-09dc-4667-b3fe-dcc150211a52"
+      ],
+      "purposeOfUse": [
+        {
+          "coding": [
+            {
+              "system": "urn:oid:urn:oid:2.16.840.1.113883.1.11.20448",
+              "code": "TREAT",
+              "display": "Treatment"
+            }
+          ]
+        }
       ]
     }
-  ]
+  ],
+  "source": {
+    "type": [
+      {
+        "code": "2.16.578.1.12.4.5.100.1.1.2"
+      }
+    ]
+  }
 }

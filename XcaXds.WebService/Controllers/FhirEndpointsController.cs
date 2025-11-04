@@ -2,6 +2,7 @@
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Web;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -13,34 +14,48 @@ using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Models.Custom;
 
 namespace XcaXds.WebService.Controllers;
 
-[Tags("FHIR Endpoints")]
 [ApiController]
+[Route("R4/fhir")]
+[Tags("FHIR Endpoints")]
 [UsePolicyEnforcementPoint]
 public class FhirEndpointsController : Controller
 {
     private readonly ILogger<FhirEndpointsController> _logger;
 
     private readonly XdsRegistryService _xdsRegistryService;
+    private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly XdsOnFhirService _xdsOnFhirService;
+    private readonly ApplicationConfig _appConfig;
 
-    public FhirEndpointsController(ILogger<FhirEndpointsController> logger, XdsRegistryService xdsRegistryService, XdsOnFhirService xdsOnFhirService, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
+    public FhirEndpointsController(
+        ILogger<FhirEndpointsController> logger,
+        XdsRegistryService xdsRegistryService, 
+        XdsRepositoryService xdsRepositoryService,
+        XdsOnFhirService xdsOnFhirService, 
+        RegistryWrapper registryWrapper, 
+        RepositoryWrapper repositoryWrapper,
+        ApplicationConfig applicationConfig
+        )
     {
         _xdsRegistryService = xdsRegistryService;
+        _xdsRepositoryService = xdsRepositoryService;
         _xdsOnFhirService = xdsOnFhirService;
         _logger = logger;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
+        _appConfig = applicationConfig;
     }
 
     [Consumes("application/fhir+json")]
     [Produces("application/fhir+json")]
-    [HttpGet("R4/fhir/DocumentReference")]
-    [HttpPost("R4/fhir/DocumentReference/_search")]
+    [HttpGet("DocumentReference")]
+    [HttpPost("DocumentReference/_search")]
     public async Task<ActionResult> DocumentReference(
         [FromQuery(Name = "patient")] string? patient,
         [FromQuery(Name = "creation")] string? creation,
@@ -135,7 +150,7 @@ public class FhirEndpointsController : Controller
             Body = new() { AdhocQueryRequest = adhocQueryRequest }
         };
 
-        var response = await _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+        var response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
 
         var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value?.Body?.AdhocQueryResponse?.RegistryObjectList);
 
@@ -191,5 +206,89 @@ public class FhirEndpointsController : Controller
         fileResponse.FileDownloadName = $"{documentUniqueId}.{mimetype?.Split('/')[1] ?? registryObjectForDocument?.MimeType?.Split('/')[1]}";
 
         return fileResponse;
+    }
+
+    [Consumes("application/fhir+json", "application/fhir+xml")]
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpPost("Bundle")]
+    public async Task<IActionResult> DocumentReference([FromBody] JsonElement json)
+    {
+        var fhirParser = new FhirJsonParser();
+        var resource = fhirParser.Parse<Resource>(json.GetRawText());
+
+        if (resource is not Bundle fhirBundle)
+        {
+            return BadRequest(OperationOutcome
+            .ForMessage($"Request body does not contain a well formatted FHIR bundle",
+            OperationOutcome.IssueType.Invalid,
+            OperationOutcome.IssueSeverity.Fatal));
+        }
+
+        var patient = fhirBundle.Entry
+            .Where(e => e.Resource is Patient)
+            .Select(e => (Patient)e.Resource)
+            .FirstOrDefault();
+
+        var documentReferences = fhirBundle.Entry
+            .Where(e => e.Resource is DocumentReference)
+            .Select(e => (DocumentReference)e.Resource)
+            .ToList();
+
+        var fhirBinaries = fhirBundle.Entry
+            .Where(e => e.Resource is Binary)
+            .Select(e => (Binary)e.Resource)
+            .ToList();
+
+        var submissionSetList = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<List>()
+            .FirstOrDefault();
+
+        if (submissionSetList == null) return BadRequest(OperationOutcome.ForMessage($"List element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        if (documentReferences.Count == 0) return BadRequest(OperationOutcome.ForMessage($"DocumentReference element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        if (fhirBinaries.Count == 0) return BadRequest(OperationOutcome.ForMessage($"Binary element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        if (patient == null) return BadRequest(OperationOutcome.ForMessage($"Patient not found in DocumentReference", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        var identifier = patient.Identifier.First();
+
+        var patientIdCodeSystem = identifier.System?.NoUrn();
+        var patientIdentifier = identifier.Value;
+
+        var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId").Value;
+        var sourceId = sourceIdIdentifier.First().Value.ToString();
+
+        if (string.IsNullOrEmpty(sourceId))
+        {
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing SourceID", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+        }
+
+        var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn());
+
+        var provideAndRegisterRequest = provideAndRegisterResult.Value?.ProvideAndRegisterDocumentSetRequest;
+
+        if (provideAndRegisterResult.Success == false && provideAndRegisterResult.OperationOutcome != null && provideAndRegisterRequest != null)
+        {
+            return BadRequestOperationOutcome.Create(provideAndRegisterResult.OperationOutcome);
+        }
+
+        // FIXME Handle errors
+        var submittedDocumentsTooLarge = _xdsRepositoryService.CheckIfDocumentsAreTooLarge(provideAndRegisterRequest);
+
+        // FIXME Handle errors
+        var iti42Message = _xdsRegistryService.CopyIti41ToIti42Message(provideAndRegisterRequest);
+
+        // FIXME Handle errors
+        var repositoryDocumentExists = _xdsRepositoryService.CheckIfDocumentExistsInRepository(provideAndRegisterRequest);
+
+        // FIXME Handle errors
+        var registerDocumentSetResponse = _xdsRegistryService.AppendToRegistryAsync(iti42Message.Value);
+
+        // FIXME Handle errors
+        var documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
+
+        return Ok(OperationOutcome.ForMessage($"Document with id {fhirBundle.Id} has been uploaded successfully", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Success));
     }
 }

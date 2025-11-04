@@ -11,6 +11,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Source;
@@ -31,12 +32,17 @@ public class XdsRepositoryService
         _logger = logger;
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope)
+    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(SoapEnvelope iti41Envelope)
     {
-        var registryObjectList = iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+        return UploadContentToRepository(iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest);
+    }
 
+    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterDocumentSetRequest)
+    {
         var registryResponse = new RegistryResponseType();
-
+        
+        var registryObjectList = provideAndRegisterDocumentSetRequest.SubmitObjectsRequest.RegistryObjectList;
+        
         if (registryObjectList == null)
         {
             registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, "Missing RegistryObjectlist", _xdsConfig.HomeCommunityId);
@@ -46,7 +52,7 @@ public class XdsRepositoryService
         var associations = registryObjectList.OfType<AssociationType>().ToArray();
         var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
-        var documents = iti41Envelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
+        var documents = provideAndRegisterDocumentSetRequest.Document;
 
         foreach (var association in associations)
         {
@@ -96,14 +102,15 @@ public class XdsRepositoryService
 
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> CheckIfDocumentExistsInRepository(SoapEnvelope iti41Envelope)
+    public SoapRequestResult<SoapEnvelope> CheckIfDocumentExistsInRepository(SoapEnvelope iti41Envelope)
+    {
+        return CheckIfDocumentExistsInRepository(iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest);
+    }
+
+    public SoapRequestResult<SoapEnvelope> CheckIfDocumentExistsInRepository(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterRequest)
     {
         var registryResponse = new RegistryResponseType();
-        var documents = iti41Envelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
-
-        var extrinsicObjects = iti41Envelope.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
-
-
+        var documents = provideAndRegisterRequest?.Document;
 
         if (documents != null && documents.Length != 0)
         {
@@ -118,11 +125,16 @@ public class XdsRepositoryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> CheckIfDocumentsAreTooLarge(SoapEnvelope soapEnvelope)
+    public SoapRequestResult<SoapEnvelope> CheckIfDocumentsAreTooLarge(SoapEnvelope soapEnvelope)
+    {
+        return CheckIfDocumentsAreTooLarge(soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest);
+    }
+
+    public SoapRequestResult<SoapEnvelope> CheckIfDocumentsAreTooLarge(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterRequest)
     {
         var registryResponse = new RegistryResponseType();
 
-        var oversizedDocuments = soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.Document
+        var oversizedDocuments = provideAndRegisterRequest?.Document
             .Where(doc => doc.Value.Length > _xdsConfig.DocumentUploadSizeLimitKb).ToList();
 
         if (oversizedDocuments?.Count > 0)
@@ -132,7 +144,7 @@ public class XdsRepositoryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> RetrieveDocumentSet(SoapEnvelope iti43envelope)
+    public SoapRequestResult<SoapEnvelope> RetrieveDocumentSet(SoapEnvelope iti43envelope)
     {
         var registryResponse = new RegistryResponseType();
         var retrieveResponse = new RetrieveDocumentSetResponseType();
@@ -253,7 +265,7 @@ public class XdsRepositoryService
     }
 
 
-    public async Task<SoapRequestResult<SoapEnvelope>> RemoveDocuments(SoapEnvelope soapEnvelope)
+    public SoapRequestResult<SoapEnvelope> RemoveDocuments(SoapEnvelope soapEnvelope)
     {
         var registryResponse = new RegistryResponseType();
         var removeDocuments = soapEnvelope.Body.RemoveDocumentsRequest?.DocumentRequest;

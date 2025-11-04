@@ -25,7 +25,7 @@ public partial class XdsRegistryService
         _logger = logger;
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> AppendToRegistryAsync(SoapEnvelope envelope)
+    public SoapRequestResult<SoapEnvelope> AppendToRegistryAsync(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();
 
@@ -78,7 +78,7 @@ public partial class XdsRegistryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> RegistryStoredQueryAsync(SoapEnvelope soapEnvelope)
+    public SoapRequestResult<SoapEnvelope> RegistryStoredQueryAsync(SoapEnvelope soapEnvelope)
     {
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
@@ -329,7 +329,7 @@ public partial class XdsRegistryService
         return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
     }
 
-    public async Task<SoapRequestResult<SoapEnvelope>> DeleteDocumentSetAsync(SoapEnvelope soapEnvelope)
+    public SoapRequestResult<SoapEnvelope> DeleteDocumentSetAsync(SoapEnvelope soapEnvelope)
     {
         var registryResponse = new RegistryResponseType();
         var removeObjectsRequest = soapEnvelope.Body.RemoveObjectsRequest;
@@ -363,15 +363,23 @@ public partial class XdsRegistryService
 
     public SoapRequestResult<SoapEnvelope> CopyIti41ToIti42Message(SoapEnvelope iti41Message)
     {
+        var iti42Message = CopyIti41ToIti42Message(iti41Message.Body.ProvideAndRegisterDocumentSetRequest);
+        iti42Message.Value ??= new();
+        iti42Message.Value.Header = iti41Message.Header;
+        return iti42Message;
+    }
+
+    public SoapRequestResult<SoapEnvelope> CopyIti41ToIti42Message(ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest)
+    {
         var registryResponse = new RegistryResponseType();
 
         var iti42Message = new SoapEnvelope()
         {
-            Header = iti41Message.Header,
             Body = new() { RegisterDocumentSetRequest = new() { SubmitObjectsRequest = new() } }
         };
 
-        iti42Message.Body.RegisterDocumentSetRequest.SubmitObjectsRequest = iti41Message.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest;
+
+        iti42Message.Body.RegisterDocumentSetRequest.SubmitObjectsRequest = provideAndRegisterRequest.SubmitObjectsRequest;
         iti42Message.SetAction(Constants.Xds.OperationContract.Iti42Action);
 
 
@@ -381,7 +389,7 @@ public partial class XdsRegistryService
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
         var documentEntries = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
-        var documents = iti41Message.Body?.ProvideAndRegisterDocumentSetRequest?.Document;
+        var documents = provideAndRegisterRequest?.Document;
 
         foreach (var association in associations)
         {

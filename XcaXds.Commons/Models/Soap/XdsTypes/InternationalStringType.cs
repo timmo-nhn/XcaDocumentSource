@@ -7,6 +7,15 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public class InternationalStringType
 {
+    public InternationalStringType()
+    {
+        
+    }
+    public InternationalStringType(string input)
+    {
+        LocalizedString = [new() { Value = input }];
+    }
+
     [XmlElement("LocalizedString", Order = 0)]
     public LocalizedStringType[] LocalizedString;
     public string? GetFirstValue()

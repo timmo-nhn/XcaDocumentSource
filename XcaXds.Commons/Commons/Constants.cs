@@ -52,6 +52,7 @@ public static class Constants
         };
     }
 
+
     public static class Soap
     {
         public static class Addresses
@@ -518,6 +519,7 @@ public static class Constants
         public const string Hpr = "2.16.578.1.12.4.1.4.4";
         public const string ReshId = "2.16.578.1.12.4.1.4.102";
         public const string Brreg = "2.16.578.1.12.4.1.4.101";
+        public const string Nhn = "2.16.578.1.12.4.5";
 
         public static class CodeSystems
         {
@@ -723,7 +725,7 @@ public static class Constants
             public const string ResourceId = "urn:oasis:names:tc:xacml:2.0:resource:resource-id";
             public const string Role = "urn:oasis:names:tc:xspa:1.0:subject:role";
         }
-        
+
         public static class CustomAttributes
         {
             public const string DocumentEntryPatientIdentifier = "urn:no:nhn:xcads:document:patient-identifier";
@@ -816,6 +818,25 @@ public static class Constants
             // --- Generic / misc ---
             public const string SamlSubjectId = "urn:oasis:names:tc:SAML:attribute:subject-id";
         }
+    }
+
+    public static class JwtSaml
+    {
+        public const string XdsPolicy = "XdsPolicy";
+        public const string XdsPolicyWithDPoP = "XdsPolicyWithDPoP";
+        public const string RequiredClaimsPolicy = "RequiredClaimsPolicy";
+        public const string DPoPTokenAuthenticationScheme = "dpop_token_authentication_scheme";
+        public const string BearerTokenAuthenticationScheme = "bearer_token_authentication_scheme";
+
+        public const string ClientIdClaimType = "client_id";
+        public const string AuthTime = "auth_time";
+        public const string PidClaimType = "helseid://claims/identity/pid";
+        public const string SecurityLevelClaimType = "helseid://claims/identity/security_level";
+        public const string HprNumberClaimType = "helseid://claims/hpr/hpr_number";
+        public const string TillitsrammeverkClaimType = "nhn:tillitsrammeverk:parameters";
+        public const string Scope = "scope";
+        public const string FastlegeClaimType = "fastlege";
+
     }
 
     public static class AuditLogging
