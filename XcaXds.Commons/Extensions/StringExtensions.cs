@@ -17,6 +17,21 @@ public static class StringExtensions
         return input.Replace("urn:uuid:", "").Replace("urn:oid:", "");
     }
 
+    public static string TrimStart(this string input, string trimString)
+    {
+        return input.TrimStart([.. trimString.Select(b => b)]);
+    }
+
+    public static string TrimEnd(this string input, string trimString)
+    {
+        return input.TrimEnd([.. trimString.Select(b => b)]);
+    }
+
+    public static string Trim(this string input, string trimString)
+    {
+        return input.Trim([.. trimString.Select(b => b)]);
+    }
+
     public static byte[] GetAsUtf8Bytes(this string input)
     {
         return Encoding.UTF8.GetBytes(input);

@@ -27,13 +27,13 @@ public static class PolicyRequestMapperSamlService
         return handler.ReadSaml2Token(inputSamlToken);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, List<RegistryObjectDto> documentRegistry)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto> documentRegistry)
     {
         var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
         return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, List<RegistryObjectDto> documentRegistry)
+    public static XacmlContextRequest? GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto> documentRegistry)
     {
         var sxmls = new SoapXmlSerializer();
         var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(soapEnvelope);
@@ -42,7 +42,7 @@ public static class PolicyRequestMapperSamlService
         return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, List<RegistryObjectDto> documentRegistry)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto> documentRegistry)
     {
         var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
 
@@ -154,7 +154,7 @@ public static class PolicyRequestMapperSamlService
         return Issuer.Unknown;
     }
 
-    private static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope, List<RegistryObjectDto> documentRegistry)
+    public static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope, IEnumerable<RegistryObjectDto> documentRegistry)
     {
         var documentRequests = soapEnvelope.Body?.RetrieveDocumentSetRequest?.DocumentRequest;
 
@@ -288,7 +288,7 @@ public static class PolicyRequestMapperSamlService
         return xacmlAllAttributes;
     }
 
-    private static List<XacmlContextAttribute> MapSamlAttributesToXacml20Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
+    public static List<XacmlContextAttribute> MapSamlAttributesToXacml20Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
     {
         var subjectAttributes = new List<XacmlContextAttribute>();
 
@@ -298,17 +298,6 @@ public static class PolicyRequestMapperSamlService
             if (attributeValue == null) continue;
 
             var attributeValueAsCodedValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(attributeValue);
-
-
-            //var valueExistsAlready = subjectAttributes
-            //    .Any(att => att.AttributeValues
-            //        .Any(avs =>
-            //            avs.Value == attributeValueAsCodedValue.Code ||
-            //            avs.Value == attributeValueAsCodedValue.CodeSystem ||
-            //            avs.Value == attributeValueAsCodedValue.DisplayName
-            //        ));
-
-            //if (valueExistsAlready) continue;
 
             try
             {

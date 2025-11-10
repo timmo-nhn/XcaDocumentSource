@@ -59,7 +59,7 @@ public class UnitTests_Fhir
         var mockRegistry = new FileBasedRegistry();
         var xdsOnFhirService = new XdsOnFhirService(_fileRegistry, _applicationConfig, _logger);
 
-        var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry());
+        var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry().ToList());
 
         var rng = new Random();
 

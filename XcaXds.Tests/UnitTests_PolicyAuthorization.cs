@@ -4,6 +4,7 @@ using Abc.Xacml.Policy;
 using Abc.Xacml.Runtime;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -12,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
@@ -128,5 +130,9 @@ public class UnitTests_PolicyAuthorization
         var fhirBundle = fhirParser.Parse<Resource>(fhirProvideDocumentBundle);
 
         var xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle);
+
+        var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+
     }
 }

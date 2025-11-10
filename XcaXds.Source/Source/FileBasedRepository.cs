@@ -116,9 +116,15 @@ public class FileBasedRepository : IRepository
     public bool SetNewOid(string repositoryOid, out string oldId)
     {
         var parentDir = Directory.GetParent(_repositoryPath)?.FullName;
-        var currentId = Path.GetFileName(Directory.GetFileSystemEntries(parentDir).FirstOrDefault());
+        if (!Directory.Exists(parentDir))
+        {
+            oldId = null;
+            return false;
+        }
 
+        var currentId = Path.GetFileName(Directory.GetFileSystemEntries(parentDir).FirstOrDefault());
         oldId = currentId;
+
 
         if (currentId == null) return false;
         if (parentDir == null) return false;

@@ -9,7 +9,7 @@ namespace XcaXds.Source.Source;
 
 public class RegistryWrapper
 {
-    internal volatile List<RegistryObjectDto> _registryObjectList = null;
+    internal volatile IEnumerable<RegistryObjectDto> _registryObjectList = null;
 
     private readonly IRegistry _documentRegistry;
 
@@ -18,7 +18,7 @@ public class RegistryWrapper
         _documentRegistry = documentRegistry;
     }
 
-    public List<RegistryObjectDto> GetDocumentRegistryContentAsDtos()
+    public IEnumerable<RegistryObjectDto> GetDocumentRegistryContentAsDtos()
     {
         if (_registryObjectList != null)
             return _registryObjectList;
@@ -31,7 +31,7 @@ public class RegistryWrapper
             }
             catch (Exception ex)
             {
-                _registryObjectList = new();
+                _registryObjectList = Enumerable.Empty<RegistryObjectDto>();
             }
         }
         return _registryObjectList;
@@ -85,8 +85,7 @@ public class RegistryWrapper
     {
         try
         {
-            var dtoList = RegistryMetadataTransformerService
-                .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
+            var dtoList = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
 
             SetDocumentRegistryContentWithDtos(dtoList);
 

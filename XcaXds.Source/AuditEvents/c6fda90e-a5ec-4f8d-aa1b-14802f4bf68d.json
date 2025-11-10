@@ -18,7 +18,7 @@
       "id": "who-1",
       "identifier": [
         {
-          "system": "urn:oid:https://helseid-xdssaml.test.nhn.no",
+          "system": "https://helseid-xdssaml.test.nhn.no",
           "value": "06828399789"
         }
       ]
@@ -30,7 +30,7 @@
     "display": "Access/View Record Lifecycle Event"
   },
   "action": "R",
-  "recorded": "2025-11-04T14:54:24.7623201+01:00",
+  "recorded": "2025-11-05T12:27:11.9765268+01:00",
   "outcome": "0",
   "purposeOfEvent": [
     {

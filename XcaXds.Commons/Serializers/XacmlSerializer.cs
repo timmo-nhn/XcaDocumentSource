@@ -8,7 +8,7 @@ using XcaXds.Commons.Extensions;
 namespace XcaXds.Commons.Serializers;
 public static class XacmlSerializer
 {
-    public static string? SerializeXacmlToXml(XacmlContextRequest? request, XmlWriterSettings? options)
+    public static string? SerializeXacmlToXml(XacmlContextRequest? request, XmlWriterSettings? options = null)
     {
         if (request == null) throw new ArgumentNullException();
 
@@ -22,7 +22,7 @@ public static class XacmlSerializer
         return sb.ToString();
     }
 
-    public static string? SerializeXacmlToXml(XacmlContextResponse? request, XmlWriterSettings? options)
+    public static string? SerializeXacmlToXml(XacmlContextResponse? request, XmlWriterSettings? options = null)
     {
         if (request == null) throw new ArgumentNullException();
 

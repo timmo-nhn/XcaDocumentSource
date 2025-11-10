@@ -50,7 +50,7 @@ public static class Extensions
         return source.Select(regObj => regObj.Id == oldValue.Id ? newValue : regObj);
     }
 
-    public static List<RegistryObjectDto> DeprecateEntry(this List<RegistryObjectDto> registry, string idtoDeprecate)
+    public static IEnumerable<RegistryObjectDto> DeprecateEntry(this IEnumerable<RegistryObjectDto> registry, string idtoDeprecate)
     {
         return registry.Select(entry =>
         {

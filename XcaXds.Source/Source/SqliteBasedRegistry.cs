@@ -40,11 +40,14 @@ public class SqliteBasedRegistry : IRegistry
         return _databaseFile;
     }
 
-    public List<RegistryObjectDto> ReadRegistry()
+    public IEnumerable<RegistryObjectDto> ReadRegistry()
     {
         using var db = _contextFactory.CreateDbContext();
-        var registryObjects = DatabaseMapper.MapFromDatabaseEntityToDto(db.RegistryObjects.ToList());
-        return registryObjects;
+
+        foreach (var entity in db.RegistryObjects.AsNoTracking())
+        {
+            yield return DatabaseMapper.MapFromDatabaseEntityToDto(entity);
+        }
     }
 
     public bool UpdateRegistry(List<RegistryObjectDto> dtos)
