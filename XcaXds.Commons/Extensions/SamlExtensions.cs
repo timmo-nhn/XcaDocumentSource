@@ -19,7 +19,7 @@ public class SamlExtensions
         try
         {
             var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(Regex.Replace(attributeValue, @"\bxsi:\b", ""));
+            xmlDocument.LoadXml(Regex.Replace(attributeValue, @"\b:?xsi:?\b", ""));
             var attributes = xmlDocument.ChildNodes[0]?.Attributes;
 
             var type = attributes?.GetNamedItem("type")?.Value;

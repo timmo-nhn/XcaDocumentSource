@@ -407,15 +407,20 @@ public static class Constants
             public const string XdsDocumentUniqueIdError = "XDSDocumentUniqueIdError";
             public const string XdsMetadataUpdateError = "XDSMetadataUpdateError";
 
-            //Ikke en del av IHEs XDS-profil, men en norsk verdi
             public const string XdsRepresentationBelowMinimumAgeError = "XDSRepresentationBelowMinimumAgeError";
         }
     }
     public static class Hl7
     {
+        public static class Profile
+        {
+            public const string MinimalProvideBundle = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Minimal.ProvideBundle";
+            public const string UncontainedComprehensiveProvideBundle = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle";
+            public const string ComprehensiveProvideBundle = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.ProvideBundle";
+        }
+
         public static class Dtm
         {
-
             /// <summary>
             /// yyyy
             /// </summary>

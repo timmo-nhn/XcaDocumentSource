@@ -145,7 +145,7 @@ public class UnitTests_RegistryObjects
             docentry.LegalAuthenticator.IdSystem = Constants.Oid.Fnr;
         }
 
-        registryService.WriteRegistry(documentRegistryObjects);
+        registryService.WriteRegistry(documentRegistryObjects.ToList());
 
 
         foreach (var generatedTestObject in generatedTestRegistryObjects.OfType<DocumentEntryDto>())

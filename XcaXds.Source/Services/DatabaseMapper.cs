@@ -6,12 +6,17 @@ namespace XcaXds.Source.Services;
 
 public static class DatabaseMapper
 {
+    public static RegistryObjectDto? MapFromDatabaseEntityToDto(DbRegistryObject registryObjects)
+    {
+        return MapFromDatabaseEntityToDto([registryObjects]).FirstOrDefault();
+    }
+
     public static List<RegistryObjectDto> MapFromDatabaseEntityToDto(List<DbRegistryObject> registryObjects)
     {
         var registryObjectDtos = new List<RegistryObjectDto>();
         if (registryObjects?.Count == 0) return registryObjectDtos;
 
-        foreach (var documentEntry in registryObjects.OfType<DbDocumentEntry>() ?? [])
+        foreach (var documentEntry in registryObjects?.OfType<DbDocumentEntry>() ?? [])
         {
             registryObjectDtos.Add(new DocumentEntryDto()
             {
@@ -129,7 +134,7 @@ public static class DatabaseMapper
             });
         }
 
-        foreach (var submissionSet in registryObjects.OfType<DbSubmissionSet>() ?? [])
+        foreach (var submissionSet in registryObjects?.OfType<DbSubmissionSet>() ?? [])
         {
             registryObjectDtos.Add(new SubmissionSetDto()
             {
@@ -176,7 +181,7 @@ public static class DatabaseMapper
             });
         }
 
-        foreach (var association in registryObjects.OfType<DbAssociation>() ?? [])
+        foreach (var association in registryObjects?.OfType<DbAssociation>() ?? [])
         {
             registryObjectDtos.Add(new AssociationDto()
             {
@@ -191,12 +196,17 @@ public static class DatabaseMapper
         return registryObjectDtos;
     }
 
+    public static DbRegistryObject? MapFromDtoToDatabaseEntity(RegistryObjectDto registryObjectDtos)
+    {
+        return MapFromDtoToDatabaseEntity([registryObjectDtos]).FirstOrDefault();
+    }
+
     public static List<DbRegistryObject> MapFromDtoToDatabaseEntity(List<RegistryObjectDto> registryObjectDtos)
     {
         var registryObjects = new List<DbRegistryObject>();
         if (registryObjectDtos?.Count == 0) return registryObjects;
 
-        foreach (var documentEntryDto in registryObjectDtos.OfType<DocumentEntryDto>() ?? [])
+        foreach (var documentEntryDto in registryObjectDtos?.OfType<DocumentEntryDto>() ?? [])
         {
             registryObjects.Add(new DbDocumentEntry()
             {
@@ -299,7 +309,7 @@ public static class DatabaseMapper
             });
         }
 
-        foreach (var submissionSetDto in registryObjectDtos.OfType<SubmissionSetDto>() ?? [])
+        foreach (var submissionSetDto in registryObjectDtos?.OfType<SubmissionSetDto>() ?? [])
         {
             registryObjects.Add(new DbSubmissionSet()
             {
@@ -337,7 +347,7 @@ public static class DatabaseMapper
             });
         }
 
-        foreach (var associationDto in registryObjectDtos.OfType<AssociationDto>() ?? [])
+        foreach (var associationDto in registryObjectDtos?.OfType<AssociationDto>() ?? [])
         {
             registryObjects.Add(new DbAssociation()
             {

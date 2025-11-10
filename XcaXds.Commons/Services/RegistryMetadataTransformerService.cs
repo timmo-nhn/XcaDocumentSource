@@ -25,26 +25,26 @@ public static class RegistryMetadataTransformerService
         return documentEntryDto;
     }
 
-    public static List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<DocumentEntryDto> registryObjectDtos)
+    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<DocumentEntryDto> registryObjectDtos)
     {
         return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
     }
 
-    public static List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<SubmissionSetDto> registryObjectDtos)
+    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<SubmissionSetDto> registryObjectDtos)
     {
         return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
     }
 
-    public static List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<AssociationDto> registryObjectDtos)
+    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<AssociationDto> registryObjectDtos)
     {
         return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
     }
 
-    public static List<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(List<RegistryObjectDto> registryObjectDtos)
+    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<RegistryObjectDto> registryObjectDtos)
     {
         var registryObjects = new List<IdentifiableType>();
 
-        if (registryObjectDtos == null || registryObjectDtos.Count == 0) return registryObjects;
+        if (registryObjectDtos == null) return registryObjects;
 
         foreach (var registryObjectDto in registryObjectDtos)
         {
@@ -83,22 +83,22 @@ public static class RegistryMetadataTransformerService
 
     }
 
-    public static List<DocumentEntryDto> TransformRegistryObjectsToRegistryObjectDtos(List<ExtrinsicObjectType> registryObjectList)
+    public static IEnumerable<DocumentEntryDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<ExtrinsicObjectType> registryObjectList)
     {
         return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<DocumentEntryDto>().ToList();
     }
 
-    public static List<SubmissionSetDto> TransformRegistryObjectsToRegistryObjectDtos(List<RegistryPackageType> registryObjectList)
+    public static IEnumerable<SubmissionSetDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<RegistryPackageType> registryObjectList)
     {
         return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<SubmissionSetDto>().ToList();
     }
 
-    public static List<AssociationDto> TransformRegistryObjectsToRegistryObjectDtos(List<AssociationType> registryObjectList)
+    public static IEnumerable<AssociationDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<AssociationType> registryObjectList)
     {
         return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<AssociationDto>().ToList();
     }
 
-    public static List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(List<IdentifiableType> registryObjectList)
+    public static List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<IdentifiableType> registryObjectList)
     {
         var listDto = new List<RegistryObjectDto>();
         var currentType = string.Empty;

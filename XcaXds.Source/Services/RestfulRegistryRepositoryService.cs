@@ -43,11 +43,11 @@ public class RestfulRegistryRepositoryService
             return documentListResponse;
         }
 
-        var patientIdCx = Hl7Object.Parse<CX>(patientId);
+        var patientIdCx = Hl7Object.Parse<CX>(patientId)!;
 
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing
-        patientIdCx.AssigningAuthority ??= new() { UniversalId = Constants.Oid.Fnr, UniversalIdType = Constants.Hl7.UniversalIdType.Iso };
+        patientIdCx.AssigningAuthority ??= Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(patientId)?.AssigningAuthority ?? new() { UniversalId = Constants.Oid.Fnr, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
@@ -215,7 +215,7 @@ public class RestfulRegistryRepositoryService
                 documentRegistry = documentRegistry.Replace(submissionSetToBeReplaced, inputDocumentReference.SubmissionSet).ToList();
             }
 
-            _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
+            _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry.ToList());
 
             if (inputDocumentReference.Document != null && inputDocumentReference.Document.Data?.Length != 0 && inputDocumentReference.DocumentEntry?.SourcePatientInfo?.PatientId?.Id != null)
             {
@@ -300,7 +300,7 @@ public class RestfulRegistryRepositoryService
             ObjectMerger.MergeObjects(associationToPatch, value.Association);
         }
 
-        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry);
+        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry.ToList());
 
         return partialUpdateResponse;
     }
@@ -319,7 +319,6 @@ public class RestfulRegistryRepositoryService
             return apiResponse; 
         }
         
-            
         var deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument.Id);
 
         if (deleteResponse == false)
@@ -371,7 +370,7 @@ public class RestfulRegistryRepositoryService
         return apiResponse;
     }
 
-    private bool DuplicateUuidsExist(List<RegistryObjectDto> registryObjectList, List<RegistryObjectDto> submissionRegistryObjects, out string[] duplicateIds)
+    private bool DuplicateUuidsExist(IEnumerable<RegistryObjectDto> registryObjectList, List<RegistryObjectDto> submissionRegistryObjects, out string[] duplicateIds)
     {
         var allObjects = registryObjectList.Concat(submissionRegistryObjects);
 

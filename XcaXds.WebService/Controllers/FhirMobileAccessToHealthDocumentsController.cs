@@ -22,23 +22,25 @@ namespace XcaXds.WebService.Controllers;
 [Route("R4/fhir")]
 [Tags("FHIR Endpoints")]
 [UsePolicyEnforcementPoint]
-public class FhirEndpointsController : Controller
+public class FhirMobileAccessToHealthDocumentsController : Controller
 {
-    private readonly ILogger<FhirEndpointsController> _logger;
+    private readonly ILogger<FhirMobileAccessToHealthDocumentsController> _logger;
 
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly XdsRepositoryService _xdsRepositoryService;
+    private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly XdsOnFhirService _xdsOnFhirService;
     private readonly ApplicationConfig _appConfig;
 
-    public FhirEndpointsController(
-        ILogger<FhirEndpointsController> logger,
-        XdsRegistryService xdsRegistryService, 
+    public FhirMobileAccessToHealthDocumentsController(
+        ILogger<FhirMobileAccessToHealthDocumentsController> logger,
+        XdsRegistryService xdsRegistryService,
         XdsRepositoryService xdsRepositoryService,
-        XdsOnFhirService xdsOnFhirService, 
-        RegistryWrapper registryWrapper, 
+        RestfulRegistryRepositoryService restfulRegistryService,
+        XdsOnFhirService xdsOnFhirService,
+        RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
         ApplicationConfig applicationConfig
         )
@@ -208,11 +210,49 @@ public class FhirEndpointsController : Controller
         return fileResponse;
     }
 
+
+    [Consumes("application/fhir+json", "application/fhir+xml")]
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpDelete("DocumentReference/{documentUniqueId}")]
+    public IActionResult DeleteDocument(string documentUniqueId)
+    {
+        var operationOutcome = new OperationOutcome();
+
+        var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(documentUniqueId);
+
+        if (deleteResponse.Success)
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Information,
+                Code = OperationOutcome.IssueType.Success,
+                Diagnostics = $"Document was successfully deleted from the Document Repository"
+            });
+        }
+        else
+        {
+            foreach (var ooc in deleteResponse.Errors)
+            {
+                operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+                {
+                    Severity = OperationOutcome.IssueSeverity.Error,
+                    Code = OperationOutcome.IssueType.Value,
+                    Diagnostics = $"{ooc.Code}: {ooc.Message}"
+                });
+            }
+            return BadRequestOperationOutcome.Create(operationOutcome);
+        }
+
+        return Ok(operationOutcome);
+    }
+
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPost("Bundle")]
-    public async Task<IActionResult> DocumentReference([FromBody] JsonElement json)
+    public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
     {
+        var operationOutcome = new OperationOutcome();
+
         var fhirParser = new FhirJsonParser();
         var resource = fhirParser.Parse<Resource>(json.GetRawText());
 
@@ -274,21 +314,39 @@ public class FhirEndpointsController : Controller
             return BadRequestOperationOutcome.Create(provideAndRegisterResult.OperationOutcome);
         }
 
-        // FIXME Handle errors
         var submittedDocumentsTooLarge = _xdsRepositoryService.CheckIfDocumentsAreTooLarge(provideAndRegisterRequest);
 
-        // FIXME Handle errors
         var iti42Message = _xdsRegistryService.CopyIti41ToIti42Message(provideAndRegisterRequest);
 
-        // FIXME Handle errors
         var repositoryDocumentExists = _xdsRepositoryService.CheckIfDocumentExistsInRepository(provideAndRegisterRequest);
 
-        // FIXME Handle errors
         var registerDocumentSetResponse = _xdsRegistryService.AppendToRegistryAsync(iti42Message.Value);
 
-        // FIXME Handle errors
         var documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
 
-        return Ok(OperationOutcome.ForMessage($"Document with id {fhirBundle.Id} has been uploaded successfully", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Success));
+        var errors = new List<RegistryErrorType>();
+        errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        errors.AddRange(iti42Message.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        errors.AddRange(repositoryDocumentExists.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        errors.AddRange(registerDocumentSetResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+
+        var fhirSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = true });
+
+        if (errors.Count > 0)
+        {
+            foreach (var error in errors)
+            {
+                operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+                {
+                    Severity = OperationOutcome.IssueSeverity.Error,
+                    Code = OperationOutcome.IssueType.Value,
+                    Diagnostics = $"{error.ErrorCode}: {error.CodeContext}"
+                });
+            }
+            return Content(fhirSerializer.SerializeToString(operationOutcome), Constants.MimeTypes.FhirJson);
+        }
+
+        return Content(fhirSerializer.SerializeToString(OperationOutcome.ForMessage($"Document with id {fhirBundle.Id} has been uploaded successfully", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Success)), Constants.MimeTypes.FhirJson);
     }
 }

@@ -10,7 +10,7 @@ public class XmlDocumentRegistry
     [XmlElement("RegistryPackage", typeof(RegistryPackageType), Namespace = Constants.Soap.Namespaces.Rim)]
     [XmlElement("ExtrinsicObject", typeof(ExtrinsicObjectType), Namespace = Constants.Soap.Namespaces.Rim)]
     [XmlElement("Association", typeof(AssociationType), Namespace = Constants.Soap.Namespaces.Rim)]
-    public List<IdentifiableType> RegistryObjectList { get; set; }
+    public IEnumerable<IdentifiableType> RegistryObjectList { get; set; }
 
     public XmlDocumentRegistry()
     {

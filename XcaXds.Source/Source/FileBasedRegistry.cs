@@ -49,7 +49,7 @@ public class FileBasedRegistry : IRegistry
         _registryFile = Path.Combine(_registryPath, "Registry.json");
     }
 
-    public List<RegistryObjectDto> ReadRegistry()
+    public IEnumerable<RegistryObjectDto> ReadRegistry()
     {
         EnsureRegistryFileExists();
         lock (_lock)
@@ -75,7 +75,7 @@ public class FileBasedRegistry : IRegistry
 
     public bool UpdateRegistry(List<RegistryObjectDto> dtos)
     {
-        var registry = ReadRegistry();
+        var registry = ReadRegistry().ToList();
         registry.AddRange(dtos);
         return WriteRegistry(registry);
     }
@@ -86,8 +86,10 @@ public class FileBasedRegistry : IRegistry
         var itemToDelete = registry.FirstOrDefault(x => x.Id == id);
         if (itemToDelete == null) return false;
 
-        registry.Remove(itemToDelete);
-        return WriteRegistry(registry);
+        var registryRemoved = registry.ToList();
+        registryRemoved.Remove(itemToDelete);
+
+        return WriteRegistry(registryRemoved);
     }
 
     public void MarkFileRegistryAsMigrated()
@@ -136,7 +138,7 @@ public class FileBasedRegistry : IRegistry
 
             if (!exists) return false;
 
-            var hasContent = ReadRegistry().Count != 0;
+            var hasContent = ReadRegistry().Count() != 0;
 
             return hasContent;
         }

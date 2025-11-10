@@ -7,6 +7,13 @@ public class RestfulApiResponse
     {
         Success = success;
     }
+
+    public RestfulApiResponse(bool success, string message)
+    {
+        Success = success;
+        Message = message;
+    }
+
     public RestfulApiResponse()
     {
         

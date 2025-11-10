@@ -187,7 +187,7 @@ public class AppStartupService : IHostedService
     private void NormalizeAppconfigOidsWithRegistryRepositoryContent()
     {
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        if (registryContent?.Count == 0 || registryContent == null) return;
+        if (registryContent == null) return;
 
         if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
             registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))
@@ -209,7 +209,7 @@ public class AppStartupService : IHostedService
             registryObject.SourceId = _appConfig.RepositoryUniqueId;
         }
 
-        _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent);
+        _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent.ToList());
 
         var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
 
@@ -233,9 +233,9 @@ public class AppStartupService : IHostedService
 
         var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
 
-        _logger.LogInformation($"Migrating {jsonRegistryObjects.Count} RegistryObjects");
+        _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
 
-        _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects);
+        _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
         fileBasedRegistry.MarkFileRegistryAsMigrated();
     }
 }

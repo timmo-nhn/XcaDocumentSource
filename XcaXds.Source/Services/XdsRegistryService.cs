@@ -478,7 +478,7 @@ public partial class XdsRegistryService
         }
     }
 
-    private bool DuplicateUuidsExist(List<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
+    private bool DuplicateUuidsExist(IEnumerable<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
     {
         var allObjects = registryObjectList.Concat(submissionRegistryObjects);
 

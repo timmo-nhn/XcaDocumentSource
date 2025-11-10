@@ -1,7 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using System.Diagnostics.CodeAnalysis;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
@@ -34,7 +33,7 @@ public class AuditLoggingService
 
                 // Export??
                 var atnaJson = serializer.SerializeToString(auditEvent);
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents",$"{auditEvent.Id}.json"),atnaJson);
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
             }
             catch (Exception ex)
             {
@@ -64,7 +63,6 @@ public class AuditLoggingService
                 }
             }
         };
-
 
         auditEvent.Type = GetAuditEventTypeFromSoapEnvelope(requestEnvelope);
         auditEvent.Recorded = DateTimeOffset.Now;
@@ -115,7 +113,7 @@ public class AuditLoggingService
 
         auditEvent.Source = new AuditEvent.SourceComponent()
         {
-            Type =[ new() {Code = _appConfig.RepositoryUniqueId }]
+            Type = [new() { Code = _appConfig.RepositoryUniqueId }]
         };
 
         return auditEvent;
