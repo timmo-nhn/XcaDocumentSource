@@ -32,5 +32,11 @@
       }
     ]
   ],
+  "actions": [
+    "ReadDocumentList",
+    "ReadDocument",
+    "Create",
+    "Delete"
+  ],
   "effect": "Permit"
 }

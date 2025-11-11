@@ -97,12 +97,12 @@ public partial class RepositoryWrapper
         return _repository.Write(documentId, documentContent, patientIdPart);
     }
 
-    public bool DeleteSingleDocument(string documentUniqueId)
+    public bool DeleteSingleDocument(string? documentUniqueId)
     {
         return _repository.Delete(documentUniqueId);
     }
 
-    public bool CheckIfFileExistsInRepository(string documentUniqueId)
+    public bool CheckIfFileExistsInRepository(string? documentUniqueId)
     {
         return _repository.Read(documentUniqueId) != null;
     }

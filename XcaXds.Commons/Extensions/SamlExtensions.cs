@@ -12,9 +12,9 @@ public class SamlExtensions
     {
         if (attributeValue == null) return null;
 
-        string code = null;
-        string codeSystem = null;
-        string displayName = null;
+        string? code = null;
+        string? codeSystem = null;
+        string? displayName = null;
 
         try
         {

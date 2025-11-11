@@ -5,6 +5,7 @@ using Microsoft.FeatureManagement;
 using System.Collections;
 using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
@@ -94,7 +95,9 @@ public class Program
         builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
-        builder.Services.AddSingleton<AuditLoggingService>();
+        builder.Services.AddSingleton<IAuditLogQueue, AuditLogQueue>();
+        builder.Services.AddScoped<AuditLogGeneratorService>();
+        builder.Services.AddHostedService<AuditLogExporterService>();
 
 
         // REST services

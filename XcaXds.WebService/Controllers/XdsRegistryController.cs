@@ -20,13 +20,13 @@ public class XdsRegistryController : ControllerBase
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
-    private readonly AuditLoggingService _auditLoggingService;
+    private readonly AuditLogGeneratorService _auditLoggingService;
 
     public XdsRegistryController(
         ILogger<XdsRegistryController> logger, 
         XdsRegistryService registryService, 
         IVariantFeatureManager featureManager, 
-        AuditLoggingService auditLoggingService
+        AuditLogGeneratorService auditLoggingService
         )
     {
         _logger = logger;

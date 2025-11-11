@@ -80,8 +80,10 @@ public class FileBasedRepository : IRepository
         }
     }
 
-    public bool Delete(string documentUniqueId)
+    public bool Delete(string? documentUniqueId)
     {
+        if (string.IsNullOrWhiteSpace(documentUniqueId)) return false;
+
         documentUniqueId = SafeCharacters.Replace(documentUniqueId, "");
 
         lock (_lock)

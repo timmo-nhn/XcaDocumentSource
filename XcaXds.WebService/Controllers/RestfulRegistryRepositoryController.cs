@@ -53,7 +53,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
             return Ok(entries);
         }
 
-        for (int i = 0; i < entries.Errors.Count; i++) _logger.LogError($"{Request.HttpContext.TraceIdentifier} - \n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
+        for (int i = 0; i < entries.Errors.Count; i++) _logger.LogError($"{Request.HttpContext.TraceIdentifier}\n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
 
         return BadRequest(entries);
     }
