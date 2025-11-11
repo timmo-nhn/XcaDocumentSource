@@ -15,11 +15,54 @@
   "contained": [
     {
       "resourceType": "Practitioner",
+      "id": "practitioner-1",
+      "identifier": [
+        {
+          "system": "2.16.578.1.12.4.1.4.4",
+          "value": "565505933"
+        }
+      ]
+    },
+    {
+      "resourceType": "Organization",
+      "id": "org-pointofcare-1",
+      "identifier": [
+        {
+          "system": "urn:oid:2.16.578.1.12.4.1.4.101",
+          "value": "874593842"
+        }
+      ],
+      "name": "VOSS SJUKEHEIM"
+    },
+    {
+      "resourceType": "Organization",
+      "id": "org-legalentity-1",
+      "identifier": [
+        {
+          "system": "urn:oid:2.16.578.1.12.4.1.4.101",
+          "value": "960510542"
+        }
+      ],
+      "name": "VOSS HERAD"
+    },
+    {
+      "resourceType": "PractitionerRole",
       "id": "who-1",
       "identifier": [
         {
           "system": "https://helseid-xdssaml.test.nhn.no",
           "value": "06828399789"
+        }
+      ],
+      "practitioner": {
+        "reference": "#practitioner-1"
+      },
+      "organization": {
+        "reference": "#org-legalentity-1"
+      },
+      "location": [
+        {
+          "reference": "#org-pointofcare-1"
         }
       ]
     }
@@ -30,7 +73,7 @@
     "display": "Access/View Record Lifecycle Event"
   },
   "action": "R",
-  "recorded": "2025-11-05T12:27:11.9765268+01:00",
+  "recorded": "2025-11-10T19:53:51.6145303+01:00",
   "outcome": "0",
   "purposeOfEvent": [
     {

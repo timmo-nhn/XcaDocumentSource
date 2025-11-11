@@ -316,10 +316,9 @@ public class RestfulRegistryRepositoryService
         {
             _logger.LogWarning($"Error while deleting document");
             apiResponse.AddError("DeleteError", $"RegistryObject {id} not found");
-            return apiResponse; 
         }
         
-        var deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument.Id);
+        var deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.Id);
 
         if (deleteResponse == false)
         {

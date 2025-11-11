@@ -26,7 +26,7 @@ public class XdsRespondingGatewayController : ControllerBase
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
     private readonly MonitoringStatusService _monitoringService;
-    private readonly AuditLoggingService _auditLoggingService;
+    private readonly AuditLogGeneratorService _auditLoggingService;
 
     public XdsRespondingGatewayController(
         ILogger<XdsRespondingGatewayController> logger,
@@ -36,7 +36,7 @@ public class XdsRespondingGatewayController : ControllerBase
         IVariantFeatureManager featureManager,
         IHttpClientFactory httpClientFactory,
         MonitoringStatusService monitoringService,
-        AuditLoggingService auditLoggingService
+        AuditLogGeneratorService auditLoggingService
         )
     {
         _logger = logger;

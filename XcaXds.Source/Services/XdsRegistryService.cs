@@ -336,7 +336,7 @@ public partial class XdsRegistryService
         
         var registryDtoContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var objectRefList = removeObjectsRequest?.ObjectRefList?.ObjectRef;
+        var objectRefList = removeObjectsRequest?.ObjectRefList?.ObjectRef ?? [];
         var objectRefIds = objectRefList.Select(orl => orl.Id).ToHashSet();
 
         int removedDocumentsCount = 0;

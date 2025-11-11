@@ -57,8 +57,8 @@ public class XdsRepositoryService
         foreach (var association in associations)
         {
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
-            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
-            var assocRegistryPackage = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.SourceObject.NoUrn());
+            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());
+            var assocRegistryPackage = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.SourceObject.NoUrn());
 
             if (assocExtrinsicObject == null)
             {
@@ -278,10 +278,9 @@ public class XdsRepositoryService
 
         foreach (var document in removeDocuments)
         {
-            if (_xdsConfig.HomeCommunityId == document.HomeCommunityId &&
-                _xdsConfig.RepositoryUniqueId == document.RepositoryUniqueId)
+            if (_xdsConfig.RepositoryUniqueId == document.RepositoryUniqueId)
             {
-                if (document.DocumentUniqueId is null)
+                if (document.DocumentUniqueId == null)
                 {
                     registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id: {document.DocumentUniqueId}".Trim());
                     continue;
@@ -290,7 +289,7 @@ public class XdsRepositoryService
                 // Try to remove current document
                 var removeResult = _repositoryWrapper.DeleteSingleDocument(document.DocumentUniqueId);
 
-                if (removeResult is false)
+                if (removeResult == false)
                 {
                     registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found. Id: {document.DocumentUniqueId}".Trim());
                     continue;
