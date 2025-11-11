@@ -82,7 +82,7 @@ public class AuditLogGeneratorService
         };
 
         var healthcarePersonStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values.FirstOrDefault());
-        var healthcarePersonName = SamlExtensions.GetSamlAttributeValueAsCodedValue(samlToken.Assertion.Subject.NameId.Value);
+        var healthcarePersonName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.SubjectId)?.Values.FirstOrDefault());
         var healthcarePersonNameParts = healthcarePersonName?.Code?.Split().ToList();
 
         HumanName? healthcarePersonHumanName = null;
@@ -92,7 +92,7 @@ public class AuditLogGeneratorService
             // The Family name will only contain the last name item, and Given will contain everything else
             healthcarePersonHumanName = new();
             healthcarePersonHumanName.Family = healthcarePersonNameParts.LastOrDefault();
-            healthcarePersonNameParts.RemoveAt(healthcarePersonNameParts.Count);
+            healthcarePersonNameParts.RemoveAt(healthcarePersonNameParts.Count - 1);
             healthcarePersonHumanName.Given = healthcarePersonNameParts;
         }
 
