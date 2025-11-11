@@ -19,7 +19,7 @@ public static class BundleProcessorService
         var registryPackageResult = ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(submissionSetList, patientIdentifier, GpiOid);
         if (!registryPackageResult.Success)
         {
-            operationOutcome.AddIssue(registryPackageResult.OperationOutcome.Issue);
+            operationOutcome.AddIssue(registryPackageResult.OperationOutcome?.Issue);
         }
 
         var registryPackage = registryPackageResult.Value;
