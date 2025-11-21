@@ -135,7 +135,7 @@ public class XdsRepositoryService
         var registryResponse = new RegistryResponseType();
 
         var oversizedDocuments = provideAndRegisterRequest?.Document
-            .Where(doc => doc.Value.Length > _xdsConfig.DocumentUploadSizeLimitKb).ToList();
+            .Where(doc => doc.Value.Length > (_xdsConfig.DocumentUploadSizeLimitKb * 1024)).ToList();
 
         if (oversizedDocuments?.Count > 0)
         {
