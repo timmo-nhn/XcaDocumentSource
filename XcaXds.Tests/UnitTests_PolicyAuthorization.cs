@@ -129,10 +129,8 @@ public class UnitTests_PolicyAuthorization
 
         var fhirBundle = fhirParser.Parse<Resource>(fhirProvideDocumentBundle);
 
-        var xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle);
+        var xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle, "", "");
 
         var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-
-
     }
 }

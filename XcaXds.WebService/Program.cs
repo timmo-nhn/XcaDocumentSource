@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.FeatureManagement;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System.Collections;
 using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
@@ -112,7 +114,6 @@ public class Program
         builder.Services.AddHealthChecks();
 
         // Database context
-
         builder.Services.AddDbContextFactory<SqliteRegistryDbContext>(options =>
             options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\""));
 
@@ -121,6 +122,23 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddOpenTelemetry()
+            .ConfigureResource(r => r.AddService("xcads"))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddSource("nhn.xcads")
+                    .AddOtlpExporter();
+            })
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation();
+            });
+
 
         builder.Services.AddCors(options =>
         {

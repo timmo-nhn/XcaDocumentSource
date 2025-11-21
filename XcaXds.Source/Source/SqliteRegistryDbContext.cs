@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Reflection;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Models.DatabaseDtos;
-using static Hl7.Fhir.Model.Group;
 
 namespace XcaXds.Source.Source;
 
@@ -59,30 +57,5 @@ public class SqliteRegistryDbContext : DbContext
         });
 
         modelBuilder.Entity<DbAssociation>();
-    }
-
-    private void ConfigureOwnedCollectionsRecursively(ModelBuilder modelBuilder, EntityTypeBuilder entity, Type dtoType)
-    {
-        foreach (var prop in dtoType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            var propType = prop.PropertyType;
-
-            if (propType.IsGenericType && typeof(List<>).IsAssignableFrom(propType.GetGenericTypeDefinition()))
-            {
-                var elementType = propType.GetGenericArguments()[0];
-
-                // e.g. entity.OwnsMany(x => x.Author)
-                var methods = typeof(EntityTypeBuilder)
-                    .GetMethods();
-
-                var ownsMany = methods
-                    .First(m => m.Name.Contains("OwnsMany") && m.GetParameters().Length > 1);
-
-                ownsMany.Invoke(entity, [elementType]);
-
-                // Recurse into element type’s properties (nested owns)
-                ConfigureOwnedCollectionsRecursively(modelBuilder, modelBuilder.Entity(elementType), elementType);
-            }
-        }
     }
 }

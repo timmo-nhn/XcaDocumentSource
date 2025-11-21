@@ -148,56 +148,117 @@ public class PolicyRequestMapperJsonWebTokenService
 
         if (!string.IsNullOrEmpty(samlClaims.SubjectId))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.SubjectId, samlClaims.SubjectId)));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.SubjectId,
+                samlClaims.SubjectId)));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.RoleCode))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.Role, MapRoleClaimToSamlAttributeValue(samlClaims))));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.Role,
+                MapAttributesToHl7XmlAttribute(samlClaims.RoleCode, samlClaims.RoleCodeSystem, samlClaims.RoleCodeSystemName, samlClaims.RoleCodeName, "Role", "CE"))));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.HomeCommunityId))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.EhelseHomeCommunityId, samlClaims.HomeCommunityId)));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.EhelseHomeCommunityId,
+                samlClaims.HomeCommunityId)));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.Npi))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.Npi, samlClaims.Npi)));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.Npi,
+                samlClaims.Npi)));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.PurposeOfUseCode))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.PurposeOfUse, MapPurposeClaimToSamlAttributeValue(samlClaims))));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.PurposeOfUse,
+                MapAttributesToHl7XmlAttribute(samlClaims.PurposeOfUseCode, samlClaims.PurposeOfUseCodeSystem, samlClaims.PurposeOfUseAuthorityName, samlClaims.PurposeOfUseDescription, "PurposeOfUse", "CE"))));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.Organization))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.PurposeOfUse,
+                samlClaims.Organization)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.OrganizationId))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.PurposeOfUse,
+                MapAttributesToHl7XmlAttribute(samlClaims.OrganizationId, samlClaims.OrganizationCodeSystem, samlClaims.OrganizationAuthority, null, "id", "II"))));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.ChildOrganizationName))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.TrustChildOrgName,
+                samlClaims.ChildOrganizationName)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.ChildOrganization))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.ChildOrganization,
+                MapAttributesToHl7XmlAttribute(samlClaims.ChildOrganization, samlClaims.ChildOrganizationCodeSystem, samlClaims.ChildOrganizationAuthority, null, "id", "II"))));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.PatientChildOrganization))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.TrustResourceChildOrg,
+                MapAttributesToHl7XmlAttribute(samlClaims.PatientChildOrganization, samlClaims.PatientChildOrganizationCodeSystem, samlClaims.PatientChildOrganizationAuthority, null, "id", "II"))));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.ResourceId))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.ResourceId20, MapResourceClaimToSamlAttributeValue(samlClaims))));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.ResourceId20,
+                MapResourceClaimToSamlAttributeValue(samlClaims))));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.SecurityLevel))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.EhelseSecurityLevel, samlClaims.SecurityLevel)));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.EhelseSecurityLevel,
+                samlClaims.SecurityLevel)));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.Scope))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.EhelseScope, samlClaims.Scope)));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.EhelseScope, samlClaims.Scope)));
         }
-
-        statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.BppcDocId, Constants.Oid.Saml.Bppc.NullValue)));
-        statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)));
 
         if (!string.IsNullOrWhiteSpace(samlClaims.ClientId))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.EhelseClientId, samlClaims.ClientId)));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.EhelseClientId,
+                samlClaims.ClientId)));
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.AuthenticationMethod))
         {
-            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.EhelseAuthenticationMethod, samlClaims.AuthenticationMethod)));
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.EhelseAuthenticationMethod,
+                samlClaims.AuthenticationMethod)));
         }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.Organization))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.Organization,
+                samlClaims.AuthenticationMethod)));
+        }
+
+        statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.BppcDocId, Constants.Oid.Saml.Bppc.NullValue)));
+        statements.Add(new Saml2AttributeStatement(new Saml2Attribute(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)));
 
         return statements;
     }
@@ -208,13 +269,12 @@ public class PolicyRequestMapperJsonWebTokenService
         return patientIdCx?.Serialize();
     }
 
-    private static string MapPurposeClaimToSamlAttributeValue(SamlClaimValues samlClaims)
+    private static string MapAttributesToHl7XmlAttribute(string code, string codeSystem, string codeSystemName, string? displayName, string xmlName, string xsiType)
     {
-        return $"<PurposeOfUse xmlns=\"urn:hl7-org:v3\" xsi:type=\"CE\" code=\"{samlClaims.PurposeOfUseCode}\" codeSystem=\"{samlClaims.PurposeOfUseCodeSystem}\" codeSystemName=\"{samlClaims.PurposeOfUseAuthorityName}\" displayName=\"{samlClaims.PurposeOfUseDescription}\"/>";
-    }
+        var displayAttr = string.IsNullOrWhiteSpace(displayName)
+            ? "displayable=\"false\""
+            : $"displayName=\"{displayName}\"";
 
-    private static string MapRoleClaimToSamlAttributeValue(SamlClaimValues samlClaims)
-    {
-        return $"<Role xmlns=\"urn:hl7-org:v3\" xsi:type=\"CE\" code=\"{samlClaims.RoleCode}\" codeSystem=\"{samlClaims.RoleCodeSystem}\" codeSystemName=\"{samlClaims.RoleCodeSystemName}\" displayName=\"{samlClaims.RoleCodeName}\"/>";
+        return $"<{xmlName} xmlns=\"urn:hl7-org:v3\" xsi:type=\"{xsiType}\" code=\"{code}\" codeSystem=\"{codeSystem}\" codeSystemName=\"{codeSystemName}\" {displayAttr}/>";
     }
 }

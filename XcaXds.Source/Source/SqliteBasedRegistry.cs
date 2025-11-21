@@ -11,11 +11,9 @@ namespace XcaXds.Source.Source;
 public class SqliteBasedRegistry : IRegistry
 {
     private readonly ILogger<SqliteBasedRegistry> _logger;
-    private readonly object _lock = new();
     private readonly IDbContextFactory<SqliteRegistryDbContext> _contextFactory;
 
     private readonly string _connectionString;
-    private readonly string _registryPath;
     private readonly string _databaseFile;
 
     public SqliteBasedRegistry(
@@ -35,7 +33,7 @@ public class SqliteBasedRegistry : IRegistry
         context.Database.EnsureCreated();
     }
 
-    public string GetDatabseFile()
+    public string GetDatabaseFile()
     {
         return _databaseFile;
     }

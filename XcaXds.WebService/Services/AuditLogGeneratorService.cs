@@ -41,7 +41,8 @@ public class AuditLogGeneratorService
     private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
     {
         var auditEvent = new AuditEvent();
-        auditEvent.Id = requestEnvelope.Header.MessageId?.NoUrn();
+        auditEvent.Id = Guid.NewGuid().ToString();
+
         var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(requestEnvelope.Header.Security.Assertion?.OuterXml);
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
@@ -58,13 +59,17 @@ public class AuditLogGeneratorService
             }
         };
 
+        auditEvent.Entity.Add(new AuditEvent.EntityComponent() 
+        {
+            What = new ResourceReference(requestEnvelope.Header.MessageId, "SOAP message ID"),
+        });
+
         auditEvent.Type = GetAuditEventTypeFromSoapEnvelope(requestEnvelope);
         auditEvent.Recorded = DateTimeOffset.Now;
         auditEvent.Outcome = GetEventOutcomeFromSoapRequestResponse(requestEnvelope, responseEnvelope);
         auditEvent.Action = GetActionFromSoapEnvelope(requestEnvelope);
 
         var purposeOfUseValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.PurposeOfUse)?.Values.FirstOrDefault());
-
         auditEvent.PurposeOfEvent = new List<CodeableConcept>()
         {
             new CodeableConcept()
@@ -74,7 +79,7 @@ public class AuditLogGeneratorService
                     new Coding()
                     {
                         Code = purposeOfUseValue?.Code,
-                        System = $"urn:oid:{purposeOfUseValue?.CodeSystem}",
+                        System = purposeOfUseValue?.CodeSystem?.NoUrn().WithUrnOid(),
                         Display = purposeOfUseValue?.DisplayName
                     }
                 }
@@ -86,7 +91,7 @@ public class AuditLogGeneratorService
         var healthcarePersonNameParts = healthcarePersonName?.Code?.Split().ToList();
 
         HumanName? healthcarePersonHumanName = null;
-        
+
         if (healthcarePersonNameParts != null && healthcarePersonNameParts.Count != 0)
         {
             // The Family name will only contain the last name item, and Given will contain everything else
@@ -104,7 +109,7 @@ public class AuditLogGeneratorService
                 new Identifier()
                 {
                     Value = healthcarePersonStatement?.Code,
-                    System = healthcarePersonStatement?.CodeSystem
+                    System = healthcarePersonStatement?.CodeSystem?.NoUrn().WithUrnOid()
                 }
             },
             Name = healthcarePersonHumanName == null ? null : new List<HumanName>()
@@ -126,7 +131,7 @@ public class AuditLogGeneratorService
                 new Identifier()
                 {
                     Value = pointOfCareStatement?.Code,
-                    System = pointOfCareStatement?.CodeSystem
+                    System = pointOfCareStatement?.CodeSystem?.NoUrn().WithUrnOid()
                 }
             },
             Name = pointOfCareName?.Code
@@ -145,7 +150,7 @@ public class AuditLogGeneratorService
                 new Identifier()
                 {
                     Value = legalEntityStatement?.Code,
-                    System = legalEntityStatement?.CodeSystem
+                    System = legalEntityStatement?.CodeSystem?.NoUrn().WithUrnOid()
                 }
             },
             Name = legalEntityName?.Code
@@ -161,8 +166,8 @@ public class AuditLogGeneratorService
             {
                 new Identifier
                 {
-                    System = $"{samlToken.Assertion.Issuer.Value}",
-                    Value = samlToken.Assertion.Subject.NameId.Value
+                    Value = samlToken.Assertion.Subject.NameId.Value,
+                    System = samlToken.Assertion.Issuer.Value
                 }
             },
             Organization = new ResourceReference { Reference = $"#{legalEntity.Id}" },
@@ -182,7 +187,8 @@ public class AuditLogGeneratorService
 
         auditEvent.Source = new AuditEvent.SourceComponent()
         {
-            Type = [new() { Code = _appConfig.RepositoryUniqueId }]
+            Type = [new() { Code = _appConfig.RepositoryUniqueId }],
+            Observer = practitionerRole.Organization
         };
 
         return auditEvent;
