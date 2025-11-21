@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net462;netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net10.0</TargetFrameworks>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -33,7 +33,7 @@ Supported platforms:
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net6.0'  ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net9.0'  ">
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Composition" Version="6.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
@@ -46,6 +46,10 @@ Supported platforms:
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Composition.TypedParts" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

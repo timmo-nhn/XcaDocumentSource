@@ -9,6 +9,7 @@ RUN dotnet publish XcaXds.WebService/XcaXds.WebService.csproj -c Release -o /app
 COPY XcaXds.Source/Registry /app/registry
 COPY XcaXds.Source/Repository /app/repository
 COPY XcaXds.Source/PolicyRepository /app/policyrepository
+COPY XcaXds.Source/AuditEvents /app/auditevents
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 

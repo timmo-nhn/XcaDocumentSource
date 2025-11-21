@@ -10,11 +10,28 @@ public class AuditLogExporterService : BackgroundService
     private readonly ILogger<AuditLogExporterService> _logger;
     private readonly ApplicationConfig _appConfig;
     private readonly IAuditLogQueue _auditLogQueue;
-    public AuditLogExporterService(ILogger<AuditLogExporterService> logger, ApplicationConfig appConfig, IAuditLogQueue auditLogQueue)
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    private string _auditEventPath;
+
+    public AuditLogExporterService(ILogger<AuditLogExporterService> logger, ApplicationConfig appConfig, IAuditLogQueue auditLogQueue, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _appConfig = appConfig;
         _auditLogQueue = auditLogQueue;
+        _httpClientFactory = httpClientFactory;
+
+        // When running in a container the path will be different
+        var customPath = Environment.GetEnvironmentVariable("AUDITEVENTS_FILE_PATH");
+        if (!string.IsNullOrWhiteSpace(customPath))
+        {
+            _auditEventPath = customPath;
+        }
+        else
+        {
+            string baseDirectory = AppContext.BaseDirectory;
+            _auditEventPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents");
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -26,12 +43,13 @@ public class AuditLogExporterService : BackgroundService
         }
     }
 
-
     private void ExportAuditEvent(AuditEvent auditEvent)
     {
-        var serializer = new FhirJsonSerializer(new() { Pretty = true });
-        var atnaJson = serializer.SerializeToString(auditEvent);
+        var serializer = new FhirJsonSerializer();
+        var atnaJson = serializer.SerializeToString(auditEvent,true);
         _logger.LogDebug("Created FHIR AuditEvent: \n" + atnaJson);
-        //File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
+        File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
+
+        var client = _httpClientFactory.CreateClient();
     }
 }

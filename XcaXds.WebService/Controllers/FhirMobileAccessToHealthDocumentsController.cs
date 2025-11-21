@@ -102,7 +102,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var operationOutcome = new OperationOutcome();
 
-        var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = pretty });
+        var fhirJsonSerializer = new FhirJsonSerializer();
 
         if (string.IsNullOrWhiteSpace(status))
         {
@@ -253,8 +253,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     {
         var operationOutcome = new OperationOutcome();
 
-        var fhirParser = new FhirJsonParser();
-        var resource = fhirParser.Parse<Resource>(json.GetRawText());
+        var fhirParser = new FhirJsonDeserializer();
+        var resource = fhirParser.DeserializeResource(json.GetRawText());
 
         if (resource is not Bundle fhirBundle)
         {
@@ -298,7 +298,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var patientIdentifier = identifier.Value;
 
         var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId").Value;
-        var sourceId = sourceIdIdentifier.First().Value.ToString();
+        var sourceId = sourceIdIdentifier?.ElementId;
 
         if (string.IsNullOrEmpty(sourceId))
         {
@@ -331,7 +331,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         errors.AddRange(registerDocumentSetResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
         errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
 
-        var fhirSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = true });
+        var fhirSerializer = new FhirJsonSerializer();
 
         if (errors.Count > 0)
         {

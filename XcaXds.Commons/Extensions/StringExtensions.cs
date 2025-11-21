@@ -7,6 +7,9 @@ namespace XcaXds.Commons.Extensions;
 
 public static class StringExtensions
 {
+    /// <summary>
+    /// Remove "urn:uuid:" and "urn:oid:" on the string
+    /// </summary>
     public static string NoUrn(this string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -15,6 +18,19 @@ public static class StringExtensions
         }
 
         return input.Replace("urn:uuid:", "").Replace("urn:oid:", "");
+    }
+
+    /// <summary>
+    /// Prepend "urn:oid:" on the string
+    /// </summary>
+    public static string WithUrnOid(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        return  $"urn:oid:{input}";
     }
 
     public static string TrimStart(this string input, string trimString)

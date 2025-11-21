@@ -1,6 +1,6 @@
 {
   "resourceType": "AuditEvent",
-  "id": "c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d",
+  "id": "e5c5fa3e-5870-4223-9e51-516bf2a51d4f",
   "meta": {
     "profile": [
       "https://profiles.ihe.net/ITI/BALP/StructureDefinition/IHE.BasicAudit.SAMLaccessTokenUse.Minimal"
@@ -81,13 +81,13 @@
     "display": "Access/View Record Lifecycle Event"
   },
   "action": "R",
-  "recorded": "2025-11-11T15:10:36.0151394+01:00",
+  "recorded": "2025-11-13T09:36:17.1754274\u002B01:00",
   "outcome": "0",
   "purposeOfEvent": [
     {
       "coding": [
         {
-          "system": "urn:oid:urn:oid:2.16.840.1.113883.1.11.20448",
+          "system": "urn:oid:2.16.840.1.113883.1.11.20448",
           "code": "TREAT",
           "display": "Treatment"
         }
@@ -107,7 +107,7 @@
         {
           "coding": [
             {
-              "system": "urn:oid:urn:oid:2.16.840.1.113883.1.11.20448",
+              "system": "urn:oid:2.16.840.1.113883.1.11.20448",
               "code": "TREAT",
               "display": "Treatment"
             }
@@ -117,10 +117,21 @@
     }
   ],
   "source": {
+    "observer": {
+      "reference": "#org-legalentity-1"
+    },
     "type": [
       {
         "code": "2.16.578.1.12.4.5.100.1.1.2"
       }
     ]
-  }
+  },
+  "entity": [
+    {
+      "what": {
+        "reference": "urn:uuid:c6fda90e-a5ec-4f8d-aa1b-14802f4bf68d",
+        "display": "SOAP message ID"
+      }
+    }
+  ]
 }

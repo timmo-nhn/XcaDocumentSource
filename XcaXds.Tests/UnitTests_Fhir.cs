@@ -69,7 +69,7 @@ public class UnitTests_Fhir
         var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject)).OfType<ExtrinsicObjectType>().ToList();
 
         var bundle = xdsOnFhirService.TransformRegistryObjectsToFhirBundle([..randomAssociation, ..registryPackages, ..extrinsicObjects]);
-        var fhirJsonSerializer = new FhirJsonSerializer(new SerializerSettings() { Pretty = true });
+        var fhirJsonSerializer = new FhirJsonSerializer();
         if (bundle != null)
         {
             var jsonOutput = fhirJsonSerializer.SerializeToString(bundle);

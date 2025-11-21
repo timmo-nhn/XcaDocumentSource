@@ -131,11 +131,6 @@ public class PolicyEnforcementPointMiddleware
         {
             case Constants.MimeTypes.Json:
             case Constants.MimeTypes.FhirJson:
-
-                await _next(httpContext); // Skip PEP check
-                return;
-
-
                 var fhirJsonParser = new FhirJsonParser();
                 var fhirBundle = fhirJsonParser.Parse<Bundle>(requestBody);
 
