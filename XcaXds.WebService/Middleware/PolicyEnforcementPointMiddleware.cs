@@ -1,8 +1,10 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text;
@@ -34,6 +36,12 @@ public class PolicyEnforcementPointMiddleware
     private readonly PolicyRepositoryService _policyRepositoryService;
     private readonly RegistryWrapper _registryWrapper;
 
+
+    private static readonly ActivitySource ActivitySource = new("nhn.xcads");
+    private static readonly Meter Meter = new("nhn.xcads", "1.0.0");
+    private static readonly Counter<int> PepInvokeCounter =
+        Meter.CreateCounter<int>("pepinvoked.count", description: "Counts the number of PEP invokes");
+
     public PolicyEnforcementPointMiddleware(
         RequestDelegate next,
         ILogger<PolicyEnforcementPointMiddleware> logger,
@@ -58,10 +66,11 @@ public class PolicyEnforcementPointMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
+
         if (_xdsConfig.BypassPolicyEnforcementPoint)
         {
             _logger.LogWarning("BypassPolicyEnforcementPoint is true! Policy Enforcement Point was bypassed.");
-            await _next(httpContext);
+            await _next(httpContext); // Skip PEP check
             return;
         }
 
@@ -78,7 +87,7 @@ public class PolicyEnforcementPointMiddleware
             sw.Stop();
             _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed for requests from localhost.");
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Bypassed PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
-            await _next(httpContext);
+            await _next(httpContext); // Skip PEP check
             return;
         }
 
@@ -93,6 +102,11 @@ public class PolicyEnforcementPointMiddleware
             await _next(httpContext); // Skip PEP check
             return;
         }
+
+        using var activity = ActivitySource.StartActivity("pepinvoke.count");
+        activity?.SetTag("Request.SessionId",httpContext.TraceIdentifier);
+        
+        PepInvokeCounter.Add(1);
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
@@ -131,8 +145,8 @@ public class PolicyEnforcementPointMiddleware
         {
             case Constants.MimeTypes.Json:
             case Constants.MimeTypes.FhirJson:
-                var fhirJsonParser = new FhirJsonParser();
-                var fhirBundle = fhirJsonParser.Parse<Bundle>(requestBody);
+                var fhirJsonDeserializer = new FhirJsonDeserializer();
+                var fhirBundle = fhirJsonDeserializer.Deserialize<Bundle>(requestBody);
 
                 var jwtToken = httpContext.Request.Headers["Authorization"].FirstOrDefault();
 
@@ -207,6 +221,7 @@ public class PolicyEnforcementPointMiddleware
 
                     sw.Stop();
                     _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:tokeninvalid", sw.ElapsedMilliseconds);
+                    activity?.SetTag("PolicyEnforcementPoint.Status", "tokeninvalid");
                     _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
                     return;
                 }
@@ -222,6 +237,7 @@ public class PolicyEnforcementPointMiddleware
                 await httpContext.Response.WriteAsync(JsonSerializer.Serialize(restfulApiResponse, Constants.JsonDefaultOptions.DefaultSettings));
                 sw.Stop();
                 _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
+                activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
                 _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
                 return;
         }
@@ -243,6 +259,7 @@ public class PolicyEnforcementPointMiddleware
             sw.Stop();
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:permit", sw.ElapsedMilliseconds);
+            activity?.SetTag("PolicyEnforcementPoint.Status", "permit");
             await _next(httpContext);
         }
         else
@@ -275,6 +292,7 @@ public class PolicyEnforcementPointMiddleware
 
             sw.Stop();
             _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
+            activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
