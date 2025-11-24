@@ -130,7 +130,10 @@ public class Program
                 tracing.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("nhn.xcads")
-                    .AddOtlpExporter()
+                    .AddOtlpExporter(opt =>
+                    {
+                        opt.Endpoint = new Uri("jaeger-collector.jaeger.svc.cluster.local:4317");
+                    })
                     .AddConsoleExporter();
             })
             .WithMetrics(metrics =>
