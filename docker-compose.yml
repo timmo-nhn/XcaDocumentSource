@@ -2,18 +2,20 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_ENVIRONMENT=Development
       - REGISTRY_FILE_PATH=/mnt/registry
       - REPOSITORY_FILE_PATH=/mnt/repository
+      - AUDITEVENTS_FILE_PATH=/mnt/auditevents
     ports:
       - "5000:5000"
     volumes:
-      - ./XcaXds.Source/Registry:/mnt/registry
+      - ./XcaXds.Source/Data:/mnt/registry
       - ./XcaXds.Source/Repository:/mnt/repository
+      - ./XcaXds.Source/AuditEvents:/mnt/auditevents
     networks:
       - xcanet
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Diagnostics;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -21,6 +22,8 @@ public class ApplicationMetaController : ControllerBase
     private readonly HealthCheckService _healthCheckService;
     private readonly MonitoringStatusService _monitoringService;
 
+    private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
+
     public ApplicationMetaController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper, HealthCheckService healthCheckService, MonitoringStatusService monitoringService)
     {
         _logger = logger;
@@ -34,6 +37,8 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("health-check")]
     public async Task<IActionResult> HealthCheck()
     {
+        using var activity = ActivitySource.StartActivity("healthz");
+
         var healthReport = await _healthCheckService.CheckHealthAsync();
 
         var entries = healthReport.Entries;

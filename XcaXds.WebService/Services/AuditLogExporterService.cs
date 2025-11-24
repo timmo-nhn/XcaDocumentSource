@@ -14,6 +14,7 @@ public class AuditLogExporterService : BackgroundService
 
     private string _auditEventPath;
 
+
     public AuditLogExporterService(ILogger<AuditLogExporterService> logger, ApplicationConfig appConfig, IAuditLogQueue auditLogQueue, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
@@ -31,7 +32,9 @@ public class AuditLogExporterService : BackgroundService
         {
             string baseDirectory = AppContext.BaseDirectory;
             _auditEventPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents");
+
         }
+        Directory.CreateDirectory(_auditEventPath);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -48,8 +51,6 @@ public class AuditLogExporterService : BackgroundService
         var serializer = new FhirJsonSerializer();
         var atnaJson = serializer.SerializeToString(auditEvent,true);
         _logger.LogDebug("Created FHIR AuditEvent: \n" + atnaJson);
-        File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
-
-        var client = _httpClientFactory.CreateClient();
+        //File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
     }
 }

@@ -30,7 +30,7 @@ public class Program
         builder.Services.AddLogging(logging =>
             logging.AddSimpleConsole(options =>
             {
-                options.SingleLine = false;
+                options.SingleLine = true;
                 options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
                 options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
             })
@@ -127,16 +127,18 @@ public class Program
             .ConfigureResource(r => r.AddService("xcads"))
             .WithTracing(tracing =>
             {
-                tracing
-                    .AddAspNetCoreInstrumentation()
+                tracing.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("nhn.xcads")
-                    .AddOtlpExporter();
+                    .AddOtlpExporter(opt =>
+                    {
+                        opt.Endpoint = new Uri("jaeger-collector.jaeger.svc.cluster.local:4317");
+                    })
+                    .AddConsoleExporter();
             })
             .WithMetrics(metrics =>
             {
-                metrics
-                    .AddAspNetCoreInstrumentation();
+                metrics.AddAspNetCoreInstrumentation();
             });
 
 

@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -27,6 +29,15 @@ public class XdsRespondingGatewayController : ControllerBase
     private readonly IVariantFeatureManager _featureManager;
     private readonly MonitoringStatusService _monitoringService;
     private readonly AuditLogGeneratorService _auditLoggingService;
+
+    private static readonly ActivitySource ActivitySource = new("nhn.xcads");
+    private static readonly Meter Meter = new("nhn.Xcads.RespondingGateway", "1.0.0");
+
+    private static readonly Counter<int> QueryCounter = 
+        Meter.CreateCounter<int>("RespondingGateway.Query.count", description: "Requests to Query from registry or repository");
+    private static readonly Counter<int> RetrieveCounter = 
+        Meter.CreateCounter<int>("RespondingGateway.Retrieve.count", description: "Requests to Retrieve from registry or repository");
+
 
     public XdsRespondingGatewayController(
         ILogger<XdsRespondingGatewayController> logger,
@@ -57,6 +68,10 @@ public class XdsRespondingGatewayController : ControllerBase
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
         var action = soapEnvelope.Header.Action?.Trim();
+
+        using var activity = ActivitySource.StartActivity($"RespondingGatewayService");
+        activity?.SetTag("Request.Action", action);
+        activity?.SetTag("Request.SessionId", soapEnvelope.Header.MessageId);
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
@@ -112,18 +127,18 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 _logger.LogInformation($"Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
 
-
                 return Accepted();
 
 
             case Constants.Xds.OperationContract.Iti38Action:
                 if (!await _featureManager.IsEnabledAsync("Iti38CrossGatewayQuery")) return NotFound();
 
+                QueryCounter.Add(1);
+
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
                 var iti38Response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
-
                 responseEnvelope = iti38Response.Value;
                 break;
 
@@ -192,10 +207,14 @@ public class XdsRespondingGatewayController : ControllerBase
             case Constants.Xds.OperationContract.Iti39Action:
                 if (!await _featureManager.IsEnabledAsync("Iti39CrossGatewayRetrieve")) return NotFound();
 
+                RetrieveCounter.Add(1);
+
                 // Only change from ITI-39 to ITI-43 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti43Action);
                 var iti39Response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
                 iti39Response.Value?.SetAction(Constants.Xds.OperationContract.Iti39Reply);
+
+
 
                 if (iti39Response.IsSuccess is false)
                 {
