@@ -127,7 +127,6 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 _logger.LogInformation($"Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
 
-
                 return Accepted();
 
 
