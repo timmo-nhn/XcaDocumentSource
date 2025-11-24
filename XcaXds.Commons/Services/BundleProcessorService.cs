@@ -12,11 +12,11 @@ namespace XcaXds.Commons.Services;
 
 public static class BundleProcessorService
 {
-    public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(List<DocumentReference> documentReferences, List submissionSetList, List<Binary> fhirBinaries, Identifier patientIdentifier, string GpiOid)
+    public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(Patient bundlePatient, List<DocumentReference> documentReferences, List submissionSetList, List<Binary> fhirBinaries, Identifier patientIdentifier, string GpiOid, string homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
-        var registryPackageResult = ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(submissionSetList, patientIdentifier, GpiOid);
+        var registryPackageResult = ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(bundlePatient, submissionSetList, patientIdentifier, GpiOid, homeCommunityId);
         if (!registryPackageResult.Success)
         {
             operationOutcome.AddIssue(registryPackageResult.OperationOutcome?.Issue);
@@ -32,7 +32,7 @@ public static class BundleProcessorService
             var documentReference = documentReferences[i];
             var fhirBinary = fhirBinaries.ElementAtOrDefault(i);
 
-            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(documentReference, patientIdentifier, GpiOid);
+            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid);
             if (!extrinsicResult.Success)
             {
                 operationOutcome.AddIssue(extrinsicResult.OperationOutcome.Issue);
@@ -79,7 +79,7 @@ public static class BundleProcessorService
         return creationResult;
     }
 
-    private static ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(List submissionSetList, Identifier patientId, string GpiOid)
+    private static ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(Patient bundlePatient, List submissionSetList, Identifier patientId, string GpiOid, string homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -359,9 +359,10 @@ public static class BundleProcessorService
 
             // XDSSubmissionSet.patientId
             //var patientIdFromPix = GetPatient(patientId, GpiOid);
-            var patientIdFromPix = GetPatient(patientId, sourceId);
+            //var patientIdFromPix = GetPatient(patientId, sourceId);
+			var patientIdFromPix = GetPatient(patientId, homeCommunityId);
 
-            if (!string.IsNullOrWhiteSpace(submissionSetList.Id) || patientIdFromPix != null)
+			if (!string.IsNullOrWhiteSpace(submissionSetList.Id) || patientIdFromPix != null)
             {
                 registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
                 {
@@ -396,7 +397,7 @@ public static class BundleProcessorService
         }
     }
 
-    private static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(DocumentReference documentReference, Identifier patientId, string GpiOid)
+    private static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient bundlePatient, DocumentReference documentReference, Identifier patientId, string GpiOid)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -990,7 +991,7 @@ public static class BundleProcessorService
         }
 
         /* XDSDocumentEntry.patientId */
-        var patientIdentifierFromDocRef = GetPatient(documentReference, GpiOid);
+        var patientIdentifierFromDocRef = GetPatient(bundlePatient, documentReference, GpiOid);
         var patientIdentifierFromPix = GetPatient(patientId, GpiOid);
         if (patientIdentifierFromDocRef?.PersonIdentifier != null && patientIdentifierFromPix != null)
         {
@@ -1613,9 +1614,9 @@ public static class BundleProcessorService
     }
 
 
-    internal static XCN? GetPatient(DocumentReference documentReference, string GpiOid)
+    internal static XCN? GetPatient(Patient bundlePatient, DocumentReference documentReference, string GpiOid)
     {
-        var patientDocRef = documentReference.Contained.OfType<Patient>().FirstOrDefault();
+        var patientDocRef = documentReference.Contained.OfType<Patient>().FirstOrDefault() ?? bundlePatient; 
 
         if (patientDocRef == null)
         {
@@ -1638,7 +1639,7 @@ public static class BundleProcessorService
         return patient;
     }
 
-    internal static XCN? GetPatient(Identifier identifier, string GpiOid)
+    internal static XCN? GetPatient(Identifier identifier, string assigningAuthorityId)
     {
         var patientId = identifier.Value;
 
@@ -1652,7 +1653,7 @@ public static class BundleProcessorService
             PersonIdentifier = patientId,
             AssigningAuthority = new HD()
             {
-                NamespaceId = $"&{GpiOid}&",
+                NamespaceId = $"&{assigningAuthorityId}&",
                 UniversalIdType = "ISO"
             }
         };

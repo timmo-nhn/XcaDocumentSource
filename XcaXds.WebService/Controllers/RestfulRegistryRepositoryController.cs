@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
+using Microsoft.Identity.Client;
+using System.Diagnostics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
@@ -111,9 +112,9 @@ public class RestfulRegistryRepositoryController : ControllerBase
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
-        var requestTimer = Stopwatch.StartNew();
+        var requestTimer = Stopwatch.StartNew();		
 
-        var entries = _restfulRegistryService.GetDocument(home, repository, document);
+		var entries = _restfulRegistryService.GetDocument(home, repository, document);
 
         requestTimer.Stop();
 
@@ -131,7 +132,30 @@ public class RestfulRegistryRepositoryController : ControllerBase
         }
     }
 
-    [Produces("application/json")]
+	[Produces("application/json")]
+	[HttpGet("document-status")]
+	public async Task<IActionResult> GetDocumentStatus([FromQuery] string? home, [FromQuery] string? repository, [FromQuery] string? document)
+	{
+		if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
+
+		var requestTimer = Stopwatch.StartNew();
+
+		var documentStatus = _restfulRegistryService.GetDocumentStatus(home, repository, document);
+	
+		//if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+		//{
+		//	id = patientId;
+		//}		
+	    
+
+		requestTimer.Stop();
+
+		_logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: get-document-status");
+		
+        return Ok(documentStatus);		
+	}
+
+	[Produces("application/json")]
     [Consumes("application/json")]
     [HttpPost("upload")]
     public async Task<IActionResult> UploadDocument([FromBody] DocumentReferenceDto documentReferenceDto)

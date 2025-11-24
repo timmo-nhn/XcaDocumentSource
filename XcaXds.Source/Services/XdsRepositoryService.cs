@@ -137,7 +137,9 @@ public class XdsRepositoryService
         var oversizedDocuments = provideAndRegisterRequest?.Document
             .Where(doc => doc.Value.Length > (_xdsConfig.DocumentUploadSizeLimitKb * 1024)).ToList();
 
-        if (oversizedDocuments?.Count > 0)
+		// var oversizedDocuments = provideAndRegisterRequest?.Document.ToList(); Debug line to test oversize handling
+
+		if (oversizedDocuments?.Count > 0)
         {
             registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Documents submitted are too large!\nIDs: {string.Join(", ", oversizedDocuments.Select(od => od.Id))}", _xdsConfig.HomeCommunityId);
         }
