@@ -144,7 +144,53 @@ public class RestfulRegistryRepositoryService
         return documentResponse;
     }
 
-    public RestfulApiResponse UploadDocumentAndMetadata(DocumentReferenceDto documentReference)
+	public DocumentStatusResponse GetDocumentStatus(string? home, string? repository, string? document)
+	{		
+		home ??= _appConfig.HomeCommunityId;
+		repository ??= _appConfig.RepositoryUniqueId;
+
+		var documentStatusResponse = new DocumentStatusResponse()
+		{
+			Document = new DocumentStatusDto()
+			{
+				HomeCommunityId = home,
+				RepositoryUniqueId = repository,
+				DocumentId = document,
+			}
+		};
+
+		if (string.IsNullOrWhiteSpace(document))
+		{
+			documentStatusResponse.AddError("MissingParameter", "Parameter document is required.");
+			return documentStatusResponse;
+		}
+
+		var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+		var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == document);
+
+        if (documentEntry != null)
+        {
+			documentStatusResponse.Document.SavedToRegistry = true;
+		}
+
+		var documentBytes = _repositoryWrapper.GetDocumentFromRepository(home, repository, document);
+
+		if (documentBytes?.Length > 0)
+		{
+            documentStatusResponse.Document.SavedToRepository = true; 
+		}
+		else
+		{
+			documentStatusResponse.SetMessage($"No document with id {document} for home {home}, repository {repository}");
+		}
+
+		documentStatusResponse.Document.IsFullySaved = documentStatusResponse.Document.SavedToRegistry && documentStatusResponse.Document.SavedToRepository;
+
+		return documentStatusResponse;
+	}
+
+	public RestfulApiResponse UploadDocumentAndMetadata(DocumentReferenceDto documentReference)
     {
         var uploadResponse = new RestfulApiResponse();
 

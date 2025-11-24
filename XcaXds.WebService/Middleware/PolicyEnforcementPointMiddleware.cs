@@ -247,32 +247,52 @@ public class PolicyEnforcementPointMiddleware
         }
         else
         {
-            var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+            SoapEnvelope? soapEnvelopeResponse = null!; 
 
-            var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody);
-
-            var soapEnvelopeResponse = new SoapEnvelope()
+			if (contentType == Constants.MimeTypes.XopXml
+				|| contentType == Constants.MimeTypes.MultipartRelated
+				|| contentType == Constants.MimeTypes.SoapXml
+				|| contentType == Constants.MimeTypes.Xml)
             {
-                Header = new()
+                var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+                var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody);
+
+                soapEnvelopeResponse = new SoapEnvelope()
                 {
-                    Action = soapEnvelopeObject.GetCorrespondingResponseAction(),
-                    MessageId = Guid.NewGuid().ToString(),
-                    RelatesTo = soapEnvelopeObject.Header.MessageId,
-                }
-            };
+                    Header = new()
+                    {
+                        Action = soapEnvelopeObject.GetCorrespondingResponseAction(),
+                        MessageId = Guid.NewGuid().ToString(),
+                        RelatesTo = soapEnvelopeObject.Header.MessageId,
+                    }
+                };
 
-            _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request: id {soapEnvelopeObject.Header.MessageId}");
+                _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request: id {soapEnvelopeObject.Header.MessageId}");
 
-            var registryResponse = new RegistryResponseType();
-            registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
+				var registryResponse = new RegistryResponseType();
+				registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
 
-            soapEnvelopeResponse.Body ??= new();
-            httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
+				soapEnvelopeResponse.Body ??= new();
+				httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 
-            SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
+				SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
 
-            await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
+				await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
+			}
+            else if (contentType == Constants.MimeTypes.Json || contentType == Constants.MimeTypes.FhirJson)
+            {
+                restfulApiResponse ??= new RestfulApiResponse(false, "Access denied");
+                httpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                httpContext.Response.ContentType = Constants.MimeTypes.Json;
+                _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request.");
+                await httpContext.Response.WriteAsync(JsonSerializer.Serialize(restfulApiResponse, Constants.JsonDefaultOptions.DefaultSettings));
+            }
+            else
+            {
 
+            }
+			
             sw.Stop();
             _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");

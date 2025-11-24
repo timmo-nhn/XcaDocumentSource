@@ -1,21 +1,25 @@
 {
-  "appliesTo": [
-    "helseId"
-  ],
-  "id": "gp-deny2",
-  "rules": [
-    [
-      {
-        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
-        "compareRule": "Equals",
-        "value": "XX;VE;FB"
-      },
-      {
-        "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
-        "compareRule": "Equals",
-        "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
-      }
-    ]
-  ],
-  "effect": "Deny"
+    "appliesTo": [
+        "helseId"
+    ],
+    "id": "gp-deny2",
+    "rules": [
+        [
+            {
+                "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
+                "compareRule": "Equals",
+                "value": "XX;VE;FB"
+            },
+            {
+                "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
+                "compareRule": "Equals",
+                "value": "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"
+            }
+        ]
+    ],
+    "actions": [
+        "ReadDocumentList",
+        "ReadDocument"
+    ],
+    "effect": "Deny"
 }

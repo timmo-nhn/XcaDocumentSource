@@ -2,6 +2,8 @@
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Mail;
 using System.Text.Json;
 using System.Web;
 using XcaXds.Commons.Commons;
@@ -34,7 +36,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly XdsOnFhirService _xdsOnFhirService;
     private readonly ApplicationConfig _appConfig;
 
-    public FhirMobileAccessToHealthDocumentsController(
+	private const string HomeCommunityIdUrl_IheProfiles = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
+	private const string HomeCommunityIdUrl_IheLegacy = "http://ihe.net/fhir/StructureDefinition/homeCommunityId";
+
+	public FhirMobileAccessToHealthDocumentsController(
         ILogger<FhirMobileAccessToHealthDocumentsController> logger,
         XdsRegistryService xdsRegistryService,
         XdsRepositoryService xdsRepositoryService,
@@ -297,15 +302,31 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var patientIdCodeSystem = identifier.System?.NoUrn();
         var patientIdentifier = identifier.Value;
 
-        var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId").Value;
-        var sourceId = sourceIdIdentifier?.ElementId;
+        var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
+		var extResReference = sourceIdIdentifier!.Value as Identifier; // Changed from reference to identifier
+		var sourceId = extResReference?.Value?.Replace("urn:oid:", "");
+		//var sourceId = sourceIdIdentifier?.ElementId;
 
         if (string.IsNullOrEmpty(sourceId))
         {
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing SourceID", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
         }
 
-        var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn());
+		var firstDocumentReference = documentReferences.First();
+		var attachment = firstDocumentReference!.Content.FirstOrDefault()?.Attachment;
+		var allAttachments = documentReferences.SelectMany(dr => dr!.Content).Select(c => c.Attachment).ToList();
+
+		var homeCommunityIdExtension = attachment.GetExtension(HomeCommunityIdUrl_IheProfiles) ??
+		   attachment.GetExtension(HomeCommunityIdUrl_IheLegacy);
+
+		var homeCommunityId = homeCommunityIdExtension?.Value?.ToString();
+
+		if (string.IsNullOrEmpty(homeCommunityId))
+		{
+			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing DocumentReference.content.attachment.extension[homeCommunityId]", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+		}
+
+		var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
 
         var provideAndRegisterRequest = provideAndRegisterResult.Value?.ProvideAndRegisterDocumentSetRequest;
 
@@ -343,10 +364,68 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                     Code = OperationOutcome.IssueType.Value,
                     Diagnostics = $"{error.ErrorCode}: {error.CodeContext}"
                 });
-            }
-            return Content(fhirSerializer.SerializeToString(operationOutcome), Constants.MimeTypes.FhirJson);
-        }
+            }            
+			return new CustomContentResult(fhirSerializer.SerializeToString(operationOutcome), StatusCodes.Status400BadRequest, Constants.MimeTypes.FhirJson); 
+		}
 
-        return Content(fhirSerializer.SerializeToString(OperationOutcome.ForMessage($"Document with id {fhirBundle.Id} has been uploaded successfully", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Success)), Constants.MimeTypes.FhirJson);
+		// --- MHD ProvideDocumentBundleResponse (Bundle type = transaction-response) ---
+		var selfUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
+
+		var responseBundle = new Bundle
+		{
+            Id = "bundle-response-" + Guid.NewGuid().ToString(),
+			Type = Bundle.BundleType.TransactionResponse,
+			Meta = new Meta
+			{
+				Profile = new[]
+				{
+					"https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.ProvideDocumentBundleResponse"
+				}
+			},
+			Link = new List<Bundle.LinkComponent>
+			{
+				new Bundle.LinkComponent
+				{
+					Relation = "self",
+					Url = selfUrl
+				}
+			}
+		};
+
+		// One entry in the response for each entry in the request, in the same order
+		var now = DateTimeOffset.UtcNow;
+		
+        foreach (var entry in documentReferences)		
+		{			
+			var resourceId = entry?.Id;            
+			
+			if (string.IsNullOrEmpty(resourceId))
+			{
+				resourceId = Guid.NewGuid().ToString();
+			}
+	
+			var location = entry != null
+				? $"{entry.TypeName}/{resourceId}"
+				: null;			
+
+			responseBundle.Entry.Add(new Bundle.EntryComponent
+			{
+				Response = new Bundle.ResponseComponent
+				{
+					Status = "201 Created",
+					Location = location,
+					LastModified = now
+				}
+			});
+
+		}
+
+		string jsonResult;
+
+		var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
+
+		jsonResult = JsonSerializer.Serialize(responseBundle, options);
+
+		return Content(jsonResult, "application/json");		
     }
 }

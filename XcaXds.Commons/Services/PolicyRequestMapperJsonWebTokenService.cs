@@ -107,7 +107,10 @@ public class PolicyRequestMapperJsonWebTokenService
 
         var handler = new Saml2SecurityTokenHandler();
         var token = (Saml2SecurityToken)handler.CreateToken(descriptor);
-        token.Assertion.Subject.NameId = new Saml2NameIdentifier(samlTrustFrameworkClaims.NameId);
+        if (!string.IsNullOrEmpty(samlTrustFrameworkClaims.NameId))
+        { 
+            token.Assertion.Subject.NameId = new Saml2NameIdentifier(samlTrustFrameworkClaims.NameId);
+        }
         var samlStatements = MapJwtClaimsToSamlTokenStatements(samlTrustFrameworkClaims);
 
         foreach (var statement in samlStatements)
