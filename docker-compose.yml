@@ -9,13 +9,13 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - REGISTRY_FILE_PATH=/mnt/registry
       - REPOSITORY_FILE_PATH=/mnt/repository
-      - AUDITEVENTS_FILE_PATH=/mnt/data
+      - AUDITEVENTS_FILE_PATH=/mnt/data/auditevents
     ports:
       - "5000:5000"
     volumes:
       - ./XcaXds.Source/Data:/mnt/registry
       - ./XcaXds.Source/Repository:/mnt/repository
-      - ./XcaXds.Source/AuditEvents:/mnt/data
+      - ./XcaXds.Source/AuditEvents:/mnt/data/auditevents
     networks:
       - xcanet
 
