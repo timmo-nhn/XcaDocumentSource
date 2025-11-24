@@ -127,8 +127,7 @@ public class Program
             .ConfigureResource(r => r.AddService("xcads"))
             .WithTracing(tracing =>
             {
-                tracing
-                    .AddAspNetCoreInstrumentation()
+                tracing.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("nhn.xcads")
                     .AddOtlpExporter()
@@ -136,8 +135,7 @@ public class Program
             })
             .WithMetrics(metrics =>
             {
-                metrics
-                    .AddAspNetCoreInstrumentation();
+                metrics.AddAspNetCoreInstrumentation();
             });
 
 
