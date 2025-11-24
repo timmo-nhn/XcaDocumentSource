@@ -47,9 +47,7 @@ public class AuditLogExporterService : BackgroundService
     {
         var serializer = new FhirJsonSerializer();
         var atnaJson = serializer.SerializeToString(auditEvent,true);
-        _logger.LogDebug("Created FHIR AuditEvent: \r\n" + atnaJson);
+        _logger.LogDebug("Created FHIR AuditEvent: \n" + atnaJson);
         File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
-
-        var client = _httpClientFactory.CreateClient();
     }
 }

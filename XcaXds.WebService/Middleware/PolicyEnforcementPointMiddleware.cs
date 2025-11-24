@@ -40,7 +40,7 @@ public class PolicyEnforcementPointMiddleware
     private static readonly ActivitySource ActivitySource = new("nhn.xcads");
     private static readonly Meter Meter = new("nhn.xcads", "1.0.0");
     private static readonly Counter<int> PepInvokeCounter =
-        Meter.CreateCounter<int>("pepinvoked.count", description: "Counts the number of PEP invokes");
+        Meter.CreateCounter<int>("PolicyEnforcementPoint", description: "Counts the number of PEP invokes");
 
     public PolicyEnforcementPointMiddleware(
         RequestDelegate next,
@@ -103,7 +103,7 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-        using var activity = ActivitySource.StartActivity("pepinvoke.count");
+        using var activity = ActivitySource.StartActivity("PolicyEnforcementPoint");
         activity?.SetTag("Request.SessionId",httpContext.TraceIdentifier);
         
         PepInvokeCounter.Add(1);
