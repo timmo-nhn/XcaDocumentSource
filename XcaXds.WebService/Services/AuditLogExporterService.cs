@@ -14,6 +14,7 @@ public class AuditLogExporterService : BackgroundService
 
     private string _auditEventPath;
 
+
     public AuditLogExporterService(ILogger<AuditLogExporterService> logger, ApplicationConfig appConfig, IAuditLogQueue auditLogQueue, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
