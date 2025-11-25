@@ -124,10 +124,11 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddOpenTelemetry()
-            .ConfigureResource(r => r.AddService("xcads"))
+            .ConfigureResource(r => r.AddService("jaeger-all-in-one"))
             .WithTracing(tracing =>
             {
-                tracing.AddAspNetCoreInstrumentation()
+                tracing
+                    .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("nhn.xcads")
                     .AddOtlpExporter(opt =>
@@ -138,7 +139,12 @@ public class Program
             })
             .WithMetrics(metrics =>
             {
-                metrics.AddAspNetCoreInstrumentation();
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddMeter("Microsoft.AspNetCore.Hosting")
+                    .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+                    .AddMeter("System.Net.Http")
+                    .AddMeter("System.Net.NameResolution");
             });
 
 
