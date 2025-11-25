@@ -1014,9 +1014,9 @@ public static class BundleProcessorService
                 GivenName = patientIdentifierFromDocRef.GivenName,
             };
 
-            var patientFromContained = documentReference.Contained.OfType<Patient>().Where(p => p.Identifier.First().Value == patientIdentifierFromDocRef.PersonIdentifier).FirstOrDefault();
-
-            var patientGender = patientFromContained?.Gender switch
+            var patientFromContained = documentReference.Contained.OfType<Patient>().Where(p => p.Identifier.First().Value == patientIdentifierFromDocRef.PersonIdentifier).FirstOrDefault() ?? bundlePatient; 
+            
+			var patientGender = patientFromContained?.Gender switch
             {
                 AdministrativeGender.Female => "F",
                 AdministrativeGender.Male => "M",
