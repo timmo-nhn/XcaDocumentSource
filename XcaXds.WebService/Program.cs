@@ -127,7 +127,6 @@ public class Program
         builder.SetupOpenTelemetryDHP();
 
         builder.Services.AddOpenTelemetry()
-            .ConfigureResource(r => r.AddService("jaeger-all-in-one"))
             .WithTracing(tracing =>
             {
                 tracing
