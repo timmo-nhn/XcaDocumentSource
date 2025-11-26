@@ -12,6 +12,7 @@
         <PackageReference Include="Microsoft.FeatureManagement" Version="4.0.0" />
         <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.14.0" />
+        <PackageReference Include="NHN.OpenTelemetryExtensions" Version="2.1.0" />
         <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0" />
         <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="1.14.0" />
