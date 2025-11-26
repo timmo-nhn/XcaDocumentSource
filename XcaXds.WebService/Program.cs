@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
+using NHN.OpenTelemetryExtensions;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -122,6 +123,8 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.SetupOpenTelemetryDHP();
 
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(r => r.AddService("jaeger-all-in-one"))
