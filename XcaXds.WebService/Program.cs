@@ -133,7 +133,7 @@ public class Program
                     .AddSource("nhn.xcads")
                     .AddOtlpExporter(opt =>
                     {
-                        opt.Endpoint = new Uri("jaeger-collector.jaeger.svc.cluster.local:4317");
+                        opt.Endpoint = new Uri("http://collector.opentelemetry:4317/");
                     })
                     .AddConsoleExporter();
             })
