@@ -123,6 +123,30 @@ public class Program
 
         builder.SetupOpenTelemetryDHP();
 
+        builder.Services.AddOpenTelemetry()
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddSource("nhn.xcads")
+                    .AddOtlpExporter(opt =>
+                    {
+                        opt.Endpoint = new Uri("collector.opentelemetry:4317");
+                    })
+                    .AddConsoleExporter();
+            })
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddMeter("Microsoft.AspNetCore.Hosting")
+                    .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+                    .AddMeter("System.Net.Http")
+                    .AddMeter("System.Net.NameResolution");
+            });
+
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("_allowSpecificOrigins",
