@@ -2,9 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using NHN.OpenTelemetryExtensions;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using System.Collections;
 using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
@@ -125,30 +122,6 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         builder.SetupOpenTelemetryDHP();
-
-        builder.Services.AddOpenTelemetry()
-            .WithTracing(tracing =>
-            {
-                tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddSource("nhn.xcads")
-                    .AddOtlpExporter(opt =>
-                    {
-                        opt.Endpoint = new Uri("collector.opentelemetry:4317");
-                    })
-                    .AddConsoleExporter();
-            })
-            .WithMetrics(metrics =>
-            {
-                metrics
-                    .AddAspNetCoreInstrumentation()
-                    .AddMeter("Microsoft.AspNetCore.Hosting")
-                    .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
-                    .AddMeter("System.Net.Http")
-                    .AddMeter("System.Net.NameResolution");
-            });
-
 
         builder.Services.AddCors(options =>
         {
