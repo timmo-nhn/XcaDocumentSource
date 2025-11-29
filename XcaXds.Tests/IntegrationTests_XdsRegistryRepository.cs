@@ -14,13 +14,13 @@ using XcaXds.Tests.Helpers;
 namespace XcaXds.Tests;
 
 
-public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicationFactory<WebService.Program>>
+public class IntegrationTests_XcaRespondingGatewayQueryRetrieve : IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     private readonly HttpClient _client;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly PolicyRepositoryService _policyRepositoryService;
 
-    public IntegrationTests_XcaRegistryRepository(WebApplicationFactory<WebService.Program> factory)
+    public IntegrationTests_XcaRespondingGatewayQueryRetrieve(WebApplicationFactory<WebService.Program> factory)
     {
         _client = factory.CreateClient();
         using var scope = factory.Services.CreateScope();
@@ -29,7 +29,7 @@ public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicati
     }
 
     [Fact]
-    public async Task RegistryStoredQuery()
+    public async Task CrossGatewayQuery()
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
@@ -76,7 +76,7 @@ public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicati
 
 
     [Fact]
-    public async Task RetrieveDocumentSet()
+    public async Task CrossGatewayRetrieve()
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
@@ -117,7 +117,7 @@ public class IntegrationTests_XcaRegistryRepository : IClassFixture<WebApplicati
             });
         }
 
-        var retrieveDocumentSet = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti43-request.xml"))));
+        var retrieveDocumentSet = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml"))));
 
 
         if (retrieveDocumentSet == null || retrieveDocumentSet == null)
