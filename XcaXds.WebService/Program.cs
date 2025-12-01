@@ -26,9 +26,9 @@ public class Program
 
         builder.Logging.ClearProviders(); // Clear default logging providers
         builder.Services.AddLogging(logging =>
-            logging.AddSimpleConsole(options =>
+            logging.AddJsonConsole(options =>
             {
-                options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
+                options.IncludeScopes = true;
                 options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
             })
         );
