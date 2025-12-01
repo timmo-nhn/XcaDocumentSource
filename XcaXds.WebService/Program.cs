@@ -28,7 +28,6 @@ public class Program
         builder.Services.AddLogging(logging =>
             logging.AddSimpleConsole(options =>
             {
-                options.SingleLine = true;
                 options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
                 options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
             })

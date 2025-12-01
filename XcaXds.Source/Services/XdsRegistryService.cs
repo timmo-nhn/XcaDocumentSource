@@ -280,7 +280,7 @@ public partial class XdsRegistryService
         
         if (count > 0)
         {
-            _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XdsEntries obfuscated");
+            _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
         }
 
         if (adhocQueryRequest?.ResponseOption != null)
