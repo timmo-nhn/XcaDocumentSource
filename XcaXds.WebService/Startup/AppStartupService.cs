@@ -223,7 +223,7 @@ public class AppStartupService : IHostedService
     {
         var fileBasedRegistry = new FileBasedRegistry();
         
-        // If false, no need to migrate
+        // If registry doesnt exist yet, no need to migrate
         if (fileBasedRegistry.RegistryExists() == false) return;
 
         // If already migrated, no need to migrate again :P
