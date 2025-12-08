@@ -22,16 +22,29 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        var runningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? bool.FalseString);
+
         // Begin builder
 
         builder.Logging.ClearProviders(); // Clear default logging providers
         builder.Services.AddLogging(logging =>
-            logging.AddJsonConsole(options =>
+        {
+            if (runningInContainer)
             {
-                options.IncludeScopes = true;
-                options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
-            })
-        );
+                logging.AddJsonConsole(options =>
+                {
+                    options.IncludeScopes = true;
+                    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+                });
+            }
+            else
+            {
+                logging.AddSimpleConsole(options =>
+                {
+                    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+                });
+            }
+        });
 
         builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
@@ -61,7 +74,7 @@ public class Program
         var xdsConfig = new ApplicationConfig();
 
         // If we are running in a container, override appsettings.json and environment variables for configuration
-        if (bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? "false"))
+        if (runningInContainer)
         {
             var envVars = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key, entry => (string)entry.Value);
             var xdsConfigEnvVars = envVars.Where(n => n.Key.StartsWith("XdsConfiguration")).ToList();
@@ -91,6 +104,7 @@ public class Program
         builder.Services.AddSingleton<RepositoryWrapper>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
         builder.Services.AddSingleton<MonitoringStatusService>();
+        builder.Services.AddSingleton<RequestThrottlingService>();
         builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
@@ -154,7 +168,6 @@ public class Program
             Console.WriteLine($"{entry.Key}={entry.Value}");
         }
 
-        var runningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? "false");
         Console.WriteLine($"Running in container: {runningInContainer}");
         if (!runningInContainer)
         {

@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
-using Microsoft.Identity.Client;
 using System.Diagnostics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -20,7 +20,13 @@ public class RestfulRegistryRepositoryController : ControllerBase
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly IVariantFeatureManager _featureManager;
 
-    public RestfulRegistryRepositoryController(ILogger<RestfulRegistryRepositoryController> logger, RestfulRegistryRepositoryService registryRestfulService, IVariantFeatureManager featureManager, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
+    public RestfulRegistryRepositoryController(
+        ILogger<RestfulRegistryRepositoryController> logger,
+        RestfulRegistryRepositoryService registryRestfulService,
+        IVariantFeatureManager featureManager,
+        RegistryWrapper registryWrapper,
+        RepositoryWrapper repositoryWrapper
+        )
     {
         _logger = logger;
         _restfulRegistryService = registryRestfulService;
@@ -112,9 +118,9 @@ public class RestfulRegistryRepositoryController : ControllerBase
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
-        var requestTimer = Stopwatch.StartNew();		
+        var requestTimer = Stopwatch.StartNew();
 
-		var entries = _restfulRegistryService.GetDocument(home, repository, document);
+        var entries = _restfulRegistryService.GetDocument(home, repository, document);
 
         requestTimer.Stop();
 
@@ -132,30 +138,30 @@ public class RestfulRegistryRepositoryController : ControllerBase
         }
     }
 
-	[Produces("application/json")]
-	[HttpGet("document-status")]
-	public async Task<IActionResult> GetDocumentStatus([FromQuery] string? home, [FromQuery] string? repository, [FromQuery] string? document)
-	{
-		if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
+    [Produces("application/json")]
+    [HttpGet("document-status")]
+    public async Task<IActionResult> GetDocumentStatus([FromQuery] string? home, [FromQuery] string? repository, [FromQuery] string? document)
+    {
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
-		var requestTimer = Stopwatch.StartNew();
+        var requestTimer = Stopwatch.StartNew();
 
-		var documentStatus = _restfulRegistryService.GetDocumentStatus(home, repository, document);
-	
-		//if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
-		//{
-		//	id = patientId;
-		//}		
-	    
+        var documentStatus = _restfulRegistryService.GetDocumentStatus(home, repository, document);
 
-		requestTimer.Stop();
+        //if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+        //{
+        //	id = patientId;
+        //}		
 
-		_logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: get-document-status");
-		
-        return Ok(documentStatus);		
-	}
 
-	[Produces("application/json")]
+        requestTimer.Stop();
+
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: get-document-status");
+
+        return Ok(documentStatus);
+    }
+
+    [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPost("upload")]
     public async Task<IActionResult> UploadDocument([FromBody] DocumentReferenceDto documentReferenceDto)

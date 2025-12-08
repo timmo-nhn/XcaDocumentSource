@@ -1,7 +1,6 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
@@ -35,7 +34,7 @@ public class PolicyEnforcementPointMiddleware
     private readonly MonitoringStatusService _monitoringService;
     private readonly PolicyRepositoryService _policyRepositoryService;
     private readonly RegistryWrapper _registryWrapper;
-
+    private readonly RequestThrottlingService _requestThrottlingService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads");
     private static readonly Meter Meter = new("nhn.xcads", "1.0.0");
@@ -50,7 +49,8 @@ public class PolicyEnforcementPointMiddleware
         PolicyDecisionPointService policyDecisionPointService,
         MonitoringStatusService monitoringService,
         PolicyRepositoryService policyRepositoryService,
-        RegistryWrapper registryWrapper
+        RegistryWrapper registryWrapper,
+        RequestThrottlingService requestThrottlingService
         )
     {
         _next = next;
@@ -61,6 +61,7 @@ public class PolicyEnforcementPointMiddleware
         _monitoringService = monitoringService;
         _policyRepositoryService = policyRepositoryService;
         _registryWrapper = registryWrapper;
+        _requestThrottlingService = requestThrottlingService;
     }
 
 
@@ -104,8 +105,8 @@ public class PolicyEnforcementPointMiddleware
         }
 
         using var activity = ActivitySource.StartActivity("PolicyEnforcementPoint");
-        activity?.SetTag("Request.SessionId",httpContext.TraceIdentifier);
-        
+        activity?.SetTag("Request.SessionId", httpContext.TraceIdentifier);
+
         PepInvokeCounter.Add(1);
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
@@ -135,7 +136,14 @@ public class PolicyEnforcementPointMiddleware
         var contentType = httpContext.Request.ContentType?.Split(";").First();
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
-        
+        if (_requestThrottlingService.IsThrottleTimeSet())
+        {
+            var throttleTime = _requestThrottlingService.GetThrottleTime();
+
+            _logger.LogWarning($"Requesth throttling enabled for PEP-enabled endpoint: {throttleTime} ms");
+            Thread.Sleep(throttleTime);
+        }
+
         bool tokenIsValid = true;
         var xacmlRequestAppliesTo = Issuer.Unknown;
         XacmlContextRequest? xacmlRequest = null;
@@ -264,12 +272,12 @@ public class PolicyEnforcementPointMiddleware
         }
         else
         {
-            SoapEnvelope? soapEnvelopeResponse = null!; 
+            SoapEnvelope? soapEnvelopeResponse = null!;
 
-			if (contentType == Constants.MimeTypes.XopXml
-				|| contentType == Constants.MimeTypes.MultipartRelated
-				|| contentType == Constants.MimeTypes.SoapXml
-				|| contentType == Constants.MimeTypes.Xml)
+            if (contentType == Constants.MimeTypes.XopXml
+                || contentType == Constants.MimeTypes.MultipartRelated
+                || contentType == Constants.MimeTypes.SoapXml
+                || contentType == Constants.MimeTypes.Xml)
             {
                 var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
@@ -287,16 +295,16 @@ public class PolicyEnforcementPointMiddleware
 
                 _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request: id {soapEnvelopeObject.Header.MessageId}");
 
-				var registryResponse = new RegistryResponseType();
-				registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
+                var registryResponse = new RegistryResponseType();
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Access denied", _xdsConfig.HomeCommunityId);
 
-				soapEnvelopeResponse.Body ??= new();
-				httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
+                soapEnvelopeResponse.Body ??= new();
+                httpContext.Response.ContentType = Constants.MimeTypes.SoapXml;
 
-				SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
+                SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
 
-				await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
-			}
+                await httpContext.Response.WriteAsync(sxmls.SerializeSoapMessageToXmlString(soapEnvelopeResponse).Content ?? string.Empty);
+            }
             else if (contentType == Constants.MimeTypes.Json || contentType == Constants.MimeTypes.FhirJson)
             {
                 restfulApiResponse ??= new RestfulApiResponse(false, "Access denied");
@@ -309,7 +317,7 @@ public class PolicyEnforcementPointMiddleware
             {
 
             }
-			
+
             sw.Stop();
             _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
             activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
