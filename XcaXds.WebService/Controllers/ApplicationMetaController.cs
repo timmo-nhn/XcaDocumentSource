@@ -5,6 +5,7 @@ using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
+using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.Services;
@@ -21,10 +22,19 @@ public class ApplicationMetaController : ControllerBase
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly HealthCheckService _healthCheckService;
     private readonly MonitoringStatusService _monitoringService;
+    private readonly RequestThrottlingService _requestThrottlingService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
 
-    public ApplicationMetaController(ILogger<XdsRegistryController> logger, ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper, HealthCheckService healthCheckService, MonitoringStatusService monitoringService)
+    public ApplicationMetaController(
+        ILogger<XdsRegistryController> logger, 
+        ApplicationConfig xdsConfig, 
+        RegistryWrapper registryWrapper, 
+        RepositoryWrapper repositoryWrapper, 
+        HealthCheckService healthCheckService, 
+        MonitoringStatusService monitoringService,
+        RequestThrottlingService requestThrottlingService
+        )
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
@@ -32,6 +42,7 @@ public class ApplicationMetaController : ControllerBase
         _repositoryWrapper = repositoryWrapper;
         _healthCheckService = healthCheckService;
         _monitoringService = monitoringService;
+        _requestThrottlingService = requestThrottlingService;
     }
 
     [HttpGet("health-check")]
@@ -69,6 +80,32 @@ public class ApplicationMetaController : ControllerBase
         var healthCheckJson = JsonSerializer.Serialize(healthCheck, Constants.JsonDefaultOptions.DefaultSettings);
         return Content(healthCheckJson);
     }
+
+    [HttpGet("set-get-throttle-time")]
+    public IActionResult SetOrGetThrottleTime(int? throttleTimeMillis = null)
+    {
+        var response = new RestfulApiResponse();
+
+        if (throttleTimeMillis == null)
+        {
+            var responseMessage = $"Fake throttle time: {_requestThrottlingService.GetThrottleTime()} ms";
+
+            _logger.LogInformation(responseMessage);
+            response.SetMessage(responseMessage);
+        }
+        else
+        {
+            _requestThrottlingService.SetThrottleTime(throttleTimeMillis ?? 0);
+
+            var responseMessage = $"Fake throttle time set to {throttleTimeMillis} ms";
+
+            _logger.LogInformation(responseMessage);
+            response.SetMessage(responseMessage);
+        }
+
+        return Ok(response);
+    }
+
 
     [Produces("application/json")]
     [HttpGet("about/registryobjects")]
