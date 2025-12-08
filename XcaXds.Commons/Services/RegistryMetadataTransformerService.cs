@@ -199,7 +199,7 @@ public static class RegistryMetadataTransformerService
 
     private static string? GetTitleFromRegistryPackage(RegistryPackageType? registryPackage)
     {
-        return registryPackage?.Name.GetFirstValue();
+        return registryPackage?.Name?.GetFirstValue();
     }
 
     private static DateTime? GetSubmissionTimeFromRegistryPackage(RegistryPackageType? registryPackage)
