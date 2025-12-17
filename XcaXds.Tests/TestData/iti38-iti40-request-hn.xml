@@ -94,7 +94,7 @@
             <AdhocQuery xmlns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d">
                 <Slot name="$XDSDocumentEntryPatientId">
                     <ValueList>
-                        <Value>'13116900216^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO'</Value>
+                        <Value>'27888498775^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO'</Value>
                     </ValueList>
                 </Slot>
                 <Slot name="$XDSDocumentEntryStatus">

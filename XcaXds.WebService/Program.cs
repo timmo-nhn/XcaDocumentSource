@@ -97,9 +97,10 @@ public class Program
         // Register services
         builder.Services.AddScoped<XdsRegistryService>();
         builder.Services.AddScoped<XdsRepositoryService>();
+        builder.Services.AddScoped<Hl7RegistryService>();
+        builder.Services.AddScoped<AuditLogGeneratorService>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
-        builder.Services.AddScoped<Hl7RegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<RepositoryWrapper>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
@@ -109,17 +110,13 @@ public class Program
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<IAuditLogQueue, AuditLogQueue>();
-        builder.Services.AddScoped<AuditLogGeneratorService>();
         builder.Services.AddHostedService<AuditLogExporterService>();
-
 
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
 
         // XDS On FHIR
         builder.Services.AddScoped<XdsOnFhirService>();
-
-        builder.Services.AddHostedService<AppStartupService>();
 
         // Health check
         builder.Services.AddHealthChecks();

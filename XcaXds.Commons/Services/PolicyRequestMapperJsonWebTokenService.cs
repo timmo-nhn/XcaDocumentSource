@@ -268,7 +268,7 @@ public class PolicyRequestMapperJsonWebTokenService
 
     private static string? MapResourceClaimToSamlAttributeValue(SamlClaimValues samlClaims)
     {
-        var patientIdCx = Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(samlClaims.ResourceId);
+        var patientIdCx = Hl7FhirExtensions.ParseNorwegianNinToCxWithAssigningAuthority(samlClaims.ResourceId);
         return patientIdCx?.Serialize();
     }
 

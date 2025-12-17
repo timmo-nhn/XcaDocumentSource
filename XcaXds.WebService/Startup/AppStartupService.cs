@@ -100,7 +100,8 @@ public class AppStartupService : IHostedService
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
             [[
-                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code")
+                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Saml.Attribute.XuaAcp, CompareRule.Equals, Constants.Oid.Saml.Acp.NullValue)
             ]],
             Actions = ["ReadDocumentList"],
             Effect = "Deny"

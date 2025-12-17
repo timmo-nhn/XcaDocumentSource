@@ -7,8 +7,10 @@ namespace XcaXds.Commons.Services;
 
 public static class RegistryMetadataGeneratorService
 {
-    public static List<RegistryObjectDto> GenerateRandomizedTestData(ApplicationConfig applicationConfig, Test_DocumentReference jsonTestData, RepositoryWrapper repositoryWrapper, int? entriesToGenerate = 0, string? patientIdentifier = null)
+    public static List<RegistryObjectDto> GenerateRandomizedTestData(string? homeCommunityId, string? repositoryUniqueId, Test_DocumentReference? jsonTestData, RepositoryWrapper? repositoryWrapper = null, int? entriesToGenerate = 0, string? patientIdentifier = null)
     {
+        if (jsonTestData?.PossibleDocumentEntryValues == null) return new();
+
         jsonTestData.PossibleSubmissionSetValues.Authors ??= jsonTestData.PossibleDocumentEntryValues.Authors;
 
         entriesToGenerate = entriesToGenerate == 0 ? 10 : entriesToGenerate;
@@ -32,10 +34,10 @@ public static class RegistryMetadataGeneratorService
                 generatedTestObject.Title = "XcaDS - " + generatedTestObject.Title;
                 generatedTestObject.Size = randomFileAsByteArray.Length.ToString();
                 generatedTestObject.Hash = BitConverter.ToString(SHA1.HashData(randomFileAsByteArray)).Replace("-", "").ToLowerInvariant();
-                generatedTestObject.RepositoryUniqueId = applicationConfig.RepositoryUniqueId;
-                generatedTestObject.HomeCommunityId = applicationConfig.HomeCommunityId;
+                generatedTestObject.HomeCommunityId = homeCommunityId;
+                generatedTestObject.RepositoryUniqueId = repositoryUniqueId;
 
-                repositoryWrapper.StoreDocument(generatedTestObject.UniqueId, randomFileAsByteArray, generatedTestObject.SourcePatientInfo.PatientId.Id);
+                repositoryWrapper?.StoreDocument(generatedTestObject.UniqueId, randomFileAsByteArray, generatedTestObject.SourcePatientInfo.PatientId.Id);
             }
         }
         return generatedTestRegistryObjects;

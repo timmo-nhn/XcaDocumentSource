@@ -221,7 +221,7 @@ public static class RegistryMetadataTransformerService
     private static List<AuthorInfo>? GetAuthorsFromRegistryPackage(RegistryPackageType? registryPackage)
     {
         var authorClassifications = registryPackage?.GetClassifications(Constants.Xds.Uuids.SubmissionSet.Author);
-        if (authorClassifications.Length == 0) return null;
+        if (authorClassifications == null || authorClassifications.Length == 0) return null;
 
         var authorList = new List<AuthorInfo>();
 

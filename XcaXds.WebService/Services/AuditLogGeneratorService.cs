@@ -13,6 +13,7 @@ public class AuditLogGeneratorService
     private readonly ILogger<AuditLogGeneratorService> _logger;
     private readonly ApplicationConfig _appConfig;
     private readonly IAuditLogQueue _queue;
+
     public AuditLogGeneratorService(ILogger<AuditLogGeneratorService> logger, ApplicationConfig appConfig, IAuditLogQueue queue)
     {
         _logger = logger;
@@ -46,6 +47,8 @@ public class AuditLogGeneratorService
         var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(requestEnvelope.Header.Security.Assertion?.OuterXml);
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
+        var issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Issuer);
+
         auditEvent.Meta = new Meta()
         {
             Profile = ["https://profiles.ihe.net/ITI/BALP/StructureDefinition/IHE.BasicAudit.SAMLaccessTokenUse.Minimal"],
@@ -59,7 +62,7 @@ public class AuditLogGeneratorService
             }
         };
 
-        auditEvent.Entity.Add(new AuditEvent.EntityComponent() 
+        auditEvent.Entity.Add(new AuditEvent.EntityComponent()
         {
             What = new ResourceReference(requestEnvelope.Header.MessageId, "SOAP message ID"),
         });
@@ -86,9 +89,8 @@ public class AuditLogGeneratorService
             }
         };
 
-        var healthcarePersonStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values.FirstOrDefault());
-        var healthcarePersonName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.SubjectId)?.Values.FirstOrDefault());
-        var healthcarePersonNameParts = healthcarePersonName?.Code?.Split().ToList();
+        var subjectPersonName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.SubjectId)?.Values.FirstOrDefault());
+        var healthcarePersonNameParts = subjectPersonName?.Code?.Split().ToList();
 
         HumanName? healthcarePersonHumanName = null;
 
@@ -101,6 +103,8 @@ public class AuditLogGeneratorService
             healthcarePersonHumanName.Given = healthcarePersonNameParts;
         }
 
+        var subjectPersonStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values.FirstOrDefault());
+
         var practitioner = new Practitioner()
         {
             Id = "practitioner-1",
@@ -108,8 +112,8 @@ public class AuditLogGeneratorService
             {
                 new Identifier()
                 {
-                    Value = healthcarePersonStatement?.Code,
-                    System = healthcarePersonStatement?.CodeSystem?.NoUrn().WithUrnOid()
+                    Value = subjectPersonStatement?.Code,
+                    System = subjectPersonStatement?.CodeSystem?.NoUrn().WithUrnOid()
                 }
             },
             Name = healthcarePersonHumanName == null ? null : new List<HumanName>()
@@ -123,10 +127,13 @@ public class AuditLogGeneratorService
         var pointOfCareStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ChildOrganization)?.Values.FirstOrDefault());
         var pointOfCareName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.TrustChildOrgName)?.Values.FirstOrDefault());
 
-        var pointOfCare = new Organization()
+        // If healthcare personell, then add fields for which organization
+        if (issuer == Issuer.Helsenorge)
         {
-            Id = "org-pointofcare-1",
-            Identifier = new List<Identifier>()
+            var pointOfCare = new Organization()
+            {
+                Id = "org-pointofcare-1",
+                Identifier = new List<Identifier>()
             {
                 new Identifier()
                 {
@@ -134,18 +141,18 @@ public class AuditLogGeneratorService
                     System = pointOfCareStatement?.CodeSystem?.NoUrn().WithUrnOid()
                 }
             },
-            Name = pointOfCareName?.Code
-        };
-        auditEvent.Contained.Add(pointOfCare);
+                Name = pointOfCareName?.Code
+            };
+            auditEvent.Contained.Add(pointOfCare);
 
 
-        var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
-        var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
+            var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
+            var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
 
-        var legalEntity = new Organization()
-        {
-            Id = "org-legalentity-1",
-            Identifier = new List<Identifier>()
+            var legalEntity = new Organization()
+            {
+                Id = "org-legalentity-1",
+                Identifier = new List<Identifier>()
             {
                 new Identifier()
                 {
@@ -153,16 +160,16 @@ public class AuditLogGeneratorService
                     System = legalEntityStatement?.CodeSystem?.NoUrn().WithUrnOid()
                 }
             },
-            Name = legalEntityName?.Code
+                Name = legalEntityName?.Code
 
-        };
-        auditEvent.Contained.Add(legalEntity);
+            };
+            auditEvent.Contained.Add(legalEntity);
 
 
-        var practitionerRole = new PractitionerRole
-        {
-            Id = "who-1",
-            Identifier = new List<Identifier>()
+            var practitionerRole = new PractitionerRole
+            {
+                Id = "who-1",
+                Identifier = new List<Identifier>()
             {
                 new Identifier
                 {
@@ -170,26 +177,27 @@ public class AuditLogGeneratorService
                     System = samlToken.Assertion.Issuer.Value
                 }
             },
-            Organization = new ResourceReference { Reference = $"#{legalEntity.Id}" },
-            Location = [new ResourceReference() { Reference = $"#{pointOfCare.Id}" }],
-            Practitioner = new ResourceReference() { Reference = $"#{practitioner.Id}" }
-        };
+                Organization = new ResourceReference { Reference = $"#{legalEntity.Id}" },
+                Location = [new ResourceReference() { Reference = $"#{pointOfCare.Id}" }],
+                Practitioner = new ResourceReference() { Reference = $"#{practitioner.Id}" }
+            };
 
-        auditEvent.Contained.Add(practitionerRole);
+            auditEvent.Contained.Add(practitionerRole);
 
-        auditEvent.Agent.Add(new AuditEvent.AgentComponent()
-        {
-            Who = new ResourceReference { Reference = $"#{practitionerRole.Id}" },
-            Requestor = true,
-            PurposeOfUse = auditEvent.PurposeOfEvent,
-            Policy = [samlToken.Id]
-        });
+            auditEvent.Agent.Add(new AuditEvent.AgentComponent()
+            {
+                Who = new ResourceReference { Reference = $"#{practitionerRole.Id}" },
+                Requestor = true,
+                PurposeOfUse = auditEvent.PurposeOfEvent,
+                Policy = [samlToken.Id]
+            });
 
-        auditEvent.Source = new AuditEvent.SourceComponent()
-        {
-            Type = [new() { Code = _appConfig.RepositoryUniqueId }],
-            Observer = practitionerRole.Organization
-        };
+            auditEvent.Source = new AuditEvent.SourceComponent()
+            {
+                Type = [new() { Code = _appConfig.RepositoryUniqueId }],
+                Observer = practitionerRole.Organization
+            };
+        }
 
         return auditEvent;
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Abc.Xacml.Context;
+using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -78,9 +79,11 @@ public partial class XdsRegistryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public SoapRequestResult<SoapEnvelope> RegistryStoredQueryAsync(SoapEnvelope soapEnvelope)
+    public SoapRequestResult<SoapEnvelope> RegistryStoredQueryAsync(SoapEnvelope soapEnvelope, XacmlContextRequest? xacmlRequest = null)
     {
-        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
+        var documentRegistryDtos = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var documentRegistry = new XmlDocumentRegistry(RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(documentRegistryDtos.ToList()));
 
         var registryResponse = new RegistryResponseType();
 
@@ -140,7 +143,11 @@ public partial class XdsRegistryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
+
                 filteredElements = [.. registryFindDocumentEntriesResult];
+
+                // Apply business-logic filtering
+                filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(xacmlRequest);
 
                 _logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
                 _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Returned {filteredElements.Count} ExtrinsicObjects for AdhocQuery Type FindDocuments ({adhocQueryRequest?.AdhocQuery.Id})");
@@ -275,6 +282,7 @@ public partial class XdsRegistryService
 
             //    break;
         }
+
 
         filteredElements.ObfuscateRestrictedDocumentEntries(out var count);
         

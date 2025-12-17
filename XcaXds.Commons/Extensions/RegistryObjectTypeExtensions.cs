@@ -4,7 +4,6 @@ namespace XcaXds.Commons.Extensions;
 
 public static class RegistryObjectTypeExtensions
 {
-    //  CREATE/UPDATE Classification
     public static void AddClassification(this RegistryObjectType registryObject, ClassificationType classificationType)
     {
         registryObject.Classification ??= [];
@@ -17,7 +16,6 @@ public static class RegistryObjectTypeExtensions
         registryObject.Classification = [.. registryObject.Classification, .. classificationRange];
     }
 
-    //  CREATE/UPDATE ExternalIdentifier
     public static void AddExternalIdentifier(this RegistryObjectType registryObject, ExternalIdentifierType externalIdentifierType)
     {
         registryObject.ExternalIdentifier ??= [];

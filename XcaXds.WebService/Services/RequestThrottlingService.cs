@@ -1,29 +1,49 @@
-﻿using XcaXds.Commons.Commons;
-
-namespace XcaXds.WebService.Services;
+﻿namespace XcaXds.WebService.Services;
 
 /// <summary>
-/// Depencency injected service to intentionally throttle response times
+/// Service to intentionally throttle response times for debugging purposes
 /// </summary>
 public class RequestThrottlingService
 {
-    private int ThrottleTimeMillis { get; set; }
+    private readonly object _lock = new();
+    private int _throttleTimeMillis { get; set; }
+
+    private DateTime _throttleTimeSet { get; set; }
+    private int _throttleTimeDuration { get; set; }
+
 
     public bool IsThrottleTimeSet()
     {
-        return ThrottleTimeMillis != 0;
+        lock (_lock)
+        {
+            return _throttleTimeMillis != 0;
+        }
     }
 
     public int GetThrottleTime()
     {
-        return ThrottleTimeMillis;
+        lock (_lock)
+        {
+            if (DateTime.UtcNow >= _throttleTimeSet.AddSeconds(_throttleTimeDuration))
+            {
+                _throttleTimeMillis = 0;
+            }
+
+            return _throttleTimeMillis;
+        }
     }
 
-    public void SetThrottleTime(int input)
+    public void SetThrottleTime(int input, int duration)
     {
-        if (input >= 0)
+        lock (_lock)
         {
-            ThrottleTimeMillis = input;
+            _throttleTimeSet = DateTime.UtcNow;
+            _throttleTimeDuration = duration;
+
+            if (input >= 0)
+            {
+                _throttleTimeMillis = input;
+            }
         }
     }
 }

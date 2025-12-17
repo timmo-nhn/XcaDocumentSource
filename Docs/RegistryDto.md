@@ -18,7 +18,7 @@ Due to the polymorphic nature of the `RegistryObjectDto`-class, a custom JSON se
 Functions exist to translate the DTOs between DTO and ebRIM-types. It can be found in the `RegistryMetadataTransformerService`-class. 
 
 ## Registry Object Mappings (Custom classes to ebRIM/IHE XDS Metadata)
-Fields are required according to the optionality of the ebRIM metadata, all properties have a 1:1 cardinality.  
+Fields are required according to the optionality of the ebRIM metadata.  
 For more info on metadata, see [IHE XDS metadata - git.sarepta.ehelse.no ↗](https://git.sarepta.ehelse.no/publisert/standarder/raw/master/kravdokument/IHS_XDS_metadata/HIS%201169_2016%20IHE%20XDS%20metadata%20-oppdatert.pdf)
 
 ```mermaid
@@ -39,8 +39,8 @@ subgraph "Registry Metadata Transformer Service"
 end
 
 asdto[Association DTO<br><pre>#123;&quot;association&quot;:#123;&quotid&quot:&quot;123&quot;...#125;]
-eodto[ExtrinsicObject DTO<br><pre>#123;&quot;extrinsicObject&quot;:#123;&quotid&quot:&quot;123&quot;...#125;]
-rpdto[RegistryPackage DTO<br><pre>#123;&quot;registryPackage&quot;:#123;&quotid&quot:&quot;123&quot;...#125;]
+eodto[ExtrinsicObject DTO<br><pre>#123;&quot;extrinsicObject&quot;:#123;&quotid&quot:&quot;456&quot;...#125;]
+rpdto[RegistryPackage DTO<br><pre>#123;&quot;registryPackage&quot;:#123;&quotid&quot:&quot;789&quot;...#125;]
 
 as <---> to1 <---> asdto
 eo <---> to2 <---> eodto
@@ -49,7 +49,7 @@ rp <---> to3 <---> rpdto
 
 ### DocumentEntryDto
 The **DocumentEntryDto** represents an `ExtrinsicObject` in an XDS/XCA registry.  
-It captures metadata about a clinical document such as its author, creation time, patient, format, and classification.  
+It holds metadata about a clinical document such as its author, creation time, patient, format, and classification.  
 This data structure is a key part of document registration and query responses in the [IHE ITI Technical Framework](https://profiles.ihe.net/ITI/TF/Volume3/ch-4.1.html).
 
 #### Purpose
@@ -560,5 +560,3 @@ Represents an association `<Association>`-XML type, often used to create a link 
     </Slot>
 </Association>
 ```
-
-## Registry Objects in the Registry
