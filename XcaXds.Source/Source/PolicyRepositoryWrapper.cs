@@ -186,7 +186,7 @@ public class PolicyRepositoryWrapper
     {
         if (_policySetPractitioner.Policies?.Count == 0)
         {
-            _logger.LogWarning("No policies are set up. XcaDocumentSource will deny all requests!");
+            _logger.LogWarning("No policies are set up. Will deny all requests!");
         }
         
         switch (appliesTo)

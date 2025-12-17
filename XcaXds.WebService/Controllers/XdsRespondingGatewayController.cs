@@ -1,3 +1,4 @@
+using Abc.Xacml.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
@@ -77,6 +78,13 @@ public class XdsRespondingGatewayController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
+        XacmlContextRequest? xacmlRequest = null;
+
+        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
+        {
+            xacmlRequest = xacmlContextRequest;
+        }
+
         if (soapEnvelope.Header.ReplyTo?.Address != Constants.Soap.Addresses.Anonymous)
         {
             action += "Async";
@@ -137,7 +145,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
-                var iti38Response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+                var iti38Response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope, xacmlRequest);
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
                 responseEnvelope = iti38Response.Value;
                 break;

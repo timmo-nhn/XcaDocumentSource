@@ -16,4 +16,9 @@ public class XmlDocumentRegistry
     {
         RegistryObjectList = [];
     }
+
+    public XmlDocumentRegistry(IdentifiableType[] registryObjects)
+    {
+        RegistryObjectList = registryObjects;
+    }
 }

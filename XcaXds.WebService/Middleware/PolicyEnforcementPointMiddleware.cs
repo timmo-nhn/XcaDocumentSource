@@ -67,7 +67,6 @@ public class PolicyEnforcementPointMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-
         if (_xdsConfig.BypassPolicyEnforcementPoint)
         {
             _logger.LogWarning("BypassPolicyEnforcementPoint is true! Policy Enforcement Point was bypassed.");
@@ -92,8 +91,7 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-        var endpoint = httpContext.GetEndpoint();
-        var enforceAttr = endpoint?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
+        var enforceAttr = httpContext.GetEndpoint()?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
 
         if (enforceAttr == null || enforceAttr.Enabled == false)
         {
@@ -106,20 +104,11 @@ public class PolicyEnforcementPointMiddleware
 
         using var activity = ActivitySource.StartActivity("PolicyEnforcementPoint");
         activity?.SetTag("Request.SessionId", httpContext.TraceIdentifier);
-
         PepInvokeCounter.Add(1);
 
         httpContext.Request.EnableBuffering(); // Allows multiple reads
 
-        var sb = new StringBuilder();
-
-        sb.AppendLine($"{httpContext.TraceIdentifier} - Request headers");
-        foreach (var item in httpContext.Request.Headers)
-        {
-            sb.AppendLine(item.Key + ": " + item.Value);
-        }
-
-        _logger.LogDebug(sb.ToString());
+        DebugLogRequestHeaders(httpContext);
 
         var requestBody = await httpContext.Request.GetHttpRequestBodyAsStringAsync();
 
@@ -128,21 +117,13 @@ public class PolicyEnforcementPointMiddleware
 
         if (httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("boundary")))
         {
-            requestBody = await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(httpContext);
+            requestBody = (await HttpRequestResponseExtensions.ReadMultipartContentFromRequest(httpContext)).Trim();
         }
-
-        requestBody = requestBody.Trim();
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
-        if (_requestThrottlingService.IsThrottleTimeSet())
-        {
-            var throttleTime = _requestThrottlingService.GetThrottleTime();
-
-            _logger.LogWarning($"Requesth throttling enabled for PEP-enabled endpoint: {throttleTime} ms");
-            Thread.Sleep(throttleTime);
-        }
+        ThrottleRequestIfRequestThrottlingEnabled();
 
         bool tokenIsValid = true;
         var xacmlRequestAppliesTo = Issuer.Unknown;
@@ -204,7 +185,8 @@ public class PolicyEnforcementPointMiddleware
                     var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
 
                     var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
-                    xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
+
+                    xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
 
                     xacmlRequestAppliesTo = appliesTo;
                 }
@@ -258,6 +240,7 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
 
+
         var evaluateResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest, xacmlRequestAppliesTo);
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {evaluateResponse.Results.FirstOrDefault()?.Decision.ToString()}");
@@ -265,9 +248,16 @@ public class PolicyEnforcementPointMiddleware
         if (evaluateResponse != null && evaluateResponse.Results.All(res => res.Decision == XacmlContextDecision.Permit))
         {
             sw.Stop();
+
+            httpContext.Items.Add("xacmlRequest", xacmlRequest);
+            httpContext.Items.Add("pepElapsedTime", sw.ElapsedMilliseconds);
+            
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+           
             _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:permit", sw.ElapsedMilliseconds);
+            
             activity?.SetTag("PolicyEnforcementPoint.Status", "permit");
+            
             await _next(httpContext);
         }
         else
@@ -324,6 +314,29 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             return;
         }
+    }
+
+    private void DebugLogRequestHeaders(HttpContext httpContext)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"{httpContext.TraceIdentifier} - Request headers");
+        foreach (var item in httpContext.Request.Headers)
+        {
+            sb.AppendLine(item.Key + ": " + item.Value);
+        }
+
+        _logger.LogDebug(sb.ToString());
+    }
+
+    private void ThrottleRequestIfRequestThrottlingEnabled()
+    {
+        if (!_requestThrottlingService.IsThrottleTimeSet()) return;
+
+        var throttleTime = _requestThrottlingService.GetThrottleTime();
+
+        _logger.LogWarning($"Requesth throttling enabled for PEP-enabled endpoint: {throttleTime} ms");
+        Thread.Sleep(throttleTime);
     }
 }
 

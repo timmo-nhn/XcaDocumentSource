@@ -6,4 +6,9 @@ public static class DateTimeExtensions
     {
         return new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second);
     }
+
+    public static DateTime ParseNinToDateTime(string patientId)
+    {
+        throw new NotImplementedException();
+    }
 }

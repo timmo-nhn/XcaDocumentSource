@@ -8,6 +8,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Commons;
+
 public static class Constants
 {
     public static class XmlDefaultOptions
@@ -538,8 +539,156 @@ public static class Constants
 
             public static class Hl7
             {
-                public const string Confidentiality = "2.16.840.1.113883.5.25";
-                public const string AuditEventId = "2.16.840.1.113883.4.642.3.462";
+                public static class ConfidentialityCode
+                {
+                    public const string Oid = "2.16.840.1.113883.5.25";
+                    public const string Low = "L"; // low	
+                    public const string Moderate = "M"; // moderate	
+                    public const string Normal = "N"; // normal	
+                    public const string Restricted = "R"; // restricted	
+                    public const string Unrestricted = "U"; // unrestricted	
+                    public const string VeryRestricted = "V"; // very restricted	
+
+                }
+                public static class AuditEventId
+                {
+                    public const string Oid = "2.16.840.1.113883.4.642.3.462";
+                }
+
+                public static class PurposeOfUse
+                {
+                    public const string Oid = "2.16.840.1.113883.1.11.20448";
+                    /// <summary>healthcare marketing</summary>
+                    public const string HMARKT = "HMARKT";
+                    /// <summary>healthcare operations</summary>
+                    public const string HOPERAT = "HOPERAT";
+                    /// <summary>care management</summary>
+                    public const string CAREMGT = "CAREMGT";
+                    /// <summary>donation</summary>
+                    public const string DONAT = "DONAT";
+                    /// <summary>fraud</summary>
+                    public const string FRAUD = "FRAUD";
+                    /// <summary>government</summary>
+                    public const string GOV = "GOV";
+                    /// <summary>health accreditation</summary>
+                    public const string HACCRED = "HACCRED";
+                    /// <summary>health compliance</summary>
+                    public const string HCOMPL = "HCOMPL";
+                    /// <summary>decedent</summary>
+                    public const string HDECD = "HDECD";
+                    /// <summary>directory</summary>
+                    public const string HDIRECT = "HDIRECT";
+                    /// <summary>healthcare delivery management</summary>
+                    public const string HDM = "HDM";
+                    /// <summary>legal</summary>
+                    public const string HLEGAL = "HLEGAL";
+                    /// <summary>health outcome measure</summary>
+                    public const string HOUTCOMS = "HOUTCOMS";
+                    /// <summary>health program reporting</summary>
+                    public const string HPRGRP = "HPRGRP";
+                    /// <summary>health quality improvement</summary>
+                    public const string HQUALIMP = "HQUALIMP";
+                    /// <summary>health system administration</summary>
+                    public const string HSYSADMIN = "HSYSADMIN";
+                    /// <summary>labeling</summary>
+                    public const string LABELING = "LABELING";
+                    /// <summary>metadata management</summary>
+                    public const string METAMGT = "METAMGT";
+                    /// <summary>member administration</summary>
+                    public const string MEMADMIN = "MEMADMIN";
+                    /// <summary>military command</summary>
+                    public const string MILCDM = "MILCDM";
+                    /// <summary>patient administration</summary>
+                    public const string PATADMIN = "PATADMIN";
+                    /// <summary>patient safety</summary>
+                    public const string PATSFTY = "PATSFTY";
+                    /// <summary>performance measure</summary>
+                    public const string PERFMSR = "PERFMSR";
+                    /// <summary>records management</summary>
+                    public const string RECORDMGT = "RECORDMGT";
+                    /// <summary>system development</summary>
+                    public const string SYSDEV = "SYSDEV";
+                    /// <summary>test health data</summary>
+                    public const string HTEST = "HTEST";
+                    /// <summary>training</summary>
+                    public const string TRAIN = "TRAIN";
+                    /// <summary>healthcare payment</summary>
+                    public const string HPAYMT = "HPAYMT";
+                    /// <summary>claim attachment</summary>
+                    public const string CLMATTCH = "CLMATTCH";
+                    /// <summary>coverage authorization</summary>
+                    public const string COVAUTH = "COVAUTH";
+                    /// <summary>coverage under policy or program</summary>
+                    public const string COVERAGE = "COVERAGE";
+                    /// <summary>eligibility determination</summary>
+                    public const string ELIGDTRM = "ELIGDTRM";
+                    /// <summary>eligibility verification</summary>
+                    public const string ELIGVER = "ELIGVER";
+                    /// <summary>enrollment</summary>
+                    public const string ENROLLM = "ENROLLM";
+                    /// <summary>military discharge</summary>
+                    public const string MILDCRG = "MILDCRG";
+                    /// <summary>remittance advice</summary>
+                    public const string REMITADV = "REMITADV";
+                    /// <summary>healthcare research</summary>
+                    public const string HRESCH = "HRESCH";
+                    /// <summary>biomedical research</summary>
+                    public const string BIORCH = "BIORCH";
+                    /// <summary>clinical trial research</summary>
+                    public const string CLINTRCH = "CLINTRCH";
+                    /// <summary>clinical trial research without patient care</summary>
+                    public const string CLINTRCHNPC = "CLINTRCHNPC";
+                    /// <summary>clinical trial research with patient care</summary>
+                    public const string CLINTRCHPC = "CLINTRCHPC";
+                    /// <summary>preclinical trial research</summary>
+                    public const string PRECLINTRCH = "PRECLINTRCH";
+                    /// <summary>disease specific healthcare research</summary>
+                    public const string DSRCH = "DSRCH";
+                    /// <summary>population origins or ancestry healthcare research</summary>
+                    public const string POARCH = "POARCH";
+                    /// <summary>translational healthcare research</summary>
+                    public const string TRANSRCH = "TRANSRCH";
+                    /// <summary>patient requested</summary>
+                    public const string PATRQT = "PATRQT";
+                    /// <summary>family requested</summary>
+                    public const string FAMRQT = "FAMRQT";
+                    /// <summary>power of attorney</summary>
+                    public const string PWATRNY = "PWATRNY";
+                    /// <summary>support network</summary>
+                    public const string SUPNWK = "SUPNWK";
+                    /// <summary>public health</summary>
+                    public const string PUBHLTH = "PUBHLTH";
+                    /// <summary>disaster</summary>
+                    public const string DISASTER = "DISASTER";
+                    /// <summary>threat</summary>
+                    public const string THREAT = "THREAT";
+                    /// <summary>treatment</summary>
+                    public const string TREAT = "TREAT";
+                    /// <summary>clinical trial</summary>
+                    public const string CLINTRL = "CLINTRL";
+                    /// <summary>coordination of care</summary>
+                    public const string COC = "COC";
+                    /// <summary>Emergency Treatment</summary>
+                    public const string ETREAT = "ETREAT";
+                    /// <summary>break the glass</summary>
+                    public const string BTG = "BTG";
+                    /// <summary>emergency room treatment</summary>
+                    public const string ERTREAT = "ERTREAT";
+                    /// <summary>population health</summary>
+                    public const string POPHLTH = "POPHLTH";
+                }
+            }
+
+            public static class OtherIsoDerived
+            {
+                public static class PurposeOfUse
+                {
+                    public const string Oid = "1.0.14265.1";
+                    public const string ClinicalCare_1 = "1";
+                    public const string EmergencyCare_2 = "2";
+                    public const string Management_5 = "5";
+                    public const string SubjectOfCare_13 = "13";
+                }
             }
         }
 
@@ -560,7 +709,7 @@ public static class Constants
                 public const string RepresentCitizenUnder12 = "urn:oid:2.16.578.1.12.4.1.7.2.1.1";
 
                 /// <summary>
-                /// Represent another cititzen
+                /// Represent another cititzen (Power of Attorney)
                 /// </summary>
                 public const string RepresentAnotherCitizen = "urn:oid:2.16.578.1.12.4.1.7.2.1.2";
 
@@ -738,6 +887,7 @@ public static class Constants
             public const string DocumentUniqueId = "urn:no:nhn:xcads:document:uniqueid";
             public const string RepositoryUniqueId = "urn:no:nhn:xcads:document:repositoryuniqueid";
             public const string HomeCommunityId = "urn:no:nhn:xcads:document:homecommunityid";
+            public const string SamlNameId = "urn:no:nhn:xcads:saml:nameid";
         }
 
         public static class Category
@@ -790,6 +940,7 @@ public static class Constants
             public const string ChildOrganization = "urn:oasis:names:tc:xspa:1.0:subject:child-organization";
             public const string Role = "urn:oasis:names:tc:xspa:1.0:subject:role";
             public const string PurposeOfUse = "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse";
+            public const string PurposeOfUse_Helsenorge = "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse";
             public const string Npi = "urn:oasis:names:tc:xspa:2.0:subject:npi";
 
             // --- IHE / XUA / XCA / BPPC ---
@@ -851,7 +1002,6 @@ public static class Constants
             public const string ITI18 = "ITI-18";
             public const string ITI39 = "ITI-39";
         }
-
 
         // purposeOfUse Code values
         public const string TREAT = "TREAT";

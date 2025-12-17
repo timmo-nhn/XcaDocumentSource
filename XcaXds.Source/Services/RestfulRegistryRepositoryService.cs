@@ -47,7 +47,7 @@ public class RestfulRegistryRepositoryService
 
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing
-        patientIdCx.AssigningAuthority ??= Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(patientId)?.AssigningAuthority ?? new() { UniversalId = Constants.Oid.Fnr, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
+        patientIdCx.AssigningAuthority ??= Hl7FhirExtensions.ParseNorwegianNinToCxWithAssigningAuthority(patientId)?.AssigningAuthority ?? new() { UniversalId = Constants.Oid.Fnr, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 

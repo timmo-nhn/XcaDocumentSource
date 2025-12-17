@@ -17,7 +17,7 @@ public static class StringExtensions
             return input;
         }
 
-        return input.Replace("urn:uuid:", "").Replace("urn:oid:", "");
+        return input.TrimStart("urn:uuid:").TrimStart("urn:oid:");
     }
 
     /// <summary>
@@ -95,6 +95,20 @@ public static class StringExtensions
             // Check for TXT: All characters in range of printable ASCII
             _ => input.All(b => b >= 32 && b <= 126) ? "text/plain" : null,
         };
+    }
+
+    public static bool IsAnyOf(this string value, params string[] options)
+    {
+        if (string.IsNullOrWhiteSpace(value) || options == null) return false;
+
+        return options.Contains(value);
+    }
+
+    public static bool IsNotAnyOf(this string value, params string[] options)
+    {
+        if (string.IsNullOrWhiteSpace(value) || options == null) return false;
+        
+        return !options.Contains(value);
     }
 
     private static bool IsClinicalDocument(byte[] input)

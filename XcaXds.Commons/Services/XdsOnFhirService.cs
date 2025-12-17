@@ -39,7 +39,7 @@ public class XdsOnFhirService
         {
             var patientCx = Hl7Object.Parse<CX>(documentRequest.Patient, '|');
 
-            var patientOid = Hl7FhirExtensions.ParseNinToCxWithAssigningAuthority(documentRequest.Patient);
+            var patientOid = Hl7FhirExtensions.ParseNorwegianNinToCxWithAssigningAuthority(documentRequest.Patient);
 
             if (patientOid != null && patientCx != null)
             {

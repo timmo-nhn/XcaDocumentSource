@@ -82,7 +82,7 @@ public class ApplicationMetaController : ControllerBase
     }
 
     [HttpGet("set-get-throttle-time")]
-    public IActionResult SetOrGetThrottleTime(int? throttleTimeMillis = null)
+    public IActionResult SetOrGetThrottleTime(int? throttleTimeMillis = null, int? throttleDurationSeconds = 0)
     {
         var response = new RestfulApiResponse();
 
@@ -95,7 +95,7 @@ public class ApplicationMetaController : ControllerBase
         }
         else
         {
-            _requestThrottlingService.SetThrottleTime(throttleTimeMillis ?? 0);
+            _requestThrottlingService.SetThrottleTime(throttleTimeMillis ?? 0, throttleDurationSeconds ?? 30);
 
             var responseMessage = $"Fake throttle time set to {throttleTimeMillis} ms";
 
@@ -135,7 +135,7 @@ public class ApplicationMetaController : ControllerBase
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(resourceJson.GetRawText());
         if (jsonTestData == null) return BadRequest("No content provided");
 
-        var generatedTestRegistryObjects = RegistryMetadataGeneratorService.GenerateRandomizedTestData(_xdsConfig, jsonTestData, _repositoryWrapper, entriesToGenerate, patientIdentifier);
+        var generatedTestRegistryObjects = RegistryMetadataGeneratorService.GenerateRandomizedTestData(_xdsConfig.HomeCommunityId, _xdsConfig.RepositoryUniqueId, jsonTestData, _repositoryWrapper, entriesToGenerate, patientIdentifier);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedTestRegistryObjects);
 
         return Ok("Metadata generated");
