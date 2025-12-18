@@ -1,100 +1,252 @@
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
-using XcaXds.Tests.Helpers;
+
+using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.Tests;
 
 public class UnitTests_BusinessLogic
 {
-    private List<IdentifiableType> _documentReferences = new();
+    private List<IdentifiableType>? _documentReferences = new();
 
 
     [Fact]
-    public async Task EvaluateBusinessLogic_Citizen()
+    public async Task Citizen_1_ShouldOpenDocumentsOnThemself()
     {
         SetupTests();
 
-        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
+        var patientId = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
 
-        var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("iti38-iti40-request-hn.xml"))));
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId),
+            Resource = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
 
-        var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
 
-        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo);
-
-        _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(xacmlRequest);
-
-        Assert.Equal(3, _documentReferences.Count);
+        Assert.Equal(3, _documentReferences?.Count);
     }
 
     [Fact]
-    public async Task EvaluateBusinessLogic_Citizen_ACP_1()
+    public async Task Citizen_2_12To16_ShouldGetEmptyDocumentList()
     {
         SetupTests();
+        var patientId12To16Years = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-13).Year.ToString().Substring(2, 2)}79740";
 
-        var registryObjects = TestHelpers.GenerateRegistryMetadata();
-        var extrinsicObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(registryObjects);
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId12To16Years),
+            Resource = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId12To16Years),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
 
-        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
 
-        var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(testDataFiles.FirstOrDefault(f => f.Contains("iti38-iti40-request-hn-acp-1.xml")));
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
-
-        var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
-
-        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, registryObjects);
-
-        extrinsicObjects.FilterRegistryObjectListBasedOnBusinessLogic(xacmlRequest);
+        Assert.Empty(_documentReferences);
     }
 
     [Fact]
-    public async Task EvaluateBusinessLogic_Citizen_ACP_2()
+    public async Task Citizen_3_16To18_ShouldAccessPartsOfDocumentList()
     {
         SetupTests();
 
-        var registryObjects = TestHelpers.GenerateRegistryMetadata();
-        var extrinsicObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(registryObjects);
+        var patientId16To18Years = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-17).Year.ToString().Substring(2, 2)}79740";
 
-        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId16To18Years),
+            Resource = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId16To18Years),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
 
-        var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(testDataFiles.FirstOrDefault(f => f.Contains("iti38-iti40-request-hn-acp-2.xml")));
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
 
-        var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
-
-        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, registryObjects);
-
-        extrinsicObjects.FilterRegistryObjectListBasedOnBusinessLogic(xacmlRequest);
+        Assert.Equal(2, _documentReferences?.Count);
     }
 
     [Fact]
-    public async Task EvaluateBusinessLogic_Citizen_ACP_3()
+    public async Task Citizen_4_ShouldAccessChildrenBelow12DocumentList()
     {
         SetupTests();
 
-        var registryObjects = TestHelpers.GenerateRegistryMetadata();
-        var extrinsicObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(registryObjects);
+        var resourceBelow12Years = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-6).Year.ToString().Substring(2, 2)}79740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
 
-        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
+            Purpose = new() { Code = FAMRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resourceBelow12Years, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resourceBelow12Years),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
 
-        var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(testDataFiles.FirstOrDefault(f => f.Contains("iti38-iti40-request-hn-acp-3.xml")));
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
 
-        var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
+        Assert.Equal(3, _documentReferences?.Count);
+    }
 
-        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, registryObjects);
+    [Fact]
+    public async Task Citizen_5_ShouldAccessPowerOfAttorneyDocumentList()
+    {
+        SetupTests();
 
-        extrinsicObjects.FilterRegistryObjectListBasedOnBusinessLogic(xacmlRequest);
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.RepresentAnotherCitizen,
+            Purpose = new() { Code = PWATRNY, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+
+        Assert.Equal(2, _documentReferences?.Count);
+    }
+
+    [Fact]
+    public async Task Citizen_6_ShouldNotAccessNonPowerOfAttorneyDocumentList()
+    {
+        SetupTests();
+
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+
+        Assert.Empty(_documentReferences);
+    }
+
+    [Fact]
+    public async Task HealthcarePersonell_7_ShouldAccessTheirOwnDocumentList()
+    {
+        SetupTests();
+
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = TREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+
+        Assert.Equal(2, _documentReferences?.Count);
+    }
+
+    [Fact]
+    public async Task HealthcarePersonell_8_ShouldAccessPatientsDocumentList()
+    {
+        SetupTests();
+
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = TREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+
+        Assert.Equal(2, _documentReferences?.Count);
+    }
+
+    [Fact]
+    public async Task HealthcarePersonell_9_EmergencyShouldAccessPatientsDocumentList()
+    {
+        SetupTests();
+
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = ETREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+
+        Assert.Equal(3, _documentReferences?.Count);
+    }
+
+    [Fact]
+    public async Task HealthcarePersonell_10_IfMissingAttributesShouldNotAccessDocumentList()
+    {
+        SetupTests();
+
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+
+        Assert.Empty(_documentReferences);
     }
 
     private void SetupTests()
