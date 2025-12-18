@@ -147,7 +147,8 @@ public partial class XdsRegistryService
                 filteredElements = [.. registryFindDocumentEntriesResult];
 
                 // Apply business-logic filtering
-                filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(xacmlRequest);
+                var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+                filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic);
 
                 _logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
                 _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Returned {filteredElements.Count} ExtrinsicObjects for AdhocQuery Type FindDocuments ({adhocQueryRequest?.AdhocQuery.Id})");

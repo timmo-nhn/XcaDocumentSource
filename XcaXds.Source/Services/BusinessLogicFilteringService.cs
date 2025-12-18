@@ -12,31 +12,43 @@ namespace XcaXds.Source.Services;
 /// </summary>
 public static class BusinessLogicFilteringService
 {
-    public static void FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType> registryObjects, XacmlContextRequest? xacmlRequest)
+    public static IEnumerable<IdentifiableType>? FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType>? registryObjects, BusinessLogicParameters? businessLogic)
     {
-        if (xacmlRequest == null) return;
+        if (registryObjects == null || registryObjects.Count() == 0) return registryObjects;
+        if (businessLogic == null) return registryObjects;
 
-        if (registryObjects == null || registryObjects.Count() == 0) return;
+        var businessLogicRules = new List<BusinessLogicRule>
+        {
+            BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
+            BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
+            BusinessLogicFilters.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
+            BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
+            BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
+            BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
+            BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
+            BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
+            BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
+            BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
+        };
 
-        var businessLogic = MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+        var current = registryObjects;
 
-        if (businessLogic == null) return;
+        var rulesApplied = new List<BusinessLogicResult>();
 
-        bool status;
+        foreach (var businessRule in businessLogicRules)
+        {
+            var result = businessRule(registryObjects, businessLogic);
 
-        BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences(registryObjects, businessLogic, out status);
-        BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences(registryObjects, businessLogic, out status);
-        BusinessLogicFilters.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences(registryObjects, businessLogic, out status);
-        BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences(registryObjects, businessLogic, out status);
-        BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences(registryObjects, businessLogic, out status);
-        BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences(registryObjects, businessLogic, out status);
+            if (result.Success)
+            {
+                rulesApplied.Add(result);
+                current = result.RegistryObjects;
+            }
+        }
 
-        BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences(registryObjects,businessLogic,out status);
-        BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences(registryObjects, businessLogic, out status);
-        BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences(registryObjects, businessLogic, out status);
-        BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences(registryObjects,businessLogic,out status);
+
+        return current;
     }
-
 
 
     public static BusinessLogicParameters? MapXacmlRequestToBusinessLogicParameters(XacmlContextRequest? xacmlRequest)
@@ -62,7 +74,7 @@ public static class BusinessLogicFilteringService
         return businessLogic;
     }
 
-    private static int GetAgeFromPatientId(string? patientId)
+    public static int GetAgeFromPatientId(string? patientId)
     {
         if (string.IsNullOrWhiteSpace(patientId) || patientId.Length != 11) return 0;
 
