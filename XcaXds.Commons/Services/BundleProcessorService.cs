@@ -6,13 +6,13 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using static XcaXds.Commons.Commons.Constants;
 
 namespace XcaXds.Commons.Services;
 
-
 public static class BundleProcessorService
 {
-    public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(Patient bundlePatient, List<DocumentReference> documentReferences, List submissionSetList, List<Binary> fhirBinaries, Identifier patientIdentifier, string GpiOid, string homeCommunityId)
+    public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient bundlePatient, List<DocumentReference> documentReferences, List submissionSetList, List<Binary> fhirBinaries, Identifier patientIdentifier, string GpiOid, string homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -30,29 +30,54 @@ public static class BundleProcessorService
         for (var i = 0; i < documentReferences.Count; i++)
         {
             var documentReference = documentReferences[i];
-            var fhirBinary = fhirBinaries.ElementAtOrDefault(i);
 
-            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid);
+			var fhirBinary = MatchBinaryToDocumentReference(
+				bundle: bundle,
+				documentReference: documentReference,
+				indexFallback: i,
+				binaries: fhirBinaries,
+				operationOutcome: operationOutcome);
+
+			var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid);
             if (!extrinsicResult.Success)
             {
                 operationOutcome.AddIssue(extrinsicResult.OperationOutcome.Issue);
             }
             extrinsicObjects.Add(extrinsicResult.Value);
 
-            var documentResult = ConvertBinaryToDocument(fhirBinary, extrinsicResult.Value);
-            if (!documentResult.Success)
-            {
-                operationOutcome.AddIssue(documentResult.OperationOutcome.Issue);
-            }
-            documents.Add(documentResult.Value);
+			// Only add Document element if Binary exists (metadata-only should be allowed)
+			if (fhirBinary != null)
+			{
+				var documentResult = ConvertBinaryToDocument(fhirBinary, extrinsicResult.Value);
+				if (!documentResult.Success)
+				{
+					operationOutcome.AddIssue(documentResult.OperationOutcome.Issue);
+				}
+				documents.Add(documentResult.Value);
+			}
 
-            var assocResult = CreateAssociationForSubmissionSet(extrinsicResult.Value, registryPackage);
+			var validationOutcome = ValidateDocumentRelations(documentReference);
+			if (validationOutcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
+			{
+				operationOutcome.AddIssue(validationOutcome.Issue);
+				continue; // or fail fast
+			}
+
+			var sourceExtrinsicId = extrinsicResult.Value.Id;
+
+			var assocResult = CreateAssociationForSubmissionSet(extrinsicResult.Value, registryPackage);
             if (!assocResult.Success)
             {
                 operationOutcome.AddIssue(assocResult.OperationOutcome.Issue);
             }
             associations.Add(assocResult.Value);
-        }
+
+			// Map relatesTo → XDS associations (0..N)
+			var relationAssociations =
+				MapRelationsToXdsAssociations(documentReference, sourceExtrinsicId);
+
+			associations.AddRange(relationAssociations);
+		}
 
         var request = new ProvideAndRegisterDocumentSetbRequest
         {
@@ -62,15 +87,20 @@ public static class BundleProcessorService
                 {
                     RegistryObjectList = [
                         registryPackage,
-                    ..extrinsicObjects,
-                    ..associations
+                        ..extrinsicObjects,
+                        ..associations
                       ]
                 },
-                Document = [.. documents]
-            }
+				// Document list can be empty for metadata-only submissions
+				Document = documents.Count > 0 ? [.. documents] : []
+			}
         };
 
-        var creationResult = new ServiceResultDto<ProvideAndRegisterDocumentSetbRequest>()
+		// We're now sending both:
+		// HasMember associations(SubmissionSet -> DocumentEntry)
+		// Relation associations(New DocumentEntry -> Old DocumentEntry), i.e.RPLC / APND / XFRM / SIGN
+
+		var creationResult = new ServiceResultDto<ProvideAndRegisterDocumentSetbRequest>()
         {
             Value = request,
             OperationOutcome = operationOutcome
@@ -1672,5 +1702,269 @@ public static class BundleProcessorService
         return randomOid;
     }
 
+	private static List<AssociationType> MapRelationsToXdsAssociations(
+	DocumentReference dr,
+	string sourceExtrinsicId)
+	{
+		var result = new List<AssociationType>();
 
+		if (dr.RelatesTo == null || dr.RelatesTo.Count == 0)
+			return result;
+
+		foreach (var rel in dr.RelatesTo)
+		{
+			if (rel.Code == null || string.IsNullOrWhiteSpace(rel.Target?.Reference))
+				continue;
+
+			var targetRef = rel.Target.Reference!;
+			var targetExtrinsicId = targetRef
+				.Replace("DocumentReference/", "", StringComparison.OrdinalIgnoreCase)
+				.Replace("urn:uuid:", "");
+
+			var associationType = rel.Code.Value switch
+			{
+				DocumentRelationshipType.Replaces =>
+					Xds.AssociationType.Replace,
+
+				DocumentRelationshipType.Transforms =>
+					Xds.AssociationType.Transformation,
+
+				DocumentRelationshipType.Appends =>
+					Xds.AssociationType.Addendum,
+
+				DocumentRelationshipType.Signs =>
+					Xds.AssociationType.DigitalSignature,
+
+				//DocumentRelationshipType.IsSnapshotOf =>
+				//	Xds.Constants.Xds.AssociationType.SnapshotOfOnDemandDocumentEntry,
+
+				_ => throw new NotSupportedException(
+					$"Unsupported DocumentRelationshipType '{rel.Code}'")
+			};
+
+			result.Add(new AssociationType
+			{
+				Id = Guid.NewGuid().ToString(),
+				ObjectType = Xds.ObjectTypes.Association,
+				AssociationTypeData = associationType,
+				SourceObject = sourceExtrinsicId,
+				TargetObject = targetExtrinsicId
+			});
+		}
+
+		return result;
+	}
+
+	private static Binary? MatchBinaryToDocumentReference(
+	Bundle bundle,
+	DocumentReference documentReference,
+	int indexFallback,
+	List<Binary> binaries,
+	OperationOutcome operationOutcome)
+	{
+		// 1) Try attachment.url → Bundle.Entry.fullUrl
+		var attachmentUrl = documentReference.Content
+			.FirstOrDefault()?.Attachment?.Url;
+
+		if (!string.IsNullOrWhiteSpace(attachmentUrl))
+		{
+			// Normalize reference (strip resource prefix if present)
+			var normalizedRef = attachmentUrl.StartsWith("Binary/", StringComparison.OrdinalIgnoreCase)
+				? attachmentUrl
+				: attachmentUrl;
+
+			var matchedEntry = bundle.Entry.FirstOrDefault(e =>
+				string.Equals(e.FullUrl, normalizedRef, StringComparison.OrdinalIgnoreCase));
+
+			if (matchedEntry?.Resource is Binary binaryByFullUrl)
+			{
+				return binaryByFullUrl;
+			}
+
+			// 2) attachment.url → Binary.id
+			var idCandidate = attachmentUrl
+				.Replace("Binary/", "", StringComparison.OrdinalIgnoreCase)
+				.Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
+
+			var binaryById = binaries.FirstOrDefault(b =>
+				string.Equals(b.Id, idCandidate, StringComparison.OrdinalIgnoreCase));
+
+			if (binaryById != null)
+			{
+				return binaryById;
+			}
+		}
+
+		// 3) Fallback to index-based matching
+		var fallbackBinary = binaries.ElementAtOrDefault(indexFallback);
+
+		if (fallbackBinary != null)
+		{
+			operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+			{
+				Severity = OperationOutcome.IssueSeverity.Warning,
+				Code = OperationOutcome.IssueType.Informational,
+				Diagnostics =
+					$"Binary matched to DocumentReference '{documentReference.Id}' using index fallback. " +
+					$"Consider using DocumentReference.content.attachment.url referencing Bundle.entry.fullUrl.",
+				Location = new[]
+				{
+				"DocumentReference.content.attachment.url"
+			}
+			});
+		}
+
+		return fallbackBinary;
+	}
+
+	private static OperationOutcome ValidateDocumentRelations(DocumentReference dr)
+	{
+		var oo = new OperationOutcome();
+
+		if (dr.RelatesTo == null || dr.RelatesTo.Count == 0)
+			return oo;
+
+		void Error(string diagnostics, params string[] location)
+		{
+			oo.AddIssue(new OperationOutcome.IssueComponent
+			{
+				Severity = OperationOutcome.IssueSeverity.Error,
+				Code = OperationOutcome.IssueType.Invalid,
+				Diagnostics = diagnostics,
+				Location = location?.Length > 0 ? location : new[] { "DocumentReference.relatesTo" }
+			});
+		}
+
+		// --- Helpers ---
+		static string StripUrnUuid(string? v) =>
+			string.IsNullOrWhiteSpace(v)
+				? ""
+				: v.Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
+
+		static string StripDocRefPrefix(string? v) =>
+			string.IsNullOrWhiteSpace(v)
+				? ""
+				: v.Replace("DocumentReference/", "", StringComparison.OrdinalIgnoreCase);
+
+		static bool TryParseTargetEntryUuid(string? reference, out string entryUuid)
+		{
+			entryUuid = "";
+
+			if (string.IsNullOrWhiteSpace(reference))
+				return false;
+
+			// Accept:
+			// - "DocumentReference/<uuid>"
+			// - "urn:uuid:<uuid>"
+			// - "<uuid>"
+			var candidate = StripUrnUuid(StripDocRefPrefix(reference)).Trim();
+
+			// Guard against contained refs like "#something"
+			if (candidate.StartsWith("#", StringComparison.Ordinal))
+				return false;
+
+			// Must be a GUID (entryUUID)
+			if (!Guid.TryParse(candidate, out _))
+				return false;
+
+			entryUuid = candidate;
+			return true;
+		}
+
+		// --- 1) Basic per-item validation: code + target required ---
+		for (var i = 0; i < dr.RelatesTo.Count; i++)
+		{
+			var rel = dr.RelatesTo[i];
+
+			if (rel.Code == null)
+			{
+				Error("relatesTo.code is required.",
+					$"DocumentReference.relatesTo[{i}].code");
+				continue;
+			}
+
+			if (rel.Target == null || string.IsNullOrWhiteSpace(rel.Target.Reference))
+			{
+				Error("relatesTo.target.reference is required.",
+					$"DocumentReference.relatesTo[{i}].target.reference");
+				continue;
+			}
+
+			if (!TryParseTargetEntryUuid(rel.Target.Reference, out _))
+			{
+				Error("relatesTo.target.reference must be an entryUUID (GUID) in the form " +
+					  "'DocumentReference/<uuid>' or 'urn:uuid:<uuid>' or '<uuid>'.",
+					$"DocumentReference.relatesTo[{i}].target.reference");
+			}
+		}
+
+		// If we already have target/code errors, stop early (avoid misleading combo errors)
+		if (oo.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
+			return oo;
+
+		// --- 2) Prevent "document relates to itself" ---
+		var selfId = StripUrnUuid(dr.Id);
+
+		if (!string.IsNullOrWhiteSpace(selfId) && Guid.TryParse(selfId, out _))
+		{
+			for (var i = 0; i < dr.RelatesTo.Count; i++)
+			{
+				var rel = dr.RelatesTo[i];
+				if (!TryParseTargetEntryUuid(rel.Target?.Reference, out var targetId))
+					continue;
+
+				if (string.Equals(selfId, targetId, StringComparison.OrdinalIgnoreCase))
+				{
+					Error("A document cannot relate to itself.",
+						$"DocumentReference.relatesTo[{i}].target.reference");
+					break;
+				}
+			}
+		}
+
+		// --- 3) Cardinality: only one of each relationship type ---
+		var codes = dr.RelatesTo
+			.Where(r => r.Code != null)
+			.Select(r => r.Code!.Value)
+			.ToList();
+
+		foreach (var g in codes.GroupBy(c => c))
+		{
+			if (g.Count() > 1)
+				Error($"Multiple '{g.Key}' relationships are not allowed.");
+		}
+
+		// --- 4) Semantic combination rules ---
+		var hasReplace = codes.Contains(DocumentRelationshipType.Replaces);
+		var hasAppend = codes.Contains(DocumentRelationshipType.Appends);
+		var hasTransform = codes.Contains(DocumentRelationshipType.Transforms);
+		var hasSign = codes.Contains(DocumentRelationshipType.Signs);
+		_ = hasSign; // kept for readability / future rules
+
+		// Invalid semantic combinations
+		if (hasReplace && hasAppend)
+			Error("A document cannot both replace and append to another document.");
+
+		if (hasAppend && hasTransform)
+			Error("An addendum (appends) cannot also be a transform.");
+
+		// Replace must have exactly one target (already 1-of-each, but keep explicit rule)
+		if (hasReplace && dr.RelatesTo.Count(r => r.Code == DocumentRelationshipType.Replaces) != 1)
+			Error("A document that replaces another must reference exactly one target.");
+
+		// --- 5) Target consistency rules ---
+		// All non-sign relationships must target the same document (signing may be multi-sign)
+		var nonSignTargets = dr.RelatesTo
+			.Where(r => r.Code != DocumentRelationshipType.Signs)
+			.Select(r => r.Target?.Reference)
+			.Where(r => !string.IsNullOrWhiteSpace(r))
+			.Select(r => StripUrnUuid(StripDocRefPrefix(r)))
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		if (nonSignTargets.Count > 1)
+			Error("All non-sign relationships must reference the same target document.");
+
+		return oo;
+	}
 }

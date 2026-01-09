@@ -54,7 +54,7 @@ public partial class XdsRegistryService
 
         foreach (var replaceAssociation in documentReplaceAssociations)
         {
-            var documentId = replaceAssociation.TargetObject;
+            var documentId = replaceAssociation.TargetObject?.NoUrn();
             documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
 
             if (success)
@@ -89,7 +89,11 @@ public partial class XdsRegistryService
 
         var adhocQueryRequest = soapEnvelope.Body.AdhocQueryRequest;
 
-        var filteredElements = new List<IdentifiableType>();
+		var returnType = adhocQueryRequest?.ResponseOption?.ReturnType;
+		var isLeafClass = returnType == ResponseOptionTypeReturnType.LeafClass;
+		var isObjectRef = returnType == ResponseOptionTypeReturnType.ObjectRef;
+
+		var filteredElements = new List<IdentifiableType>();
 
         switch (adhocQueryRequest?.AdhocQuery.Id)
         {
@@ -143,14 +147,65 @@ public partial class XdsRegistryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
+			
+				// Start with the filtered document entries (ExtrinsicObjects)
+				var eos = registryFindDocumentEntriesResult.ToList();
+				filteredElements = [.. eos];
 
-                filteredElements = [.. registryFindDocumentEntriesResult];
+				// If LeafClass, include HasMember + lifecycle associations + referenced SubmissionSets
+				if (isLeafClass)
+				{
+					// All associations in the registry
+					var allAssociations = documentRegistry.RegistryObjectList.OfType<AssociationType>().ToList();
 
-                // Apply business-logic filtering
-                var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+					// IDs of returned EOs (normalize urn:uuid vs bare)
+					var eoIds = eos
+						.Where(e => !string.IsNullOrWhiteSpace(e.Id))
+						.Select(e => e.Id.NoUrn())
+						.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+					// 1) HasMember associations where target is our EO
+					var hasMemberAssociations = allAssociations
+						.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember
+									&& eoIds.Contains(a.TargetObject.NoUrn()))
+						.ToList();
+
+					// 2) Lifecycle associations where source is our EO (Replace/Addendum/Transform/Signs/…)
+					// Include everything except HasMember; you can tighten later if you wish.
+					var lifecycleAssociations = allAssociations
+						.Where(a => a.AssociationTypeData != Constants.Xds.AssociationType.HasMember
+									&& eoIds.Contains(a.SourceObject.NoUrn()))
+						.ToList();
+
+					// 3) SubmissionSets (RegistryPackages) referenced by HasMember.SourceObject
+					var submissionSetIds = hasMemberAssociations
+						.Select(a => a.SourceObject.NoUrn())
+						.Where(id => !string.IsNullOrWhiteSpace(id))
+						.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+					var submissionSets = documentRegistry.RegistryObjectList
+						.OfType<RegistryPackageType>()
+						.Where(rp => submissionSetIds.Contains(rp.Id.NoUrn()))
+						.ToList();
+
+					// Append to LeafClass response
+					filteredElements.AddRange(hasMemberAssociations);
+					filteredElements.AddRange(lifecycleAssociations);
+					filteredElements.AddRange(submissionSets);
+				}
+
+
+				// Apply business-logic filtering
+				var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
                 filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic);
 
-                _logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
+				// Safe guard to avoid duplicate IDs in response
+				filteredElements = filteredElements
+	                .GroupBy(x => x.Id)
+	                .Select(g => g.First())
+	                .ToList();
+
+				_logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
                 _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Returned {filteredElements.Count} ExtrinsicObjects for AdhocQuery Type FindDocuments ({adhocQueryRequest?.AdhocQuery.Id})");
 
                 break;

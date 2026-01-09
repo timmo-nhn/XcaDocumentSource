@@ -116,7 +116,7 @@ public class XdsOnFhirService
                     UniversalId = Constants.Oid.CodeSystems.Volven.DocumentType
                 };
 
-                adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.ClassCode, [typeCodeCx.Serialize()]);
+                adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.TypeCode, [typeCodeCx.Serialize()]);
             }
         }
 
@@ -167,17 +167,30 @@ public class XdsOnFhirService
         {
             var registryContent = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(_registry.ReadRegistry());
 
-            registryObjectList = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
+			var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
+			var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var relatedAssociations = registryContent.OfType<AssociationType>().Where(assoc => registryObjectList.GetById(assoc.TargetObject) != null).ToArray();
+			// Pull BOTH membership + lifecycle associations
+			var relatedAssociations = registryContent
+				.OfType<AssociationType>()
+				.Where(a =>
+					(a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject.NoUrn())) ||
+					(a.AssociationTypeData != Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.SourceObject.NoUrn()))
+				)
+				.ToArray();
 
-            var relatedRegistryPackages = relatedAssociations.Select(assoc => registryContent.GetById(assoc.SourceObject)).ToArray();
+			// Pull submission sets (registry packages) referenced by HasMember.SourceObject
+			var relatedRegistryPackages = relatedAssociations
+				.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember)
+				.Select(a => registryContent.GetById(a.SourceObject))
+				.OfType<RegistryPackageType>()
+				.ToArray();
 
-            registryObjectList = [.. registryObjectList, .. relatedAssociations, .. relatedRegistryPackages];
-        }
+			registryObjectList = [.. eos, .. relatedAssociations, .. relatedRegistryPackages];
+		}
 
 
-        var documentReference = GetFhirDocumentReferencesFromRegistryObjects(registryObjectList);
+		var documentReference = GetFhirDocumentReferencesFromRegistryObjects(registryObjectList);
 
         bundle.Entry.AddRange(documentReference
             .Select(dr => new Bundle.EntryComponent()
@@ -221,7 +234,9 @@ public class XdsOnFhirService
 
             var documentReference = new DocumentReference();
 
-            if (assocRegistryPackage == null || assocExtrinsicObject == null) continue;
+			documentReference.Id = assocExtrinsicObject.Id?.NoUrn();
+
+			if (assocRegistryPackage == null || assocExtrinsicObject == null) continue;
 
             documentReference.MasterIdentifier = GetMasterIdentifierFromRegistryPackageSourceId(assocRegistryPackage, assocExtrinsicObject);
             documentReference.Identifier = GetIdentifierFromExtrinsicObjectId(assocExtrinsicObject);
@@ -252,17 +267,16 @@ public class XdsOnFhirService
                 documentReference.Contained.Add(authenticator);
                 documentReference.Authenticator = Hl7FhirExtensions.GetResourceAsResourceReference(authenticator);
             }
+			
+			// RelatesTo (XDS Associations -> FHIR relatesTo)
+			var relatesTo = BuildRelatesTo(associations, assocExtrinsicObject);
+			if (relatesTo.Count > 0)
+			{
+				documentReference.RelatesTo = relatesTo;
+			}
 
-            // RelatesTo
-            /*
-
-             ===== Yet to be implemented =====
-
-             */
-
-
-            // SecurityLabel
-            var securityLabel = GetCodeableConceptFromExtrinsicObjectConfidentialityCode(assocExtrinsicObject);
+			// SecurityLabel
+			var securityLabel = GetCodeableConceptFromExtrinsicObjectConfidentialityCode(assocExtrinsicObject);
             if (securityLabel != null)
             {
                 documentReference.SecurityLabel.AddRange(securityLabel);
@@ -292,7 +306,55 @@ public class XdsOnFhirService
         return documentReferenceList;
     }
 
-    private DocumentReference.ContextComponent? GetContextComponentFromExtrinsicObject(ExtrinsicObjectType? assocExtrinsicObject)
+	private static List<DocumentReference.RelatesToComponent> BuildRelatesTo(
+	AssociationType[] allAssociations,
+	ExtrinsicObjectType currentEo)
+	{
+		var relatesTo = new List<DocumentReference.RelatesToComponent>();
+
+		if (currentEo.Id == null) return relatesTo;
+
+		var sourceId = currentEo.Id.NoUrn();
+
+		// Associations where THIS document is the SourceObject
+		var outgoing = allAssociations
+			.Where(a =>
+				a.AssociationTypeData != Constants.Xds.AssociationType.HasMember &&
+				a.SourceObject.NoUrn() == sourceId)
+			.ToList();
+
+		foreach (var a in outgoing)
+		{
+			var code = a.AssociationTypeData switch
+			{
+				var t when t == Constants.Xds.AssociationType.Replace => DocumentRelationshipType.Replaces,
+				var t when t == Constants.Xds.AssociationType.Addendum => DocumentRelationshipType.Appends,
+				var t when t == Constants.Xds.AssociationType.Transformation => DocumentRelationshipType.Transforms,
+				var t when t == Constants.Xds.AssociationType.DigitalSignature /* or Signs */ => DocumentRelationshipType.Signs,
+				_ => (DocumentRelationshipType?)null
+			};
+
+			if (code is null) continue;
+
+			var targetUuid = a.TargetObject.NoUrn();
+			if (string.IsNullOrWhiteSpace(targetUuid)) continue;
+
+			relatesTo.Add(new DocumentReference.RelatesToComponent
+			{
+				Code = code.Value,
+				Target = new ResourceReference
+				{
+					// Your ExistingDocumentId is entryUUID, so reference by id
+					Reference = $"DocumentReference/{targetUuid}"
+				}
+			});
+		}
+
+		return relatesTo;
+	}
+
+
+	private DocumentReference.ContextComponent? GetContextComponentFromExtrinsicObject(ExtrinsicObjectType? assocExtrinsicObject)
     {
         if (assocExtrinsicObject == null) return null;
 
@@ -326,7 +388,7 @@ public class XdsOnFhirService
         }
 
 
-        var serviceStopTime = assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.ServiceStartTime)?.GetFirstValue();
+        var serviceStopTime = assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.ServiceStopTime)?.GetFirstValue();
         if (serviceStopTime != null)
         {
             var serviceStopTimeDate = DateTime.ParseExact(serviceStopTime, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
@@ -357,7 +419,7 @@ public class XdsOnFhirService
 
         if (practiceSettingCode != null)
         {
-            context.FacilityType = new CodeableConcept()
+            context.PracticeSetting = new CodeableConcept()
             {
                 Coding =
                 [
