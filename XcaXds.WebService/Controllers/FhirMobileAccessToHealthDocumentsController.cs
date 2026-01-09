@@ -2,8 +2,6 @@
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using System.Net;
-using System.Net.Mail;
 using System.Text.Json;
 using System.Web;
 using XcaXds.Commons.Commons;
@@ -326,7 +324,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing DocumentReference.content.attachment.extension[homeCommunityId]", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
 		}
 
-		var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+		var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
 
         var provideAndRegisterRequest = provideAndRegisterResult.Value?.ProvideAndRegisterDocumentSetRequest;
 
