@@ -7,9 +7,6 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class AD : ANY
 {
-    [XmlAttribute("nullFlavor")]
-    public string? NullFlavor { get; set; }
-
     [XmlAttribute("use")]
     public List<string>? Use { get; set; }
 

@@ -275,6 +275,11 @@ public static class PolicyDtoTransformerService
 
     public static XacmlPolicySet? TransformPolicySetDtoToXacmlVersion20PolicySet(PolicySetDto policySetDto)
     {
+        if (policySetDto.CombiningAlgorithm == null)
+        {
+            return null;
+        }
+
         var xacmlPolicySet = new XacmlPolicySet(new Uri(policySetDto.CombiningAlgorithm), new XacmlTarget());
 
         xacmlPolicySet.PolicySetId = new Uri($"urn:uuid:{policySetDto.SetId}", UriKind.Absolute);

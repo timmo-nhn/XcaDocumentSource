@@ -137,8 +137,8 @@ public class AppStartupService : IHostedService
             [[
                 new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
 
-                new(Constants.Saml.Attribute.Role + ":code", "13"),
-                new(Constants.Saml.Attribute.Role + ":codeSystem", "1.0.14265.1")
+                new(Constants.Saml.Attribute.PurposeOfUse_Helsenorge + ":code", "13"),
+                new(Constants.Saml.Attribute.PurposeOfUse_Helsenorge + ":codeSystem", "1.0.14265.1")
             ]],
             Actions = ["ReadDocumentList", "ReadDocuments"],
             Effect = "Permit"

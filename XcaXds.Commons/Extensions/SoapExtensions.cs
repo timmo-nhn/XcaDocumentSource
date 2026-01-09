@@ -1,7 +1,13 @@
-﻿using System.Xml.Serialization;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
+using System.Buffers.Text;
+using System.Text;
+using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -57,10 +63,10 @@ public static class SoapExtensions
                 }
             }
         };
-        if (resultEnvelope.Value.Body.RegistryResponse is not null)
+        if (resultEnvelope.Value.Body.RegistryResponse != null)
         {
             // Base Success property on whether Value...RegistryErrorList has any errors
-            if (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList is null)
+            if (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList == null)
             {
                 resultEnvelope.IsSuccess = true;
             }
@@ -94,10 +100,10 @@ public static class SoapExtensions
         }
 
 
-        if (resultEnvelope.Value.Body.RegistryResponse is not null)
+        if (resultEnvelope.Value.Body.RegistryResponse != null)
         {
             // Base Success property on whether Value...RegistryErrorList has any errors
-            if (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList is null)
+            if (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList == null)
             {
                 resultEnvelope.IsSuccess = true;
             }
@@ -105,43 +111,13 @@ public static class SoapExtensions
             {
                 var isSuccess = bool.Equals(false, resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList.RegistryError
                 .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
-                resultEnvelope.Value.Header.Action = isSuccess is true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
+                resultEnvelope.Value.Header.Action = isSuccess == true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
                 resultEnvelope.IsSuccess = isSuccess;
             }
         }
 
         return resultEnvelope;
     }
-
-    //public static SoapEnvelope CreateSoapTypedResponse<T>(SoapEnvelope message) where T: class
-    //{
-    //    var resultEnvelope = new SoapEnvelope()
-    //    {
-    //        Header = new()
-    //        {
-    //            Action = Constants.Soap.Namespaces.Addressing,
-    //        },
-    //        Body = new SoapBody()
-    //    };
-
-    //    // Get property of SoapBody which matches T
-    //    var propertyInfo = typeof(SoapBody).GetProperties()
-    //        .FirstOrDefault(p => p.PropertyType == typeof(T));
-
-    //    if (propertyInfo != null && propertyInfo.CanWrite)
-    //    {
-    //        var bodyProperty = message.Body.GetType().GetProperty(propertyInfo.Name);
-
-    //        if (bodyProperty != null)
-    //        {
-    //            var value = bodyProperty.GetValue(message.Body);
-
-    //            propertyInfo.SetValue(resultEnvelope.Body, value);
-    //        }
-    //    }
-
-    //    return resultEnvelope;
-    //}
 
     public static T DeepClone<T>(T obj)
     {

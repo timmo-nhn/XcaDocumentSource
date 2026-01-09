@@ -1,6 +1,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -23,7 +24,7 @@ public partial class DocumentResponseType
     [XmlAnyElement("Document", Order = 4)]
     public XmlElement? Document { get; set; }
 
-        /// <summary>
+    /// <summary>
     /// Sets the document as inline base64 content
     /// </summary>
     public void SetInlineDocument(byte[] data)
@@ -35,7 +36,7 @@ public partial class DocumentResponseType
     }
 
     /// <summary>
-    /// Sets the document as a XOP Include element
+    /// Sets the document as an XOP Include element
     /// </summary>
     public void SetXopInclude(string href)
     {
@@ -49,4 +50,8 @@ public partial class DocumentResponseType
         Document = docElement;
     }
 
+    public IncludeType GetXmlDocumentAsXopInclude()
+    {
+        return new SoapXmlSerializer().DeserializeXmlString<IncludeType>(Document?.InnerXml ?? string.Empty);
+    }
 }

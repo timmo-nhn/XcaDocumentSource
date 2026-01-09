@@ -36,7 +36,7 @@ public class PerformerBase
     public CE? ModeCode { get; set; }
 
     [XmlElement("assignedEntity")]
-    public AssignedEntity AssignedEntity { get; set; }
+    public AssignedEntity? AssignedEntity { get; set; }
 
     public bool ShouldSerializeFunctionCode()
     {
@@ -59,6 +59,4 @@ public class Performer1 : PerformerBase
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class Performer2 : PerformerBase
 {
-    [XmlAttribute("typeCode")]
-    public string? TypeCode { get; set; }
 }

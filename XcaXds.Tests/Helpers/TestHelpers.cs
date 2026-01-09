@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Services;
@@ -24,13 +25,19 @@ public static class TestHelpers
         }
     }
 
-    public static List<RegistryObjectDto> GenerateRegistryMetadata()
+    public static List<DocumentReferenceDto> GenerateRegistryMetadata(int amount = 10, string? patientId = null, bool noDeprecatedDocuments = false)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var data =  File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json")));
 
-        return RegistryMetadataGeneratorService.GenerateRandomizedTestData("2.16.578.1.12.4.5.100.1.1", "2.16.578.1.12.4.5.100.1.1.2", JsonSerializer.Deserialize<Test_DocumentReference>(data, Constants.JsonDefaultOptions.DefaultSettings));
+        return RegistryMetadataGeneratorService.GenerateRandomizedTestData(
+            homeCommunityId:"2.16.578.1.12.4.5.100.1.1", 
+            repositoryUniqueId:"2.16.578.1.12.4.5.100.1.1.2", 
+            jsonTestData: JsonSerializer.Deserialize<Test_DocumentReference>(data, Constants.JsonDefaultOptions.DefaultSettings),
+            entriesToGenerate:amount,
+            patientIdentifier: patientId,
+            noDeprecatedDocuments: noDeprecatedDocuments);
     }
 }

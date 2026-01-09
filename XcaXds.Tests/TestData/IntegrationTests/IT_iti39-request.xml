@@ -24,8 +24,8 @@ For Integration tests to work properly, its recommended to not touch these files
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<ns3:RetrieveDocumentSetRequest xmlns:ns3="urn:ihe:iti:xds-b:2007">
 			<ns3:DocumentRequest>
-				<ns3:HomeCommunityId>urn:oid:2.16.578.1.12.4.5.100.15</ns3:HomeCommunityId>
-				<ns3:RepositoryUniqueId>2.16.578.1.12.4.5.100.15.25</ns3:RepositoryUniqueId>
+				<ns3:HomeCommunityId>urn:oid:2.16.578.1.12.4.5.100.1.1</ns3:HomeCommunityId>
+				<ns3:RepositoryUniqueId>2.16.578.1.12.4.5.100.1.1.2</ns3:RepositoryUniqueId>
 				<ns3:DocumentUniqueId>8f3b8038-5122-4e1b-8af4-29bb8759e8ae</ns3:DocumentUniqueId>
 			</ns3:DocumentRequest>
 		</ns3:RetrieveDocumentSetRequest>

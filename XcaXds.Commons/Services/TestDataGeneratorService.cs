@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
@@ -8,9 +7,9 @@ namespace XcaXds.Commons.Services;
 
 public static class TestDataGeneratorService
 {
-    public static List<RegistryObjectDto> GenerateRegistryObjectsFromTestData(Test_DocumentReference documentEntryValues, int amount)
+    public static List<DocumentReferenceDto> GenerateRegistryObjectsFromTestData(Test_DocumentReference documentEntryValues, int amount)
     {
-        var registryObjects = new List<RegistryObjectDto>();
+        var registryObjects = new List<DocumentReferenceDto>();
 
         int maxCount = 0;
 
@@ -65,9 +64,22 @@ public static class TestDataGeneratorService
                 TargetObject = documentEntry.Id,
             };
 
-            registryObjects.Add(documentEntry);
-            registryObjects.Add(submissionSet);
-            registryObjects.Add(associaiton);
+            var documents = documentEntryValues.Documents.Select(file => Convert.FromBase64String(file));
+
+            var document = new DocumentDto()
+            {
+                DocumentId = documentEntry.UniqueId,
+                Data = documents.ElementAt(Random.Shared.Next(documents.Count()))
+            };
+
+            registryObjects.Add(new()
+            {
+                DocumentEntry = documentEntry,
+                Association = associaiton,
+                SubmissionSet = submissionSet,
+                Document = document
+            });
+
             maxCount++;
         }
 

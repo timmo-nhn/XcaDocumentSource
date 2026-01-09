@@ -32,17 +32,30 @@ public class AuditLogExporterService : BackgroundService
         {
             string baseDirectory = AppContext.BaseDirectory;
             _auditEventPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents");
-
         }
         Directory.CreateDirectory(_auditEventPath);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var auditEventFunction in _auditLogQueue.DequeueAllAsync(stoppingToken))
+        try
         {
-            var auditEvent = auditEventFunction();
-            ExportAuditEvent(auditEvent);
+            await foreach (var auditEventFunction in _auditLogQueue
+                .DequeueAllAsync(stoppingToken)
+                .WithCancellation(stoppingToken))
+            {
+                var auditEvent = auditEventFunction();
+                ExportAuditEvent(auditEvent);
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("AuditLogExporterService is stopping.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled exception in AuditLogExporterService");
+            throw;
         }
     }
 

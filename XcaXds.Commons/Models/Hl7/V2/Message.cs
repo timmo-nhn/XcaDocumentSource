@@ -2,13 +2,13 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-#pragma warning disable CA1854
+#pragma warning disable CA1854, CS8618, CS8602
 
 namespace XcaXds.Commons.Models.Hl7.V2
 {
     public class Message
     {
-        private List<string> allSegments = null;
+        private List<string>? allSegments = null;
         internal Dictionary<string, List<Segment>> SegmentList { get; set; } = new Dictionary<string, List<Segment>>();
 
         public string HL7Message { get; set; }
