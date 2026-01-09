@@ -41,7 +41,7 @@ public class XdsRepositoryService
     {
         var registryResponse = new RegistryResponseType();
         
-        var registryObjectList = provideAndRegisterDocumentSetRequest.SubmitObjectsRequest.RegistryObjectList;
+        var registryObjectList = provideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
         
         if (registryObjectList == null)
         {
@@ -52,7 +52,7 @@ public class XdsRepositoryService
         var associations = registryObjectList.OfType<AssociationType>().ToArray();
         var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
-        var documents = provideAndRegisterDocumentSetRequest.Document;
+        var documents = provideAndRegisterDocumentSetRequest?.Document;
 
         foreach (var association in associations)
         {
@@ -76,25 +76,28 @@ public class XdsRepositoryService
             }
 
             var patientIdPart = patientId?.Substring(0, patientId.IndexOf("^^^"));
-            var xdsDocumentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
+            var documentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
-            if (xdsDocumentEntryUniqueId == null)
+            if (documentEntryUniqueId == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Document unique ID missing", "ExtrinsicObject");
             }
             else
             {
-                xdsDocumentEntryUniqueId = assocDocument.Id.NoUrn();
-
-                var repositoryUpdateOk = _repositoryWrapper.StoreDocument(xdsDocumentEntryUniqueId, assocDocument.Value, patientIdPart);
-
-                if (repositoryUpdateOk)
+                if (documentEntryUniqueId.NoUrn() == assocDocument?.Id.NoUrn())
                 {
+                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Unique ID in DocumentEntry does not match Document unique ID. DocumentEntry UniqueID: {documentEntryUniqueId}, Document ID: {assocDocument.Id}", $"XDS Repository");
                 }
-                else
+
+                if (assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                    var repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart);
+                    if (!repositoryUpdateOk)
+                    {
+                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                    }
                 }
+
             }
         }
         registryResponse.EvaluateStatusCode();
@@ -167,34 +170,32 @@ public class XdsRepositoryService
 
         foreach (var document in documentRequests)
         {
-            var docId = document.DocumentUniqueId;
-            var repoId = document.RepositoryUniqueId?.NoUrn();
-            var home = document.HomeCommunityId?.NoUrn();
+            var documentUniqueId = document.DocumentUniqueId;
+            var repositoryUniqueId = document.RepositoryUniqueId?.NoUrn();
+            var homeCommunityId = document.HomeCommunityId?.NoUrn();
 
-            if (string.IsNullOrEmpty(docId))
+            if (string.IsNullOrEmpty(documentUniqueId))
             {
-                registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {docId}".Trim(), _xdsConfig.HomeCommunityId);
+                registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id {documentUniqueId}".Trim(), _xdsConfig.HomeCommunityId);
                 continue;
             }
-            if (string.IsNullOrEmpty(home))
+            if (string.IsNullOrEmpty(homeCommunityId))
             {
                 registryResponse.AddError(XdsErrorCodes.XDSMissingHomeCommunityId, $"Missing HomeCommunityID. Excpected {_xdsConfig.HomeCommunityId}", _xdsConfig.HomeCommunityId);
                 continue;
             }
-            if (home != _xdsConfig.HomeCommunityId)
+            if (homeCommunityId != _xdsConfig.HomeCommunityId)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSUnknownCommunity, $"Unknown HomeCommunityID {home}".Trim(), _xdsConfig.HomeCommunityId);
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownCommunity, $"Unknown HomeCommunityID {homeCommunityId}".Trim(), _xdsConfig.HomeCommunityId);
                 continue;
             }
-            if (repoId != _xdsConfig.RepositoryUniqueId)
+            if (string.IsNullOrWhiteSpace(repositoryUniqueId) || repositoryUniqueId != _xdsConfig.RepositoryUniqueId)
             {
-                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown repository ID {repoId}".Trim(), _xdsConfig.HomeCommunityId);
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing repository ID {repositoryUniqueId}".Trim(), _xdsConfig.HomeCommunityId);
                 continue;
             }
 
-            var file = _repositoryWrapper.GetDocumentFromRepository(home, repoId, docId);
-
-            byte[] renamedFile;
+            var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId);
 
             if (file != null && file.Length != 0)
             {
@@ -216,7 +217,7 @@ public class XdsRepositoryService
 
                         PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
 
-                        pdfDoc.Info.Title = docId;
+                        pdfDoc.Info.Title = documentUniqueId;
 
                         using MemoryStream outputStream = new();
                         pdfDoc.Save(outputStream);
@@ -231,7 +232,7 @@ public class XdsRepositoryService
 
                     // Get the modified file bytes and replace the original file variable
                 }
-                retrieveResponse.AddDocument(file, home, repoId, docId, mimeType);
+                retrieveResponse.AddDocument(file, homeCommunityId, repositoryUniqueId, documentUniqueId, mimeType);
             }
         }
 

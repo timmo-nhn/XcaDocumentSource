@@ -168,7 +168,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                         var sxmls = new SoapXmlSerializer();
 
-                        var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(response.Value, out var boundary);
+                        var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(response.Value, out var boundary);
 
                         string contentId = null;
 
@@ -232,7 +232,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43AndIti39 is true)
                 {
-                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti39Response.Value, out var boundary);
+                    var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(iti39Response.Value, out var boundary);
 
                     string contentId = null;
 

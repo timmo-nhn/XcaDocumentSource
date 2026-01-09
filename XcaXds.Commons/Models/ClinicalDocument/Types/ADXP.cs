@@ -10,8 +10,4 @@ public class ADXP : ST
 {
     [XmlAttribute("partType")]
     public string? PartType { get; set; }
-
-    [XmlText]
-    public string? Value { get; set; }
-
 }

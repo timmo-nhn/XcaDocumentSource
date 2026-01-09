@@ -36,8 +36,6 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
     public PolicySetDto GetAllPolicies()
     {
-        var target = new XacmlTarget();
-
         var policySetDto = new PolicySetDto()
         {
             CombiningAlgorithm = Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_DenyOverrides,

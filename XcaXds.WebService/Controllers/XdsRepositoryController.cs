@@ -70,7 +70,7 @@ public class XdsRepositoryController : ControllerBase
 
                 if (_xdsConfig.MultipartResponseForIti43AndIti39 is true)
                 {
-                    var multipartContent = HttpRequestResponseExtensions.ConvertToMultipartResponse(iti43Response.Value, out var boundary);
+                    var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(iti43Response.Value, out var boundary);
 
                     string contentId = null;
 
@@ -84,16 +84,14 @@ public class XdsRepositoryController : ControllerBase
                         Content = multipartContent
                     };
 
-                    requestTimer.Stop();
-                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
-
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
                     var streamResult = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
-
+                    
+                    requestTimer.Stop();
+                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                     _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + streamResult.ContentType);
-
-                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + Encoding.UTF8.GetString(bytes));
+                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + Encoding.UTF8.GetString(streamResult.FileContents));
 
                     return streamResult;
                 }

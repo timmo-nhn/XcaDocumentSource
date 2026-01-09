@@ -9,7 +9,7 @@ public static class GlobalExtensions
             action();
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }

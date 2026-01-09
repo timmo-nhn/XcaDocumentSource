@@ -7,6 +7,4 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 [XmlType(Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class CS : CV
 {
-    [XmlAttribute("code")]
-    public string? Code { get; set; }
 }
