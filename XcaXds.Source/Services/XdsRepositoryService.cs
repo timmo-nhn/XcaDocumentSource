@@ -1,19 +1,13 @@
-﻿using System.Buffers.Text;
-using System.Net.Http.Headers;
-using System.Reflection.Metadata;
-using System.Text;
-using Hl7.FhirPath.Sprache;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Hl7.FhirPath.Sprache;
 using Microsoft.Extensions.Logging;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
+using System.Buffers.Text;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Serializers;
 using XcaXds.Source.Source;
 
 namespace XcaXds.Source.Services;
@@ -54,13 +48,14 @@ public class XdsRepositoryService
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var documents = provideAndRegisterDocumentSetRequest.Document;
 
-        foreach (var association in associations)
+		// Only process HasMember associations (SubmissionSet pointing to a document) for document storage (others such as RPLC, XFRM etc. are not handled here)
+		foreach (var association in associations.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember))
         {
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
-            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());
-            var assocRegistryPackage = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.SourceObject.NoUrn());
+            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());            
+			var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject.NoUrn());
 
-            if (assocExtrinsicObject == null)
+			if (assocExtrinsicObject == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "ExtrinsicObject Missing", "SubmitObjectsRequest");
             }
