@@ -443,7 +443,7 @@ public static class GetAssociations
         this IEnumerable<AssociationType> source, List<string[]>? uuidList)
     {
         if (uuidList == null || uuidList.Count == 0) return Enumerable.Empty<AssociationType>(); // Required field, return nothing if not specified
-        return source.Where(assoc => uuidList.Any(uuids => uuids.Contains(assoc.SourceObject) || uuids.Contains(assoc.TargetObject)));
+        return source.Where(assoc => uuidList.Any(uuids => uuids.Select(uuid => uuid.NoUrn()).Contains(assoc.SourceObject) || uuids.Select(uuid => uuid.NoUrn()).Contains(assoc.TargetObject)));
     }
 
     /// | Parameter Name (ITI-18)             | Attribute                        | Opt | Mult |
