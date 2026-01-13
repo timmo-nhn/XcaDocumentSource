@@ -147,53 +147,8 @@ public partial class XdsRegistryService
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
-			
-				// Start with the filtered document entries (ExtrinsicObjects)
-				var eos = registryFindDocumentEntriesResult.ToList();
-				filteredElements = [.. eos];
 
-				// If LeafClass, include HasMember + lifecycle associations + referenced SubmissionSets
-				if (isLeafClass)
-				{
-					// All associations in the registry
-					var allAssociations = documentRegistry.RegistryObjectList.OfType<AssociationType>().ToList();
-
-					// IDs of returned EOs (normalize urn:uuid vs bare)
-					var eoIds = eos
-						.Where(e => !string.IsNullOrWhiteSpace(e.Id))
-						.Select(e => e.Id.NoUrn())
-						.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-					// 1) HasMember associations where target is our EO
-					var hasMemberAssociations = allAssociations
-						.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember
-									&& eoIds.Contains(a.TargetObject.NoUrn()))
-						.ToList();
-
-					// 2) Lifecycle associations where source is our EO (Replace/Addendum/Transform/Signs/…)
-					// Include everything except HasMember; you can tighten later if you wish.
-					var lifecycleAssociations = allAssociations
-						.Where(a => a.AssociationTypeData != Constants.Xds.AssociationType.HasMember
-									&& eoIds.Contains(a.SourceObject.NoUrn()))
-						.ToList();
-
-					// 3) SubmissionSets (RegistryPackages) referenced by HasMember.SourceObject
-					var submissionSetIds = hasMemberAssociations
-						.Select(a => a.SourceObject.NoUrn())
-						.Where(id => !string.IsNullOrWhiteSpace(id))
-						.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-					var submissionSets = documentRegistry.RegistryObjectList
-						.OfType<RegistryPackageType>()
-						.Where(rp => submissionSetIds.Contains(rp.Id.NoUrn()))
-						.ToList();
-
-					// Append to LeafClass response
-					filteredElements.AddRange(hasMemberAssociations);
-					filteredElements.AddRange(lifecycleAssociations);
-					filteredElements.AddRange(submissionSets);
-				}
-
+				filteredElements = [.. registryFindDocumentEntriesResult];
 
 				// Apply business-logic filtering
 				var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
@@ -273,10 +228,11 @@ public partial class XdsRegistryService
 
                 registryGetAssociationsResult = registryGetAssociationsResult
                     .ByUuid(getAssociationsParameters.Uuid);
-                registryGetAssociationsResult = registryGetAssociationsResult
-                    .ByHomeCommunityId(adhocQueryRequest.AdhocQuery.Home);
 
-                if (getAssociationsParameters.Uuid == null || getAssociationsParameters.Uuid.Count == 0)
+				//registryGetAssociationsResult = registryGetAssociationsResult
+				//.ByHomeCommunityId(adhocQueryRequest.AdhocQuery.Home);    // Associations do not have Home attribute so it's always null in DTOs
+
+				if (getAssociationsParameters.Uuid == null || getAssociationsParameters.Uuid.Count == 0)
                 {
                     _logger.LogError($"{soapEnvelope?.Header?.MessageId} - Missing required parameter $uuid was not set");
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $uuid not set".Trim(), "XDS Registry");
