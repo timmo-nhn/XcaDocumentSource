@@ -59,11 +59,11 @@ public static class MultipartExtensions
     }
 
 
-    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(string contentType, string messageString)
+    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(string contentTypeHeader, string messageString)
     {
         SoapEnvelope? soapMultipartMessage = new();
 
-        if (!MediaTypeHeaderValue.TryParse(contentType, out MediaTypeHeaderValue? mediaTypeHeaderValue)
+        if (!MediaTypeHeaderValue.TryParse(contentTypeHeader, out MediaTypeHeaderValue? mediaTypeHeaderValue)
         || !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             using (var stream = new MemoryStream())

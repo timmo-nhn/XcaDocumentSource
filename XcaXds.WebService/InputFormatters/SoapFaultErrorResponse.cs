@@ -20,7 +20,7 @@ public static class ErrorResponseFactory
         switch (contentType)
         {
 
-            case "application/soap+xml":
+            case Constants.MimeTypes.SoapXml:
                 return CreateSoapErrorResponse(context);
 
             default:
@@ -45,7 +45,6 @@ public static class ErrorResponseFactory
         };
 
         return new BadRequestObjectResult(problemDetails);
-
     }
 
     private static IActionResult CreateSoapErrorResponse(ActionContext context)

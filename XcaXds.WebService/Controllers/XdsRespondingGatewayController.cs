@@ -89,10 +89,12 @@ public class XdsRespondingGatewayController : ControllerBase
         {
             action += "Async";
         }
-
+        
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti38ActionAsync:
+
+                // Prototyping
 
                 var iti38AsyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
 

@@ -9,7 +9,9 @@ public sealed class InMemoryRegistry : IRegistry
 
     public bool DeleteRegistryItem(string id)
     {
-        throw new NotImplementedException();
+        var removedCount = DocumenRegistry.RemoveAll(ro => ro.Id == id);
+
+        return removedCount > 0;
     }
 
     public IEnumerable<RegistryObjectDto> ReadRegistry()
@@ -19,12 +21,13 @@ public sealed class InMemoryRegistry : IRegistry
 
     public bool UpdateRegistry(List<RegistryObjectDto> dtos)
     {
-        throw new NotImplementedException();
+        DocumenRegistry.AddRange(dtos);
+        return true;
     }
 
     public bool WriteRegistry(List<RegistryObjectDto> dtos)
     {
-        DocumenRegistry.AddRange(dtos);
+        DocumenRegistry = dtos;
         return true;
     }
 }

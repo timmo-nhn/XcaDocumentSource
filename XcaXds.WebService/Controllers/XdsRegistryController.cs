@@ -23,9 +23,9 @@ public class XdsRegistryController : ControllerBase
     private readonly AuditLogGeneratorService _auditLoggingService;
 
     public XdsRegistryController(
-        ILogger<XdsRegistryController> logger, 
-        XdsRegistryService registryService, 
-        IVariantFeatureManager featureManager, 
+        ILogger<XdsRegistryController> logger,
+        XdsRegistryService registryService,
+        IVariantFeatureManager featureManager,
         AuditLogGeneratorService auditLoggingService
         )
     {
@@ -54,6 +54,12 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti18Action:
                 if (!await _featureManager.IsEnabledAsync("Iti18RegistryStoredQuery")) return NotFound();
 
+                if (soapEnvelope.Body.AdhocQueryRequest == null)
+                {
+                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-18 Request does not contain a valid Query Request").Value;
+                    break;
+                }
+
                 var registryQueryResponse = _registryService.RegistryStoredQueryAsync(soapEnvelope);
 
                 responseEnvelope = registryQueryResponse.Value;
@@ -69,12 +75,17 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti42Action:
                 if (!await _featureManager.IsEnabledAsync("Iti42RegisterDocumentSet")) return NotFound();
 
+                if (soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList == null || soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList.Length == 0)
+                {
+                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-42 Request does not contain any RegistryObjects to upload").Value;
+                    break;
+                }
+
                 var registryUploadResponse = _registryService.AppendToRegistryAsync(soapEnvelope);
 
                 if (registryUploadResponse.IsSuccess)
                 {
                     _logger.LogInformation("Registry updated successfully");
-                    registryResponse.EvaluateStatusCode();
 
                     responseEnvelope.Header = new()
                     {
@@ -93,7 +104,6 @@ public class XdsRegistryController : ControllerBase
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
 
                     registryResponse.RegistryErrorList ??= new();
-
                     registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError];
 
                     responseEnvelope = SoapExtensions.CreateSoapResultRegistryResponse(registryResponse).Value;
@@ -102,6 +112,12 @@ public class XdsRegistryController : ControllerBase
 
             case Constants.Xds.OperationContract.Iti62Action:
                 if (!await _featureManager.IsEnabledAsync("Iti62DeleteDocumentSet")) return NotFound();
+
+                if (soapEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef == null || soapEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef.Length == 0)
+                {
+                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-62 Request does not specify any objects to delete").Value;
+                    break;
+                }
 
                 var deleteDocumentSetResponse = _registryService.DeleteDocumentSetAsync(soapEnvelope);
                 if (deleteDocumentSetResponse.IsSuccess)

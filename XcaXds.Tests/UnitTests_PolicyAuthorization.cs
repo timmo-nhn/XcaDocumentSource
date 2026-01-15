@@ -31,7 +31,7 @@ public class UnitTests_PolicyAuthorization
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -62,7 +62,7 @@ public class UnitTests_PolicyAuthorization
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -97,7 +97,7 @@ public class UnitTests_PolicyAuthorization
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);

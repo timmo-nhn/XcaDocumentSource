@@ -27,22 +27,22 @@ public static class PolicyRequestMapperSamlService
         return handler.ReadSaml2Token(inputSamlToken);
     }
 
-    public static XacmlContextRequest? GetXacmlRequestFromSamlToken(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
         var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
-        return GetXacmlRequestFromSamlToken(soapEnvelope, samlToken, xacmlVersion, appliesTo, documentRegistry);
+        return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
-    public static XacmlContextRequest? GetXacmlRequestFromSamlToken(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
+    public static XacmlContextRequest? GetXacmlRequest(string soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
         var sxmls = new SoapXmlSerializer();
         var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(soapEnvelope);
 
         var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
-        return  GetXacmlRequestFromSamlToken(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
+        return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
-    public static XacmlContextRequest? GetXacmlRequestFromSamlToken(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
         var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
 

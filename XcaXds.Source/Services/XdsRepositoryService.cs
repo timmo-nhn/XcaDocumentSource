@@ -18,7 +18,6 @@ public class XdsRepositoryService
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly ILogger<XdsRepositoryService> _logger;
 
-
     public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, ILogger<XdsRepositoryService> logger)
     {
         _xdsConfig = xdsConfig;
@@ -51,11 +50,11 @@ public class XdsRepositoryService
 		// Only process HasMember associations (SubmissionSet pointing to a document) for document storage (others such as RPLC, XFRM etc. are not handled here)
 		foreach (var association in associations.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember))
         {
-            var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());            
 			var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject.NoUrn());
+            var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == assocExtrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value.NoUrn());
 
-			if (assocExtrinsicObject == null)
+            if (assocExtrinsicObject == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "ExtrinsicObject Missing", "SubmitObjectsRequest");
             }
@@ -79,9 +78,9 @@ public class XdsRepositoryService
             }
             else
             {
-                if (documentEntryUniqueId.NoUrn() == assocDocument?.Id.NoUrn())
+                if (documentEntryUniqueId.NoUrn() != assocDocument?.Id.NoUrn())
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Unique ID in DocumentEntry does not match Document unique ID. DocumentEntry UniqueID: {documentEntryUniqueId}, Document ID: {assocDocument.Id}", $"XDS Repository");
+                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Unique ID in DocumentEntry does not match Document unique ID. DocumentEntry UniqueID: {documentEntryUniqueId}, Document ID: {assocDocument?.Id}", $"XDS Repository");
                 }
 
                 if (assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
@@ -92,12 +91,10 @@ public class XdsRepositoryService
                         registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
                     }
                 }
-
             }
         }
         registryResponse.EvaluateStatusCode();
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
-
     }
 
     public SoapRequestResult<SoapEnvelope> CheckIfDocumentExistsInRepository(SoapEnvelope iti41Envelope)
@@ -280,7 +277,7 @@ public class XdsRepositoryService
             {
                 if (document.DocumentUniqueId == null)
                 {
-                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id: {document.DocumentUniqueId}".Trim());
+                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id: {document.DocumentUniqueId}".Trim());
                     continue;
                 }
 
@@ -289,13 +286,13 @@ public class XdsRepositoryService
 
                 if (removeResult == false)
                 {
-                    registryResponse.AddWarning(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found. Id: {document.DocumentUniqueId}".Trim());
+                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found. Id: {document.DocumentUniqueId}".Trim());
                     continue;
                 }
             }
             else
             {
-                registryResponse.AddWarning(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing RepositoryId or HomeCommunityId {document.RepositoryUniqueId}".Trim());
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing RepositoryId or HomeCommunityId {document.RepositoryUniqueId}".Trim());
                 continue;
             }
         }

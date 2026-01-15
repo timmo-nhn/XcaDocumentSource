@@ -14,4 +14,10 @@ public static class GlobalExtensions
             return false;
         }
     }
+
+    public static bool IsNullOrZero(this int? value)
+    {
+        return value == null || value == 0;
+    }
+
 }
