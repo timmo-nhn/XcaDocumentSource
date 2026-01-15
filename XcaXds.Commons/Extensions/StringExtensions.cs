@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Text;
 using System.Text;
 using System.Xml;
+using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Hl7.DataType;
 
 namespace XcaXds.Commons.Extensions;
@@ -17,7 +18,16 @@ public static class StringExtensions
             return input;
         }
 
-        return input.TrimStart("urn:uuid:").TrimStart("urn:oid:");
+		// The \u0027 is to handle cases where the string is encoded with single quotes (such as in GetDocumentAssociations with a list of UUIDs)
+		/* Example content from AdhocQuery received from XCA (for GetDocumentAssociations): 
+		   <ns2:Slot name="$uuid">
+                <ns2:ValueList>
+                    <ns2:Value>(\u0027urn:uuid:0ae98a90-f5ef-4bde-b717-dc0119a5777f\u0027)</ns2:Value>
+                    <ns2:Value>(\u0027urn:uuid:2690c091-e46f-4c7e-9742-6572cc455355\u0027)</ns2:Value>
+                <ns2:ValueList>
+            </ns2:Slot>
+		*/
+		return input.Replace("\\u0027", "").TrimStart("urn:uuid:").TrimStart("urn:oid:");
     }
 
     /// <summary>
