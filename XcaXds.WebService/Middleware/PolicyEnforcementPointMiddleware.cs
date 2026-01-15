@@ -188,7 +188,7 @@ public class PolicyEnforcementPointMiddleware
 
                     var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-                    xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
+                    xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
 
                     xacmlRequestAppliesTo = appliesTo;
                 }

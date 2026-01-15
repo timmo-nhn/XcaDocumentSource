@@ -8,7 +8,6 @@ namespace XcaXds.WebService.Startup;
 
 public class AppStartupService : IHostedService
 {
-
     private readonly ILogger<AppStartupService> _logger;
     private readonly IHostEnvironment _env;
     private readonly IConfiguration _config;
@@ -74,6 +73,8 @@ public class AppStartupService : IHostedService
         }
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
+        
+        FindDudsInRepository();
 
         MigrateFromJsonRegistryToDatabase();
 
@@ -83,6 +84,20 @@ public class AppStartupService : IHostedService
         }
 
         return Task.CompletedTask;
+    }
+
+    private void FindDudsInRepository()
+    {
+        var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var documentUniqueIds = registryContent.OfType<DocumentEntryDto>().Select(de => de.UniqueId);
+
+        var duds = documentUniqueIds.Where(did => _repositoryWrapper.CheckIfFileExistsInRepository(did) == false).ToList();
+
+        foreach (var dud in duds)
+        {
+            _logger.LogWarning($"Repository contains a dud (No Registry metadata associated with it): {dud}");
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -188,7 +203,7 @@ public class AppStartupService : IHostedService
     private void NormalizeAppconfigOidsWithRegistryRepositoryContent()
     {
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        if (registryContent == null) return;
+        if (registryContent == null || registryContent.Count() == 0) return;
 
         if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
             registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))

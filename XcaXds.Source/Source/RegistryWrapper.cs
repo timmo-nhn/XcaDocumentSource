@@ -2,6 +2,7 @@
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.Custom;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 
 namespace XcaXds.Source.Source;
@@ -51,7 +52,7 @@ public class RegistryWrapper
         if (registryObjectDtos == null) return false;
 
         _documentRegistry.WriteRegistry(registryObjectDtos);
-        _registryObjectList = registryObjectDtos;
+        _registryObjectList = _documentRegistry.ReadRegistry();
         return true;
     }
 
@@ -65,7 +66,6 @@ public class RegistryWrapper
         if (registryObjectDto == null) return false;
 
         var deleteResponse = _documentRegistry.DeleteRegistryItem(registryObjectDto.Id);
-
         _registryObjectList = _documentRegistry.ReadRegistry();
 
 
@@ -76,16 +76,18 @@ public class RegistryWrapper
     {
         if (registryObjectDtos.Count == 0) return false;
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
+
         _documentRegistry.UpdateRegistry(registryObjectDtos);
         _registryObjectList = _documentRegistry.ReadRegistry();
+
         return true;
     }
 
-    public SoapRequestResult<string> SetDocumentRegistryFromXml(XmlDocumentRegistry xml)
+    public SoapRequestResult<string> SetDocumentRegistryFromRegistryObjects(IdentifiableType[] registryObjects)
     {
         try
         {
-            var dtoList = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
+            var dtoList = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
             SetDocumentRegistryContentWithDtos(dtoList);
 
@@ -97,12 +99,12 @@ public class RegistryWrapper
         }
     }
 
-    public SoapRequestResult<string> UpdateDocumentRegistryFromXml(XmlDocumentRegistry xml)
+    public SoapRequestResult<string> UpdateDocumentRegistryFromRegistryObjects(IEnumerable<IdentifiableType> registryObjects)
     {
         try
         {
             var dtoList = RegistryMetadataTransformerService
-                .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
+                .TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
             UpdateDocumentRegistryContentWithDtos(dtoList);
 

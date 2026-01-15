@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using XcaXds.Commons.Interfaces;
+﻿using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Tests.FakesAndDoubles;
@@ -12,7 +9,8 @@ public sealed class InMemoryRepository : IRepository
 
     public bool Delete(string? documentId)
     {
-        throw new NotImplementedException();
+        var removeCount = DocumentRepository.RemoveAll(doc => doc.DocumentId == documentId);
+        return removeCount > 0;
     }
 
     public byte[]? Read(string documentUniqueId)

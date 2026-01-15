@@ -111,6 +111,7 @@ public class Program
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<IAuditLogQueue, AuditLogQueue>();
         builder.Services.AddHostedService<AuditLogExporterService>();
+        builder.Services.AddHostedService<AppStartupService>();
 
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();

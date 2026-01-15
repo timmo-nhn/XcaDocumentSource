@@ -191,7 +191,7 @@ public class PolicyManagementController : ControllerBase
         var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
         var issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
 
-        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequestFromSamlToken(soapEnvelope, XacmlVersion.Version20, issuer, _registryWrapper.GetDocumentRegistryContentAsDtos().ToList());
+        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, issuer, _registryWrapper.GetDocumentRegistryContentAsDtos().ToList());
 
         var evaluationResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest, issuer);
 

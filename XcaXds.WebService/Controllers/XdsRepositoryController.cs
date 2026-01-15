@@ -27,11 +27,11 @@ public class XdsRepositoryController : ControllerBase
     private readonly AuditLogGeneratorService _auditLoggingService;
 
     public XdsRepositoryController(
-        ILogger<XdsRepositoryController> logger, 
-        XdsRepositoryService repositoryService, 
-        XdsRegistryService registryService, 
-        ApplicationConfig xdsConfig, 
-        IVariantFeatureManager featureManager, 
+        ILogger<XdsRepositoryController> logger,
+        XdsRepositoryService repositoryService,
+        XdsRegistryService registryService,
+        ApplicationConfig xdsConfig,
+        IVariantFeatureManager featureManager,
         AuditLogGeneratorService auditLoggingService
         )
     {
@@ -87,7 +87,7 @@ public class XdsRepositoryController : ControllerBase
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
                     var streamResult = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
-                    
+
                     requestTimer.Stop();
                     _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                     _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + streamResult.ContentType);
@@ -109,9 +109,10 @@ public class XdsRepositoryController : ControllerBase
             case Constants.Xds.OperationContract.Iti41Action:
                 if (!await _featureManager.IsEnabledAsync("Iti41ProvideAndRegisterDocumentSet")) return NotFound();
 
-                if (soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Length == 0)
+                if (soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList == null || soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList.Length == 0)
                 {
-                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Receiver", $"Unknown").Value;
+                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-41 Request does not contain any RegistryObjects to upload").Value;
+                    break;
                 }
 
                 var submittedDocumentsTooLarge = _repositoryService.CheckIfDocumentsAreTooLarge(soapEnvelope);
@@ -128,7 +129,7 @@ public class XdsRepositoryController : ControllerBase
                 {
                     responseEnvelope.Body ??= new();
                     responseEnvelope.Body.RegistryResponse = iti42Message.Value.Body.RegistryResponse;
-                    responseEnvelope.Header = iti42Message.Value.Header;
+                    responseEnvelope.Header = new() { Action = iti42Message.Value.GetCorrespondingResponseAction(), RelatesTo = iti42Message.Value.Header.MessageId };
                     break;
                 }
 
@@ -172,6 +173,14 @@ public class XdsRepositoryController : ControllerBase
                 break;
 
             case Constants.Xds.OperationContract.Iti86Action:
+                if (!await _featureManager.IsEnabledAsync("Iti86RemoveDocuments")) return NotFound();
+
+                if (soapEnvelope.Body.RemoveDocumentsRequest?.DocumentRequest == null || soapEnvelope.Body.RemoveDocumentsRequest?.DocumentRequest.Length == 0)
+                {
+                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-86 Request does not contain any Documents to delete").Value;
+                    break;
+                }
+
                 var removeDocumentsResponse = _repositoryService.RemoveDocuments(soapEnvelope);
                 if (removeDocumentsResponse.IsSuccess)
                 {

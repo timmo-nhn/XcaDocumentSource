@@ -25,7 +25,7 @@ public class RestfulRegistryRepositoryService
         _logger = logger;
     }
 
-    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime serviceStartTime, DateTime serviceStopTime, int currentPageNumber = 1, int pageSize = 10)
+    public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime? serviceStartTime = null, DateTime? serviceStopTime = null, int currentPageNumber = 1, int pageSize = 10)
     {
         var documentListResponse = new DocumentListResponse();
 

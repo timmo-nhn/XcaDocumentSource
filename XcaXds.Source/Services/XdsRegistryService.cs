@@ -63,11 +63,7 @@ public partial class XdsRegistryService
             }
         }
 
-
-        // list spread to combine both lists
-        documentRegistry.RegistryObjectList = [.. documentRegistry.RegistryObjectList, .. submissionRegistryObjects];
-
-        var registryUpdateResult = _registryWrapper.SetDocumentRegistryFromXml(documentRegistry);
+        var registryUpdateResult = _registryWrapper.SetDocumentRegistryFromRegistryObjects([.. documentRegistry.RegistryObjectList , ..submissionRegistryObjects]);
 
         if (registryUpdateResult.IsSuccess)
         {
@@ -405,7 +401,12 @@ public partial class XdsRegistryService
 
         int removedDocumentsCount = 0;
 
-        foreach (var ro in registryDtoContent)
+        var toRemove = registryDtoContent
+            .Where(ro => objectRefIds.Contains(ro.Id))
+            .ToList();   // <- snapshot
+
+
+        foreach (var ro in toRemove)
         {
             if (objectRefIds.Contains(ro.Id))
             {
@@ -439,35 +440,34 @@ public partial class XdsRegistryService
 
         var iti42Message = new SoapEnvelope()
         {
+            Header = new() { Action = Constants.Xds.OperationContract.Iti42Action },
             Body = new() { RegisterDocumentSetRequest = new() { SubmitObjectsRequest = new() } }
         };
 
 
         iti42Message.Body.RegisterDocumentSetRequest.SubmitObjectsRequest = provideAndRegisterRequest.SubmitObjectsRequest;
-        iti42Message.SetAction(Constants.Xds.OperationContract.Iti42Action);
-
 
         var registryObjectList = iti42Message.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
 
         var associations = registryObjectList.OfType<AssociationType>().ToArray();
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
-        var documentEntries = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
         var documents = provideAndRegisterRequest?.Document;
 
         foreach (var association in associations)
         {
-            if (association.AssociationTypeData is not Constants.Xds.AssociationType.HasMember) continue;
+            if (association.AssociationTypeData != Constants.Xds.AssociationType.HasMember) continue;
 
-            var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id.NoUrn() == association.TargetObject.NoUrn());
             var assocRegistryPackage = registryPackages.FirstOrDefault(eo => eo.Id.NoUrn() == association.SourceObject.NoUrn());
+            var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == assocExtrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value.NoUrn());
 
             if (assocExtrinsicObject is null && assocDocument is not null && assocRegistryPackage is null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSMissingDocumentMetadata, $"Missing document metadata for document with ID {assocDocument?.Id}", "XDS Registry");
                 continue;
             }
+
             if (assocExtrinsicObject is null || assocDocument is null || assocRegistryPackage is null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSMissingDocument, $"Missing document/sourceobject/targetobject for association {association.Id}", "XDS Registry");

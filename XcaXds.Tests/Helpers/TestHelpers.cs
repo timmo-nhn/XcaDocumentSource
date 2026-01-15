@@ -25,6 +25,11 @@ public static class TestHelpers
         }
     }
 
+    public static List<DocumentReferenceDto> GenerateRegistryMetadata(string? patientId = null, bool noDeprecatedDocuments = false)
+    {
+        return GenerateRegistryMetadata(1, patientId, noDeprecatedDocuments);
+    }
+
     public static List<DocumentReferenceDto> GenerateRegistryMetadata(int amount = 10, string? patientId = null, bool noDeprecatedDocuments = false)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
