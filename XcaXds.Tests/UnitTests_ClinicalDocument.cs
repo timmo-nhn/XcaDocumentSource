@@ -1,9 +1,11 @@
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
+using XcaXds.Tests.Helpers;
 
 namespace XcaXds.Tests;
 
@@ -61,25 +63,17 @@ public class UnitTests_ClinicalDocument
     [Fact]
     public async Task TransformRegistryObjectDtosToCda()
     {
-        var registry = new FileBasedRegistry();
-        var registryObjects = registry.ReadRegistry();
+        var registryObjects = TestHelpers.GenerateRegistryMetadata("13116900216");
 
+        var registryMetadata = registryObjects.AsRegistryObjectList();
+        var documents = registryObjects.Select(ro => ro.Document);
 
         var randomIndex = new Random().Next(registryObjects.OfType<DocumentEntryDto>().Count());
 
-        var documentEntry = registryObjects.OfType<DocumentEntryDto>().ElementAt(randomIndex);
-
-        var association = registryObjects.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.TargetObject == documentEntry.Id);
-
-        var submissionSet = registryObjects.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
-
-        var repository = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = documentEntry.RepositoryUniqueId, HomeCommunityId = documentEntry.HomeCommunityId });
-
-        var document = new DocumentDto()
-        {
-            Data = repository.Read(documentEntry.UniqueId),
-            DocumentId = documentEntry.Id,
-        };
+        var documentEntry = registryMetadata.OfType<DocumentEntryDto>().ElementAt(randomIndex);
+        var association = registryMetadata.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.TargetObject == documentEntry.Id);
+        var submissionSet = registryMetadata.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
+        var document = documents.FirstOrDefault(doc => doc.DocumentId == documentEntry.UniqueId);
 
         var cdaDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, document);
         var sxmls = new SoapXmlSerializer();
@@ -90,7 +84,7 @@ public class UnitTests_ClinicalDocument
     [Fact]
     public async Task TransformCdaToRegistryObjects()
     {
-        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData"));
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData", "ClinicalDocumentArchitecture"));
 
         foreach (var file in testDataFiles.Where(fl => fl.Contains("cda",StringComparison.CurrentCultureIgnoreCase)) ?? [])
         {
