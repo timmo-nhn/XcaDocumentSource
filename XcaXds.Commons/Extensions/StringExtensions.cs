@@ -27,7 +27,7 @@ public static class StringExtensions
                 <ns2:ValueList>
             </ns2:Slot>
 		*/
-		return input.Replace("\\u0027", "").TrimStart("urn:uuid:").TrimStart("urn:oid:");
+		return input.Replace("\\u0027", "").Replace("urn:uuid:", "").Replace("urn:oid:", "");
     }
 
     /// <summary>
@@ -41,22 +41,7 @@ public static class StringExtensions
         }
 
         return  $"urn:oid:{input}";
-    }
-
-    public static string TrimStart(this string input, string trimString)
-    {
-        return input.TrimStart([.. trimString.Select(b => b)]);
-    }
-
-    public static string TrimEnd(this string input, string trimString)
-    {
-        return input.TrimEnd([.. trimString.Select(b => b)]);
-    }
-
-    public static string Trim(this string input, string trimString)
-    {
-        return input.Trim([.. trimString.Select(b => b)]);
-    }
+    }    
 
     public static byte[] GetAsUtf8Bytes(this string input)
     {
