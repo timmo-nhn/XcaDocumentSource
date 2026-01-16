@@ -38,7 +38,7 @@ public class IntegrationTests_Benchmark_ReadWriteRegistry : IClassFixture<WebApp
     {
         var statistics = new List<object>();
         var registry = new FileBasedRegistry();
-        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData"));
+        var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "SoapRequests"));
 
         var iti38Request = File.ReadAllText(testDataFiles.First(f => f.Contains("iti38-iti40-request-kj.xml")));
 

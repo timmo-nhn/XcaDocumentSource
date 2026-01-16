@@ -1,6 +1,7 @@
-﻿using Grpc.Core;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Utility;
 using System.Text;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -34,9 +35,9 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
 
         EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        Assert.Equal(RegistryItemCount, _registry.DocumenRegistry.OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
 
-        var metadata = TestHelpers.GenerateRegistryMetadata(RegistryItemCount,PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1,RegistryItemCount)).ToArray();
+        var metadata = TestHelpers.GenerateRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
@@ -58,13 +59,16 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
-        Assert.Equal(expectedCountAfterPnR, _registry.DocumenRegistry.OfType<DocumentEntryDto>().Count());
+        Assert.Equal(expectedCountAfterPnR, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(expectedCountAfterPnR, _repository.DocumentRepository.Count);
+
+        _output.WriteLine($"Uploaded {itemsToUploadCount} entries");
     }
 
 
+
     [Fact]
-    public async Task PNR_UpdateMetadata()
+    public async Task PNR_UpdateRegistryRepository_DeprecateOldDocuments()
     {
         _policyRepositoryService.DeleteAllPolicies();
         AddAccessControlPolicyForIntegrationTest(
@@ -83,43 +87,80 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
 
         var registryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var randomDocumentEntryToDeprecate = registryContent.PickRandom();
+        var amountOfItemsToReplace = Random.Shared.Next(1, RegistryItemCount);
+
+        var randomDocumentEntriesToDeprecate = registryContent.PickRandom(amountOfItemsToReplace).ToArray();
+        var newDocumentEntries = TestHelpers.GenerateRegistryMetadata(amountOfItemsToReplace, PatientIdentifier.IdNumber, true);
+
+        var assocDtos = newDocumentEntries
+            .Zip(randomDocumentEntriesToDeprecate, (nuDocEnt, rndDocEntToDprct) => new AssociationDto
+            {
+                SourceObject = nuDocEnt.DocumentEntry?.Id,
+                TargetObject = rndDocEntToDprct.DocumentEntry?.Id,
+                AssociationType = Constants.Xds.AssociationType.Replace
+            }).ToArray();
 
 
-        var newDocumentEntry = TestHelpers.GenerateRegistryMetadata(1, PatientIdentifier.IdNumber, true).FirstOrDefault();
+        var assocIds = assocDtos.Select(ass => ass.TargetObject).ToArray();
+        var docEntIds = randomDocumentEntriesToDeprecate.Select(ass => ass.DocumentEntry?.Id).ToArray();
 
-        var assocDto = new AssociationDto()
-        {
-            SourceObject = newDocumentEntry.DocumentEntry.Id,
-            TargetObject = randomDocumentEntryToDeprecate.DocumentEntry.Id,
-            AssociationType = Constants.Xds.AssociationType.Replace            
-        };
+        var targets = assocDtos.Select(a => a.TargetObject).ToHashSet();
 
-        var submitObjectsUpdate = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects([assocDto, newDocumentEntry.DocumentEntry, newDocumentEntry.Association, newDocumentEntry.SubmissionSet]);
-        var documentUpdate = new DocumentType { Id = newDocumentEntry.Document.DocumentId, Value = newDocumentEntry.Document.Data };
+        Assert.All(randomDocumentEntriesToDeprecate,d => Assert.Contains(d.DocumentEntry?.Id, targets));
 
+
+        var submitObjectsUpdate = RegistryMetadataTransformerService.
+            TransformRegistryObjectDtosToRegistryObjects([.. assocDtos, .. newDocumentEntries.Select(dto => dto.DocumentEntry), .. newDocumentEntries.Select(dto => dto.Association), .. newDocumentEntries.Select(dto => dto.SubmissionSet)]);
+        var documentUpdate = newDocumentEntries.Select(nde => new DocumentType { Id = nde.Document.DocumentId, Value = nde.Document.Data }).ToArray();
 
         var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
 
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. submitObjectsUpdate];
-        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [documentUpdate];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [.. documentUpdate];
+
+        var deprecateAssociations = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList
+            .OfType<AssociationType>()
+            .Where(robj => docEntIds.Any(id => id == robj.TargetObject)).ToArray();
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
         var expectedCountAfterPnrUpdate = RegistryItemCount + itemsToUploadCount;
 
-        var iti42RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
-        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti42RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
-
-        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+        var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
-        var statuses = _registry.DocumenRegistry.OfType<DocumentEntryDto>().Select(ro => ro.AvailabilityStatus).ToList();
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
+
+        var deprecatedDocuments = _registry.DocumentRegistry.OfType<DocumentEntryDto>().Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
+
+        var deprecatedIds = new HashSet<string>(
+            deprecatedDocuments.Select(d => d.Id)
+        );
+
+        var missingEntries = submitObjectsUpdate
+            .OfType<AssociationType>()
+            .Where(assoc => 
+                assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace &&
+                deprecatedIds.Contains(assoc.TargetObject) == false)
+            .ToArray();
+        
+        var missingIds = missingEntries.Select(me => me.TargetObject).ToArray();
+
+        var missingDocEnts = registryContent.Select(rc => rc.DocumentEntry)
+            .Where(robj => missingIds.Contains(robj.Id)).ToArray();
+
+        var randomEntry = JsonSerializer.Serialize(registryContent.PickRandom().DocumentEntry);
+
+        var missingEntry = JsonSerializer.Serialize(missingDocEnts.PickRandom());
+
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(expectedCountAfterPnrUpdate, _registry.DocumenRegistry.OfType<DocumentEntryDto>().Count());
+        Assert.Equal(expectedCountAfterPnrUpdate, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(expectedCountAfterPnrUpdate, _repository.DocumentRepository.Count);
-        Assert.Equal(Constants.Xds.StatusValues.Deprecated, _registry.DocumenRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == randomDocumentEntryToDeprecate.DocumentEntry.Id)?.AvailabilityStatus);
+        Assert.Equal(randomDocumentEntriesToDeprecate.Length, deprecatedDocuments.Count());
+
+        _output.WriteLine($"Uploaded {itemsToUploadCount} entries");
     }
 
 
@@ -163,8 +204,9 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(expectedCountAfterRds, _registry.DocumenRegistry.OfType<DocumentEntryDto>().Count());
+        Assert.Equal(expectedCountAfterRds, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(RegistryItemCount, _repository.DocumentRepository.Count);
+        _output.WriteLine($"Uploaded {itemsToUploadCount} entries");
     }
 
 
@@ -209,7 +251,7 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
         var documentEntryToRemove = RegistryContent.PickRandom().DocumentEntry;
 
         // Step 0: Check if Registry and Repository content is present
-        Assert.Equal(RegistryItemCount, _registry.DocumenRegistry.OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
 
         // Step 1: Get the unique id for the DocumentEntry in the Registry...
         var iti18RmdRequest = new SoapEnvelope();
@@ -233,7 +275,7 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
 
         var iti18RmdResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti18RmdRequestResponseContent);
 
-        var nogg =_registry.DocumenRegistry.OfType<AssociationDto>().FirstOrDefault(g => g.TargetObject == documentEntryToRemove.Id);
+        var nogg = _registry.DocumentRegistry.OfType<AssociationDto>().FirstOrDefault(g => g.TargetObject == documentEntryToRemove.Id);
 
         Assert.Empty(iti18RmdResponseSoapObject?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
 
@@ -260,7 +302,7 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
         var iti62ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti62ResponseContent);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
-        Assert.Equal(RegistryItemCount - 1, _registry.DocumenRegistry.OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount - 1, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
 
 
         // Step 3: Use the DocumentUniqueId in the DocumentEntry to remove the Document

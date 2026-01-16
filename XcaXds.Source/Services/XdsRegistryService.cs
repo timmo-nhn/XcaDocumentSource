@@ -32,6 +32,7 @@ public partial class XdsRegistryService
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
+
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
         if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
         {
@@ -40,6 +41,8 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
 
         }
+
+        var deprecates = submissionRegistryObjects.OfType<AssociationType>().Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace).ToArray();
 
         if (DuplicateUuidsExist(documentRegistry.RegistryObjectList, submissionRegistryObjects, out string[] duplicateIds))
         {
@@ -50,20 +53,34 @@ public partial class XdsRegistryService
 
         // RPLC option, replacing and deprecating document entries
         var documentReplaceAssociations = submissionRegistryObjects.OfType<AssociationType>()
-            .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace);
+            .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace).ToList();
 
-        foreach (var replaceAssociation in documentReplaceAssociations)
+        var successes = new bool[] { };
+
+        var registryObjects = documentRegistry.RegistryObjectList;
+        foreach (var registryObject in registryObjects)
         {
-            var documentId = replaceAssociation.TargetObject?.NoUrn();
-            documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
-
-            if (success)
+            foreach (var replaceAssociation in documentReplaceAssociations)
             {
-                _logger.LogInformation($"{envelope?.Header?.MessageId} - Deprecating document with id {documentId}");
+                var documentId = replaceAssociation.TargetObject?.NoUrn();
+                documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
+
+                if (success == false)
+                {
+                    _logger.LogWarning($"{envelope?.Header?.MessageId} - Error deprecating document - id {documentId} not found");
+                    continue;
+                }
+
+                successes = [.. successes, success];
+                _logger.LogInformation($"{envelope?.Header?.MessageId} - Successfully deprecated document with id {documentId}");
             }
+
         }
 
-        var registryUpdateResult = _registryWrapper.SetDocumentRegistryFromRegistryObjects([.. documentRegistry.RegistryObjectList , ..submissionRegistryObjects]);
+
+        var registryUpdateResult = _registryWrapper.SetDocumentRegistryFromRegistryObjects([.. submissionRegistryObjects, .. documentRegistry.RegistryObjectList]);
+
+        var statuses = documentRegistry.RegistryObjectList.OfType<ExtrinsicObjectType>().Count(ro => ro.Status == Constants.Xds.StatusValues.Deprecated);
 
         if (registryUpdateResult.IsSuccess)
         {
@@ -71,7 +88,7 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry\nError: {registryUpdateResult.Value}",_xdsConfig.HomeCommunityId);
+        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry\nError: {registryUpdateResult.Value}", _xdsConfig.HomeCommunityId);
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
@@ -85,11 +102,11 @@ public partial class XdsRegistryService
 
         var adhocQueryRequest = soapEnvelope.Body.AdhocQueryRequest;
 
-		var returnType = adhocQueryRequest?.ResponseOption?.ReturnType;
-		var isLeafClass = returnType == ResponseOptionTypeReturnType.LeafClass;
-		var isObjectRef = returnType == ResponseOptionTypeReturnType.ObjectRef;
+        var returnType = adhocQueryRequest?.ResponseOption?.ReturnType;
+        var isLeafClass = returnType == ResponseOptionTypeReturnType.LeafClass;
+        var isObjectRef = returnType == ResponseOptionTypeReturnType.ObjectRef;
 
-		var filteredElements = new List<IdentifiableType>();
+        var filteredElements = new List<IdentifiableType>();
 
         switch (adhocQueryRequest?.AdhocQuery.Id)
         {
@@ -144,19 +161,19 @@ public partial class XdsRegistryService
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
 
-				filteredElements = [.. registryFindDocumentEntriesResult];
+                filteredElements = [.. registryFindDocumentEntriesResult];
 
-				// Apply business-logic filtering
-				var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+                // Apply business-logic filtering
+                var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
                 filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic);
 
-				// Safe guard to avoid duplicate IDs in response
-				filteredElements = filteredElements
-	                .GroupBy(x => x.Id)
-	                .Select(g => g.First())
-	                .ToList();
+                // Safe guard to avoid duplicate IDs in response
+                filteredElements = filteredElements
+                    .GroupBy(x => x.Id)
+                    .Select(g => g.First())
+                    .ToList();
 
-				_logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
+                _logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
                 _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Returned {filteredElements.Count} ExtrinsicObjects for AdhocQuery Type FindDocuments ({adhocQueryRequest?.AdhocQuery.Id})");
 
                 break;
@@ -225,10 +242,10 @@ public partial class XdsRegistryService
                 registryGetAssociationsResult = registryGetAssociationsResult
                     .ByUuid(getAssociationsParameters.Uuid);
 
-				//registryGetAssociationsResult = registryGetAssociationsResult
-				//.ByHomeCommunityId(adhocQueryRequest.AdhocQuery.Home);    // Associations do not have Home attribute so it's always null in DTOs
+                //registryGetAssociationsResult = registryGetAssociationsResult
+                //.ByHomeCommunityId(adhocQueryRequest.AdhocQuery.Home);    // Associations do not have Home attribute so it's always null in DTOs
 
-				if (getAssociationsParameters.Uuid == null || getAssociationsParameters.Uuid.Count == 0)
+                if (getAssociationsParameters.Uuid == null || getAssociationsParameters.Uuid.Count == 0)
                 {
                     _logger.LogError($"{soapEnvelope?.Header?.MessageId} - Missing required parameter $uuid was not set");
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $uuid not set".Trim(), "XDS Registry");
@@ -263,37 +280,37 @@ public partial class XdsRegistryService
                 break;
 
 
-            //case Constants.Xds.StoredQueries.GetFolderAndContents:
-            //    var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
+                //case Constants.Xds.StoredQueries.GetFolderAndContents:
+                //    var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
 
-            //    var registryGetFoldersAndDocumentsResult = documentRegistry.RegistryObjectList.OfType<IdentifiableType>();
+                //    var registryGetFoldersAndDocumentsResult = documentRegistry.RegistryObjectList.OfType<IdentifiableType>();
 
-            //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-            //        .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
+                //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                //        .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
 
-            //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-            //        .ByXdsFolderEntryUuid(getFoldersAndContentsParameters.XdsFolderEntryUuid);
+                //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                //        .ByXdsFolderEntryUuid(getFoldersAndContentsParameters.XdsFolderEntryUuid);
 
-            //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-            //        .ByXdsDocumentEntryFormatCode(getFoldersAndContentsParameters.XdsDocumentEntryFormatCode);
+                //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                //        .ByXdsDocumentEntryFormatCode(getFoldersAndContentsParameters.XdsDocumentEntryFormatCode);
 
 
-            //    // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
-            //    // Return an XDSStoredQueryParamNumber error if both parameters are specified
-            //    if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
-            //    {
-            //        _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
-            //        registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
-            //    }
+                //    // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
+                //    // Return an XDSStoredQueryParamNumber error if both parameters are specified
+                //    if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
+                //    {
+                //        _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
+                //        registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
+                //    }
 
-            //    filteredElements = [.. registryGetFoldersAndDocumentsResult];
+                //    filteredElements = [.. registryGetFoldersAndDocumentsResult];
 
-            //    break;
+                //    break;
         }
 
 
         filteredElements.ObfuscateRestrictedDocumentEntries(out var count);
-        
+
         if (count > 0)
         {
             _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
@@ -349,7 +366,7 @@ public partial class XdsRegistryService
     {
         var registryResponse = new RegistryResponseType();
         var removeObjectsRequest = soapEnvelope.Body.RemoveObjectsRequest;
-        
+
         var registryDtoContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
         var objectRefList = removeObjectsRequest?.ObjectRefList?.ObjectRef ?? [];
@@ -477,6 +494,7 @@ public partial class XdsRegistryService
                 };
             }
         }
+
         iti42Message.Body.RegistryResponse = registryResponse;
         return SoapExtensions.CreateSoapResultResponse(iti42Message);
     }

@@ -13,14 +13,12 @@ public static class AssociationExtensions
     {
         success = false;
         if (id == null) return;
-        var documentEntryToDeprecate = source.OfType<ExtrinsicObjectType>().Where(eo => eo.Id == id);
 
-        if (!documentEntryToDeprecate.Any()) return;
+        var documentEntryToDeprecate = source.OfType<ExtrinsicObjectType>().FirstOrDefault(eo => eo.Id == id);
 
-        foreach (var entry in documentEntryToDeprecate)
-        {
-            entry.Status = Constants.Xds.StatusValues.Deprecated;
-            success = true;
-        }
+        if (documentEntryToDeprecate == null) return;
+
+        documentEntryToDeprecate.Status = Constants.Xds.StatusValues.Deprecated;
+        success = true;
     }
 }

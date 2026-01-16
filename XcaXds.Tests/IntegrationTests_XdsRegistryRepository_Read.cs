@@ -19,6 +19,7 @@ using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
+using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
@@ -32,10 +33,11 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve : IClass
     private readonly InMemoryPolicyRepository _policyRepository;
     private readonly InMemoryRegistry _registry;
     private readonly InMemoryRepository _repository;
+    private readonly ITestOutputHelper _output;
 
     private List<DocumentReferenceDto> RegistryContent { get; set; }
 
-    private readonly int RegistryItemCount = 10; // The amount of registry objects to generate and evaluate against
+    private readonly int RegistryItemCount = 1000; // The amount of registry objects to generate and evaluate against
 
     private readonly CX PatientIdentifier = new()
     {
@@ -48,8 +50,11 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve : IClass
     };
 
     public IntegrationTests_XcaRespondingGatewayQueryRetrieve(
-        WebApplicationFactory<WebService.Program> factory)
+        WebApplicationFactory<WebService.Program> factory, 
+        ITestOutputHelper output)
     {
+        _output = output;
+
         using var scope = factory.Services.CreateScope();
 
         _policyRepository = new InMemoryPolicyRepository();
@@ -117,6 +122,7 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve : IClass
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(RegistryItemCount, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count());
+        _output.WriteLine($"Fetched {RegistryItemCount} entries");
     }
 
     [Fact]
@@ -150,6 +156,7 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve : IClass
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(RegistryItemCount, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count());
+        _output.WriteLine($"Fetched {RegistryItemCount} entries");
     }
 
 
