@@ -58,25 +58,21 @@ public partial class XdsRegistryService
         var successes = new bool[] { };
 
         var registryObjects = documentRegistry.RegistryObjectList;
-        foreach (var registryObject in registryObjects)
+
+        foreach (var replaceAssociation in documentReplaceAssociations)
         {
-            foreach (var replaceAssociation in documentReplaceAssociations)
+            var documentId = replaceAssociation.TargetObject?.NoUrn();
+            documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
+
+            if (success == false)
             {
-                var documentId = replaceAssociation.TargetObject?.NoUrn();
-                documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
-
-                if (success == false)
-                {
-                    _logger.LogWarning($"{envelope?.Header?.MessageId} - Error deprecating document - id {documentId} not found");
-                    continue;
-                }
-
-                successes = [.. successes, success];
-                _logger.LogInformation($"{envelope?.Header?.MessageId} - Successfully deprecated document with id {documentId}");
+                _logger.LogWarning($"{envelope?.Header?.MessageId} - Error deprecating document - id {documentId} not found");
+                continue;
             }
 
+            successes = [.. successes, success];
+            _logger.LogInformation($"{envelope?.Header?.MessageId} - Successfully deprecated document with id {documentId}");
         }
-
 
         var registryUpdateResult = _registryWrapper.SetDocumentRegistryFromRegistryObjects([.. submissionRegistryObjects, .. documentRegistry.RegistryObjectList]);
 

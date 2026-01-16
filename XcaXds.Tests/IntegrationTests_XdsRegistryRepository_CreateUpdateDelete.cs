@@ -14,7 +14,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
-public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve
+public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
 {
     [Fact]
     public async Task PNR_UploadDocuments_RandomDocumentAmount()
