@@ -24,7 +24,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
-public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve : IClassFixture<WebApplicationFactory<WebService.Program>>
+public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     private readonly HttpClient _client;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
@@ -49,7 +49,7 @@ public partial class IntegrationTests_XcaRespondingGatewayQueryRetrieve : IClass
         }
     };
 
-    public IntegrationTests_XcaRespondingGatewayQueryRetrieve(
+    public IntegrationTests_XcaXdsRegistryRepository_CRUD(
         WebApplicationFactory<WebService.Program> factory, 
         ITestOutputHelper output)
     {
