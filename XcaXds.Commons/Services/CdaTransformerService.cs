@@ -60,7 +60,7 @@ public static partial class CdaTransformerService
 
         var document = new DocumentDto()
         {
-            Data = Encoding.UTF8.GetBytes(cdaXml.Content),
+            Data = Encoding.UTF8.GetBytes(cdaXml.Content ?? string.Empty),
             DocumentId = documentEntry.UniqueId
         };
 
@@ -372,7 +372,7 @@ public static partial class CdaTransformerService
 
         if (documentEntry != null)
         {
-            cdaDocument.Id = SetClinicalDocumentId(documentEntry);
+            cdaDocument.Id = SetClinicalDocumentId(documentEntry) ?? new();
 
             cdaDocument.Code = SetClinicalDocumentTypeCode(documentEntry);
 
@@ -392,12 +392,12 @@ public static partial class CdaTransformerService
 
             // ClinicalDocument.custodian
             cdaDocument.Custodian ??= new();
-            cdaDocument.Custodian = SetClinicalDocumentCustodian(submissionSet);
+            cdaDocument.Custodian = SetClinicalDocumentCustodian(submissionSet) ?? new();
 
         }
 
         // ClinicalDocument.nonXmlBody
-        if (document != null && document.Data != null)
+        if (document != null && document.Data != null && documentEntry != null)
         {
             cdaDocument.Component ??= new();
             cdaDocument.Component.NonXmlBody = SetClinicalDocumentNonXmlBody(document, documentEntry);
@@ -500,7 +500,7 @@ public static partial class CdaTransformerService
         return ts;
     }
 
-    private static Custodian SetClinicalDocumentCustodian(SubmissionSetDto submissionsSet)
+    private static Custodian? SetClinicalDocumentCustodian(SubmissionSetDto submissionsSet)
     {
         var custodian = new Custodian();
 

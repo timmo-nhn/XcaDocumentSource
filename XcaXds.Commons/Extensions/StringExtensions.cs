@@ -40,7 +40,7 @@ public static class StringExtensions
             return input;
         }
 
-        return  $"urn:oid:{input}";
+        return  $"urn:oid:{input.NoUrn()}";
     }    
 
     public static byte[] GetAsUtf8Bytes(this string input)

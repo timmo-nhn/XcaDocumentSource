@@ -18,25 +18,25 @@ public class ClinicalDocument
     public List<CS>? RealmCode { get; set; }
 
     [XmlElement("typeId")]
-    public II TypeId { get; set; }
+    public II TypeId { get; set; } = new();
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public II Id { get; set; }
+    public II Id { get; set; } = new();
 
     [XmlElement("code")]
-    public CV Code { get; set; }
+    public CV Code { get; set; } = new();
 
     [XmlElement("title")]
     public string? Title { get; set; }
 
     [XmlElement("effectiveTime")]
-    public TS EffectiveTime { get; set; }
+    public TS EffectiveTime { get; set; } = new();
 
     [XmlElement("confidentialityCode")]
-    public CV ConfidentialityCode { get; set; }
+    public CV ConfidentialityCode { get; set; } = new();
 
     [XmlElement("languageCode")]
     public CS? LanguageCode { get; set; }
@@ -51,7 +51,7 @@ public class ClinicalDocument
     public TS? CopyTime { get; set; }
 
     [XmlElement("recordTarget")]
-    public List<RecordTarget> RecordTarget { get; set; }
+    public List<RecordTarget> RecordTarget { get; set; } = new();
 
     [XmlElement("author")]
     public List<Author> Author { get; set; }
@@ -63,13 +63,13 @@ public class ClinicalDocument
     public List<Informant>? Informant { get; set; }
 
     [XmlElement("custodian")]
-    public Custodian Custodian { get; set; }
+    public Custodian Custodian { get; set; } = new();
 
     [XmlElement("informationRecipient")]
     public List<InformationRecipient>? InformationRecipient { get; set; }
 
     [XmlElement("legalAuthenticator")]
-    public LegalAuthenticator LegalAuthenticator { get; set; }
+    public LegalAuthenticator LegalAuthenticator { get; set; } = new();
 
     [XmlElement("authenticator")]
     public List<Authenticator>? Authenticator { get; set; }
@@ -93,5 +93,5 @@ public class ClinicalDocument
     public ComponentOf? ComponentOf { get; set; }
 
     [XmlElement("component")]
-    public Component Component { get; set; }
+    public Component Component { get; set; } = new();
 }

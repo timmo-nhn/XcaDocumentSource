@@ -61,7 +61,7 @@ public partial class XdsRegistryService
 
         foreach (var replaceAssociation in documentReplaceAssociations)
         {
-            var documentId = replaceAssociation.TargetObject?.NoUrn();
+            var documentId = replaceAssociation.TargetObject;
             documentRegistry.RegistryObjectList.DeprecateDocumentEntry(documentId, out bool success);
 
             if (success == false)

@@ -55,25 +55,16 @@ public partial class RepositoryWrapper
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
-
-        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.UniqueId == documentUniqueId);
-
-        var submissionSet = documentRegistry
-            .OfType<SubmissionSetDto>()
-            .FirstOrDefault(ro => ro.Id == documentRegistry?
-                .OfType<AssociationDto>()?
-                .FirstOrDefault(assoc => assoc.TargetObject == documentEntry?.Id)?.SourceObject);
 
         var documentDto = new DocumentDto()
         {
             Data = _repository.Read(documentUniqueId),
-            DocumentId = documentEntry?.Id
+            DocumentId = documentUniqueId
         };
 
         var cdaXml = string.Empty;
 
-        var documentAsString = Encoding.UTF8.GetString(documentDto.Data ?? []);
+        var documentAsString = Encoding.UTF8.GetString(documentDto.Data ?? [],0,64);
 
         if (!string.IsNullOrWhiteSpace(documentAsString))
         {
@@ -84,6 +75,12 @@ public partial class RepositoryWrapper
             }
             else
             {
+                var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+                var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro?.UniqueId == documentUniqueId);
+                var associations = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc?.TargetObject == documentEntry?.Id);
+                var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
+
                 var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
                 cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
             }

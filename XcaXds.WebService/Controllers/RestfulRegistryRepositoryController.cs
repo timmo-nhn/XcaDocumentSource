@@ -252,4 +252,36 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         return Ok(deleteResponse);
     }
+
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [HttpDelete("delete-from-timespan")]
+    public async Task<IActionResult> DeleteFromTimeSpan([FromQuery] DateTime timeSpan)
+    {
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
+
+        var requestTimer = Stopwatch.StartNew();
+
+        var deleteResponse = _restfulRegistryService.DeleteUntilTimeSpan(timeSpan);
+
+        requestTimer.Stop();
+
+        return Ok(deleteResponse);
+    }
+
+    [Produces("application/json")]
+    [Consumes("application/json")]
+    [HttpDelete("delete-older-than")]
+    public async Task<IActionResult> DeleteOlderThanNDays([FromQuery] int? days, [FromQuery] int? weeks, [FromQuery] int? months, [FromQuery] int? years)
+    {
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
+
+        var requestTimer = Stopwatch.StartNew();
+
+        var deleteResponse = _restfulRegistryService.DeleteOlderThan(days, weeks, months, years);
+
+        requestTimer.Stop();
+
+        return Ok(deleteResponse);
+    }
 }
