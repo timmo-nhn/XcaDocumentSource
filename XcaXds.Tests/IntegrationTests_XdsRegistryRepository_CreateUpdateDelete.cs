@@ -1,7 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Utility;
 using System.Text;
-using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -17,7 +16,8 @@ namespace XcaXds.Tests;
 public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
 {
     [Fact]
-    public async Task PNR_UploadDocuments_RandomDocumentAmount()
+    [Trait("Upload", "Modify Registry/Repository")]
+    public async Task PNR_UploadDocuments_RandomAmount()
     {
         _policyRepositoryService.DeleteAllPolicies();
         AddAccessControlPolicyForIntegrationTest(
@@ -62,13 +62,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
         Assert.Equal(expectedCountAfterPnR, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(expectedCountAfterPnR, _repository.DocumentRepository.Count);
 
-        _output.WriteLine($"Uploaded {itemsToUploadCount} entries");
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {_registry.DocumentRegistry.Count}\nRepository count: {_repository.DocumentRepository.Count}");
     }
 
 
-
     [Fact]
-    public async Task PNR_UpdateRegistryRepository_DeprecateOldDocuments()
+    [Trait("Update", "Modify Registry/Repository")]
+    public async Task PNR_UpdateRegistryRepository_Deprecate_RandomAmount()
     {
         _policyRepositoryService.DeleteAllPolicies();
         AddAccessControlPolicyForIntegrationTest(
@@ -106,7 +106,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
 
         var targets = assocDtos.Select(a => a.TargetObject).ToHashSet();
 
-        Assert.All(randomDocumentEntriesToDeprecate,d => Assert.Contains(d.DocumentEntry?.Id, targets));
+        Assert.All(randomDocumentEntriesToDeprecate, d => Assert.Contains(d.DocumentEntry?.Id, targets));
 
 
         var submitObjectsUpdate = RegistryMetadataTransformerService.
@@ -134,38 +134,17 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
 
         var deprecatedDocuments = _registry.DocumentRegistry.OfType<DocumentEntryDto>().Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
 
-        var deprecatedIds = new HashSet<string>(
-            deprecatedDocuments.Select(d => d.Id)
-        );
-
-        var missingEntries = submitObjectsUpdate
-            .OfType<AssociationType>()
-            .Where(assoc => 
-                assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace &&
-                deprecatedIds.Contains(assoc.TargetObject) == false)
-            .ToArray();
-        
-        var missingIds = missingEntries.Select(me => me.TargetObject).ToArray();
-
-        var missingDocEnts = registryContent.Select(rc => rc.DocumentEntry)
-            .Where(robj => missingIds.Contains(robj.Id)).ToArray();
-
-        var randomEntry = JsonSerializer.Serialize(registryContent.PickRandom().DocumentEntry);
-
-        var missingEntry = JsonSerializer.Serialize(missingDocEnts.PickRandom());
-
-
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(expectedCountAfterPnrUpdate, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(expectedCountAfterPnrUpdate, _repository.DocumentRepository.Count);
         Assert.Equal(randomDocumentEntriesToDeprecate.Length, deprecatedDocuments.Count());
 
-        _output.WriteLine($"Uploaded {itemsToUploadCount} entries");
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUpdated: {itemsToUploadCount} entries.\nRegistry count: {_registry.DocumentRegistry.Count}\nRepository count: {_repository.DocumentRepository.Count}");
     }
 
-
     [Fact]
-    public async Task RDS_AddMetadata()
+    [Trait("Upload", "Add to Registry")]
+    public async Task RDS_UploadRegistry_AddMetadata()
     {
         _policyRepositoryService.DeleteAllPolicies();
         AddAccessControlPolicyForIntegrationTest(
@@ -206,12 +185,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(expectedCountAfterRds, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(RegistryItemCount, _repository.DocumentRepository.Count);
-        _output.WriteLine($"Uploaded {itemsToUploadCount} entries");
+
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {_registry.DocumentRegistry.Count}\nRepository count: {_repository.DocumentRepository.Count}");
     }
 
-
     [Fact]
-    public async Task RMD_RemoveDocumentsAndMetadata()
+    [Trait("Delete", "Modify Registry")]
+    public async Task RMD_RemoveDocumentsAndMetadata_RandomAmount()
     {
         _policyRepositoryService.DeleteAllPolicies();
         AddAccessControlPolicyForIntegrationTest(
@@ -246,9 +226,10 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
         var iti62DeleteObjectsRequest = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti62-request.xml"))));
         var iti86DeleteDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti86-request.xml"))));
 
+        var amountOfItemsToReplace = Random.Shared.Next(1, RegistryItemCount);
 
-        // Step -1: Pick random DocumentEntry to remove
-        var documentEntryToRemove = RegistryContent.PickRandom().DocumentEntry;
+        // Step -1: Pick random DocumentEntries to remove
+        var documentEntryToRemove = RegistryContent.PickRandom(amountOfItemsToReplace).Select(rc => rc.DocumentEntry).ToArray();
 
         // Step 0: Check if Registry and Repository content is present
         Assert.Equal(RegistryItemCount, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
@@ -260,7 +241,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
         iti18RmdRequest.Body.AdhocQueryRequest?.AdhocQuery.Slot = [new SlotType()
         {
             Name = Constants.Xds.QueryParameters.Associations.Uuid,
-            ValueList = new() { Value = [documentEntryToRemove?.Id] }
+            ValueList = new() { Value = [.. documentEntryToRemove.Select(docent => docent?.Id)] }
         }];
 
         iti18RmdRequest.Body.AdhocQueryRequest?.AdhocQuery.Id = Constants.Xds.StoredQueries.GetAssociations;
@@ -275,20 +256,22 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
 
         var iti18RmdResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti18RmdRequestResponseContent);
 
-        var nogg = _registry.DocumentRegistry.OfType<AssociationDto>().FirstOrDefault(g => g.TargetObject == documentEntryToRemove.Id);
 
         Assert.Empty(iti18RmdResponseSoapObject?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
 
-        var rmdAssociation = iti18RmdResponseSoapObject?.Body.AdhocQueryResponse?.RegistryObjectList.OfType<AssociationType>().FirstOrDefault(assoc => assoc.TargetObject == documentEntryToRemove?.Id);
+        var documentEntriesToRemove = new HashSet<string>(documentEntryToRemove?.Select(de => de.Id));
+        var amountOfEntitiesToRemove = documentEntriesToRemove.Count;
+        var rmdAssociation = iti18RmdResponseSoapObject?.Body.AdhocQueryResponse?.RegistryObjectList.OfType<AssociationType>().Where(assoc => documentEntriesToRemove.Contains(assoc.TargetObject)).ToArray();
 
 
         // Step 2: Use the identifiers in the Association to remove the metadata from the Registry...
         Assert.NotNull(rmdAssociation);
-        iti62DeleteObjectsRequest.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef = [
-            new ObjectRefType(){Id = rmdAssociation.Id},
-            new ObjectRefType(){Id = rmdAssociation.SourceObject},
-            new ObjectRefType(){Id = rmdAssociation.TargetObject},
-        ];
+        iti62DeleteObjectsRequest.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef = rmdAssociation.SelectMany(assoc => new IdentifiableType[]
+        {
+            new ObjectRefType() { Id = assoc.Id },
+            new ObjectRefType() { Id = assoc.SourceObject },
+            new ObjectRefType() { Id = assoc.TargetObject },
+        }).ToArray();
 
         var iti62RequestString = sxmls.SerializeSoapMessageToXmlString(iti62DeleteObjectsRequest).Content;
 
@@ -302,19 +285,19 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
         var iti62ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti62ResponseContent);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
-        Assert.Equal(RegistryItemCount - 1, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
 
 
         // Step 3: Use the DocumentUniqueId in the DocumentEntry to remove the Document
-        iti86DeleteDocumentSet.Body.RemoveDocumentsRequest?.DocumentRequest = new[]{
+        iti86DeleteDocumentSet.Body.RemoveDocumentsRequest?.DocumentRequest = documentEntryToRemove.SelectMany(docEnt => new[]{
 
             new DocumentRequestType()
             {
-                DocumentUniqueId = documentEntryToRemove?.UniqueId,
-                HomeCommunityId = documentEntryToRemove?.HomeCommunityId,
-                RepositoryUniqueId = documentEntryToRemove?.RepositoryUniqueId
+                DocumentUniqueId = docEnt?.UniqueId,
+                HomeCommunityId = docEnt?.HomeCommunityId,
+                RepositoryUniqueId = docEnt?.RepositoryUniqueId
             }
-         };
+         }).ToArray();
 
         iti86DeleteDocumentSet.SetAction(Constants.Xds.OperationContract.Iti86Action);
 
@@ -329,11 +312,14 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
 
         Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
-        Assert.Equal(RegistryItemCount - 1, _repository.DocumentRepository.Count);
+        Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, _repository.DocumentRepository.Count);
+
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {_registry.DocumentRegistry.Count}\nRepository count: {_repository.DocumentRepository.Count}");
     }
 
 
     [Fact]
+    [Trait("Read", "Read Registry/Repository")]
     public async Task ALL_PutWrongRequestsForActions()
     {
         _policyRepositoryService.DeleteAllPolicies();

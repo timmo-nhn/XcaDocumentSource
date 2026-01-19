@@ -91,6 +91,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
 
     [Fact]
+    [Trait("Read","DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Kjernejournal()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -126,6 +127,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     }
 
     [Fact]
+    [Trait("Read","DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -156,11 +158,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(RegistryItemCount, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count());
+
         _output.WriteLine($"Fetched {RegistryItemCount} entries");
     }
 
 
     [Fact]
+    [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Kjernejournal()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -196,8 +200,6 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         var crossGatewayRetrieve = GetSoapEnvelopeWithKjernejournalSamlToken(iti39SoapEnvelope);
 
-
-
         var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
 
         var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
@@ -209,10 +211,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(RegistryItemCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
+
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
     }
 
 
     [Fact]
+    [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -258,10 +263,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(RegistryItemCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
+
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
     }
 
 
     [Fact]
+    [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge_ShouldNotGetAccess()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -314,6 +322,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
 
     [Fact]
+    [Trait("Read","Documents")]
     public async Task XGR_CrossGatewayRetrieve_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -360,10 +369,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
     }
 
 
     [Fact]
+    [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Helsenorge_ShouldNotGetAccess()
     {
         _policyRepositoryService.DeleteAllPolicies();

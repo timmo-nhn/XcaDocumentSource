@@ -480,4 +480,18 @@ public class RestfulRegistryRepositoryService
 
         return response;
     }
+
+    public RestfulApiResponse DeleteUntilTimeSpan(DateTime timeSpan)
+    {
+        var content = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        var oldContent = content.OfType<DocumentEntryDto>().Where(de => de.ServiceStopTime >= timeSpan).ToArray();
+
+        throw new NotImplementedException();
+    }
+
+    public RestfulApiResponse DeleteOlderThan(int? days, int? weeks, int? months, int? years)
+    {
+        throw new NotImplementedException();
+    }
 }
