@@ -136,7 +136,7 @@ public class XdsRepositoryService
 
 		if (oversizedDocuments?.Count > 0)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Documents submitted are too large!\nIDs: {string.Join(", ", oversizedDocuments.Select(od => od.Id))}", _xdsConfig.HomeCommunityId);
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Documents submitted are too large (max {_xdsConfig.DocumentUploadSizeLimitKb} KB per document)!\nIDs: {string.Join(", ", oversizedDocuments.Select(od => od.Id))}", _xdsConfig.HomeCommunityId);
         }
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
