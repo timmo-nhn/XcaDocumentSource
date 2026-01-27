@@ -14,7 +14,7 @@ public static class AssociationExtensions
         success = false;
         if (id == null) return;
 
-        var documentEntryToDeprecate = source.OfType<ExtrinsicObjectType>().FirstOrDefault(eo => eo.Id == id);
+        var documentEntryToDeprecate = source.OfType<ExtrinsicObjectType>().FirstOrDefault(eo => eo.Id?.NoUrn() == id.NoUrn());
 
         if (documentEntryToDeprecate == null) return;
 
