@@ -1,16 +1,12 @@
-﻿using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Xml;
-using Abc.Xacml.Context;
+﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using Microsoft.Win32;
+using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Services;
@@ -39,7 +35,7 @@ public static class PolicyRequestMapperSamlService
         var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(soapEnvelope);
 
         var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
-        return  GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
+        return GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
     public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
@@ -53,13 +49,13 @@ public static class PolicyRequestMapperSamlService
             return null;
         }
 
-        var samltokenAuthorizationAttributes = statements.Where(att => 
+        var samltokenAuthorizationAttributes = statements.Where(att =>
         att.Name.Contains("xacml") ||
         att.Name.Contains("xspa") ||
         att.Name.Contains("SecurityLevel") ||
-        att.Name.Contains("Scope") || 
-        att.Name.Contains("urn:ihe:iti") || 
-        att.Name.Contains("acp") || 
+        att.Name.Contains("Scope") ||
+        att.Name.Contains("urn:ihe:iti") ||
+        att.Name.Contains("acp") ||
         att.Name.Contains("provider-identifier"))
             .Append(new(Constants.Xacml.CustomAttributes.SamlNameId, samlToken.Assertion.Subject.NameId.Value));
 
@@ -88,7 +84,7 @@ public static class PolicyRequestMapperSamlService
                 var xacmlAction = new XacmlContextAction(actionAttribute);
 
                 // Subject
-                var subjectAttributes = samlAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && (sa.AttributeId.OriginalString.Contains("subject")|| sa.AttributeId.OriginalString.Contains("acp"))).ToList();
+                var subjectAttributes = samlAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && (sa.AttributeId.OriginalString.Contains("subject") || sa.AttributeId.OriginalString.Contains("acp"))).ToList();
                 subjectAttributes.AddRange(requestAttributes);
                 var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 
@@ -156,29 +152,78 @@ public static class PolicyRequestMapperSamlService
 
     public static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
-        var documentRequests = soapEnvelope.Body?.RetrieveDocumentSetRequest?.DocumentRequest;
-
+        // ReadDocumentList
         var adhocQueryPatientId = soapEnvelope.Body?.AdhocQueryRequest?.AdhocQuery?.GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();
         var adhocQueryPatientValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(adhocQueryPatientId);
 
+        // ReadDocuments
+        var documentRequests = soapEnvelope.Body?.RetrieveDocumentSetRequest?.DocumentRequest;
+
+        // Create
+        var provideAndRegisterRequest = soapEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList ?? soapEnvelope.Body?.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+
+        // Delete
+        var removeObjectsRequest = soapEnvelope.Body?.RemoveObjectsRequest?.ObjectRefList?.ObjectRef;
+        var removeDocumentsRequest = soapEnvelope.Body?.RemoveDocumentsRequest?.DocumentRequest;
+
         var xacmlRequestAttributes = new List<XacmlContextAttribute>();
-        
-        if (adhocQueryPatientValue?.Code != null || adhocQueryPatientValue?.CodeSystem != null)
+
+        MapRequestAttributesFromAdhocQueryRequest(xacmlRequestAttributes, adhocQueryPatientValue);
+        MapRequestAttributesFromRetrieveDocumentSet(xacmlRequestAttributes, documentRequests, documentRegistry);
+        MapRequestAttributesFromProvideAndRegisterRequest(xacmlRequestAttributes, provideAndRegisterRequest);
+        MapRequestAttributesFromRemoveObjectsRequest(xacmlRequestAttributes, removeObjectsRequest);
+        MapRequestAttributesFromRemoveDocumentsRequest(xacmlRequestAttributes, removeDocumentsRequest, documentRegistry);
+
+        return xacmlRequestAttributes;
+    }
+
+    private static void MapRequestAttributesFromRemoveObjectsRequest(List<XacmlContextAttribute> xacmlRequestAttributes, IdentifiableType[]? removeObjectsRequest)
+    {
+        foreach (var removeObject in removeObjectsRequest ?? [])
         {
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
-                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:code"),
+                    new Uri(Constants.Xacml.CustomAttributes.DocumentUniqueId),
                     new Uri(Constants.Xacml.DataType.String),
-                    new XacmlContextAttributeValue() { Value = adhocQueryPatientValue.Code }));
+                    new XacmlContextAttributeValue() { Value = removeObject.Id }));
+        }
+    }
+
+    private static void MapRequestAttributesFromRemoveDocumentsRequest(List<XacmlContextAttribute> xacmlRequestAttributes, DocumentRequestType[]? removeDocumentsRequest, IEnumerable<RegistryObjectDto>? documentRegistry)
+    {
+        MapRequestAttributesFromRetrieveDocumentSet(xacmlRequestAttributes, removeDocumentsRequest, documentRegistry);
+    }
+
+    private static void MapRequestAttributesFromProvideAndRegisterRequest(List<XacmlContextAttribute> xacmlRequestAttributes, IdentifiableType[]? provideAndRegisterRequest)
+    {
+        var registriesRepositoriesToUploadTo = provideAndRegisterRequest?
+            .OfType<ExtrinsicObjectType>()
+            .Select(eo =>
+                new
+                {
+                    HomeCommunity = eo.Home,
+                    Repository = eo.GetFirstSlot(Constants.Xds.SlotNames.RepositoryUniqueId)?.GetFirstValue()
+                })
+            .Distinct().ToArray();
+
+        foreach (var registryRepository in registriesRepositoriesToUploadTo ?? [])
+        {
+            xacmlRequestAttributes.Add(
+                new XacmlContextAttribute(
+                    new Uri(Constants.Xacml.CustomAttributes.RepositoryUniqueId),
+                    new Uri(Constants.Xacml.DataType.String),
+                    new XacmlContextAttributeValue() { Value = registryRepository.Repository }));
 
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
-                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:codeSystem"),
+                    new Uri(Constants.Xacml.CustomAttributes.HomeCommunityId),
                     new Uri(Constants.Xacml.DataType.String),
-                    new XacmlContextAttributeValue() { Value = adhocQueryPatientValue.CodeSystem }));
+                    new XacmlContextAttributeValue() { Value = registryRepository.HomeCommunity }));
         }
+    }
 
-
+    private static void MapRequestAttributesFromRetrieveDocumentSet(List<XacmlContextAttribute> xacmlRequestAttributes, DocumentRequestType[]? documentRequests, IEnumerable<RegistryObjectDto>? documentRegistry)
+    {
         foreach (var documentRequest in documentRequests ?? [])
         {
             if (documentRequest.DocumentUniqueId != null)
@@ -209,11 +254,11 @@ public static class PolicyRequestMapperSamlService
             }
 
             var documentEntryForDocument = documentRegistry?.OfType<DocumentEntryDto>()
-                .FirstOrDefault(de => 
-                de.UniqueId == documentRequest.DocumentUniqueId && 
+                .FirstOrDefault(de =>
+                de.UniqueId == documentRequest.DocumentUniqueId &&
                 de.RepositoryUniqueId == documentRequest.RepositoryUniqueId &&
                 de.HomeCommunityId == documentRequest.HomeCommunityId);
-            
+
             if (!string.IsNullOrWhiteSpace(documentEntryForDocument?.SourcePatientInfo?.PatientId?.Id))
             {
                 xacmlRequestAttributes.Add(
@@ -222,7 +267,7 @@ public static class PolicyRequestMapperSamlService
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentEntryForDocument.SourcePatientInfo.PatientId.Id }));
             }
-            
+
             if (!string.IsNullOrWhiteSpace(documentEntryForDocument?.SourcePatientInfo?.PatientId?.System))
             {
                 xacmlRequestAttributes.Add(
@@ -232,8 +277,24 @@ public static class PolicyRequestMapperSamlService
                         new XacmlContextAttributeValue() { Value = documentEntryForDocument.SourcePatientInfo.PatientId.System }));
             }
         }
+    }
 
-        return xacmlRequestAttributes;
+    private static void MapRequestAttributesFromAdhocQueryRequest(List<XacmlContextAttribute> xacmlRequestAttributes, CodedValue? patientIdentifier)
+    {
+        if (patientIdentifier?.Code != null || patientIdentifier?.CodeSystem != null)
+        {
+            xacmlRequestAttributes.Add(
+                new XacmlContextAttribute(
+                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:code"),
+                    new Uri(Constants.Xacml.DataType.String),
+                    new XacmlContextAttributeValue() { Value = patientIdentifier.Code }));
+
+            xacmlRequestAttributes.Add(
+                new XacmlContextAttribute(
+                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:codeSystem"),
+                    new Uri(Constants.Xacml.DataType.String),
+                    new XacmlContextAttributeValue() { Value = patientIdentifier.CodeSystem }));
+        }
     }
 
     private static List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
@@ -363,7 +424,7 @@ public static class PolicyRequestMapperSamlService
             new XacmlContextAttribute(
                 new Uri(Constants.Saml.Attribute.XuaAcp + ":code"),
                 new Uri(Constants.Xacml.DataType.String),
-                new XacmlContextAttributeValue() { Value = Constants.Oid.Saml.Acp.NullValue}));
+                new XacmlContextAttributeValue() { Value = Constants.Oid.Saml.Acp.NullValue }));
         }
 
         return subjectAttributes;
