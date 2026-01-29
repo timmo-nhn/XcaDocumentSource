@@ -20,19 +20,19 @@ public class XdsRegistryController : ControllerBase
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
-    private readonly AuditLogGeneratorService _auditLoggingService;
+    private readonly AtnaLogGeneratorService _atnaLoggingService;
 
     public XdsRegistryController(
         ILogger<XdsRegistryController> logger,
         XdsRegistryService registryService,
         IVariantFeatureManager featureManager,
-        AuditLogGeneratorService auditLoggingService
+        AtnaLogGeneratorService atnaLoggingService
         )
     {
         _logger = logger;
         _registryService = registryService;
         _featureManager = featureManager;
-        _auditLoggingService = auditLoggingService;
+        _atnaLoggingService = atnaLoggingService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related")]
@@ -137,7 +137,7 @@ public class XdsRegistryController : ControllerBase
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
 
-        _auditLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         requestTimer.Stop();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");

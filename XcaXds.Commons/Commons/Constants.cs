@@ -99,6 +99,10 @@ public static class Constants
 
         public static class OperationContract
         {
+            /// <summary>
+            /// Root OID for the ITI Domain (ITI-messages)
+            /// </summary>
+            public const string Oid = "1.3.6.1.4.1.19376.1.2";
             public const string Iti18Action = "urn:ihe:iti:2007:RegistryStoredQuery";
             public const string Iti18ActionAsync = "urn:ihe:iti:2007:RegistryStoredQueryAsync";
             public const string Iti18Reply = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
@@ -519,6 +523,9 @@ public static class Constants
 
     public static class Oid
     {
+        // The correct "system"-value for OID
+        public const string System = "urn:ietf:rfc:3986";
+
         public const string Fnr = "2.16.578.1.12.4.1.4.1";
         public const string Dnr = "2.16.578.1.12.4.1.4.2";
         public const string Hnr = "2.16.578.1.12.4.1.4.3";

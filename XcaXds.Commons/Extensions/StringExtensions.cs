@@ -1,8 +1,4 @@
-﻿using System.Buffers.Text;
-using System.Text;
-using System.Xml;
-using XcaXds.Commons.Models.ClinicalDocument.Types;
-using XcaXds.Commons.Models.Hl7.DataType;
+﻿using System.Text;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -18,8 +14,8 @@ public static class StringExtensions
             return input;
         }
 
-		// The \u0027 is to handle cases where the string is encoded with single quotes (such as in GetDocumentAssociations with a list of UUIDs)
-		/* Example content from AdhocQuery received from XCA (for GetDocumentAssociations): 
+        // The \u0027 is to handle cases where the string is encoded with single quotes (such as in GetDocumentAssociations with a list of UUIDs)
+        /* Example content from AdhocQuery received from XCA (for GetDocumentAssociations): 
 		   <ns2:Slot name="$uuid">
                 <ns2:ValueList>
                     <ns2:Value>(\u0027urn:uuid:0ae98a90-f5ef-4bde-b717-dc0119a5777f\u0027)</ns2:Value>
@@ -27,7 +23,7 @@ public static class StringExtensions
                 <ns2:ValueList>
             </ns2:Slot>
 		*/
-		return input.Replace("\\u0027", "").Replace("urn:uuid:", "").Replace("urn:oid:", "");
+        return input.Replace("\\u0027", "").Replace("urn:uuid:", "").Replace("urn:oid:", "");
     }
 
     /// <summary>
@@ -40,8 +36,21 @@ public static class StringExtensions
             return input;
         }
 
-        return  $"urn:oid:{input.NoUrn()}";
-    }    
+        return $"urn:oid:{input.NoUrn()}";
+    }
+
+    /// <summary>
+    /// Prepend "urn:uuid:" on the string
+    /// </summary>
+    public static string WithUrnUuid(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        return $"urn:uuid:{input.NoUrn()}";
+    }
 
     public static byte[] GetAsUtf8Bytes(this string input)
     {
@@ -102,7 +111,7 @@ public static class StringExtensions
     public static bool IsNotAnyOf(this string value, params string[] options)
     {
         if (string.IsNullOrWhiteSpace(value) || options == null) return false;
-        
+
         return !options.Contains(value);
     }
 

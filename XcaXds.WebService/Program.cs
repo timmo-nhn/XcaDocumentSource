@@ -76,9 +76,8 @@ public class Program
         // If we are running in a container, override appsettings.json and environment variables for configuration
         if (runningInContainer)
         {
-            var envVars = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key, entry => (string)entry.Value);
-            var xdsConfigEnvVars = envVars.Where(n => n.Key.StartsWith("XdsConfiguration")).ToList();
-            xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(xdsConfigEnvVars);
+            var envVars = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key, entry => (string?)entry.Value).ToList();
+            xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(envVars);
 
             builder.Configuration.Bind(xdsConfig);
             Environment.SetEnvironmentVariable("TMP", @"/mnt/data/tmp", EnvironmentVariableTarget.Process);
@@ -98,7 +97,7 @@ public class Program
         builder.Services.AddScoped<XdsRegistryService>();
         builder.Services.AddScoped<XdsRepositoryService>();
         builder.Services.AddScoped<Hl7RegistryService>();
-        builder.Services.AddScoped<AuditLogGeneratorService>();
+        builder.Services.AddScoped<AtnaLogGeneratorService>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddSingleton<RegistryWrapper>();
@@ -109,8 +108,8 @@ public class Program
         builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
-        builder.Services.AddSingleton<IAuditLogQueue, AuditLogQueue>();
-        builder.Services.AddHostedService<AuditLogExporterService>();
+        builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
+        builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<AppStartupService>();
 
         // REST services

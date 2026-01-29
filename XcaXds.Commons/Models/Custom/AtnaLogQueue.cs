@@ -3,13 +3,13 @@ using System.Threading.Channels;
 
 namespace XcaXds.Commons.Models.Custom;
 
-public interface IAuditLogQueue
+public interface IAtnaLogQueue
 {
     void Enqueue(Func<AuditEvent> auditEvent);
     public IAsyncEnumerable<Func<AuditEvent>> DequeueAllAsync(CancellationToken ct);
 }
 
-public class AuditLogQueue : IAuditLogQueue
+public class AtnaLogQueue : IAtnaLogQueue
 {
     private readonly Channel<Func<AuditEvent>> _queue = Channel.CreateUnbounded<Func<AuditEvent>>();
 

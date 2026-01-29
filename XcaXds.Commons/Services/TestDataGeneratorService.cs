@@ -116,7 +116,6 @@ public static class TestDataGeneratorService
         {
             return default;
         }
-        var random = new Random();
-        return inputs.ElementAt(random.Next(inputs.Count()));
+        return inputs.ElementAt(Random.Shared.Next(inputs.Count()));
     }
 }

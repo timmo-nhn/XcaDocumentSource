@@ -92,12 +92,11 @@ public partial class IdentifiableType
         if (Slot == null) return [new SlotType()];
         try
         {
-            return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase)).ToArray();
+            return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.Ordinal)).ToArray();
 
         }
         catch (Exception)
         {
-
             throw;
         }
     }
@@ -105,7 +104,7 @@ public partial class IdentifiableType
     public SlotType? GetFirstSlot(string slotName)
     {
         if (Slot == null) return new SlotType();
-        return Slot.FirstOrDefault(s => string.Equals(s.Name, slotName, StringComparison.CurrentCultureIgnoreCase));
+        return Slot.FirstOrDefault(s => string.Equals(s.Name, slotName, StringComparison.Ordinal));
     }
 
     public SlotType? GetFirstSlot()

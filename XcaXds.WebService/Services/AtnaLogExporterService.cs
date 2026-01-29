@@ -5,21 +5,21 @@ using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.WebService.Services;
 
-public class AuditLogExporterService : BackgroundService
+public class AtnaLogExporterService : BackgroundService
 {
-    private readonly ILogger<AuditLogExporterService> _logger;
+    private readonly ILogger<AtnaLogExporterService> _logger;
     private readonly ApplicationConfig _appConfig;
-    private readonly IAuditLogQueue _auditLogQueue;
+    private readonly IAtnaLogQueue _atnaLogQueue;
     private readonly IHttpClientFactory _httpClientFactory;
 
     private string _auditEventPath;
 
 
-    public AuditLogExporterService(ILogger<AuditLogExporterService> logger, ApplicationConfig appConfig, IAuditLogQueue auditLogQueue, IHttpClientFactory httpClientFactory)
+    public AtnaLogExporterService(ILogger<AtnaLogExporterService> logger, ApplicationConfig appConfig, IAtnaLogQueue atnaLogQueue, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _appConfig = appConfig;
-        _auditLogQueue = auditLogQueue;
+        _atnaLogQueue = atnaLogQueue;
         _httpClientFactory = httpClientFactory;
 
         // When running in a container the path will be different
@@ -40,12 +40,10 @@ public class AuditLogExporterService : BackgroundService
     {
         try
         {
-            await foreach (var auditEventFunction in _auditLogQueue
-                .DequeueAllAsync(stoppingToken)
-                .WithCancellation(stoppingToken))
+            await foreach (var auditEventFunction in _atnaLogQueue.DequeueAllAsync(stoppingToken).WithCancellation(stoppingToken))
             {
                 var auditEvent = auditEventFunction();
-                ExportAuditEvent(auditEvent);
+                ExportAtnaLog(auditEvent);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -59,7 +57,7 @@ public class AuditLogExporterService : BackgroundService
         }
     }
 
-    private void ExportAuditEvent(AuditEvent auditEvent)
+    private void ExportAtnaLog(AuditEvent auditEvent)
     {
         var serializer = new FhirJsonSerializer();
         var atnaJson = serializer.SerializeToString(auditEvent,true);
