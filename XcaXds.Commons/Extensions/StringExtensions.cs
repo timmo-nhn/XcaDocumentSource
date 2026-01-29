@@ -1,8 +1,4 @@
-﻿using System.Buffers.Text;
-using System.Text;
-using System.Xml;
-using XcaXds.Commons.Models.ClinicalDocument.Types;
-using XcaXds.Commons.Models.Hl7.DataType;
+﻿using System.Text;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -31,8 +27,21 @@ public static class StringExtensions
             return input;
         }
 
-        return  $"urn:oid:{input.NoUrn()}";
-    }    
+        return $"urn:oid:{input.NoUrn()}";
+    }
+
+    /// <summary>
+    /// Prepend "urn:uuid:" on the string
+    /// </summary>
+    public static string WithUrnUuid(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        return $"urn:uuid:{input.NoUrn()}";
+    }
 
     public static byte[] GetAsUtf8Bytes(this string input)
     {
@@ -93,7 +102,7 @@ public static class StringExtensions
     public static bool IsNotAnyOf(this string value, params string[] options)
     {
         if (string.IsNullOrWhiteSpace(value) || options == null) return false;
-        
+
         return !options.Contains(value);
     }
 

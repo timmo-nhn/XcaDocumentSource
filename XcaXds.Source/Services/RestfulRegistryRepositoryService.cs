@@ -144,53 +144,53 @@ public class RestfulRegistryRepositoryService
         return documentResponse;
     }
 
-	public DocumentStatusResponse GetDocumentStatus(string? home, string? repository, string? document)
-	{		
-		home ??= _appConfig.HomeCommunityId;
-		repository ??= _appConfig.RepositoryUniqueId;
+    public DocumentStatusResponse GetDocumentStatus(string? home, string? repository, string? document)
+    {
+        home ??= _appConfig.HomeCommunityId;
+        repository ??= _appConfig.RepositoryUniqueId;
 
-		var documentStatusResponse = new DocumentStatusResponse()
-		{
-			Document = new DocumentStatusDto()
-			{
-				HomeCommunityId = home,
-				RepositoryUniqueId = repository,
-				DocumentId = document,
-			}
-		};
+        var documentStatusResponse = new DocumentStatusResponse()
+        {
+            Document = new DocumentStatusDto()
+            {
+                HomeCommunityId = home,
+                RepositoryUniqueId = repository,
+                DocumentId = document,
+            }
+        };
 
-		if (string.IsNullOrWhiteSpace(document))
-		{
-			documentStatusResponse.AddError("MissingParameter", "Parameter document is required.");
-			return documentStatusResponse;
-		}
+        if (string.IsNullOrWhiteSpace(document))
+        {
+            documentStatusResponse.AddError("MissingParameter", "Parameter document is required.");
+            return documentStatusResponse;
+        }
 
-		var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-		var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == document);
+        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == document);
 
         if (documentEntry != null)
         {
-			documentStatusResponse.Document.SavedToRegistry = true;
-		}
+            documentStatusResponse.Document.SavedToRegistry = true;
+        }
 
-		var documentBytes = _repositoryWrapper.GetDocumentFromRepository(home, repository, document);
+        var documentBytes = _repositoryWrapper.GetDocumentFromRepository(home, repository, document);
 
-		if (documentBytes?.Length > 0)
-		{
-            documentStatusResponse.Document.SavedToRepository = true; 
-		}
-		else
-		{
-			documentStatusResponse.SetMessage($"No document with id {document} for home {home}, repository {repository}");
-		}
+        if (documentBytes?.Length > 0)
+        {
+            documentStatusResponse.Document.SavedToRepository = true;
+        }
+        else
+        {
+            documentStatusResponse.SetMessage($"No document with id {document} for home {home}, repository {repository}");
+        }
 
-		documentStatusResponse.Document.IsFullySaved = documentStatusResponse.Document.SavedToRegistry && documentStatusResponse.Document.SavedToRepository;
+        documentStatusResponse.Document.IsFullySaved = documentStatusResponse.Document.SavedToRegistry && documentStatusResponse.Document.SavedToRepository;
 
-		return documentStatusResponse;
-	}
+        return documentStatusResponse;
+    }
 
-	public RestfulApiResponse UploadDocumentAndMetadata(DocumentReferenceDto documentReference)
+    public RestfulApiResponse UploadDocumentAndMetadata(DocumentReferenceDto documentReference)
     {
         var uploadResponse = new RestfulApiResponse();
 
@@ -363,7 +363,7 @@ public class RestfulRegistryRepositoryService
             _logger.LogWarning($"Error while deleting document");
             apiResponse.AddError("DeleteError", $"RegistryObject {id} not found");
         }
-        
+
         var deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.Id);
 
         if (deleteResponse == false)
@@ -490,8 +490,28 @@ public class RestfulRegistryRepositoryService
         throw new NotImplementedException();
     }
 
-    public RestfulApiResponse DeleteOlderThan(int? days, int? weeks, int? months, int? years)
+    public RestfulApiResponse DeleteOlderThan(TimeUnit unit, int? days)
     {
-        throw new NotImplementedException();
+        var response = new RestfulApiResponse();
+
+        if (days.HasValue == false)
+        {
+            response.SetMessage("Specify days to delete");
+            return response;
+        }
+
+        var registry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        
+        var dateInstant = DateTime.Now.AddDays(-days.Value);
+
+        var oldDocumentEntries = registry.OfType<DocumentEntryDto>().Where(de => de.ServiceStopTime < dateInstant).ToArray();
+
+        foreach (var documentEntry in oldDocumentEntries)
+        {
+            DeleteDocumentAndMetadata(documentEntry.Id);
+        }
+
+        response.SetMessage($"Deleted {oldDocumentEntries.Length} entries");
+        return response;
     }
 }

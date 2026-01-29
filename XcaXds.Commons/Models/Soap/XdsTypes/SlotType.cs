@@ -60,7 +60,7 @@ public partial class SlotType
                 if (curVal != null)
                 {
                     var multipleValues = curVal.Split("','").ToList();
-                    resultList = [.. resultList, .. multipleValues];
+                    resultList.AddRange(multipleValues);
                     ValueList.Value[i] = ValueList.Value[i];
                 }
             }

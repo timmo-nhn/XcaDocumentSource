@@ -35,7 +35,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     private readonly InMemoryRepository _repository;
     private readonly ITestOutputHelper _output;
 
-    private List<DocumentReferenceDto> RegistryContent { get; set; }
+    private List<DocumentReferenceDto> RegistryContent { get; set; } = new();
 
     private readonly int RegistryItemCount = 1000; // The amount of registry objects to generate and evaluate against
 
@@ -67,7 +67,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<AppStartupService>();
-                services.RemoveAll<AuditLogExporterService>();
+                services.RemoveAll<AtnaLogExporterService>();
 
                 // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
                 services.RemoveAll<IPolicyRepository>();

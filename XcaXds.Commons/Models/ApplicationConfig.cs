@@ -12,4 +12,6 @@ public class ApplicationConfig
     public bool ValidateSamlTokenIntegrity { get; set; }
     public string? HelseidCert { get; set; }
     public string? HelsenorgeCert { get; set; }
+    public string? HostName { get; set; }
+    public string? IpAddress { get; set; }
 }
