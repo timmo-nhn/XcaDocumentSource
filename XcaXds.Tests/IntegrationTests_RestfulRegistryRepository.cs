@@ -1,8 +1,11 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Net.Http.Json;
 using System.Text;
+using System.Web;
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -67,7 +70,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<AppStartupService>();
-                services.RemoveAll<AuditLogExporterService>();
+                services.RemoveAll<AtnaLogExporterService>();
 
                 // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
                 services.RemoveAll<IPolicyRepository>();
@@ -92,10 +95,20 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
 
     [Fact]
     [Trait("Delete", "Registry/Repository")]
-    public async Task Delete_Timespan()
+    public async Task Delete_OlderThanXMonths()
     {
-        var registry = EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber);
+        var days = Random.Shared.Next(30, 365);
+
+        var documentEntries = EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber).AsRegistryObjectList().OfType<DocumentEntryDto>().ToArray();
+
+        var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.Now.AddDays(-days)).ToArray();
+
+        var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days); // Geeked up implicit type cast!?
+        var firstResponse = await _client.DeleteAsync(url);
+
+        Assert.Equal(_registry.DocumentRegistry.OfType<DocumentEntryDto>().Count(), documentEntries.Length - oldDocumentEntries.Length);
     }
+
 
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {

@@ -29,7 +29,7 @@ public class XdsRespondingGatewayController : ControllerBase
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
     private readonly MonitoringStatusService _monitoringService;
-    private readonly AuditLogGeneratorService _auditLoggingService;
+    private readonly AtnaLogGeneratorService _atnaLoggingService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads");
     private static readonly Meter Meter = new("nhn.Xcads.RespondingGateway", "1.0.0");
@@ -48,7 +48,7 @@ public class XdsRespondingGatewayController : ControllerBase
         IVariantFeatureManager featureManager,
         IHttpClientFactory httpClientFactory,
         MonitoringStatusService monitoringService,
-        AuditLogGeneratorService auditLoggingService
+        AtnaLogGeneratorService atnaLoggingService
         )
     {
         _logger = logger;
@@ -58,7 +58,7 @@ public class XdsRespondingGatewayController : ControllerBase
         _xdsRegistryService = xdsRegistryService;
         _httpClientFactory = httpClientFactory;
         _monitoringService = monitoringService;
-        _auditLoggingService = auditLoggingService;
+        _atnaLoggingService = atnaLoggingService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related", "application/xop+xml")]
@@ -277,7 +277,7 @@ public class XdsRespondingGatewayController : ControllerBase
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
 
-        _auditLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 

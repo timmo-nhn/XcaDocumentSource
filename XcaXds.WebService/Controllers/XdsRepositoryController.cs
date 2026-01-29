@@ -24,7 +24,7 @@ public class XdsRepositoryController : ControllerBase
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
-    private readonly AuditLogGeneratorService _auditLoggingService;
+    private readonly AtnaLogGeneratorService _auditLoggingService;
 
     public XdsRepositoryController(
         ILogger<XdsRepositoryController> logger,
@@ -32,7 +32,7 @@ public class XdsRepositoryController : ControllerBase
         XdsRegistryService registryService,
         ApplicationConfig xdsConfig,
         IVariantFeatureManager featureManager,
-        AuditLogGeneratorService auditLoggingService
+        AtnaLogGeneratorService auditLoggingService
         )
     {
         _logger = logger;

@@ -15,6 +15,7 @@ using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Models.Custom;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -33,11 +34,13 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly XdsOnFhirService _xdsOnFhirService;
     private readonly ApplicationConfig _appConfig;
+    private readonly AtnaLogGeneratorService _atnaLoggingService;
 
-	private const string HomeCommunityIdUrl_IheProfiles = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
-	private const string HomeCommunityIdUrl_IheLegacy = "http://ihe.net/fhir/StructureDefinition/homeCommunityId";
 
-	public FhirMobileAccessToHealthDocumentsController(
+    private const string HomeCommunityIdUrl_IheProfiles = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
+    private const string HomeCommunityIdUrl_IheLegacy = "http://ihe.net/fhir/StructureDefinition/homeCommunityId";
+
+    public FhirMobileAccessToHealthDocumentsController(
         ILogger<FhirMobileAccessToHealthDocumentsController> logger,
         XdsRegistryService xdsRegistryService,
         XdsRepositoryService xdsRepositoryService,
@@ -45,7 +48,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         XdsOnFhirService xdsOnFhirService,
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
-        ApplicationConfig applicationConfig
+        ApplicationConfig applicationConfig,
+        AtnaLogGeneratorService atnaLoggingService
         )
     {
         _xdsRegistryService = xdsRegistryService;
@@ -55,6 +59,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _appConfig = applicationConfig;
+        _atnaLoggingService = atnaLoggingService;
     }
 
     [Consumes("application/fhir+json")]
@@ -302,30 +307,30 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var patientIdentifier = identifier.Value;
 
         var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
-		var extResReference = sourceIdIdentifier!.Value as Identifier; // Changed from reference to identifier
-		var sourceId = extResReference?.Value?.Replace("urn:oid:", "");
-		//var sourceId = sourceIdIdentifier?.ElementId;
+        var extResReference = sourceIdIdentifier!.Value as Identifier; // Changed from reference to identifier
+        var sourceId = extResReference?.Value?.Replace("urn:oid:", "");
+        //var sourceId = sourceIdIdentifier?.ElementId;
 
         if (string.IsNullOrEmpty(sourceId))
         {
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing SourceID", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
         }
 
-		var firstDocumentReference = documentReferences.First();
-		var attachment = firstDocumentReference!.Content.FirstOrDefault()?.Attachment;
-		var allAttachments = documentReferences.SelectMany(dr => dr!.Content).Select(c => c.Attachment).ToList();
+        var firstDocumentReference = documentReferences.First();
+        var attachment = firstDocumentReference!.Content.FirstOrDefault()?.Attachment;
+        var allAttachments = documentReferences.SelectMany(dr => dr!.Content).Select(c => c.Attachment).ToList();
 
-		var homeCommunityIdExtension = attachment.GetExtension(HomeCommunityIdUrl_IheProfiles) ??
-		   attachment.GetExtension(HomeCommunityIdUrl_IheLegacy);
+        var homeCommunityIdExtension = attachment.GetExtension(HomeCommunityIdUrl_IheProfiles) ??
+           attachment.GetExtension(HomeCommunityIdUrl_IheLegacy);
 
-		var homeCommunityId = homeCommunityIdExtension?.Value?.ToString();
+        var homeCommunityId = homeCommunityIdExtension?.Value?.ToString();
 
-		if (string.IsNullOrEmpty(homeCommunityId))
-		{
-			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing DocumentReference.content.attachment.extension[homeCommunityId]", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-		}
+        if (string.IsNullOrEmpty(homeCommunityId))
+        {
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing DocumentReference.content.attachment.extension[homeCommunityId]", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+        }
 
-		var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+        var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
 
         var provideAndRegisterRequest = provideAndRegisterResult.Value?.ProvideAndRegisterDocumentSetRequest;
 
@@ -343,6 +348,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var registerDocumentSetResponse = _xdsRegistryService.AppendToRegistryAsync(iti42Message.Value);
 
         var documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
+
+
 
         var errors = new List<RegistryErrorType>();
         errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
@@ -363,68 +370,87 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                     Code = OperationOutcome.IssueType.Value,
                     Diagnostics = $"{error.ErrorCode}: {error.CodeContext}"
                 });
-            }            
-			return new CustomContentResult(fhirSerializer.SerializeToString(operationOutcome), StatusCodes.Status400BadRequest, Constants.MimeTypes.FhirJson); 
-		}
+            }
+            return new CustomContentResult(fhirSerializer.SerializeToString(operationOutcome), StatusCodes.Status400BadRequest, Constants.MimeTypes.FhirJson);
+        }
 
-		// --- MHD ProvideDocumentBundleResponse (Bundle type = transaction-response) ---
-		var selfUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
+        // --- MHD ProvideDocumentBundleResponse (Bundle type = transaction-response) ---
+        var selfUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
 
-		var responseBundle = new Bundle
-		{
+        var responseBundle = new Bundle
+        {
             Id = "bundle-response-" + Guid.NewGuid().ToString(),
-			Type = Bundle.BundleType.TransactionResponse,
-			Meta = new Meta
-			{
-				Profile = new[]
-				{
-					"https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.ProvideDocumentBundleResponse"
-				}
-			},
-			Link = new List<Bundle.LinkComponent>
-			{
-				new Bundle.LinkComponent
-				{
-					Relation = "self",
-					Url = selfUrl
-				}
-			}
-		};
+            Type = Bundle.BundleType.TransactionResponse,
+            Meta = new Meta
+            {
+                Profile = new[]
+                {
+                    "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.ProvideDocumentBundleResponse"
+                }
+            },
+            Link = new List<Bundle.LinkComponent>
+            {
+                new Bundle.LinkComponent
+                {
+                    Relation = "self",
+                    Url = selfUrl
+                }
+            }
+        };
 
-		// One entry in the response for each entry in the request, in the same order
-		var now = DateTimeOffset.UtcNow;
-		
-        foreach (var entry in documentReferences)		
-		{			
-			var resourceId = entry?.Id;            
-			
-			if (string.IsNullOrEmpty(resourceId))
-			{
-				resourceId = Guid.NewGuid().ToString();
-			}
-	
-			var location = entry != null
-				? $"{entry.TypeName}/{resourceId}"
-				: null;			
+        // One entry in the response for each entry in the request, in the same order
+        var now = DateTimeOffset.UtcNow;
 
-			responseBundle.Entry.Add(new Bundle.EntryComponent
-			{
-				Response = new Bundle.ResponseComponent
-				{
-					Status = "201 Created",
-					Location = location,
-					LastModified = now
-				}
-			});
+        foreach (var entry in documentReferences)
+        {
+            var resourceId = entry?.Id;
 
-		}
+            if (string.IsNullOrEmpty(resourceId))
+            {
+                resourceId = Guid.NewGuid().ToString();
+            }
 
-		string jsonResult;
+            var location = entry != null
+                ? $"{entry.TypeName}/{resourceId}"
+                : null;
 
-		var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
+            responseBundle.Entry.Add(new Bundle.EntryComponent
+            {
+                Response = new Bundle.ResponseComponent
+                {
+                    Status = "201 Created",
+                    Location = location,
+                    LastModified = now
+                }
+            });
 
-		jsonResult = JsonSerializer.Serialize(responseBundle, options);
+        }
 
-		return Content(jsonResult, "application/json");		
+        string jsonResult;
+
+        var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
+
+        // Atna log generation
+        var pnrEnvelope = new SoapEnvelope()
+        {
+            Header = new()
+            {
+                MessageId = fhirBundle.Id,
+                Action = Constants.Xds.OperationContract.Iti41Action
+            },
+            Body = new()
+            {
+                RegistryResponse = errors.Count > 0 ? new() { RegistryErrorList = new() { RegistryError = errors.ToArray() } } : null,
+                ProvideAndRegisterDocumentSetRequest = provideAndRegisterRequest,
+            }
+        };
+        pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
+
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(pnrEnvelope, registerDocumentSetResponse.Value);
+
+
+        jsonResult = JsonSerializer.Serialize(responseBundle, options);
+
+        return Content(jsonResult, "application/json");
     }
 }

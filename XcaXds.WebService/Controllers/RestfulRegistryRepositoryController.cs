@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Source.Services;
@@ -163,7 +164,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json")]
     [Consumes("application/json")]
-    [HttpPost("upload")]
+    [HttpPost("document-entry")]
     public async Task<IActionResult> UploadDocument([FromBody] DocumentReferenceDto documentReferenceDto)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Create")) return NotFound();
@@ -185,7 +186,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json")]
     [Consumes("application/json")]
-    [HttpPut("update")]
+    [HttpPut("document-entry")]
     public async Task<IActionResult> UpdateDocument(bool? replace, [FromBody] DocumentReferenceDto documentReference)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Update")) return NotFound();
@@ -207,7 +208,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json")]
     [Consumes("application/json")]
-    [HttpPatch("patch")]
+    [HttpPatch("document-entry")]
     public async Task<IActionResult> PatchDocument([FromBody] DocumentReferenceDto documentReference)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Update")) return NotFound();
@@ -223,7 +224,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json")]
     [Consumes("application/json")]
-    [HttpDelete("delete")]
+    [HttpDelete("document-entry-document")]
     public async Task<IActionResult> DeleteDocument(string id)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
@@ -239,7 +240,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json")]
     [Consumes("application/json")]
-    [HttpDelete("delete-all-data-for-patient")]
+    [HttpDelete("all-data-for-patient")]
     public async Task<IActionResult> DeleteAllDataForPatient(string patientIdentifier)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
@@ -254,8 +255,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [Produces("application/json")]
-    [Consumes("application/json")]
-    [HttpDelete("delete-from-timespan")]
+    [HttpDelete("from-timespan")]
     public async Task<IActionResult> DeleteFromTimeSpan([FromQuery] DateTime timeSpan)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
@@ -270,15 +270,14 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [Produces("application/json")]
-    [Consumes("application/json")]
-    [HttpDelete("delete-older-than")]
-    public async Task<IActionResult> DeleteOlderThanNDays([FromQuery] int? days, [FromQuery] int? weeks, [FromQuery] int? months, [FromQuery] int? years)
+    [HttpDelete("older-than")]
+    public async Task<IActionResult> DeleteOlderThanNDays([FromQuery] TimeUnit unit, [FromQuery] int? days)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
 
         var requestTimer = Stopwatch.StartNew();
 
-        var deleteResponse = _restfulRegistryService.DeleteOlderThan(days, weeks, months, years);
+        var deleteResponse = _restfulRegistryService.DeleteOlderThan(unit, days);
 
         requestTimer.Stop();
 

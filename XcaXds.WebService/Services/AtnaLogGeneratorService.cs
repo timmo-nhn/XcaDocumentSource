@@ -8,13 +8,13 @@ using XcaXds.Commons.Services;
 
 namespace XcaXds.WebService.Services;
 
-public class AuditLogGeneratorService
+public class AtnaLogGeneratorService
 {
-    private readonly ILogger<AuditLogGeneratorService> _logger;
+    private readonly ILogger<AtnaLogGeneratorService> _logger;
     private readonly ApplicationConfig _appConfig;
-    private readonly IAuditLogQueue _queue;
+    private readonly IAtnaLogQueue _queue;
 
-    public AuditLogGeneratorService(ILogger<AuditLogGeneratorService> logger, ApplicationConfig appConfig, IAuditLogQueue queue)
+    public AtnaLogGeneratorService(ILogger<AtnaLogGeneratorService> logger, ApplicationConfig appConfig, IAtnaLogQueue queue)
     {
         _logger = logger;
         _appConfig = appConfig;
@@ -36,7 +36,19 @@ public class AuditLogGeneratorService
 
     public void CreateAuditLogForFhirRequestResponse(Resource request, Resource response)
     {
+        try
+        {
+            _queue.Enqueue(() => GetAuditEventFromFhirRequestResponse(request, response));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating auditlog");
+        }
+    }
 
+    private AuditEvent GetAuditEventFromFhirRequestResponse(Resource request, Resource response)
+    {
+        throw new NotImplementedException();
     }
 
     private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
@@ -173,28 +185,57 @@ public class AuditLogGeneratorService
                     }
                 },
                 Name = legalEntityName?.Code
-
             };
+
             auditEvent.Contained.Add(legalEntity);
-            practitionerRole.Organization = new ResourceReference { Reference = $"#{legalEntity.Id}" };
+            practitionerRole.Organization = new ResourceReference($"#{legalEntity.Id}");
         }
 
         auditEvent.Contained.Add(subjectUser);
-        practitionerRole.Practitioner = new ResourceReference() { Reference = $"#{subjectUser.Id}" };
+        practitionerRole.Practitioner = new ResourceReference($"#{subjectUser.Id}");
 
         auditEvent.Agent.Add(new AuditEvent.AgentComponent()
         {
-            Who = new ResourceReference { Reference = $"#{practitionerRole.Id}" },
+            Who = new ResourceReference($"#{practitionerRole.Id}")
+            {
+                Identifier = practitionerRole.Identifier.FirstOrDefault()
+            },
             Requestor = true,
             PurposeOfUse = auditEvent.PurposeOfEvent,
-            Policy = [samlToken.Id]
+            Policy = [samlToken.Id],
+            Network = new AuditEvent.NetworkComponent()
+            {
+                Address = _appConfig.IpAddress
+            }
         });
+
+        var device = new Device()
+        {
+            Id = "device-1",
+            Identifier =
+            [
+                new (Constants.Oid.System, _appConfig.RepositoryUniqueId?.WithUrnOid()),
+                new (Constants.Oid.System, _appConfig.HomeCommunityId?.WithUrnOid())
+            ]
+        };
+        auditEvent.Contained.Add(device);
 
         auditEvent.Source = new AuditEvent.SourceComponent()
         {
-            Type = [new() { Code = _appConfig.RepositoryUniqueId }],
-            Observer = practitionerRole.Organization
+            Observer = new ResourceReference($"#{device.Id}") { Identifier = new() { System = Constants.Oid.System, Value = _appConfig.HomeCommunityId?.WithUrnOid() } },
+            Type = [
+                new Coding() {
+                    Code = "3",
+                    System = "http://terminology.hl7.org/CodeSystem/security-source-type",
+                    Display = "Web Server"
+                }
+            ],
         };
+
+        if (practitionerRole.Organization != null)
+        {
+            auditEvent.Source.Observer = practitionerRole.Organization;
+        }
 
         return auditEvent;
     }
@@ -224,18 +265,22 @@ public class AuditLogGeneratorService
         }
     }
 
-    private AuditEvent.AuditEventOutcome? GetEventOutcomeFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
+    private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
     {
-        // FIXME??? Simple solution for now...
         var registryErrors = responseEnvelope?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError;
-        if (registryErrors == null || registryErrors?.Length == 0)
+        var soapFault = responseEnvelope?.Body?.Fault;
+
+        if (soapFault != null)
         {
-            return AuditEvent.AuditEventOutcome.N0;
+            return AuditEvent.AuditEventOutcome.N8;
         }
-        else
+
+        if (registryErrors != null && registryErrors.Length > 0)
         {
             return AuditEvent.AuditEventOutcome.N4;
         }
+
+        return AuditEvent.AuditEventOutcome.N0;
     }
 
     /// <summary>
