@@ -3,6 +3,7 @@ using System.Text;
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
@@ -62,30 +63,28 @@ public partial class RepositoryWrapper
             DocumentId = documentUniqueId
         };
 
-        var cdaXml = string.Empty;
+        var cdaXml = string.Empty;        
 
-        var documentAsString = Encoding.UTF8.GetString(documentDto.Data ?? [],0,64);
+		var kind = DocumentSniffer.DetectKind(documentDto.Data);
 
-        if (!string.IsNullOrWhiteSpace(documentAsString))
-        {
-            if (documentAsString.StartsWith("<ClinicalDocument") || GlobalExtensions.TryThis(() => { var xmlDocument = new XmlDocument(); xmlDocument.LoadXml(documentAsString); }))
-            {
-                _logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument or XML format");
-                cdaXml = documentAsString;
-            }
-            else
-            {
-                var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+		if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml || kind == DocumentSniffer.DocumentKind.Xml)
+		{
+			_logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument XML format or XML format");
+			cdaXml = Encoding.UTF8.GetString(documentDto.Data);
+		}		
+		else
+		{
+			// Not XML -> wrap into ClinicalDocument
+			var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-                var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro?.UniqueId == documentUniqueId);
-                var associations = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc?.TargetObject == documentEntry?.Id);
-                var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
+			var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro?.UniqueId == documentUniqueId);
+			var associations = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc?.TargetObject == documentEntry?.Id);
+			var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
 
-                var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
-                cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
-            }
-        }
-
+			var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
+			cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
+		}
+	
         return Encoding.UTF8.GetBytes(cdaXml);
     }
 

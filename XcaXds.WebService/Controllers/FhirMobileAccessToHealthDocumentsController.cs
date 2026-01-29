@@ -254,7 +254,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Ok(operationOutcome);
     }
 
-    [Consumes("application/fhir+json", "application/fhir+xml")]
+	//[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
+	[Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPost("Bundle")]
     public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
