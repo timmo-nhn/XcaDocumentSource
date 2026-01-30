@@ -1,9 +1,12 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Web;
+using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -262,7 +265,38 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     {
         var operationOutcome = new OperationOutcome();
 
-        var fhirParser = new FhirJsonDeserializer();
+		var fhirJsonDeserializer = new FhirJsonDeserializer();
+		
+		var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
+		if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+		{
+			jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
+		}
+
+		var handler = new JwtSecurityTokenHandler();
+		
+		if (handler.CanReadToken(jwtToken) == false)
+		{			
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Invalid or missing JWT", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+		}
+		var requestUrlPath = Request.Path;
+
+		var token = handler.ReadJwtToken(jwtToken);
+		//xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle, httpContext.Request.Path, httpContext.Request.Method);
+		var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
+		// Ensure the SAML token is serializable: SAML2 AttributeStatement must contain at least one Attribute.
+		var emptyAttributeStatements = samlToken.Assertion.Statements
+			.OfType<Saml2AttributeStatement>()
+			.Where(s => s.Attributes == null || s.Attributes.Count == 0)
+			.Cast<Saml2Statement>()
+			.ToList();
+
+		foreach (var statement in emptyAttributeStatements)
+		{
+			samlToken.Assertion.Statements.Remove(statement);
+		}
+
+		var fhirParser = new FhirJsonDeserializer();
         var resource = fhirParser.DeserializeResource(json.GetRawText());
 
         if (resource is not Bundle fhirBundle)
@@ -429,6 +463,25 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         string jsonResult;
 
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
+
+        // Atna log generation
+        var pnrEnvelope = new SoapEnvelope()
+        {
+            Header = new()
+            {
+                MessageId = fhirBundle.Id,
+                Action = Constants.Xds.OperationContract.Iti41Action
+            },
+            Body = new()
+            {
+                RegistryResponse = errors.Count > 0 ? new() { RegistryErrorList = new() { RegistryError = errors.ToArray() } } : null,
+                ProvideAndRegisterDocumentSetRequest = provideAndRegisterRequest,
+            }
+        };
+        pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
+
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(pnrEnvelope, registerDocumentSetResponse.Value);
+
 
         jsonResult = JsonSerializer.Serialize(responseBundle, options);
 

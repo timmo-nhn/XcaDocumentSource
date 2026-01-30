@@ -56,12 +56,21 @@ public class AtnaLogGeneratorService
         var auditEvent = new AuditEvent();
         auditEvent.Id = Guid.NewGuid().ToString();
 
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(requestEnvelope.Header.Security?.Assertion?.OuterXml);
-        if (samlToken == null) throw new ArgumentNullException("Saml-token not in SOAP Envelope");
+        var samlAssertionXml = requestEnvelope?.Header?.Security?.Assertion?.OuterXml;
+        Saml2SecurityToken? samlToken = null;
+        List<Saml2Attribute> statements = new();
+        Issuer? issuer = null;
 
-        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+        if (!string.IsNullOrWhiteSpace(samlAssertionXml))
+        {
+            samlToken = PolicyRequestMapperSamlService.ReadSamlToken(samlAssertionXml);
+            statements = samlToken.Assertion.Statements
+                .OfType<Saml2AttributeStatement>()
+                .SelectMany(statement => statement.Attributes)
+                .ToList();
 
-        var issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Issuer);
+            issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Issuer);
+        }
 
         auditEvent.Meta = new Meta()
         {
@@ -86,130 +95,160 @@ public class AtnaLogGeneratorService
         auditEvent.Outcome = GetEventOutcomeFromSoapRequestResponse(requestEnvelope, responseEnvelope);
         auditEvent.Action = GetActionFromSoapEnvelope(requestEnvelope);
 
-        var purposeOfUseValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.PurposeOfUse || s.Name == Constants.Saml.Attribute.PurposeOfUse_Helsenorge)?.Values.FirstOrDefault());
-        auditEvent.PurposeOfEvent = new List<CodeableConcept>()
+        if (samlToken != null)
         {
-            new CodeableConcept()
+            var purposeOfUseValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.PurposeOfUse || s.Name == Constants.Saml.Attribute.PurposeOfUse_Helsenorge)?.Values.FirstOrDefault());
+
+            if (purposeOfUseValue != null && (!string.IsNullOrWhiteSpace(purposeOfUseValue.Code) || !string.IsNullOrWhiteSpace(purposeOfUseValue.CodeSystem) || !string.IsNullOrWhiteSpace(purposeOfUseValue.DisplayName)))
             {
-                Coding = new List<Coding>()
+                auditEvent.PurposeOfEvent = new List<CodeableConcept>()
                 {
-                    new Coding()
+                    new CodeableConcept()
                     {
-                        Code = purposeOfUseValue?.Code,
-                        System = purposeOfUseValue?.CodeSystem?.WithUrnOid(),
-                        Display = purposeOfUseValue?.DisplayName
+                        Coding = new List<Coding>()
+                        {
+                            new Coding()
+                            {
+                                Code = string.IsNullOrWhiteSpace(purposeOfUseValue.Code) ? null : purposeOfUseValue.Code,
+                                System = string.IsNullOrWhiteSpace(purposeOfUseValue.CodeSystem) ? null : purposeOfUseValue.CodeSystem.WithUrnOid(),
+                                Display = string.IsNullOrWhiteSpace(purposeOfUseValue.DisplayName) ? null : purposeOfUseValue.DisplayName
+                            }
+                        }
                     }
-                }
+                };
             }
-        };
 
-        var subjectPersonName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.SubjectId)?.Values.FirstOrDefault());
-        var subjectPersonNameParts = subjectPersonName?.Code?.Split().ToList();
+            var subjectPersonName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.SubjectId)?.Values.FirstOrDefault());
+            var subjectPersonNameParts = subjectPersonName?.Code?.Split().ToList();
 
-        HumanName? healthcarePersonHumanName = null;
+            HumanName? healthcarePersonHumanName = null;
 
-        if (subjectPersonNameParts != null && subjectPersonNameParts.Count != 0)
-        {
-            // The Family name will only contain the last name item, and Given will contain everything else
-            healthcarePersonHumanName = new();
-            healthcarePersonHumanName.Family = subjectPersonNameParts.LastOrDefault();
-            subjectPersonNameParts.RemoveAt(subjectPersonNameParts.Count - 1);
-            healthcarePersonHumanName.Given = subjectPersonNameParts;
-        }
-
-        var subjectPersonStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values.FirstOrDefault());
-
-        var subjectUser = new Practitioner()
-        {
-            Id = "practitioner-1",
-            Identifier = new List<Identifier>()
+            if (subjectPersonNameParts != null && subjectPersonNameParts.Count != 0)
             {
-                new Identifier()
-                {
-                    Value = subjectPersonStatement?.Code,
-                    System = subjectPersonStatement?.CodeSystem?.WithUrnOid()
-                }
-            },
-            Name = healthcarePersonHumanName == null ? null : new List<HumanName>()
-            {
-                healthcarePersonHumanName
+                // The Family name will only contain the last name item, and Given will contain everything else
+                healthcarePersonHumanName = new();
+                healthcarePersonHumanName.Family = subjectPersonNameParts.LastOrDefault();
+                subjectPersonNameParts.RemoveAt(subjectPersonNameParts.Count - 1);
+                healthcarePersonHumanName.Given = subjectPersonNameParts;
             }
-        };
 
-        var practitionerRole = new PractitionerRole
-        {
-            Id = "who-1",
-            Identifier = new List<Identifier>()
+            var subjectPersonStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values.FirstOrDefault());
+
+            var subjectUser = new Practitioner()
             {
-                new Identifier
-                {
-                    Value = samlToken.Assertion.Subject.NameId.Value,
-                    System = samlToken.Assertion.Issuer.Value
-                }
-            }
-        };
-        auditEvent.Contained.Add(practitionerRole);
-
-        // If healthcare personell, then add fields for which organization
-        if (issuer == Issuer.HelseId)
-        {
-            var pointOfCareStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ChildOrganization)?.Values.FirstOrDefault());
-            var pointOfCareName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.TrustChildOrgName)?.Values.FirstOrDefault());
-
-            var pointOfCare = new Organization()
-            {
-                Id = "org-pointofcare-1",
-                Identifier = new List<Identifier>()
-                {
-                    new Identifier()
+                Id = "practitioner-1",
+                Identifier = (subjectPersonStatement != null && (!string.IsNullOrWhiteSpace(subjectPersonStatement.Code) || !string.IsNullOrWhiteSpace(subjectPersonStatement.CodeSystem)))
+                    ? new List<Identifier>()
                     {
-                        Value = pointOfCareStatement?.Code,
-                        System = pointOfCareStatement?.CodeSystem?.WithUrnOid()
+                        new Identifier()
+                        {
+                            Value = string.IsNullOrWhiteSpace(subjectPersonStatement.Code) ? null : subjectPersonStatement.Code,
+                            System = string.IsNullOrWhiteSpace(subjectPersonStatement.CodeSystem) ? null : subjectPersonStatement.CodeSystem.WithUrnOid()
+                        }
                     }
-                },
-                Name = pointOfCareName?.Code
-            };
-            auditEvent.Contained.Add(pointOfCare);
-            practitionerRole.Location = [new ResourceReference() { Reference = $"#{pointOfCare.Id}" }];
-
-            var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
-            var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
-
-            var legalEntity = new Organization()
-            {
-                Id = "org-legalentity-1",
-                Identifier = new List<Identifier>()
+                    : null,
+                Name = healthcarePersonHumanName == null ? null : new List<HumanName>()
                 {
-                    new Identifier()
-                    {
-                        Value = legalEntityStatement?.Code,
-                        System = legalEntityStatement?.CodeSystem?.WithUrnOid()
-                    }
-                },
-                Name = legalEntityName?.Code
+                    healthcarePersonHumanName
+                }
             };
 
-            auditEvent.Contained.Add(legalEntity);
-            practitionerRole.Organization = new ResourceReference($"#{legalEntity.Id}");
-        }
-
-        auditEvent.Contained.Add(subjectUser);
-        practitionerRole.Practitioner = new ResourceReference($"#{subjectUser.Id}");
-
-        auditEvent.Agent.Add(new AuditEvent.AgentComponent()
-        {
-            Who = new ResourceReference($"#{practitionerRole.Id}")
+            var practitionerRole = new PractitionerRole
             {
-                Identifier = practitionerRole.Identifier.FirstOrDefault()
-            },
-            Requestor = true,
-            PurposeOfUse = auditEvent.PurposeOfEvent,
-            Policy = [samlToken.Id],
-            Network = new AuditEvent.NetworkComponent()
+                Id = "who-1",
+                Identifier = (!string.IsNullOrWhiteSpace(samlToken.Assertion.Subject.NameId?.Value) || !string.IsNullOrWhiteSpace(samlToken.Assertion.Issuer.Value))
+                    ? new List<Identifier>()
+                    {
+                        new Identifier
+                        {
+                            Value = string.IsNullOrWhiteSpace(samlToken.Assertion.Subject.NameId?.Value) ? null : samlToken.Assertion.Subject.NameId.Value,
+                            System = string.IsNullOrWhiteSpace(samlToken.Assertion.Issuer.Value) ? null : samlToken.Assertion.Issuer.Value
+                        }
+                    }
+                    : null
+            };
+            auditEvent.Contained.Add(practitionerRole);
+
+            // If healthcare personell, then add fields for which organization
+            if (issuer == Issuer.HelseId)
             {
-                Address = _appConfig.IpAddress
+                var pointOfCareStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ChildOrganization)?.Values.FirstOrDefault());
+                var pointOfCareName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.TrustChildOrgName)?.Values.FirstOrDefault());
+
+                var pointOfCare = new Organization()
+                {
+                    Id = "org-pointofcare-1",
+                    Identifier = (pointOfCareStatement != null && (!string.IsNullOrWhiteSpace(pointOfCareStatement.Code) || !string.IsNullOrWhiteSpace(pointOfCareStatement.CodeSystem)))
+                        ? new List<Identifier>()
+                        {
+                            new Identifier()
+                            {
+                                Value = string.IsNullOrWhiteSpace(pointOfCareStatement.Code) ? null : pointOfCareStatement.Code,
+                                System = string.IsNullOrWhiteSpace(pointOfCareStatement.CodeSystem) ? null : pointOfCareStatement.CodeSystem.WithUrnOid()
+                            }
+                        }
+                        : null,
+                    Name = string.IsNullOrWhiteSpace(pointOfCareName?.Code) ? null : pointOfCareName.Code
+                };
+                auditEvent.Contained.Add(pointOfCare);
+                practitionerRole.Location = [new ResourceReference() { Reference = $"#{pointOfCare.Id}" }];
+
+                var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
+                var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
+
+                var legalEntity = new Organization()
+                {
+                    Id = "org-legalentity-1",
+                    Identifier = (legalEntityStatement != null && (!string.IsNullOrWhiteSpace(legalEntityStatement.Code) || !string.IsNullOrWhiteSpace(legalEntityStatement.CodeSystem)))
+                        ? new List<Identifier>()
+                        {
+                            new Identifier()
+                            {
+                                Value = string.IsNullOrWhiteSpace(legalEntityStatement.Code) ? null : legalEntityStatement.Code,
+                                System = string.IsNullOrWhiteSpace(legalEntityStatement.CodeSystem) ? null : legalEntityStatement.CodeSystem.WithUrnOid()
+                            }
+                        }
+                        : null,
+                    Name = string.IsNullOrWhiteSpace(legalEntityName?.Code) ? null : legalEntityName.Code
+                };
+
+                auditEvent.Contained.Add(legalEntity);
+                practitionerRole.Organization = new ResourceReference($"#{legalEntity.Id}");
             }
-        });
+
+            auditEvent.Contained.Add(subjectUser);
+            practitionerRole.Practitioner = new ResourceReference($"#{subjectUser.Id}");
+
+            auditEvent.Agent.Add(new AuditEvent.AgentComponent()
+            {
+                Who = new ResourceReference($"#{practitionerRole.Id}")
+                {
+                    Identifier = practitionerRole.Identifier.FirstOrDefault()
+                },
+                Requestor = true,
+                PurposeOfUse = auditEvent.PurposeOfEvent,
+                Policy = string.IsNullOrWhiteSpace(samlToken.Id) ? null : [samlToken.Id],
+                Network = string.IsNullOrWhiteSpace(_appConfig.IpAddress)
+                    ? null
+                    : new AuditEvent.NetworkComponent()
+                    {
+                        Address = _appConfig.IpAddress
+                    }
+            });
+        }
+        else
+        {
+            auditEvent.Agent.Add(new AuditEvent.AgentComponent()
+            {
+                Requestor = true,
+                Network = string.IsNullOrWhiteSpace(_appConfig.IpAddress)
+                    ? null
+                    : new AuditEvent.NetworkComponent()
+                    {
+                        Address = _appConfig.IpAddress
+                    }
+            });
+        }
 
         var device = new Device()
         {
@@ -234,9 +273,9 @@ public class AtnaLogGeneratorService
             ],
         };
 
-        if (practitionerRole.Organization != null)
+        if (auditEvent.Contained.OfType<PractitionerRole>().FirstOrDefault()?.Organization != null)
         {
-            auditEvent.Source.Observer = practitionerRole.Organization;
+            auditEvent.Source.Observer = auditEvent.Contained.OfType<PractitionerRole>().First().Organization;
         }
 
         return auditEvent;

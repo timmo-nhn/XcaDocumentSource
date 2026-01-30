@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /XcaXds.Source/Registry/Registry.db-shm
 /XcaXds.Source/Registry/Registry.db-wal
+/XcaXds.WebService/appsettings.Development.json
