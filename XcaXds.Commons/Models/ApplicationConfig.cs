@@ -14,4 +14,5 @@ public class ApplicationConfig
     public string? HelsenorgeCert { get; set; }
     public string? HostName { get; set; }
     public string? IpAddress { get; set; }
+	public string? AtnaLogExporterEndpoint { get; set; }
 }
