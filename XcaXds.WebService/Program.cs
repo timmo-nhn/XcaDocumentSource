@@ -12,6 +12,7 @@ using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
+using XcaXds.WebService.Middleware.PolicyEnforcementPoint;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
 

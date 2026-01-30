@@ -2,12 +2,10 @@
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using NetTopologySuite.Operation;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
@@ -24,7 +22,7 @@ using XcaXds.WebService.Services;
 using Task = System.Threading.Tasks.Task;
 
 
-namespace XcaXds.WebService.Middleware;
+namespace XcaXds.WebService.Middleware.PolicyEnforcementPoint;
 
 public class PolicyEnforcementPointMiddleware
 {
@@ -67,8 +65,50 @@ public class PolicyEnforcementPointMiddleware
     }
 
 
+    //public async Task InvokeAsync(HttpContext context)
+    //{
+    //    ThrottleRequestIfRequestThrottlingEnabled(out var millis);
+
+    //    if (!ShouldBypass(context, _xdsConfig, _env))
+    //    {
+    //        await _next(context);
+    //        return;
+    //    }
+
+    //    using var activity = StartPepActivity(context);
+
+    //    var requestBody = await _requestBodyReader.ReadAsync(context);
+    //    var policyInput = await _policyInputBuilder.BuildAsync(context, requestBody);
+
+    //    if (!policyInput.Success)
+    //    {
+    //        await _denyResponseWriter.WriteBadRequestAsync(context, policyInput.ErrorMessage);
+    //        return;
+    //    }
+
+    //    var decision = _policyEvaluator.Evaluate(policyInput.XacmlRequest, policyInput.AppliesTo);
+
+    //    if (decision.IsPermit)
+    //    {
+    //        AttachPepContext(context, policyInput);
+    //        await _next(context);
+    //        return;
+    //    }
+
+    //    await _denyResponseWriter.WriteDenyAsync(context, policyInput, "Access denied");
+    //}
+
+
     public async Task InvokeAsync(HttpContext httpContext)
     {
+        ThrottleRequestIfRequestThrottlingEnabled(out var millis);
+        if (millis > 0)
+        {
+            _logger.LogWarning($"Requesth throttling enabled: {millis} ms");
+        }
+
+        #region Determine if PEP should be used for this request
+
         if (_xdsConfig.BypassPolicyEnforcementPoint)
         {
             _logger.LogWarning("BypassPolicyEnforcementPoint is true! Policy Enforcement Point was bypassed.");
@@ -87,7 +127,7 @@ public class PolicyEnforcementPointMiddleware
         if (requestIsLocal && _xdsConfig.IgnorePEPForLocalhostRequests == true && _env.IsDevelopment() == true)
         {
             sw.Stop();
-            _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed for requests from localhost.");
+            _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed for requests from localhost in development.");
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Bypassed PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
             await _next(httpContext); // Skip PEP check
             return;
@@ -103,7 +143,11 @@ public class PolicyEnforcementPointMiddleware
             await _next(httpContext); // Skip PEP check
             return;
         }
+        #endregion
 
+
+        #region Prepare the request body for processing to XACML-request
+        // If we are here, the PEP is enabled for the requesting endpoint
         using var activity = ActivitySource.StartActivity("PolicyEnforcementPoint");
         activity?.SetTag("Request.SessionId", httpContext.TraceIdentifier);
         PepInvokeCounter.Add(1);
@@ -112,48 +156,50 @@ public class PolicyEnforcementPointMiddleware
 
         DebugLogRequestHeaders(httpContext);
 
-        var requestBody = await HttpRequestResponseExtensions.GetHttpRequestBodyAsStringAsync(httpContext.Request);
-
+        var requestBody = await GetRequestBodyFromHttpContext(httpContext);
         _logger.LogDebug($"{httpContext.TraceIdentifier} - Request Body:\n{requestBody}");
-
-
-        if (httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("boundary")))
-        {
-            requestBody = (await MultipartExtensions.ReadMultipartContentFromRequest(httpContext.Request)).Trim();
-        }
 
         var contentType = httpContext.Request.ContentType?.Split(";").First();
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Request Content-type: {contentType}");
 
-        ThrottleRequestIfRequestThrottlingEnabled();
+        #endregion
 
         bool tokenIsValid = true;
         var xacmlRequestAppliesTo = Issuer.Unknown;
         XacmlContextRequest? xacmlRequest = null;
         RestfulApiResponse? restfulApiResponse = null;
 
+
+
         switch (contentType)
         {
             case Constants.MimeTypes.Json:
+                var tokenForJsonRequest = ExtractJwtTokenFromRequest(httpContext.Request.Headers, out var jsonSuccess);
+
+                if (jsonSuccess == false && tokenForJsonRequest == null)
+                {
+                    restfulApiResponse ??= new RestfulApiResponse(false, $"Invalid or missing JWT");
+                    goto default;
+                }
+
+                xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(tokenForJsonRequest, null, httpContext.Request.Path, httpContext.Request.Method);
+                break;
+
             case Constants.MimeTypes.FhirJson:
+                var tokenForFhirRequest = ExtractJwtTokenFromRequest(httpContext.Request.Headers, out var fhirSuccess);
+
+                if (fhirSuccess == false && tokenForFhirRequest == null)
+                {
+                    restfulApiResponse ??= new RestfulApiResponse(false, $"Invalid or missing JWT");
+                    goto default;
+                }
+
                 var fhirJsonDeserializer = new FhirJsonDeserializer();
                 var fhirBundle = fhirJsonDeserializer.Deserialize<Bundle>(requestBody);
 
-                var jwtToken = httpContext.Request.Headers["Authorization"].FirstOrDefault();
-
-                var handler = new JwtSecurityTokenHandler();
-
-                if (handler.CanReadToken(jwtToken) == false)
-                {
-                    restfulApiResponse ??= new RestfulApiResponse(false, "Invalid or missing JWT");
-                    goto default;
-                }
-                var requestUrlPath = httpContext.Request.Path;
-
-                var token = handler.ReadJwtToken(jwtToken);
-                xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle, httpContext.Request.Path, httpContext.Request.Method);
-
+                xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(tokenForFhirRequest, fhirBundle, httpContext.Request.Path, httpContext.Request.Method);
                 break;
+
 
             case Constants.MimeTypes.XopXml:
             case Constants.MimeTypes.MultipartRelated:
@@ -227,6 +273,7 @@ public class PolicyEnforcementPointMiddleware
                 restfulApiResponse ??= new RestfulApiResponse(false, $"Unknown or unspecified content type: {httpContext.Request.ContentType}".TrimEnd([':', ' ']));
 
                 await httpContext.Response.WriteAsync(JsonSerializer.Serialize(restfulApiResponse, Constants.JsonDefaultOptions.DefaultSettings));
+
                 sw.Stop();
                 _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
                 activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
@@ -266,6 +313,8 @@ public class PolicyEnforcementPointMiddleware
 
         // If the request is permitted, the response generation will naturally be handled by the following middleware components or controller
         // If the request has been denied - like it is if we end up here - we need to short circuit the middleware and create an appropriate response ourself!
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request.");
+
         if (contentType == Constants.MimeTypes.XopXml ||
             contentType == Constants.MimeTypes.MultipartRelated ||
             contentType == Constants.MimeTypes.SoapXml ||
@@ -305,7 +354,7 @@ public class PolicyEnforcementPointMiddleware
                     contentId = contentIdValues.First().TrimStart('<').TrimEnd('>');
                 }
 
-                httpContext.Response.ContentType = $"{Constants.MimeTypes.MultipartRelated}; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\""; 
+                httpContext.Response.ContentType = $"{Constants.MimeTypes.MultipartRelated}; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"";
 
                 var soapByteArray = await MultipartExtensions.SerializeMultipartAsync(soapMultipart);
 
@@ -320,26 +369,62 @@ public class PolicyEnforcementPointMiddleware
                 await httpContext.Response.WriteAsync(soapResponseString ?? string.Empty);
             }
         }
-        else //if (contentType == Constants.MimeTypes.Json || contentType == Constants.MimeTypes.FhirJson)
+        else if (contentType == Constants.MimeTypes.FhirJson)
         {
-            restfulApiResponse ??= new RestfulApiResponse(false, "Access denied");
+            var fhirJsonSerializer = new FhirJsonSerializer();
 
             httpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            httpContext.Response.ContentType = Constants.MimeTypes.FhirJson;
+
+            var fhirJsonResponse = OperationOutcome.ForMessage("Access denied", OperationOutcome.IssueType.Forbidden, OperationOutcome.IssueSeverity.Error);
+            await httpContext.Response.WriteAsync(fhirJsonSerializer.SerializeToString(fhirJsonResponse, true));
+        }
+        else // if (contentType == Constants.MimeTypes.Json)
+        {
+            restfulApiResponse ??= new RestfulApiResponse(false, "Access denied");
+            httpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             httpContext.Response.ContentType = Constants.MimeTypes.Json;
-            
-            _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request.");
 
             await httpContext.Response.WriteAsync(JsonSerializer.Serialize(restfulApiResponse, Constants.JsonDefaultOptions.DefaultSettings));
         }
 
         sw.Stop();
-        
+
         _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
         activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
-        
+
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
-        
+
         return;
+    }
+
+    private async Task<string> GetRequestBodyFromHttpContext(HttpContext httpContext)
+    {
+        var requestBody = await HttpRequestResponseExtensions.GetHttpRequestBodyAsStringAsync(httpContext.Request);
+
+        if (httpContext.Request.Headers.ContentType.Any(ct => ct != null && ct.Contains("boundary")))
+        {
+            requestBody = (await MultipartExtensions.ReadMultipartContentFromRequest(httpContext.Request)).Trim();
+        }
+
+        return requestBody;
+    }
+
+    private JwtSecurityToken? ExtractJwtTokenFromRequest(IHeaderDictionary headers, out bool success)
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        var jwtToken = headers["Authorization"].FirstOrDefault();
+        var canRead = handler.CanReadToken(jwtToken);
+
+        if (canRead == false)
+        {
+            success = false;
+            return null;
+        }
+
+        success = true;
+        return handler.ReadJwtToken(jwtToken);
     }
 
     private void DebugLogRequestHeaders(HttpContext httpContext)
@@ -355,14 +440,40 @@ public class PolicyEnforcementPointMiddleware
         _logger.LogDebug(sb.ToString());
     }
 
-    private void ThrottleRequestIfRequestThrottlingEnabled()
+    private void ThrottleRequestIfRequestThrottlingEnabled(out int millis)
     {
-        if (!_requestThrottlingService.IsThrottleTimeSet()) return;
+        if (!_requestThrottlingService.IsThrottleTimeSet())
+        {
+            millis = 0;
+            return;
+        }
 
         var throttleTime = _requestThrottlingService.GetThrottleTime();
-
-        _logger.LogWarning($"Requesth throttling enabled for PEP-enabled endpoint: {throttleTime} ms");
+        millis = throttleTime;
         Thread.Sleep(throttleTime);
+    }
+
+    private Activity? StartPepActivity(HttpContext ctx)
+    {
+        var activity = ActivitySource.StartActivity("PolicyEnforcementPoint");
+        activity?.SetTag("Request.SessionId", ctx.TraceIdentifier);
+        PepInvokeCounter.Add(1);
+        return activity;
+    }
+
+    private bool ShouldBypass(HttpContext context, ApplicationConfig config, IWebHostEnvironment env)
+    {
+        if (config.BypassPolicyEnforcementPoint)
+            return true;
+
+        var isLocal = context.Connection.RemoteIpAddress is { } ip &&
+                      (IPAddress.IsLoopback(ip) || ip.ToString() == "::1");
+
+        if (isLocal && config.IgnorePEPForLocalhostRequests && env.IsDevelopment())
+            return true;
+
+        var enforceAttr = context.GetEndpoint()?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
+        return enforceAttr?.Enabled != true;
     }
 }
 

@@ -17,8 +17,10 @@ namespace XcaXds.Commons.Services;
 public static class PolicyRequestMapperSamlService
 {
 
-    public static Saml2SecurityToken ReadSamlToken(string inputSamlToken)
+    public static Saml2SecurityToken? ReadSamlToken(string? inputSamlToken)
     {
+        if (inputSamlToken == null) return null;
+
         var handler = new Saml2SecurityTokenHandler();
         return handler.ReadSaml2Token(inputSamlToken);
     }
