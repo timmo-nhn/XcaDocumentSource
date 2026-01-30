@@ -76,7 +76,7 @@ public class PolicyRequestMapperJsonWebTokenService
         return Constants.Xacml.Actions.Create;
     }
 
-    private static Saml2SecurityToken MapJsonWebTokenToSamlToken(JwtSecurityToken jwtToken)
+    public static Saml2SecurityToken MapJsonWebTokenToSamlToken(JwtSecurityToken jwtToken)
     {
         var subjectAttributes = new List<XacmlContextAttribute>();
 
