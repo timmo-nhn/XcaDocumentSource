@@ -43,7 +43,7 @@ public class AtnaLogExporterService : BackgroundService
             await foreach (var auditEventFunction in _atnaLogQueue.DequeueAllAsync(stoppingToken).WithCancellation(stoppingToken))
             {
                 var auditEvent = auditEventFunction();
-                ExportAtnaLog(auditEvent);
+                await ExportAtnaLog(auditEvent);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -57,11 +57,35 @@ public class AtnaLogExporterService : BackgroundService
         }
     }
 
-    private void ExportAtnaLog(AuditEvent auditEvent)
+    private async Task ExportAtnaLog(AuditEvent auditEvent)
     {
         var serializer = new FhirJsonSerializer();
         var atnaJson = serializer.SerializeToString(auditEvent,true);
         _logger.LogDebug("Created FHIR AuditEvent: \n" + atnaJson);
         //File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
-    }
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+
+            var endpointUrl = $"{_appConfig.AtnaLogExporterEndpoint}";
+
+            var response = await client.PostAsync(endpointUrl, new StringContent(atnaJson, System.Text.Encoding.UTF8, "application/fhir+json"));
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation($"Successfully exported AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}");
+            }
+            else
+            {
+                _logger.LogError($"Failed to export AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}. Status Code: {response.StatusCode}, Response: {await response.Content.ReadAsStringAsync()}");
+            }
+        }
+        catch (Exception ex)		
+		{
+			_logger.LogError($"Exception during export of AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}. Exception: {ex}");
+		}
+	}
 }
