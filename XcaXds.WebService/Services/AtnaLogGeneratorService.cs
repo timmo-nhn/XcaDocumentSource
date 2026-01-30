@@ -56,8 +56,10 @@ public class AtnaLogGeneratorService
         var auditEvent = new AuditEvent();
         auditEvent.Id = Guid.NewGuid().ToString();
 
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(requestEnvelope.Header.Security.Assertion?.OuterXml);
-        var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(requestEnvelope.Header.Security?.Assertion?.OuterXml);
+        if (samlToken == null) throw new ArgumentNullException("Saml-token not in SOAP Envelope");
+
+        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
         var issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Issuer);
 

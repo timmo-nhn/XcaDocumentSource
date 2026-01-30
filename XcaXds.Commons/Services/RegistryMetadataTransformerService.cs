@@ -288,7 +288,7 @@ public static class RegistryMetadataTransformerService
 
     private static string? GetTitleFromExtrinsicObject(ExtrinsicObjectType extrinsicObject)
     {
-        return extrinsicObject.Name.GetFirstValue();
+        return extrinsicObject.Name?.GetFirstValue();
     }
 
     private static SourcePatientInfo? GetSourcePatientInfoFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)

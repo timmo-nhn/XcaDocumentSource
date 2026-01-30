@@ -15,7 +15,7 @@ namespace XcaXds.Commons.Services;
 /// </summary>
 public class PolicyRequestMapperJsonWebTokenService
 {
-    public static XacmlContextRequest? GetXacml20RequestFromJsonWebToken(JwtSecurityToken jwtToken, Resource fhirBundle, string urlPath, string path)
+    public static XacmlContextRequest? GetXacml20RequestFromJsonWebToken(JwtSecurityToken jwtToken, Resource? fhirBundle, string urlPath, string path)
     {
         var samlToken = MapJsonWebTokenToSamlToken(jwtToken);
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();

@@ -430,25 +430,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
 
-        // Atna log generation
-        var pnrEnvelope = new SoapEnvelope()
-        {
-            Header = new()
-            {
-                MessageId = fhirBundle.Id,
-                Action = Constants.Xds.OperationContract.Iti41Action
-            },
-            Body = new()
-            {
-                RegistryResponse = errors.Count > 0 ? new() { RegistryErrorList = new() { RegistryError = errors.ToArray() } } : null,
-                ProvideAndRegisterDocumentSetRequest = provideAndRegisterRequest,
-            }
-        };
-        pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
-
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(pnrEnvelope, registerDocumentSetResponse.Value);
-
-
         jsonResult = JsonSerializer.Serialize(responseBundle, options);
 
         return Content(jsonResult, "application/json");
