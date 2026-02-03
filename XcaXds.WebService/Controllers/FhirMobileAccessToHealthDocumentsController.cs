@@ -275,29 +275,30 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
 		var handler = new JwtSecurityTokenHandler();
 		
-		if (handler.CanReadToken(jwtToken) == false)
-		{			
-            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Invalid or missing JWT", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-		}
-		var requestUrlPath = Request.Path;
+		//if (handler.CanReadToken(jwtToken) == false)
+		//{			
+  //          return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Invalid or missing JWT", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+		//}
+		//var requestUrlPath = Request.Path;
 
-		var token = handler.ReadJwtToken(jwtToken);
-		//xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle, httpContext.Request.Path, httpContext.Request.Method);
-		var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
-		// Ensure the SAML token is serializable: SAML2 AttributeStatement must contain at least one Attribute.
-		var emptyAttributeStatements = samlToken.Assertion.Statements
-			.OfType<Saml2AttributeStatement>()
-			.Where(s => s.Attributes == null || s.Attributes.Count == 0)
-			.Cast<Saml2Statement>()
-			.ToList();
+		//var token = handler.ReadJwtToken(jwtToken);
+		////xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle, httpContext.Request.Path, httpContext.Request.Method);
+		//var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
+		//// Ensure the SAML token is serializable: SAML2 AttributeStatement must contain at least one Attribute.
+		//var emptyAttributeStatements = samlToken.Assertion.Statements
+		//	.OfType<Saml2AttributeStatement>()
+		//	.Where(s => s.Attributes == null || s.Attributes.Count == 0)
+		//	.Cast<Saml2Statement>()
+		//	.ToList();
 
-		foreach (var statement in emptyAttributeStatements)
-		{
-			samlToken.Assertion.Statements.Remove(statement);
-		}
+		//foreach (var statement in emptyAttributeStatements)
+		//{
+		//	samlToken.Assertion.Statements.Remove(statement);
+		//}
 
 		var fhirParser = new FhirJsonDeserializer();
-        var resource = fhirParser.DeserializeResource(json.GetRawText());
+        var bundleString = json.GetRawText();
+        var resource = fhirParser.DeserializeResource(bundleString);
 
         if (resource is not Bundle fhirBundle)
         {

@@ -8,6 +8,11 @@ public class PolicyEvaluator
 {
     private readonly PolicyDecisionPointService _pdp;
 
+    public PolicyEvaluator(PolicyDecisionPointService pdp)
+    {
+        _pdp = pdp;
+    }
+
     public PolicyDecisionResult Evaluate(XacmlContextRequest req, Issuer appliesTo)
     {
         var resp = _pdp.EvaluateXacmlRequest(req, appliesTo);

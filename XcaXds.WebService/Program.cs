@@ -7,12 +7,17 @@ using System.Collections;
 using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint;
+using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyBuilder;
+using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyWriter;
+using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
+using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
 
@@ -113,6 +118,19 @@ public class Program
         builder.Services.AddScoped<XdsRepositoryService>();
         builder.Services.AddScoped<Hl7RegistryService>();
         builder.Services.AddScoped<AtnaLogGeneratorService>();
+
+        builder.Services.AddScoped<PolicyEvaluator>();
+        builder.Services.AddScoped<PolicyInputBuilder>();
+        builder.Services.AddScoped<IPolicyInputStrategy,FhirJsonPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy,SoapXmlPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy,JsonPolicyInputStrategy>();
+
+        builder.Services.AddScoped<PolicyDenyResponseBuilder>();
+        builder.Services.AddScoped<IPepDenyResponseStrategy, SoapDenyResponseStrategy>();
+        builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
+        builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
+
+
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddSingleton<RegistryWrapper>();
@@ -124,6 +142,7 @@ public class Program
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
+        
         builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<AppStartupService>();
 
