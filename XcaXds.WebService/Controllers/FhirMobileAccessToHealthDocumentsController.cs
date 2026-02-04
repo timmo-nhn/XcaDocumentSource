@@ -257,46 +257,36 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Ok(operationOutcome);
     }
 
-	//[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
-	[Consumes("application/fhir+json", "application/fhir+xml")]
+    //[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
+    [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPost("Bundle")]
     public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
     {
         var operationOutcome = new OperationOutcome();
 
-		var fhirJsonDeserializer = new FhirJsonDeserializer();
-		
-		var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
-		if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-		{
-			jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
-		}
+        var fhirJsonDeserializer = new FhirJsonDeserializer();
 
-		var handler = new JwtSecurityTokenHandler();
-		
-		if (handler.CanReadToken(jwtToken) == false)
-		{			
-            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Invalid or missing JWT", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-		}
-		var requestUrlPath = Request.Path;
+        var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
+        }
 
-		var token = handler.ReadJwtToken(jwtToken);
-		//xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle, httpContext.Request.Path, httpContext.Request.Method);
-		var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
-		// Ensure the SAML token is serializable: SAML2 AttributeStatement must contain at least one Attribute.
-		var emptyAttributeStatements = samlToken.Assertion.Statements
-			.OfType<Saml2AttributeStatement>()
-			.Where(s => s.Attributes == null || s.Attributes.Count == 0)
-			.Cast<Saml2Statement>()
-			.ToList();
+        var handler = new JwtSecurityTokenHandler();
 
-		foreach (var statement in emptyAttributeStatements)
-		{
-			samlToken.Assertion.Statements.Remove(statement);
-		}
+        //if (handler.CanReadToken(jwtToken) == false)
+        //{
+            //return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Invalid or missing JWT", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+        //}
 
-		var fhirParser = new FhirJsonDeserializer();
+        var requestUrlPath = Request.Path;
+
+        var token = handler.ReadJwtToken(jwtToken);
+        //xacmlRequest = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, fhirBundle, httpContext.Request.Path, httpContext.Request.Method);
+        var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
+
+        var fhirParser = new FhirJsonDeserializer();
         var resource = fhirParser.DeserializeResource(json.GetRawText());
 
         if (resource is not Bundle fhirBundle)
@@ -311,6 +301,56 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             .Where(e => e.Resource is Patient)
             .Select(e => (Patient)e.Resource)
             .FirstOrDefault();
+
+		samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+					"is_provide_bundle",
+					"true")));
+
+		// Enrich SAML assertion with patient context from the submitted Bundle (if present).
+		// This is used by downstream auditing/policy components expecting patient/resource attributes in the token.
+		var samlPatientIdentifier = patient?.Identifier?.FirstOrDefault(i => !string.IsNullOrWhiteSpace(i?.Value))
+            ?? patient?.Identifier?.FirstOrDefault();
+
+        if (samlPatientIdentifier != null && !string.IsNullOrWhiteSpace(samlPatientIdentifier.Value))
+        {
+            var patientSystem = samlPatientIdentifier.System?.NoUrn();
+            var patientValue = samlPatientIdentifier.Value;
+            var resourceId = !string.IsNullOrWhiteSpace(patientSystem) ? $"{patientSystem}^{patientValue}" : patientValue;
+
+            samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                Constants.Saml.Attribute.ResourceId20,
+                resourceId)));
+
+			var patientName = patient?.Name?.FirstOrDefault();
+			var patientGiven = patientName?.Given?.FirstOrDefault(g => !string.IsNullOrWhiteSpace(g));
+			var patientFamily = patientName?.Family;
+
+			if (!string.IsNullOrWhiteSpace(patientGiven))
+			{
+				samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+					"patient_given",
+					patientGiven)));
+			}
+
+			if (!string.IsNullOrWhiteSpace(patientFamily))
+			{
+				samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+					"patient_family",
+					patientFamily)));
+			}
+        }
+
+        // Ensure the SAML token is serializable: SAML2 AttributeStatement must contain at least one Attribute.
+        var emptyAttributeStatements = samlToken.Assertion.Statements
+            .OfType<Saml2AttributeStatement>()
+            .Where(s => s.Attributes == null || s.Attributes.Count == 0)
+            .Cast<Saml2Statement>()
+            .ToList();
+
+        foreach (var statement in emptyAttributeStatements)
+        {
+            samlToken.Assertion.Statements.Remove(statement);
+        }
 
         var documentReferences = fhirBundle.Entry
             .Where(e => e.Resource is DocumentReference)
@@ -465,13 +505,20 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
 
         // Atna log generation
-        var pnrEnvelope = new SoapEnvelope()
+        var samlHandler = new Saml2SecurityTokenHandler();
+        var samlXml = samlHandler.WriteToken(samlToken);
+        var samlDoc = new XmlDocument() { PreserveWhitespace = true }; 
+        samlDoc.LoadXml(samlXml);
+        var samlAssertionElement = samlDoc.DocumentElement as XmlElement; 
+
+		var pnrEnvelope = new SoapEnvelope()
         {
             Header = new()
             {
                 MessageId = fhirBundle.Id,
-                Action = Constants.Xds.OperationContract.Iti41Action
-            },
+                Action = Constants.Xds.OperationContract.Iti41Action,
+                Security = new Security() {  Assertion = samlAssertionElement }
+			},
             Body = new()
             {
                 RegistryResponse = errors.Count > 0 ? new() { RegistryErrorList = new() { RegistryError = errors.ToArray() } } : null,

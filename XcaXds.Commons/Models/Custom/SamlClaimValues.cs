@@ -52,4 +52,13 @@ public class SamlClaimValues
     public bool DecisionRefUserSelected { get; set; }
     public string XuaAcp { get; set; }
     public string BppcDocId { get; set; }
+
+    public string OrgnrParent { get; set; }
+    public string ClientName { get; set; }
+    public string Pid { get; set; }
+    public string HprNumber { get; set; }
+    public string Name { get; set; }
+    public string GivenName { get; set; }
+    public string MiddleName { get; set; }
+    public string FamilyName { get; set; }
 }

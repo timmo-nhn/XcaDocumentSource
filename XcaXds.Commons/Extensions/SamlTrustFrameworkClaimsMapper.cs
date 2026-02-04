@@ -80,6 +80,14 @@ public static class SamlTrustFrameworkClaimsMapper
 		samlClaimValues.Scope = "journaldokumenter_helsepersonell";
 		samlClaimValues.SecurityLevel = claims.GetValueOrDefault(Constants.JwtSaml.SecurityLevelClaimType);
 		samlClaimValues.ClientId = claims.GetValueOrDefault("client_id");
+		samlClaimValues.OrgnrParent = claims.GetValueOrDefault("helseid://claims/client/claims/orgnr_parent");
+		samlClaimValues.ClientName = claims.GetValueOrDefault("helseid://claims/client/client_name");
+		samlClaimValues.Pid = claims.GetValueOrDefault("helseid://claims/identity/pid");
+		samlClaimValues.HprNumber = claims.GetValueOrDefault("helseid://claims/hpr/hpr_number");
+		samlClaimValues.Name = claims.GetValueOrDefault("name");
+		samlClaimValues.GivenName = claims.GetValueOrDefault("given_name");
+		samlClaimValues.MiddleName = claims.GetValueOrDefault("middle_name");
+		samlClaimValues.FamilyName = claims.GetValueOrDefault("family_name");
 		samlClaimValues.AuthenticationMethod = claims.GetValueOrDefault("idp");
 		samlClaimValues.IsFastlege = claims.GetValueOrDefault(Constants.JwtSaml.FastlegeClaimType) == "true";
 		samlClaimValues.XuaAcp = xuaClaim;

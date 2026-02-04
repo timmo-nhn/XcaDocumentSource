@@ -86,7 +86,22 @@ public class PolicyRequestMapperJsonWebTokenService
 
         foreach (var claim in payload)
         {
-            claims.Add(claim.Key, claim.Value.ToString());
+            if (claim.Value is null)
+            {
+                continue;
+            }
+
+            var value = claim.Value switch
+            {
+                IEnumerable<string> stringEnumerable => string.Join(' ', stringEnumerable),
+                System.Text.Json.JsonElement jsonElement => jsonElement.ToString(),
+                _ => claim.Value.ToString()
+            };
+
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                claims[claim.Key] = value;
+            }
         }
 
         var samlTrustFrameworkClaims = SamlTrustFrameworkClaimsMapper.GetClaimValues(claims);
@@ -149,11 +164,84 @@ public class PolicyRequestMapperJsonWebTokenService
     {
         var statements = new List<Saml2Statement>();
 
-        if (!string.IsNullOrEmpty(samlClaims.SubjectId))
+        if (!string.IsNullOrWhiteSpace(samlClaims.OrgnrParent))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "helseid://claims/client/claims/orgnr_parent",
+                samlClaims.OrgnrParent)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.ClientName))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "helseid://claims/client/client_name",
+                samlClaims.ClientName)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.Pid))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "helseid://claims/identity/pid",
+                samlClaims.Pid)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.HprNumber))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "helseid://claims/hpr/hpr_number",
+                samlClaims.HprNumber)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.Name))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "name",
+                samlClaims.Name)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.GivenName))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "given_name",
+                samlClaims.GivenName)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.MiddleName))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "middle_name",
+                samlClaims.MiddleName)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.FamilyName))
+        {
+            statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                "family_name",
+                samlClaims.FamilyName)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.SubjectId))
         {
             statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                 Constants.Saml.Attribute.SubjectId,
                 samlClaims.SubjectId)));
+        }
+        else
+        {
+            var composedName = string.Join(' ', new[] { samlClaims.GivenName, samlClaims.MiddleName, samlClaims.FamilyName }
+                .Where(p => !string.IsNullOrWhiteSpace(p)));
+
+            if (!string.IsNullOrWhiteSpace(composedName))
+            {
+                statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                    Constants.Saml.Attribute.SubjectId,
+                    composedName)));
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(samlClaims.HprNumber) && string.IsNullOrWhiteSpace(samlClaims.ProviderIdentifier))
+        {
+            samlClaims.ProviderIdentifier = samlClaims.HprNumber;
         }
 
         if (!string.IsNullOrWhiteSpace(samlClaims.RoleCode))
