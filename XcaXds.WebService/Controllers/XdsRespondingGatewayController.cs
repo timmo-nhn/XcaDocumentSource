@@ -232,7 +232,7 @@ public class XdsRespondingGatewayController : ControllerBase
                     break;
                 }
 
-                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true)
+                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true && Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated)
                 {
                     var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(iti39Response.Value, out var boundary);
 

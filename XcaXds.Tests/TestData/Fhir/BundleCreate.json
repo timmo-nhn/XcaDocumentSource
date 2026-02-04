@@ -1,0 +1,317 @@
+{
+  "resourceType": "Bundle",
+  "id": "29e50a59-889d-41a3-a67a-e4e07cea038f",
+  "meta": {
+    "profile": [
+      "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.ProvideBundle"
+    ],
+    "security": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "HTEST"
+      }
+    ]
+  },
+  "type": "transaction",
+  "timestamp": "2024-10-15T11:51:33.267+02:00",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:6848d77b-8c45-4e05-90d4-be9210bb1f6d",
+      "resource": {
+        "resourceType": "List",
+        "id": "6848d77b-8c45-4e05-90d4-be9210bb1f6d",
+        "meta": {
+          "profile": [
+            "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.SubmissionSet"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">SubmissionSet Narrative</div>"
+        },
+        "contained": [
+          {
+            "resourceType": "Practitioner",
+            "id": "1c3a6891-8400-49ba-acf4-2aa9c3375c29",
+            "name": [
+              {
+                "family": "GREVLING",
+                "given": [
+                  "KVART"
+                ]
+              }
+            ]
+          }
+        ],
+        "extension": [
+          {
+            "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                  "code": "D02-2",
+                  "display": "Lunge"
+                }
+              ]
+            }
+          },
+          {
+            "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId",
+            "valueIdentifier": {
+              "value": "urn:oid:1.2.840.4711.815.1"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:6848d77b-8c45-4e05-90d4-be9210bb1f6d"
+          },
+          {
+            "use": "official",
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:uuid:13debf62-e1ca-41d7-a2cf-65a83daa8250"
+          }
+        ],
+        "status": "current",
+        "mode": "working",
+        "title": "SubmissionSet-60917301126-10/15/2024 11:50:39 AM",
+        "code": {
+          "coding": [
+            {
+              "system": "https://profiles.ihe.net/ITI/MHD/CodeSystem/MHDlistTypes",
+              "code": "submissionset"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/5a526192-9992-430d-a9b7-ba93265f033c"
+        },
+        "date": "2024-10-15T11:50:41Z",
+        "source": {
+          "reference": "#1c3a6891-8400-49ba-acf4-2aa9c3375c29"
+        },
+        "entry": [
+          {
+            "item": {
+              "reference": "urn:uuid:13debf62-e1ca-41d7-a2cf-65a83daa8250"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "List/6848d77b-8c45-4e05-90d4-be9210bb1f6d"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:13debf62-e1ca-41d7-a2cf-65a83daa8250",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "13debf62-e1ca-41d7-a2cf-65a83daa8250",
+        "meta": {
+          "profile": [
+            "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.DocumentReference"
+          ],
+          "security": [
+            {
+              "system": "2.16.840.1.113883.5.25",
+              "code": "N",
+              "display": "Normal"
+            }
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Narrative for DocumentRefs</div>"
+        },
+        "contained": [
+          {
+            "resourceType": "Patient",
+            "id": "5a526192-9992-430d-a9b7-ba93265f033c",
+            "text": {
+              "status": "extensions",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">SubmissionSet with Patient</div>"
+            },
+            "identifier": [
+              {
+                "system": "2.16.840.1.113883.5.25",
+                "value": "60917301126"
+              }
+            ],
+            "name": [
+              {
+                "family": "SOKK",
+                "given": [
+                  "RAKRYGGET"
+                ]
+              }
+            ],
+            "gender": "male",
+            "birthDate": "1973-11-20"
+          },
+          {
+            "resourceType": "Practitioner",
+            "id": "ffb7898a-16cd-4776-915b-de222aebd96f",
+            "name": [
+              {
+                "family": "FÅR",
+                "given": [
+                  "KÅL",
+                  "I"
+                ]
+              }
+            ]
+          },
+          {
+            "resourceType": "PractitionerRole",
+            "id": "52e5d525-6e73-4a8f-966a-df3ce3c26942",
+            "practitioner": {
+              "reference": "Practitioner/ffb7898a-16cd-4776-915b-de222aebd96f"
+            },
+            "organization": {
+              "reference": "Organization/90fdd52a-ddf7-46a9-8411-f7e3f6cfa6db"
+            },
+            "code": [
+              {
+                "coding": [
+                  {
+                    "display": "LEGE"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "resourceType": "Organization",
+            "id": "90fdd52a-ddf7-46a9-8411-f7e3f6cfa6db",
+            "name": "SYKEHUS I HAMMERFEST"
+          }
+        ],
+        "masterIdentifier": {
+          "use": "usual",
+          "system": "urn:ietf:rfc:3986",
+          "value": "urn:uuid:13debf62-e1ca-41d7-a2cf-65a83daa8250"
+        },
+        "status": "current",
+        "type": {
+          "coding": [
+            {
+              "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+              "code": "D02-2",
+              "display": "Lunge"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                "code": "C00-1",
+                "display": "Prøvesvar, vev og væsker"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/5a526192-9992-430d-a9b7-ba93265f033c"
+        },
+        "date": "2024-10-11T09:05:44.122+02:00",
+        "author": [
+          {
+            "reference": "#ffb7898a-16cd-4776-915b-de222aebd96f",
+            "type": "Practitioner"
+          },
+          {
+            "reference": "#52e5d525-6e73-4a8f-966a-df3ce3c26942",
+            "type": "PractitionerRole"
+          },
+          {
+            "reference": "#90fdd52a-ddf7-46a9-8411-f7e3f6cfa6db",
+            "type": "Organization"
+          }
+        ],
+        "securityLabel": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.5.25",
+                "code": "N",
+                "display": "Normal"
+              }
+            ]
+          }
+        ],
+        "content": [
+          {
+            "attachment": {
+              "contentType": "text/plain",
+              "language": "en-US",
+              "url": "urn:uuid:b1bb822b-6a8c-4663-8297-3ae8201c85b3",
+              "size": 771,
+              "hash": "Mh8k/2ZZA7y5Vh4eUzq/VOrH75IW7euHXjqiGyA0DnU=",
+              "title": "rapport.txt",
+              "creation": "2024-10-11T09:05:44Z"
+            },
+            "format": {
+              "system": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode",
+              "code": "urn:ihe:iti:xds:2017:mimeTypeSufficient"
+            }
+          }
+        ],
+        "context": {
+          "period": {
+            "start": "2024-09-15T11:49:21Z",
+            "end": "2024-09-20T11:49:21Z"
+          },
+          "facilityType": {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.1.1303",
+                "code": "86.101",
+                "display": "Alminnelige somatiske sykehus"
+              }
+            ]
+          },
+          "practiceSetting": {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.1.8653",
+                "code": "6",
+                "display": "Akuttmottak"
+              }
+            ]
+          },
+          "sourcePatientInfo": {
+            "reference": "#5a526192-9992-430d-a9b7-ba93265f033c"
+          }
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "DocumentReference/13debf62-e1ca-41d7-a2cf-65a83daa8250"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:b1bb822b-6a8c-4663-8297-3ae8201c85b3",
+      "resource": {
+        "resourceType": "Binary",
+        "id": "b1bb822b-6a8c-4663-8297-3ae8201c85b3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/Binary"
+          ]
+        },
+        "contentType": "text/plain",
+        "data": "KioqKioqKioqKioqKioqKioqKioqIFJFUE9SVCAqKioqKioqKioqKioqKioqKioqKioqKioqKg0KR2VuZXJhdGlvbiBkYXRlOiBOb3YvMDEvMjAyMw0KDQoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqDQpDb250cm9sIFBvaW50IG5vLiAxOiAoeCx5LHopID0gKDE3MiwyMjAsNDcpDQpTcGVjaWZpY2F0aW9uczoNCk1vcnBob3BoeXNpb2xvZ2ljYWwgcHJvY2VzczogR2VuZXJhbCBwcm9jZXNzDQpHZW5lcmFsIHByb2Nlc3M6IEVyb3Npb24NCkxvY2F0aW9uOiBMZWZ0IGx1bmcNCkxlZnQgbHVuZyBsb2NhdGlvbjogVXBwZXIgbG9iZQ0KTGVmdCBsaW5nIHVwcGVyIGxvYmUgbG9jYXRpb246IEFwb2NvcG9zdGVyaW9yIHNlZ21lbnQNCg0KDQoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqDQpDb250cm9sIFBvaW50IG5vLiAyOiAoeCx5LHopID0gKDE3MiwyODIsNTIpDQpTcGVjaWZpY2F0aW9uczoNCk1vcnBob3BoeXNpb2xvZ2ljYWwgcHJvY2VzczogR2VuZXJhbCBwcm9jZXNzDQpHZW5lcmFsIHByb2Nlc3M6IFBlcmlicm9uY2hpYWwgY29uZGVuc2F0aW9uDQpMb2NhdGlvbjogUmlnaHQgbHVuZw0KUmlnaHQgbHVuZyBsb2NhdGlvbjogTG93ZXIgbG9iZQ0KUmlnaHQgbHVuZyBsb3dlciBsb2JlIGxvY2F0aW9uOiBMYXRlcmFsIGJhc2FsIHNlZ21lbnQNCg0KDQoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq"
+      },
+      "request": {
+        "method": "POST",
+        "url": "Binary"
+      }
+    }
+  ]
+}
