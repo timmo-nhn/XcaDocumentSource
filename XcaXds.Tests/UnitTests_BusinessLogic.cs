@@ -41,7 +41,9 @@ public class UnitTests_BusinessLogic
     public async Task Citizen_2_12To16_ShouldGetEmptyDocumentList()
     {
         SetupTests();
-        var patientId12To16Years = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-13).Year.ToString().Substring(2, 2)}79740";
+        var patientId12To16Years = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-13).ToString("yy")}79740";
+
+        var yearPart = DateTime.Now.AddYears(-13).Year.ToString().Substring(2, 2);
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -64,7 +66,7 @@ public class UnitTests_BusinessLogic
     {
         SetupTests();
 
-        var patientId16To18Years = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-17).Year.ToString().Substring(2, 2)}79740";
+        var patientId16To18Years = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-17).ToString("yy")}79740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -87,8 +89,8 @@ public class UnitTests_BusinessLogic
     {
         SetupTests();
 
-        var resourceBelow12Years = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-6).Year.ToString().Substring(2, 2)}79740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var resourceBelow12Years = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-6).ToString("yy")}79740";
+        var subject = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-30).ToString("yy")}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {

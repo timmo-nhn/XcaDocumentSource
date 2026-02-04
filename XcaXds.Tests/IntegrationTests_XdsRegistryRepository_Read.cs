@@ -331,7 +331,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
             attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
             codeValue: "13",
             codeSystemValue: "1.0.14265.1",
-            action: "ReadDocumentList");
+            action: "ReadDocuments");
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
@@ -368,7 +368,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
     }
@@ -384,7 +384,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
             attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
             codeValue: "somevalue",
             codeSystemValue: "1.0.14265.1",
-            action: "ReadDocumentList");
+            action: "ReadDocuments");
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);

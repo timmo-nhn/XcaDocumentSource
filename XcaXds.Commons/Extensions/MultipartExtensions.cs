@@ -19,7 +19,6 @@ public static class MultipartExtensions
         return ms.ToArray();
     }
 
-
     public static async Task<string> ReadMultipartContentFromRequest(HttpRequest httpRequest)
     {
         var sb = new StringBuilder();
@@ -63,8 +62,8 @@ public static class MultipartExtensions
     {
         SoapEnvelope? soapMultipartMessage = new();
 
-        if (!MediaTypeHeaderValue.TryParse(contentTypeHeader, out MediaTypeHeaderValue? mediaTypeHeaderValue)
-        || !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+        if (!MediaTypeHeaderValue.TryParse(contentTypeHeader, out MediaTypeHeaderValue? mediaTypeHeaderValue) || 
+            !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             using (var stream = new MemoryStream())
             {
