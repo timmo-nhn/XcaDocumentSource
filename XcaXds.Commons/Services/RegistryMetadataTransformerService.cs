@@ -482,6 +482,21 @@ public static class RegistryMetadataTransformerService
         return null;
     }
 
+    public static List<CodedValue>? MapClassificationToCodedValue(ClassificationType[]? classifications)
+    { 
+        if (classifications == null || classifications.Length == 0) return null;
+        var codedValues = new List<CodedValue>();
+        foreach (var classification in classifications)
+        {
+            var codedValue = MapClassificationToCodedValue(classification);
+            if (codedValue != null)
+            {
+                codedValues.Add(codedValue);
+            }
+        }
+        return codedValues;
+    }
+
     public static CodedValue? MapClassificationToCodedValue(ClassificationType? classification)
     {
         if (classification == null) return null;
