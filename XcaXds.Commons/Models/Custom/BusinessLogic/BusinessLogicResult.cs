@@ -4,9 +4,9 @@ namespace XcaXds.Commons.Models.Custom.BusinessLogic;
 
 public sealed class BusinessLogicResult
 {
-    public BusinessLogicResult(bool success, IEnumerable<IdentifiableType> registryObjects, string name)
+    public BusinessLogicResult(bool ruleApplied, IEnumerable<IdentifiableType> registryObjects, string name)
     {
-        Success = success;
+        RuleApplied = ruleApplied;
         RegistryObjects = registryObjects;
         Name = name;
     }
@@ -15,7 +15,7 @@ public sealed class BusinessLogicResult
     {
     }
 
-    public bool Success { get; set; }
+    public bool RuleApplied { get; set; }
     public IEnumerable<IdentifiableType>? RegistryObjects { get; set; }
     public string? Name { get; set; }
 }

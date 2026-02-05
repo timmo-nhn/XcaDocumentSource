@@ -1,8 +1,11 @@
-﻿using System.Collections.Immutable;
+﻿using Abc.Xacml.Context;
+using System.Collections.Immutable;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.BusinessLogic;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
@@ -612,7 +615,7 @@ public static class Commons
             .ToList();
     }
 
-    public static IdentifiableType GetById(this IEnumerable<IdentifiableType> identifiableTypes, string id)
+    public static IdentifiableType? GetById(this IEnumerable<IdentifiableType> identifiableTypes, string id)
     {
         return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
     }
@@ -621,21 +624,32 @@ public static class Commons
     /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, out int obfuscatedEntriesCount)
+    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, XacmlContextRequest xacmlRequest, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
 
         foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
         {
+            var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
+
             // Skip if the entry is just "Normal" classified (No obfuscation needed)
-            if (extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
-                .Any(ccode => new[]
+
+            var confCodes = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
+                .Select(cls => new CodedValue()
                 {
-                    "NORN_ALL", "NORN_ANG", "NORN_EPO", "NORN_FFH",
-                    "NORN_FFL", "NORN_FOR", "NORN_FORANS", "NORN_FPB",
-                    "NORN_KUT", "NORN_UNGDOM", "NORS", "NORU", "V", "R"
-                }.Contains(ccode.NodeRepresentation)) == false) continue;
-            obfuscatedEntriesCount++;
+                    Code = cls.NodeRepresentation,
+                    CodeSystem = cls.GetFirstSlot()?.GetFirstValue()
+                }).ToArray();
+
+            if (requestAppliesTo == Issuer.HelseId)
+            {
+                if (confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodes.Any(hcp => ccode.Code == hcp.Code && ccode.CodeSystem == hcp.CodeSystem))) continue;
+            }
+            if (requestAppliesTo == Issuer.Helsenorge)
+            {
+                if (confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Any(hcp => ccode.Code == hcp.Code && ccode.CodeSystem == hcp.CodeSystem))) continue;
+            }
+
             extrinsicObject.Id = Guid.Empty.ToString();
 
             if (extrinsicObject.Name.LocalizedString.FirstOrDefault() != null)
@@ -657,6 +671,7 @@ public static class Commons
             {
                 ObfuscateExternalIdentifier(externalIdentifier);
             }
+            obfuscatedEntriesCount++;
         }
 
         return identifiableTypes;
@@ -696,7 +711,7 @@ public static class Commons
                     ObfuscateSlot(slot);
                 }
                 break;
-                
+
             default:
 
                 break;

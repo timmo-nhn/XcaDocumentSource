@@ -41,7 +41,7 @@ public static class BundleProcessorService
 			var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid);
             if (!extrinsicResult.Success)
             {
-                operationOutcome.AddIssue(extrinsicResult.OperationOutcome.Issue);
+                operationOutcome.AddIssue(extrinsicResult.OperationOutcome?.Issue);
             }
             extrinsicObjects.Add(extrinsicResult.Value);
 
@@ -51,7 +51,7 @@ public static class BundleProcessorService
 				var documentResult = ConvertBinaryToDocument(fhirBinary, extrinsicResult.Value);
 				if (!documentResult.Success)
 				{
-					operationOutcome.AddIssue(documentResult.OperationOutcome.Issue);
+					operationOutcome.AddIssue(documentResult.OperationOutcome?.Issue);
 				}
 				documents.Add(documentResult.Value);
 			}
@@ -68,7 +68,7 @@ public static class BundleProcessorService
 			var assocResult = CreateAssociationForSubmissionSet(extrinsicResult.Value, registryPackage);
             if (!assocResult.Success)
             {
-                operationOutcome.AddIssue(assocResult.OperationOutcome.Issue);
+                operationOutcome.AddIssue(assocResult.OperationOutcome?.Issue);
             }
             associations.Add(assocResult.Value);
 

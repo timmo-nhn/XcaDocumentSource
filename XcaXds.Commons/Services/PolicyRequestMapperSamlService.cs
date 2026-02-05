@@ -72,10 +72,12 @@ public static class PolicyRequestMapperSamlService
             case XacmlVersion.Version20:
                 var requestAttributes = MapRequestAttributesToXacml20Properties(soapEnvelope, documentRegistry);
                 var samlAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
+                var appliesToAttribute = MapAppliesToToXacml20Properties(appliesTo);
 
                 // Resource
                 var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();
 
+                xacmlResourceAttribute.AddRange(appliesToAttribute);
                 xacmlResourceAttribute.AddRange(requestAttributes);
 
                 var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
@@ -139,6 +141,7 @@ public static class PolicyRequestMapperSamlService
         }
     }
 
+
     public static Issuer GetIssuerEnumFromSamlTokenIssuer(string value)
     {
         if (value.Contains("helseid"))
@@ -150,6 +153,31 @@ public static class PolicyRequestMapperSamlService
             return Issuer.Helsenorge;
         }
         return Issuer.Unknown;
+    }
+
+    private static List<XacmlContextAttribute> MapAppliesToToXacml20Properties(Issuer appliesTo)
+    {
+        var xacmlAttributes = new List<XacmlContextAttribute>();
+        switch (appliesTo)
+        {
+            case Issuer.Helsenorge:
+                xacmlAttributes.Add(
+                    new XacmlContextAttribute(
+                        new Uri(Constants.Xacml.CustomAttributes.AppliesTo),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = appliesTo.ToString() }));
+                break;
+            case Issuer.HelseId:
+                xacmlAttributes.Add(
+                    new XacmlContextAttribute(
+                        new Uri(Constants.Xacml.CustomAttributes.AppliesTo),
+                        new Uri(Constants.Xacml.DataType.String),
+                        new XacmlContextAttributeValue() { Value = appliesTo.ToString()}));
+                break;
+            default:
+                break;
+        }
+        return xacmlAttributes;
     }
 
     public static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope, IEnumerable<RegistryObjectDto>? documentRegistry = null)

@@ -161,7 +161,14 @@ public partial class XdsRegistryService
 
                 // Apply business-logic filtering
                 var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-                filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic);
+                filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList() ?? [];
+
+                filteredElements.ObfuscateRestrictedDocumentEntries(xacmlRequest, out var count);
+
+                if (count > 0)
+                {
+                    _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
+                }
 
                 // Safe guard to avoid duplicate IDs in response
                 filteredElements = filteredElements
@@ -302,14 +309,6 @@ public partial class XdsRegistryService
                 //    filteredElements = [.. registryGetFoldersAndDocumentsResult];
 
                 //    break;
-        }
-
-
-        filteredElements.ObfuscateRestrictedDocumentEntries(out var count);
-
-        if (count > 0)
-        {
-            _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
         }
 
         if (adhocQueryRequest?.ResponseOption != null)

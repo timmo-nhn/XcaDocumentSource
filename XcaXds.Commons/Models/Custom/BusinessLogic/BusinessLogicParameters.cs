@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Commons.Models.Custom;
 
@@ -15,4 +16,5 @@ public class BusinessLogicParameters
     public CodedValue? Role { get; set; }
     public string? Acp { get; set; }
     public string? Bppc {  get; set; }
+    public Issuer? Issuer { get; set; }
 }

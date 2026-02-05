@@ -540,8 +540,42 @@ public static class Constants
             {
                 public const string Gender = "2.16.578.1.12.4.1.1.3101";
                 public const string DocumentType = "2.16.578.1.12.4.1.1.9602";
-                public const string Confidentiality = "2.16.578.1.12.4.1.1.9603";
+                public static class ConfidentialityCode
+                {
+                    public const string Oid = "2.16.578.1.12.4.1.1.9603";
+
+                    /// <summary> Normal</summary>
+                    public const string N = "N";
+                    /// <summary> Nektet, alle dokumenter</summary>
+                    public const string NORN_ALL = "NORN_ALL";
+                    /// <summary> Nektet, duplikat</summary>
+                    public const string NORN_DUP = "NORN_DUP";
+                    /// <summary> Nektet, eget ønske</summary>
+                    public const string NORN_EPO = "NORN_EPO";
+                    /// <summary> Nektet, fare for helsepersonell</summary>
+                    public const string NORN_FFH = "NORN_FFH";
+                    /// <summary> Nektet, fare for liv</summary>
+                    public const string NORN_FFL = "NORN_FFL";
+                    /// <summary> Nektet, foreldet</summary>
+                    public const string NORN_FOR = "NORN_FOR";
+                    /// <summary> Nektet, foreldreansvarlig</summary>
+                    public const string NORN_FORANS = "NORN_FORANS";
+                    /// <summary> Nektet, forsvarlig pasientbehandling</summary>
+                    public const string NORN_FPB = "NORN_FPB";
+                    /// <summary> Nektet, klart utilrådelig</summary>
+                    public const string NORN_KUT = "NORN_KUT";
+                    /// <summary> Nektet, ungdom</summary>
+                    public const string NORN_UNGDOM = "NORN_UNGDOM";
+                    /// <summary> Sperret</summary>
+                    public const string NORS = "NORS";
+                    /// <summary> Utsatt innsyn for innbygger</summary>
+                    public const string NORU = "NORU";
+
+                }
+
                 public const string EventCode = "2.16.578.1.12.4.1.1.7210";
+
+
             }
 
             public static class Hl7
@@ -549,12 +583,19 @@ public static class Constants
                 public static class ConfidentialityCode
                 {
                     public const string Oid = "2.16.840.1.113883.5.25";
-                    public const string Low = "L"; // low	
-                    public const string Moderate = "M"; // moderate	
-                    public const string Normal = "N"; // normal	
-                    public const string Restricted = "R"; // restricted	
-                    public const string Unrestricted = "U"; // unrestricted	
-                    public const string VeryRestricted = "V"; // very restricted	
+
+                    /// <summary>low</summary>
+                    public const string Low = "L";
+                    /// <summary>moderate</summary>
+                    public const string Moderate = "M";
+                    /// <summary>normal</summary>
+                    public const string Normal = "N";
+                    /// <summary>restricted</summary>
+                    public const string Restricted = "R";
+                    /// <summary>unrestricted</summary>
+                    public const string Unrestricted = "U";
+                    /// <summary>veryrestricted</summary>
+                    public const string VeryRestricted = "V";
 
                 }
                 public static class AuditEventId
@@ -895,6 +936,7 @@ public static class Constants
             public const string RepositoryUniqueId = "urn:no:nhn:xcads:document:repositoryuniqueid";
             public const string HomeCommunityId = "urn:no:nhn:xcads:document:homecommunityid";
             public const string SamlNameId = "urn:no:nhn:xcads:saml:nameid";
+            public const string AppliesTo = "urn:no:nhn:xcads:xacml:appliesto";
         }
 
         public static class Category

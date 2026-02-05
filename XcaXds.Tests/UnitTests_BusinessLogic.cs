@@ -251,6 +251,31 @@ public class UnitTests_BusinessLogic
         Assert.Empty(_documentReferences);
     }
 
+    [Fact]
+    public async Task HealthcarePersonell_Custom01()
+    {
+        SetupTests();
+
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Issuer = Issuer.Helsenorge,
+            Acp = Constants.Oid.Saml.Acp.NullValue,
+            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+
+        Assert.Empty(_documentReferences);
+    }
+
     private void SetupTests()
     {
         var documentEntry1 = new DocumentEntryDto()

@@ -25,10 +25,15 @@ public static class BusinessLogicFilteringService
             BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
             BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
             BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
+
+            BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
+
             BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
             BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
             BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
             BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
+
+            BusinessLogicFilters.HealthcarePersonellShouldNotSeeCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for helsenorge
         };
 
         var current = registryObjects;
@@ -37,15 +42,14 @@ public static class BusinessLogicFilteringService
 
         foreach (var businessRule in businessLogicRules)
         {
-            var result = businessRule(registryObjects, businessLogic);
+            var result = businessRule(current, businessLogic);
 
-            if (result.Success)
+            if (result.RuleApplied)
             {
                 rulesApplied.Add(result);
                 current = result.RegistryObjects;
             }
         }
-
 
         return current;
     }
@@ -59,6 +63,7 @@ public static class BusinessLogicFilteringService
 
         var xacmlAttributes = xacmlRequest.GetAllXacmlContextAttributes();
 
+        businessLogic.Issuer = Enum.Parse<Issuer>(xacmlAttributes.GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? Issuer.Unknown.ToString());
         businessLogic.QueriedSubject = xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier);
         businessLogic.QueriedSubjectAge = GetAgeFromPatientId(businessLogic.QueriedSubject?.Code);
         businessLogic.Purpose = xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.PurposeOfUse) ?? xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.PurposeOfUse_Helsenorge);
