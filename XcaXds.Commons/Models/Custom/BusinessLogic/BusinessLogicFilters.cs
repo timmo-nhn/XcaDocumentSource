@@ -245,7 +245,7 @@ public static class BusinessLogicFilters
             return new(true,
                 registryObjects.OfType<ExtrinsicObjectType>()
                 .Where(ext => allConfCodesInRegistryObjectList.TryGetValue(ext.Id ?? string.Empty, out var confCodes) &&
-                    confCodes.All(cc => !CitizenConfidentialityCodes.Any(allowed => allowed.Code == cc.Code && allowed.CodeSystem == cc.CodeSystem))),
+                    confCodes.All(cc => CitizenConfidentialityCodes.Any(allowed => allowed.Code == cc.Code && allowed.CodeSystem == cc.CodeSystem))),
                 nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
         }
         return new(false, registryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
@@ -259,11 +259,13 @@ public static class BusinessLogicFilters
                 .OfType<ExtrinsicObjectType>()
                 .ToDictionary(ext => ext.Id ?? Guid.NewGuid().ToString(), ext => RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)));
 
-            return new(true,
-                registryObjects.OfType<ExtrinsicObjectType>()
+            var allowedRegistryObjects = registryObjects.OfType<ExtrinsicObjectType>()
                 .Where(ext => allConfCodesInRegistryObjectList.TryGetValue(ext.Id ?? string.Empty, out var confCodes) &&
-                    confCodes.All(cc => !HealthcarePersonellConfidentialityCodes.Any(allowed => allowed.Code == cc.Code && allowed.CodeSystem == cc.CodeSystem))),
-                nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
+                    confCodes.All(cc => HealthcarePersonellConfidentialityCodes.Any(allowed => allowed.Code == cc.Code && allowed.CodeSystem == cc.CodeSystem))).ToArray();
+
+            var dbug_robjdto = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(allowedRegistryObjects);
+
+            return new(true, allowedRegistryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
         }
         return new(false, registryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
     }
