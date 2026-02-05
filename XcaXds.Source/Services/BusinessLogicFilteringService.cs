@@ -1,9 +1,13 @@
 ﻿using Abc.Xacml.Context;
+using System.Reflection.Metadata;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Services;
 
 namespace XcaXds.Source.Services;
 
@@ -34,7 +38,9 @@ public static class BusinessLogicFilteringService
 
             // Comment out this to try only the one below instead
             //BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-            BusinessLogicFilters.HealthcarePersonellShouldNotSeeCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for helsenorge
+            BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
+
+
         };
 
         var current = registryObjects;
@@ -51,6 +57,10 @@ public static class BusinessLogicFilteringService
                 current = result.RegistryObjects;
             }
         }
+
+        var debug_robjs = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(current);
+        var linq1 = debug_robjs.OfType<DocumentEntryDto>().ToDictionary(ro => ro.Id, re => re.ConfidentialityCode.DistinctBy(cod => new { cod.Code, cod.CodeSystem })).Where(go => go.Value.Count() > 1).ToArray();
+        var neg = JsonSerializer.Serialize(linq1);
 
         return current;
     }

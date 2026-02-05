@@ -15,24 +15,24 @@ public static class BusinessLogicFilters
     public static readonly Dictionary<string, string> Hl7ConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.Oid.CodeSystems.Hl7.ConfidentialityCode));
     public static readonly string? Hl7ConfCodeOid = Hl7ConfCodeClass.Where(kvp => string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
     public static readonly CodedValue[]? Hl7ConfCodeValues = Hl7ConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = Hl7ConfCodeOid }).ToArray();
-     
+
     public static readonly Dictionary<string, string> VolvenConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.Oid.CodeSystems.Volven.ConfidentialityCode));
-    public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty; 
+    public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
     public static readonly CodedValue[]? VolvenConfCodeValues = VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid }).ToArray();
-     
+
     public static readonly CodedValue[]? AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).ToArray();
-     
-    public static readonly CodedValue[] CitizenConfidentialityCodes = AllConfidentialityCodes.Where(value => 
-        value.CodeSystem != null && 
-        value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) && 
-        value.Code != null && 
+
+    public static readonly CodedValue[] CitizenConfidentialityCodes = AllConfidentialityCodes.Where(value =>
+        value.CodeSystem != null &&
+        value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
+        value.Code != null &&
         value.Code.IsAnyOf(N, NORS))
         .ToArray();
 
-    public static readonly CodedValue[] HealthcarePersonellConfidentialityCodes = AllConfidentialityCodes.Where(value => 
-        value.CodeSystem != null && 
+    public static readonly CodedValue[] HealthcarePersonellConfidentialityCodes = AllConfidentialityCodes.Where(value =>
+        value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
-        value.Code != null && 
+        value.Code != null &&
         value.Code.IsAnyOf(N, NORN_FFL))
         .ToArray();
 
@@ -234,9 +234,9 @@ public static class BusinessLogicFilters
         return new(false, registryObjects, nameof(HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences));
     }
 
-    public static BusinessLogicResult CitizenShouldNotSeeCertainDocumentReferencesForThemself(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters businessLogic)
+    public static BusinessLogicResult CitizenShouldNotSeeCertainDocumentReferencesForThemself(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters logic)
     {
-        if (businessLogic.Issuer == Issuer.Helsenorge)
+        if (logic.Issuer == Issuer.Helsenorge)
         {
             var allConfCodesInRegistryObjectList = registryObjects
                 .OfType<ExtrinsicObjectType>()
@@ -251,9 +251,12 @@ public static class BusinessLogicFilters
         return new(false, registryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
     }
 
-    public static BusinessLogicResult HealthcarePersonellShouldNotSeeCertainDocumentReferencesForPatient(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters businessLogic)
+    public static BusinessLogicResult HealthcarePersonellFilterOutCertainDocumentReferencesForPatient(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters logic)
     {
-        if (businessLogic.Issuer == Issuer.HelseId)
+        if (
+            logic.Issuer == Issuer.HelseId &&
+            logic.Purpose?.Code?.IsNotAnyOf(ETREAT, BTG) == true
+        )
         {
             var allConfCodesInRegistryObjectList = registryObjects
                 .OfType<ExtrinsicObjectType>()
@@ -262,8 +265,6 @@ public static class BusinessLogicFilters
             var allowedRegistryObjects = registryObjects.OfType<ExtrinsicObjectType>()
                 .Where(ext => allConfCodesInRegistryObjectList.TryGetValue(ext.Id ?? string.Empty, out var confCodes) &&
                     confCodes.All(cc => HealthcarePersonellConfidentialityCodes.Any(allowed => allowed.Code == cc.Code && allowed.CodeSystem == cc.CodeSystem))).ToArray();
-
-            var dbug_robjdto = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(allowedRegistryObjects);
 
             return new(true, allowedRegistryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
         }
