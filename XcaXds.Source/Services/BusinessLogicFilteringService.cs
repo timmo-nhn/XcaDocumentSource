@@ -29,10 +29,11 @@ public static class BusinessLogicFilteringService
             BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
 
             BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
-            BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
             BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
             BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
 
+            // Comment out this to try only the one below instead
+            //BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
             BusinessLogicFilters.HealthcarePersonellShouldNotSeeCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for helsenorge
         };
 
