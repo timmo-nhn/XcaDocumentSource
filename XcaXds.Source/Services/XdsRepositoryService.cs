@@ -187,7 +187,7 @@ public class XdsRepositoryService
                 continue;
             }
 
-            var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId);
+            var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, iti43envelope.Header.MessageId);
 
             if (file != null && file.Length != 0)
             {

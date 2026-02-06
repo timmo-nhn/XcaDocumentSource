@@ -192,7 +192,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         )
     {
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"Received request for action: ITI-68 from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request for action: ITI-68 from {Request.HttpContext.Connection.RemoteIpAddress}");
 
         var registryObjectForDocument = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == documentUniqueId);
 

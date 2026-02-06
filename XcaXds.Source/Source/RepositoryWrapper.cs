@@ -29,20 +29,20 @@ public partial class RepositoryWrapper
         _logger = logger;
     }
 
-    public byte[]? GetDocumentFromRepository(string homeCommunityId, string repositoryUniqueId, string documentUniqueId)
+    public byte[]? GetDocumentFromRepository(string homeCommunityId, string repositoryUniqueId, string documentUniqueId, string? messageId = null)
     {
         homeCommunityId = homeCommunityId.NoUrn();
         repositoryUniqueId = repositoryUniqueId.NoUrn();
 
         if (_appConfig.HomeCommunityId != homeCommunityId)
         {
-            _logger.LogInformation($"Got document request with invalid HomeCommunityId {homeCommunityId}, Expected: {_appConfig.HomeCommunityId} ");
+            _logger.LogInformation($"{messageId} - Got document request with invalid HomeCommunityId {homeCommunityId}, Expected: {_appConfig.HomeCommunityId} ".TrimStart([' ','-']));
             return null;
         }
 
         if (repositoryUniqueId.Substring(repositoryUniqueId.LastIndexOf('/') + 1) != _appConfig.RepositoryUniqueId)
         {
-            _logger.LogInformation($"Got document request with invalid RepositoryUniqueId {repositoryUniqueId}, Expected: {_appConfig.RepositoryUniqueId}");
+            _logger.LogInformation($"{messageId} - Got document request with invalid RepositoryUniqueId {repositoryUniqueId}, Expected: {_appConfig.RepositoryUniqueId}".TrimStart([' ', '-']));
             return null;
         }
 
@@ -51,7 +51,7 @@ public partial class RepositoryWrapper
             return _repository.Read(documentUniqueId);
         }
 
-        _logger.LogInformation($"WrapRetrievedDocumentInCda Enabled");
+        _logger.LogInformation($"{messageId} - WrapRetrievedDocumentInCda Enabled".TrimStart([' ', '-']));
 
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
@@ -69,7 +69,7 @@ public partial class RepositoryWrapper
 
 		if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml || kind == DocumentSniffer.DocumentKind.Xml)
 		{
-			_logger.LogInformation("CDA-wrapping skipped.. Document already in ClinicalDocument XML format or XML format");
+			_logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format or XML format".TrimStart([' ', '-']));
 			cdaXml = Encoding.UTF8.GetString(documentDto.Data);
 		}		
 		else
