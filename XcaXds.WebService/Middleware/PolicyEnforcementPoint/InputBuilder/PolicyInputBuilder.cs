@@ -10,7 +10,7 @@ public class PolicyInputBuilder
     public PolicyInputBuilder(IEnumerable<IPolicyInputStrategy> strategies)
         => _strategies = strategies;
 
-    public async Task<PolicyInputResult> BuildAsync(HttpContext ctx, ApplicationConfig appConfig, IEnumerable<RegistryObjectDto> documentRegistry)
+    public async Task<PolicyInputResult>BuildAsync(HttpContext ctx, ApplicationConfig appConfig, IEnumerable<RegistryObjectDto> documentRegistry)
     {
         if (!_strategies.Any())
         {
@@ -25,4 +25,6 @@ public class PolicyInputBuilder
 
         return await strategy.BuildAsync(ctx, appConfig, documentRegistry);
     }
+
+    public async Task
 }

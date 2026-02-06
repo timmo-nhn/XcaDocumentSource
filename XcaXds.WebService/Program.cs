@@ -122,7 +122,7 @@ public class Program
         builder.Services.AddScoped<PolicyEvaluator>();
         builder.Services.AddScoped<PolicyInputBuilder>();
         builder.Services.AddScoped<IPolicyInputStrategy,FhirJsonPolicyInputStrategy>();
-        builder.Services.AddScoped<IPolicyInputStrategy,SoapXmlPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy,SoapSamlXmlPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy,JsonPolicyInputStrategy>();
 
         builder.Services.AddScoped<PolicyDenyResponseBuilder>();

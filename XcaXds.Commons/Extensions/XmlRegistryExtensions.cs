@@ -627,10 +627,10 @@ public static class Commons
     public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, XacmlContextRequest xacmlRequest, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
+        var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
 
         foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
         {
-            var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
 
             // Skip if the entry is just "Normal" classified (No obfuscation needed)
 
@@ -643,11 +643,11 @@ public static class Commons
 
             if (requestAppliesTo == Issuer.HelseId)
             {
-                if (confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodes.Any(hcp => ccode.Code == hcp.Code && ccode.CodeSystem == hcp.CodeSystem))) continue;
+                if (confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))) continue;
             }
             if (requestAppliesTo == Issuer.Helsenorge)
             {
-                if (confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Any(hcp => ccode.Code == hcp.Code && ccode.CodeSystem == hcp.CodeSystem))) continue;
+                if (confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))) continue;
             }
 
             extrinsicObject.Id = Guid.Empty.ToString();
