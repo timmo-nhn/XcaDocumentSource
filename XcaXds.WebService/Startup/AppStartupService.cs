@@ -140,7 +140,7 @@ public class AppStartupService : IHostedService
 
                 new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
             ]],
-            Actions = ["ReadDocumentList", "ReadDocument"],
+            Actions = ["ReadDocumentList", "ReadDocuments"],
             Effect = "Deny"
         };
 
@@ -173,7 +173,7 @@ public class AppStartupService : IHostedService
 
         var gp_readdocumentlist_readdocument_create = new PolicyDto()
         {
-            Id = "gp-readdocumentlist-readdocument",
+            Id = "gp-readdocumentlist-readdocuments",
             AppliesTo = [Issuer.HelseId],
             Rules =
             [[
@@ -185,7 +185,7 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT"),
                 new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448")
             ]],
-            Actions = ["ReadDocumentList", "ReadDocument", "Create", "Delete"],
+            Actions = ["ReadDocumentList", "ReadDocuments", "Create", "Delete"],
             Effect = "Permit"
         };
 
