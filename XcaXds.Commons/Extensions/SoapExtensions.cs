@@ -1,5 +1,4 @@
-﻿using System.ServiceModel;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -147,14 +146,36 @@ public static class SoapExtensions
             case Constants.Xds.OperationContract.Iti38ReplyAsync:
                 soapEnvelopeResponse.Body ??= new();
                 soapEnvelopeResponse.Body.AdhocQueryResponse ??= new();
-                soapEnvelopeResponse.Body.AdhocQueryResponse.RegistryErrorList ??= new();
                 soapEnvelopeResponse.Body.AdhocQueryResponse.RegistryErrorList = registryResponse.RegistryErrorList;
                 soapEnvelopeResponse.Body.AdhocQueryResponse.Status = registryResponse.Status;
                 break;
 
+            case Constants.Xds.OperationContract.Iti43Reply:
+            case Constants.Xds.OperationContract.Iti43ReplyAsync:
+            case Constants.Xds.OperationContract.Iti39Reply:
+            case Constants.Xds.OperationContract.Iti39ReplyAsync:
+                soapEnvelopeResponse.Body ??= new();
+                soapEnvelopeResponse.Body.RetrieveDocumentSetResponse ??= new();
+                soapEnvelopeResponse.Body.RetrieveDocumentSetResponse.RegistryResponse = registryResponse;
+                break;
+
+            case Constants.Xds.OperationContract.Iti41Reply:
+            case Constants.Xds.OperationContract.Iti41ReplyAsync:
+                soapEnvelopeResponse.Body ??= new();
+                soapEnvelopeResponse.Body.ProvideAndRegisterDocumentSetResponse ??= new();
+                soapEnvelopeResponse.Body.ProvideAndRegisterDocumentSetResponse.RegistryResponse = registryResponse;
+                break;
+
+            case Constants.Xds.OperationContract.Iti42Reply:
+            case Constants.Xds.OperationContract.Iti42ReplyAsync:
+                soapEnvelopeResponse.Body ??= new();
+                soapEnvelopeResponse.Body.RegisterDocumentSetResponse ??= new();
+                soapEnvelopeResponse.Body.RegisterDocumentSetResponse.RegistryErrorList = registryResponse.RegistryErrorList;
+                soapEnvelopeResponse.Body.RegisterDocumentSetResponse.Status = registryResponse.Status;
+                break;
+
             default:
                 soapEnvelopeResponse.Body ??= new();
-                soapEnvelopeResponse.Body.RegistryResponse ??= new();
                 soapEnvelopeResponse.Body.RegistryResponse = registryResponse;
                 break;
         }

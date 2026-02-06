@@ -22,19 +22,21 @@ public static class BusinessLogicFilters
 
     public static readonly CodedValue[]? AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).ToArray();
 
-    public static readonly CodedValue[] CitizenConfidentialityCodes = AllConfidentialityCodes.Where(value =>
+    public static readonly HashSet<(string, string)> CitizenConfidentialityCodes = AllConfidentialityCodes.Where(value =>
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
         value.Code.IsAnyOf(N, NORS))
-        .ToArray();
+        .Select(h => (Code: h.Code, System: h.CodeSystem))
+        .ToHashSet();
 
-    public static readonly CodedValue[] HealthcarePersonellConfidentialityCodes = AllConfidentialityCodes.Where(value =>
+    public static readonly HashSet<(string, string)> HealthcarePersonellConfidentialityCodes = AllConfidentialityCodes!.Where(value =>
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(N, NORN_FFL))
-        .ToArray();
+        value.Code.IsAnyOf(N, Normal, NORN_FFL))
+        .Select(h => (Code: h.Code, System: h.CodeSystem))
+        .ToHashSet();
 
     /// <summary>
     /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
@@ -245,7 +247,7 @@ public static class BusinessLogicFilters
             return new(true,
                 registryObjects.OfType<ExtrinsicObjectType>()
                 .Where(ext => allConfCodesInRegistryObjectList.TryGetValue(ext.Id ?? string.Empty, out var confCodes) &&
-                    confCodes.All(cc => CitizenConfidentialityCodes.Any(allowed => allowed.Code == cc.Code && allowed.CodeSystem == cc.CodeSystem))),
+                    confCodes.All(cc => CitizenConfidentialityCodes.Contains(())),
                 nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
         }
         return new(false, registryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
@@ -258,13 +260,13 @@ public static class BusinessLogicFilters
             logic.Purpose?.Code?.IsNotAnyOf(ETREAT, BTG) == true
         )
         {
-            var allConfCodesInRegistryObjectList = registryObjects
+            var allowedRegistryObjects = registryObjects
                 .OfType<ExtrinsicObjectType>()
-                .ToDictionary(ext => ext.Id ?? Guid.NewGuid().ToString(), ext => RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)));
-
-            var allowedRegistryObjects = registryObjects.OfType<ExtrinsicObjectType>()
-                .Where(ext => allConfCodesInRegistryObjectList.TryGetValue(ext.Id ?? string.Empty, out var confCodes) &&
-                    confCodes.All(cc => HealthcarePersonellConfidentialityCodes.Any(allowed => allowed.Code == cc.Code && allowed.CodeSystem == cc.CodeSystem))).ToArray();
+                .Where(ext =>
+                    RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
+                    .All(cc => HealthcarePersonellConfidentialityCodes.Contains((cc.Code, cc.CodeSystem)))
+                )
+                .ToArray();
 
             return new(true, allowedRegistryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
         }

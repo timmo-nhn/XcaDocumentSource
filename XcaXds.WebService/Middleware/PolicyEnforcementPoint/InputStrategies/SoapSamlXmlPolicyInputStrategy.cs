@@ -10,7 +10,7 @@ using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputStrategies;
 
-public class SoapXmlPolicyInputStrategy : IPolicyInputStrategy
+public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 {
     public string[] GetAcceptedContentTypes()
     {

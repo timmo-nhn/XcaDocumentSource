@@ -92,7 +92,6 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
         _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
     }
 
-
     [Fact]
     [Trait("Delete", "Registry/Repository")]
     public async Task Delete_OlderThanXMonths()
@@ -109,7 +108,6 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
         Assert.Equal(_registry.DocumentRegistry.OfType<DocumentEntryDto>().Count(), documentEntries.Length - oldDocumentEntries.Length);
     }
 
-
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
         var metadata = TestHelpers.GenerateRegistryMetadata(registryObjectsCount, patientIdentifier, true);
@@ -122,5 +120,4 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
 
         return metadata;
     }
-
 }

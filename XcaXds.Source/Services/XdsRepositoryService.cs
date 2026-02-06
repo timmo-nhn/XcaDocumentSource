@@ -33,9 +33,9 @@ public class XdsRepositoryService
     public SoapRequestResult<SoapEnvelope> UploadContentToRepository(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterDocumentSetRequest)
     {
         var registryResponse = new RegistryResponseType();
-        
+
         var registryObjectList = provideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
-        
+
         if (registryObjectList == null)
         {
             registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, "Missing RegistryObjectlist", _xdsConfig.HomeCommunityId);
@@ -47,11 +47,11 @@ public class XdsRepositoryService
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var documents = provideAndRegisterDocumentSetRequest?.Document;
 
-		// Only process HasMember associations (SubmissionSet pointing to a document) for document storage (others such as RPLC, XFRM etc. are not handled here)
-		foreach (var association in associations.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember))
+        // Only process HasMember associations (SubmissionSet pointing to a document) for document storage (others such as RPLC, XFRM etc. are not handled here)
+        foreach (var association in associations.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember))
         {
-            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());            
-			var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject.NoUrn());
+            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());
+            var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject.NoUrn());
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == assocExtrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value.NoUrn());
 
             if (assocExtrinsicObject == null)
@@ -132,9 +132,9 @@ public class XdsRepositoryService
         var oversizedDocuments = provideAndRegisterRequest?.Document
             .Where(doc => doc.Value.Length > (_xdsConfig.DocumentUploadSizeLimitKb * 1024)).ToList();
 
-		// var oversizedDocuments = provideAndRegisterRequest?.Document.ToList(); Debug line to test oversize handling
+        // var oversizedDocuments = provideAndRegisterRequest?.Document.ToList(); Debug line to test oversize handling
 
-		if (oversizedDocuments?.Count > 0)
+        if (oversizedDocuments?.Count > 0)
         {
             registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Documents submitted are too large (max {_xdsConfig.DocumentUploadSizeLimitKb} KB per document)!\nIDs: {string.Join(", ", oversizedDocuments.Select(od => od.Id))}", _xdsConfig.HomeCommunityId);
         }
@@ -238,7 +238,7 @@ public class XdsRepositoryService
             var error = retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError[i];
             if (error == null) continue;
 
-            _logger.LogWarning($"{iti43envelope.Header.MessageId} - ERROR #{i+1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+            _logger.LogWarning($"{iti43envelope.Header.MessageId} - ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
         }
 
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()

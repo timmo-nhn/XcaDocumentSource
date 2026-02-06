@@ -122,13 +122,11 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var count = firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
-        var excpectedRegistryObjects = RegistryContent.Where(rc => rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodes.Any(hcp => ccode.Code == hcp.Code && ccode.CodeSystem == hcp.CodeSystem))).ToArray();
+        var excpectedRegistryObjects = RegistryContent.Select(dr => dr.DocumentEntry).Where(rc => rc.ConfidentialityCode.All(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.Length ?? 0);
-
-
 
         _output.WriteLine($"Fetched {count} entries");
     }
@@ -163,7 +161,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         
         var count = firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
-        var excpectedRegistryObjects = RegistryContent.Where(rc => rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Any(hcp => ccode.Code == hcp.Code && ccode.CodeSystem == hcp.CodeSystem))).ToArray();
+        var excpectedRegistryObjects = RegistryContent.Where(rc => rc.DocumentEntry.ConfidentialityCode.All(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
@@ -328,7 +326,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
     }
 
 
@@ -432,7 +430,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.RegistryResponse.RegistryErrorList?.RegistryError?.Length ?? 0);
     }
 
 

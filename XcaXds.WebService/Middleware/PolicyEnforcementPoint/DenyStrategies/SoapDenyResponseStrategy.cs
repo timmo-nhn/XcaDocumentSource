@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Commons;
+﻿using System.Text;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -66,6 +67,7 @@ public class SoapDenyResponseStrategy : IPepDenyResponseStrategy
             $"{Constants.MimeTypes.MultipartRelated}; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"";
 
         var bytes = await MultipartExtensions.SerializeMultipartAsync(soapMultipart);
+        var dbg = Encoding.UTF8.GetString(bytes);
         await context.Response.Body.WriteAsync(bytes);
     }
 
