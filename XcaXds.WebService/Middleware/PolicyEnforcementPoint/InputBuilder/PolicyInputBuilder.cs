@@ -25,6 +25,4 @@ public class PolicyInputBuilder
 
         return await strategy.BuildAsync(ctx, appConfig, documentRegistry);
     }
-
-    public async Task
 }
