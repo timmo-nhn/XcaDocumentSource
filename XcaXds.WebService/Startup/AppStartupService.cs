@@ -110,7 +110,7 @@ public class AppStartupService : IHostedService
     {
         var cz_deny_adhocquery_resourceid = new PolicyDto()
         {
-            Id = "cz-deny-adhocquery-resourceid",
+            Id = "DEFAULT_cz-deny-adhocquery-resourceid",
             AppliesTo = [Issuer.Helsenorge],
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
@@ -124,7 +124,7 @@ public class AppStartupService : IHostedService
 
         var cz_gp_deny_if_different_resourceid = new PolicyDto()
         {
-            Id = "cz-gp-deny-if-different-resourceid",
+            Id = "DEFAULT_cz-gp-deny-if-different-resourceid",
             AppliesTo = [Issuer.Helsenorge, Issuer.HelseId],
             Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
             Rules =
@@ -146,7 +146,7 @@ public class AppStartupService : IHostedService
 
         var cz_readdocumentlist_documents = new PolicyDto()
         {
-            Id = "cz-readdocumentlist-documents",
+            Id = "DEFAULT_cz-readdocumentlist-documents",
             AppliesTo = [Issuer.Helsenorge],
             Rules =
             [[
@@ -161,7 +161,7 @@ public class AppStartupService : IHostedService
 
         var gp_deny_certain_roles = new PolicyDto()
         {
-            Id = "gp-deny2",
+            Id = "DEFAULT_gp-deny2",
             AppliesTo = [Issuer.HelseId],
             Rules =
             [[
@@ -173,7 +173,7 @@ public class AppStartupService : IHostedService
 
         var gp_readdocumentlist_readdocument_create = new PolicyDto()
         {
-            Id = "gp-readdocumentlist-readdocuments",
+            Id = "DEFAULT_gp-readdocumentlist-readdocuments",
             AppliesTo = [Issuer.HelseId],
             Rules =
             [[
