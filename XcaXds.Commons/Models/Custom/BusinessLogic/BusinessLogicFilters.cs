@@ -240,15 +240,15 @@ public static class BusinessLogicFilters
     {
         if (logic.Issuer == Issuer.Helsenorge)
         {
-            var allConfCodesInRegistryObjectList = registryObjects
+            var allowedRegistryObjects = registryObjects
                 .OfType<ExtrinsicObjectType>()
-                .ToDictionary(ext => ext.Id ?? Guid.NewGuid().ToString(), ext => RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)));
+                .Where(ext =>
+                    RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
+                    .All(cc => CitizenConfidentialityCodes.Contains((cc.Code, cc.CodeSystem)))
+                )
+                .ToArray();
 
-            return new(true,
-                registryObjects.OfType<ExtrinsicObjectType>()
-                .Where(ext => allConfCodesInRegistryObjectList.TryGetValue(ext.Id ?? string.Empty, out var confCodes) &&
-                    confCodes.All(cc => CitizenConfidentialityCodes.Contains(())),
-                nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
+            return new(true, allowedRegistryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
         }
         return new(false, registryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
     }
