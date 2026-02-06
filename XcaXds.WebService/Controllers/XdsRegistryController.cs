@@ -56,7 +56,7 @@ public class XdsRegistryController : ControllerBase
 
                 if (soapEnvelope.Body.AdhocQueryRequest == null)
                 {
-                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-18 Request does not contain a valid Query Request").Value;
+                    responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-18 Request does not contain a valid AdhocQuery Request").Value;
                     break;
                 }
 
@@ -85,7 +85,7 @@ public class XdsRegistryController : ControllerBase
 
                 if (registryUploadResponse.IsSuccess)
                 {
-                    _logger.LogInformation("Registry updated successfully");
+                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Registry updated successfully");
 
                     responseEnvelope.Header = new()
                     {
