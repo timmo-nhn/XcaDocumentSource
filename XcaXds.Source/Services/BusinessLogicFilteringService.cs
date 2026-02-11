@@ -1,13 +1,9 @@
 ﻿using Abc.Xacml.Context;
-using System.Reflection.Metadata;
-using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
 
 namespace XcaXds.Source.Services;
 
@@ -37,8 +33,11 @@ public static class BusinessLogicFilteringService
             BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
 
             // Comment out this to try only the one below instead
+#if DEBUG
+            BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
+#else
             BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-            //BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
+#endif
         };
 
         var current = registryObjects;
