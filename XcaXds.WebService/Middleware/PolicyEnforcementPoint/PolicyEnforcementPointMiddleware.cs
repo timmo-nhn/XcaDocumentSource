@@ -1,4 +1,5 @@
 ﻿using Hl7.Fhir.Model;
+using Microsoft.AspNetCore.Http.Extensions;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net;
@@ -67,6 +68,9 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogWarning($"Requesth throttling enabled: {millis} ms");
         }
 
+        var requestUrl = httpContext.Request.GetDisplayUrl();
+        var requestMethod = httpContext.Request.Method;
+        _logger.LogInformation($"{requestMethod} Request to endpoint: {requestUrl}");
 
         if (ShouldBypassPolicyEnforcementPoint(httpContext, _xdsConfig, _env))
         {
@@ -74,6 +78,7 @@ public class PolicyEnforcementPointMiddleware
             {
                 _logger.LogWarning($"{httpContext.TraceIdentifier} - BypassPolicyEnforcementPoint is true!");
             }
+
             sw.Stop();
             _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed");
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Bypassed PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");

@@ -3,8 +3,10 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
@@ -141,13 +143,19 @@ public class AtnaLogGeneratorService
 
 			if (!string.IsNullOrWhiteSpace(patientResourceId))
 			{
-				var patientIdentifierParts = patientResourceId.Split('^', 2, StringSplitOptions.TrimEntries);
-				var patientIdentifierSystem = patientIdentifierParts.Length == 2 ? patientIdentifierParts[0] : null;
-				var patientIdentifierValue = patientIdentifierParts.Length == 2 ? patientIdentifierParts[1] : patientIdentifierParts[0];
+				var patientIdentifierCx = Hl7Object.Parse<CX>(patientResourceId);
 
 				var patientResource = new Patient
 				{
-					Id = "patient-1"
+					Id = "patient-1",
+					Identifier =
+					[
+						new Identifier
+						{
+							System = string.IsNullOrWhiteSpace(patientIdentifierCx?.AssigningAuthority?.UniversalId) ? null : patientIdentifierCx.AssigningAuthority.UniversalId.WithUrnOid(),
+							Value = patientIdentifierCx?.IdNumber
+                        }
+					]
 				};
 
 				if (isProvideBundle)
@@ -179,18 +187,6 @@ public class AtnaLogGeneratorService
 						};
 						patientResource.Name = [patientHumanName];
 					}
-				}
-				
-				if (!string.IsNullOrWhiteSpace(patientIdentifierValue))
-				{
-					patientResource.Identifier =
-					[
-						new Identifier
-						{
-							System = string.IsNullOrWhiteSpace(patientIdentifierSystem) ? null : patientIdentifierSystem.WithUrnOid(),
-							Value = patientIdentifierValue
-						}
-					];
 				}
 
 				auditEvent.Contained.Add(patientResource);
