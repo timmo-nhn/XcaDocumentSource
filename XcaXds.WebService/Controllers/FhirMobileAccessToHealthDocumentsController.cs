@@ -2,6 +2,7 @@
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using SQLitePCL;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
@@ -227,6 +228,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpDelete("DocumentReference/{documentUniqueId}")]
     public IActionResult DeleteDocument(string documentUniqueId)
     {
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {documentUniqueId} from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
 
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(documentUniqueId);
@@ -263,6 +265,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpPost("Bundle")]
     public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
     {
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} Received ITI-65 ProvideDocumentBundle Request");
         var operationOutcome = new OperationOutcome();
 
         var fhirJsonDeserializer = new FhirJsonDeserializer();
@@ -375,7 +378,11 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             });
         }
 
+
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...");
         var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 
         var provideAndRegisterRequest = provideAndRegisterResult.Value?.ProvideAndRegisterDocumentSetRequest;
 
@@ -394,8 +401,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
 
-
-
         var errors = new List<RegistryErrorType>();
         errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
         errors.AddRange(iti42Message.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
@@ -409,6 +414,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         {
             foreach (var error in errors)
             {
+                _logger.LogError($"{HttpContext.TraceIdentifier}Error while conver Error: {error.ErrorCode}\nErrorCode: {error.CodeContext}");
+
                 operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
                 {
                     Severity = OperationOutcome.IssueSeverity.Error,
