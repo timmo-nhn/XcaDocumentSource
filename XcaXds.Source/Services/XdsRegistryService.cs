@@ -176,7 +176,7 @@ public partial class XdsRegistryService
                     .Select(g => g.First())
                     .ToList();
 
-                // FIXME change to debug for production
+                // FIXME change to debug when going to production
                 _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
                 _logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
 

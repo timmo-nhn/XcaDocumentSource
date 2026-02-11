@@ -190,6 +190,8 @@ public class PolicyEnforcementPointMiddleware
 
         if (isLocal && config.IgnorePEPForLocalhostRequests && env.IsDevelopment())
             return true;
+
+        return false;
     }
 }
 
