@@ -624,10 +624,10 @@ public static class Commons
     /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, XacmlContextRequest xacmlRequest, out int obfuscatedEntriesCount)
+    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
-        var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
+        var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
 
         foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
         {
@@ -648,6 +648,10 @@ public static class Commons
             if (requestAppliesTo == Issuer.Helsenorge)
             {
                 if (confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))) continue;
+            }
+            if (requestAppliesTo == Issuer.Unknown)
+            {
+                continue; // Just continue, obfuscate everything
             }
 
             extrinsicObject.Id = Guid.Empty.ToString();
