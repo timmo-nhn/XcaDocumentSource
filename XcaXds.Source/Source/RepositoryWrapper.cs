@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text;
-using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
@@ -36,7 +35,7 @@ public partial class RepositoryWrapper
 
         if (_appConfig.HomeCommunityId != homeCommunityId)
         {
-            _logger.LogInformation($"{messageId} - Got document request with invalid HomeCommunityId {homeCommunityId}, Expected: {_appConfig.HomeCommunityId} ".TrimStart([' ','-']));
+            _logger.LogInformation($"{messageId} - Got document request with invalid HomeCommunityId {homeCommunityId}, Expected: {_appConfig.HomeCommunityId} ".TrimStart([' ', '-']));
             return null;
         }
 
@@ -63,28 +62,28 @@ public partial class RepositoryWrapper
             DocumentId = documentUniqueId
         };
 
-        var cdaXml = string.Empty;        
+        var cdaXml = string.Empty;
 
-		var kind = DocumentSniffer.DetectKind(documentDto.Data);
+        var kind = DocumentSniffer.DetectKind(documentDto.Data);
 
-		if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml || kind == DocumentSniffer.DocumentKind.Xml)
-		{
-			_logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format or XML format".TrimStart([' ', '-']));
-			cdaXml = Encoding.UTF8.GetString(documentDto.Data);
-		}		
-		else
-		{
-			// Not XML -> wrap into ClinicalDocument
-			var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml || kind == DocumentSniffer.DocumentKind.Xml)
+        {
+            _logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format or XML format".TrimStart([' ', '-']));
+            cdaXml = Encoding.UTF8.GetString(documentDto.Data);
+        }
+        else
+        {
+            // Not XML -> wrap into ClinicalDocument
+            var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-			var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro?.UniqueId == documentUniqueId);
-			var associations = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc?.TargetObject == documentEntry?.Id);
-			var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
+            var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro?.UniqueId == documentUniqueId);
+            var associations = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc?.TargetObject == documentEntry?.Id);
+            var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
 
-			var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
-			cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
-		}
-	
+            var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
+            cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
+        }
+
         return Encoding.UTF8.GetBytes(cdaXml);
     }
 

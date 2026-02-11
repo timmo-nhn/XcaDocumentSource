@@ -1,5 +1,6 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Policy;
+using Hl7.Fhir.Model;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Xml;
 using XcaXds.Commons.Commons;
@@ -8,6 +9,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
 namespace XcaXds.Commons.Services;
 
@@ -42,7 +44,7 @@ public static class PolicyRequestMapperSamlService
 
     public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
-        var action = MapXacmlActionFromSoapAction(soapEnvelope.Header.Action ?? string.Empty);
+        var action = MapXacmlActionFromSoapEnvelope(soapEnvelope);
 
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
@@ -172,7 +174,7 @@ public static class PolicyRequestMapperSamlService
                     new XacmlContextAttribute(
                         new Uri(Constants.Xacml.CustomAttributes.AppliesTo),
                         new Uri(Constants.Xacml.DataType.String),
-                        new XacmlContextAttributeValue() { Value = appliesTo.ToString()}));
+                        new XacmlContextAttributeValue() { Value = appliesTo.ToString() }));
                 break;
             default:
                 break;
@@ -492,9 +494,9 @@ public static class PolicyRequestMapperSamlService
         return assertion[0]?.OuterXml;
     }
 
-    public static string MapXacmlActionFromSoapAction(string action)
+    public static string MapXacmlActionFromSoapEnvelope(SoapEnvelope soapEnvelope)
     {
-        switch (action)
+        switch (soapEnvelope?.Header?.Action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
             case Constants.Xds.OperationContract.Iti38Action:
@@ -506,7 +508,7 @@ public static class PolicyRequestMapperSamlService
 
             case Constants.Xds.OperationContract.Iti41Action:
             case Constants.Xds.OperationContract.Iti42Action:
-                return Constants.Xacml.Actions.Create;
+                return GetCreateOrUpdateFromRequest(soapEnvelope);
 
             case Constants.Xds.OperationContract.Iti62Action:
             case Constants.Xds.OperationContract.Iti86Action:
@@ -515,5 +517,13 @@ public static class PolicyRequestMapperSamlService
             default:
                 return Constants.Xacml.Actions.Unknown;
         }
+    }
+
+    private static string GetCreateOrUpdateFromRequest(SoapEnvelope soapEnvelope)
+    {
+        var registryObjects = soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+
+        var isReplaceUpdate = registryObjects?.OfType<AssociationType>().Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation)) ?? false;
+        return isReplaceUpdate ? Constants.Xacml.Actions.Update : Constants.Xacml.Actions.Create;
     }
 }

@@ -46,7 +46,7 @@ public class PolicyRepositoryWrapper
             {
                 NotifyFilter = NotifyFilters.LastWrite
             };
-            _watcher.Changed += OnConfigFileChanged;
+            _watcher.Changed += OnFileChanged;
             _watcher.EnableRaisingEvents = true;
         }
     }
@@ -201,7 +201,12 @@ public class PolicyRepositoryWrapper
         }
     }
 
-    private void OnConfigFileChanged(object sender, FileSystemEventArgs e)
+    public bool DeleteAllPolicies()
+    {
+        return _policyRepository.DeleteAllPolicies();
+    }
+
+    private void OnFileChanged(object sender, FileSystemEventArgs e)
     {
         Task.Delay(500).ContinueWith(_ =>
         {
@@ -216,10 +221,5 @@ public class PolicyRepositoryWrapper
                 _logger.LogError(ex, "Error reloading policy repository.");
             }
         });
-    }
-
-    public bool DeleteAllPolicies()
-    {
-        return _policyRepository.DeleteAllPolicies();
     }
 }

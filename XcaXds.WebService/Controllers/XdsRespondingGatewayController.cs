@@ -249,7 +249,7 @@ public class XdsRespondingGatewayController : ControllerBase
                     };
 
                     requestTimer.Stop();
-                    _logger.LogInformation($"Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                     _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();

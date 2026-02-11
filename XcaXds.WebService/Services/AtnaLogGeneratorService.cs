@@ -4,7 +4,9 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
+using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services;
 
@@ -410,8 +412,8 @@ public class AtnaLogGeneratorService
 		var docRequest = requestEnvelope?.Body?.ProvideAndRegisterDocumentSetRequest;
 		var xdsDoc = docRequest?.Document?.FirstOrDefault();
 		var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
-		var xdsDocEntry = rol?.OfType<XcaXds.Commons.Models.Soap.XdsTypes.ExtrinsicObjectType>().FirstOrDefault();
-		var xdsSubmissionSet = rol?.OfType<XcaXds.Commons.Models.Soap.XdsTypes.RegistryPackageType>().FirstOrDefault();
+		var xdsDocEntry = rol?.OfType<ExtrinsicObjectType>().FirstOrDefault();
+		var xdsSubmissionSet = rol?.OfType<RegistryPackageType>().FirstOrDefault();
 
 		if (xdsDoc != null || xdsDocEntry != null)
 		{
@@ -559,7 +561,7 @@ public class AtnaLogGeneratorService
 
             case Constants.Xds.OperationContract.Iti41Action:
             case Constants.Xds.OperationContract.Iti42Action:
-                return AuditEvent.AuditEventAction.C;
+                return GetCreateOrUpdateFromRequest(requestEnvelope);
 
             case Constants.Xds.OperationContract.Iti86Action:
             case Constants.Xds.OperationContract.Iti62Action:
@@ -568,6 +570,14 @@ public class AtnaLogGeneratorService
             default:
                 return AuditEvent.AuditEventAction.R;
         }
+    }
+
+    private AuditEvent.AuditEventAction? GetCreateOrUpdateFromRequest(SoapEnvelope requestEnvelope)
+    {
+		var registryObjects = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+
+        var isReplaceUpdate = registryObjects?.OfType<AssociationType>().Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation)) ?? false;
+		return isReplaceUpdate ? AuditEvent.AuditEventAction.U : AuditEvent.AuditEventAction.C;
     }
 
     private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
@@ -610,12 +620,47 @@ public class AtnaLogGeneratorService
 
             case Constants.Xds.OperationContract.Iti41Action:
             case Constants.Xds.OperationContract.Iti42Action:
-                return new Coding()
-                {
-                    Code = "originate",
-                    System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
-                    Display = "Originate/Retain Record Lifecycle Event"
-                };
+				var associations = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList?.OfType<AssociationType>();
+
+				var isAmend = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(HasMember, Addendum)) ?? false;
+				var isTransform = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Transformation, ReplaceWithTransformation)) ?? false;
+				var isReplace = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace)) ?? false;
+
+				if (isAmend)
+				{
+					return new Coding()
+					{
+						Code = "amend",
+						System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+						Display = "Amend (Update) Record Lifecycle Event"
+                    };
+				}
+				if (isTransform)
+				{
+					return new Coding()
+					{
+						Code = "transform",
+						System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+						Display = "Transform/Translate Record Lifecycle Event"
+                    };
+				}
+				if (isReplace)
+				{
+					return new Coding()
+					{
+						Code = "originate",
+						System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+						Display = "Originate/Retain Record Lifecycle Event"
+					};
+				}
+
+				// Default: Assume Hasmember/addition
+				return new Coding()
+				{
+					Code = "originate",
+					System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+					Display = "Originate/Retain Record Lifecycle Event"
+				};
 
             case Constants.Xds.OperationContract.Iti86Action:
             case Constants.Xds.OperationContract.Iti62Action:

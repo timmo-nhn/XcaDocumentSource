@@ -67,8 +67,13 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogWarning($"Requesth throttling enabled: {millis} ms");
         }
 
+
         if (ShouldBypassPolicyEnforcementPoint(httpContext, _xdsConfig, _env))
         {
+            if (_xdsConfig.BypassPolicyEnforcementPoint)
+            {
+                _logger.LogWarning($"{httpContext.TraceIdentifier} - BypassPolicyEnforcementPoint is true!");
+            }
             sw.Stop();
             _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed");
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Bypassed PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
@@ -99,7 +104,6 @@ public class PolicyEnforcementPointMiddleware
             var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
-
 
         var decision = policyEvaluator.Evaluate(policyInput.XacmlRequest, policyInput.AppliesTo);
 
