@@ -1,8 +1,8 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens.Saml2;
-using SQLitePCL;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
@@ -309,7 +309,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         //if (patient == null) return BadRequest(OperationOutcome.ForMessage($"Patient not found in DocumentReference", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
 
-        if (submissionSetList == null) operationOutcome.Issue.Add( new OperationOutcome.IssueComponent()
+        if (submissionSetList == null) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
         {
             Severity = OperationOutcome.IssueSeverity.Fatal,
             Code = OperationOutcome.IssueType.Invalid,
@@ -593,5 +593,17 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
 
         return pnrEnvelope;
+    }
+
+    [Consumes("application/json-patch+json")]
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpPatch("Bundle/{id}")]
+    public async Task<IActionResult> PatchBundle(string id, [FromBody] JsonPatchDocument<Resource> jsonPatchResource)
+    {
+        
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} Received ITI-65 PatchBundle Request");
+        var operationOutcome = new OperationOutcome();
+
+        return Ok();
     }
 }
