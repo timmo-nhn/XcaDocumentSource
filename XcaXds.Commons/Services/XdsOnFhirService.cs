@@ -155,7 +155,7 @@ public class XdsOnFhirService
                 Profile = ["https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.FindDocumentReferencesComprehensiveResponseMessage"],
             },
             Type = Bundle.BundleType.Searchset,
-            Total = registryObjectList.Length,
+            Total = registryObjectList?.Length,
             Timestamp = DateTime.UtcNow,
             Entry = new List<Bundle.EntryComponent>()
         };
@@ -163,7 +163,7 @@ public class XdsOnFhirService
 
         // If only ExtrinsicObjects are in the registryObjectList (such as when returning a FindDocuments AdhocQueryRequest)
         // we need to fetch the registry and get the missing registry objects to properly map this to a FHIR resource
-        if (registryObjectList.Length != 0 && registryObjectList.Length == registryObjectList.OfType<ExtrinsicObjectType>().ToArray().Length)
+        if (registryObjectList != null && registryObjectList.Length < 0 && registryObjectList.Length == registryObjectList?.OfType<ExtrinsicObjectType>().ToArray().Length)
         {
             var registryContent = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(_registry.ReadRegistry());
 
@@ -306,9 +306,7 @@ public class XdsOnFhirService
         return documentReferenceList;
     }
 
-	private static List<DocumentReference.RelatesToComponent> BuildRelatesTo(
-	AssociationType[] allAssociations,
-	ExtrinsicObjectType currentEo)
+	private static List<DocumentReference.RelatesToComponent> BuildRelatesTo(AssociationType[] allAssociations, ExtrinsicObjectType currentEo)
 	{
 		var relatesTo = new List<DocumentReference.RelatesToComponent>();
 
@@ -372,7 +370,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = eventCodeList.Code,
-                        System = AddUrnOidIfOid(eventCodeList.CodeSystem),
+                        System = eventCodeList.CodeSystem.WithUrnOid(),
                         Display = eventCodeList.DisplayName
                     }
                 ]
@@ -407,7 +405,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = healthCareFacilityType.Code,
-                        System = AddUrnOidIfOid(healthCareFacilityType.CodeSystem),
+                        System = healthCareFacilityType.CodeSystem.WithUrnOid(),
                         Display = healthCareFacilityType.DisplayName
                     }
                 ]
@@ -426,7 +424,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = practiceSettingCode.Code,
-                        System = AddUrnOidIfOid(practiceSettingCode.CodeSystem),
+                        System = practiceSettingCode.CodeSystem.WithUrnOid(),
                         Display = practiceSettingCode.DisplayName
                     }
                 ]
@@ -434,18 +432,6 @@ public class XdsOnFhirService
         }
 
         return context;
-    }
-
-    private static string? AddUrnOidIfOid(string? codeSystem)
-    {
-        if (string.IsNullOrWhiteSpace(codeSystem)) return null;
-
-        if (Regex.IsMatch(codeSystem, @"^[\d\.]+$") && codeSystem.StartsWith("urn:oid:") == false)
-        {
-            return $"urn:oid:{codeSystem}";
-        }
-
-        return codeSystem;
     }
 
     private static DocumentReference.ContentComponent? GetDocumentReferenceContentPropertyFromExtrinsicObject(ExtrinsicObjectType assocExtrinsicObject)
@@ -485,7 +471,7 @@ public class XdsOnFhirService
             content.Format = new Coding()
             {
                 Code = format.Code,
-                System = AddUrnOidIfOid(format.CodeSystem),
+                System = format.CodeSystem.WithUrnOid(),
                 Display = format.DisplayName
             };
         }
@@ -506,7 +492,7 @@ public class XdsOnFhirService
                 new()
                 {
                     Code = confidentialityCode.Code,
-                    System = AddUrnOidIfOid(confidentialityCode.CodeSystem),
+                    System = confidentialityCode.CodeSystem.WithUrnOid(),
                     Display = confidentialityCode.DisplayName
                 }
             ]
@@ -600,7 +586,7 @@ public class XdsOnFhirService
             organization.Name = authorInstitution?.OrganizationName;
             if (authorInstitution?.OrganizationIdentifier != null)
             {
-                organization.Identifier = [new() { Value = authorInstitution?.OrganizationIdentifier, System = AddUrnOidIfOid(authorInstitution?.AssigningAuthority?.UniversalId) }];
+                organization.Identifier = [new() { Value = authorInstitution?.OrganizationIdentifier, System = authorInstitution?.AssigningAuthority?.UniversalId.WithUrnOid() }];
             }
         }
 
@@ -617,7 +603,7 @@ public class XdsOnFhirService
             department.Name = authorDepartment?.OrganizationName;
             if (authorDepartment?.OrganizationIdentifier != null)
             {
-                department.Identifier = [new() { Value = authorDepartment?.OrganizationIdentifier, System = AddUrnOidIfOid(authorDepartment?.AssigningAuthority?.UniversalId) }];
+                department.Identifier = [new() { Value = authorDepartment?.OrganizationIdentifier, System = authorDepartment?.AssigningAuthority?.UniversalId.WithUrnOid() }];
             }
         }
 
@@ -641,7 +627,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = authorRole.IdNumber,
-                        System = AddUrnOidIfOid(authorRole.AssigningAuthority?.UniversalId)
+                        System = authorRole.AssigningAuthority ?.UniversalId.WithUrnOid()
                     }
                 ]
             };
@@ -658,7 +644,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = authorSpeciality.IdNumber,
-                        System = AddUrnOidIfOid(authorSpeciality.AssigningAuthority?.UniversalId)
+                        System = authorSpeciality.AssigningAuthority ?.UniversalId.WithUrnOid()
                     }
                 ]
             };
@@ -690,8 +676,8 @@ public class XdsOnFhirService
             practitioner.Name.Add(new() { Family = authorPerson.FamilyName, Given = [authorPerson.GivenName] });
             if (authorPerson.PersonIdentifier != null)
             {
-                practitioner.Identifier = [new() { Value = authorPerson.PersonIdentifier, System = AddUrnOidIfOid(authorPerson.AssigningAuthority?.UniversalId) }];
-            }
+                practitioner.Identifier = [new() { Value = authorPerson.PersonIdentifier, System = authorPerson.AssigningAuthority?.UniversalId.WithUrnOid() }];
+            }   
         }
         // If its just a plain text name (authorPerson.PersonIdentifier will contain the name)
         else if (authorPerson != null && authorPerson.GivenName == null && authorPerson.FamilyName == null)
@@ -730,7 +716,7 @@ public class XdsOnFhirService
         var patientIdCx = Hl7Object.Parse<CX>(sourcePatientId);
         if (patientIdCx != null)
         {
-            patient.Identifier = [new() { Value = patientIdCx.IdNumber, System = AddUrnOidIfOid(patientIdCx.AssigningAuthority.UniversalId) }];
+            patient.Identifier = [new() { Value = patientIdCx.IdNumber, System = patientIdCx.AssigningAuthority.UniversalId.WithUrnOid() }];
         }
 
         // Patient Gender
@@ -767,7 +753,7 @@ public class XdsOnFhirService
                 new()
                 {
                     Code = classCode.Code,
-                    System = AddUrnOidIfOid(classCode.CodeSystem),
+                    System = classCode.CodeSystem.WithUrnOid(),
                     Display = classCode.DisplayName
                 }
             ]
@@ -787,7 +773,7 @@ public class XdsOnFhirService
                 new()
                 {
                     Code = typeCode.Code,
-                    System = AddUrnOidIfOid(typeCode.CodeSystem),
+                    System = typeCode.CodeSystem.WithUrnOid(),
                     Display = typeCode.DisplayName
                 }
             ]
@@ -820,8 +806,8 @@ public class XdsOnFhirService
 
         return new()
         {
-            Value = AddUrnOidIfOid(uniqueId),
-            System = AddUrnOidIfOid(sourceId)
+            Value = uniqueId.WithUrnOid(),
+            System = sourceId.WithUrnOid()
         };
     }
 }

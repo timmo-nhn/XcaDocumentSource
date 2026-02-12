@@ -76,7 +76,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
-            action: "Create");
+            action: "Update");
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 

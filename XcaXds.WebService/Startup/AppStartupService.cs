@@ -73,7 +73,7 @@ public class AppStartupService : IHostedService
         }
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
-        
+
         FindDudsInRepository();
 
         MigrateFromJsonRegistryToDatabase();
@@ -173,7 +173,7 @@ public class AppStartupService : IHostedService
 
         var gp_readdocumentlist_readdocument_create = new PolicyDto()
         {
-            Id = "DEFAULT_gp-readdocumentlist-readdocuments",
+            Id = "DEFAULT_gp-CRUD",
             AppliesTo = [Issuer.HelseId],
             Rules =
             [[
@@ -185,7 +185,7 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT"),
                 new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448")
             ]],
-            Actions = ["ReadDocumentList", "ReadDocuments", "Create", "Delete"],
+            Actions = ["Create", "ReadDocumentList", "ReadDocuments", "Update", "Delete"],
             Effect = "Permit"
         };
 
@@ -238,7 +238,7 @@ public class AppStartupService : IHostedService
     private void MigrateFromJsonRegistryToDatabase()
     {
         var fileBasedRegistry = new FileBasedRegistry();
-        
+
         // If registry doesnt exist yet, no need to migrate
         if (fileBasedRegistry.RegistryExists() == false) return;
 

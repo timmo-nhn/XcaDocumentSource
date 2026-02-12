@@ -121,10 +121,13 @@ public class PolicyEnforcementPointMiddleware
             var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
+        
+        _logger.LogDebug($"XACML Request:{XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings)}");
 
         var decision = policyEvaluator.Evaluate(policyInput.XacmlRequest, policyInput.AppliesTo);
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Response.Results.FirstOrDefault()?.Decision.ToString()}");
+
         if (decision.Permit)
         {
             sw.Stop();
