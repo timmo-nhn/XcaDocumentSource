@@ -161,7 +161,7 @@ public partial class XdsRegistryService
 
                 // Apply business-logic filtering
                 var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-                filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList() ?? [];
+                filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
 
                 filteredElements.ObfuscateRestrictedDocumentEntries(xacmlRequest, out var count);
 

@@ -665,25 +665,25 @@ public static class Commons
                 ObfuscateSlot(slot);
             }
 
-            foreach (var classification in extrinsicObject.Classification)
+            foreach (var classification in extrinsicObject.Classification ?? [])
             {
                 ObfuscateClassification(classification);
             }
 
-            foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier)
+            foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier ?? [])
             {
                 ObfuscateExternalIdentifier(externalIdentifier);
             }
             obfuscatedEntriesCount++;
         }
 
-        // REMOVE debug
-        var sperret = identifiableTypes.OfType<ExtrinsicObjectType>().Where(it => it.Name.LocalizedString.First().Value == "Sperret");
         return identifiableTypes;
     }
 
-    private static void ObfuscateExternalIdentifier(ExternalIdentifierType externalIdentifier)
+    private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier)
     {
+        if (externalIdentifier == null || string.IsNullOrWhiteSpace(externalIdentifier.IdentificationScheme)) return;
+
         switch (externalIdentifier.IdentificationScheme)
         {
             case Constants.Xds.Uuids.DocumentEntry.UniqueId:
@@ -696,8 +696,10 @@ public static class Commons
         }
     }
 
-    private static void ObfuscateClassification(ClassificationType classification)
+    private static void ObfuscateClassification(ClassificationType? classification)
     {
+        if (classification == null || string.IsNullOrWhiteSpace(classification.ClassificationScheme)) return;
+
         switch (classification.ClassificationScheme)
         {
             case Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode:
@@ -723,8 +725,10 @@ public static class Commons
         }
     }
 
-    private static void ObfuscateSlot(SlotType slot)
+    private static void ObfuscateSlot(SlotType? slot)
     {
+        if (slot == null) return;
+
         switch (slot.Name)
         {
             case Constants.Xds.SlotNames.AuthorPerson:
@@ -746,7 +750,7 @@ public static class Commons
                         structuredValue.Suffix = string.IsNullOrWhiteSpace(structuredValue.Suffix) ? null : "*****";
                         structuredValue.Degree = string.IsNullOrWhiteSpace(structuredValue.Degree) ? null : "*****";
 
-                        slot.ValueList.Value[0] = structuredValue.Serialize();
+                        slot.ValueList.Value[i] = structuredValue.Serialize();
                     }
                 }
                 break;
@@ -762,13 +766,13 @@ public static class Commons
                         if (structuredValue == null) return;
 
                         // Dont obfuscate the value for organization or the last value
-                        if (structuredValue.AssigningAuthority.UniversalId == Constants.Oid.Brreg || i == slot.ValueList.Value.Length) continue;
+                        if (structuredValue.AssigningAuthority?.UniversalId == Constants.Oid.Brreg || i == slot.ValueList.Value.Length) continue;
 
                         structuredValue.OrganizationIdentifier = string.IsNullOrWhiteSpace(structuredValue.OrganizationIdentifier) ? null : "*****";
                         structuredValue.IdNumber = string.IsNullOrWhiteSpace(structuredValue.IdNumber) ? null : "*****";
                         structuredValue.OrganizationName = string.IsNullOrWhiteSpace(structuredValue.OrganizationName) ? null : "*****";
 
-                        slot.ValueList.Value[i] = structuredValue.Serialize();
+                        slot.ValueList.Value[i] = structuredValue?.Serialize();
                     }
                 }
 
@@ -777,7 +781,7 @@ public static class Commons
             case Constants.Xds.SlotNames.AuthorSpecialty:
             case Constants.Xds.SlotNames.AuthorRole:
             case Constants.Xds.SlotNames.CodingScheme:
-                for (int i = 0; i < slot.ValueList.Value.Length; i++)
+                for (int i = 0; i < slot.ValueList?.Value.Length; i++)
                 {
                     slot.ValueList.Value[i] = "*****";
                 }
