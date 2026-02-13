@@ -68,7 +68,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IClassFixture<
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<AppStartupService>();
-                services.RemoveAll<AtnaLogExporterService>();
 
                 // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
                 services.RemoveAll<IPolicyRepository>();

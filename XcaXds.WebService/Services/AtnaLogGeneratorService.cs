@@ -145,85 +145,75 @@ public class AtnaLogGeneratorService
                     .FirstOrDefault();
             }
 
-           var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope);
+            var patientIdentifierCx = Hl7Object.Parse<CX>(patientResourceId);
 
-            if (!string.IsNullOrWhiteSpace(patientResourceId))
+            var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).Append(patientIdentifierCx)
+                .DistinctBy(pid => new { pid?.IdNumber, pid?.AssigningAuthority?.UniversalId })
+                .ToList();
+
+            var patientResource = new Patient
             {
-                var patientIdentifierCx = Hl7Object.Parse<CX>(patientResourceId);
+                Id = "patient-1",
+            };
 
-                var patientResource = new Patient
-                {
-                    Id = "patient-1",
-                    Identifier =
-                    [
-                        new Identifier
-                        {
-                            System = string.IsNullOrWhiteSpace(patientIdentifierCx?.AssigningAuthority?.UniversalId) ? null : patientIdentifierCx.AssigningAuthority.UniversalId.WithUrnOid(),
-                            Value = patientIdentifierCx?.IdNumber
-                        }
-                    ]
-                };
-
-                foreach (var otherIdentifiers in registryPatientIdentifiers)
-                {
-                    patientResource.Identifier.Add(new Identifier(otherIdentifiers?.AssigningAuthority.UniversalId.WithUrnOid(), otherIdentifiers?.IdNumber));
-                }
-
-                patientResource.Identifier = patientResource.Identifier.DistinctBy(pid => new { pid.Value, pid.System }).ToList();
-
-                if (isProvideBundle)
-                {
-                    // For ProvideBundle calls, we have explicit given/family names, because the following scenarios are possible:
-                    // - JWT (machine-to-machine) token without any logged in user. Patient exists only in the Bundle and is added to SAML assertion from there. There is no subject in the assertion.
-                    // - JWT (HelseID user token) token where the logged in user is healthcare professional.
-                    //		The patient exists only in the Bundle and is added to SAML assertion from there. The subject in the assertion will be the healthcare professional, not the patient.
-
-                    if (!string.IsNullOrWhiteSpace(patientFamily) || !string.IsNullOrWhiteSpace(patientGiven))
-                    {
-                        var patientHumanName = new HumanName
-                        {
-                            Family = string.IsNullOrWhiteSpace(patientFamily) ? null : patientFamily,
-                            Given = string.IsNullOrWhiteSpace(patientGiven) ? null : [patientGiven]
-                        };
-                        patientResource.Name = [patientHumanName];
-                    }
-                }
-                else if (issuer == Issuer.Helsenorge && hasSubject)
-                {
-                    var subjectPersonNameParts = subjectDisplayName?.Split().ToList();
-                    if (subjectPersonNameParts != null && subjectPersonNameParts.Count != 0)
-                    {
-                        var patientHumanName = new HumanName
-                        {
-                            Family = subjectPersonNameParts.LastOrDefault(),
-                            Given = subjectPersonNameParts.Count > 1 ? subjectPersonNameParts.Take(subjectPersonNameParts.Count - 1).ToList() : null
-                        };
-                        patientResource.Name = [patientHumanName];
-                    }
-                }
-
-                auditEvent.Contained.Add(patientResource);
-
-                auditEvent.Entity.Add(new AuditEvent.EntityComponent()
-                {
-                    What = new ResourceReference($"#{patientResource.Id}")
-                    {
-                        Display = "patient"
-                    },
-                    Type = new Coding
-                    {
-                        System = "http://terminology.hl7.org/CodeSystem/audit-entity-type",
-                        Code = "1",
-                        Display = "Person"
-                    },
-                    Role = new Coding
-                    {
-                        System = "http://terminology.hl7.org/CodeSystem/object-role",
-                        Code = "1",
-                        Display = "Patient"
-                    }
-                });
+            foreach (var identifier in registryPatientIdentifiers)
+            {
+                if (identifier == null) continue;
+                patientResource.Identifier.Add(new Identifier(identifier.AssigningAuthority.UniversalId, identifier.IdNumber));
             }
+
+            if (isProvideBundle)
+            {
+                // For ProvideBundle calls, we have explicit given/family names, because the following scenarios are possible:
+                // - JWT (machine-to-machine) token without any logged in user. Patient exists only in the Bundle and is added to SAML assertion from there. There is no subject in the assertion.
+                // - JWT (HelseID user token) token where the logged in user is healthcare professional.
+                //		The patient exists only in the Bundle and is added to SAML assertion from there. The subject in the assertion will be the healthcare professional, not the patient.
+
+                if (!string.IsNullOrWhiteSpace(patientFamily) || !string.IsNullOrWhiteSpace(patientGiven))
+                {
+                    var patientHumanName = new HumanName
+                    {
+                        Family = string.IsNullOrWhiteSpace(patientFamily) ? null : patientFamily,
+                        Given = string.IsNullOrWhiteSpace(patientGiven) ? null : [patientGiven]
+                    };
+                    patientResource.Name = [patientHumanName];
+                }
+            }
+            else if (issuer == Issuer.Helsenorge && hasSubject)
+            {
+                var subjectPersonNameParts = subjectDisplayName?.Split().ToList();
+                if (subjectPersonNameParts != null && subjectPersonNameParts.Count != 0)
+                {
+                    var patientHumanName = new HumanName
+                    {
+                        Family = subjectPersonNameParts.LastOrDefault(),
+                        Given = subjectPersonNameParts.Count > 1 ? subjectPersonNameParts.Take(subjectPersonNameParts.Count - 1).ToList() : null
+                    };
+                    patientResource.Name = [patientHumanName];
+                }
+            }
+
+            auditEvent.Contained.Add(patientResource);
+
+            auditEvent.Entity.Add(new AuditEvent.EntityComponent()
+            {
+                What = new ResourceReference($"#{patientResource.Id}")
+                {
+                    Display = "patient"
+                },
+                Type = new Coding
+                {
+                    System = "http://terminology.hl7.org/CodeSystem/audit-entity-type",
+                    Code = "1",
+                    Display = "Person"
+                },
+                Role = new Coding
+                {
+                    System = "http://terminology.hl7.org/CodeSystem/object-role",
+                    Code = "1",
+                    Display = "Patient"
+                }
+            });
 
 
             var orgnrParent = statements.FirstOrDefault(s => s.Name == "helseid://claims/client/claims/orgnr_parent")
@@ -571,12 +561,14 @@ public class AtnaLogGeneratorService
         }
 
         // ITI-41 or ITI-42
+        // RGOBJ_Jank! ITI-86 or ITI-62 DeleteDocumentSet
         var provideAndRegister = requestEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ?? requestEnvelope.Body?.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
-        
+
         if (provideAndRegister != null)
         {
-            var registryObject = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister);
+            var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister);
 
+            return PatientIdCxFromDocumentEntries(registryObjects);
         }
 
         // ITI-39 or ITI-43 RetrieveDocumentSet
@@ -595,19 +587,25 @@ public class AtnaLogGeneratorService
                     .OfType<DocumentEntryDto>()
                     .Where(de => ids.Contains(de.UniqueId ?? string.Empty));
 
-                return documentEntries.Select(de => new CX()
-                {
-                    IdNumber = de.SourcePatientInfo?.PatientId?.Id ?? "Unknown",
-                    AssigningAuthority = new HD()
-                    {
-                        UniversalId = de.SourcePatientInfo?.PatientId?.System ?? "Unknown",
-                        UniversalIdType = Constants.Hl7.UniversalIdType.Iso
-                    }
-                }).ToArray();
+                return PatientIdCxFromDocumentEntries(documentEntries);
             }
         }
 
+
         return [];
+    }
+
+    private CX?[] PatientIdCxFromDocumentEntries(IEnumerable<RegistryObjectDto> registryObjects)
+    {
+        return registryObjects.OfType<DocumentEntryDto>().Select(de => new CX()
+        {
+            IdNumber = de.SourcePatientInfo?.PatientId?.Id ?? "Unknown",
+            AssigningAuthority = new HD()
+            {
+                UniversalId = de.SourcePatientInfo?.PatientId?.System ?? "Unknown",
+                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
+            }
+        }).ToArray();
     }
 
     private AuditEvent.AuditEventAction? GetActionFromSoapEnvelope(SoapEnvelope requestEnvelope)

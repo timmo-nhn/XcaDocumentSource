@@ -90,6 +90,8 @@ public class XdsRespondingGatewayController : ControllerBase
             action += "Async";
         }
         
+        FileContentResult? multipartResponse = null;
+
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti38ActionAsync:
@@ -109,7 +111,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 {
                     try
                     {
-                        var response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+                        var response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
 
                         var sxmls = new SoapXmlSerializer();
                         var soapXml = sxmls.SerializeSoapMessageToXmlString(response.Value).Content;
@@ -147,7 +149,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
-                var iti38Response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope, xacmlRequest);
+                var iti38Response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope, xacmlRequest);
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
                 responseEnvelope = iti38Response.Value;
                 break;
@@ -254,13 +256,11 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
-                    var streamResult = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
+                    multipartResponse = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
 
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - " + streamResult.ContentType);
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - " + multipartResponse.ContentType);
 
                     _logger.LogInformation($"{soapEnvelope.Header.MessageId} - " + Encoding.UTF8.GetString(bytes));
-
-                    return streamResult;
                 }
 
                 responseEnvelope = iti39Response.Value;
@@ -276,10 +276,13 @@ public class XdsRespondingGatewayController : ControllerBase
         requestTimer.Stop();
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
-
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
+
+        // multipart RetrieveDocumentSet needs to be returned as its own object
+        if (multipartResponse != null)
+            return multipartResponse;
 
         return Ok(responseEnvelope);
     }

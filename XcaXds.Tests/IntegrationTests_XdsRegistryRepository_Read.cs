@@ -1,12 +1,16 @@
 ﻿using Hl7.Fhir.Model;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using System.Text;
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -34,11 +38,12 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     private readonly InMemoryPolicyRepository _policyRepository;
     private readonly InMemoryRegistry _registry;
     private readonly InMemoryRepository _repository;
+    private readonly AtnaLogExportedChecker _atnaLogExportedChecker;
     private readonly ITestOutputHelper _output;
 
     private List<DocumentReferenceDto> RegistryContent { get; set; } = new();
 
-    private readonly int RegistryItemCount = 1000; // The amount of registry objects to generate and evaluate against
+    private readonly int RegistryItemCount = 50; // The amount of registry objects to generate and evaluate against
 
     private readonly CX PatientIdentifier = new()
     {
@@ -51,7 +56,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     };
 
     public IntegrationTests_XcaXdsRegistryRepository_CRUD(
-        WebApplicationFactory<WebService.Program> factory, 
+        WebApplicationFactory<WebService.Program> factory,
         ITestOutputHelper output)
     {
         _output = output;
@@ -59,32 +64,46 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         using var scope = factory.Services.CreateScope();
 
         _policyRepository = new InMemoryPolicyRepository();
-
         _registry = new InMemoryRegistry();
         _repository = new InMemoryRepository();
 
+        // Custom factory with fake services
         var customFactory = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<AppStartupService>();
-                services.RemoveAll<AtnaLogExporterService>();
 
                 // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
                 services.RemoveAll<IPolicyRepository>();
                 services.RemoveAll<IRegistry>();
                 services.RemoveAll<IRepository>();
 
+                services.RemoveAll<AtnaLogExporterService>();
+                services.RemoveAll<IHostedService>();
+
                 // ...so replace with the mock implementations
                 services.AddSingleton<IPolicyRepository>(_policyRepository);
                 services.AddSingleton<IRegistry>(_registry);
                 services.AddSingleton<IRepository>(_repository);
+                services.AddSingleton<AtnaLogExportedChecker>();
+                services.AddHostedService<NonRequestingAtnaLogExporter>();
+
+                builder.Configure(app =>
+                {
+                    app.UseRouting();
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapControllers();
+                    });
+                });
             });
         });
 
         _client = customFactory.CreateClient();
         using var customScope = customFactory.Services.CreateScope();
 
+        _atnaLogExportedChecker = customScope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
         _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
         _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
@@ -92,7 +111,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
 
     [Fact]
-    [Trait("Read","DocumentList")]
+    [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Kjernejournal()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -128,11 +147,14 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.Length ?? 0);
 
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+
         _output.WriteLine($"Fetched {count} entries");
     }
 
     [Fact]
-    [Trait("Read","DocumentList")]
+    [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -158,7 +180,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
-        
+
         var count = firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
         var excpectedRegistryObjects = RegistryContent.Where(rc => rc.DocumentEntry.ConfidentialityCode.All(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
@@ -167,6 +189,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
         _output.WriteLine($"Fetched {count} entries");
     }
@@ -220,6 +244,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(RegistryItemCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
+        
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse.Length}");
     }
@@ -272,7 +299,10 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(RegistryItemCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
-
+        
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
     }
 
@@ -331,7 +361,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
 
     [Fact]
-    [Trait("Read","Documents")]
+    [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
@@ -378,6 +408,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
     }

@@ -146,7 +146,7 @@ public class XdsRepositoryController : ControllerBase
                     break;
                 }
 
-                var registerDocumentSetResponse = _registryService.AppendToRegistryAsync(iti42Message.Value);
+                var registerDocumentSetResponse = _registryService.AppendToRegistry(iti42Message.Value);
 
                 if (registerDocumentSetResponse.IsSuccess is false)
                 {

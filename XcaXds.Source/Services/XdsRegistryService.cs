@@ -26,7 +26,7 @@ public partial class XdsRegistryService
         _logger = logger;
     }
 
-    public SoapRequestResult<SoapEnvelope> AppendToRegistryAsync(SoapEnvelope envelope)
+    public SoapRequestResult<SoapEnvelope> AppendToRegistry(SoapEnvelope envelope)
     {
         var registryResponse = new RegistryResponseType();
 
@@ -88,7 +88,7 @@ public partial class XdsRegistryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public SoapRequestResult<SoapEnvelope> RegistryStoredQueryAsync(SoapEnvelope soapEnvelope, XacmlContextRequest? xacmlRequest = null)
+    public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope, XacmlContextRequest? xacmlRequest = null)
     {
         var documentRegistryDtos = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
@@ -360,7 +360,7 @@ public partial class XdsRegistryService
         return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
     }
 
-    public SoapRequestResult<SoapEnvelope> DeleteDocumentSetAsync(SoapEnvelope soapEnvelope)
+    public SoapRequestResult<SoapEnvelope> DeleteDocumentSet(SoapEnvelope soapEnvelope, out IEnumerable<IdentifiableType> deletedObjects)
     {
         var registryResponse = new RegistryResponseType();
         var removeObjectsRequest = soapEnvelope.Body.RemoveObjectsRequest;
@@ -374,8 +374,9 @@ public partial class XdsRegistryService
 
         var toRemove = registryDtoContent
             .Where(ro => objectRefIds.Contains(ro.Id))
-            .ToList();   // <- snapshot
+            .ToList();
 
+        deletedObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(toRemove);
 
         foreach (var ro in toRemove)
         {
