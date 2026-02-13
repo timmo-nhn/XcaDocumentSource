@@ -82,8 +82,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         // Get all associations related to this documententry
         var associations = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.SourceObject == id || assoc.TargetObject == id || assoc.Id == id).ToList();
-        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == association?.TargetObject);
-        var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(docEnt => docEnt.Id == association?.SourceObject);
+        //var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == association?.TargetObject);
+        //var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(docEnt => docEnt.Id == association?.SourceObject);
 
 
         return Ok();
