@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Diagnostics;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
-using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -68,25 +67,53 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json")]
     [HttpGet("document-history")]
-    public async Task<IActionResult> GetDocumentHistory(string? id)
+    public async Task<IActionResult> GetDocumentHistory(string? id, bool minimal)
     {
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry");
 
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
+
         if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
         {
             id = patientId;
         }
+
         var requestTimer = Stopwatch.StartNew();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
         // Get all associations related to this documententry
         var associations = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.SourceObject == id || assoc.TargetObject == id || assoc.Id == id).ToList();
-        //var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == association?.TargetObject);
-        //var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(docEnt => docEnt.Id == association?.SourceObject);
+        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().Where(docEnt => associations.Any(association => association?.TargetObject == docEnt.Id)).ToList();
+        var submissionSet = documentRegistry.OfType<SubmissionSetDto>().Where(docEnt => associations.Any(association => association?.SourceObject == docEnt.Id)).ToList();
 
+        var list = new List<RegistryObjectDto>();
+        list.AddRange(associations);
+        list.AddRange(documentEntry);
+        list.AddRange(submissionSet);
 
-        return Ok();
+        if (minimal)
+        {
+            list = list.Select(de => 
+            {
+                if (de is DocumentEntryDto docEnt)
+                {
+                    return new DocumentEntryDto() { Id = docEnt.Id, AvailabilityStatus = docEnt.AvailabilityStatus };
+                }
+                if (de is AssociationDto assoc)
+                {
+                    return assoc;
+                }
+                return new RegistryObjectDto() { Id = de.Id };
+
+            }).ToList();
+        }
+
+        requestTimer.Stop();
+
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {list.Count} items in {requestTimer.ElapsedMilliseconds} ms");
+
+        return Content(RegistryJsonSerializer.Serialize(list), Constants.MimeTypes.Json);
     }
 
     [Produces("application/json")]
@@ -132,7 +159,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         if (documentEntry != null)
         {
             _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {documentEntry.Id} in {requestTimer.ElapsedMilliseconds} ms");
-            return Ok(documentReference);
+            return Content(RegistryJsonSerializer.Serialize(documentReference), Constants.MimeTypes.Json);
         }
 
         return NotFound();
