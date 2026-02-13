@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
-using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Diagnostics;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Services;
 using XcaXds.Source.Source;
@@ -81,39 +81,100 @@ public class RestfulRegistryRepositoryController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        // Get all associations related to this documententry
-        var associations = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.SourceObject == id || assoc.TargetObject == id || assoc.Id == id).ToList();
-        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().Where(docEnt => associations.Any(association => association?.TargetObject == docEnt.Id)).ToList();
-        var submissionSet = documentRegistry.OfType<SubmissionSetDto>().Where(docEnt => associations.Any(association => association?.SourceObject == docEnt.Id)).ToList();
+        var allAssociations = documentRegistry.OfType<AssociationDto>().ToList();
+        var allDocuments = documentRegistry.OfType<DocumentEntryDto>().ToList();
+        var allSubmissionSets = documentRegistry.OfType<SubmissionSetDto>().ToList();
 
-        var list = new List<RegistryObjectDto>();
-        list.AddRange(associations);
-        list.AddRange(documentEntry);
-        list.AddRange(submissionSet);
+        var visitedDocs = new HashSet<string>();
+        var visitedAssociations = new HashSet<string>();
+
+        var queue = new Queue<string>();
+        queue.Enqueue(id);
+        visitedDocs.Add(id);
+
+        while (queue.Count > 0)
+        {
+            var currentId = queue.Dequeue();
+
+            var relatedAssociations = allAssociations
+                .Where(a =>
+                    (a.SourceObject == currentId || a.TargetObject == currentId)
+                    && !string.IsNullOrWhiteSpace(a.AssociationType) && a.AssociationType.IsAnyOf(Constants.Xds.AssociationType.Replace, Constants.Xds.AssociationType.Addendum))
+                .ToList();
+
+            foreach (var assoc in relatedAssociations)
+            {
+                if (visitedAssociations.Add(assoc.Id))
+                {
+                    var otherId = assoc.SourceObject == currentId
+                        ? assoc.TargetObject
+                        : assoc.SourceObject;
+
+                    if (visitedDocs.Add(otherId))
+                    {
+                        queue.Enqueue(otherId);
+                    }
+                }
+            }
+        }
+
+        var relatedDocuments = allDocuments
+        .Where(d => visitedDocs.Contains(d.Id))
+        .ToList();
+
+        var relatedAssociationsa = allAssociations
+            .Where(a => visitedAssociations.Contains(a.Id))
+            .ToList();
+
+        var relatedSubmissionSets = allSubmissionSets
+            .Where(ss =>
+                allAssociations.Any(a =>
+                    visitedDocs.Contains(a.SourceObject) &&
+                    a.SourceObject == ss.Id))
+            .ToList();
+
+        var result = new List<RegistryObjectDto>();
+
+        result.AddRange(
+            allDocuments.Where(d => visitedDocs.Contains(d.Id)));
+
+        result.AddRange(
+            allAssociations.Where(a => visitedAssociations.Contains(a.Id)));
+
+        result.AddRange(
+            allSubmissionSets.Where(ss =>
+                allAssociations.Any(a =>
+                    visitedDocs.Contains(a.SourceObject) &&
+                    a.SourceObject == ss.Id)));
+
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {result.Count} items in {requestTimer.ElapsedMilliseconds} ms");
+        requestTimer.Stop();
 
         if (minimal)
         {
-            list = list.Select(de => 
+            var minimalResult = result.Select(obj =>
             {
-                if (de is DocumentEntryDto docEnt)
+                return obj switch
                 {
-                    return new DocumentEntryDto() { Id = docEnt.Id, AvailabilityStatus = docEnt.AvailabilityStatus };
-                }
-                if (de is AssociationDto assoc)
-                {
-                    return assoc;
-                }
-                return new RegistryObjectDto() { Id = de.Id };
+                    DocumentEntryDto doc =>
+                        new MinimalRegistryObject(doc.Id, doc.AvailabilityStatus, "DocumentEntryDto"),
 
-            }).ToList();
+                    SubmissionSetDto ss =>
+                        new MinimalRegistryObject(ss.Id, ss.AvailabilityStatus, "SubmissionSetDto"),
+
+                    AssociationDto assoc =>
+                        new MinimalRegistryObject(assoc.Id, assoc.AssociationType, "AssociationDto"),
+
+                    _ =>
+                        new MinimalRegistryObject(obj.Id, null, "Unknown")
+                };
+            });
+
+            return Ok(minimalResult);
         }
 
-        requestTimer.Stop();
-
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry");
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {list.Count} items in {requestTimer.ElapsedMilliseconds} ms");
-
-        return Content(RegistryJsonSerializer.Serialize(list), Constants.MimeTypes.Json);
+        return Content(RegistryJsonSerializer.Serialize(result), Constants.MimeTypes.Json);
     }
 
     [Produces("application/json")]

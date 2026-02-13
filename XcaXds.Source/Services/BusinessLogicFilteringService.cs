@@ -33,11 +33,11 @@ public static class BusinessLogicFilteringService
             BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
 
             // Comment out this to try only the one below instead
-#if DEBUG
-            BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
-#else
-            BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-#endif
+//#if DEBUG
+//            BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
+//#else
+//            BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
+//#endif
         };
 
         var current = registryObjects;
