@@ -61,6 +61,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
 
         Assert.Equal(expectedCountAfterPnR, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(expectedCountAfterPnR, _repository.DocumentRepository.Count);
+       
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
         _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {_registry.DocumentRegistry.Count}\nRepository count: {_repository.DocumentRepository.Count}");
     }
@@ -138,6 +141,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
         Assert.Equal(expectedCountAfterPnrUpdate, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(expectedCountAfterPnrUpdate, _repository.DocumentRepository.Count);
         Assert.Equal(randomDocumentEntriesToDeprecate.Length, deprecatedDocuments.Count());
+        
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
         _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUpdated: {itemsToUploadCount} entries.\nRegistry count: {_registry.DocumentRegistry.Count}\nRepository count: {_repository.DocumentRepository.Count}");
     }
@@ -185,6 +191,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(expectedCountAfterRds, _registry.DocumentRegistry.OfType<DocumentEntryDto>().Count());
         Assert.Equal(RegistryItemCount, _repository.DocumentRepository.Count);
+      
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
         _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {_registry.DocumentRegistry.Count}\nRepository count: {_repository.DocumentRepository.Count}");
     }

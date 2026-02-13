@@ -60,7 +60,7 @@ public class XdsRegistryController : ControllerBase
                     break;
                 }
 
-                var registryQueryResponse = _registryService.RegistryStoredQueryAsync(soapEnvelope);
+                var registryQueryResponse = _registryService.RegistryStoredQuery(soapEnvelope);
 
                 responseEnvelope = registryQueryResponse.Value;
                 responseEnvelope.Header = new()
@@ -81,7 +81,7 @@ public class XdsRegistryController : ControllerBase
                     break;
                 }
 
-                var registryUploadResponse = _registryService.AppendToRegistryAsync(soapEnvelope);
+                var registryUploadResponse = _registryService.AppendToRegistry(soapEnvelope);
 
                 if (registryUploadResponse.IsSuccess)
                 {
@@ -119,13 +119,23 @@ public class XdsRegistryController : ControllerBase
                     break;
                 }
 
-                var deleteDocumentSetResponse = _registryService.DeleteDocumentSetAsync(soapEnvelope);
+                var deleteDocumentSetResponse = _registryService.DeleteDocumentSet(soapEnvelope, out var deletedObjects);
                 if (deleteDocumentSetResponse.IsSuccess)
                 {
                     responseEnvelope.Header ??= new();
                     responseEnvelope.Header.Action = soapEnvelope.GetCorrespondingResponseAction();
                     responseEnvelope.Body = new();
                     responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body;
+
+                    // RGOBJ_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
+                    soapEnvelope.Body.RegisterDocumentSetRequest = new()
+                    {
+                        SubmitObjectsRequest = new()
+                        {
+                            RegistryObjectList = deletedObjects.ToArray()
+                        }
+                    };
+
                 }
 
                 break;

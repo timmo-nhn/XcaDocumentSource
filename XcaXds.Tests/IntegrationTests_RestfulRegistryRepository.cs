@@ -70,7 +70,6 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<AppStartupService>();
-                services.RemoveAll<AtnaLogExporterService>();
 
                 // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
                 services.RemoveAll<IPolicyRepository>();

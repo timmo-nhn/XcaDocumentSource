@@ -164,7 +164,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             Body = new() { AdhocQueryRequest = adhocQueryRequest }
         };
 
-        var response = _xdsRegistryService.RegistryStoredQueryAsync(soapEnvelope);
+        var response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
 
         var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value?.Body?.AdhocQueryResponse?.RegistryObjectList);
 
@@ -397,7 +397,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var repositoryDocumentExists = _xdsRepositoryService.CheckIfDocumentExistsInRepository(provideAndRegisterRequest);
 
-        var registerDocumentSetResponse = _xdsRegistryService.AppendToRegistryAsync(iti42Message.Value);
+        var registerDocumentSetResponse = _xdsRegistryService.AppendToRegistry(iti42Message.Value);
 
         var documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
 
