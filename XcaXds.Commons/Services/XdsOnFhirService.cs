@@ -716,7 +716,7 @@ public class XdsOnFhirService
         var patientIdCx = Hl7Object.Parse<CX>(sourcePatientId);
         if (patientIdCx != null)
         {
-            patient.Identifier = [new() { Value = patientIdCx.IdNumber, System = patientIdCx.AssigningAuthority.UniversalId.WithUrnOid() }];
+            patient.Identifier = [new() { Value = patientIdCx.IdNumber, System = patientIdCx.AssigningAuthority?.UniversalId.WithUrnOid() }];
         }
 
         // Patient Gender

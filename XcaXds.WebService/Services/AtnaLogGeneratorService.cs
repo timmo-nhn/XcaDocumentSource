@@ -161,7 +161,7 @@ public class AtnaLogGeneratorService
             foreach (var identifier in registryPatientIdentifiers)
             {
                 _logger.LogDebug($"AtnaLogGenerator Resolved {identifier?.Serialize()} identifiers from request");
-                if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
+                if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
 
                 patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
             }
@@ -561,6 +561,7 @@ public class AtnaLogGeneratorService
 
         if (requestPatientIdentifier != null)
         {
+            _logger.LogDebug(requestPatientIdentifier, "Found patient identifier in AdhocQueryRequest");
             return [Hl7Object.Parse<CX>(requestPatientIdentifier)];
         }
 
@@ -594,7 +595,6 @@ public class AtnaLogGeneratorService
                 return PatientIdCxFromDocumentEntries(documentEntries);
             }
         }
-
 
         return [];
     }

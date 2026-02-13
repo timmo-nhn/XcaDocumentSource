@@ -13,7 +13,7 @@ public static class FindDocumentEntry
         return source
             .Where(eo => 
             eo?.SourcePatientInfo?.PatientId?.Id == patientId.IdNumber &&
-            eo?.SourcePatientInfo?.PatientId?.System.NoUrn() == patientId.AssigningAuthority.UniversalId.NoUrn());
+            eo?.SourcePatientInfo?.PatientId?.System?.NoUrn() == patientId.AssigningAuthority?.UniversalId.NoUrn());
     }
 
     public static IEnumerable<DocumentEntryDto> ByDocumentEntryStatus(

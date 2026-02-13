@@ -276,6 +276,7 @@ public class XdsRespondingGatewayController : ControllerBase
         requestTimer.Stop();
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for {action} request");
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);

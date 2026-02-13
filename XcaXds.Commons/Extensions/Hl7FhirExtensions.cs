@@ -174,7 +174,7 @@ public static class Hl7FhirExtensions
             month = (int.Parse(month) - 80).ToString();
         }
 
-        switch (patientCx.AssigningAuthority.UniversalId)
+        switch (patientCx.AssigningAuthority?.UniversalId)
         {
             case Constants.Oid.Fnr:
                 break;
