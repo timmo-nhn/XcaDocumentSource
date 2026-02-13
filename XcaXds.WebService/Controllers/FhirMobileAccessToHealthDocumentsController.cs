@@ -265,7 +265,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpPost("Bundle")]
     public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
     {
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} Received ITI-65 ProvideDocumentBundle Request");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: ITI-65 ProvideBundle from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
 
         var fhirJsonDeserializer = new FhirJsonDeserializer();
@@ -275,10 +275,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         if (resource is not Bundle fhirBundle)
         {
-            return BadRequest(OperationOutcome
-            .ForMessage($"Request body does not contain a well formatted FHIR bundle",
-            OperationOutcome.IssueType.Invalid,
-            OperationOutcome.IssueSeverity.Fatal));
+            return BadRequest(OperationOutcome.ForMessage($"Request body does not contain a well formatted FHIR bundle",
+                OperationOutcome.IssueType.Invalid,
+                OperationOutcome.IssueSeverity.Fatal));
         }
 
         var patient = fhirBundle.Entry
@@ -428,6 +427,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         // Atna log generation
         var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
 
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded {fhirBundle.Entry.Count} Entries");
+
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest, Request), registerDocumentSetResponse.Value);
 
         if (operationOutcome.Issue.Any())
