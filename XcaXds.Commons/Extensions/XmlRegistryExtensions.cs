@@ -653,7 +653,9 @@ public static class Commons
                 continue; // Just continue, obfuscate everything
             }
 
-            extrinsicObject.Id = Guid.Empty.ToString();
+            // Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
+            // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
+            //extrinsicObject.Id = Guid.Empty.ToString();
 
             if (extrinsicObject.Name.LocalizedString.FirstOrDefault() != null)
             {
