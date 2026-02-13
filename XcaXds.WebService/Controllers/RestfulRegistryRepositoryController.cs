@@ -67,10 +67,35 @@ public class RestfulRegistryRepositoryController : ControllerBase
     }
 
     [Produces("application/json")]
+    [HttpGet("document-history")]
+    public async Task<IActionResult> GetDocumentHistory(string? id)
+    {
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry");
+
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
+        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+        {
+            id = patientId;
+        }
+        var requestTimer = Stopwatch.StartNew();
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+
+        // Get all associations related to this documententry
+        var associations = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.SourceObject == id || assoc.TargetObject == id || assoc.Id == id).ToList();
+        var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(docEnt => docEnt.Id == association?.TargetObject);
+        var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(docEnt => docEnt.Id == association?.SourceObject);
+
+
+        return Ok();
+    }
+
+    [Produces("application/json")]
     [HttpGet("document-entry")]
     public async Task<IActionResult> GetDocumentEntry(string? id)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
+
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry");
 
         if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
         {
