@@ -100,7 +100,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IClassFixture<
 
         EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("BundleCreate.json")));
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
 
         var firstResponse = await _client.PostAsync("/R4/fhir/Bundle", new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson));
 

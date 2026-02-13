@@ -631,7 +631,6 @@ public static class Commons
 
         foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
         {
-
             // Skip if the entry is just "Normal" classified (No obfuscation needed)
 
             var confCodes = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
@@ -643,11 +642,11 @@ public static class Commons
 
             if (requestAppliesTo == Issuer.HelseId)
             {
-                if (confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))) continue;
+                if (!confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
             }
             if (requestAppliesTo == Issuer.Helsenorge)
             {
-                if (confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))) continue;
+                if (!confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
             }
             if (requestAppliesTo == Issuer.Unknown)
             {
@@ -678,6 +677,8 @@ public static class Commons
             obfuscatedEntriesCount++;
         }
 
+        // REMOVE debug
+        var sperret = identifiableTypes.OfType<ExtrinsicObjectType>().Where(it => it.Name.LocalizedString.First().Value == "Sperret");
         return identifiableTypes;
     }
 

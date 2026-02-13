@@ -26,7 +26,7 @@ public static class BusinessLogicFilteringService
             BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
             BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
 
-            BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
+            //BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
 
             BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
             BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
