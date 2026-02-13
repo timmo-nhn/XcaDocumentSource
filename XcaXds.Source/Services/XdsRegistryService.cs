@@ -1,5 +1,7 @@
 ﻿using Abc.Xacml.Context;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -17,6 +19,8 @@ public partial class XdsRegistryService
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly ILogger<XdsRegistryService> _logger;
+
+    private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));
 
 
     public XdsRegistryService(ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
@@ -170,20 +174,16 @@ public partial class XdsRegistryService
                     _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
                 }
 
-                
-                // 13.02.26 - Tim has commented out this since obfuscated entries will become removed since their id is Guid.Empty
-                // ----
+
                 // Safe guard to avoid duplicate IDs in response
-                //filteredElements = filteredElements
-                //    .GroupBy(x => x.Id)
-                //    .Select(g => g.First())
-                //    .ToList();
+                filteredElements = filteredElements
+                    .GroupBy(x => x.Id)
+                    .Select(g => g.First())
+                    .ToList();
 
                 // FIXME change to debug when going to production
                 _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
                 _logger.LogDebug($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
-
-                _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Returned {filteredElements.Count} ExtrinsicObjects for AdhocQuery Type FindDocuments ({adhocQueryRequest?.AdhocQuery.Id})");
 
                 break;
 
@@ -363,7 +363,10 @@ public partial class XdsRegistryService
         // REMOVE debug
         var sperret = filteredElements.OfType<ExtrinsicObjectType>().Where(eo => eo.Name.LocalizedString.First().Value == "Sperret");
 
-        _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Registry Stored Query Complete, returned {filteredElements.Count} XDSEntries");
+
+        var adhocQuery = AdhocQueries.FirstOrDefault(id => id.Value == adhocQueryRequest?.AdhocQuery.Id);
+
+        _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Registry Stored Query Complete, returned {filteredElements.Count} XDSEntries for AdhocQuery Type {adhocQuery.Key} ({adhocQuery.Value})");
         return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
     }
 
