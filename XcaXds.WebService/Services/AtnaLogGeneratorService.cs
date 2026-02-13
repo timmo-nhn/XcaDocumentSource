@@ -156,8 +156,11 @@ public class AtnaLogGeneratorService
                 Id = "patient-1",
             };
 
+            _logger.LogDebug($"AtnaLogGenerator Resolved {registryPatientIdentifiers.Count} identifiers from request");
+
             foreach (var identifier in registryPatientIdentifiers)
             {
+                _logger.LogDebug($"AtnaLogGenerator Resolved {identifier?.Serialize()} identifiers from request");
                 if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
 
                 patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
