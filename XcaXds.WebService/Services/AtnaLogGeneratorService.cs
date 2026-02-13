@@ -158,10 +158,9 @@ public class AtnaLogGeneratorService
 
             foreach (var identifier in registryPatientIdentifiers)
             {
-                if (identifier == null) continue;
+                if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
 
-                patientResource.Identifier ??= new();
-                patientResource.Identifier.Add(new Identifier(identifier.AssigningAuthority.UniversalId, identifier.IdNumber));
+                patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
             }
 
             if (isProvideBundle)
