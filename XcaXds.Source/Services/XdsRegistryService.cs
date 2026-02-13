@@ -363,7 +363,6 @@ public partial class XdsRegistryService
         // REMOVE debug
         var sperret = filteredElements.OfType<ExtrinsicObjectType>().Where(eo => eo.Name.LocalizedString.First().Value == "Sperret");
 
-
         var adhocQuery = AdhocQueries.FirstOrDefault(id => id.Value == adhocQueryRequest?.AdhocQuery.Id);
 
         _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Registry Stored Query Complete, returned {filteredElements.Count} XDSEntries for AdhocQuery Type {adhocQuery.Key} ({adhocQuery.Value})");

@@ -689,7 +689,7 @@ public static class Commons
         switch (externalIdentifier.IdentificationScheme)
         {
             case Constants.Xds.Uuids.DocumentEntry.UniqueId:
-                externalIdentifier.RegistryObject = Guid.Empty.ToString();
+                externalIdentifier.RegistryObject = "-1";
                 externalIdentifier.Value = "*****";
                 break;
 
