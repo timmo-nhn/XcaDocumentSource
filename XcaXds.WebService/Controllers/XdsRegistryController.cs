@@ -127,7 +127,7 @@ public class XdsRegistryController : ControllerBase
                     responseEnvelope.Body = new();
                     responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body;
 
-                    // RGOBJ_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
+                    // DeleteDocuments_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
                     soapEnvelope.Body.RegisterDocumentSetRequest = new()
                     {
                         SubmitObjectsRequest = new()

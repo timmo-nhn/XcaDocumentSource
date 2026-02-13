@@ -159,6 +159,8 @@ public class AtnaLogGeneratorService
             foreach (var identifier in registryPatientIdentifiers)
             {
                 if (identifier == null) continue;
+
+                patientResource.Identifier ??= new();
                 patientResource.Identifier.Add(new Identifier(identifier.AssigningAuthority.UniversalId, identifier.IdNumber));
             }
 
@@ -561,7 +563,7 @@ public class AtnaLogGeneratorService
         }
 
         // ITI-41 or ITI-42
-        // RGOBJ_Jank! ITI-86 or ITI-62 DeleteDocumentSet
+        // DeleteDocuments_Jank! ITI-86 or ITI-62 DeleteDocumentSet
         var provideAndRegister = requestEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ?? requestEnvelope.Body?.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
         if (provideAndRegister != null)

@@ -496,6 +496,32 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Content(jsonResult, "application/json");
     }
 
+    [Consumes("application/fhir+json")]
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpPatch("Bundle/{id}")]
+    public async Task<IActionResult> PatchBundle(string id, [FromBody] JsonElement json)
+    {
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} Received ITI-65 Patch Bundle Request");
+        var operationOutcome = new OperationOutcome();
+
+
+        var fhirJsonDeserializer = new FhirJsonDeserializer();
+
+        var fhirParser = new FhirJsonDeserializer();
+        var resource = fhirParser.DeserializeResource(json.GetRawText());
+
+        if (resource is not Bundle fhirBundle)
+        {
+            return BadRequest(OperationOutcome
+            .ForMessage($"Request body does not contain a well formatted FHIR bundle",
+            OperationOutcome.IssueType.Invalid,
+            OperationOutcome.IssueSeverity.Fatal));
+        }
+
+
+        return Ok();
+    }
+
     private SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle fhirBundle, List<RegistryErrorType> errors, ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest, HttpRequest request)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
@@ -593,17 +619,5 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
 
         return pnrEnvelope;
-    }
-
-    [Consumes("application/json-patch+json")]
-    [Produces("application/fhir+json", "application/fhir+xml")]
-    [HttpPatch("Bundle/{id}")]
-    public async Task<IActionResult> PatchBundle(string id, [FromBody] JsonPatchDocument<Resource> jsonPatchResource)
-    {
-        
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} Received ITI-65 PatchBundle Request");
-        var operationOutcome = new OperationOutcome();
-
-        return Ok();
     }
 }

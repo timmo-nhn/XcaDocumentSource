@@ -1,0 +1,349 @@
+﻿{
+    "id": "4f2f412e-69a2-423d-b90a-cb23edd0460a",
+    "meta": {
+        "profile": [
+            "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.ProvideBundle"
+        ],
+        "security": [
+            {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                "code": "HTEST",
+                "display": "test health data"
+            }
+        ]
+    },
+    "type": "transaction",
+    "timestamp": "2026-02-12T12:57:45.520994Z",
+    "resourceType": "Bundle",
+    "entry": [
+        {
+            "fullUrl": "urn:uuid:9b61b10e-d160-4b0c-abeb-2d5304735d4d",
+            "resource": {
+                "resourceType": "List",
+                "id": "9b61b10e-d160-4b0c-abeb-2d5304735d4d",
+                "meta": {
+                    "profile": [
+                        "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.SubmissionSet"
+                    ]
+                },
+                "contained": [
+                    {
+                        "resourceType": "Practitioner",
+                        "id": "8c3203d6-a38d-48b7-afc1-7b81e0f5057b",
+                        "identifier": [
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.4.4",
+                                "value": "05898597468"
+                            }
+                        ],
+                        "name": [
+                            {
+                                "family": "VITS TESTLEGE",
+                                "given": [
+                                    "GRØNN"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "resourceType": "Organization",
+                        "id": "cd8890b5-353d-4bd3-b8d8-473cb8320d76",
+                        "identifier": [
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.4.101",
+                                "value": "913393988"
+                            }
+                        ],
+                        "name": "OSLO KOMMUNE HELSEETATEN KOMMUNAL AKUTT DØGNENHET"
+                    }
+                ],
+                "extension": [
+                    {
+                        "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType",
+                        "valueCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                                    "code": "A03-2",
+                                    "display": "Epikrise"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId",
+                        "valueIdentifier": {
+                            "value": "urn:oid:2.16.578.1.12.4.6.1.1.2.2"
+                        }
+                    }
+                ],
+                "identifier": [
+                    {
+                        "use": "usual",
+                        "system": "urn:ietf:rfc:3986",
+                        "value": "urn:oid:F6F3031B-F561-4808-A88B-723AA832347B"
+                    },
+                    {
+                        "use": "official",
+                        "system": "urn:ietf:rfc:3986",
+                        "value": "urn:uuid:4f2f412e-69a2-423d-b90a-cb23edd0460a"
+                    }
+                ],
+                "status": "current",
+                "mode": "working",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "https://profiles.ihe.net/ITI/MHD/CodeSystem/MHDlistTypes",
+                            "code": "submissionset"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "urn:uuid:07792608-a74f-433a-bf2b-daeda73e0266"
+                },
+                "date": "2026-02-12T12:57:45.520994Z",
+                "source": {
+                    "reference": "#8c3203d6-a38d-48b7-afc1-7b81e0f5057b"
+                },
+                "entry": [
+                    {
+                        "item": {
+                            "reference": "urn:uuid:4f2f412e-69a2-423d-b90a-cb23edd0460a"
+                        }
+                    }
+                ]
+            },
+            "request": {
+                "method": "POST",
+                "url": "List"
+            }
+        },
+        {
+            "fullUrl": "urn:uuid:07792608-a74f-433a-bf2b-daeda73e0266",
+            "resource": {
+                "resourceType": "Patient",
+                "id": "07792608-a74f-433a-bf2b-daeda73e0266",
+                "identifier": [
+                    {
+                        "system": "urn:oid:2.16.578.1.12.4.1.4.1",
+                        "value": "66819001287"
+                    }
+                ],
+                "name": [
+                    {
+                        "family": "BADENYMFE",
+                        "given": [
+                            "ROLIG"
+                        ]
+                    }
+                ],
+                "gender": "female",
+                "birthDate": "1990-01-26"
+            },
+            "request": {
+                "method": "POST",
+                "url": "Patient"
+            }
+        },
+        {
+            "fullUrl": "urn:uuid:4f2f412e-69a2-423d-b90a-cb23edd0460a",
+            "resource": {
+                "resourceType": "DocumentReference",
+                "id": "4f2f412e-69a2-423d-b90a-cb23edd0460a",
+                "meta": {
+                    "profile": [
+                        "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.DocumentReference"
+                    ],
+                    "security": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+                            "code": "HTEST",
+                            "display": "test health data"
+                        }
+                    ]
+                },
+                "contained": [
+                    {
+                        "resourceType": "Practitioner",
+                        "id": "d8d68526-012d-45a2-b71e-616b7947f7db",
+                        "identifier": [
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.4.1",
+                                "value": "05898597468"
+                            }
+                        ],
+                        "name": [
+                            {
+                                "family": "VITS TESTLEGE",
+                                "given": [
+                                    "GRØNN"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "resourceType": "PractitionerRole",
+                        "id": "b8785d81-030f-4ddf-a4b2-a8ff47cfd7d5",
+                        "practitioner": {
+                            "reference": "#d8d68526-012d-45a2-b71e-616b7947f7db",
+                            "type": "Practitioner"
+                        },
+                        "organization": {
+                            "reference": "#cd8890b5-353d-4bd3-b8d8-473cb8320d76",
+                            "type": "Organization"
+                        }
+                    },
+                    {
+                        "resourceType": "Organization",
+                        "id": "cd8890b5-353d-4bd3-b8d8-473cb8320d76",
+                        "identifier": [
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.4.101",
+                                "value": "913393988"
+                            }
+                        ],
+                        "name": "OSLO KOMMUNE HELSEETATEN KOMMUNAL AKUTT DØGNENHET"
+                    }
+                ],
+                "masterIdentifier": {
+                    "use": "usual",
+                    "system": "urn:ietf:rfc:3986",
+                    "value": "urn:uuid:F6F3031B-F561-4808-A88B-723AA832347B"
+                },
+                "identifier": [
+                    {
+                        "use": "official",
+                        "system": "urn:ietf:rfc:3986",
+                        "value": "urn:uuid:4f2f412e-69a2-423d-b90a-cb23edd0460a"
+                    }
+                ],
+                "status": "current",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                            "code": "A03-2",
+                            "display": "Epikrise"
+                        }
+                    ]
+                },
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                                "code": "A00-1",
+                                "display": "Epikrise og sammenfatninger"
+                            }
+                        ]
+                    }
+                ],
+                "subject": {
+                    "reference": "urn:uuid:07792608-a74f-433a-bf2b-daeda73e0266"
+                },
+                "date": "2026-02-12T12:57:45.520994Z",
+                "author": [
+                    {
+                        "reference": "#d8d68526-012d-45a2-b71e-616b7947f7db",
+                        "type": "Practitioner"
+                    },
+                    {
+                        "reference": "#b8785d81-030f-4ddf-a4b2-a8ff47cfd7d5",
+                        "type": "PractitionerRole"
+                    },
+                    {
+                        "reference": "#cd8890b5-353d-4bd3-b8d8-473cb8320d76",
+                        "type": "Organization"
+                    }
+                ],
+                "securityLabel": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+                                "code": "N",
+                                "display": "normal"
+                            },
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.1.9603",
+                                "code": "N",
+                                "display": "Normal"
+                            }
+                        ]
+                    }
+                ],
+                "content": [
+                    {
+                        "attachment": {
+                            "contentType": "application/xml",
+                            "url": "urn:uuid:151a9944-3905-4107-affa-5c409380868e",
+                            "size": 2951,
+                            "hash": "/7Ddi52/orHzCvCMLxAHTFIHWRQ=",
+                            "title": "Varm Ulv",
+                            "creation": "2026-02-12T12:57:45.520994Z",
+                            "extension": [
+                                {
+                                    "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId",
+                                    "valueUri": "urn:oid:2.16.578.1.12.4.5.100.3.19"
+                                }
+                            ]
+                        },
+                        "format": {
+                            "system": "http://www.kith.no/xmlstds/epikrise/2012-02-15",
+                            "code": "Epikrise v1.2 (XML)"
+                        }
+                    }
+                ],
+                "context": {
+                    "period": {
+                        "start": "2024-03-19T16:37:31Z"
+                    },
+                    "facilityType": {
+                        "coding": [
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.1.1303",
+                                "code": "87.103",
+                                "display": "Øyeblikkelig hjelp døgntilbud"
+                            }
+                        ]
+                    },
+                    "practiceSetting": {
+                        "coding": [
+                            {
+                                "system": "urn:oid:2.16.578.1.12.4.1.1.8663",
+                                "code": "KX05",
+                                "display": "Øyeblikkelig hjelp døgntilbud (ØHD)"
+                            }
+                        ]
+                    },
+                    "sourcePatientInfo": {
+                        "reference": "urn:uuid:07792608-a74f-433a-bf2b-daeda73e0266"
+                    }
+                }
+            },
+            "request": {
+                "method": "POST",
+                "url": "DocumentReference"
+            }
+        },
+        {
+            "fullUrl": "urn:uuid:151a9944-3905-4107-affa-5c409380868e",
+            "resource": {
+                "resourceType": "Binary",
+                "id": "151a9944-3905-4107-affa-5c409380868e",
+                "meta": {
+                    "profile": [
+                        "http://hl7.org/fhir/StructureDefinition/Binary"
+                    ]
+                },
+                "contentType": "application/xml",
+                "data": "PENsaW5pY2FsRG9jdW1lbnQgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeG1sbnM6eHNkPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM9InVybjpobDctb3JnOnYzIj4KICAgIDxpZCByb290PSIyLjE2LjU3OC4xLjEyLjQuNi4xLjEuMi4yIiBleHRlbnNpb249IjRmMmY0MTJlLTY5YTItNDIzZC1iOTBhLWNiMjNlZGQwNDYwYSIgLz4KICAgIDxjb2RlIGNvZGU9IkVwaWtyaXNlIG9nIHNhbW1lbmZhdG5pbmdlciIgY29kZVN5c3RlbT0idXJuOm9pZDoyLjE2LjU3OC4xLjEyLjQuMS4xLjk2MDIiIGRpc3BsYXlOYW1lPSJBMDAtMSIgLz4KICAgIDx0aXRsZT5WYXJtIFVsdjwvdGl0bGU+CiAgICA8ZWZmZWN0aXZlVGltZSB2YWx1ZT0iMjAyNjAyMTIxMjU3NDUiIC8+CiAgICA8Y29uZmlkZW50aWFsaXR5Q29kZSBjb2RlPSJOIiBjb2RlU3lzdGVtPSJodHRwOi8vdGVybWlub2xvZ3kuaGw3Lm9yZy9Db2RlU3lzdGVtL3YzLUNvbmZpZGVudGlhbGl0eSIgZGlzcGxheU5hbWU9Im5vcm1hbCIgLz4KICAgIDxyZWNvcmRUYXJnZXQgdHlwZUNvZGU9IlJDVCIgY29udGV4dENvbnRyb2xDb2RlPSJPUCI+CiAgICAgICAgPHBhdGllbnRSb2xlPgogICAgICAgICAgICA8aWQgcm9vdD0iMi4xNi41NzguMS4xMi40LjEuNC4xIiBleHRlbnNpb249IjY2ODE5MDAxMjg3IiAvPgogICAgICAgICAgICA8cGF0aWVudD4KICAgICAgICAgICAgICAgIDxuYW1lPgogICAgICAgICAgICAgICAgICAgIDxmYW1pbHk+QkFERU5ZTUZFPC9mYW1pbHk+CiAgICAgICAgICAgICAgICAgICAgPGdpdmVuPlJPTElHPC9naXZlbj4KICAgICAgICAgICAgICAgIDwvbmFtZT4KICAgICAgICAgICAgICAgIDxhZG1pbmlzdHJhdGl2ZUdlbmRlckNvZGUgY29kZT0iRiIgY29kZVN5c3RlbT0idXJuOm9pZDoyLjE2LjU3OC4xLjEyLjQuMS4xLjMxMDEiIGRpc3BsYXlOYW1lPSJGZW1hbGUiIC8+CiAgICAgICAgICAgICAgICA8YmlydGhUaW1lIHZhbHVlPSIxOTkwMDEyNiIgLz4KICAgICAgICAgICAgPC9wYXRpZW50PgogICAgICAgICAgICA8cHJvdmlkZXJPcmdhbml6YXRpb24+CiAgICAgICAgICAgICAgICA8aWQgLz4KICAgICAgICAgICAgICAgIDxuYW1lIC8+CiAgICAgICAgICAgICAgICA8YXNPcmdhbml6YXRpb25QYXJ0T2Y+CiAgICAgICAgICAgICAgICAgICAgPHdob2xlT3JnYW5pemF0aW9uPgogICAgICAgICAgICAgICAgICAgICAgICA8aWQgcm9vdD0iMi4xNi41NzguMS4xMi40LjEuNC4xMDEiIGV4dGVuc2lvbj0iOTEzMzkzOTg4IiAvPgogICAgICAgICAgICAgICAgICAgICAgICA8bmFtZT5PU0xPIEtPTU1VTkUgSEVMU0VFVEFURU4gS09NTVVOQUwgQUtVVFQgRMOYR05FTkhFVDwvbmFtZT4KICAgICAgICAgICAgICAgICAgICA8L3dob2xlT3JnYW5pemF0aW9uPgogICAgICAgICAgICAgICAgPC9hc09yZ2FuaXphdGlvblBhcnRPZj4KICAgICAgICAgICAgPC9wcm92aWRlck9yZ2FuaXphdGlvbj4KICAgICAgICA8L3BhdGllbnRSb2xlPgogICAgPC9yZWNvcmRUYXJnZXQ+CiAgICA8YXV0aG9yPgogICAgICAgIDx0aW1lIHZhbHVlPSIyMDI2MDIxMjEyNTc0NSIgLz4KICAgICAgICA8YXNzaWduZWRBdXRob3I+CiAgICAgICAgICAgIDxpZCByb290PSIyLjE2LjU3OC4xLjEyLjQuMS40LjQiIGV4dGVuc2lvbj0iMDU4OTg1OTc0NjgiIC8+CiAgICAgICAgICAgIDxjb2RlIC8+CiAgICAgICAgICAgIDxhc3NpZ25lZFBlcnNvbj4KICAgICAgICAgICAgICAgIDxuYW1lPgogICAgICAgICAgICAgICAgICAgIDxmYW1pbHk+VklUUyBURVNUTEVHRTwvZmFtaWx5PgogICAgICAgICAgICAgICAgICAgIDxnaXZlbj5HUsOYTk48L2dpdmVuPgogICAgICAgICAgICAgICAgPC9uYW1lPgogICAgICAgICAgICA8L2Fzc2lnbmVkUGVyc29uPgogICAgICAgIDwvYXNzaWduZWRBdXRob3I+CiAgICA8L2F1dGhvcj4KICAgIDxjdXN0b2RpYW4+CiAgICAgICAgPGFzc2lnbmVkQ3VzdG9kaWFuPgogICAgICAgICAgICA8cmVwcmVzZW50ZWRDdXN0b2RpYW5Pcmdhbml6YXRpb24+CiAgICAgICAgICAgICAgICA8aWQgcm9vdD0iMi4xNi41NzguMS4xMi40LjEuNC4xMDEiIGV4dGVuc2lvbj0iOTEzMzkzOTg4IiAvPgogICAgICAgICAgICAgICAgPG5hbWU+T1NMTyBLT01NVU5FIEhFTFNFRVRBVEVOIEtPTU1VTkFMIEFLVVRUIETDmEdORU5IRVQ8L25hbWU+CiAgICAgICAgICAgIDwvcmVwcmVzZW50ZWRDdXN0b2RpYW5Pcmdhbml6YXRpb24+CiAgICAgICAgPC9hc3NpZ25lZEN1c3RvZGlhbj4KICAgIDwvY3VzdG9kaWFuPgogICAgPGNvbXBvbmVudD4KICAgICAgICA8bm9uWE1MQm9keT4KICAgICAgICAgICAgPHRleHQgbWVkaWFUeXBlPSJhcHBsaWNhdGlvbi94bWwiIHJlcHJlc2VudGF0aW9uPSJCNjQiPlBEOTRiV3dnZG1WeWMybHZiajBpTVM0d0lqOCtEUW84VFdWemMyRm5aU0I0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTVyYVhSb0xtNXZMM2h0YkhOMFpITXZaWEJwYTNKcGMyVXZNakF4TWkwd01pMHhOU0lnZUcxc2JuTTZjRzg5SW1oMGRIQTZMeTkzZDNjdWEybDBhQzV1Ynk5NGJXeHpkR1J6TDNCdkwzQnZTMjl0Y0c5dVpXNTBMekl3TURrdE1EWXRNekFpSUhodGJHNXpPbVpyTVQwaWFIUjBjRG92TDNkM2R5NXJhWFJvTG01dkwzaHRiSE4wWkhNdlptVnNiR1Z6YTI5dGNHOXVaVzUwTVNJZ2VHMXNibk02ZUhOcFBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF4TDFoTlRGTmphR1Z0WVMxcGJuTjBZVzVqWlNJZ2VITnBPbk5qYUdWdFlVeHZZMkYwYVc5dVBTSm9kSFJ3T2k4dmQzZDNMbXRwZEdndWJtOHZlRzFzYzNSa2N5OWxjR2xyY21selpTOHlNREV5TFRBeUxURTFJRVZ3YVd0eWFYTmxMWFl4TGpJdWVITmtJajQ4Vkhsd1pTQldQU0pGVUVsTFVrbFRSU0lnUkU0OUlrVndhV3R5YVhObElpOCtQRTFKUjNabGNuTnBiMjQrZGpFdU1pQXlNREV5TFRBeUxURTFQQzlOU1VkMlpYSnphVzl1UGp4SFpXNUVZWFJsSUZZOUlqSXdNalV0TURNdE1UbFVNVFk2TkRFNk5USWlMejQ4VFhOblNXUStNamczUmpoQ05UTXRSVVZCTkMwME1FTTNMVUUzUXpRdFFqRXpORVk1UkVRelJUUTBQQzlOYzJkSlpENDhVMlZ5ZGxKd2NuUStQRk5sY25aVWVYQmxJRlk5SWs0aUlFUk9QU0pPZVNJdlBqeEpjM04xWlVSaGRHVWdWajBpTWpBeU5TMHdNeTB4T1ZReE5qbzBNVG8xTWlJdlBqeFRkR0YwZFhNZ1ZqMGlSaUlnUkU0OUlrVnVaR1ZzYVdjZ2NtRndjRzl5ZENJdlBqeEJZMnNnVmowaVNpSWdSRTQ5SWtwaElpOCtQRTF6WjBSbGMyTnlQa1Z3YVd0eWFYTmxQQzlOYzJkRVpYTmpjajQ4VTJWeWRsQnliM1pKWkQ0eU9EZEdPRUkxTXkxRlJVRTBMVFF3UXpjdFFUZEROQzFDTVRNMFJqbEVSRE5GTkRROEwxTmxjblpRY205MlNXUStQRVYyWlc1MFBqeFNaWEJ2Y25SbFpFVjJaVzUwUGp4VGRHRnlkRVJoZEdWVWFXMWxJRlk5SWpJd01qVXRNRE10TVRsVU1UWTZOREU2TlRJaUx6NDhSVzVrUkdGMFpWUnBiV1VnVmowaU1qQXlOUzB3TXkweE9WUXhOam8wTVRvMU1pSXZQand2VW1Wd2IzSjBaV1JGZG1WdWRENDhVMlZ5ZGxSNWNHVWdWajBpVGlJZ1JFNDlJazU1SWk4K1BFRmtiVTkxZEdOdmJXVWdWajBpTVNJZ1JFNDlJbFYwSUhScGJDQm9hbVZ0YldWMElpOCtQRk5sY25acFkyVStQRUZrYlVOaGRDQldQU0kxSWlCRVRqMGlTMjl1YzNWc2RHRnphbTl1SWk4K1BDOVRaWEoyYVdObFBqeEpibVpKZEdWdFBqeFBZbk5sY25aaGRHbHZiajQ4UTI5a1pXUkVaWE5qY2o0OFEyOXVZMlZ3ZENCV1BTSkpNREV4SWlCVFBTSXlMakUyTGpVM09DNHhMakV5TGpRdU1TNHhMamN4TVRBaUlFUk9QU0pCYTNWMGRDQnlaWFZ0WVhScGMyc2daVzVrYjJ0aGNtUnBkSFFpTHo0OFRXOWthV1pwWlhJK1BFNWhiV1VnVmowaVV5SWdSRTQ5SWtsRFJERXdJSE4wYW1WeWJtVnJiMlJsSWk4K1BGWmhiSFZsSUZZOUlra3dNVEVpSUVST1BTSkJhM1YwZENCeVpYVnRZWFJwYzJzZ1pXNWtiMnRoY21ScGRIUWlJRk05SWpJdU1UWXVOVGM0TGpFdU1USXVOQzR4TGpFdU56RXhNQ0l2UGp3dlRXOWthV1pwWlhJK1BDOURiMlJsWkVSbGMyTnlQand2VDJKelpYSjJZWFJwYjI0K1BGUjVjR1VnVmowaVNDSWdSRTQ5SWtodmRtVmtaR2xoWjI1dmMyVWlMejQ4TDBsdVprbDBaVzArUEVOdmJXMWxiblErUEVobFlXUnBibWNnVmowaVZFSWlJRVJPUFNKVWFXeGlZV3RsYldWc1pHbHVaeUFvZFhOd1pYTXVLU0l2UGp4VVpYaDBVbVZ6ZFd4MFZtRnNkV1Urd3FBTkNtOXVjMlJoWnlCbGNpQnNhV3hzWld6RHVISmtZV2M4TDFSbGVIUlNaWE4xYkhSV1lXeDFaVDQ4TDBOdmJXMWxiblErUEM5RmRtVnVkRDQ4VUdGMGFXVnVkRDQ4VTJWNElGWTlJaklpTHo0OFJHRjBaVTltUW1seWRHZ2dWajBpTVRrNU1DMHdNUzB5TmlJdlBqeE9ZVzFsUGxKRlMwOVNSQ3dnVWtGVFZFekRtRk04TDA1aGJXVStQRWxrUW5sU1pYRjFaWE4wWlhJK01UYzRORFF3T0R3dlNXUkNlVkpsY1hWbGMzUmxjajQ4VDJabVNXUStOalk0TVRrd01ERXlPRGM4TDA5bVprbGtQanhVZVhCbFQyWm1TV1FnVmowaVJFNVNYMVJsYzNRaUlFUk9QU0pVWlhOMGRtVnljMnB2YmlCaGRpQkVUbElpTHo0OFVHRjBVbVZzU0VOUVBqeFNaV3hoZEdsdmJpQldQU0pHVEVVaUlFUk9QU0pHWVhOMGJHVm5aU0l2UGp4SVExQStQRWhEVUhKdlpqNDhUbUZ0WlQ0cUtpcFVaWE4wZEdwbGJtVnpkR1VxS2lvZ0xTQk9TRTRnU205MWNtNWhiR3hoWWlBdElFTkhUU0JVWlhOMElFeGxaMlZyYjI1MGIzSThMMDVoYldVK1BFbGtQand2U1dRK1BGUjVjR1ZKWkNCV1BTSklVRklpSUVST1BTSklVRkl0Ym5WdGJXVnlJaTgrUEM5SVExQnliMlkrUEVGa1pISmxjM00rUEZSNWNHVWdWajBpVjFBaUlFUk9QU0pCY21KbGFXUnpZV1J5WlhOelpTSXZQanhVWld4bFFXUmtjbVZ6Y3lCV1BTSjBaV3c2TWpReU1EQXdNREFpTHo0OEwwRmtaSEpsYzNNK1BDOUlRMUErUEM5UVlYUlNaV3hJUTFBK1BDOVFZWFJwWlc1MFBqeFRaWEoyVUhKdmRtbGtaWEkrUEZKdmJHVWdWajBpVTFCU0lpOCtQRWhEVUQ0OFNXNXpkRDQ4VG1GdFpUNVBjMnh2SUd0dmJXMTFibVU4TDA1aGJXVStQRWxrUGpVd01EZzNQQzlKWkQ0OFZIbHdaVWxrSUZZOUlraEZVaUlnUkU0OUlraEZVaTFwWkNJdlBqeEVaWEIwUGp4T1lXMWxQc09ZU0VRb3c1aDVaV0pzYVd0clpXeHBaeUJvYW1Wc2NDQmt3N2huYm1WdWFHVjBLU2hMUVVRcFBDOU9ZVzFsUGp4SlpENDRNRGt6T0RjNVBDOUpaRDQ4Vkhsd1pVbGtJRlk5SWtoRlVpSWdSRTQ5SWtoRlVpMXBaQ0l2UGp3dlJHVndkRDQ4UVdSa2FYUnBiMjVoYkVsa1BqeEpaRDQ1T1RjMU1EWTBPVGs4TDBsa1BqeFVlWEJsSUZZOUlrVk9TQ0lnUkU0OUlrOXlaMkZ1YVhOaGMycHZibk51ZFcxdFpYSmxkQ0JwSUVWdWFHVjBjM0psWjJsemRHVnlJaTgrUEM5QlpHUnBkR2x2Ym1Gc1NXUStQQzlKYm5OMFBqd3ZTRU5RUGp3dlUyVnlkbEJ5YjNacFpHVnlQanhTWlhGMVpYTjBaWEkrUEZKdmJHVWdWajBpVWtWUklpOCtQRWhEVUQ0OFNXNXpkRDQ4VG1GdFpUNU9iM0p6YXlCSVpXeHpaVzVsZEhRZ1UwWThMMDVoYldVK1BFbGtQakV4TWpNM05Ed3ZTV1ErUEZSNWNHVkpaQ0JXUFNKSVJWSWlJRVJPUFNKSVJWSXRhV1FpTHo0OFJHVndkRDQ4VG1GdFpUNHFLaXBVWlhOMGRHcGxibVZ6ZEdVcUtpb2dMU0JPU0U0Z1NtOTFjbTVoYkd4aFlpQXRJRU5IVFNCVVpYTjBJRXhsWjJWcmIyNTBiM0k4TDA1aGJXVStQRWxrUGpFeU5UUTVOand2U1dRK1BGUjVjR1ZKWkNCV1BTSklSVklpSUVST1BTSklSVkl0YVdRaUx6NDhMMFJsY0hRK1BFRmtaR2wwYVc5dVlXeEpaRDQ4U1dRK09UazBOVGs0TnpVNVBDOUpaRDQ4Vkhsd1pTQldQU0pGVGtnaUlFUk9QU0pQY21kaGJtbHpZWE5xYjI1emJuVnRiV1Z5WlhRZ2FTQkZibWhsZEhOeVpXZHBjM1JsY2lJdlBqd3ZRV1JrYVhScGIyNWhiRWxrUGp3dlNXNXpkRDQ4TDBoRFVENDhMMUpsY1hWbGMzUmxjajQ4VW1Wc1UyVnlkbEJ5YjNacFpHVnlQanhTWld4aGRHbHZiaUJXUFNKQlNGQWlJRVJPUFNKQmJuTjJZWEpzYVdjZ2FHVnNjMlZ3WlhKemIyNWxiR3dpTHo0OFNFTlFQanhKYm5OMFBqeE9ZVzFsUGt0QlJDQXpQQzlPWVcxbFBqeElRMUJsY25OdmJqNDhUbUZ0WlQ1SFVzT1lUazRnVmtsVVV5QlVSVk5VVEVWSFJUd3ZUbUZ0WlQ0OFNXUStOVFkxTlRBeE9EY3lQQzlKWkQ0OFZIbHdaVWxrSUZZOUlraFFVaUlnUkU0OUlraFFVaTF1ZFcxdFpYSWlMejQ4TDBoRFVHVnljMjl1UGp3dlNXNXpkRDQ4UVdSa2NtVnpjejQ4Vkhsd1pTQldQU0pRVTFRaUlFUk9QU0pRYjNOMFlXUnlaWE56WlNJdlBqeFVaV3hsUVdSa2NtVnpjeUJXUFNKMFpXdzZNakk0T1RRd01EQWlMejQ4TDBGa1pISmxjM00rUEM5SVExQStQQzlTWld4VFpYSjJVSEp2ZG1sa1pYSStQQzlUWlhKMlVuQnlkRDQ4TDAxbGMzTmhaMlUrRFFvPTwvdGV4dD4KICAgICAgICA8L25vblhNTEJvZHk+CiAgICA8L2NvbXBvbmVudD4KPC9DbGluaWNhbERvY3VtZW50Pg=="
+            },
+            "request": {
+                "method": "POST",
+                "url": "Binary"
+            }
+        }
+    ]
+}
