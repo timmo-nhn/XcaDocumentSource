@@ -26,7 +26,7 @@ public static class BusinessLogicFilters
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(N, NORS))
+        value.Code.IsAnyOf(N, NORN_FFL))
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToHashSet();
 
@@ -34,7 +34,7 @@ public static class BusinessLogicFilters
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(N, NORN_FFL))
+        value.Code.IsAnyOf(N, NORS))
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToHashSet();
 
