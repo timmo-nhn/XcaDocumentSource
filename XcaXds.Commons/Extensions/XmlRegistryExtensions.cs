@@ -653,7 +653,7 @@ public static class Commons
                 continue; // Just continue, obfuscate everything
             }
 
-            // Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
+            // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
             // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
             //extrinsicObject.Id = Guid.Empty.ToString();
 
@@ -689,8 +689,11 @@ public static class Commons
         switch (externalIdentifier.IdentificationScheme)
         {
             case Constants.Xds.Uuids.DocumentEntry.UniqueId:
-                externalIdentifier.RegistryObject = "-1";
                 externalIdentifier.Value = "*****";
+                
+                // GUID_OBSCURE
+                goto default;
+                externalIdentifier.RegistryObject = "-1";
                 break;
 
             default:
