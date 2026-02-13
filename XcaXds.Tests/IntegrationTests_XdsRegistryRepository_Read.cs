@@ -43,7 +43,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
     private List<DocumentReferenceDto> RegistryContent { get; set; } = new();
 
-    private readonly int RegistryItemCount = 50; // The amount of registry objects to generate and evaluate against
+    private readonly int RegistryItemCount = 500; // The amount of registry objects to generate and evaluate against
 
     private readonly CX PatientIdentifier = new()
     {
@@ -141,7 +141,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var count = firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
-        var excpectedRegistryObjects = RegistryContent.Select(dr => dr.DocumentEntry).Where(rc => rc.ConfidentialityCode.All(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
+        var excpectedRegistryObjects = RegistryContent.Select(dr => dr.DocumentEntry).Where(rc => !rc.ConfidentialityCode.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
@@ -183,7 +183,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         var count = firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
-        var excpectedRegistryObjects = RegistryContent.Where(rc => rc.DocumentEntry.ConfidentialityCode.All(ccode => BusinessLogicFilters.CitizenConfidentialityCodes.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
+        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);

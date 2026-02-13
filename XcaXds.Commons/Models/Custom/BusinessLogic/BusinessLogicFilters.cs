@@ -22,19 +22,19 @@ public static class BusinessLogicFilters
 
     public static readonly CodedValue[]? AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).ToArray();
 
-    public static readonly HashSet<(string, string)> CitizenConfidentialityCodes = AllConfidentialityCodes.Where(value =>
+    public static readonly HashSet<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(value =>
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(N, NORN_FFL))
+        value.Code.IsAnyOf(NORN_FFL))
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToHashSet();
 
-    public static readonly HashSet<(string, string)> HealthcarePersonellConfidentialityCodes = AllConfidentialityCodes!.Where(value =>
+    public static readonly HashSet<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes!.Where(value =>
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(N, NORS))
+        value.Code.IsAnyOf(NORS))
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToHashSet();
 
@@ -244,7 +244,7 @@ public static class BusinessLogicFilters
                 .OfType<ExtrinsicObjectType>()
                 .Where(ext =>
                     RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
-                    .All(cc => CitizenConfidentialityCodes.Contains((cc.Code, cc.CodeSystem)))
+                    .All(cc => CitizenConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
                 )
                 .ToArray();
 
@@ -264,7 +264,7 @@ public static class BusinessLogicFilters
                 .OfType<ExtrinsicObjectType>()
                 .Where(ext =>
                     RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
-                    .All(cc => HealthcarePersonellConfidentialityCodes.Contains((cc.Code, cc.CodeSystem)))
+                    .All(cc => HealthcarePersonellConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
                 )
                 .ToArray();
 

@@ -170,11 +170,14 @@ public partial class XdsRegistryService
                     _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
                 }
 
+                
+                // 13.02.26 - Tim has commented out this since obfuscated entries will become removed since their id is Guid.Empty
+                // ----
                 // Safe guard to avoid duplicate IDs in response
-                filteredElements = filteredElements
-                    .GroupBy(x => x.Id)
-                    .Select(g => g.First())
-                    .ToList();
+                //filteredElements = filteredElements
+                //    .GroupBy(x => x.Id)
+                //    .Select(g => g.First())
+                //    .ToList();
 
                 // FIXME change to debug when going to production
                 _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
@@ -356,6 +359,10 @@ public partial class XdsRegistryService
                 }
             }
         };
+
+        // REMOVE debug
+        var sperret = filteredElements.OfType<ExtrinsicObjectType>().Where(eo => eo.Name.LocalizedString.First().Value == "Sperret");
+
         _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - Registry Stored Query Complete, returned {filteredElements.Count} XDSEntries");
         return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
     }
