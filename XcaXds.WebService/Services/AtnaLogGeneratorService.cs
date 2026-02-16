@@ -420,7 +420,7 @@ public class AtnaLogGeneratorService
         var xdsDocEntry = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
         var xdsSubmissionSet = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
-        if (xdsDoc != null || xdsDocEntry != null)
+        if (xdsDoc == null || xdsDocEntry == null)
         {
             var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
             var retrieveDocumentsRequest = requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest.FirstOrDefault();
