@@ -11,6 +11,7 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
+using static XcaXds.Commons.Commons.Constants.Xds.QueryParameters;
 
 namespace XcaXds.WebService.Services;
 
@@ -415,44 +416,42 @@ public class AtnaLogGeneratorService
         var docRequest = requestEnvelope?.Body?.ProvideAndRegisterDocumentSetRequest;
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
-        var xdsDocEntry = rol?.OfType<ExtrinsicObjectType>().FirstOrDefault();
-        var xdsSubmissionSet = rol?.OfType<RegistryPackageType>().FirstOrDefault();
+
+        var xdsDocEntry = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>()).FirstOrDefault();
+        var xdsSubmissionSet = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>()).FirstOrDefault();
 
         if (xdsDoc != null || xdsDocEntry != null)
         {
-            var docUniqueId = xdsDoc?.Id ?? xdsDocEntry?.Id;
+            var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
+            var retrieveDocumentsRequest = requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest.FirstOrDefault();
+
+            xdsDocEntry = registryContent.OfType<DocumentEntryDto>().FirstOrDefault(rc => rc.UniqueId == retrieveDocumentsRequest?.DocumentUniqueId);
+        }
+
+        if (xdsDoc != null || xdsDocEntry != null)
+        {
+            var docUniqueId = xdsDoc?.Id ?? xdsDocEntry?.UniqueId;
             var reference = !string.IsNullOrWhiteSpace(docUniqueId) ? $"DocumentReference/{docUniqueId}" : null;
 
-            // Best-effort title extraction (XDS DocumentEntry/title if available)
-            var title = xdsDocEntry?.Name?.LocalizedString?.FirstOrDefault()?.Value;
+            var title = xdsDocEntry?.Title;
             if (string.IsNullOrWhiteSpace(title))
             {
                 title = "Clinical document";
             }
 
             var mimeType = xdsDocEntry?.MimeType;
-            var classCode = xdsDocEntry?.Classification?.FirstOrDefault()?.NodeRepresentation;
-
-            // Best-effort filename: many implementations provide it in slots (e.g. 'filename')
-            var filename = xdsDocEntry?.Slot?.FirstOrDefault(s => string.Equals(s.Name, "filename", StringComparison.OrdinalIgnoreCase))
-                ?.ValueList?.Value?.FirstOrDefault();
+            var classCode = xdsDocEntry?.ObjectType;
 
             var detail = new List<AuditEvent.DetailComponent>();
-            void AddDetail(string type, string? value)
-            {
-                if (string.IsNullOrWhiteSpace(value)) return;
-                detail.Add(new AuditEvent.DetailComponent { Type = type, Value = new FhirString(value) });
-            }
 
-            AddDetail("documentUniqueId", docUniqueId);
-            AddDetail("mimeType", mimeType);
-            AddDetail("classCode", classCode);
-            AddDetail("title", title);
-            AddDetail("filename", filename);
-            AddDetail("homeCommunityId", _appConfig.HomeCommunityId);
+            AddDetail(detail, "documentUniqueId", docUniqueId);
+            AddDetail(detail, "mimeType", mimeType);
+            AddDetail(detail, "classCode", classCode);
+            AddDetail(detail, "title", title);
+            AddDetail(detail, "homeCommunityId", _appConfig.HomeCommunityId);
 
             var submissionSetId = xdsSubmissionSet?.Id;
-            AddDetail("submissionSetId", submissionSetId);
+            AddDetail(detail, "submissionSetId", submissionSetId);
 
             auditEvent.Entity.Add(new AuditEvent.EntityComponent
             {
@@ -549,6 +548,13 @@ public class AtnaLogGeneratorService
 
         return auditEvent;
     }
+
+    void AddDetail(List<AuditEvent.DetailComponent> detail, string type, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return;
+        detail.Add(new AuditEvent.DetailComponent { Type = type, Value = new FhirString(value) });
+    }
+
 
     /// <summary>
     /// Get the patient identifier related to the registry objects being queried or stored

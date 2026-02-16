@@ -512,8 +512,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var fhirParser = new FhirJsonDeserializer();
         var resource = fhirParser.DeserializeResource(json.GetRawText());
 
-        if (resource is not Bundle fhirBundle)
+
+        if (resource is not Binary fhirBinaryType)
         {
+
             return BadRequest(OperationOutcome
             .ForMessage($"Request body does not contain a well formatted FHIR bundle",
             OperationOutcome.IssueType.Invalid,

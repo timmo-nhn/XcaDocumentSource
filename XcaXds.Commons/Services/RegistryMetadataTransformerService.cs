@@ -83,18 +83,28 @@ public static class RegistryMetadataTransformerService
 
     }
 
-    public static IEnumerable<DocumentEntryDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<ExtrinsicObjectType> registryObjectList)
+    public static RegistryObjectDto? TransformRegistryObjectToRegistryObjectDto(IdentifiableType? registryObject)
     {
+        if (registryObject == null) return null;
+
+        return TransformRegistryObjectsToRegistryObjectDtos([registryObject]).FirstOrDefault();
+    }
+
+    public static IEnumerable<DocumentEntryDto>? TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<ExtrinsicObjectType>? registryObjectList)
+    {
+        if (registryObjectList == null) return null;
         return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<DocumentEntryDto>().ToList();
     }
 
-    public static IEnumerable<SubmissionSetDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<RegistryPackageType> registryObjectList)
+    public static IEnumerable<SubmissionSetDto>? TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<RegistryPackageType>? registryObjectList)
     {
+        if (registryObjectList == null) return null;
         return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<SubmissionSetDto>().ToList();
     }
 
-    public static IEnumerable<AssociationDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<AssociationType> registryObjectList)
+    public static IEnumerable<AssociationDto>? TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<AssociationType>? registryObjectList)
     {
+        if (registryObjectList == null) return null;
         return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<AssociationDto>().ToList();
     }
 
