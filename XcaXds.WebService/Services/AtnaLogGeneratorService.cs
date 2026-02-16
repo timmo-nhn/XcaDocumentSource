@@ -233,18 +233,18 @@ public class AtnaLogGeneratorService
 
             if (!string.IsNullOrWhiteSpace(orgnrParent) || !string.IsNullOrWhiteSpace(clientName) || !string.IsNullOrWhiteSpace(clientId))
             {
-                var detail = new List<AuditEvent.DetailComponent>();
+                var clientDetail = new List<AuditEvent.DetailComponent>();
                 if (!string.IsNullOrWhiteSpace(orgnrParent))
                 {
-                    detail.Add(new AuditEvent.DetailComponent { Type = "orgnr_parent", Value = new FhirString(orgnrParent) });
+                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "orgnr_parent", Value = new FhirString(orgnrParent) });
                 }
                 if (!string.IsNullOrWhiteSpace(clientId))
                 {
-                    detail.Add(new AuditEvent.DetailComponent { Type = "client_id", Value = new FhirString(clientId) });
+                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "client_id", Value = new FhirString(clientId) });
                 }
                 if (!string.IsNullOrWhiteSpace(clientName))
                 {
-                    detail.Add(new AuditEvent.DetailComponent { Type = "client_name", Value = new FhirString(clientName) });
+                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "client_name", Value = new FhirString(clientName) });
                 }
 
                 auditEvent.Entity.Add(new AuditEvent.EntityComponent
@@ -258,7 +258,7 @@ public class AtnaLogGeneratorService
                         //Code = "25",	// Is this a better code to use?
                         //Display = "Data Source"
                     },
-                    Detail = detail
+                    Detail = clientDetail
                 });
             }
 
@@ -413,6 +413,9 @@ public class AtnaLogGeneratorService
         auditEvent.Outcome = GetEventOutcomeFromSoapRequestResponse(requestEnvelope, responseEnvelope);
         auditEvent.Action = GetActionFromSoapEnvelope(requestEnvelope);
 
+        var detail = new List<AuditEvent.DetailComponent>();
+        
+        var adhocQueryType = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery.Id;
         var docRequest = requestEnvelope?.Body?.ProvideAndRegisterDocumentSetRequest;
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
@@ -420,15 +423,18 @@ public class AtnaLogGeneratorService
         var xdsDocEntry = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
         var xdsSubmissionSet = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
-        if (xdsDoc == null || xdsDocEntry == null)
+        if (xdsDocEntry == null)
         {
             var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
             var retrieveDocumentsRequest = requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest.FirstOrDefault();
 
             xdsDocEntry = registryContent.OfType<DocumentEntryDto>().FirstOrDefault(rc => rc.UniqueId == retrieveDocumentsRequest?.DocumentUniqueId);
         }
+        
 
-        if (xdsDoc != null || xdsDocEntry != null)
+        AddDetail(detail, "adhocQueryType", adhocQueryType);
+
+        if (xdsDocEntry != null)
         {
             var docUniqueId = xdsDoc?.Id ?? xdsDocEntry?.UniqueId;
             var reference = !string.IsNullOrWhiteSpace(docUniqueId) ? $"DocumentReference/{docUniqueId}" : null;
@@ -441,8 +447,6 @@ public class AtnaLogGeneratorService
 
             var mimeType = xdsDocEntry?.MimeType;
             var classCode = xdsDocEntry?.ObjectType;
-
-            var detail = new List<AuditEvent.DetailComponent>();
 
             AddDetail(detail, "documentUniqueId", docUniqueId);
             AddDetail(detail, "mimeType", mimeType);
