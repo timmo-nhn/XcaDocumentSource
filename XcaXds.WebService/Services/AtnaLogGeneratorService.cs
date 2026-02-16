@@ -417,8 +417,8 @@ public class AtnaLogGeneratorService
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
-        var xdsDocEntry = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>()).FirstOrDefault();
-        var xdsSubmissionSet = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>()).FirstOrDefault();
+        var xdsDocEntry = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
+        var xdsSubmissionSet = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
         if (xdsDoc != null || xdsDocEntry != null)
         {
