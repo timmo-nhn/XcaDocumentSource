@@ -11,7 +11,6 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
-using static XcaXds.Commons.Commons.Constants.Xds.QueryParameters;
 
 namespace XcaXds.WebService.Services;
 
@@ -161,7 +160,7 @@ public class AtnaLogGeneratorService
 
             foreach (var identifier in registryPatientIdentifiers)
             {
-                _logger.LogDebug($"AtnaLogGenerator Resolved {identifier?.Serialize()} identifiers from request");
+                _logger.LogDebug($"Patient Identifier: {identifier?.Serialize()}");
                 if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
 
                 patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
@@ -431,7 +430,6 @@ public class AtnaLogGeneratorService
             });
         }
 
-
         if (xdsDocEntry == null)
         {
             var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
@@ -484,7 +482,6 @@ public class AtnaLogGeneratorService
             Identifier = new List<Identifier>()
         };
 
-        // Make these readable in logs:
         var repoUid = _appConfig.RepositoryUniqueId?.WithUrnOid();
         if (!string.IsNullOrWhiteSpace(repoUid))
         {
@@ -530,12 +527,6 @@ public class AtnaLogGeneratorService
                 }
             }
         };
-
-        // IMPORTANT: remove this old overwrite entirely:
-        // if (auditEvent.Contained.OfType<PractitionerRole>().FirstOrDefault()?.Organization != null)
-        // {
-        //     auditEvent.Source.Observer = auditEvent.Contained.OfType<PractitionerRole>().First().Organization;
-        // }
 
         return auditEvent;
     }
