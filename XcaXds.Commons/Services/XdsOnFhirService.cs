@@ -163,7 +163,7 @@ public class XdsOnFhirService
 
         // If only ExtrinsicObjects are in the registryObjectList (such as when returning a FindDocuments AdhocQueryRequest)
         // we need to fetch the registry and get the missing registry objects to properly map this to a FHIR resource
-        if (registryObjectList != null && registryObjectList.Length < 0 && registryObjectList.Length == registryObjectList?.OfType<ExtrinsicObjectType>().ToArray().Length)
+        if (registryObjectList != null && registryObjectList.Length == registryObjectList?.OfType<ExtrinsicObjectType>().ToArray().Length)
         {
             var registryContent = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(_registry.ReadRegistry());
 
@@ -234,7 +234,7 @@ public class XdsOnFhirService
 
             var documentReference = new DocumentReference();
 
-			documentReference.Id = assocExtrinsicObject.Id?.NoUrn();
+			documentReference.Id = assocExtrinsicObject?.Id?.NoUrn();
 
 			if (assocRegistryPackage == null || assocExtrinsicObject == null) continue;
 
@@ -370,7 +370,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = eventCodeList.Code,
-                        System = eventCodeList.CodeSystem.WithUrnOid(),
+                        System = eventCodeList.CodeSystem?.WithUrnOid(),
                         Display = eventCodeList.DisplayName
                     }
                 ]

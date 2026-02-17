@@ -414,7 +414,7 @@ public class AtnaLogGeneratorService
         auditEvent.Action = GetActionFromSoapEnvelope(requestEnvelope);
 
         var detail = new List<AuditEvent.DetailComponent>();
-        
+
         var adhocQueryType = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery.Id;
         var docRequest = requestEnvelope?.Body?.ProvideAndRegisterDocumentSetRequest;
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
@@ -423,6 +423,15 @@ public class AtnaLogGeneratorService
         var xdsDocEntry = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
         var xdsSubmissionSet = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
+        if (!string.IsNullOrWhiteSpace(adhocQueryType))
+        {
+            auditEvent.Entity.Add(new AuditEvent.EntityComponent
+            {
+                What = new ResourceReference(adhocQueryType, "adhocQueryType")
+            });
+        }
+
+
         if (xdsDocEntry == null)
         {
             var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
@@ -430,9 +439,6 @@ public class AtnaLogGeneratorService
 
             xdsDocEntry = registryContent.OfType<DocumentEntryDto>().FirstOrDefault(rc => rc.UniqueId == retrieveDocumentsRequest?.DocumentUniqueId);
         }
-        
-
-        AddDetail(detail, "adhocQueryType", adhocQueryType);
 
         if (xdsDocEntry != null)
         {
@@ -457,25 +463,6 @@ public class AtnaLogGeneratorService
             var submissionSetId = xdsSubmissionSet?.Id;
             AddDetail(detail, "submissionSetId", submissionSetId);
 
-            auditEvent.Entity.Add(new AuditEvent.EntityComponent
-            {
-                What = reference == null
-                    ? new ResourceReference { Display = title }
-                    : new ResourceReference(reference) { Display = title },
-                Type = new Coding
-                {
-                    System = "http://terminology.hl7.org/CodeSystem/audit-entity-type",
-                    Code = "2",
-                    Display = "System Object"
-                },
-                Role = new Coding
-                {
-                    System = "http://terminology.hl7.org/CodeSystem/object-role",
-                    Code = "3",
-                    Display = "Report"
-                },
-                Detail = detail.Count == 0 ? null : detail
-            });
         }
         else
         {
