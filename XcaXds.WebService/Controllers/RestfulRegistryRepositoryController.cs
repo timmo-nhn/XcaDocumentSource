@@ -35,7 +35,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         _featureManager = featureManager;
     }
 
-    [Produces("application/json", "application")]
+    [Produces("application/json")]
     [HttpGet("document-list")]
     public async Task<IActionResult> GetDocumentList(
         string? id, 
