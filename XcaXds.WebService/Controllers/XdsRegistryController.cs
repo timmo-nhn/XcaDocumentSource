@@ -135,7 +135,6 @@ public class XdsRegistryController : ControllerBase
                             RegistryObjectList = deletedObjects.ToArray()
                         }
                     };
-
                 }
 
                 break;

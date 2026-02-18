@@ -167,12 +167,12 @@ public partial class XdsRegistryService
                 var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
                 filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
 
-                //filteredElements.ObfuscateRestrictedDocumentEntries(xacmlRequest, out var count);
+                filteredElements.ObfuscateRestrictedDocumentEntries(xacmlRequest, out var count);
 
-                //if (count > 0)
-                //{
-                //    _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
-                //}
+                if (count > 0)
+                {
+                    _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
+                }
 
 
                 // Safe guard to avoid duplicate IDs in response

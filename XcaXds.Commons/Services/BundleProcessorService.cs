@@ -955,7 +955,8 @@ public static class BundleProcessorService
 
         /* XDSDocumentEntry.ConfidentialityCode (1..*) - required */
 
-        if (documentReference!.SecurityLabel.Count != 0 || documentReference!.SecurityLabel.FirstOrDefault()?.Coding.Count != 0)
+        if (documentReference!.SecurityLabel.Count != 0 ||
+            documentReference!.SecurityLabel.FirstOrDefault()?.Coding.Count != 0)
         {
             foreach (var securityLabelConcept in documentReference.SecurityLabel)
             {

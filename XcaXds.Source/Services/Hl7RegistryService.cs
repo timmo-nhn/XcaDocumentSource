@@ -75,25 +75,24 @@ public class Hl7RegistryService
         var matchingPatientIds = extrinsicObjectPatientIds
             .Where(eop =>
             {
-                bool nameMatch =
-                    eop.PatientName != null && patient.PatientName != null &&
-                    !string.IsNullOrEmpty(patient.PatientName?.GivenName) &&
-                    eop.PatientName.GivenName?.Contains(patient.PatientName?.GivenName) == true ||
-                    !string.IsNullOrEmpty(patient.PatientName?.FamilyName) &&
-                    eop.PatientName?.FamilyName?.Contains(patient.PatientName?.FamilyName) == true;
+                bool nameMatch = eop.PatientName != null && 
+                                 patient.PatientName != null &&
+                                 !string.IsNullOrEmpty(patient.PatientName?.GivenName) &&
+                                 eop.PatientName.GivenName?.Contains(patient.PatientName?.GivenName) == true ||
+                                 !string.IsNullOrEmpty(patient.PatientName?.FamilyName) &&
+                                 eop.PatientName?.FamilyName?.Contains(patient.PatientName?.FamilyName) == true;
 
-                bool birthDateMatch =
-                    eop.BirthDate != DateTime.MinValue && patient.BirthDate != DateTime.MinValue &&
-                    eop.BirthDate == patient.BirthDate;
+                bool birthDateMatch = eop.BirthDate != DateTime.MinValue && 
+                                      patient.BirthDate != DateTime.MinValue &&
+                                      eop.BirthDate == patient.BirthDate;
 
-                bool genderMatch =
-                    !string.IsNullOrEmpty(eop.Gender) &&
-                    eop.Gender == patient.Gender;
+                bool genderMatch = !string.IsNullOrEmpty(eop.Gender) &&
+                                   eop.Gender == patient.Gender;
 
                 bool identifierMatch = eop.PatientIdentifier != null &&
-                    patient.PatientIdentifier != null &&
-                    !string.IsNullOrEmpty(patient.PatientIdentifier.IdNumber) &&
-                    eop.PatientIdentifier.IdNumber?.Contains(patient.PatientIdentifier.IdNumber) == true;
+                                       patient.PatientIdentifier != null &&
+                                       !string.IsNullOrEmpty(patient.PatientIdentifier.IdNumber) &&
+                                       eop.PatientIdentifier.IdNumber?.Contains(patient.PatientIdentifier.IdNumber) == true;
 
                 // Secret wildcard to get all patient identifiers!
                 if (patient.PatientIdentifier?.IdNumber == "*")

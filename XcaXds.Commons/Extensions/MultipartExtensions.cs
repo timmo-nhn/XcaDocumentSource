@@ -23,8 +23,8 @@ public static class MultipartExtensions
     {
         var sb = new StringBuilder();
 
-        if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue? mediaTypeHeaderValue)
-        || !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+        if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
+            !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             var boundary = GetMultipartBoundary(mediaTypeHeaderValue.Boundary.Value, 512);
 

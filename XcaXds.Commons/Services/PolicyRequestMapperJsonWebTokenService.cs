@@ -20,14 +20,14 @@ public class PolicyRequestMapperJsonWebTokenService
         var samlToken = MapJsonWebTokenToSamlToken(jwtToken);
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
-        var samltokenAuthorizationAttributes = statements.Where(att =>
-        att.Name.Contains("xacml") ||
-        att.Name.Contains("xspa") ||
-        att.Name.Contains("SecurityLevel") ||
-        att.Name.Contains("Scope") ||
-        att.Name.Contains("urn:ihe:iti") ||
-        att.Name.Contains("acp") ||
-        att.Name.Contains("provider-identifier"));
+        var samltokenAuthorizationAttributes = statements.Where(att => 
+            att.Name.Contains("xacml") ||
+            att.Name.Contains("xspa") ||
+            att.Name.Contains("SecurityLevel") ||
+            att.Name.Contains("Scope") ||
+            att.Name.Contains("urn:ihe:iti") ||
+            att.Name.Contains("acp") ||
+            att.Name.Contains("provider-identifier"));
 
         var action = MapXacmlActionFromUrlPath(urlPath, path);
 
@@ -44,7 +44,10 @@ public class PolicyRequestMapperJsonWebTokenService
         var xacmlAction = new XacmlContextAction(actionAttribute);
 
         // Subject
-        var subjectAttributes = samlAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && (sa.AttributeId.OriginalString.Contains("subject") || sa.AttributeId.OriginalString.Contains("acp"))).ToList();
+        var subjectAttributes = samlAttributes
+            .Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) &&
+                                                      (sa.AttributeId.OriginalString.Contains("subject") ||
+                                                       sa.AttributeId.OriginalString.Contains("acp"))).ToList();
 
         var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 
@@ -123,7 +126,7 @@ public class PolicyRequestMapperJsonWebTokenService
         var handler = new Saml2SecurityTokenHandler();
         var token = (Saml2SecurityToken)handler.CreateToken(descriptor);
         if (!string.IsNullOrEmpty(samlTrustFrameworkClaims.NameId))
-        { 
+        {
             token.Assertion.Subject.NameId = new Saml2NameIdentifier(samlTrustFrameworkClaims.NameId);
         }
         var samlStatements = MapJwtClaimsToSamlTokenStatements(samlTrustFrameworkClaims);
