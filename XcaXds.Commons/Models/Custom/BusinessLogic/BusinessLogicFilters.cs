@@ -256,7 +256,7 @@ public static class BusinessLogicFilters
     {
         if (
             logic.Issuer == Issuer.HelseId &&
-            logic.Purpose?.Code?.IsNotAnyOf(ETREAT, BTG) == true
+            logic.Purpose?.Code?.IsAnyOf(ETREAT, BTG) == false
         )
         {
             var allowedRegistryObjects = registryObjects

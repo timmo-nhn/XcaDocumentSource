@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.Commons.Services;
 
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs (XACML). Allows for partial (non-atomic) filtering of the document list
