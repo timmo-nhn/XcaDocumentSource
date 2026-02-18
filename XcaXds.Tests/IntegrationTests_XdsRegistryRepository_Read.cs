@@ -213,14 +213,14 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-        var registryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml")));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
 
-        iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest = registryContent
+        iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest = RegistryContent
             .Select(rc => new DocumentRequestType()
             {
                 DocumentUniqueId = rc?.DocumentEntry?.UniqueId,
@@ -241,9 +241,11 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
+        var excpectedDocumentCount = RegistryContent.Count(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))));
+
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(RegistryItemCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
+        Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
         
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
@@ -352,13 +354,12 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
 
-        var retrieveDocumentSetResponse = new SoapEnvelope();
-
         Assert.Equal(Constants.MimeTypes.MultipartRelated, firstResponse.Content.Headers.ContentType?.MediaType);
 
-        retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
+        var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
+
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
     }
 
 

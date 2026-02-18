@@ -288,7 +288,7 @@ public class XdsRepositoryService
         var confCodes = extrinsicObject?.ConfidentialityCode;
 
         // Dont obscure in emergency situations
-        if (!string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG)) 
+        if (!string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == false) 
         {
             if (requestAppliesTo == Issuer.HelseId)
             {
