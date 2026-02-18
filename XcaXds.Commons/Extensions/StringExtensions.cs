@@ -99,13 +99,6 @@ public static class StringExtensions
         return options.Contains(value);
     }
 
-    public static bool IsNotAnyOf(this string value, params string[] options)
-    {
-        if (string.IsNullOrWhiteSpace(value) || options == null) return false;
-
-        return !options.Contains(value);
-    }
-
     private static bool IsClinicalDocument(byte[] input)
     {
         // Ensure input is long enough to hold "<ClinicalDocument"

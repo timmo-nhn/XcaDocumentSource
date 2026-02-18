@@ -1,3 +1,4 @@
+using Abc.Xacml.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
@@ -48,6 +49,13 @@ public class XdsRegistryController : ControllerBase
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action}");
+        
+        XacmlContextRequest? xacmlRequest = null;
+
+        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
+        {
+            xacmlRequest = xacmlContextRequest;
+        }
 
         switch (action)
         {
@@ -60,7 +68,7 @@ public class XdsRegistryController : ControllerBase
                     break;
                 }
 
-                var registryQueryResponse = _registryService.RegistryStoredQuery(soapEnvelope);
+                var registryQueryResponse = _registryService.RegistryStoredQuery(soapEnvelope, xacmlRequest);
 
                 responseEnvelope = registryQueryResponse.Value;
                 responseEnvelope.Header = new()

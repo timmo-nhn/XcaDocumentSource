@@ -1,3 +1,4 @@
+using Abc.Xacml.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
@@ -56,13 +57,20 @@ public class XdsRepositoryController : ControllerBase
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        
+        XacmlContextRequest? xacmlRequest = null;
+
+        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
+        {
+            xacmlRequest = xacmlContextRequest;
+        }
 
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
 
-                var iti43Response = _repositoryService.RetrieveDocumentSet(soapEnvelope);
+                var iti43Response = _repositoryService.RetrieveDocumentSet(soapEnvelope, xacmlRequest);
                 if (iti43Response.IsSuccess is false)
                 {
                     break;

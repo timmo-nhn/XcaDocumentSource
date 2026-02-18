@@ -223,7 +223,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-39 to ITI-43 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti43Action);
-                var iti39Response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
+                var iti39Response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope, xacmlRequest);
                 iti39Response.Value?.SetAction(Constants.Xds.OperationContract.Iti39Reply);
 
 

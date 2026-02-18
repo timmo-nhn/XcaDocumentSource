@@ -174,7 +174,6 @@ public partial class XdsRegistryService
                     _logger.LogInformation($"{soapEnvelope?.Header?.MessageId} - {count} XDSEntries obfuscated");
                 }
 
-
                 // Safe guard to avoid duplicate IDs in response
                 filteredElements = filteredElements
                     .GroupBy(x => x.Id)

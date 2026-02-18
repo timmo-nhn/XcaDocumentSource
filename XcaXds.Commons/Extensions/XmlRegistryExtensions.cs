@@ -9,6 +9,8 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Commons.Services;
+using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -629,6 +631,8 @@ public static class Commons
         obfuscatedEntriesCount = 0;
         var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
 
+        var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+
         foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
         {
             // Skip if the entry is just "Normal" classified (No obfuscation needed)
@@ -640,17 +644,18 @@ public static class Commons
                     CodeSystem = cls.GetFirstSlot()?.GetFirstValue()
                 }).ToArray();
 
-            if (requestAppliesTo == Issuer.HelseId)
+
+            // Dont obscure in emergency situations
+            if (!string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == false)
             {
-                if (!confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
-            }
-            if (requestAppliesTo == Issuer.Helsenorge)
-            {
-                if (!confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
-            }
-            if (requestAppliesTo == Issuer.Unknown)
-            {
-                continue; // Just continue, obfuscate everything!
+                if (requestAppliesTo == Issuer.HelseId)
+                {
+                    if (!confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
+                }
+                if (requestAppliesTo == Issuer.Helsenorge)
+                {
+                    if (!confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
+                }
             }
 
             // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,

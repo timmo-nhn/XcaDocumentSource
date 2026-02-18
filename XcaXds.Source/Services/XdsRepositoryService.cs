@@ -1,4 +1,5 @@
-﻿using Hl7.FhirPath.Sprache;
+﻿using Abc.Xacml.Context;
+using Hl7.FhirPath.Sprache;
 using Microsoft.Extensions.Logging;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
@@ -6,9 +7,13 @@ using System.Buffers.Text;
 using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.BusinessLogic;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
+using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.Source.Services;
 
@@ -17,11 +22,13 @@ public class XdsRepositoryService
     private readonly ApplicationConfig _xdsConfig;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly ILogger<XdsRepositoryService> _logger;
+    private readonly RegistryWrapper _registry;
 
-    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, ILogger<XdsRepositoryService> logger)
+    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, RegistryWrapper registry, ILogger<XdsRepositoryService> logger)
     {
         _xdsConfig = xdsConfig;
         _repositoryWrapper = repositoryWrapper;
+        _registry = registry;
         _logger = logger;
     }
 
@@ -141,7 +148,7 @@ public class XdsRepositoryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public SoapRequestResult<SoapEnvelope> RetrieveDocumentSet(SoapEnvelope iti43envelope)
+    public SoapRequestResult<SoapEnvelope> RetrieveDocumentSet(SoapEnvelope iti43envelope, XacmlContextRequest? xacmlRequest = null)
     {
         var registryResponse = new RegistryResponseType();
         var retrieveResponse = new RetrieveDocumentSetResponseType();
@@ -165,6 +172,12 @@ public class XdsRepositoryService
             var documentUniqueId = document.DocumentUniqueId;
             var repositoryUniqueId = document.RepositoryUniqueId?.NoUrn();
             var homeCommunityId = document.HomeCommunityId?.NoUrn();
+
+            if (DocumentIsRestrictedForUser(document, xacmlRequest))
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Access denied for document {document.DocumentUniqueId}".Trim(), _xdsConfig.HomeCommunityId);
+                continue;
+            }
 
             if (string.IsNullOrEmpty(documentUniqueId))
             {
@@ -259,6 +272,40 @@ public class XdsRepositoryService
         return resultEnvelope;
     }
 
+    private bool DocumentIsRestrictedForUser(DocumentRequestType document, XacmlContextRequest? xacmlRequest)
+    {
+        var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes()
+            .GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?
+            .FirstOrDefault() 
+            ?? "Unknown");
+
+        var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+
+        var extrinsicObject = _registry.GetDocumentRegistryContentAsDtos()
+            .OfType<DocumentEntryDto>()
+            .FirstOrDefault(gob => gob.UniqueId == document.DocumentUniqueId);
+
+        var confCodes = extrinsicObject?.ConfidentialityCode;
+
+        // Dont obscure in emergency situations
+        if (!string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG)) 
+        {
+            if (requestAppliesTo == Issuer.HelseId)
+            {
+                if (!confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate
+                    .Contains((ccode.Code, ccode.CodeSystem))) ?? false)
+                    return false;
+            }
+            if (requestAppliesTo == Issuer.Helsenorge)
+            {
+                if (!confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate
+                    .Contains((ccode.Code, ccode.CodeSystem))) ?? false)
+                    return false;
+            }
+        }
+
+        return true;
+    }
 
     public SoapRequestResult<SoapEnvelope> RemoveDocuments(SoapEnvelope soapEnvelope)
     {
