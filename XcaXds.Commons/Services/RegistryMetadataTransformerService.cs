@@ -563,19 +563,20 @@ public static class RegistryMetadataTransformerService
 
         // Find organization XON here aswell to ensure we dont double-register stuff
         var organization = authorSlotXon
-            .FirstOrDefault(asXon =>
-                (asXon?.AssigningFacility?.UniversalId != null && asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-                (asXon?.AssigningAuthority?.UniversalId != null && asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-            ?? authorSlotXon.LastOrDefault();
+            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null && 
+                                      asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
+                                     (asXon?.AssigningAuthority?.UniversalId != null && 
+                                      asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
+                 ?? authorSlotXon.LastOrDefault();
 
 
         // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).
         // If none is found, take the first in the XON list
         var department = authorSlotXon
-            .FirstOrDefault(asXon =>
-                (asXon?.AssigningFacility?.UniversalId != null && !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-                (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-            ?? authorSlotXon.FirstOrDefault();
+            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null && 
+                                     !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
+                                     (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
+                 ?? authorSlotXon.FirstOrDefault();
 
         if (department != null && department?.OrganizationIdentifier != organization?.OrganizationIdentifier)
         {

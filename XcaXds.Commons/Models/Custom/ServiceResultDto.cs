@@ -14,7 +14,7 @@ public class ServiceResultDto<T>
     public OperationOutcome? OperationOutcome { get; set; }
     public bool Success =>
         OperationOutcome == null || !OperationOutcome.Issue.Any() || OperationOutcome.Issue
-        .All(issue =>
+        .All(issue => 
             issue.Severity == OperationOutcome.IssueSeverity.Information ||
             issue.Severity == OperationOutcome.IssueSeverity.Success ||
             issue.Severity == OperationOutcome.IssueSeverity.Warning );

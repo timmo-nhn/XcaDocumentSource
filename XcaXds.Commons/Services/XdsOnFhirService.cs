@@ -173,9 +173,8 @@ public class XdsOnFhirService
 			// Pull BOTH membership + lifecycle associations
 			var relatedAssociations = registryContent
 				.OfType<AssociationType>()
-				.Where(a =>
-					(a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject.NoUrn())) ||
-					(a.AssociationTypeData != Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.SourceObject.NoUrn()))
+				.Where(a => (a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject.NoUrn())) ||
+                            (a.AssociationTypeData != Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.SourceObject.NoUrn()))
 				)
 				.ToArray();
 
@@ -530,8 +529,13 @@ public class XdsOnFhirService
 
         if (authorInstitutionValues != null && authorInstitutionValues.Count != 0)
         {
-            authorInstitution = authorInstitutionValues.FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId == Constants.Oid.Brreg || authInst?.AssigningAuthority?.UniversalId != null);
-            authorDepartment = authorInstitutionValues.LastOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId == Constants.Oid.ReshId || authInst?.AssigningAuthority?.UniversalId != null);
+            authorInstitution = authorInstitutionValues
+                .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null || 
+                                            authInst?.AssigningAuthority?.UniversalId == Constants.Oid.Brreg);
+
+            authorDepartment = authorInstitutionValues
+                .LastOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||
+                                           authInst?.AssigningAuthority?.UniversalId == Constants.Oid.ReshId);
 
             // If department and institution was the same, nullify department to avoid creating duplicates
             if (authorInstitution != null && authorDepartment != null && authorInstitution.OrganizationName == authorDepartment.OrganizationName)

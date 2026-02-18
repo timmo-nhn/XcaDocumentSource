@@ -29,7 +29,8 @@ public class PolicyDecisionPointService
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
         // Saml values
-        var resourceId = statements.FirstOrDefault(stmnt => stmnt.Name == Constants.Saml.Attribute.ResourceId10 || stmnt.Name == Constants.Saml.Attribute.ResourceId20)?.Values.FirstOrDefault();
+        var resourceId = statements.FirstOrDefault(stmnt => stmnt.Name == Constants.Saml.Attribute.ResourceId10 ||
+                                                            stmnt.Name == Constants.Saml.Attribute.ResourceId20)?.Values.FirstOrDefault();
         var providerId = statements.FirstOrDefault(stmnt => stmnt.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values.FirstOrDefault();
         var acp = statements.FirstOrDefault(stmnt => stmnt.Name == Constants.Saml.Attribute.XuaAcp)?.Values.FirstOrDefault() ?? Constants.Oid.Saml.Acp.NullValue;
         var bppc = statements.FirstOrDefault(stmnt => stmnt.Name == Constants.Saml.Attribute.BppcDocId)?.Values.FirstOrDefault() ?? Constants.Oid.Saml.Bppc.NullValue;
@@ -47,10 +48,9 @@ public class PolicyDecisionPointService
 
         var documentEntries = retrieveDocumentSet?
             .SelectMany(rds => registry.OfType<DocumentEntryDto>()
-            .Where(de =>
-                rds.DocumentUniqueId == de.UniqueId &&
-                rds.HomeCommunityId == de.HomeCommunityId &&
-                rds.RepositoryUniqueId == de.RepositoryUniqueId));
+                .Where(de => rds.DocumentUniqueId == de.UniqueId &&
+                             rds.HomeCommunityId == de.HomeCommunityId &&
+                             rds.RepositoryUniqueId == de.RepositoryUniqueId));
 
         var adhocQueryPatientId = soapEnvelope.Body.AdhocQueryRequest?.AdhocQuery?.GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();
         var adhocQueryPatientValueJson = JsonSerializer.Serialize(SamlExtensions.GetSamlAttributeValueAsCodedValue(adhocQueryPatientId));

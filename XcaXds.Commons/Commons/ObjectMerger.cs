@@ -21,7 +21,9 @@ public static class ObjectMerger
             if (sourceValue == targetValue)
                 continue;
 
-            if (targetValue == null || (sourceValue == null && targetValue == null) || (sourceValue == null && targetValue == null))
+            if (targetValue == null ||
+               (sourceValue == null && targetValue == null) ||
+               (sourceValue == null && targetValue == null))
                 continue;
 
 

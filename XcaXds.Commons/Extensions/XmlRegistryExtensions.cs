@@ -650,7 +650,7 @@ public static class Commons
             }
             if (requestAppliesTo == Issuer.Unknown)
             {
-                continue; // Just continue, obfuscate everything
+                continue; // Just continue, obfuscate everything!
             }
 
             // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
@@ -689,11 +689,15 @@ public static class Commons
         switch (externalIdentifier.IdentificationScheme)
         {
             case Constants.Xds.Uuids.DocumentEntry.UniqueId:
+                //externalIdentifier.Value = "*****";
+
+                //// GUID_OBSCURE
+                //goto default;
+                //externalIdentifier.RegistryObject = "-1";
+                break;
+
+            case Constants.Xds.Uuids.DocumentEntry.PatientId:
                 externalIdentifier.Value = "*****";
-                
-                // GUID_OBSCURE
-                goto default;
-                externalIdentifier.RegistryObject = "-1";
                 break;
 
             default:

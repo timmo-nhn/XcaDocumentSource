@@ -53,14 +53,15 @@ public static class PolicyRequestMapperSamlService
             return null;
         }
 
-        var samltokenAuthorizationAttributes = statements.Where(att =>
-        att.Name.Contains("xacml") ||
-        att.Name.Contains("xspa") ||
-        att.Name.Contains("SecurityLevel") ||
-        att.Name.Contains("Scope") ||
-        att.Name.Contains("urn:ihe:iti") ||
-        att.Name.Contains("acp") ||
-        att.Name.Contains("provider-identifier"))
+        var samltokenAuthorizationAttributes = statements
+            .Where(att => 
+                 att.Name.Contains("xacml") ||
+                 att.Name.Contains("xspa") ||
+                 att.Name.Contains("SecurityLevel") ||
+                 att.Name.Contains("Scope") ||
+                 att.Name.Contains("urn:ihe:iti") ||
+                 att.Name.Contains("acp") ||
+                 att.Name.Contains("provider-identifier"))
             .Append(new(Constants.Xacml.CustomAttributes.SamlNameId, samlToken.Assertion.Subject.NameId.Value));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
@@ -90,7 +91,12 @@ public static class PolicyRequestMapperSamlService
                 var xacmlAction = new XacmlContextAction(actionAttribute);
 
                 // Subject
-                var subjectAttributes = samlAttributes.Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && (sa.AttributeId.OriginalString.Contains("subject") || sa.AttributeId.OriginalString.Contains("acp"))).ToList();
+                var subjectAttributes = samlAttributes
+                    .Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && 
+                                (sa.AttributeId.OriginalString.Contains("subject") || 
+                                 sa.AttributeId.OriginalString.Contains("acp")))
+                    .ToList();
+                
                 subjectAttributes.AddRange(requestAttributes);
                 var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 

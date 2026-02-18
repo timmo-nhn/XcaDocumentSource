@@ -22,7 +22,7 @@ public static class BusinessLogicFilters
 
     public static readonly CodedValue[]? AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).ToArray();
 
-    public static readonly HashSet<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(value =>
+    public static readonly HashSet<(string?, string?)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(value =>
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
@@ -30,7 +30,7 @@ public static class BusinessLogicFilters
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToHashSet();
 
-    public static readonly HashSet<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes!.Where(value =>
+    public static readonly HashSet<(string?, string?)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes!.Where(value =>
         value.CodeSystem != null &&
         value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
         value.Code != null &&
@@ -222,8 +222,7 @@ public static class BusinessLogicFilters
         IEnumerable<IdentifiableType> registryObjects,
         BusinessLogicParameters logic)
     {
-        if (
-            logic.Issuer == Issuer.HelseId && (
+        if (logic.Issuer == Issuer.HelseId && (
             logic.Subject?.Code == null ||
             logic.Resource?.Code == null ||
             logic.SubjectOrganization?.Code == null ||

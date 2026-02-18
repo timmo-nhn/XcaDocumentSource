@@ -35,9 +35,15 @@ public class RestfulRegistryRepositoryController : ControllerBase
         _featureManager = featureManager;
     }
 
-    [Produces("application/json")]
+    [Produces("application/json", "application")]
     [HttpGet("document-list")]
-    public async Task<IActionResult> GetDocumentList(string? id, string? status, DateTime serviceStartTimeFrom, DateTime serviceStopTimeTo, int pageNumber = 1, int pageSize = 10)
+    public async Task<IActionResult> GetDocumentList(
+        string? id, 
+        string? status, 
+        DateTime serviceStartTimeFrom, 
+        DateTime serviceStopTimeTo, 
+        int pageNumber = 1, 
+        int pageSize = 10)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
@@ -97,9 +103,9 @@ public class RestfulRegistryRepositoryController : ControllerBase
             var currentId = queue.Dequeue();
 
             var relatedAssociations = allAssociations
-                .Where(a =>
-                    (a.SourceObject == currentId || a.TargetObject == currentId)
-                    && !string.IsNullOrWhiteSpace(a.AssociationType) && a.AssociationType.IsAnyOf(Constants.Xds.AssociationType.Replace, Constants.Xds.AssociationType.Addendum))
+                .Where(a => (a.SourceObject == currentId || a.TargetObject == currentId) && 
+                    !string.IsNullOrWhiteSpace(a.AssociationType) && 
+                    a.AssociationType.IsAnyOf(Constants.Xds.AssociationType.Replace, Constants.Xds.AssociationType.Addendum))
                 .ToList();
 
             foreach (var assoc in relatedAssociations)

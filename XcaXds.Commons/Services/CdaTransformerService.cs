@@ -412,7 +412,9 @@ public static partial class CdaTransformerService
         nonXmlBody.Text ??= new();
         nonXmlBody.Text.MediaType = documentEntry.MimeType;
 
-        if (!string.IsNullOrWhiteSpace(nonXmlBody.Text.MediaType) && (nonXmlBody.Text.MediaType == Constants.MimeTypes.Text || nonXmlBody.Text.MediaType.Contains("json")))
+        if (!string.IsNullOrWhiteSpace(nonXmlBody.Text.MediaType) && 
+            (nonXmlBody.Text.MediaType == Constants.MimeTypes.Text || 
+             nonXmlBody.Text.MediaType.Contains("json")))
         {
             nonXmlBody.Text.Text = Encoding.UTF8.GetString(document.Data ?? []);
         }
@@ -657,7 +659,8 @@ public static partial class CdaTransformerService
 
     private static II? SetPatientRoleId(DocumentEntryDto documentEntry)
     {
-        if (documentEntry.SourcePatientInfo?.PatientId?.Id == null || documentEntry.SourcePatientInfo?.PatientId?.System == null) return null;
+        if (documentEntry.SourcePatientInfo?.PatientId?.Id == null || 
+            documentEntry.SourcePatientInfo?.PatientId?.System == null) return null;
 
         return new()
         {
