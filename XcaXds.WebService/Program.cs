@@ -9,7 +9,6 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
-using XcaXds.Source.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -149,8 +148,9 @@ public class Program
         // REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
 
-        // XDS On FHIR
+        // FHIR
         builder.Services.AddScoped<XdsOnFhirService>();
+        builder.Services.AddScoped<FhirService>();
 
         // Health check
         builder.Services.AddHealthChecks();

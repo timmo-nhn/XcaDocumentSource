@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Source.Services;
+﻿namespace XcaXds.Source.Source;
 
 public static class DatabasePathFinder
 {

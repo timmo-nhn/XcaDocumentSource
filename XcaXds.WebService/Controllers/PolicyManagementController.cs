@@ -5,8 +5,7 @@ using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
-using XcaXds.Source.Services;
-using XcaXds.Source.Source;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 

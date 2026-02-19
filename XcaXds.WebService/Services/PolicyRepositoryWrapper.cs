@@ -6,8 +6,9 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Services;
+using XcaXds.Source.Source;
 
-namespace XcaXds.Source.Source;
+namespace XcaXds.WebService.Services;
 
 public class PolicyRepositoryWrapper
 {

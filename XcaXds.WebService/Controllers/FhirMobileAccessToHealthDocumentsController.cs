@@ -1,6 +1,5 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Diagnostics;
@@ -15,8 +14,6 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
-using XcaXds.Source.Services;
-using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
@@ -37,6 +34,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly XdsOnFhirService _xdsOnFhirService;
+    private readonly FhirService _fhirService;
     private readonly ApplicationConfig _appConfig;
     private readonly AtnaLogGeneratorService _atnaLoggingService;
 
@@ -507,24 +505,34 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"{HttpContext.TraceIdentifier} Received ITI-65 Patch Bundle Request");
         var operationOutcome = new OperationOutcome();
 
-
         var fhirJsonDeserializer = new FhirJsonDeserializer();
 
         var fhirParser = new FhirJsonDeserializer();
         var resource = fhirParser.DeserializeResource(json.GetRawText());
 
-
-        if (resource is not Binary fhirBinaryType)
+        if (resource is not Bundle fhirBundle)
         {
-
-            return BadRequestOperationOutcome.Create(OperationOutcome
-            .ForMessage($"Request body does not contain a well formatted FHIR bundle",
-            OperationOutcome.IssueType.Invalid,
-            OperationOutcome.IssueSeverity.Fatal));
+            return BadRequest(OperationOutcome
+                .ForMessage($"Request body does not contain a well formatted FHIR bundle",
+                    OperationOutcome.IssueType.Invalid,
+                    OperationOutcome.IssueSeverity.Fatal));
         }
 
+        if (fhirBundle.Entry.Any(ent => ent.Request?.Method != Bundle.HTTPVerb.PATCH))
+        {
+            return BadRequest(OperationOutcome
+                .ForMessage($"Bundle must contain a PATCH entry",
+                    OperationOutcome.IssueType.Invalid,
+                    OperationOutcome.IssueSeverity.Fatal));
+        }
 
-        return Ok();
+        var response = _fhirService.PatchResource(fhirBundle);
+
+        var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
+
+        var jsonResult = JsonSerializer.Serialize(response, options);
+
+        return Content(jsonResult, "application/json");
     }
 
     private SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle fhirBundle, List<RegistryErrorType> errors, ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest, HttpRequest request)

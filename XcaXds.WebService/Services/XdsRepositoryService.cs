@@ -15,7 +15,7 @@ using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.WebService.Services;
 
 public class XdsRepositoryService
 {

@@ -1,16 +1,11 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Model;
-using Hl7.Fhir.Model.CdsHooks;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net;
-using System.Text;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Serializers;
-using XcaXds.Source.Services;
-using XcaXds.Source.Source;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
@@ -87,7 +82,7 @@ public class PolicyEnforcementPointMiddleware
         var policyInput = await policyInputBuilder.BuildAsync(httpContext, _xdsConfig, _registryWrapper.GetDocumentRegistryContentAsDtos());
 
         AttachPepContext(httpContext, policyInput.XacmlRequest, sw.ElapsedMilliseconds);
-        
+
         if (ShouldBypassPolicyEnforcementPoint(httpContext, _xdsConfig, _env))
         {
             if (_xdsConfig.BypassPolicyEnforcementPoint)
@@ -121,7 +116,7 @@ public class PolicyEnforcementPointMiddleware
             var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
-        
+
         _logger.LogDebug($"XACML Request:{XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings)}");
 
         var decision = policyEvaluator.Evaluate(policyInput.XacmlRequest, policyInput.AppliesTo);
@@ -188,7 +183,7 @@ public class PolicyEnforcementPointMiddleware
         if (config.BypassPolicyEnforcementPoint)
             return true;
 
-        var isLocal = context.Connection.RemoteIpAddress is { } ip && 
+        var isLocal = context.Connection.RemoteIpAddress is { } ip &&
                       (IPAddress.IsLoopback(ip) || ip.ToString() == "::1");
 
         if (isLocal && config.IgnorePEPForLocalhostRequests && env.IsDevelopment())
