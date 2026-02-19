@@ -8,7 +8,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.Services;
 
-namespace XcaXds.Source.Source;
+namespace XcaXds.WebService.Services;
 
 public partial class RepositoryWrapper
 {

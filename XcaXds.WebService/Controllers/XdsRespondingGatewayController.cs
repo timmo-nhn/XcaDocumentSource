@@ -1,5 +1,4 @@
 using Abc.Xacml.Context;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
@@ -11,7 +10,6 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
 
@@ -34,9 +32,9 @@ public class XdsRespondingGatewayController : ControllerBase
     private static readonly ActivitySource ActivitySource = new("nhn.xcads");
     private static readonly Meter Meter = new("nhn.Xcads.RespondingGateway", "1.0.0");
 
-    private static readonly Counter<int> QueryCounter = 
+    private static readonly Counter<int> QueryCounter =
         Meter.CreateCounter<int>("RespondingGateway.Query.count", description: "Requests to Query from registry or repository");
-    private static readonly Counter<int> RetrieveCounter = 
+    private static readonly Counter<int> RetrieveCounter =
         Meter.CreateCounter<int>("RespondingGateway.Retrieve.count", description: "Requests to Retrieve from registry or repository");
 
 
@@ -89,7 +87,7 @@ public class XdsRespondingGatewayController : ControllerBase
         {
             action += "Async";
         }
-        
+
         FileContentResult? multipartResponse = null;
 
         switch (action)
@@ -140,7 +138,6 @@ public class XdsRespondingGatewayController : ControllerBase
                 _logger.LogInformation($"Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
 
                 return Accepted();
-
 
             case Constants.Xds.OperationContract.Iti38Action:
                 if (!await _featureManager.IsEnabledAsync("Iti38CrossGatewayQuery")) return NotFound();

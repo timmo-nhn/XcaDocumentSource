@@ -4,8 +4,7 @@ using System.Diagnostics;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Source.Services;
-using XcaXds.Source.Source;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -38,11 +37,11 @@ public class RestfulRegistryRepositoryController : ControllerBase
     [Produces("application/json")]
     [HttpGet("document-list")]
     public async Task<IActionResult> GetDocumentList(
-        string? id, 
-        string? status, 
-        DateTime serviceStartTimeFrom, 
-        DateTime serviceStopTimeTo, 
-        int pageNumber = 1, 
+        string? id,
+        string? status,
+        DateTime serviceStartTimeFrom,
+        DateTime serviceStopTimeTo,
+        int pageNumber = 1,
         int pageSize = 10)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
@@ -103,8 +102,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
             var currentId = queue.Dequeue();
 
             var relatedAssociations = allAssociations
-                .Where(a => (a.SourceObject == currentId || a.TargetObject == currentId) && 
-                    !string.IsNullOrWhiteSpace(a.AssociationType) && 
+                .Where(a => (a.SourceObject == currentId || a.TargetObject == currentId) &&
+                    !string.IsNullOrWhiteSpace(a.AssociationType) &&
                     a.AssociationType.IsAnyOf(Constants.Xds.AssociationType.Replace, Constants.Xds.AssociationType.Addendum))
                 .ToList();
 
