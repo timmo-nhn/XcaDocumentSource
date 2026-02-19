@@ -368,7 +368,7 @@ public class RestfulRegistryRepositoryService
 
         if (deleteResponse == false)
         {
-            deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument.UniqueId);
+            deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.UniqueId);
         }
 
         if (deleteResponse == false)
