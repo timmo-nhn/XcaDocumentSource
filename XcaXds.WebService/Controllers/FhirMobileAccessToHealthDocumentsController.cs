@@ -1,4 +1,5 @@
-﻿using Hl7.Fhir.Model;
+﻿using Abc.Xacml.Context;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens.Saml2;
@@ -12,6 +13,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.WebService.Attributes;
@@ -146,15 +148,14 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             return BadRequest(fhirJsonSerializer.SerializeToString(operationOutcome));
         }
 
-        var adhocQueryRequest = new AdhocQueryRequest();
-        var adhocQuery = _xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery;
-
-        adhocQueryRequest.AdhocQuery = adhocQuery;
-        adhocQueryRequest.AdhocQuery.Id = Constants.Xds.StoredQueries.FindDocuments;
-
-        adhocQueryRequest.ResponseOption = new()
+        var adhocQueryRequest = new AdhocQueryRequest
         {
-            ReturnType = ResponseOptionTypeReturnType.LeafClass
+            AdhocQuery = _xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery,
+            Id = Constants.Xds.StoredQueries.FindDocuments,
+            ResponseOption = new()
+            {
+                ReturnType = ResponseOptionTypeReturnType.LeafClass
+            }
         };
 
         var soapEnvelope = new SoapEnvelope()
@@ -182,7 +183,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
         return BadRequestOperationOutcome.Create(operationOutcome);
     }
-
 
     [HttpGet("mhd/document")]
     public async Task<IActionResult> Document(
@@ -221,7 +221,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return fileResponse;
     }
 
-
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]    
 	[HttpDelete("DocumentReference/{id}")]	
@@ -231,6 +230,16 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var operationOutcome = new OperationOutcome();
 
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id);
+
+        // Atna log generation
+        XacmlContextRequest? xacmlRequest = null;
+
+        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
+        {
+            xacmlRequest = xacmlContextRequest;
+        }
+
+        _atnaLoggingService.CreateAuditLogForFhirRequestResponse();
 
         if (deleteResponse.Success)
         {

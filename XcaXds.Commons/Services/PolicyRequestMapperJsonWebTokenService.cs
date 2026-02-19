@@ -64,6 +64,9 @@ public class PolicyRequestMapperJsonWebTokenService
         if (urlPath == "R4/fhir/Bundle" && method == "POST")
             return Constants.Xacml.Actions.Create;
 
+        if (urlPath == "R4/fhir/Bundle" && method == "PATCH")
+            return Constants.Xacml.Actions.Update;
+
         if (urlPath == "R4/fhir/mhd/document" && method == "POST")
             return Constants.Xacml.Actions.ReadDocuments;
 

@@ -29,7 +29,6 @@ public class AtnaLogGeneratorService
         _registryWrapper = registryWrapper;
     }
 
-
     public void CreateAuditLogForSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
     {
         try
