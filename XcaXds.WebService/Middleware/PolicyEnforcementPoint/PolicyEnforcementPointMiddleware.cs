@@ -70,7 +70,7 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogWarning($"Requesth throttling enabled: {millis} ms");
         }
 
-        if (IsPolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
+        if (!IsPolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
         {
             sw.Stop();
             _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point not enabled for this endpoint");
@@ -152,7 +152,7 @@ public class PolicyEnforcementPointMiddleware
     private bool IsPolicyEnforcementPointEnabledForRequestEndpoint(HttpContext httpContext)
     {
         var enforceAttr = httpContext.GetEndpoint()?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
-        return enforceAttr?.Enabled != true;
+        return enforceAttr?.Enabled == true;
     }
 
     private void AttachPepContext(HttpContext httpContext, XacmlContextRequest? xacmlRequest, long elapsedMillis)
