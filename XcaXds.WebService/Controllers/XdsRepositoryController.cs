@@ -8,7 +8,6 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Source.Services;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
 
@@ -57,7 +56,7 @@ public class XdsRepositoryController : ControllerBase
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
-        
+
         XacmlContextRequest? xacmlRequest = null;
 
         if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)

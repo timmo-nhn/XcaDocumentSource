@@ -12,7 +12,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.WebService.Services;
 
 public partial class XdsRegistryService
 {

@@ -2,7 +2,7 @@
 using XcaXds.Source.Models.DatabaseDtos;
 using XcaXds.Source.Models.DatabaseDtos.Types;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.Source.Source;
 
 public static class DatabaseMapper
 {

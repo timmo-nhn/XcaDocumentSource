@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.WebService.Services;
 
 public class PolicyRepositoryService
 {
