@@ -239,7 +239,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             xacmlRequest = xacmlContextRequest;
         }
 
-        _atnaLoggingService.CreateAuditLogForFhirRequestResponse();
+        //_atnaLoggingService.CreateAuditLogForFhirRequestResponse();
 
         if (deleteResponse.Success)
         {
