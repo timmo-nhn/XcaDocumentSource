@@ -9,7 +9,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - REGISTRY_FILE_PATH=/mnt/registry
       - REPOSITORY_FILE_PATH=/mnt/repository
-      - AUDITEVENTS_FILE_PATH=/mnt/auditevents
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otlp-collector.opentelemetry:4317
       - DEPLOYMENT_ENVIRONMENT=Development
       - SERVICE_NAME=XcaDS
@@ -18,7 +17,6 @@ services:
     volumes:
       - ./XcaXds.Source/Data:/mnt/registry
       - ./XcaXds.Source/Repository:/mnt/repository
-      - ./XcaXds.Source/AuditEvents:/mnt/auditevents
     networks:
       - xcanet
 
