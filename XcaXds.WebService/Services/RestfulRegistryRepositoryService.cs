@@ -353,11 +353,18 @@ public class RestfulRegistryRepositoryService
 
     public RestfulApiResponse DeleteDocumentAndMetadata(string id)
     {
+        return DeleteDocumentAndMetadata(id, out _);
+    }
+
+    public RestfulApiResponse DeleteDocumentAndMetadata(string id, out DocumentEntryDto? deletedEntry)
+    {
         var apiResponse = new RestfulApiResponse();
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
         var documentEntryForDocument = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(de => de.Id == id);
-
+        
+        deletedEntry = documentEntryForDocument;
+        
         if (documentEntryForDocument == null)
         {
             _logger.LogWarning($"Error while deleting document");

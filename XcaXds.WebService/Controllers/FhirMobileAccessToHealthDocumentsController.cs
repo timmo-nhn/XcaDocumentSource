@@ -229,7 +229,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
 
-        var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id);
+        var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id, out var deletedEntry);
 
         // Atna log generation
         XacmlContextRequest? xacmlRequest = null;
