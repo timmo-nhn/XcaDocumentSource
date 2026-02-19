@@ -1,6 +1,5 @@
 ﻿using Hl7.Fhir.Model;
 using System.Text;
-using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Services;
 
@@ -12,7 +11,6 @@ public class FhirService
     {
         _registry = registry;
     }
-
 
     public OperationOutcome PatchResource(Bundle bundle)
     {

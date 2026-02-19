@@ -10,7 +10,7 @@ public static class XacmlSerializer
 {
     public static string? SerializeXacmlToXml(XacmlContextRequest? request, XmlWriterSettings? options = null)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var sb = new StringBuilder();
         using (var writer = XmlWriter.Create(sb, options))
@@ -24,7 +24,7 @@ public static class XacmlSerializer
 
     public static string? SerializeXacmlToXml(XacmlContextResponse? request, XmlWriterSettings? options = null)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var sb = new StringBuilder();
         using (var writer = XmlWriter.Create(sb, options))
@@ -38,7 +38,7 @@ public static class XacmlSerializer
 
     public static string? SerializeXacmlToXml(XacmlPolicy? request, XmlWriterSettings? options = null)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var sb = new StringBuilder();
         using (var writer = XmlWriter.Create(sb, options))
@@ -52,7 +52,7 @@ public static class XacmlSerializer
 
     public static string? SerializeXacmlToXml(XacmlPolicySet? request, XmlWriterSettings? options = null)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var sb = new StringBuilder();
         using (var writer = XmlWriter.Create(sb, options))
@@ -67,7 +67,7 @@ public static class XacmlSerializer
 
     public static XacmlContextRequest? DeserializeXacmlRequest(string? request)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var bytes = request.GetAsUtf8Bytes();
         using (var ms = new MemoryStream(bytes))
@@ -84,7 +84,7 @@ public static class XacmlSerializer
 
     public static XacmlContextResponse? DeserializeXacmlResponse(string request)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var bytes = request.GetAsUtf8Bytes();
         using (var ms = new MemoryStream(bytes))
@@ -101,7 +101,7 @@ public static class XacmlSerializer
 
     public static XacmlPolicy? DeserializeXacmlPolicy(string? request)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var bytes = request.GetAsUtf8Bytes();
         using (var ms = new MemoryStream(bytes))
@@ -118,7 +118,7 @@ public static class XacmlSerializer
 
     public static XacmlPolicySet? DeserializeXacmlPolicySet(string? request)
     {
-        if (request == null) throw new ArgumentNullException();
+        if (request == null) return null;
 
         var bytes = request.GetAsUtf8Bytes();
         using (var ms = new MemoryStream(bytes))
