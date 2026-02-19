@@ -64,6 +64,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _repositoryWrapper = repositoryWrapper;
         _appConfig = applicationConfig;
         _atnaLoggingService = atnaLoggingService;
+        _restfulRegistryService = restfulRegistryService;
     }
 
     [Consumes("application/fhir+json")]
@@ -181,7 +182,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         }
 
         _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
-        return BadRequest(operationOutcome);
+        return BadRequestOperationOutcome.Create(operationOutcome);
     }
 
 
@@ -224,14 +225,14 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
 
     [Consumes("application/fhir+json", "application/fhir+xml")]
-    [Produces("application/fhir+json", "application/fhir+xml")]
-    [HttpDelete("DocumentReference/{documentUniqueId}")]
-    public IActionResult DeleteDocument(string documentUniqueId)
-    {
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {documentUniqueId} from {Request.HttpContext.Connection.RemoteIpAddress}");
+    [Produces("application/fhir+json", "application/fhir+xml")]    
+	[HttpDelete("DocumentReference/{id}")]	
+    public IActionResult DeleteDocument(string id)
+	{
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
 
-        var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(documentUniqueId);
+        var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id);
 
         if (deleteResponse.Success)
         {
@@ -256,7 +257,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             return BadRequestOperationOutcome.Create(operationOutcome);
         }
 
-        return Ok(operationOutcome);
+        return OkOperationOutcome.Create(operationOutcome);
     }
 
     //[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
@@ -516,7 +517,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         if (resource is not Binary fhirBinaryType)
         {
 
-            return BadRequest(OperationOutcome
+            return BadRequestOperationOutcome.Create(OperationOutcome
             .ForMessage($"Request body does not contain a well formatted FHIR bundle",
             OperationOutcome.IssueType.Invalid,
             OperationOutcome.IssueSeverity.Fatal));
