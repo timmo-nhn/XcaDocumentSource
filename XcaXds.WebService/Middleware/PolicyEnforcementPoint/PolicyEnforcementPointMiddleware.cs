@@ -81,6 +81,13 @@ public class PolicyEnforcementPointMiddleware
 
         var policyInput = await policyInputBuilder.BuildAsync(httpContext, _xdsConfig, _registryWrapper.GetDocumentRegistryContentAsDtos());
 
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+        {
+            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(_policyRepositoryService.GetPoliciesAsXacmlPolicySet(policyInput.AppliesTo), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+            var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+            _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
+        }
+
         AttachPepContext(httpContext, policyInput.XacmlRequest, sw.ElapsedMilliseconds);
 
         if (ShouldBypassPolicyEnforcementPoint(httpContext, _xdsConfig, _env))
@@ -108,13 +115,6 @@ public class PolicyEnforcementPointMiddleware
             _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:tokeninvalid", sw.ElapsedMilliseconds);
             await policyDenyResponseBuilder.WriteAsync(httpContext, policyInput, _xdsConfig, policyInput.ErrorMessage);
             return;
-        }
-
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-        {
-            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(_policyRepositoryService.GetPoliciesAsXacmlPolicySet(policyInput.AppliesTo), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-            var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-            _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
 
         _logger.LogDebug($"XACML Request:{XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings)}");

@@ -378,7 +378,7 @@ public class RestfulRegistryRepositoryService
             return apiResponse;
         }
 
-        var associationsForEntry = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.TargetObject == id).ToList();
+        var associationsForEntry = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.TargetObject == id && assoc.AssociationType == Constants.Xds.AssociationType.HasMember).ToList();
 
         if (associationsForEntry == null)
         {
