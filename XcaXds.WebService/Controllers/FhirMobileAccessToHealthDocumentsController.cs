@@ -274,7 +274,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         if (resource is not Bundle fhirBundle)
         {
-            return BadRequest(OperationOutcome.ForMessage($"Request body does not contain a well formatted FHIR bundle",
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Request body does not contain a well formatted FHIR bundle",
                 OperationOutcome.IssueType.Invalid,
                 OperationOutcome.IssueSeverity.Fatal));
         }
@@ -512,7 +512,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         if (resource is not Bundle fhirBundle)
         {
-            return BadRequest(OperationOutcome
+            return BadRequestOperationOutcome.Create(OperationOutcome
                 .ForMessage($"Request body does not contain a well formatted FHIR bundle",
                     OperationOutcome.IssueType.Invalid,
                     OperationOutcome.IssueSeverity.Fatal));
@@ -520,7 +520,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         if (fhirBundle.Entry.Any(ent => ent.Request?.Method != Bundle.HTTPVerb.PATCH))
         {
-            return BadRequest(OperationOutcome
+            return BadRequestOperationOutcome.Create(OperationOutcome
                 .ForMessage($"Bundle must contain a PATCH entry",
                     OperationOutcome.IssueType.Invalid,
                     OperationOutcome.IssueSeverity.Fatal));
