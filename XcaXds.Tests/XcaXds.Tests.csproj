@@ -50,6 +50,7 @@
 	
   <ItemGroup>
     <Folder Include="TestData\Documents\" />
+    <Folder Include="TestData\Jwt\" />
   </ItemGroup>
 	
   <ItemGroup Condition="$(VisualStudioVersion) == '17.0'">
