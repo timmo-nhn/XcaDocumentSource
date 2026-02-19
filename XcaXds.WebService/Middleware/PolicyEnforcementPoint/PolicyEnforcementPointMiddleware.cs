@@ -3,7 +3,9 @@ using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
 using XcaXds.WebService.Attributes;
@@ -83,6 +85,8 @@ public class PolicyEnforcementPointMiddleware
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {
+            LogJwt(httpContext);
+
             var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(_policyRepositoryService.GetPoliciesAsXacmlPolicySet(policyInput.AppliesTo), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
@@ -191,5 +195,42 @@ public class PolicyEnforcementPointMiddleware
 
         return false;
     }
+
+    public void LogJwt(HttpContext context)
+    {
+        var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+
+        if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+        {
+            _logger.LogWarning("No Bearer token found.");
+            return;
+        }
+
+        var tokenString = authHeader.Substring("Bearer ".Length).Trim();
+
+        var handler = new JwtSecurityTokenHandler();
+
+        if (!handler.CanReadToken(tokenString))
+        {
+            _logger.LogWarning("Invalid JWT format.");
+            return;
+        }
+
+        var jwt = handler.ReadJwtToken(tokenString);
+
+        var jwtObject = new
+        {
+            Header = jwt.Header,
+            Payload = jwt.Payload
+        };
+
+        var json = JsonSerializer.Serialize(jwtObject, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        _logger.LogInformation("JWT Content:\n{JwtJson}", json);
+    }
+
 }
 
