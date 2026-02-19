@@ -7,7 +7,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Source.Source;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.WebService.Services;
 
 public class PolicyDecisionPointService
 {

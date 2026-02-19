@@ -8,7 +8,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Source;
 
-namespace XcaXds.Source.Services;
+namespace XcaXds.WebService.Services;
 
 public class Hl7RegistryService
 {

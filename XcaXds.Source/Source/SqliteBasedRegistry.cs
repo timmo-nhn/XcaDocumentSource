@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Models.DatabaseDtos;
-using XcaXds.Source.Services;
 
 namespace XcaXds.Source.Source;
 

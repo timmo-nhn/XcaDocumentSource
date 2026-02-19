@@ -3,9 +3,10 @@ using System.Text.RegularExpressions;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
+using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.WebService.Services;
 
 public static class RegistryMetadataGeneratorService
 {

@@ -1,0 +1,18 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "Patient/1",
+      "resource": {
+        "resourceType": "Binary",
+        "contentType": "application/json-patch+json",
+        "data": "WyB7ICJvcCI6InJlcGxhY2UiLCAicGF0aCI6Ii9hY3RpdmUiLCAidmFsdWUiOmZhbHNlIH0gXQ=="
+      },
+      "request": {
+        "method": "PATCH",
+        "url": "Patient/1"
+      }
+    }
+  ]
+}

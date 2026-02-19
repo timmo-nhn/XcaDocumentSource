@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Services;
 
-namespace XcaXds.Source.Source;
+namespace XcaXds.WebService.Services;
 
 
 public class RegistryWrapper
