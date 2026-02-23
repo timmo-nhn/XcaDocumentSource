@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs (XACML). Allows for partial (non-atomic) filtering of the document list
@@ -46,7 +46,7 @@ public static class BusinessLogicFilteringService
 
         foreach (var businessRule in businessLogicRules)
         {
-            var result = businessRule(current, businessLogic);
+            var result = businessRule(current ?? [], businessLogic);
 
             if (result.RuleApplied)
             {

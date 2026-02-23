@@ -1,121 +1,34 @@
 ﻿using Hl7.Fhir.Model;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using System.Text;
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Interfaces;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Source.Services;
-using XcaXds.Source.Source;
-using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
-using XcaXds.WebService.Services;
-using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
-public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixture<WebApplicationFactory<WebService.Program>>
+public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    private readonly HttpClient _client;
-    private readonly RestfulRegistryRepositoryService _restfulRegistryService;
-    private readonly PolicyRepositoryService _policyRepositoryService;
-    private readonly RegistryWrapper _registryWrapper;
-    private readonly InMemoryPolicyRepository _policyRepository;
-    private readonly InMemoryRegistry _registry;
-    private readonly InMemoryRepository _repository;
-    private readonly AtnaLogExportedChecker _atnaLogExportedChecker;
-    private readonly ITestOutputHelper _output;
-
-    private List<DocumentReferenceDto> RegistryContent { get; set; } = new();
-
-    private readonly int RegistryItemCount = 500; // The amount of registry objects to generate and evaluate against
-
-    private readonly CX PatientIdentifier = new()
+    public IntegrationTests_XcaXdsRegistryRepository_CRUD(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
     {
-        IdNumber = "13116900216",
-        AssigningAuthority = new HD()
-        {
-            UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-            UniversalId = Constants.Oid.Fnr
-        }
-    };
-
-    public IntegrationTests_XcaXdsRegistryRepository_CRUD(
-        WebApplicationFactory<WebService.Program> factory,
-        ITestOutputHelper output)
-    {
-        _output = output;
-
-        using var scope = factory.Services.CreateScope();
-
-        _policyRepository = new InMemoryPolicyRepository();
-        _registry = new InMemoryRegistry();
-        _repository = new InMemoryRepository();
-
-        // Custom factory with fake services
-        var customFactory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                services.RemoveAll<AppStartupService>();
-
-                // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
-                services.RemoveAll<IPolicyRepository>();
-                services.RemoveAll<IRegistry>();
-                services.RemoveAll<IRepository>();
-
-                services.RemoveAll<AtnaLogExporterService>();
-                services.RemoveAll<IHostedService>();
-
-                // ...so replace with the mock implementations
-                services.AddSingleton<IPolicyRepository>(_policyRepository);
-                services.AddSingleton<IRegistry>(_registry);
-                services.AddSingleton<IRepository>(_repository);
-                services.AddSingleton<AtnaLogExportedChecker>();
-                services.AddHostedService<NonRequestingAtnaLogExporter>();
-
-                builder.Configure(app =>
-                {
-                    app.UseRouting();
-                    app.UseEndpoints(endpoints =>
-                    {
-                        endpoints.MapControllers();
-                    });
-                });
-            });
-        });
-
-        _client = customFactory.CreateClient();
-        using var customScope = customFactory.Services.CreateScope();
-
-        _atnaLogExportedChecker = customScope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
-        _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
-        _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
-        _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
     }
-
 
     [Fact]
     [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Kjernejournal()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
@@ -158,7 +71,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     public async Task XGQ_CrossGatewayQuery_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
             attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
             codeValue: "13",
@@ -201,7 +115,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     public async Task XGR_CrossGatewayRetrieve_Multipart_Kjernejournal()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
@@ -246,7 +161,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
-        
+
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
@@ -259,7 +174,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
             attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
             codeValue: "13",
@@ -303,10 +219,10 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
-        
+
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
-        
+
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
     }
 
@@ -316,7 +232,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge_ShouldNotGetAccess()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
             attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
             codeValue: "13",
@@ -368,7 +285,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     public async Task XGR_CrossGatewayRetrieve_Helsenorge()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
             attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
             codeValue: "13",
@@ -411,7 +329,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        
+
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
@@ -424,7 +342,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     public async Task XGR_CrossGatewayRetrieve_Helsenorge_ShouldNotGetAccess()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
             attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
             codeValue: "somevalue",
@@ -470,21 +389,6 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IClassFixt
     }
 
 
-    private void AddAccessControlPolicyForIntegrationTest(string policyName, string attributeId, string codeValue, string codeSystemValue, string action)
-    {
-        _policyRepositoryService.AddPolicy(new PolicyDto()
-        {
-            AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
-            Id = policyName,
-            Rules =
-            [[
-                new() { AttributeId = attributeId + ":code", Value = codeValue },
-                new() { AttributeId = attributeId + ":codeSystem", Value = codeSystemValue }
-            ]],
-            Actions = [action],
-            Effect = "Permit",
-        });
-    }
 
 
     //[Fact]

@@ -7,7 +7,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Tests.Helpers;
 using Task = System.Threading.Tasks.Task;
 
@@ -20,7 +20,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
     public async Task PNR_UploadDocuments_RandomAmount()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
@@ -74,7 +75,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
     public async Task PNR_UpdateRegistryRepository_Deprecate_RandomAmount()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
@@ -153,7 +155,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
     public async Task RDS_UploadRegistry_AddMetadata()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
@@ -203,21 +206,24 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
     public async Task RMD_RemoveDocumentsAndMetadata_RandomAmount()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_RemoveDocuments",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
             action: "Delete");
 
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_QueryDocumentList",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
             action: "ReadDocumentList");
 
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_QueryDocuments",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
@@ -332,21 +338,24 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD
     public async Task ALL_PutWrongRequestsForActions()
     {
         _policyRepositoryService.DeleteAllPolicies();
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_RemoveDocuments",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
             action: "Delete");
 
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_QueryDocumentList",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
             action: "ReadDocumentList");
 
-        AddAccessControlPolicyForIntegrationTest(
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
             policyName: "IT_QueryDocuments",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",

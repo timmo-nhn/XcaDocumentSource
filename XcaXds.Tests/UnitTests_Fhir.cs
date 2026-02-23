@@ -1,19 +1,15 @@
-using Hl7.Fhir.Model.CdsHooks;
 using Hl7.Fhir.Serialization;
 using Hl7.Fhir.Utility;
 using Microsoft.Extensions.Logging;
 using Moq;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
-using XcaXds.Source.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.Tests;
 
@@ -30,7 +26,7 @@ public class UnitTests_Fhir
 
         _applicationConfig = new ApplicationConfig();
 
-        _fileRegistry = new FileBasedRegistry(); 
+        _fileRegistry = new FileBasedRegistry();
     }
 
 
@@ -44,7 +40,7 @@ public class UnitTests_Fhir
             Status = "current"
         };
 
-        var xdsOnFhirService = new XdsOnFhirService(_fileRegistry,_applicationConfig,_logger);
+        var xdsOnFhirService = new XdsOnFhirService(_fileRegistry, _applicationConfig, _logger);
 
         var adhocquery = xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
 
@@ -68,7 +64,7 @@ public class UnitTests_Fhir
         var registryPackages = randomAssociation.Select(ra => registryObjects.GetById(ra?.SourceObject)).OfType<RegistryPackageType>().ToList();
         var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject)).OfType<ExtrinsicObjectType>().ToList();
 
-        var bundle = xdsOnFhirService.TransformRegistryObjectsToFhirBundle([..randomAssociation, ..registryPackages, ..extrinsicObjects]);
+        var bundle = xdsOnFhirService.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects]);
         var fhirJsonSerializer = new FhirJsonSerializer();
         if (bundle != null)
         {

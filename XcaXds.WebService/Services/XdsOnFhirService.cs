@@ -10,8 +10,9 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Commons.DataManipulators;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.WebService.Services;
 
 /// <summary>
 /// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) - integration of the solution <para/>

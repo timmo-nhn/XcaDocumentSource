@@ -930,13 +930,15 @@ public static class Constants
 
         public static class CustomAttributes
         {
-            public const string DocumentEntryPatientIdentifier = "urn:no:nhn:xcads:document:patient-identifier";
-            public const string AdhocQueryPatientIdentifier = "urn:no:nhn:xcads:adhocquery:patient-identifier";
-            public const string DocumentUniqueId = "urn:no:nhn:xcads:document:uniqueid";
-            public const string RepositoryUniqueId = "urn:no:nhn:xcads:document:repositoryuniqueid";
-            public const string HomeCommunityId = "urn:no:nhn:xcads:document:homecommunityid";
-            public const string SamlNameId = "urn:no:nhn:xcads:saml:nameid";
-            public const string AppliesTo = "urn:no:nhn:xcads:xacml:appliesto";
+            public const string BaseUrn = "urn:no:nhn:xcads:";
+            public const string DocumentEntryPatientIdentifier = BaseUrn + "document:patient-identifier";
+            public const string AdhocQueryPatientIdentifier = BaseUrn + "adhocquery:patient-identifier";
+            public const string DocumentUniqueId = BaseUrn + "document:uniqueid";
+            public const string RepositoryUniqueId = BaseUrn + "document:repositoryuniqueid";
+            public const string HomeCommunityId = BaseUrn + "document:homecommunityid";
+            public const string SamlNameId = BaseUrn + "saml:nameid";
+            public const string AppliesTo = BaseUrn + "xacml:appliesto";
+            public const string UnknownAttribute = BaseUrn + "xacml:unknownattribute:";
         }
 
         public static class Category

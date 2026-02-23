@@ -3,7 +3,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
 public static class TestDataGeneratorService
 {

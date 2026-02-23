@@ -30,7 +30,7 @@ public class PolicyInputBuilder
             return PolicyInputResult.Fail($"Unknown content type: {contentType}");
         }
 
-        _logger.LogError($"Content type: {contentType}");
+        _logger.LogInformation($"Content type: {contentType}");
         return await strategy.BuildAsync(ctx, appConfig, documentRegistry);
     }
 }
