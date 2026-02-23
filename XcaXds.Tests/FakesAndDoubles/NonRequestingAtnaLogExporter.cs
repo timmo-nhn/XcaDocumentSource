@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using Hl7.Fhir.Utility;
+using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Models.Custom;
+using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests.FakesAndDoubles;
 
@@ -22,6 +26,10 @@ public class NonRequestingAtnaLogExporter : BackgroundService
         {
             var auditEvent = auditEventFunction();
 
+            var fhirJsonSerializer = new FhirJsonSerializer();
+            var jsonOutput = fhirJsonSerializer.SerializeToString(auditEvent);
+
+            _atnaLogExportedChecker.AtnaMessageString = jsonOutput;
             _atnaLogExportedChecker.AtnaLogExported = true;
         }
     }

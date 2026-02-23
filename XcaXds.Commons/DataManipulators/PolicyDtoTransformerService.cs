@@ -2,7 +2,7 @@
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
 /// <summary>
 /// Transform between simple Policy DTO objects and actual XACML objects. <para/>
@@ -167,6 +167,8 @@ public static class PolicyDtoTransformerService
 
             foreach (var rule in rules)
             {
+                if (rule == null) continue;
+                
                 var values = rule.Value?.Split(";");
 
                 if (values?.Length > 1)

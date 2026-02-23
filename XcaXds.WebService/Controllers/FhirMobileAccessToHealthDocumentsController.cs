@@ -13,10 +13,10 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Middleware.PolicyEnforcementPoint.Helpers;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 
@@ -222,10 +222,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     }
 
     [Consumes("application/fhir+json", "application/fhir+xml")]
-    [Produces("application/fhir+json", "application/fhir+xml")]    
-	[HttpDelete("DocumentReference/{id}")]	
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpDelete("DocumentReference/{id}")]
     public IActionResult DeleteDocument(string id)
-	{
+    {
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
 
@@ -239,7 +239,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             xacmlRequest = xacmlContextRequest;
         }
 
-        //_atnaLoggingService.CreateAuditLogForFhirRequestResponse();
+        var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var ok);
+
+        _atnaLoggingService.CreateAuditLogForFhirDeleteDocumentsRequest(HttpContext.TraceIdentifier, deletedEntry, token);
 
         if (deleteResponse.Success)
         {
@@ -387,7 +389,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+        var provideAndRegisterResult = FhirXdsTransformerService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 
@@ -438,7 +440,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded {fhirBundle.Entry.Count} Entries");
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest, Request), registerDocumentSetResponse.Value);
+        
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(AtnaLogEnricherService.GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest.SubmitObjectsRequest.RegistryObjectList), registerDocumentSetResponse.Value);
 
         if (operationOutcome.Issue.Any())
         {
@@ -542,104 +545,5 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var jsonResult = JsonSerializer.Serialize(response, options);
 
         return Content(jsonResult, "application/json");
-    }
-
-    private SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle fhirBundle, List<RegistryErrorType> errors, ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest, HttpRequest request)
-    {
-        if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-        {
-            jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
-        }
-
-        var patient = fhirBundle.Entry
-            .Where(e => e.Resource is Patient)
-            .Select(e => (Patient)e.Resource)
-            .FirstOrDefault();
-
-        var handler = new JwtSecurityTokenHandler();
-
-        XmlElement? samlAssertionElement = null;
-
-        if (handler.CanReadToken(jwtToken) == true)
-        {
-            var requestUrlPath = request.Path;
-
-            var token = handler.ReadJwtToken(jwtToken);
-
-            var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
-            samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
-                        "is_provide_bundle",
-                        "true")));
-
-            // Enrich SAML assertion with patient context from the submitted Bundle (if present).
-            // This is used by downstream auditing/policy components expecting patient/resource attributes in the token.
-            var samlPatientIdentifier = patient?.Identifier?.FirstOrDefault(i => !string.IsNullOrWhiteSpace(i?.Value))
-                ?? patient?.Identifier?.FirstOrDefault();
-
-            if (samlPatientIdentifier != null && !string.IsNullOrWhiteSpace(samlPatientIdentifier.Value))
-            {
-                var patientSystem = samlPatientIdentifier.System?.NoUrn();
-                var patientValue = samlPatientIdentifier.Value;
-                var resourceId = !string.IsNullOrWhiteSpace(patientSystem) ? $"{patientSystem}^{patientValue}" : patientValue;
-
-                samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
-                    Constants.Saml.Attribute.ResourceId20,
-                    resourceId)));
-
-                var patientName = patient?.Name?.FirstOrDefault();
-                var patientGiven = patientName?.Given?.FirstOrDefault(g => !string.IsNullOrWhiteSpace(g));
-                var patientFamily = patientName?.Family;
-
-                if (!string.IsNullOrWhiteSpace(patientGiven))
-                {
-                    samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
-                        "patient_given",
-                        patientGiven)));
-                }
-
-                if (!string.IsNullOrWhiteSpace(patientFamily))
-                {
-                    samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
-                        "patient_family",
-                        patientFamily)));
-                }
-            }
-
-            // Ensure the SAML token is serializable: SAML2 AttributeStatement must contain at least one Attribute.
-            var emptyAttributeStatements = samlToken.Assertion.Statements
-                .OfType<Saml2AttributeStatement>()
-                .Where(s => s.Attributes == null || s.Attributes.Count == 0)
-                .Cast<Saml2Statement>()
-                .ToList();
-
-            foreach (var statement in emptyAttributeStatements)
-            {
-                samlToken.Assertion.Statements.Remove(statement);
-            }
-
-            var samlHandler = new Saml2SecurityTokenHandler();
-            var samlXml = samlHandler.WriteToken(samlToken);
-            var samlDoc = new XmlDocument() { PreserveWhitespace = true };
-            samlDoc.LoadXml(samlXml);
-            samlAssertionElement = samlDoc.DocumentElement;
-        }
-
-        var pnrEnvelope = new SoapEnvelope()
-        {
-            Header = new()
-            {
-                MessageId = fhirBundle.Id,
-                Action = Constants.Xds.OperationContract.Iti41Action,
-                Security = new Security() { Assertion = samlAssertionElement }
-            },
-            Body = new()
-            {
-                RegistryResponse = errors.Count > 0 ? new() { RegistryErrorList = new() { RegistryError = errors.ToArray() } } : null,
-                ProvideAndRegisterDocumentSetRequest = provideAndRegisterRequest,
-            }
-        };
-        pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
-
-        return pnrEnvelope;
     }
 }

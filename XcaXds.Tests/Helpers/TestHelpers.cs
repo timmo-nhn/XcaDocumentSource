@@ -2,9 +2,11 @@
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.Tests.Helpers;
 
@@ -45,4 +47,21 @@ public static class TestHelpers
             patientIdentifier: patientId,
             noDeprecatedDocuments: noDeprecatedDocuments);
     }
+
+    public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string attributeId, string codeValue,string action, string? codeSystemValue = null, bool noCode = false)
+    {
+        policyRepositoryService.AddPolicy(new PolicyDto()
+        {
+            AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
+            Id = policyName,
+            Rules =
+            [[
+                new() { AttributeId = attributeId + $"{(noCode ? string.Empty: ":code")}", Value = codeValue },
+                codeSystemValue == null ? null : new() { AttributeId = attributeId + ":codeSystem", Value = codeSystemValue }
+            ]],
+            Actions = [action],
+            Effect = "Permit",
+        });
+    }
+
 }

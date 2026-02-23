@@ -1,5 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using System.IdentityModel.Tokens.Jwt;
+using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -8,8 +10,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
-using XcaXds.Source.Source;
+using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services;
@@ -51,6 +52,43 @@ public class AtnaLogGeneratorService
         {
             _logger.LogError(ex, "Error generating auditlog");
         }
+    }
+
+    public void CreateAuditLogForFhirDeleteDocumentsRequest(string sessionId, DocumentEntryDto? deletedEntry, JwtSecurityToken? token)
+    {
+        try
+        {
+            _queue.Enqueue(() => GetAuditEventFromDocumentEntryAndJwt(sessionId, deletedEntry, token));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating auditlog");
+        }
+    }
+
+    private AuditEvent GetAuditEventFromDocumentEntryAndJwt(string sessionId, DocumentEntryDto? deletedEntry, JwtSecurityToken? token)
+    {
+        var extrinsicObject = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
+
+        var soapEnvelope = AtnaLogEnricherService.GetMockSoapEnvelopeFromJwt(token.RawData, null, null, [extrinsicObject]);
+
+        soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
+        soapEnvelope.Header.MessageId = sessionId;
+
+        var responseEnvelope = new SoapEnvelope()
+        {
+            Body = new()
+            {
+                RegistryResponse = new()
+                {
+                    Status = Constants.Xds.ResponseStatusTypes.Success 
+                }
+            }
+        };
+
+        var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
+
+        return auditEvent;
     }
 
     private AuditEvent GetAuditEventFromFhirRequestResponse(Resource request, Resource response)

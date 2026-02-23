@@ -4,7 +4,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.WebService.Services;
 

@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -123,6 +123,7 @@ public class Program
         builder.Services.AddScoped<IPolicyInputStrategy,FhirJsonPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy,SoapSamlXmlPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy,JsonPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy, GenericPolicyInputStrategy>();
 
         builder.Services.AddScoped<PolicyDenyResponseBuilder>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, SoapDenyResponseStrategy>();
@@ -199,8 +200,7 @@ public class Program
             Console.WriteLine($"{entry.Key}={entry.Value}");
         }
 
-        Console.WriteLine($"Running in container: {runningInContainer}");
-        if (!runningInContainer)
+        if (!app.Environment.IsEnvironment("Testing"))
         {
             builder.WebHost.UseUrls(["https://localhost:7176"]);
             app.UseHttpsRedirection();
