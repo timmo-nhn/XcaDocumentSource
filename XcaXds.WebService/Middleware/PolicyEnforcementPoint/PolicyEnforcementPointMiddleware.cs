@@ -42,7 +42,6 @@ public class PolicyEnforcementPointMiddleware
         RequestThrottlingService requestThrottlingService,
         PolicyRepositoryService policyRepositoryService)
     {
-        Console.WriteLine("PEP constructed");
         _next = next;
         _logger = logger;
         _xdsConfig = xdsConfig;
