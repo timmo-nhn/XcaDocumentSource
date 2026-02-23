@@ -1,6 +1,4 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Hl7.Fhir.Utility;
+﻿using Hl7.Fhir.Serialization;
 using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Models.Custom;
 using Task = System.Threading.Tasks.Task;
