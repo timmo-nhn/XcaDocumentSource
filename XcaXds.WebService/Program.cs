@@ -199,7 +199,8 @@ public class Program
             Console.WriteLine($"{entry.Key}={entry.Value}");
         }
 
-        if (!app.Environment.IsEnvironment("Testing"))
+        Console.WriteLine($"Running in container: {runningInContainer}");
+        if (!runningInContainer)
         {
             builder.WebHost.UseUrls(["https://localhost:7176"]);
             app.UseHttpsRedirection();
