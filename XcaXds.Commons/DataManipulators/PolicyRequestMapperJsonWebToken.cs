@@ -13,7 +13,7 @@ namespace XcaXds.Commons.DataManipulators;
 /// Parse Json Web Token (JWT) to an XACML-request<para/>
 /// Transforms JWT to a partial SAML-token and then to XACML Using <b>PolicyRequestMapperSamlService</b> to ensure consistency with XACML-formats and policies
 /// </summary>
-public class PolicyRequestMapperJsonWebTokenService
+public class PolicyRequestMapperJsonWebToken
 {
     public static XacmlContextRequest? GetXacml20RequestFromJsonWebToken(JwtSecurityToken jwtToken, Resource? fhirBundle, string urlPath, string path)
     {
@@ -31,7 +31,7 @@ public class PolicyRequestMapperJsonWebTokenService
 
         var action = MapXacmlActionFromUrlPath(urlPath, path);
 
-        var samlAttributes = PolicyRequestMapperSamlService.MapSamlAttributesToXacml20Properties(statements, action);
+        var samlAttributes = PolicyRequestMapperSaml.MapSamlAttributesToXacml20Properties(statements, action);
 
         // Resource
         var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();

@@ -389,7 +389,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = FhirXdsTransformerService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+        var provideAndRegisterResult = FhirXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 
@@ -441,7 +441,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
         
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(AtnaLogEnricherService.GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest.SubmitObjectsRequest.RegistryObjectList), registerDocumentSetResponse.Value);
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest.SubmitObjectsRequest.RegistryObjectList), registerDocumentSetResponse.Value);
 
         if (operationOutcome.Issue.Any())
         {

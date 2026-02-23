@@ -10,55 +10,8 @@ namespace XcaXds.Commons.DataManipulators;
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs (XACML). Allows for partial (non-atomic) filtering of the document list
 /// </summary>
-public static class BusinessLogicFilteringService
+public static class BusinessLogicMapper
 {
-    public static IEnumerable<IdentifiableType>? FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType>? registryObjects, BusinessLogicParameters? businessLogic)
-    {
-        if (registryObjects == null || registryObjects.Count() == 0) return registryObjects;
-        if (businessLogic == null) return registryObjects;
-
-        var businessLogicRules = new List<BusinessLogicRule>
-        {
-            BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
-            BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
-            BusinessLogicFilters.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
-            BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
-            BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
-            BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
-
-            //BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
-
-            BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
-            BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
-            BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
-
-            // Comment out this to try only the one below instead
-//#if DEBUG
-//            BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
-//#else
-//            BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-//#endif
-        };
-
-        var current = registryObjects;
-
-        var rulesApplied = new List<BusinessLogicResult>();
-
-        foreach (var businessRule in businessLogicRules)
-        {
-            var result = businessRule(current ?? [], businessLogic);
-
-            if (result.RuleApplied)
-            {
-                rulesApplied.Add(result);
-                current = result.RegistryObjects;
-            }
-        }
-
-        return current;
-    }
-
-
     public static BusinessLogicParameters? MapXacmlRequestToBusinessLogicParameters(XacmlContextRequest? xacmlRequest)
     {
         if (xacmlRequest == null) return null;

@@ -75,7 +75,7 @@ public class UnitTests_ClinicalDocument
         var submissionSet = registryMetadata.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
         var document = documents.FirstOrDefault(doc => doc.DocumentId == documentEntry.UniqueId);
 
-        var cdaDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, document);
+        var cdaDocument = CdaTransformer.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, document);
         var sxmls = new SoapXmlSerializer();
         var cdaXml = sxmls.SerializeSoapMessageToXmlString(cdaDocument).Content;
         var cdaDocumentAgain = sxmls.DeserializeXmlString<ClinicalDocument>(cdaXml);
@@ -94,9 +94,9 @@ public class UnitTests_ClinicalDocument
 
             var cdaDocument = sxmls.DeserializeXmlString<ClinicalDocument>(cdaXml);
 
-            var documentReference = CdaTransformerService.TransformClinicalDocumentToRegistryObjects(cdaDocument, "2.16.578.1.12.4.5.100.1", "2.16.578.1.12.4.5.100.1.2");
+            var documentReference = CdaTransformer.TransformClinicalDocumentToRegistryObjects(cdaDocument, "2.16.578.1.12.4.5.100.1", "2.16.578.1.12.4.5.100.1.2");
 
-            var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(documentReference);
+            var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(documentReference);
         }
     }
 }

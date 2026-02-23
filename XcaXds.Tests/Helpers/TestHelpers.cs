@@ -39,7 +39,7 @@ public static class TestHelpers
 
         var data =  File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json")));
 
-        return RegistryMetadataGeneratorService.GenerateRandomizedTestData(
+        return RegistryMetadataGenerator.GenerateRandomizedTestData(
             homeCommunityId:"2.16.578.1.12.4.5.100.1.1", 
             repositoryUniqueId:"2.16.578.1.12.4.5.100.1.1.2", 
             jsonTestData: JsonSerializer.Deserialize<Test_DocumentReference>(data, Constants.JsonDefaultOptions.DefaultSettings),

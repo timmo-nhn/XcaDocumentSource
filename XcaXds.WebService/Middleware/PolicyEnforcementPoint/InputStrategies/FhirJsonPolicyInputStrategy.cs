@@ -25,7 +25,7 @@ public class FhirJsonPolicyInputStrategy : IPolicyInputStrategy
         if (!ok || token == null)
             return PolicyInputResult.Fail("Invalid or missing JWT");
 
-        var xacml = PolicyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method);
+        var xacml = PolicyRequestMapperJsonWebToken.GetXacml20RequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method);
 
         return PolicyInputResult.Success(xacml, Issuer.HelseId, this);
     }

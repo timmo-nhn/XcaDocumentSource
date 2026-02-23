@@ -23,7 +23,7 @@ public class UnitTests_PolicyMappingDto
 
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "SoapRequests"));
         var registry = new FileBasedRegistry();
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, registry.ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSaml.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, registry.ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);
@@ -41,11 +41,11 @@ public class UnitTests_PolicyMappingDto
             var jsonContent = File.ReadAllText(file);
             var policyDto = JsonSerializer.Deserialize<PolicyDto>(jsonContent, Constants.JsonDefaultOptions.DefaultSettings);
 
-            var xacmlPolicy = PolicyDtoTransformerService.TransformPolicyDtoToXacmlVersion20Policy(policyDto);
+            var xacmlPolicy = PolicyDtoTransformer.TransformPolicyDtoToXacmlVersion20Policy(policyDto);
 
             var xacmlPolicyString = XacmlSerializer.SerializeXacmlToXml(xacmlPolicy, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-            var policyDtoRecreated = PolicyDtoTransformerService.TransformXacmlVersion20PolicyToPolicyDto(xacmlPolicy);
+            var policyDtoRecreated = PolicyDtoTransformer.TransformXacmlVersion20PolicyToPolicyDto(xacmlPolicy);
 
         }
     }

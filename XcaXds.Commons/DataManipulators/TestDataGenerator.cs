@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
 namespace XcaXds.Commons.DataManipulators;
 
-public static class TestDataGeneratorService
+public static class TestDataGenerator
 {
     public static List<DocumentReferenceDto> GenerateRegistryObjectsFromTestData(Test_DocumentReference documentEntryValues, int amount)
     {

@@ -8,7 +8,7 @@ using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.DataManipulators;
 
-public static partial class CdaTransformerService
+public static partial class CdaTransformer
 {
     public static DocumentReferenceDto TransformClinicalDocumentToRegistryObjects(ClinicalDocument clinicalDocument, string? homeCommunityId = null, string? repositoryUniqueId = null)
     {
@@ -359,7 +359,7 @@ public static partial class CdaTransformerService
     }
 }
 
-public static partial class CdaTransformerService
+public static partial class CdaTransformer
 {
     /// <summary>
     /// Parse a provide and register request and transform into a CDA document.<para/>

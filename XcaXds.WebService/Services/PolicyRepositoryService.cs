@@ -41,13 +41,13 @@ public class PolicyRepositoryService
     public XacmlPolicySet? GetPoliciesAsXacmlPolicySet()
     {
         var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet();
-        return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
+        return PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
 
     public XacmlPolicySet? GetPoliciesAsXacmlPolicySet(Issuer issuer)
     {
         var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet(issuer);
-        return PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
+        return PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
 
     public bool UpdatePolicy(PolicyDto policyDto, string? id)

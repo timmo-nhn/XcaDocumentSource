@@ -8,7 +8,7 @@ namespace XcaXds.Commons.DataManipulators;
 /// Transform between simple Policy DTO objects and actual XACML objects. <para/>
 /// Policy DTOs are used for storage and creation, whilst the actual policy evaluation is done via XACML XML-requests and policies
 /// </summary>
-public static class PolicyDtoTransformerService
+public static class PolicyDtoTransformer
 {
     public static PolicyDto TransformXacmlVersion20PolicyToPolicyDto(XacmlPolicy xacmlPolicy)
     {
