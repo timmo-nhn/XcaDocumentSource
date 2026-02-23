@@ -63,14 +63,14 @@ public class PolicyRepositoryWrapper
     {
         lock (_lock)
         {
-            _evaluationEnginePractitioner = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
+            _evaluationEnginePractitioner = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
             {
                 CombiningAlgorithm = policySet.CombiningAlgorithm,
                 SetId = policySet.SetId,
                 Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.HelseId) ?? false).ToList()
             }));
 
-            _evaluationEngineCitizen = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
+            _evaluationEngineCitizen = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
             {
                 CombiningAlgorithm = policySet.CombiningAlgorithm,
                 SetId = policySet.SetId,

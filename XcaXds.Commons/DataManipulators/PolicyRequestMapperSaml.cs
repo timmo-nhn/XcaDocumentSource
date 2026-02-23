@@ -16,7 +16,7 @@ namespace XcaXds.Commons.DataManipulators;
 /// <summary>
 /// Parse incoming requests (ie. SOAP-requests with SAML-token) and generate XACML-access requests from the request assertions
 /// </summary>
-public static class PolicyRequestMapperSamlService
+public static class PolicyRequestMapperSaml
 {
 
     public static Saml2SecurityToken? ReadSamlToken(string? inputSamlToken)

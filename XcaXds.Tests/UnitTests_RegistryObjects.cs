@@ -42,9 +42,9 @@ public class UnitTests_RegistryObjects
             var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
 
 
-            var documentReference = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList?.ToList());
+            var documentReference = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList?.ToList());
 
-            var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(documentReference);
+            var registryObjects = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(documentReference);
 
             var outputSoap = new SoapEnvelope()
             {
@@ -86,7 +86,7 @@ public class UnitTests_RegistryObjects
         var registryContent = sxmls.DeserializeXmlString<XmlDocumentRegistry>(content);
 
 
-        var documentDtoEntries = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
+        var documentDtoEntries = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
 
         var jsonRegistry = RegistryJsonSerializer.Serialize(documentDtoEntries);
 
@@ -130,7 +130,7 @@ public class UnitTests_RegistryObjects
 
         var files = testDataDocuments.Select(file => File.ReadAllBytes(file)).ToList();
 
-        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, 250);
+        var generatedTestRegistryObjects = TestDataGenerator.GenerateRegistryObjectsFromTestData(jsonTestData, 250);
 
 
         var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = generatedTestRegistryObjects.OfType<DocumentEntryDto>().FirstOrDefault().RepositoryUniqueId });

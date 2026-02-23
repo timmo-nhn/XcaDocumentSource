@@ -242,7 +242,7 @@ public static class BusinessLogicFilters
             var allowedRegistryObjects = registryObjects
                 .OfType<ExtrinsicObjectType>()
                 .Where(ext =>
-                    RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
+                    RegistryMetadataTransformer.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
                     .All(cc => CitizenConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
                 )
                 .ToArray();
@@ -262,7 +262,7 @@ public static class BusinessLogicFilters
             var allowedRegistryObjects = registryObjects
                 .OfType<ExtrinsicObjectType>()
                 .Where(ext =>
-                    RegistryMetadataTransformerService.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
+                    RegistryMetadataTransformer.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
                     .All(cc => HealthcarePersonellConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
                 )
                 .ToArray();

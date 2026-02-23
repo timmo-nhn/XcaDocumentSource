@@ -279,7 +279,7 @@ public class XdsRepositoryService
             .FirstOrDefault() 
             ?? "Unknown");
 
-        var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+        var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
 
         var extrinsicObject = _registry.GetDocumentRegistryContentAsDtos()
             .OfType<DocumentEntryDto>()

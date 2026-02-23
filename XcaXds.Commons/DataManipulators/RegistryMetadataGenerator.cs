@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
 namespace XcaXds.Commons.DataManipulators;
 
-public static class RegistryMetadataGeneratorService
+public static class RegistryMetadataGenerator
 {
     public static List<DocumentReferenceDto> GenerateRandomizedTestData(
         string? homeCommunityId,
@@ -32,7 +32,7 @@ public static class RegistryMetadataGeneratorService
             jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [sourcePatientInfoForPatient];
         }
 
-        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, (int)entriesToGenerate!);
+        var generatedTestRegistryObjects = TestDataGenerator.GenerateRegistryObjectsFromTestData(jsonTestData, (int)entriesToGenerate!);
 
         foreach (var generatedTestObject in generatedTestRegistryObjects)
         {

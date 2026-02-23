@@ -11,7 +11,7 @@ using static XcaXds.Commons.Commons.Constants;
 
 namespace XcaXds.Commons.DataManipulators;
 
-public static class FhirXdsTransformerService
+public static class FhirXdsTransformer
 {
     public static List<RegistryObjectDto> TransformFhirResourceToRegistryObjectDto(Bundle.EntryComponent bundleEntry)
     {

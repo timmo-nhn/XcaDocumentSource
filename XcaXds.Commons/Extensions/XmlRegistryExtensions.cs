@@ -624,14 +624,15 @@ public static class Commons
 
     /// <summary>
     /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
+    /// Will not remove the entry from the result list! </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
+    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
         var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
 
-        var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+        var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
 
         foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
         {

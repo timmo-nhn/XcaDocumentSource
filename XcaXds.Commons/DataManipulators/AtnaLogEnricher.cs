@@ -14,7 +14,7 @@ namespace XcaXds.Commons.DataManipulators;
 /// Convert requests and responses into formats which are compatible with the existing AtnaLogGeneratorService (SOAP-envelope request and response)
 /// ie. convert a FHIR bundle and JWT into soap envelope, which can be handled by AtnaLogGeneratorService
 /// </summary>
-public class AtnaLogEnricherService
+public class AtnaLogEnricher
 {
     public static SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle? fhirBundle, List<RegistryErrorType>? errors, IdentifiableType[] registryObjects)
     {
@@ -66,7 +66,7 @@ public class AtnaLogEnricherService
 
             var token = handler.ReadJwtToken(jwtToken);
 
-            var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
+            var samlToken = PolicyRequestMapperJsonWebToken.MapJsonWebTokenToSamlToken(token);
             samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                         requestType,
                         "true")));
