@@ -159,7 +159,7 @@ public static class Hl7FhirExtensions
             // 2000–2039 (D-number, H-number, synthetic)
             ( >= 500 and <= 999, <= 39) => "20",
 
-            _ => throw new Exception("Invalid FNR")
+            _ => throw new Exception($"Invalid FNR: {patientCx.Serialize()}")
         };
 
 
