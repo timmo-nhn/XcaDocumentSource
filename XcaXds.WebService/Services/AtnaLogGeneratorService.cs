@@ -67,11 +67,46 @@ public class AtnaLogGeneratorService
         }
     }
 
+    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(string sessionId, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
+    {
+        try
+        {
+            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(sessionId, updatedEntry, token, null, null, null));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating auditlog");
+        }
+    }
+
+    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
+        string sessionId,
+        string documentReferenceId,
+        List<CodedValue>? oldSecurityLabel,
+        List<CodedValue>? newSecurityLabel,
+        DocumentEntryDto? updatedEntry,
+        JwtSecurityToken? token)
+    {
+        try
+        {
+            // Clone to avoid mutation after we enqueue (controller updates the same DTO instance).
+            var oldCopy = CloneCodedValues(oldSecurityLabel);
+            var newCopy = CloneCodedValues(newSecurityLabel);
+            var updatedCopy = CloneDocumentEntryDto(updatedEntry);
+
+            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(sessionId, updatedCopy, token, documentReferenceId, oldCopy, newCopy));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating auditlog");
+        }
+    }
+
     private AuditEvent GetAuditEventFromDocumentEntryAndJwt(string sessionId, DocumentEntryDto? deletedEntry, JwtSecurityToken? token)
     {
         var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
 
-        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(token.RawData, null, null, [extrinsicObject]);
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(token?.RawData, null, null, [extrinsicObject]);
 
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
         soapEnvelope.Header.MessageId = sessionId;
@@ -90,6 +125,130 @@ public class AtnaLogGeneratorService
         var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         return auditEvent;
+    }
+
+    private AuditEvent GetAuditEventFromPatchedDocumentEntryAndJwt(
+        string sessionId,
+        DocumentEntryDto? updatedEntry,
+        JwtSecurityToken? token,
+        string? documentReferenceId,
+        List<CodedValue>? oldSecurityLabel,
+        List<CodedValue>? newSecurityLabel)
+    {
+        var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([updatedEntry])
+            .OfType<ExtrinsicObjectType>()
+            .FirstOrDefault();
+
+        // For Patch (metadata update) we want the audit event to be categorized as Amend (Update).
+        // The existing BALP mapping derives Update/Amend from an XDS Replace (RPLC) association.
+        var targetObject = extrinsicObject?.Id
+            ?? updatedEntry?.Id?.WithUrnUuid()
+            ?? updatedEntry?.UniqueId
+            ?? "urn:uuid:unknown";
+
+        var association = new AssociationType
+        {
+            AssociationTypeData = Replace,
+            SourceObject = $"urn:uuid:{Guid.NewGuid():D}",
+            TargetObject = targetObject
+        };
+
+        IdentifiableType[] registryObjects = extrinsicObject == null
+            ? [association]
+            : [extrinsicObject, association];
+
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(token?.RawData, null, null, registryObjects);
+
+        // ITI-42 is used here to represent an update/amend of registry metadata.
+        soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
+        soapEnvelope.Header.MessageId = sessionId;
+
+        var responseEnvelope = new SoapEnvelope()
+        {
+            Body = new()
+            {
+                RegistryResponse = new()
+                {
+                    Status = Constants.Xds.ResponseStatusTypes.Success
+                }
+            }
+        };
+
+        var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
+
+        // Add explicit patch details (document id + old/new securityLabel) as AuditEvent.entity.detail.
+        if (!string.IsNullOrWhiteSpace(documentReferenceId) || (oldSecurityLabel?.Count > 0) || (newSecurityLabel?.Count > 0))
+        {
+            var detail = new List<AuditEvent.DetailComponent>();
+            AddDetail(detail, "documentReference.id", documentReferenceId);
+            AddDetail(detail, "securityLabel.old", FormatSecurityLabel(oldSecurityLabel));
+            AddDetail(detail, "securityLabel.new", FormatSecurityLabel(newSecurityLabel));
+
+            auditEvent.Entity.Add(new AuditEvent.EntityComponent
+            {
+                What = string.IsNullOrWhiteSpace(documentReferenceId)
+                    ? new ResourceReference { Display = "DocumentReference" }
+                    : new ResourceReference($"DocumentReference/{documentReferenceId.NoUrn()}", "DocumentReference"),
+                Detail = detail
+            });
+        }
+
+        return auditEvent;
+    }
+
+    private static string? FormatSecurityLabel(List<CodedValue>? codings)
+    {
+        if (codings == null || codings.Count == 0) return null;
+
+        // Keep it human readable and compact in `AuditEvent.entity.detail.valueString`.
+        // Example: "urn:oid:2.16...|TREAT|Treatment".
+        return string.Join(", ", codings
+            .Where(c => c != null)
+            .Select(c => $"{c.CodeSystem}|{c.Code}|{c.DisplayName}".Trim('|')));
+    }
+
+    private static List<CodedValue>? CloneCodedValues(List<CodedValue>? src)
+    {
+        if (src == null) return null;
+        return src.Select(c => new CodedValue
+        {
+            Code = c.Code,
+            CodeSystem = c.CodeSystem,
+            DisplayName = c.DisplayName
+        }).ToList();
+    }
+
+    private static DocumentEntryDto? CloneDocumentEntryDto(DocumentEntryDto? src)
+    {
+        if (src == null) return null;
+
+        return new DocumentEntryDto
+        {
+            Id = src.Id,
+            UniqueId = src.UniqueId,
+            AvailabilityStatus = src.AvailabilityStatus,
+            Author = src.Author,
+            ClassCode = src.ClassCode,
+            ConfidentialityCode = CloneCodedValues(src.ConfidentialityCode),
+            CreationTime = src.CreationTime,
+            EventCodeList = src.EventCodeList,
+            FormatCode = src.FormatCode,
+            Hash = src.Hash,
+            HealthCareFacilityTypeCode = src.HealthCareFacilityTypeCode,
+            HomeCommunityId = src.HomeCommunityId,
+            LanguageCode = src.LanguageCode,
+            LegalAuthenticator = src.LegalAuthenticator,
+            MimeType = src.MimeType,
+            ObjectType = src.ObjectType,
+            PracticeSettingCode = src.PracticeSettingCode,
+            RepositoryUniqueId = src.RepositoryUniqueId,
+            Size = src.Size,
+            ServiceStartTime = src.ServiceStartTime,
+            ServiceStopTime = src.ServiceStopTime,
+            SourcePatientInfo = src.SourcePatientInfo,
+            Title = src.Title,
+            TypeCode = src.TypeCode
+        };
     }
 
     private AuditEvent GetAuditEventFromFhirRequestResponse(Resource request, Resource response)
