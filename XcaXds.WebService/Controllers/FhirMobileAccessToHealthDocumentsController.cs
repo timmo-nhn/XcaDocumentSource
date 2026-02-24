@@ -580,8 +580,27 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 			return NotFoundOperationOutcome.Create(OperationOutcome.ForMessage($"DocumentReference/{id} not found", OperationOutcome.IssueType.NotFound, OperationOutcome.IssueSeverity.Error));
 		}
 
+		var oldSecurityLabel = documentEntry.ConfidentialityCode == null
+			? null
+			: documentEntry.ConfidentialityCode.Select(c => new CodedValue
+			{
+				Code = c.Code,
+				CodeSystem = c.CodeSystem,
+				DisplayName = c.DisplayName
+			}).ToList();
+
 		documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
 		_registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
+
+		// Atna log generation
+		var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var _);
+		_atnaLoggingService.CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
+			HttpContext.TraceIdentifier,
+			id,
+			oldSecurityLabel,
+			documentEntry.ConfidentialityCode,
+			documentEntry,
+			token);
 
 		// Return the updated DocumentReference
 		var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects().RegistryObjectList;
