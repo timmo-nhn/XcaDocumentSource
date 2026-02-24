@@ -3,7 +3,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Tests.FakesAndDoubles;
 
-public sealed class InMemoryRegistry : IRegistry
+public class InMemoryRegistry : IRegistry
 {
     public List<RegistryObjectDto> DocumentRegistry = new();
 

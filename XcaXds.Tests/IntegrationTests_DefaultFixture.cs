@@ -21,9 +21,9 @@ public class IntegrationTests_DefaultFixture
     internal readonly RestfulRegistryRepositoryService _restfulRegistryService;
     internal readonly PolicyRepositoryService _policyRepositoryService;
     internal readonly RegistryWrapper _registryWrapper;
-    internal readonly InMemoryPolicyRepository _policyRepository;
-    internal readonly InMemoryRegistry _registry;
-    internal readonly InMemoryRepository _repository;
+    internal readonly IPolicyRepository _policyRepository;
+    internal readonly IRegistry _registry;
+    internal readonly IRepository _repository;
     internal readonly AtnaLogExportedChecker _atnaLogExportedChecker;
     internal readonly ITestOutputHelper _output;
 
@@ -49,10 +49,6 @@ public class IntegrationTests_DefaultFixture
 
         using var scope = factory.Services.CreateScope();
 
-        _policyRepository = new InMemoryPolicyRepository();
-        _registry = new InMemoryRegistry();
-        _repository = new InMemoryRepository();
-
         // Custom factory with fake services
         var customFactory = factory.WithWebHostBuilder(builder =>
         {
@@ -60,18 +56,19 @@ public class IntegrationTests_DefaultFixture
             {
                 services.RemoveAll<AppStartupService>();
 
-                // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
-                services.RemoveAll<IPolicyRepository>();
-                services.RemoveAll<IRegistry>();
-                services.RemoveAll<IRepository>();
+                //// Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
+                //services.RemoveAll<IPolicyRepository>();
+                //services.RemoveAll<IRegistry>();
+                //services.RemoveAll<IRepository>();
+                //// ...so replace with the mock implementations
+                //services.AddSingleton<IPolicyRepository>(new InMemoryPolicyRepository());
+                //services.AddSingleton<IRegistry>(new InMemoryRegistry());
+                //services.AddSingleton<IRepository>(new InMemoryRepository());
 
                 services.RemoveAll<AtnaLogExporterService>();
                 services.RemoveAll<IHostedService>();
 
-                // ...so replace with the mock implementations
-                services.AddSingleton<IPolicyRepository>(_policyRepository);
-                services.AddSingleton<IRegistry>(_registry);
-                services.AddSingleton<IRepository>(_repository);
+
                 services.AddSingleton<AtnaLogExportedChecker>();
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
 
@@ -84,12 +81,14 @@ public class IntegrationTests_DefaultFixture
                     });
                 });
             });
-
-            builder.UseEnvironment("Testing");
         });
 
         _client = customFactory.CreateClient();
         using var customScope = customFactory.Services.CreateScope();
+
+        _registry = customScope.ServiceProvider.GetRequiredService<IRegistry>();
+        _repository = customScope.ServiceProvider.GetRequiredService<IRepository>();
+        _policyRepository = customScope.ServiceProvider.GetRequiredService<IPolicyRepository>();
 
         _atnaLogExportedChecker = customScope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();

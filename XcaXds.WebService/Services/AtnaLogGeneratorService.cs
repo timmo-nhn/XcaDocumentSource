@@ -198,9 +198,9 @@ public class AtnaLogGeneratorService
 
             foreach (var identifier in registryPatientIdentifiers)
             {
-                _logger.LogDebug($"Patient Identifier: {identifier?.Serialize()}");
                 if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
 
+                _logger.LogDebug($"AtnaLogGenerator found Patient Identifier: {identifier?.Serialize()}");
                 patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
             }
 

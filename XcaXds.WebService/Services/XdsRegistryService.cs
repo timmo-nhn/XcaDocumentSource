@@ -75,7 +75,7 @@ public partial class XdsRegistryService
             _logger.LogInformation($"{envelope?.Header?.MessageId} - Successfully deprecated document with id {documentId}");
         }
 
-        var registryUpdateResult = _registryWrapper.SetDocumentRegistryFromRegistryObjects([.. submissionRegistryObjects, .. documentRegistry.RegistryObjectList]);
+        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromRegistryObjects(submissionRegistryObjects);
 
         var statuses = documentRegistry.RegistryObjectList.OfType<ExtrinsicObjectType>().Count(ro => ro.Status == Constants.Xds.StatusValues.Deprecated);
 

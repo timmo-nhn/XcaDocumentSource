@@ -23,9 +23,9 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly PolicyRepositoryService _policyRepositoryService;
     private readonly RegistryWrapper _registryWrapper;
-    private readonly InMemoryPolicyRepository _policyRepository;
-    private readonly InMemoryRegistry _registry;
-    private readonly InMemoryRepository _repository;
+    private readonly IPolicyRepository _policyRepository;
+    private readonly IRegistry _registry;
+    private readonly IRepository _repository;
     private readonly ITestOutputHelper _output;
 
     private List<DocumentReferenceDto> RegistryContent { get; set; }
@@ -52,8 +52,6 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
 
         _policyRepository = new InMemoryPolicyRepository();
 
-        _registry = new InMemoryRegistry();
-        _repository = new InMemoryRepository();
 
         var customFactory = factory.WithWebHostBuilder(builder =>
         {
@@ -67,14 +65,18 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
                 services.RemoveAll<IRepository>();
 
                 // ...so replace with the mock implementations
-                services.AddSingleton<IPolicyRepository>(_policyRepository);
-                services.AddSingleton<IRegistry>(_registry);
-                services.AddSingleton<IRepository>(_repository);
+                services.AddSingleton<IPolicyRepository>(new InMemoryPolicyRepository());
+                services.AddSingleton<IRegistry>(new InMemoryRegistry());
+                services.AddSingleton<IRepository>(new InMemoryRepository());
             });
         });
 
         _client = customFactory.CreateClient();
         using var customScope = customFactory.Services.CreateScope();
+
+        _registry = customScope.ServiceProvider.GetRequiredService<IRegistry>();
+        _repository = customScope.ServiceProvider.GetRequiredService<IRepository>();
+        _policyRepository = customScope.ServiceProvider.GetRequiredService<IPolicyRepository>();
 
         _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
         _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
