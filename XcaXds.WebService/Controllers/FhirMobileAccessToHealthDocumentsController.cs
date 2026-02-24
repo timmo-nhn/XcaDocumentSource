@@ -544,7 +544,246 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Content(jsonResult, "application/json");
     }
 
-    private SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle fhirBundle, List<RegistryErrorType> errors, ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest, HttpRequest request)
+	[Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
+	[Produces("application/fhir+json", "application/fhir+xml")]
+	[HttpPatch("DocumentReference/{id}")]
+	public IActionResult PatchDocument(string id, [FromBody] JsonElement json)
+	{
+		_logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to patch DocumentReference.securityLabel for id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
+
+		if (string.IsNullOrWhiteSpace(id))
+		{
+			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing id", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+		}
+
+		if (!TryExtractSecurityLabelElement(json, out var securityLabelElement, out var errorMessage))
+		{
+			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(errorMessage ?? "Missing securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+		}
+
+		var codings = ParseSecurityLabelToCodedValues(securityLabelElement, out var parseError);
+		if (codings == null)
+		{
+			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(parseError ?? "Invalid securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+		}
+
+		var documentEntry = _registryWrapper
+			.GetDocumentRegistryContentAsDtos()
+			.OfType<DocumentEntryDto>()
+			.FirstOrDefault(de => string.Equals(de.Id, id, StringComparison.OrdinalIgnoreCase));
+
+		if (documentEntry == null)
+		{
+			return NotFoundOperationOutcome.Create(OperationOutcome.ForMessage($"DocumentReference/{id} not found", OperationOutcome.IssueType.NotFound, OperationOutcome.IssueSeverity.Error));
+		}
+
+		documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
+		_registryWrapper.UpdateDocumentRegistryContentWithDtos(documentEntry);
+
+		// Return the updated DocumentReference
+		var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects().RegistryObjectList;
+		var extrinsic = registryObjects
+			.OfType<ExtrinsicObjectType>()
+			.FirstOrDefault(eo => string.Equals(eo.Id?.NoUrn(), id, StringComparison.OrdinalIgnoreCase));
+
+		if (extrinsic == null)
+		{
+			return OkOperationOutcome.Create(OperationOutcome.ForMessage($"Updated securityLabel for DocumentReference/{id}", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Information));
+		}
+
+		var associations = registryObjects
+			.OfType<AssociationType>()
+			.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && string.Equals(a.TargetObject?.NoUrn(), id, StringComparison.OrdinalIgnoreCase))
+			.ToList();
+
+		var registryPackages = associations
+			.Select(a => registryObjects.GetById(a.SourceObject))
+			.OfType<RegistryPackageType>()
+			.ToList();
+
+		var related = new List<IdentifiableType> { extrinsic };
+		related.AddRange(associations);
+		related.AddRange(registryPackages);
+
+		var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(related.ToArray());
+		var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
+			?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
+
+		if (updatedDocRef == null)
+		{
+			return OkOperationOutcome.Create(OperationOutcome.ForMessage($"Updated securityLabel for DocumentReference/{id}", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Information));
+		}
+
+		var serializer = new FhirJsonSerializer();
+		return new CustomContentResult(serializer.SerializeToString(updatedDocRef), StatusCodes.Status200OK, Constants.MimeTypes.FhirJson);
+	}
+
+	private static bool TryExtractSecurityLabelElement(JsonElement json, out JsonElement securityLabelElement, out string? errorMessage)
+	{
+		securityLabelElement = default;
+		errorMessage = null;
+
+		if (json.ValueKind == JsonValueKind.Array)
+		{
+			// JSON Patch (RFC 6902): [{"op":"replace","path":"/securityLabel","value":[...]}]
+			foreach (var op in json.EnumerateArray())
+			{
+				if (op.ValueKind != JsonValueKind.Object) continue;
+				var hasOp = TryGetPropertyCaseInsensitive(op, "op", out var opName);
+				var hasPath = TryGetPropertyCaseInsensitive(op, "path", out var path);
+				if (!hasOp || !hasPath) continue;
+
+				var opNameValue = opName.GetString();
+				var pathValue = path.GetString();
+				if (string.IsNullOrWhiteSpace(opNameValue) || string.IsNullOrWhiteSpace(pathValue)) continue;
+
+				if (!pathValue.Equals("/securityLabel", StringComparison.OrdinalIgnoreCase))
+				{
+					errorMessage = "Only /securityLabel can be patched";
+					return false;
+				}
+
+				if (!string.Equals(opNameValue, "add", StringComparison.OrdinalIgnoreCase) &&
+					!string.Equals(opNameValue, "replace", StringComparison.OrdinalIgnoreCase))
+				{
+					errorMessage = "Only add/replace operations are supported";
+					return false;
+				}
+
+				if (!TryGetPropertyCaseInsensitive(op, "value", out var value))
+				{
+					errorMessage = "Patch operation is missing value";
+					return false;
+				}
+
+				securityLabelElement = value;
+				return true;
+			}
+
+			errorMessage = "Invalid JSON Patch payload";
+			return false;
+		}
+
+		if (json.ValueKind != JsonValueKind.Object)
+		{
+			errorMessage = "Body must be a JSON object or JSON Patch array";
+			return false;
+		}
+
+		// Partial resource style: { "securityLabel": [ ... ] }
+		if (!TryGetPropertyCaseInsensitive(json, "securityLabel", out securityLabelElement))
+		{
+			errorMessage = "Body must include securityLabel";
+			return false;
+		}
+
+		// Whitelist (for future expansion, add more here)
+		foreach (var prop in json.EnumerateObject())
+		{
+			if (prop.NameEquals("securityLabel") || prop.NameEquals("resourceType") || prop.NameEquals("id"))
+				continue;
+			errorMessage = $"Property '{prop.Name}' is not allowed to be patched";
+			return false;
+		}
+
+		return true;
+	}
+
+	private static bool TryGetPropertyCaseInsensitive(JsonElement obj, string name, out JsonElement value)
+	{
+		if (obj.ValueKind == JsonValueKind.Object)
+		{
+			foreach (var prop in obj.EnumerateObject())
+			{
+				if (string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
+				{
+					value = prop.Value;
+					return true;
+				}
+			}
+		}
+
+		value = default;
+		return false;
+	}
+
+	private static List<CodedValue>? ParseSecurityLabelToCodedValues(JsonElement securityLabelElement, out string? errorMessage)
+	{
+		errorMessage = null;
+		if (securityLabelElement.ValueKind != JsonValueKind.Array)
+		{
+			errorMessage = "securityLabel must be an array";
+			return null;
+		}
+
+		var result = new List<CodedValue>();
+		foreach (var label in securityLabelElement.EnumerateArray())
+		{
+			if (label.ValueKind != JsonValueKind.Object)
+			{
+				errorMessage = "Each securityLabel entry must be an object";
+				return null;
+			}
+
+			if (!TryGetPropertyCaseInsensitive(label, "coding", out var codingElement) || codingElement.ValueKind != JsonValueKind.Array)
+			{
+				errorMessage = "Each securityLabel entry must include coding[]";
+				return null;
+			}
+
+			var addedAny = false;
+			foreach (var coding in codingElement.EnumerateArray())
+			{
+				if (coding.ValueKind != JsonValueKind.Object)
+				{
+					errorMessage = "securityLabel.coding must contain objects";
+					return null;
+				}
+
+				string? code = null;
+				string? system = null;
+				string? display = null;
+
+				if (TryGetPropertyCaseInsensitive(coding, "code", out var codeEl))
+				{
+					code = codeEl.GetString();
+				}
+				if (TryGetPropertyCaseInsensitive(coding, "system", out var sysEl))
+				{
+					system = sysEl.GetString();
+				}
+				if (TryGetPropertyCaseInsensitive(coding, "display", out var dispEl))
+				{
+					display = dispEl.GetString();
+				}
+
+				if (string.IsNullOrWhiteSpace(code))
+				{
+					errorMessage = "securityLabel.coding.code is required";
+					return null;
+				}
+
+				result.Add(new CodedValue
+				{
+					Code = code,
+					CodeSystem = string.IsNullOrWhiteSpace(system) ? null : system.NoUrn(),
+					DisplayName = display
+				});
+				addedAny = true;
+			}
+
+			if (!addedAny)
+			{
+				errorMessage = "securityLabel.coding must contain at least one object";
+				return null;
+			}
+		}
+
+		return result;
+	}
+    
+
+	private SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle fhirBundle, List<RegistryErrorType> errors, ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest, HttpRequest request)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
