@@ -480,24 +480,35 @@ public class XdsOnFhirService
 
     private static List<CodeableConcept>? GetCodeableConceptFromExtrinsicObjectConfidentialityCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-        var confidentialityCode = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode));
+		var confidentialityCodes = RegistryMetadataTransformerService.MapClassificationToCodedValue(
+			assocExtrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode));
 
-        if (confidentialityCode == null) return null;
+		if (confidentialityCodes == null || confidentialityCodes.Count == 0) return null;
 
-        var codeableConcept = new CodeableConcept()
+		var codings = confidentialityCodes
+			.Where(c => !string.IsNullOrWhiteSpace(c.Code))
+			.Select(c => new Coding
+			{
+				Code = c.Code,
+				System = string.IsNullOrWhiteSpace(c.CodeSystem) ? null : c.CodeSystem.WithUrnOid(),
+				Display = c.DisplayName
+			})
+			.DistinctBy(c => $"{c.System}|{c.Code}", StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		if (codings.Count == 0) return null;
+
+        var codeableConcepts = new List<CodeableConcept>();
+
+        foreach (var coding in codings)
         {
-            Coding =
-            [
-                new()
-                {
-                    Code = confidentialityCode.Code,
-                    System = confidentialityCode.CodeSystem.WithUrnOid(),
-                    Display = confidentialityCode.DisplayName
-                }
-            ]
-        };
+            codeableConcepts.Add(new CodeableConcept
+            {
+                Coding = [coding]
+            });
+		}
 
-        return [codeableConcept];
+        return codeableConcepts; 		
     }
 
     private static Practitioner? GetAuthenticatorFromExtrinsicObjectLegalAuthenticator(ExtrinsicObjectType assocExtrinsicObject)

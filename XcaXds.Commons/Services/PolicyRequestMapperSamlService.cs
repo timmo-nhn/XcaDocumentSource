@@ -410,6 +410,18 @@ public static class PolicyRequestMapperSamlService
                     attribute.Name = "urn:no:ehelse:saml:1.0:subject:Scope";
                 }
 
+                if (!Uri.IsWellFormedUriString(attribute.Name, UriKind.Absolute))
+                {
+					// Skip the following from HelseID user tokens: 
+					//  - name
+					//  - family_name
+					//  - given_name
+
+					// and potentially others that are not in URI format, as XACML 2.0 requires AttributeIds to be URIs.
+
+					continue; 
+                }
+
                 // If its structured codedvalue format or just plain text
                 if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.Code) &&
                     string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem) &&
