@@ -581,7 +581,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 		}
 
 		documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
-		_registryWrapper.UpdateDocumentRegistryContentWithDtos(documentEntry);
+		_registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
 
 		// Return the updated DocumentReference
 		var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects().RegistryObjectList;

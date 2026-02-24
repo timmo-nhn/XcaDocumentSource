@@ -61,7 +61,12 @@ public class RegistryWrapper
         return UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
     }
 
-    public bool DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
+	public bool InsertOrUpdateDocumentRegistryContentWithDtos(RegistryObjectDto registryObjectDto)
+	{
+		return InsertOrUpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
+	}
+
+	public bool DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
     {
         if (registryObjectDto == null) return false;
 
@@ -83,7 +88,18 @@ public class RegistryWrapper
         return true;
     }
 
-    public SoapRequestResult<string> SetDocumentRegistryFromRegistryObjects(IdentifiableType[] registryObjects)
+	public bool InsertOrUpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
+	{
+		if (registryObjectDtos.Count == 0) return false;
+		_registryObjectList ??= GetDocumentRegistryContentAsDtos();
+
+		_documentRegistry.InsertOrUpdateRegistry(registryObjectDtos);
+		_registryObjectList = _documentRegistry.ReadRegistry();
+
+		return true;
+	}
+
+	public SoapRequestResult<string> SetDocumentRegistryFromRegistryObjects(IdentifiableType[] registryObjects)
     {
         try
         {
