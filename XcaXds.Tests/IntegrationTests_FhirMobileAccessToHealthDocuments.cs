@@ -1,23 +1,20 @@
 ﻿using Hl7.Fhir.Model;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Net;
+using System.Net.Http;
 using System.Text;
-using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Serializers;
-using XcaXds.Source.Services;
-using XcaXds.Source.Source;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
+using XcaXds.WebService;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
@@ -25,90 +22,91 @@ using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
-public class IntegrationTests_FhirMobileAccessToHealthDocuments : IClassFixture<WebApplicationFactory<WebService.Program>>
+public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    private readonly HttpClient _client;
-    private readonly RestfulRegistryRepositoryService _restfulRegistryService;
-    private readonly PolicyRepositoryService _policyRepositoryService;
-    private readonly RegistryWrapper _registryWrapper;
-    private readonly InMemoryPolicyRepository _policyRepository;
-    private readonly InMemoryRegistry _registry;
-    private readonly InMemoryRepository _repository;
-    private readonly ITestOutputHelper _output;
-
-    private List<DocumentReferenceDto> RegistryContent { get; set; } = new();
-
-    private readonly int RegistryItemCount = 1000; // The amount of registry objects to generate and evaluate against
-
-    private readonly CX PatientIdentifier = new()
+    public IntegrationTests_FhirMobileAccessToHealthDocuments(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory, output)
     {
-        IdNumber = "13116900216",
-        AssigningAuthority = new HD()
-        {
-            UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-            UniversalId = Constants.Oid.Fnr
-        }
-    };
+    }
 
-    public IntegrationTests_FhirMobileAccessToHealthDocuments(
-        WebApplicationFactory<WebService.Program> factory,
-        ITestOutputHelper output)
+    [Fact]
+    [Trait("Delete", "Delete DocumentReference")]
+    public async Task DeleteDocumentsAndMetadata()
     {
-        _output = output;
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_deletedocuments",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            action: "Delete",
+            noCode: true);
 
-        using var scope = factory.Services.CreateScope();
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
 
-        _policyRepository = new InMemoryPolicyRepository();
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        _registry = new InMemoryRegistry();
-        _repository = new InMemoryRepository();
+        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        
+        var registryObjects = RegistryContent.AsRegistryObjectList();
+        
+        var registryContentCount = registryObjects.Count;
 
-        var customFactory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                services.RemoveAll<AppStartupService>();
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
 
-                // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
-                services.RemoveAll<IPolicyRepository>();
-                services.RemoveAll<IRegistry>();
-                services.RemoveAll<IRepository>();
+        var randomDocumentEntry = RegistryContent.PickRandom().DocumentEntry;
 
-                // ...so replace with the mock implementations
-                services.AddSingleton<IPolicyRepository>(_policyRepository);
-                services.AddSingleton<IRegistry>(_registry);
-                services.AddSingleton<IRepository>(_repository);
-            });
-        });
+        var httpRequest = new HttpRequestMessage(HttpMethod.Delete, $"/R4/fhir/DocumentReference/{randomDocumentEntry?.Id}");
 
-        _client = customFactory.CreateClient();
-        using var customScope = customFactory.Services.CreateScope();
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
-        _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
-        _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
+        var firstResponse = await _client.SendAsync(httpRequest);
+
+        var currentRegistry = _registry.ReadRegistry();
+        var currentCount = currentRegistry.Count();
+
+        Assert.Equal(registryContentCount - 3, currentCount);
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
     }
 
     [Fact]
     [Trait("Upload", "Provide Bundle")]
     public async Task ProvideBundle_RandomAmount()
     {
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_providebundle",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            action: "Create",
+            noCode: true);
+
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
         EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
 
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
-        stringContent.Headers.Add("Authorization",);
 
-        var firstResponse = await _client.PostAsync("/R4/fhir/Bundle", );
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post,"/R4/fhir/Bundle");
+        httpRequest.Content = stringContent;
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+
+        var firstResponse = await _client.SendAsync(httpRequest);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
     }
 
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)

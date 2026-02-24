@@ -6,9 +6,9 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
-public static class RegistryMetadataTransformerService
+public static class RegistryMetadataTransformer
 {
     public static DocumentReferenceDto TransformRegistryObjectsToDocumentReferenceDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType document = null)
     {

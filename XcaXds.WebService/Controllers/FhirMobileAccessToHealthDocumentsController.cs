@@ -13,10 +13,10 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Attributes;
+using XcaXds.WebService.Middleware.PolicyEnforcementPoint.Helpers;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 
@@ -222,10 +222,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     }
 
     [Consumes("application/fhir+json", "application/fhir+xml")]
-    [Produces("application/fhir+json", "application/fhir+xml")]    
-	[HttpDelete("DocumentReference/{id}")]	
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpDelete("DocumentReference/{id}")]
     public IActionResult DeleteDocument(string id)
-	{
+    {
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
 
@@ -239,7 +239,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             xacmlRequest = xacmlContextRequest;
         }
 
-        //_atnaLoggingService.CreateAuditLogForFhirRequestResponse();
+        var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var ok);
+
+        _atnaLoggingService.CreateAuditLogForFhirDeleteDocumentsRequest(HttpContext.TraceIdentifier, deletedEntry, token);
 
         if (deleteResponse.Success)
         {
@@ -387,7 +389,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = BundleProcessorService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+        var provideAndRegisterResult = FhirXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 
@@ -438,7 +440,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded {fhirBundle.Entry.Count} Entries");
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest, Request), registerDocumentSetResponse.Value);
+        
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest.SubmitObjectsRequest.RegistryObjectList), registerDocumentSetResponse.Value);
 
         if (operationOutcome.Issue.Any())
         {

@@ -6,8 +6,9 @@ using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.Tests;
 
@@ -25,7 +26,7 @@ public class UnitTests_PolicyAuthorization
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSaml.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry().ReadRegistry());
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml);

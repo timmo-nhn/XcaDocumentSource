@@ -4,7 +4,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.WebService.Services;
 
@@ -32,7 +32,7 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
         {
             requestBody = await MultipartExtensions.ReadMultipartContentFromRequest(context.Request);
         }
-        var samlTokenString = PolicyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody);
+        var samlTokenString = PolicyRequestMapperSaml.GetSamlTokenFromSoapEnvelope(requestBody);
 
         if (string.IsNullOrEmpty(samlTokenString))
         {
@@ -53,11 +53,11 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
         }
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(requestBody);
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
+        var samlToken = PolicyRequestMapperSaml.ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
 
-        var appliesTo = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Assertion.Issuer.Value);
+        var appliesTo = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Assertion.Issuer.Value);
 
-        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
+        var xacmlRequest = PolicyRequestMapperSaml.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
         if (xacmlRequest == null)
         {
             return PolicyInputResult.Fail($"Error generating XACML request from SOAP request");

@@ -5,12 +5,10 @@ using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
-using XcaXds.Source.Services;
 using XcaXds.Source.Source;
+using XcaXds.WebService.Services;
 using Xunit.Abstractions;
 
 namespace XcaXds.Tests;
@@ -53,7 +51,7 @@ public class IntegrationTests_Benchmark_ReadWriteRegistry : IClassFixture<WebApp
             var swRead = Stopwatch.StartNew();
             var uploadResponse = await _client.PostAsync("/api/generate-test-data?patientIdentifier=13116900216&entriesToGenerate=50", new StringContent(testDataFile, Encoding.UTF8, Constants.MimeTypes.Json));
             swRead.Stop();
-            
+
             var swWrite = Stopwatch.StartNew();
             var fetchResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(iti38Request, Encoding.UTF8, Constants.MimeTypes.SoapXml));
             swWrite.Stop();
@@ -64,7 +62,7 @@ public class IntegrationTests_Benchmark_ReadWriteRegistry : IClassFixture<WebApp
             var regObjects = registryObjects.Body?.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0;
             Debug.WriteLine(i);
             Debug.WriteLine(regObjects);
-            statistics.Add(new { RegistryObjects = regObjects, Read=swRead.ElapsedMilliseconds, Write= swWrite.ElapsedMilliseconds });
+            statistics.Add(new { RegistryObjects = regObjects, Read = swRead.ElapsedMilliseconds, Write = swWrite.ElapsedMilliseconds });
         }
 
         _output.WriteLine(JsonSerializer.Serialize(statistics));

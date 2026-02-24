@@ -10,8 +10,9 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Commons.DataManipulators;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.WebService.Services;
 
 /// <summary>
 /// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) - integration of the solution <para/>
@@ -165,7 +166,7 @@ public class XdsOnFhirService
         // we need to fetch the registry and get the missing registry objects to properly map this to a FHIR resource
         if (registryObjectList != null && registryObjectList.Length == registryObjectList?.OfType<ExtrinsicObjectType>().ToArray().Length)
         {
-            var registryContent = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(_registry.ReadRegistry());
+            var registryContent = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(_registry.ReadRegistry());
 
 			var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
 			var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -358,7 +359,7 @@ public class XdsOnFhirService
         var context = new DocumentReference.ContextComponent();
 
 
-        var eventCodeList = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.EventCodeList));
+        var eventCodeList = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.EventCodeList));
 
         if (eventCodeList != null)
         {
@@ -393,7 +394,7 @@ public class XdsOnFhirService
             context.Period.End = ((DateTimeOffset)serviceStopTimeDate).ToUniversalTime().ToString(Constants.Hl7.Dtm.DtmFhirIsoDateTimeFormat);
         }
 
-        var healthCareFacilityType = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode));
+        var healthCareFacilityType = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode));
 
         if (healthCareFacilityType != null)
         {
@@ -412,7 +413,7 @@ public class XdsOnFhirService
         }
 
 
-        var practiceSettingCode = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode));
+        var practiceSettingCode = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode));
 
         if (practiceSettingCode != null)
         {
@@ -463,7 +464,7 @@ public class XdsOnFhirService
             Creation = creation
         };
 
-        var format = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.FormatCode));
+        var format = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.FormatCode));
 
         if (format != null)
         {
@@ -758,7 +759,7 @@ public class XdsOnFhirService
 
     private static List<CodeableConcept>? GetCategoryFromExtrinsicObjectClassCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-        var classCode = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ClassCode));
+        var classCode = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ClassCode));
 
         if (classCode == null) return null;
 
@@ -779,7 +780,7 @@ public class XdsOnFhirService
 
     private static CodeableConcept? GetTypeFromExtrinsicObjectTypeCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-        var typeCode = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.TypeCode));
+        var typeCode = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.TypeCode));
         if (typeCode == null) return null;
 
         var codeable = new CodeableConcept()

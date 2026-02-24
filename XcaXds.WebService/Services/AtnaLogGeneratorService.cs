@@ -1,5 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using System.IdentityModel.Tokens.Jwt;
+using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -8,9 +10,9 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
-using XcaXds.Source.Source;
+using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
+using System.Configuration;
 
 namespace XcaXds.WebService.Services;
 
@@ -53,6 +55,43 @@ public class AtnaLogGeneratorService
         }
     }
 
+    public void CreateAuditLogForFhirDeleteDocumentsRequest(string sessionId, DocumentEntryDto? deletedEntry, JwtSecurityToken? token)
+    {
+        try
+        {
+            _queue.Enqueue(() => GetAuditEventFromDocumentEntryAndJwt(sessionId, deletedEntry, token));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating auditlog");
+        }
+    }
+
+    private AuditEvent GetAuditEventFromDocumentEntryAndJwt(string sessionId, DocumentEntryDto? deletedEntry, JwtSecurityToken? token)
+    {
+        var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
+
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(token.RawData, null, null, [extrinsicObject]);
+
+        soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
+        soapEnvelope.Header.MessageId = sessionId;
+
+        var responseEnvelope = new SoapEnvelope()
+        {
+            Body = new()
+            {
+                RegistryResponse = new()
+                {
+                    Status = Constants.Xds.ResponseStatusTypes.Success 
+                }
+            }
+        };
+
+        var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
+
+        return auditEvent;
+    }
+
     private AuditEvent GetAuditEventFromFhirRequestResponse(Resource request, Resource response)
     {
         throw new NotImplementedException();
@@ -70,13 +109,13 @@ public class AtnaLogGeneratorService
 
         if (!string.IsNullOrWhiteSpace(samlAssertionXml))
         {
-            samlToken = PolicyRequestMapperSamlService.ReadSamlToken(samlAssertionXml);
+            samlToken = PolicyRequestMapperSaml.ReadSamlToken(samlAssertionXml);
             statements = samlToken.Assertion.Statements
                 .OfType<Saml2AttributeStatement>()
                 .SelectMany(statement => statement.Attributes)
                 .ToList();
 
-            issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Issuer);
+            issuer = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken.Issuer);
         }
 
         auditEvent.Meta = new Meta()
@@ -418,8 +457,8 @@ public class AtnaLogGeneratorService
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
-        var xdsDocEntry = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
-        var xdsSubmissionSet = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
+        var xdsDocEntry = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
+        var xdsSubmissionSet = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
         if (!string.IsNullOrWhiteSpace(adhocQueryType))
         {
@@ -558,7 +597,7 @@ public class AtnaLogGeneratorService
 
         if (provideAndRegister != null)
         {
-            var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister);
+            var registryObjects = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister);
 
             return PatientIdCxFromDocumentEntries(registryObjects);
         }
@@ -676,9 +715,9 @@ public class AtnaLogGeneratorService
             case Constants.Xds.OperationContract.Iti42Action:
                 var associations = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList?.OfType<AssociationType>();
 
-                var isAmend = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(HasMember, Addendum)) ?? false;
+                var isOriginate = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(HasMember, Addendum)) ?? false;
                 var isTransform = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Transformation, ReplaceWithTransformation)) ?? false;
-                var isReplace = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace)) ?? false;
+                var isAmend = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace)) ?? false;
 
                 if (isAmend)
                 {
@@ -698,7 +737,7 @@ public class AtnaLogGeneratorService
                         Display = "Transform/Translate Record Lifecycle Event"
                     };
                 }
-                if (isReplace)
+                if (isOriginate)
                 {
                     return new Coding()
                     {

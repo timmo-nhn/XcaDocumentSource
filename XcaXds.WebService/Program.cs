@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -123,12 +123,12 @@ public class Program
         builder.Services.AddScoped<IPolicyInputStrategy,FhirJsonPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy,SoapSamlXmlPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy,JsonPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy, GenericPolicyInputStrategy>();
 
         builder.Services.AddScoped<PolicyDenyResponseBuilder>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, SoapDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
-
 
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();

@@ -3,15 +3,42 @@ using Hl7.Fhir.Support;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using static XcaXds.Commons.Commons.Constants;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
-public static class BundleProcessorService
+public static class FhirXdsTransformer
 {
+    public static List<RegistryObjectDto> TransformFhirResourceToRegistryObjectDto(Bundle.EntryComponent bundleEntry)
+    {
+        var fhirDocumentReference = (DocumentReference?)bundleEntry.Resource;
+
+        var registryObjectList = new List<RegistryObjectDto>();
+
+        var documentEntry = new DocumentEntryDto();
+
+        documentEntry.Id = bundleEntry.Resource?.Id ?? Guid.NewGuid().ToString();
+        documentEntry.Author = GetDocumentEntryAuthorsFromFhirDocumentReference(fhirDocumentReference);
+
+        var submissionSet = new SubmissionSetDto();
+
+
+        return registryObjectList;
+    }
+
+    private static List<AuthorInfo>? GetDocumentEntryAuthorsFromFhirDocumentReference(DocumentReference? documentReference)
+    {
+        if (documentReference == null) return null;
+
+        var author = new List<AuthorInfo>();
+
+        return author;
+    }
+
     public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient bundlePatient, List<DocumentReference> documentReferences, List submissionSetList, List<Binary> fhirBinaries, Identifier patientIdentifier, string GpiOid, string homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
@@ -31,53 +58,71 @@ public static class BundleProcessorService
         {
             var documentReference = documentReferences[i];
 
-			var fhirBinary = MatchBinaryToDocumentReference(
-				bundle: bundle,
-				documentReference: documentReference,
-				indexFallback: i,
-				binaries: fhirBinaries,
-				operationOutcome: operationOutcome);
+            var fhirBinary = MatchBinaryToDocumentReference(
+                bundle: bundle,
+                documentReference: documentReference,
+                indexFallback: i,
+                binaries: fhirBinaries,
+                operationOutcome: operationOutcome);
 
-			var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid);
+            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid);
             if (!extrinsicResult.Success)
             {
                 operationOutcome.AddIssue(extrinsicResult.OperationOutcome?.Issue);
             }
-            extrinsicObjects.Add(extrinsicResult.Value);
+            if (extrinsicResult.Value != null)
+            {
+                extrinsicObjects.Add(extrinsicResult.Value);
+            }
 
-			// Only add Document element if Binary exists (metadata-only should be allowed)
-			if (fhirBinary != null)
-			{
-				var documentResult = ConvertBinaryToDocument(fhirBinary, extrinsicResult.Value);
-				if (!documentResult.Success)
-				{
-					operationOutcome.AddIssue(documentResult.OperationOutcome?.Issue);
-				}
-				documents.Add(documentResult.Value);
-			}
+            // Only add Document element if Binary exists (metadata-only should be allowed)
+            if (fhirBinary != null)
+            {
+                var documentResult = ConvertBinaryToDocument(fhirBinary, extrinsicResult.Value);
+                if (!documentResult.Success)
+                {
+                    operationOutcome.AddIssue(documentResult.OperationOutcome?.Issue);
+                }
+                if (documentResult.Value != null)
+                {
+                    documents.Add(documentResult.Value);
+                }
+            }
 
-			var validationOutcome = ValidateDocumentRelations(documentReference);
-			if (validationOutcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
-			{
-				operationOutcome.AddIssue(validationOutcome.Issue);
-				continue; // or fail fast
-			}
+            var validationOutcome = ValidateDocumentRelations(documentReference);
+            if (validationOutcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
+            {
+                operationOutcome.AddIssue(validationOutcome.Issue);
+                continue; // or fail fast
+            }
 
-			var sourceExtrinsicId = extrinsicResult.Value.Id;
+            var sourceExtrinsicId = extrinsicResult.Value?.Id;
 
-			var assocResult = CreateAssociationForSubmissionSet(extrinsicResult.Value, registryPackage);
+            var assocResult = CreateAssociationForSubmissionSet(extrinsicResult.Value, registryPackage);
             if (!assocResult.Success)
             {
                 operationOutcome.AddIssue(assocResult.OperationOutcome?.Issue);
             }
-            associations.Add(assocResult.Value);
+            if (assocResult.Value != null)
+            {
+                associations.Add(assocResult.Value);
+            }
 
-			// Map relatesTo → XDS associations (0..N)
-			var relationAssociations =
-				MapRelationsToXdsAssociations(documentReference, sourceExtrinsicId);
+            // Map relatesTo → XDS associations (0..N)
+            var relationAssociations =
+                MapRelationsToXdsAssociations(documentReference, sourceExtrinsicId);
 
-			associations.AddRange(relationAssociations);
-		}
+            if (relationAssociations != null)
+            {
+                associations.AddRange(relationAssociations);
+            }
+        }
+
+        List<IdentifiableType> combinedRegistryObjects = [.. extrinsicObjects, .. associations];
+        if (registryPackage != null)
+        {
+            combinedRegistryObjects.Add(registryPackage);
+        }
 
         var request = new ProvideAndRegisterDocumentSetbRequest
         {
@@ -85,22 +130,18 @@ public static class BundleProcessorService
             {
                 SubmitObjectsRequest = new SubmitObjectsRequest
                 {
-                    RegistryObjectList = [
-                        registryPackage,
-                        ..extrinsicObjects,
-                        ..associations
-                      ]
+                    RegistryObjectList = combinedRegistryObjects.ToArray()
                 },
-				// Document list can be empty for metadata-only submissions
-				Document = documents.Count > 0 ? [.. documents] : []
-			}
+                // Document list can be empty for metadata-only submissions
+                Document = documents.Count > 0 ? [.. documents] : []
+            }
         };
 
-		// We're now sending both:
-		// HasMember associations(SubmissionSet -> DocumentEntry)
-		// Relation associations(New DocumentEntry -> Old DocumentEntry), i.e.RPLC / APND / XFRM / SIGN
+        // We're now sending both:
+        // HasMember associations(SubmissionSet -> DocumentEntry)
+        // Relation associations(New DocumentEntry -> Old DocumentEntry), i.e.RPLC / APND / XFRM / SIGN
 
-		var creationResult = new ServiceResultDto<ProvideAndRegisterDocumentSetbRequest>()
+        var creationResult = new ServiceResultDto<ProvideAndRegisterDocumentSetbRequest>()
         {
             Value = request,
             OperationOutcome = operationOutcome
@@ -124,15 +165,17 @@ public static class BundleProcessorService
 
         if (submissionSetList != null)
         {
+            var comment = submissionSetList.Note.Select(note => note.Text).Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
+
             // Comment from submission
-            if (submissionSetList.Note.Count != 0)
+            if (comment?.Length > 0)
             {
                 registryPackage.AddSlot(new SlotType
                 {
                     Name = "comments",
                     ValueList = new ValueListType
                     {
-                        Value = [submissionSetList.Note.First().Text.ToString()]
+                        Value = comment
                     }
                 });
             }
@@ -231,10 +274,17 @@ public static class BundleProcessorService
                     OrganizationName = submAuthorOrg.OrganizationName
                 };
 
+                string[] items = [
+                                                submAuthorDept?.Serialize(),
+                            submAuthorOrgNameOnly.Serialize(),
+                            submAuthorOrg.Serialize(),
+
+                    ];
+
                 registryPackage.AddClassification(new ClassificationType()
                 {
                     Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = submissionSetList.Id.Replace("urn:uuid:", ""),
+                    ClassifiedObject = submissionSetList.Id!.Replace("urn:uuid:", ""),
                     ClassificationScheme = Constants.Xds.Uuids.SubmissionSet.Author,
                     ObjectType = Constants.Xds.ObjectTypes.Classification,
                     Name = new InternationalStringType(Constants.Xds.ClassificationNames.SubmissionSetAuthor),
@@ -390,9 +440,9 @@ public static class BundleProcessorService
             // XDSSubmissionSet.patientId
             //var patientIdFromPix = GetPatient(patientId, GpiOid);
             //var patientIdFromPix = GetPatient(patientId, sourceId);
-			var patientIdFromPix = GetPatient(patientId, homeCommunityId);
+            var patientIdFromPix = GetPatient(patientId, homeCommunityId);
 
-			if (!string.IsNullOrWhiteSpace(submissionSetList.Id) || patientIdFromPix != null)
+            if (!string.IsNullOrWhiteSpace(submissionSetList.Id) || patientIdFromPix != null)
             {
                 registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
                 {
@@ -1045,9 +1095,9 @@ public static class BundleProcessorService
                 GivenName = patientIdentifierFromDocRef.GivenName,
             };
 
-            var patientFromContained = documentReference.Contained.OfType<Patient>().Where(p => p.Identifier.First().Value == patientIdentifierFromDocRef.PersonIdentifier).FirstOrDefault() ?? bundlePatient; 
-            
-			var patientGender = patientFromContained?.Gender switch
+            var patientFromContained = documentReference.Contained.OfType<Patient>().Where(p => p.Identifier.First().Value == patientIdentifierFromDocRef.PersonIdentifier).FirstOrDefault() ?? bundlePatient;
+
+            var patientGender = patientFromContained?.Gender switch
             {
                 AdministrativeGender.Female => "F",
                 AdministrativeGender.Male => "M",
@@ -1647,7 +1697,7 @@ public static class BundleProcessorService
 
     internal static XCN? GetPatient(Patient bundlePatient, DocumentReference documentReference, string GpiOid)
     {
-        var patientDocRef = documentReference.Contained.OfType<Patient>().FirstOrDefault() ?? bundlePatient; 
+        var patientDocRef = documentReference.Contained.OfType<Patient>().FirstOrDefault() ?? bundlePatient;
 
         if (patientDocRef == null)
         {
@@ -1703,269 +1753,270 @@ public static class BundleProcessorService
         return randomOid;
     }
 
-	private static List<AssociationType> MapRelationsToXdsAssociations(
-	DocumentReference dr,
-	string sourceExtrinsicId)
-	{
-		var result = new List<AssociationType>();
+    private static List<AssociationType>? MapRelationsToXdsAssociations(DocumentReference dr, string? sourceExtrinsicId)
+    {
+        if (sourceExtrinsicId == null) return null;
 
-		if (dr.RelatesTo == null || dr.RelatesTo.Count == 0)
-			return result;
+        var result = new List<AssociationType>();
 
-		foreach (var rel in dr.RelatesTo)
-		{
-			if (rel.Code == null || string.IsNullOrWhiteSpace(rel.Target?.Reference))
-				continue;
+        if (dr.RelatesTo == null || dr.RelatesTo.Count == 0)
+            return result;
 
-			var targetRef = rel.Target.Reference!;
-			var targetExtrinsicId = targetRef
-				.Replace("DocumentReference/", "", StringComparison.OrdinalIgnoreCase)
-				.Replace("urn:uuid:", "");
+        foreach (var rel in dr.RelatesTo)
+        {
+            if (rel.Code == null || string.IsNullOrWhiteSpace(rel.Target?.Reference))
+                continue;
 
-			var associationType = rel.Code.Value switch
-			{
-				DocumentRelationshipType.Replaces =>
-					Xds.AssociationType.Replace,
+            var targetRef = rel.Target.Reference!;
+            var targetExtrinsicId = targetRef
+                .Replace("DocumentReference/", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("urn:uuid:", "");
 
-				DocumentRelationshipType.Transforms =>
-					Xds.AssociationType.Transformation,
+            var associationType = rel.Code.Value switch
+            {
+                DocumentRelationshipType.Replaces =>
+                    Xds.AssociationType.Replace,
 
-				DocumentRelationshipType.Appends =>
-					Xds.AssociationType.Addendum,
+                DocumentRelationshipType.Transforms =>
+                    Xds.AssociationType.Transformation,
 
-				DocumentRelationshipType.Signs =>
-					Xds.AssociationType.DigitalSignature,
+                DocumentRelationshipType.Appends =>
+                    Xds.AssociationType.Addendum,
 
-				//DocumentRelationshipType.IsSnapshotOf =>
-				//	Xds.Constants.Xds.AssociationType.SnapshotOfOnDemandDocumentEntry,
+                DocumentRelationshipType.Signs =>
+                    Xds.AssociationType.DigitalSignature,
 
-				_ => throw new NotSupportedException(
-					$"Unsupported DocumentRelationshipType '{rel.Code}'")
-			};
+                //DocumentRelationshipType.IsSnapshotOf =>
+                //	Xds.Constants.Xds.AssociationType.SnapshotOfOnDemandDocumentEntry,
 
-			result.Add(new AssociationType
-			{
-				Id = Guid.NewGuid().ToString(),
-				ObjectType = Xds.ObjectTypes.Association,
-				AssociationTypeData = associationType,
-				SourceObject = sourceExtrinsicId,
-				TargetObject = targetExtrinsicId
-			});
-		}
+                _ => throw new NotSupportedException(
+                    $"Unsupported DocumentRelationshipType '{rel.Code}'")
+            };
 
-		return result;
-	}
+            result.Add(new AssociationType
+            {
+                Id = Guid.NewGuid().ToString(),
+                ObjectType = Xds.ObjectTypes.Association,
+                AssociationTypeData = associationType,
+                SourceObject = sourceExtrinsicId,
+                TargetObject = targetExtrinsicId
+            });
+        }
 
-	private static Binary? MatchBinaryToDocumentReference(
-	Bundle bundle,
-	DocumentReference documentReference,
-	int indexFallback,
-	List<Binary> binaries,
-	OperationOutcome operationOutcome)
-	{
-		// 1) Try attachment.url → Bundle.Entry.fullUrl
-		var attachmentUrl = documentReference.Content
-			.FirstOrDefault()?.Attachment?.Url;
+        return result;
+    }
 
-		if (!string.IsNullOrWhiteSpace(attachmentUrl))
-		{
-			// Normalize reference (strip resource prefix if present)
-			var normalizedRef = attachmentUrl.StartsWith("Binary/", StringComparison.OrdinalIgnoreCase)
-				? attachmentUrl
-				: attachmentUrl;
+    private static Binary? MatchBinaryToDocumentReference(
+    Bundle bundle,
+    DocumentReference documentReference,
+    int indexFallback,
+    List<Binary> binaries,
+    OperationOutcome operationOutcome)
+    {
+        // 1) Try attachment.url → Bundle.Entry.fullUrl
+        var attachmentUrl = documentReference.Content
+            .FirstOrDefault()?.Attachment?.Url;
 
-			var matchedEntry = bundle.Entry.FirstOrDefault(e =>
-				string.Equals(e.FullUrl, normalizedRef, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(attachmentUrl))
+        {
+            // Normalize reference (strip resource prefix if present)
+            var normalizedRef = attachmentUrl.StartsWith("Binary/", StringComparison.OrdinalIgnoreCase)
+                ? attachmentUrl
+                : attachmentUrl;
 
-			if (matchedEntry?.Resource is Binary binaryByFullUrl)
-			{
-				return binaryByFullUrl;
-			}
+            var matchedEntry = bundle.Entry.FirstOrDefault(e =>
+                string.Equals(e.FullUrl, normalizedRef, StringComparison.OrdinalIgnoreCase));
 
-			// 2) attachment.url → Binary.id
-			var idCandidate = attachmentUrl
-				.Replace("Binary/", "", StringComparison.OrdinalIgnoreCase)
-				.Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
+            if (matchedEntry?.Resource is Binary binaryByFullUrl)
+            {
+                return binaryByFullUrl;
+            }
 
-			var binaryById = binaries.FirstOrDefault(b =>
-				string.Equals(b.Id, idCandidate, StringComparison.OrdinalIgnoreCase));
+            // 2) attachment.url → Binary.id
+            var idCandidate = attachmentUrl
+                .Replace("Binary/", "", StringComparison.OrdinalIgnoreCase)
+                .Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
 
-			if (binaryById != null)
-			{
-				return binaryById;
-			}
-		}
+            var binaryById = binaries.FirstOrDefault(b =>
+                string.Equals(b.Id, idCandidate, StringComparison.OrdinalIgnoreCase));
 
-		// 3) Fallback to index-based matching
-		var fallbackBinary = binaries.ElementAtOrDefault(indexFallback);
+            if (binaryById != null)
+            {
+                return binaryById;
+            }
+        }
 
-		if (fallbackBinary != null)
-		{
-			operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-			{
-				Severity = OperationOutcome.IssueSeverity.Warning,
-				Code = OperationOutcome.IssueType.Informational,
-				Diagnostics =
-					$"Binary matched to DocumentReference '{documentReference.Id}' using index fallback. " +
-					$"Consider using DocumentReference.content.attachment.url referencing Bundle.entry.fullUrl.",
-				Location = new[]
-				{
-				"DocumentReference.content.attachment.url"
-			}
-			});
-		}
+        // 3) Fallback to index-based matching
+        var fallbackBinary = binaries.ElementAtOrDefault(indexFallback);
 
-		return fallbackBinary;
-	}
+        if (fallbackBinary != null)
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Warning,
+                Code = OperationOutcome.IssueType.Informational,
+                Diagnostics =
+                    $"Binary matched to DocumentReference '{documentReference.Id}' using index fallback. " +
+                    $"Consider using DocumentReference.content.attachment.url referencing Bundle.entry.fullUrl.",
+                Location = new[]
+                {
+                "DocumentReference.content.attachment.url"
+            }
+            });
+        }
 
-	private static OperationOutcome ValidateDocumentRelations(DocumentReference dr)
-	{
-		var oo = new OperationOutcome();
+        return fallbackBinary;
+    }
 
-		if (dr.RelatesTo == null || dr.RelatesTo.Count == 0)
-			return oo;
+    private static OperationOutcome ValidateDocumentRelations(DocumentReference dr)
+    {
+        var oo = new OperationOutcome();
 
-		void Error(string diagnostics, params string[] location)
-		{
-			oo.AddIssue(new OperationOutcome.IssueComponent
-			{
-				Severity = OperationOutcome.IssueSeverity.Error,
-				Code = OperationOutcome.IssueType.Invalid,
-				Diagnostics = diagnostics,
-				Location = location?.Length > 0 ? location : new[] { "DocumentReference.relatesTo" }
-			});
-		}
+        if (dr.RelatesTo == null || dr.RelatesTo.Count == 0)
+            return oo;
 
-		// --- Helpers ---
-		static string StripUrnUuid(string? v) =>
-			string.IsNullOrWhiteSpace(v)
-				? ""
-				: v.Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
+        void Error(string diagnostics, params string[] location)
+        {
+            oo.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = diagnostics,
+                Location = location?.Length > 0 ? location : new[] { "DocumentReference.relatesTo" }
+            });
+        }
 
-		static string StripDocRefPrefix(string? v) =>
-			string.IsNullOrWhiteSpace(v)
-				? ""
-				: v.Replace("DocumentReference/", "", StringComparison.OrdinalIgnoreCase);
+        // --- Helpers ---
+        static string StripUrnUuid(string? v) =>
+            string.IsNullOrWhiteSpace(v)
+                ? ""
+                : v.Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
 
-		static bool TryParseTargetEntryUuid(string? reference, out string entryUuid)
-		{
-			entryUuid = "";
+        static string StripDocRefPrefix(string? v) =>
+            string.IsNullOrWhiteSpace(v)
+                ? ""
+                : v.Replace("DocumentReference/", "", StringComparison.OrdinalIgnoreCase);
 
-			if (string.IsNullOrWhiteSpace(reference))
-				return false;
+        static bool TryParseTargetEntryUuid(string? reference, out string entryUuid)
+        {
+            entryUuid = "";
 
-			// Accept:
-			// - "DocumentReference/<uuid>"
-			// - "urn:uuid:<uuid>"
-			// - "<uuid>"
-			var candidate = StripUrnUuid(StripDocRefPrefix(reference)).Trim();
+            if (string.IsNullOrWhiteSpace(reference))
+                return false;
 
-			// Guard against contained refs like "#something"
-			if (candidate.StartsWith("#", StringComparison.Ordinal))
-				return false;
+            // Accept:
+            // - "DocumentReference/<uuid>"
+            // - "urn:uuid:<uuid>"
+            // - "<uuid>"
+            var candidate = StripUrnUuid(StripDocRefPrefix(reference)).Trim();
 
-			// Must be a GUID (entryUUID)
-			if (!Guid.TryParse(candidate, out _))
-				return false;
+            // Guard against contained refs like "#something"
+            if (candidate.StartsWith("#", StringComparison.Ordinal))
+                return false;
 
-			entryUuid = candidate;
-			return true;
-		}
+            // Must be a GUID (entryUUID)
+            if (!Guid.TryParse(candidate, out _))
+                return false;
 
-		// --- 1) Basic per-item validation: code + target required ---
-		for (var i = 0; i < dr.RelatesTo.Count; i++)
-		{
-			var rel = dr.RelatesTo[i];
+            entryUuid = candidate;
+            return true;
+        }
 
-			if (rel.Code == null)
-			{
-				Error("relatesTo.code is required.",
-					$"DocumentReference.relatesTo[{i}].code");
-				continue;
-			}
+        // --- 1) Basic per-item validation: code + target required ---
+        for (var i = 0; i < dr.RelatesTo.Count; i++)
+        {
+            var rel = dr.RelatesTo[i];
 
-			if (rel.Target == null || string.IsNullOrWhiteSpace(rel.Target.Reference))
-			{
-				Error("relatesTo.target.reference is required.",
-					$"DocumentReference.relatesTo[{i}].target.reference");
-				continue;
-			}
+            if (rel.Code == null)
+            {
+                Error("relatesTo.code is required.",
+                    $"DocumentReference.relatesTo[{i}].code");
+                continue;
+            }
 
-			if (!TryParseTargetEntryUuid(rel.Target.Reference, out _))
-			{
-				Error("relatesTo.target.reference must be an entryUUID (GUID) in the form " +
-					  "'DocumentReference/<uuid>' or 'urn:uuid:<uuid>' or '<uuid>'.",
-					$"DocumentReference.relatesTo[{i}].target.reference");
-			}
-		}
+            if (rel.Target == null || string.IsNullOrWhiteSpace(rel.Target.Reference))
+            {
+                Error("relatesTo.target.reference is required.",
+                    $"DocumentReference.relatesTo[{i}].target.reference");
+                continue;
+            }
 
-		// If we already have target/code errors, stop early (avoid misleading combo errors)
-		if (oo.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
-			return oo;
+            if (!TryParseTargetEntryUuid(rel.Target.Reference, out _))
+            {
+                Error("relatesTo.target.reference must be an entryUUID (GUID) in the form " +
+                      "'DocumentReference/<uuid>' or 'urn:uuid:<uuid>' or '<uuid>'.",
+                    $"DocumentReference.relatesTo[{i}].target.reference");
+            }
+        }
 
-		// --- 2) Prevent "document relates to itself" ---
-		var selfId = StripUrnUuid(dr.Id);
+        // If we already have target/code errors, stop early (avoid misleading combo errors)
+        if (oo.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
+            return oo;
 
-		if (!string.IsNullOrWhiteSpace(selfId) && Guid.TryParse(selfId, out _))
-		{
-			for (var i = 0; i < dr.RelatesTo.Count; i++)
-			{
-				var rel = dr.RelatesTo[i];
-				if (!TryParseTargetEntryUuid(rel.Target?.Reference, out var targetId))
-					continue;
+        // --- 2) Prevent "document relates to itself" ---
+        var selfId = StripUrnUuid(dr.Id);
 
-				if (string.Equals(selfId, targetId, StringComparison.OrdinalIgnoreCase))
-				{
-					Error("A document cannot relate to itself.",
-						$"DocumentReference.relatesTo[{i}].target.reference");
-					break;
-				}
-			}
-		}
+        if (!string.IsNullOrWhiteSpace(selfId) && Guid.TryParse(selfId, out _))
+        {
+            for (var i = 0; i < dr.RelatesTo.Count; i++)
+            {
+                var rel = dr.RelatesTo[i];
+                if (!TryParseTargetEntryUuid(rel.Target?.Reference, out var targetId))
+                    continue;
 
-		// --- 3) Cardinality: only one of each relationship type ---
-		var codes = dr.RelatesTo
-			.Where(r => r.Code != null)
-			.Select(r => r.Code!.Value)
-			.ToList();
+                if (string.Equals(selfId, targetId, StringComparison.OrdinalIgnoreCase))
+                {
+                    Error("A document cannot relate to itself.",
+                        $"DocumentReference.relatesTo[{i}].target.reference");
+                    break;
+                }
+            }
+        }
 
-		foreach (var g in codes.GroupBy(c => c))
-		{
-			if (g.Count() > 1)
-				Error($"Multiple '{g.Key}' relationships are not allowed.");
-		}
+        // --- 3) Cardinality: only one of each relationship type ---
+        var codes = dr.RelatesTo
+            .Where(r => r.Code != null)
+            .Select(r => r.Code!.Value)
+            .ToList();
 
-		// --- 4) Semantic combination rules ---
-		var hasReplace = codes.Contains(DocumentRelationshipType.Replaces);
-		var hasAppend = codes.Contains(DocumentRelationshipType.Appends);
-		var hasTransform = codes.Contains(DocumentRelationshipType.Transforms);
-		var hasSign = codes.Contains(DocumentRelationshipType.Signs);
-		_ = hasSign; // kept for readability / future rules
+        foreach (var g in codes.GroupBy(c => c))
+        {
+            if (g.Count() > 1)
+                Error($"Multiple '{g.Key}' relationships are not allowed.");
+        }
 
-		// Invalid semantic combinations
-		if (hasReplace && hasAppend)
-			Error("A document cannot both replace and append to another document.");
+        // --- 4) Semantic combination rules ---
+        var hasReplace = codes.Contains(DocumentRelationshipType.Replaces);
+        var hasAppend = codes.Contains(DocumentRelationshipType.Appends);
+        var hasTransform = codes.Contains(DocumentRelationshipType.Transforms);
+        var hasSign = codes.Contains(DocumentRelationshipType.Signs);
+        _ = hasSign; // kept for readability / future rules
 
-		if (hasAppend && hasTransform)
-			Error("An addendum (appends) cannot also be a transform.");
+        // Invalid semantic combinations
+        if (hasReplace && hasAppend)
+            Error("A document cannot both replace and append to another document.");
 
-		// Replace must have exactly one target (already 1-of-each, but keep explicit rule)
-		if (hasReplace && dr.RelatesTo.Count(r => r.Code == DocumentRelationshipType.Replaces) != 1)
-			Error("A document that replaces another must reference exactly one target.");
+        if (hasAppend && hasTransform)
+            Error("An addendum (appends) cannot also be a transform.");
 
-		// --- 5) Target consistency rules ---
-		// All non-sign relationships must target the same document (signing may be multi-sign)
-		var nonSignTargets = dr.RelatesTo
-			.Where(r => r.Code != DocumentRelationshipType.Signs)
-			.Select(r => r.Target?.Reference)
-			.Where(r => !string.IsNullOrWhiteSpace(r))
-			.Select(r => StripUrnUuid(StripDocRefPrefix(r)))
-			.Distinct(StringComparer.OrdinalIgnoreCase)
-			.ToList();
+        // Replace must have exactly one target (already 1-of-each, but keep explicit rule)
+        if (hasReplace && dr.RelatesTo.Count(r => r.Code == DocumentRelationshipType.Replaces) != 1)
+            Error("A document that replaces another must reference exactly one target.");
 
-		if (nonSignTargets.Count > 1)
-			Error("All non-sign relationships must reference the same target document.");
+        // --- 5) Target consistency rules ---
+        // All non-sign relationships must target the same document (signing may be multi-sign)
+        var nonSignTargets = dr.RelatesTo
+            .Where(r => r.Code != DocumentRelationshipType.Signs)
+            .Select(r => r.Target?.Reference)
+            .Where(r => !string.IsNullOrWhiteSpace(r))
+            .Select(r => StripUrnUuid(StripDocRefPrefix(r)))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
-		return oo;
-	}
+        if (nonSignTargets.Count > 1)
+            Error("All non-sign relationships must reference the same target document.");
+
+        return oo;
+    }
 }
+

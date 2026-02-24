@@ -2,10 +2,10 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
-using XcaXds.Source.Services;
+using XcaXds.Commons.DataManipulators;
 
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.Tests;
 
@@ -26,13 +26,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId),
             Resource = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(patientId),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Equal(3, _documentReferences?.Count);
     }
@@ -50,13 +50,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId12To16Years),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId12To16Years),
             Resource = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId12To16Years),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(patientId12To16Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Empty(_documentReferences);
     }
@@ -73,13 +73,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId16To18Years),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId16To18Years),
             Resource = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(patientId16To18Years),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(patientId16To18Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Equal(2, _documentReferences?.Count);
     }
@@ -97,13 +97,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
             Purpose = new() { Code = FAMRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resourceBelow12Years, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resourceBelow12Years),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resourceBelow12Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Equal(3, _documentReferences?.Count);
     }
@@ -121,13 +121,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.RepresentAnotherCitizen,
             Purpose = new() { Code = PWATRNY, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Equal(2, _documentReferences?.Count);
     }
@@ -145,13 +145,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Empty(_documentReferences);
     }
@@ -168,13 +168,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = TREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Equal(2, _documentReferences?.Count);
     }
@@ -192,13 +192,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = TREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Equal(2, _documentReferences?.Count);
     }
@@ -216,13 +216,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = ETREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Equal(3, _documentReferences?.Count);
     }
@@ -240,13 +240,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Empty(_documentReferences);
     }
@@ -265,13 +265,13 @@ public class UnitTests_BusinessLogic
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicFilteringService.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicFilteringService.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
         Assert.Empty(_documentReferences);
     }
@@ -329,6 +329,6 @@ public class UnitTests_BusinessLogic
             ],
         };
 
-        _documentReferences = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects([documentEntry1, documentEntry2, documentEntry3]).ToList();
+        _documentReferences = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([documentEntry1, documentEntry2, documentEntry3]).ToList();
     }
 }

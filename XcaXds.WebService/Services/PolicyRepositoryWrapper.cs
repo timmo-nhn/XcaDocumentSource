@@ -5,7 +5,7 @@ using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Services;
@@ -63,14 +63,14 @@ public class PolicyRepositoryWrapper
     {
         lock (_lock)
         {
-            _evaluationEnginePractitioner = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
+            _evaluationEnginePractitioner = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
             {
                 CombiningAlgorithm = policySet.CombiningAlgorithm,
                 SetId = policySet.SetId,
                 Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.HelseId) ?? false).ToList()
             }));
 
-            _evaluationEngineCitizen = new EvaluationEngine(PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
+            _evaluationEngineCitizen = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
             {
                 CombiningAlgorithm = policySet.CombiningAlgorithm,
                 SetId = policySet.SetId,
