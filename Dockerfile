@@ -13,7 +13,7 @@ COPY XcaXds.Source/PolicyRepository /app/policyrepository
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 
 # Update CA certificates to include latest root certificates
-RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates curl && update-ca-certificates && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --from=build /app .
