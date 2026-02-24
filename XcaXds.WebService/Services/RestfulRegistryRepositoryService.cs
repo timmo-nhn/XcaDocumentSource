@@ -346,7 +346,7 @@ public class RestfulRegistryRepositoryService
             ObjectMerger.MergeObjects(associationToPatch, value.Association);
         }
 
-        _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry.ToList());
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos([documentEntryToPatch, submissionSetToPatch, associationToPatch]);
 
         return partialUpdateResponse;
     }

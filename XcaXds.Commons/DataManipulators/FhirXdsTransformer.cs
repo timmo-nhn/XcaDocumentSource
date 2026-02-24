@@ -274,14 +274,19 @@ public static class FhirXdsTransformer
                     OrganizationName = submAuthorOrg.OrganizationName
                 };
 
+                var subAuthorString = submAuthorDept?.Serialize();
+
                 string[] items = [
-                                                submAuthorDept?.Serialize(),
                             submAuthorOrgNameOnly.Serialize(),
                             submAuthorOrg.Serialize(),
-
                     ];
 
-                registryPackage.AddClassification(new ClassificationType()
+                if (!string.IsNullOrWhiteSpace(subAuthorString))
+                {
+                    items = [.. items, subAuthorString];
+                }
+
+                var authorClassification = new ClassificationType()
                 {
                     Id = Guid.NewGuid().ToString(),
                     ClassifiedObject = submissionSetList.Id!.Replace("urn:uuid:", ""),
@@ -289,34 +294,41 @@ public static class FhirXdsTransformer
                     ObjectType = Constants.Xds.ObjectTypes.Classification,
                     Name = new InternationalStringType(Constants.Xds.ClassificationNames.SubmissionSetAuthor),
                     NodeRepresentation = string.Empty,
-                    Slot =
-                    [
-                        new SlotType()
+                    Slot = []
+                };
+
+                var authorDepartmentSlot = new SlotType()
                 {
                     Name = "authorInstitution",
                     ValueList = new ValueListType()
                     {
                         Value =
                         [
-                            submAuthorDept?.Serialize(),
                             submAuthorOrgNameOnly.Serialize(),
                             submAuthorOrg.Serialize(),
                         ]
                     }
-                },
-                new SlotType()
+                };
+
+                var authorDepartmentString = submAuthorDept?.Serialize();
+                if (!string.IsNullOrWhiteSpace(authorDepartmentString))
+                {
+                    authorDepartmentSlot.AddValue(authorDepartmentString);
+                }
+
+                var authorPersonSlot = new SlotType()
                 {
                     Name = "authorPerson",
                     ValueList = new ValueListType()
                     {
-                        Value =
-                        [
-                            submAuthorPerson.Serialize().Replace("&&","")
-                        ]
+                        Value = [submAuthorPerson.Serialize().Replace("&&", "")]
                     }
-                }
-                    ]
-                });
+                };
+
+                authorClassification.AddSlot(authorDepartmentSlot);
+                authorClassification.AddSlot(authorPersonSlot);
+
+                registryPackage.AddClassification(authorClassification);
             }
 
             // XdsSubmissionset.ContentTypeCode (Document type)

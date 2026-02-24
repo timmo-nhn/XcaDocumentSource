@@ -67,13 +67,13 @@ public class SqliteBasedRegistry : IRegistry
         using var transaction = db.Database.BeginTransaction();
 
         if (documentEntries.Count > 0)
-            db.BulkInsert(documentEntries);
+            db.BulkInsertOrUpdate(documentEntries);
 
         if (submissionSets.Count > 0)
-            db.BulkInsert(submissionSets);
+            db.BulkInsertOrUpdate(submissionSets);
 
         if (associations.Count > 0)
-            db.BulkInsert(associations);
+            db.BulkInsertOrUpdate(associations);
 
         transaction.Commit();
 
