@@ -61,22 +61,25 @@ public class PolicyRequestMapperJsonWebToken
 
     private static string MapXacmlActionFromUrlPath(string? urlPath, string method)
     {
-        if (urlPath == "R4/fhir/Bundle" && method == "POST")
+        if (urlPath?.Equals("R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")   
             return Constants.Xacml.Actions.Create;
 
-        if (urlPath == "R4/fhir/Bundle" && method == "PATCH")
+        if (urlPath?.Equals("R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
             return Constants.Xacml.Actions.Update;
 
-        if (urlPath == "R4/fhir/mhd/document" && method == "POST")
+		if (urlPath?.Equals("R4/fhir/mhd/document", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
             return Constants.Xacml.Actions.ReadDocuments;
-
-        if (urlPath == "R4/fhir/DocumentReference/_search" && method == "POST")
+            
+        if (urlPath?.Equals("R4/fhir/DocumentReference/_search", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
             return Constants.Xacml.Actions.ReadDocumentList;
 
-        if (urlPath.Contains("R4/fhir/DocumentReference") && method == "GET")
+        if (urlPath?.Equals("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "GET")
             return Constants.Xacml.Actions.ReadDocumentList;
 
-        if (urlPath.Contains("R4/fhir/DocumentReference") && method == "DELETE")
+        if (urlPath?.Equals("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
+            return Constants.Xacml.Actions.Update;
+
+        if (urlPath?.Equals("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "DELETE")
             return Constants.Xacml.Actions.Delete;
 
         return Constants.Xacml.Actions.Create;
