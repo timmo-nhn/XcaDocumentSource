@@ -808,7 +808,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
             var token = handler.ReadJwtToken(jwtToken);
 
-            var samlToken = PolicyRequestMapperJsonWebTokenService.MapJsonWebTokenToSamlToken(token);
+            var samlToken = PolicyRequestMapperJsonWebToken.MapJsonWebTokenToSamlToken(token);
             samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                         "is_provide_bundle",
                         "true")));
