@@ -481,7 +481,7 @@ public class XdsOnFhirService
 
     private static List<CodeableConcept>? GetCodeableConceptFromExtrinsicObjectConfidentialityCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-		var confidentialityCodes = RegistryMetadataTransformerService.MapClassificationToCodedValue(
+		var confidentialityCodes = RegistryMetadataTransformer.MapClassificationToCodedValue(
 			assocExtrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode));
 
 		if (confidentialityCodes == null || confidentialityCodes.Count == 0) return null;
