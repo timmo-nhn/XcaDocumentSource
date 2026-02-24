@@ -11,12 +11,12 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
 /// <summary>
 /// Parse incoming requests (ie. SOAP-requests with SAML-token) and generate XACML-access requests from the request assertions
 /// </summary>
-public static class PolicyRequestMapperSamlService
+public static class PolicyRequestMapperSaml
 {
 
     public static Saml2SecurityToken? ReadSamlToken(string? inputSamlToken)
@@ -409,6 +409,10 @@ public static class PolicyRequestMapperSamlService
                 {
                     attribute.Name = "urn:no:ehelse:saml:1.0:subject:Scope";
                 }
+                if (!Uri.TryCreate(attribute.Name, UriKind.Absolute, out _))
+                {
+                    attribute.Name = Constants.Xacml.CustomAttributes.UnknownAttribute + attribute.Name;
+                }
 
                 if (!Uri.IsWellFormedUriString(attribute.Name, UriKind.Absolute))
                 {
@@ -449,7 +453,6 @@ public static class PolicyRequestMapperSamlService
                             new Uri(attribute.Name + ":codeSystem"),
                             new Uri(Constants.Xacml.DataType.String),
                             new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }));
-
                 }
 
                 if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.DisplayName))
@@ -477,7 +480,7 @@ public static class PolicyRequestMapperSamlService
                 new XacmlContextAttributeValue() { Value = Constants.Oid.Saml.Acp.NullValue }));
         }
 
-        return subjectAttributes;
+        return [.. subjectAttributes.DistinctBy(att => new {att.AttributeId, AttributeValues = string.Join(", ", att.AttributeValues)})];
     }
 
 

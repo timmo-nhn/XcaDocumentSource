@@ -6,7 +6,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 using XcaXds.WebService.Services;
 using XcaXds.Commons.Extensions;
@@ -136,7 +136,7 @@ public class ApplicationMetaController : ControllerBase
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(resourceJson.GetRawText());
         if (jsonTestData == null) return BadRequest("No content provided");
 
-        var generatedRegistryObjects = RegistryMetadataGeneratorService.GenerateRandomizedTestData(_xdsConfig.HomeCommunityId, _xdsConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
+        var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_xdsConfig.HomeCommunityId, _xdsConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
 
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectList());
 

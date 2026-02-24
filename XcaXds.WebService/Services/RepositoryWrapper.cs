@@ -6,7 +6,7 @@ using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 
 namespace XcaXds.WebService.Services;
 
@@ -80,7 +80,7 @@ public partial class RepositoryWrapper
             var associations = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc?.TargetObject == documentEntry?.Id);
             var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
 
-            var clinicalDocument = CdaTransformerService.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
+            var clinicalDocument = CdaTransformer.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
             cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
         }
 

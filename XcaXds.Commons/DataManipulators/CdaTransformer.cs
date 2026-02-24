@@ -6,9 +6,9 @@ using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
-public static partial class CdaTransformerService
+public static partial class CdaTransformer
 {
     public static DocumentReferenceDto TransformClinicalDocumentToRegistryObjects(ClinicalDocument clinicalDocument, string? homeCommunityId = null, string? repositoryUniqueId = null)
     {
@@ -359,7 +359,7 @@ public static partial class CdaTransformerService
     }
 }
 
-public static partial class CdaTransformerService
+public static partial class CdaTransformer
 {
     /// <summary>
     /// Parse a provide and register request and transform into a CDA document.<para/>
@@ -374,13 +374,21 @@ public static partial class CdaTransformerService
         {
             cdaDocument.Id = SetClinicalDocumentId(documentEntry) ?? new();
 
-            cdaDocument.Code = SetClinicalDocumentTypeCode(documentEntry);
+            var cdaTypeCode = SetClinicalDocumentTypeCode(documentEntry);
+            if (cdaTypeCode != null)
+            {
+                cdaDocument.Code = cdaTypeCode;
+            }
 
             cdaDocument.Title = SetClinicalDocumentTitle(documentEntry);
 
             cdaDocument.EffectiveTime = SetClinicalDocumentEffectiveTime(documentEntry);
 
-            cdaDocument.ConfidentialityCode = SetClinicalDocumentConfidentialityCode(documentEntry);
+            var cdaConfidentialityCode = SetClinicalDocumentConfidentialityCode(documentEntry);
+            if (cdaConfidentialityCode != null)
+            {
+                cdaDocument.ConfidentialityCode = cdaConfidentialityCode;
+            }
 
             // Patient and organization
             cdaDocument.RecordTarget ??= new();
@@ -412,8 +420,8 @@ public static partial class CdaTransformerService
         nonXmlBody.Text ??= new();
         nonXmlBody.Text.MediaType = documentEntry.MimeType;
 
-        if (!string.IsNullOrWhiteSpace(nonXmlBody.Text.MediaType) && 
-            (nonXmlBody.Text.MediaType == Constants.MimeTypes.Text || 
+        if (!string.IsNullOrWhiteSpace(nonXmlBody.Text.MediaType) &&
+            (nonXmlBody.Text.MediaType == Constants.MimeTypes.Text ||
              nonXmlBody.Text.MediaType.Contains("json")))
         {
             nonXmlBody.Text.Text = Encoding.UTF8.GetString(document.Data ?? []);
@@ -508,13 +516,18 @@ public static partial class CdaTransformerService
 
         if (submissionsSet.Author == null) return null;
 
-        custodian.AssignedCustodian ??= new();
-        custodian.AssignedCustodian.RepresentedCustodianOrganization = SetRepresentedCustodianOrganization(submissionsSet.Author.FirstOrDefault());
+        var representedCustodianOrganization = SetRepresentedCustodianOrganization(submissionsSet.Author.FirstOrDefault());
+
+        if (representedCustodianOrganization != null)
+        {
+            custodian.AssignedCustodian ??= new();
+            custodian.AssignedCustodian.RepresentedCustodianOrganization = representedCustodianOrganization;
+        }
 
         return custodian;
     }
 
-    private static CustodianOrganization SetRepresentedCustodianOrganization(AuthorInfo author)
+    private static CustodianOrganization? SetRepresentedCustodianOrganization(AuthorInfo? author)
     {
         if (author == null) return null;
         var custodianOrganization = new CustodianOrganization();
@@ -522,12 +535,12 @@ public static partial class CdaTransformerService
         custodianOrganization.Id ??= new();
         custodianOrganization.Id.Add(new()
         {
-            Extension = author.Organization.Id,
-            Root = author.Organization.AssigningAuthority
+            Extension = author.Organization?.Id ?? string.Empty,
+            Root = author.Organization?.AssigningAuthority ?? string.Empty
         });
 
         custodianOrganization.Name ??= new();
-        custodianOrganization.Name.XmlText = author.Organization.OrganizationName;
+        custodianOrganization.Name.XmlText = author.Organization?.OrganizationName;
 
         return custodianOrganization;
     }
@@ -555,7 +568,7 @@ public static partial class CdaTransformerService
         return null;
     }
 
-    private static CE SetPatientAdministrativeGenderCode(string? patientGender)
+    private static CE? SetPatientAdministrativeGenderCode(string? patientGender)
     {
         if (patientGender != null)
         {
@@ -598,14 +611,24 @@ public static partial class CdaTransformerService
     {
         var patientRole = new PatientRole();
         // PatientRole.Id
-        patientRole.Id ??= new();
-        patientRole.Id.Add(SetPatientRoleId(documentEntry));
+
+        var patientRoleId = SetPatientRoleId(documentEntry);
+        if (patientRoleId != null)
+        {
+            patientRole.Id ??= new();
+            patientRole.Id.Add(patientRoleId);
+        }
 
         // recordTarget.PatientRole.Patient
         var patient = new Patient();
 
-        patient.Name ??= new();
-        patient.Name.Add(SetPatientName(documentEntry.SourcePatientInfo));
+        var patientName = SetPatientName(documentEntry.SourcePatientInfo);
+
+        if (patientName != null)
+        {
+            patient.Name ??= new();
+            patient.Name.Add(patientName);
+        }
 
         patient.BirthTime = SetPatientBirthTime(documentEntry.SourcePatientInfo?.BirthTime);
 
@@ -629,14 +652,14 @@ public static partial class CdaTransformerService
             providerOrganization.Id ??= new();
             providerOrganization.Id.Add(new()
             {
-                Extension = documentAuthor?.Department?.Id,
-                Root = documentAuthor?.Department?.AssigningAuthority
+                Extension = documentAuthor?.Department?.Id ?? string.Empty,
+                Root = documentAuthor?.Department?.AssigningAuthority ?? string.Empty
             });
             providerOrganization.Name = [new() { XmlText = documentAuthor?.Department?.OrganizationName }];
 
         }
 
-        if (documentAuthor?.Organization != null)
+        if (documentAuthor?.Organization != null && documentAuthor.Organization.Id != null)
         {
             providerOrganization.AsOrganizationPartOf ??= new()
             {
@@ -646,7 +669,7 @@ public static partial class CdaTransformerService
                         new()
                         {
                              Extension = documentAuthor.Organization.Id,
-                             Root = documentAuthor.Organization.AssigningAuthority
+                             Root = documentAuthor.Organization.AssigningAuthority ?? string.Empty
                         }
                     ],
                     Name = [new() { XmlText = documentAuthor.Organization.OrganizationName }]
@@ -659,7 +682,7 @@ public static partial class CdaTransformerService
 
     private static II? SetPatientRoleId(DocumentEntryDto documentEntry)
     {
-        if (documentEntry.SourcePatientInfo?.PatientId?.Id == null || 
+        if (documentEntry.SourcePatientInfo?.PatientId?.Id == null ||
             documentEntry.SourcePatientInfo?.PatientId?.System == null) return null;
 
         return new()
@@ -669,12 +692,12 @@ public static partial class CdaTransformerService
         };
     }
 
-    private static string SetClinicalDocumentTitle(DocumentEntryDto documentEntry)
+    private static string? SetClinicalDocumentTitle(DocumentEntryDto documentEntry)
     {
         return documentEntry.Title;
     }
 
-    private static CV SetClinicalDocumentConfidentialityCode(DocumentEntryDto documentEntry)
+    private static CV? SetClinicalDocumentConfidentialityCode(DocumentEntryDto documentEntry)
     {
         if (documentEntry.ConfidentialityCode == null) return null;
 
@@ -695,7 +718,7 @@ public static partial class CdaTransformerService
         };
     }
 
-    private static CV SetClinicalDocumentTypeCode(DocumentEntryDto documentEntry)
+    private static CV? SetClinicalDocumentTypeCode(DocumentEntryDto documentEntry)
     {
 
         if (documentEntry.TypeCode == null) return null;

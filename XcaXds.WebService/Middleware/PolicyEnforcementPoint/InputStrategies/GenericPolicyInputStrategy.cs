@@ -6,14 +6,11 @@ using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
 
 namespace XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputStrategies;
 
-public class FhirJsonPolicyInputStrategy : IPolicyInputStrategy
+public class GenericPolicyInputStrategy : IPolicyInputStrategy
 {
     public string[] GetAcceptedContentTypes()
     {
-        return
-        [
-            Constants.MimeTypes.FhirJson
-        ];
+        return [null];
     }
 
     public bool CanHandle(string? contentType)

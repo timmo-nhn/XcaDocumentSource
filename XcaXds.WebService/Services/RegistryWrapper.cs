@@ -3,7 +3,7 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 
 namespace XcaXds.WebService.Services;
 
@@ -41,7 +41,7 @@ public class RegistryWrapper
     public XmlDocumentRegistry GetDocumentRegistryContentAsRegistryObjects()
     {
         var dtoList = GetDocumentRegistryContentAsDtos();
-        var registryObjs = RegistryMetadataTransformerService
+        var registryObjs = RegistryMetadataTransformer
                 .TransformRegistryObjectDtosToRegistryObjects(dtoList);
 
         return new XmlDocumentRegistry { RegistryObjectList = registryObjs };
@@ -87,7 +87,7 @@ public class RegistryWrapper
     {
         try
         {
-            var dtoList = RegistryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
+            var dtoList = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
             SetDocumentRegistryContentWithDtos(dtoList);
 
@@ -103,7 +103,7 @@ public class RegistryWrapper
     {
         try
         {
-            var dtoList = RegistryMetadataTransformerService
+            var dtoList = RegistryMetadataTransformer
                 .TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
             UpdateDocumentRegistryContentWithDtos(dtoList);

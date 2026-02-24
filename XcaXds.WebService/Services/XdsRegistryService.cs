@@ -1,16 +1,13 @@
 ﻿using Abc.Xacml.Context;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Services;
-using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Services;
 
@@ -96,7 +93,7 @@ public partial class XdsRegistryService
     {
         var documentRegistryDtos = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var documentRegistry = new XmlDocumentRegistry(RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(documentRegistryDtos.ToList()));
+        var documentRegistry = new XmlDocumentRegistry(RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(documentRegistryDtos.ToList()));
 
         var registryResponse = new RegistryResponseType();
 
@@ -164,8 +161,17 @@ public partial class XdsRegistryService
                 filteredElements = [.. registryFindDocumentEntriesResult];
 
                 // Apply business-logic filtering
-                var businessLogic = BusinessLogicFilteringService.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-                filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic)?.ToList();
+                var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+                filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
+
+                if (result.Count > 0)
+                {
+                    _logger.LogInformation($"Business logic applied: {JsonSerializer.Serialize(result)}");
+                }
+                else
+                {
+                    _logger.LogInformation($"No business logic applied");
+                }
 
                 filteredElements.ObfuscateRestrictedDocumentEntries(xacmlRequest, out var count);
 
@@ -175,7 +181,7 @@ public partial class XdsRegistryService
                 }
 
                 // Safe guard to avoid duplicate IDs in response
-                filteredElements = filteredElements
+                filteredElements = filteredElements?
                     .GroupBy(x => x.Id)
                     .Select(g => g.First())
                     .ToList();
@@ -384,7 +390,7 @@ public partial class XdsRegistryService
             .Where(ro => objectRefIds.Contains(ro.Id))
             .ToList();
 
-        deletedObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(toRemove);
+        deletedObjects = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(toRemove);
 
         foreach (var ro in toRemove)
         {
@@ -510,7 +516,7 @@ public partial class XdsRegistryService
     {
         try
         {
-            var dtoList = RegistryMetadataTransformerService
+            var dtoList = RegistryMetadataTransformer
                 .TransformRegistryObjectsToRegistryObjectDtos(xml.RegistryObjectList);
 
             _registryWrapper.SetDocumentRegistryContentWithDtos(dtoList);

@@ -1,20 +1,17 @@
 ﻿using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.Commons.Services;
-using XcaXds.Source.Source;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.Commons.DataManipulators;
 
-public static class RegistryMetadataGeneratorService
+public static class RegistryMetadataGenerator
 {
     public static List<DocumentReferenceDto> GenerateRandomizedTestData(
-        string? homeCommunityId, 
-        string? repositoryUniqueId, 
-        Test_DocumentReference? jsonTestData, 
-        int? entriesToGenerate = 10, 
+        string? homeCommunityId,
+        string? repositoryUniqueId,
+        Test_DocumentReference? jsonTestData,
+        int? entriesToGenerate = 10,
         string? patientIdentifier = null,
         bool noDeprecatedDocuments = false
         )
@@ -35,12 +32,12 @@ public static class RegistryMetadataGeneratorService
             jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [sourcePatientInfoForPatient];
         }
 
-        var generatedTestRegistryObjects = TestDataGeneratorService.GenerateRegistryObjectsFromTestData(jsonTestData, (int)entriesToGenerate!);
+        var generatedTestRegistryObjects = TestDataGenerator.GenerateRegistryObjectsFromTestData(jsonTestData, (int)entriesToGenerate!);
 
         foreach (var generatedTestObject in generatedTestRegistryObjects)
         {
             var documentContent = generatedTestObject.Document?.Data;
-            
+
             if (generatedTestObject?.DocumentEntry?.SourcePatientInfo?.PatientId?.Id != null && generatedTestObject.DocumentEntry.Id != null && documentContent != null)
             {
                 generatedTestObject.DocumentEntry.Title = "XcaDS - " + generatedTestObject.DocumentEntry.Title;

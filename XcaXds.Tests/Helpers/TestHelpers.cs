@@ -2,9 +2,11 @@
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.Tests.Helpers;
 
@@ -37,7 +39,7 @@ public static class TestHelpers
 
         var data =  File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json")));
 
-        return RegistryMetadataGeneratorService.GenerateRandomizedTestData(
+        return RegistryMetadataGenerator.GenerateRandomizedTestData(
             homeCommunityId:"2.16.578.1.12.4.5.100.1.1", 
             repositoryUniqueId:"2.16.578.1.12.4.5.100.1.1.2", 
             jsonTestData: JsonSerializer.Deserialize<Test_DocumentReference>(data, Constants.JsonDefaultOptions.DefaultSettings),
@@ -45,4 +47,21 @@ public static class TestHelpers
             patientIdentifier: patientId,
             noDeprecatedDocuments: noDeprecatedDocuments);
     }
+
+    public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string attributeId, string codeValue,string action, string? codeSystemValue = null, bool noCode = false)
+    {
+        policyRepositoryService.AddPolicy(new PolicyDto()
+        {
+            AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
+            Id = policyName,
+            Rules =
+            [[
+                new() { AttributeId = attributeId + $"{(noCode ? string.Empty: ":code")}", Value = codeValue },
+                codeSystemValue == null ? null : new() { AttributeId = attributeId + ":codeSystem", Value = codeSystemValue }
+            ]],
+            Actions = [action],
+            Effect = "Permit",
+        });
+    }
+
 }

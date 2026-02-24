@@ -7,13 +7,13 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 
-namespace XcaXds.Commons.Services;
+namespace XcaXds.Commons.DataManipulators;
 
 /// <summary>
 /// Parse Json Web Token (JWT) to an XACML-request<para/>
 /// Transforms JWT to a partial SAML-token and then to XACML Using <b>PolicyRequestMapperSamlService</b> to ensure consistency with XACML-formats and policies
 /// </summary>
-public class PolicyRequestMapperJsonWebTokenService
+public class PolicyRequestMapperJsonWebToken
 {
     public static XacmlContextRequest? GetXacml20RequestFromJsonWebToken(JwtSecurityToken jwtToken, Resource? fhirBundle, string urlPath, string path)
     {
@@ -31,7 +31,7 @@ public class PolicyRequestMapperJsonWebTokenService
 
         var action = MapXacmlActionFromUrlPath(urlPath, path);
 
-        var samlAttributes = PolicyRequestMapperSamlService.MapSamlAttributesToXacml20Properties(statements, action);
+        var samlAttributes = PolicyRequestMapperSaml.MapSamlAttributesToXacml20Properties(statements, action);
 
         // Resource
         var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();
@@ -73,10 +73,10 @@ public class PolicyRequestMapperJsonWebTokenService
         if (urlPath == "R4/fhir/DocumentReference/_search" && method == "POST")
             return Constants.Xacml.Actions.ReadDocumentList;
 
-        if (urlPath == "R4/fhir/DocumentReference" && method == "GET")
+        if (urlPath.Contains("R4/fhir/DocumentReference") && method == "GET")
             return Constants.Xacml.Actions.ReadDocumentList;
 
-        if (urlPath == "R4/fhir/DocumentReference" && method == "DELETE")
+        if (urlPath.Contains("R4/fhir/DocumentReference") && method == "DELETE")
             return Constants.Xacml.Actions.Delete;
 
         return Constants.Xacml.Actions.Create;
@@ -97,16 +97,23 @@ public class PolicyRequestMapperJsonWebTokenService
                 continue;
             }
 
-            var value = claim.Value switch
+            string[] claimsEnumerated = claim.Value switch
             {
-                IEnumerable<string> stringEnumerable => string.Join(' ', stringEnumerable),
-                System.Text.Json.JsonElement jsonElement => jsonElement.ToString(),
-                _ => claim.Value.ToString()
+                IEnumerable<string> stringEnumerable => [.. stringEnumerable],
+                System.Text.Json.JsonElement jsonElement => jsonElement.ValueKind switch
+                    { 
+                        System.Text.Json.JsonValueKind.Array => jsonElement.EnumerateArray().Select(je => je.ToString()).ToArray(), 
+                        _ => [jsonElement.ToString()]
+                    },
+                _ => [claim.Value.ToString()]
             };
 
-            if (!string.IsNullOrWhiteSpace(value))
+            foreach (var singleClaim in claimsEnumerated)
             {
-                claims[claim.Key] = value;
+                if (!string.IsNullOrWhiteSpace(singleClaim))
+                {
+                    claims[claim.Key] = singleClaim;
+                }
             }
         }
 
@@ -169,7 +176,10 @@ public class PolicyRequestMapperJsonWebTokenService
     private static List<Saml2Statement> MapJwtClaimsToSamlTokenStatements(SamlClaimValues samlClaims)
     {
         var statements = new List<Saml2Statement>();
+        if (!string.IsNullOrWhiteSpace(samlClaims.NameId))
+        {
 
+        }
         if (!string.IsNullOrWhiteSpace(samlClaims.OrgnrParent))
         {
             statements.Add(new Saml2AttributeStatement(new Saml2Attribute(

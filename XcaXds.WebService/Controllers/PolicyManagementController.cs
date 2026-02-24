@@ -4,7 +4,7 @@ using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
@@ -33,7 +33,7 @@ public class PolicyManagementController : ControllerBase
 
         if (xml)
         {
-            var xacmlPolicySet = PolicyDtoTransformerService.TransformPolicySetDtoToXacmlVersion20PolicySet(policySet);
+            var xacmlPolicySet = PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(policySet);
 
             var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
 
@@ -52,7 +52,7 @@ public class PolicyManagementController : ControllerBase
 
         if (xml)
         {
-            var xacmlPolicySet = PolicyDtoTransformerService.TransformPolicyDtoToXacmlVersion20Policy(policySet);
+            var xacmlPolicySet = PolicyDtoTransformer.TransformPolicyDtoToXacmlVersion20Policy(policySet);
 
             var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
 
@@ -187,10 +187,10 @@ public class PolicyManagementController : ControllerBase
     public async Task<IActionResult> GetXacmlRequest([FromBody] SoapEnvelope soapEnvelope)
     {
         var response = new RestfulApiResponse();
-        var samlToken = PolicyRequestMapperSamlService.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
-        var issuer = PolicyRequestMapperSamlService.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
+        var samlToken = PolicyRequestMapperSaml.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        var issuer = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
 
-        var xacmlRequest = PolicyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, issuer, _registryWrapper.GetDocumentRegistryContentAsDtos().ToList());
+        var xacmlRequest = PolicyRequestMapperSaml.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, issuer, _registryWrapper.GetDocumentRegistryContentAsDtos().ToList());
 
         var evaluationResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest, issuer);
 

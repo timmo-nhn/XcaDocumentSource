@@ -189,11 +189,24 @@ public class AppStartupService : IHostedService
             Effect = "Permit"
         };
 
+        var machine_deletedocuments = new PolicyDto()
+        {
+            Id = "DEFAULT_machine_deletedocuments",
+            AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
+            Rules =
+            [[
+                new(Constants.Saml.Attribute.EhelseScope, "nhn:phr/mhd/create-documents-with-reference"),
+            ]],
+            Actions = ["Delete"],
+            Effect = "Permit"
+        };
+
         _policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid);
         //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
         _policyRepositoryWrapper.AddPolicy(cz_readdocumentlist_documents);
         _policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
         _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument_create);
+        _policyRepositoryWrapper.AddPolicy(machine_deletedocuments);
     }
 
     /// <summary>
