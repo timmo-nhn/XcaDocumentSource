@@ -11,6 +11,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
+using XcaXds.Commons.Models.Custom;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -623,22 +624,14 @@ public static class Commons
         return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
     }
 
-    /// <summary>
-    /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
-    /// Will not remove the entry from the result list! </para>
-    /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
-    /// </summary>
-    public static List<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
+    public static List<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
-        var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
 
-        var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+        var requestAppliesTo = businessLogic?.Issuer ?? Issuer.Unknown;
 
         foreach (var extrinsicObject in identifiableTypes?.OfType<ExtrinsicObjectType>() ?? [])
         {
-            // Skip if the entry is just "Normal" classified (No obfuscation needed)
-
             var confCodes = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
                 .Select(cls => new CodedValue()
                 {
@@ -646,19 +639,20 @@ public static class Commons
                     CodeSystem = cls.GetFirstSlot()?.GetFirstValue()
                 }).ToArray();
 
+            bool obfuscate = requestAppliesTo switch
+            {
+                Issuer.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))),
+                Issuer.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))),
+                _ => false
+            };
 
             // Dont obscure in emergency situations
-            if (!string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == false)
+            if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
             {
-                if (requestAppliesTo == Issuer.HelseId)
-                {
-                    if (!confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
-                }
-                if (requestAppliesTo == Issuer.Helsenorge)
-                {
-                    if (!confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))) continue;
-                }
+                obfuscate = false;
             }
+
+            if (!obfuscate && requestAppliesTo != Issuer.Unknown) continue;
 
             // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
             // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
@@ -687,6 +681,20 @@ public static class Commons
         }
 
         return identifiableTypes;
+    }
+
+    /// <summary>
+    /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
+    /// Will not remove the entry from the result list! </para>
+    /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
+    /// </summary>
+    public static List<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
+    {
+        obfuscatedEntriesCount = 0;
+
+        var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+
+        return ObfuscateRestrictedDocumentEntries(identifiableTypes, businessLogic, out obfuscatedEntriesCount);
     }
 
     private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier)
