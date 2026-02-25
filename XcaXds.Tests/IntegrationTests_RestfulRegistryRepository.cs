@@ -96,7 +96,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
         var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days); // Geeked up implicit type cast!?
         var firstResponse = await _client.DeleteAsync(url);
 
-        Assert.Equal(_registry.DocumentRegistry.OfType<DocumentEntryDto>().Count(), documentEntries.Length - oldDocumentEntries.Length);
+        Assert.Equal(_registry.ReadRegistry().OfType<DocumentEntryDto>().Count(), documentEntries.Length - oldDocumentEntries.Length);
     }
 
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)

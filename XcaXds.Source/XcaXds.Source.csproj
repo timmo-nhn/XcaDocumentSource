@@ -9,7 +9,6 @@
 
     <ItemGroup>
     <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
-    <ProjectReference Include="..\Abc.Xacml\Abc.Xacml.csproj" />
   </ItemGroup>
 
   <ItemGroup>	 	  
@@ -24,6 +23,10 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.16.0" />
     <PackageReference Include="PDFsharp" Version="6.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Registry\" />
   </ItemGroup>
 
 </Project>

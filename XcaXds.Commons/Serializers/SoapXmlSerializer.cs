@@ -30,9 +30,9 @@ public class SoapXmlSerializer
 
     }
 
-    public T DeserializeXmlString<T>(string xmlString)
+    public T DeserializeXmlString<T>(string? xmlString)
     {
-        var byteArray = Encoding.UTF8.GetBytes(xmlString.Trim());
+        var byteArray = Encoding.UTF8.GetBytes(xmlString?.Trim() ?? "");
         var memStream = new MemoryStream(byteArray);
         return DeserializeXmlString<T>(memStream);
     }

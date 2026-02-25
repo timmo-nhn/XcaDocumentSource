@@ -97,7 +97,7 @@ public static class SoapExtensions
             {
                 var isSuccess = bool.Equals(false, resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList.RegistryError
                 .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
-                resultEnvelope.Value.Header.Action = isSuccess == true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
+                resultEnvelope.Value.Header?.Action = isSuccess == true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
                 resultEnvelope.IsSuccess = isSuccess;
             }
         }

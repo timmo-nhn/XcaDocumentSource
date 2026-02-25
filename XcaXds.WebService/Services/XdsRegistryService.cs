@@ -71,21 +71,21 @@ public partial class XdsRegistryService
                 continue;
             }
 
+            var deprecatess = documentRegistry.RegistryObjectList.OfType<ExtrinsicObjectType>().Where(eo => eo.Status == Constants.Xds.StatusValues.Deprecated).ToArray();
+
             successes = [.. successes, success];
             _logger.LogInformation($"{envelope?.Header?.MessageId} - Successfully deprecated document with id {documentId}");
         }
 
-        var registryUpdateResult = _registryWrapper.UpdateDocumentRegistryFromRegistryObjects(submissionRegistryObjects);
+        var registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos([.. documentRegistry.RegistryObjectList, .. submissionRegistryObjects]));
 
-        var statuses = documentRegistry.RegistryObjectList.OfType<ExtrinsicObjectType>().Count(ro => ro.Status == Constants.Xds.StatusValues.Deprecated);
-
-        if (registryUpdateResult.IsSuccess)
+        if (registryUpdateResult)
         {
             registryResponse.EvaluateStatusCode();
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry\nError: {registryUpdateResult.Value}", _xdsConfig.HomeCommunityId);
+        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry", _xdsConfig.HomeCommunityId);
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 

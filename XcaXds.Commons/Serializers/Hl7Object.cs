@@ -13,8 +13,8 @@ public abstract class Hl7Object
 {
     internal class PropertyAndAttribute
     {
-        public PropertyInfo Property;
-        public Hl7Attribute Hl7Attribute;
+        public PropertyInfo? Property;
+        public Hl7Attribute? Hl7Attribute;
     }
 
     public string Serialize()
@@ -28,29 +28,29 @@ public abstract class Hl7Object
 
         foreach (var item in GetHl7Properties(this))
         {
-            if (item.Property.PropertyType == typeof(HD))
+            if (item.Property?.PropertyType == typeof(HD))
             {
                 var hd = (HD?)item.Property.GetGetMethod()?.Invoke(this, null);
                 stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + separator);
             }
-            else if (item.Property.PropertyType == typeof(CX))
+            else if (item.Property?.PropertyType == typeof(CX))
             {
                 var cx = (CX?)item.Property.GetGetMethod()?.Invoke(this, null);
                 stringBuilder.Append((cx != null ? cx.Serialize(Constants.Hl7.Separator.Hatt) : string.Empty) + separator);
             }
-            else if (item.Property.PropertyType == typeof(XPN))
+            else if (item.Property?.PropertyType == typeof(XPN))
             {
                 var xpn = (XPN?)item.Property.GetGetMethod()?.Invoke(this, null);
                 stringBuilder.Append((xpn != null ? xpn.Serialize(Constants.Hl7.Separator.Hatt) : string.Empty) + separator);
             }
             else if (item.Property.PropertyType == typeof(DateTime))
             {
-                var dt = (DateTime)item.Property.GetGetMethod().Invoke(this, null);
+                var dt = (DateTime)(item.Property.GetGetMethod()?.Invoke(this, null) ?? DateTime.MinValue);
                 stringBuilder.Append((dt != DateTime.MinValue ? dt.ToString(Constants.Hl7.Dtm.DtmYmdFormat) : string.Empty) + separator);
             }
             else
             {
-                stringBuilder.Append((string)item.Property.GetGetMethod().Invoke(this, null) + separator);
+                stringBuilder.Append((string?)item.Property.GetGetMethod()?.Invoke(this, null) + separator);
             }
         }
 

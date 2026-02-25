@@ -108,7 +108,7 @@ public class PolicyRequestMapperJsonWebToken
                         System.Text.Json.JsonValueKind.Array => jsonElement.EnumerateArray().Select(je => je.ToString()).ToArray(), 
                         _ => [jsonElement.ToString()]
                     },
-                _ => [claim.Value.ToString()]
+                _ => [claim.Value.ToString() ?? ""]
             };
 
             foreach (var singleClaim in claimsEnumerated)
@@ -379,7 +379,7 @@ public class PolicyRequestMapperJsonWebToken
         return patientIdCx?.Serialize();
     }
 
-    private static string MapAttributesToHl7XmlAttribute(string code, string codeSystem, string codeSystemName, string? displayName, string xmlName, string xsiType)
+    private static string MapAttributesToHl7XmlAttribute(string code, string? codeSystem, string? codeSystemName, string? displayName, string xmlName, string xsiType)
     {
         var displayAttr = string.IsNullOrWhiteSpace(displayName)
             ? "displayable=\"false\""

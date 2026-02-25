@@ -57,10 +57,10 @@ public class FileBasedRepository : IRepository
         }
     }
 
-    public bool Write(string documentId, byte[] documentContent, string patientIdPart)
+    public bool Write(string documentId, byte[] documentContent, string? patientIdPart)
     {
         documentId = SafeCharacters.Replace(documentId, "");
-        patientIdPart = SafeCharacters.Replace(patientIdPart, "");
+        patientIdPart = SafeCharacters.Replace(patientIdPart ?? "", "");
 
         if (!IsValidIdentifier(documentId) || !IsValidIdentifier(patientIdPart)) return false;
 

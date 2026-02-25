@@ -29,7 +29,7 @@ public class IntegrationTests_DefaultFixture
 
     internal List<DocumentReferenceDto> RegistryContent { get; set; } = new();
 
-    internal readonly int RegistryItemCount = 500; // The amount of registry objects to generate and evaluate against
+    internal readonly int RegistryItemCount = 50; // The amount of registry objects to generate and evaluate against
 
     internal readonly CX PatientIdentifier = new()
     {

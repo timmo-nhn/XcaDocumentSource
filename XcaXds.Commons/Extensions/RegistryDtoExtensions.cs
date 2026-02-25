@@ -10,7 +10,18 @@ public static class RegistryDtoExtensions
 
         foreach (var registryObject in documentReference)
         {
-            registryObjectDtos.AddRange([registryObject.DocumentEntry, registryObject.SubmissionSet, registryObject.Association]);
+            if (registryObject.DocumentEntry != null)
+            {
+                registryObjectDtos.Add(registryObject.DocumentEntry);
+            }
+            if (registryObject.SubmissionSet != null)
+            {
+                registryObjectDtos.Add(registryObject.SubmissionSet);
+            }
+            if (registryObject.Association != null)
+            {
+                registryObjectDtos.Add(registryObject.Association);
+            }
         }
 
         return registryObjectDtos;

@@ -423,7 +423,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         {
             foreach (var error in errors)
             {
-                _logger.LogError($"{HttpContext.TraceIdentifier}Error while conver Error: {error.ErrorCode}\nErrorCode: {error.CodeContext}");
+                _logger.LogError($"{HttpContext.TraceIdentifier}Error while converting to Bundle\n\tError: {error.ErrorCode}\n\tErrorCode: {error.CodeContext}");
 
                 operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
                 {

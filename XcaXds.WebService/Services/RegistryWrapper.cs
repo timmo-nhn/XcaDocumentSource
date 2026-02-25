@@ -82,6 +82,8 @@ public class RegistryWrapper
         if (registryObjectDtos.Count == 0) return false;
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
+        var deprecates = registryObjectDtos.OfType<DocumentEntryDto>().Where(docent => docent.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated);
+
         _documentRegistry.UpdateRegistry(registryObjectDtos);
         _registryObjectList = _documentRegistry.ReadRegistry();
 

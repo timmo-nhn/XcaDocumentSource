@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Extensions;
 
 public static class TillitsrammeverkParser
 {
-    public static TrustFrameworkModel ParseFromClaim(string claimValue)
+    public static TrustFrameworkModel? ParseFromClaim(string claimValue)
     {
         return JsonSerializer.Deserialize<TrustFrameworkModel>(claimValue);
     }

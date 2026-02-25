@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+using System.Globalization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -10,7 +11,7 @@ namespace XcaXds.Commons.DataManipulators;
 
 public static class RegistryMetadataTransformer
 {
-    public static DocumentReferenceDto TransformRegistryObjectsToDocumentReferenceDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType document = null)
+    public static DocumentReferenceDto TransformRegistryObjectsToDocumentReferenceDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType? document = null)
     {
         var documentEntryDto = new DocumentReferenceDto();
 
@@ -175,7 +176,7 @@ public static class RegistryMetadataTransformer
 
         var associationDto = new AssociationDto();
 
-        associationDto.Id = association.Id;
+        associationDto.Id = association.Id ?? "Unknown";
         associationDto.SourceObject = association?.SourceObject ?? registryPackage?.Id;
         associationDto.TargetObject = association?.TargetObject ?? extrinsicObject?.Id;
         associationDto.AssociationType = association?.AssociationTypeData ?? Constants.Xds.AssociationType.HasMember;
@@ -192,7 +193,7 @@ public static class RegistryMetadataTransformer
         submissionSetDto.Author = GetAuthorsFromRegistryPackage(registryPackage);
         submissionSetDto.AvailabilityStatus = registryPackage.Status;
         submissionSetDto.HomeCommunityId = registryPackage.Home;
-        submissionSetDto.Id = registryPackage.Id;
+        submissionSetDto.Id = registryPackage.Id ?? "Unknown";
         submissionSetDto.SourceId = GetSourceIdFromRegistryPackage(registryPackage);
         submissionSetDto.SubmissionTime = GetSubmissionTimeFromRegistryPackage(registryPackage);
         submissionSetDto.Title = GetTitleFromRegistryPackage(registryPackage);
@@ -251,7 +252,7 @@ public static class RegistryMetadataTransformer
         return authorList;
     }
 
-    private static DocumentEntryDto TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject)
+    private static DocumentEntryDto? TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject)
     {
         if (extrinsicObject == null) return null;
 
@@ -268,7 +269,7 @@ public static class RegistryMetadataTransformer
         documentMetadata.Hash = GetHashFromExtrinsicObject(extrinsicObject);
         documentMetadata.HealthCareFacilityTypeCode = GetHealthCareFacilityTypeCodeFromExtrinsicObject(extrinsicObject);
         documentMetadata.HomeCommunityId = extrinsicObject.Home;
-        documentMetadata.Id = extrinsicObject.Id;
+        documentMetadata.Id = extrinsicObject.Id ?? "Unknown";
         documentMetadata.LanguageCode = GetLanguageCodeFromExtrinsicObject(extrinsicObject);
         documentMetadata.LegalAuthenticator = GetLegalAuthenticatorFromExtrinsicObject(extrinsicObject);
         documentMetadata.MimeType = extrinsicObject.MimeType;
@@ -389,7 +390,7 @@ public static class RegistryMetadataTransformer
             legalAuthenticator.LastName = legAuthXcn.FamilyName;
             legalAuthenticator.FirstName = legAuthXcn.GivenName;
             legalAuthenticator.Id = legAuthXcn.PersonIdentifier;
-            legalAuthenticator.IdSystem = legAuthXcn.AssigningAuthority.UniversalId;
+            legalAuthenticator.IdSystem = legAuthXcn.AssigningAuthority?.UniversalId;
 
             return legalAuthenticator;
         }
@@ -412,7 +413,7 @@ public static class RegistryMetadataTransformer
 
     private static CodedValue? GetHealthCareFacilityTypeCodeFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
-        var healthcareTypeCodeClassificaiton = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode);
+        var healthcareTypeCodeClassificaiton = extrinsicObject?.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode);
 
         if (healthcareTypeCodeClassificaiton != null)
         {
@@ -424,7 +425,7 @@ public static class RegistryMetadataTransformer
 
     private static CodedValue? GetFormatCodeFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
-        var formatCodeClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.FormatCode);
+        var formatCodeClassification = extrinsicObject?.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.FormatCode);
 
         if (formatCodeClassification != null)
         {
@@ -436,7 +437,7 @@ public static class RegistryMetadataTransformer
 
     private static CodedValue? GetEventCodeListFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
-        var eventCodeListClassification = extrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.EventCodeList);
+        var eventCodeListClassification = extrinsicObject?.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.EventCodeList);
 
         if (eventCodeListClassification != null)
         {
@@ -448,13 +449,13 @@ public static class RegistryMetadataTransformer
 
     private static string? GetDocumentUniqueIdFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
-        var documentUniqueId = extrinsicObject.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
+        var documentUniqueId = extrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
         return documentUniqueId;
     }
 
     private static DateTime? GetCreationTimeFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
-        var dateValue = extrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.CreationTime)?.GetFirstValue();
+        var dateValue = extrinsicObject?.GetFirstSlot(Constants.Xds.SlotNames.CreationTime)?.GetFirstValue();
         if (dateValue != null)
         {
             return DateTime.ParseExact(dateValue, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture);
@@ -466,15 +467,20 @@ public static class RegistryMetadataTransformer
     private static List<CodedValue>? GetConfidentialityCodesFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
 
-        var confCodeClassifications = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
+        var confCodeClassifications = extrinsicObject?.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
 
         var codedValueConfCodes = new List<CodedValue>();
 
-        foreach (var confCodeClassification in confCodeClassifications)
+        foreach (var confCodeClassification in confCodeClassifications ?? [])
         {
             if (confCodeClassification == null) continue;
 
-            codedValueConfCodes.Add(MapClassificationToCodedValue(confCodeClassification));
+            var confcodeCodedValue = MapClassificationToCodedValue(confCodeClassification);
+
+            if (confcodeCodedValue != null)
+            {
+                codedValueConfCodes.Add(confcodeCodedValue);
+            }
         }
 
         return codedValueConfCodes;
@@ -493,7 +499,7 @@ public static class RegistryMetadataTransformer
     }
 
     public static List<CodedValue>? MapClassificationToCodedValue(ClassificationType[]? classifications)
-    { 
+    {
         if (classifications == null || classifications.Length == 0) return null;
         var codedValues = new List<CodedValue>();
         foreach (var classification in classifications)
@@ -542,8 +548,8 @@ public static class RegistryMetadataTransformer
                     Role = GetAuthorRoleFromClassificaiton(authorClassification),
                     Speciality = GetAuthorSpecialityFromClassification(authorClassification)
                 };
-				authorList.Add(author);
-			}
+                authorList.Add(author);
+            }
             return authorList;
         }
         return null;
@@ -563,9 +569,9 @@ public static class RegistryMetadataTransformer
 
         // Find organization XON here aswell to ensure we dont double-register stuff
         var organization = authorSlotXon
-            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null && 
+            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
                                       asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-                                     (asXon?.AssigningAuthority?.UniversalId != null && 
+                                     (asXon?.AssigningAuthority?.UniversalId != null &&
                                       asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
                  ?? authorSlotXon.LastOrDefault();
 
@@ -573,7 +579,7 @@ public static class RegistryMetadataTransformer
         // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).
         // If none is found, take the first in the XON list
         var department = authorSlotXon
-            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null && 
+            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
                                      !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
                                      (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
                  ?? authorSlotXon.FirstOrDefault();
@@ -638,7 +644,7 @@ public static class RegistryMetadataTransformer
         {
             var nameParts = authorPersonXcn?.PersonIdentifier.Split(' ');
             authorPerson.FirstName = nameParts?.FirstOrDefault();
-            authorPerson.LastName = string.Join(' ', nameParts?.Skip(1));
+            authorPerson.LastName = string.Join(' ', nameParts?.Skip(1) ?? []);
             return authorPerson;
         }
         else if (authorPersonXcn != null)
@@ -709,19 +715,29 @@ public static class RegistryMetadataTransformer
         var registryObjectList = new List<IdentifiableType>();
 
         var extrinsicObject = GetExtrinsicObjectFromDocumentEntryDto(documentReference.DocumentEntry);
-        var registryPackage = GetRegistryPackageFromSubmissionSetDto(documentReference.SubmissionSet);
-        var association = GetAssociationFromAssociationDto(documentReference.Association);
+        if (extrinsicObject != null)
+        {
+            registryObjectList.Add(extrinsicObject);
+        }
 
-        registryObjectList.Add(extrinsicObject);
-        registryObjectList.Add(registryPackage);
-        registryObjectList.Add(association);
+        var registryPackage = GetRegistryPackageFromSubmissionSetDto(documentReference.SubmissionSet);
+        if (registryPackage != null)
+        {
+            registryObjectList.Add(registryPackage);
+        }
+
+        var association = GetAssociationFromAssociationDto(documentReference.Association);
+        if (association != null)
+        {
+            registryObjectList.Add(association);
+        }
 
         return registryObjectList.ToArray();
     }
 
-    private static ExtrinsicObjectType GetExtrinsicObjectFromDocumentEntryDto(DocumentEntryDto documentEntryMetadata)
+    private static ExtrinsicObjectType? GetExtrinsicObjectFromDocumentEntryDto(DocumentEntryDto? documentEntryMetadata)
     {
-        if (documentEntryMetadata == null) return null;
+        if (documentEntryMetadata == null || documentEntryMetadata.Id == null) return null;
 
         var extrinsicObject = new ExtrinsicObjectType()
         {
@@ -759,8 +775,10 @@ public static class RegistryMetadataTransformer
         return extrinsicObject;
     }
 
-    private static RegistryPackageType GetRegistryPackageFromSubmissionSetDto(SubmissionSetDto submissionSetMetadata)
+    private static RegistryPackageType? GetRegistryPackageFromSubmissionSetDto(SubmissionSetDto? submissionSetMetadata)
     {
+        if (submissionSetMetadata == null || submissionSetMetadata.Id == null) return null;
+
         var registryPackage = new RegistryPackageType()
         {
             ObjectType = Constants.Xds.ObjectTypes.RegistryPackage,
@@ -780,8 +798,13 @@ public static class RegistryMetadataTransformer
         return registryPackage;
     }
 
-    private static AssociationType GetAssociationFromAssociationDto(AssociationDto association)
+    private static AssociationType? GetAssociationFromAssociationDto(AssociationDto? association)
     {
+        if (association == null || 
+            string.IsNullOrWhiteSpace(association?.SourceObject) || 
+            string.IsNullOrWhiteSpace(association.TargetObject) || 
+            string.IsNullOrWhiteSpace(association.AssociationType)) return null;
+
         var ebRimAssociation = new AssociationType()
         {
             ObjectType = Constants.Xds.ObjectTypes.Association,
@@ -790,7 +813,7 @@ public static class RegistryMetadataTransformer
             SourceObject = association.SourceObject,
             TargetObject = association.TargetObject
         };
-        ebRimAssociation.AddSlot(Constants.Xds.SlotNames.SubmissionSetStatus, [association.SubmissionSetStatus]);
+        ebRimAssociation.AddSlot(Constants.Xds.SlotNames.SubmissionSetStatus, [association.SubmissionSetStatus ?? "Original"]);
 
         return ebRimAssociation;
     }
@@ -800,7 +823,7 @@ public static class RegistryMetadataTransformer
         var externalIdentifier = MapCodedValueToExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId, documentEntryMetadata.UniqueId);
         if (externalIdentifier != null)
         {
-            externalIdentifier.RegistryObject = extrinsicObject.Id;
+            externalIdentifier.RegistryObject = extrinsicObject.Id ?? "Unknown";
             extrinsicObject.ExternalIdentifier = [.. extrinsicObject.ExternalIdentifier, externalIdentifier];
         }
     }
@@ -830,7 +853,7 @@ public static class RegistryMetadataTransformer
         var patientIdExtId = MapCodedValueToExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.PatientId, documentEntryMetadata.SourcePatientInfo?.PatientId);
         if (patientIdExtId != null)
         {
-            patientIdExtId.RegistryObject = extrinsicObject.Id;
+            patientIdExtId.RegistryObject = extrinsicObject.Id ?? "Unknown";
             extrinsicObject.ExternalIdentifier = [.. extrinsicObject.ExternalIdentifier, patientIdExtId];
         }
     }
@@ -861,15 +884,15 @@ public static class RegistryMetadataTransformer
         var sourcePatientInfo = documentEntryMetadata.SourcePatientInfo;
 
 
-        if (sourcePatientInfo?.PatientId != null)
+        if (sourcePatientInfo?.PatientId != null || sourcePatientInfo?.PatientId?.Id != null)
         {
             var patientId = new CX()
             {
-                IdNumber = sourcePatientInfo?.PatientId?.Id,
+                IdNumber = sourcePatientInfo.PatientId.Id!,
                 AssigningAuthority = new()
                 {
-                    UniversalId = sourcePatientInfo?.PatientId?.System,
-                    UniversalIdType = string.IsNullOrWhiteSpace(sourcePatientInfo?.PatientId?.System) ? null : Constants.Hl7.UniversalIdType.Iso
+                    UniversalId = sourcePatientInfo?.PatientId?.System ?? string.Empty,
+                    UniversalIdType = sourcePatientInfo?.PatientId?.System ?? Constants.Hl7.UniversalIdType.Iso
                 }
             };
 
@@ -883,8 +906,8 @@ public static class RegistryMetadataTransformer
 
             var sourcePatientXcn = new XPN()
             {
-                GivenName = sourcePatientInfo.FirstName,
-                FamilyName = sourcePatientInfo.LastName,
+                GivenName = sourcePatientInfo.FirstName ?? "Unknown",
+                FamilyName = sourcePatientInfo.LastName ?? "Unknown",
             };
 
             sourcePatientIdSlot.AddValue($"PID-5|{sourcePatientXcn.Serialize()}");
@@ -944,15 +967,15 @@ public static class RegistryMetadataTransformer
         var legalAuthenticator = documentEntryMetadata.LegalAuthenticator;
         if (legalAuthenticator != null)
         {
-            string middleName = null;
-            string lastName = null;
+            string? middleName = null;
+            string? lastName = null;
 
             var lastNameParts = legalAuthenticator.LastName?.Split(' ');
 
             if (lastNameParts != null)
             {
                 middleName = lastNameParts?.FirstOrDefault();
-                lastName = string.Join(" ", lastNameParts?.Skip(1));
+                lastName = string.Join(" ", lastNameParts?.Skip(1) ?? []);
             }
 
             var legalAuthXcn = new XCN()
@@ -964,7 +987,7 @@ public static class RegistryMetadataTransformer
                 AssigningAuthority = new()
                 {
                     UniversalId = legalAuthenticator.IdSystem,
-                    UniversalIdType = string.IsNullOrWhiteSpace(legalAuthenticator.IdSystem) ? null : Constants.Hl7.UniversalIdType.Iso
+                    UniversalIdType = legalAuthenticator.IdSystem ?? Constants.Hl7.UniversalIdType.Iso
                 }
             };
 
@@ -988,7 +1011,7 @@ public static class RegistryMetadataTransformer
 
         if (healthcareFacilityTypeCodeClassification != null)
         {
-            healthcareFacilityTypeCodeClassification.ClassifiedObject = extrinsicObject.Id;
+            healthcareFacilityTypeCodeClassification.ClassifiedObject = extrinsicObject.Id ?? "Unknown";
             extrinsicObject.Classification ??= [];
             extrinsicObject.Classification = [.. extrinsicObject.Classification, healthcareFacilityTypeCodeClassification];
         }
@@ -1002,7 +1025,7 @@ public static class RegistryMetadataTransformer
 
         if (formatCodeClassification != null)
         {
-            formatCodeClassification.ClassifiedObject = extrinsicObject.Id;
+            formatCodeClassification.ClassifiedObject = extrinsicObject.Id ?? "Unknown";
             extrinsicObject.Classification ??= [];
             extrinsicObject.Classification = [.. extrinsicObject.Classification, formatCodeClassification];
         }
@@ -1015,7 +1038,7 @@ public static class RegistryMetadataTransformer
 
         var eventCodeClassification = MapCodedValueToClassification(Constants.Xds.Uuids.DocumentEntry.EventCodeList, eventCode);
 
-        eventCodeClassification.ClassifiedObject = extrinsicObject.Id;
+        eventCodeClassification?.ClassifiedObject = extrinsicObject.Id ?? "Unknown";
 
         if (eventCodeClassification != null)
         {
@@ -1031,15 +1054,15 @@ public static class RegistryMetadataTransformer
         var confCodeClassifications = MapCodedValueToMultipleClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode, confCode);
 
 
-        if (confCodeClassifications != null)
+        if (confCodeClassifications.OfType<ClassificationType>().Any())
         {
             foreach (var classification in confCodeClassifications)
             {
-                classification.ClassifiedObject = extrinsicObject.Id;
+                classification?.ClassifiedObject = extrinsicObject.Id ?? "Unknown";
             }
 
             extrinsicObject.Classification ??= [];
-            extrinsicObject.Classification = [.. extrinsicObject.Classification, .. confCodeClassifications];
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, .. confCodeClassifications! ];
         }
     }
 
@@ -1053,7 +1076,7 @@ public static class RegistryMetadataTransformer
 
         if (classCodeClassification != null)
         {
-            classCodeClassification.ClassifiedObject = extrinsicObject.Id;
+            classCodeClassification.ClassifiedObject = extrinsicObject.Id ?? "Unknown";
             extrinsicObject.Classification ??= [];
             extrinsicObject.Classification = [.. extrinsicObject.Classification, classCodeClassification];
         }
@@ -1073,12 +1096,12 @@ public static class RegistryMetadataTransformer
             var authorClassification = new ClassificationType()
             {
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
-                ClassifiedObject = extrinsicObject.Id
+                ClassifiedObject = extrinsicObject.Id ?? "Unknown"
             };
 
             extrinsicObject.Classification ??= [];
 
-            var author = documentEntryMetadata.Author;
+            var author = documentEntryMetadata!.Author;
             if (author != null)
             {
                 GetAuthorPersonSlotFromAuthor(authorClassification, authorInfo);
@@ -1094,7 +1117,8 @@ public static class RegistryMetadataTransformer
     {
         var authorSpeciality = documentAuthor?.Speciality;
 
-        if (authorSpeciality == null) return;
+        if (authorSpeciality == null || authorSpeciality.Code == null || authorSpeciality.CodeSystem == null) return;
+
 
         var authorSpecialityCx = new CX()
         {
@@ -1102,7 +1126,7 @@ public static class RegistryMetadataTransformer
             AssigningAuthority = new HD()
             {
                 UniversalId = authorSpeciality.CodeSystem,
-                UniversalIdType = string.IsNullOrWhiteSpace(authorSpeciality.CodeSystem) ? null : Constants.Hl7.UniversalIdType.Iso
+                UniversalIdType = authorSpeciality.CodeSystem ?? Constants.Hl7.UniversalIdType.Iso
             }
         };
 
@@ -1112,7 +1136,7 @@ public static class RegistryMetadataTransformer
     private static void GetAuthorRoleSlotFromAuthor(ClassificationType classification, AuthorInfo documentAuthor)
     {
         var authorRole = documentAuthor?.Role;
-        if (authorRole == null || authorRole.Code == null) return;
+        if (authorRole == null || authorRole.Code == null || authorRole.CodeSystem == null) return;
 
         var authorRoleCx = new CX()
         {
@@ -1120,7 +1144,7 @@ public static class RegistryMetadataTransformer
             AssigningAuthority = new HD()
             {
                 UniversalId = authorRole.CodeSystem,
-                UniversalIdType = string.IsNullOrWhiteSpace(authorRole.CodeSystem) ? null : Constants.Hl7.UniversalIdType.Iso
+                UniversalIdType = authorRole.CodeSystem ?? Constants.Hl7.UniversalIdType.Iso
             }
         };
 
@@ -1184,7 +1208,7 @@ public static class RegistryMetadataTransformer
 
         var lastNameParts = authorPerson.LastName?.Split(' ');
         var middleName = lastNameParts?.Length > 1 ? lastNameParts?.FirstOrDefault() : null;
-        var lastName = lastNameParts?.Length > 1 ? string.Join(" ", lastNameParts?.Skip(1)) : lastNameParts?.FirstOrDefault();
+        var lastName = lastNameParts?.Length > 1 ? string.Join(" ", lastNameParts?.Skip(1) ?? []) : lastNameParts?.FirstOrDefault();
         var authorXcn = new XCN()
         {
             PersonIdentifier = authorPerson.Id,
@@ -1255,7 +1279,7 @@ public static class RegistryMetadataTransformer
         var externalIdentifier = MapCodedValueToExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.UniqueId, submissionSetMetadata.UniqueId);
         if (externalIdentifier != null)
         {
-            externalIdentifier.RegistryObject = registryPackage.Id;
+            externalIdentifier.RegistryObject = registryPackage.Id ?? "Unknown";
             registryPackage.ExternalIdentifier = [.. registryPackage.ExternalIdentifier, externalIdentifier];
         }
     }
@@ -1274,7 +1298,7 @@ public static class RegistryMetadataTransformer
         var externalIdentifier = MapCodedValueToExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.SourceId, submissionSetMetadata.SourceId);
         if (externalIdentifier != null)
         {
-            externalIdentifier.RegistryObject = registryPackage.Id;
+            externalIdentifier.RegistryObject = registryPackage.Id ?? "Unknown";
             registryPackage.ExternalIdentifier = [.. registryPackage.ExternalIdentifier, externalIdentifier];
         }
     }
@@ -1322,7 +1346,7 @@ public static class RegistryMetadataTransformer
         }
     }
 
-    private static ExternalIdentifierType MapCodedValueToExternalIdentifier(string? externalIdentifierName, string? codedValue)
+    private static ExternalIdentifierType? MapCodedValueToExternalIdentifier(string? externalIdentifierName, string? codedValue)
     {
         if (!string.IsNullOrWhiteSpace(externalIdentifierName) && !string.IsNullOrWhiteSpace(codedValue))
         {
@@ -1331,7 +1355,7 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    private static ExternalIdentifierType MapCodedValueToExternalIdentifier(string? externalIdentifierName, PatientId? codedValue)
+    private static ExternalIdentifierType? MapCodedValueToExternalIdentifier(string? externalIdentifierName, PatientId? codedValue)
     {
         if (!string.IsNullOrWhiteSpace(externalIdentifierName) && codedValue != null)
         {
@@ -1340,7 +1364,7 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    private static ExternalIdentifierType MapCodedValueToExternalIdentifier(string externalIdentifierName, CodedValue? codedValue)
+    private static ExternalIdentifierType? MapCodedValueToExternalIdentifier(string externalIdentifierName, CodedValue? codedValue)
     {
         if (codedValue == null || externalIdentifierName == null) return null;
 
@@ -1373,7 +1397,7 @@ public static class RegistryMetadataTransformer
         };
     }
 
-    private static ClassificationType MapCodedValueToClassification(string classificationScheme, CodedValue? confCode)
+    private static ClassificationType? MapCodedValueToClassification(string classificationScheme, CodedValue? confCode)
     {
         if (confCode == null) return null;
 
@@ -1387,7 +1411,7 @@ public static class RegistryMetadataTransformer
 
     }
 
-    private static ClassificationType[] MapCodedValueToMultipleClassifications(string classificationScheme, List<CodedValue> codedValues)
+    private static ClassificationType?[] MapCodedValueToMultipleClassifications(string classificationScheme, List<CodedValue> codedValues)
     {
         return codedValues.Select(cv => MapCodedValueToClassification(classificationScheme, cv)).ToArray();
     }

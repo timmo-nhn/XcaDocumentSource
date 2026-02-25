@@ -82,6 +82,10 @@ public class SqliteBasedRegistry : IRegistry
 		InsertInBatches(db, documentEntries, batchSize);
 		InsertInBatches(db, submissionSets, batchSize);
 		InsertInBatches(db, associations, batchSize);
+		
+		var asscount = db.Associations.Count();
+		var robjcount = db.DocumentEntries.Count();
+		var subscount = db.SubmissionSets.Count();
 
 		transaction.Commit();
 		return true;

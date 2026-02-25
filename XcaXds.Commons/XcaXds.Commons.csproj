@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Abc.Xacml" Version="1.2.1" />
 	<PackageReference Include="Hl7.Fhir.R4" Version="6.0.2" />
 	<PackageReference Include="Hl7.Fhir.Serialization" Version="4.3.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />

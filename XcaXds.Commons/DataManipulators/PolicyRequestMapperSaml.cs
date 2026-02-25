@@ -29,7 +29,7 @@ public static class PolicyRequestMapperSaml
 
     public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
-        var samlToken = ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
+        var samlToken = ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
         return GetXacmlRequest(soapEnvelope, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
@@ -38,22 +38,22 @@ public static class PolicyRequestMapperSaml
         var sxmls = new SoapXmlSerializer();
         var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(soapEnvelope);
 
-        var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security.Assertion?.OuterXml);
+        var samlToken = ReadSamlToken(soapEnvelopeObject.Header.Security?.Assertion?.OuterXml);
         return GetXacmlRequest(soapEnvelopeObject, samlToken, xacmlVersion, appliesTo, documentRegistry);
     }
 
-    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
+    public static XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken? samlToken, XacmlVersion xacmlVersion, Issuer appliesTo, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
         var action = MapXacmlActionFromSoapEnvelope(soapEnvelope);
 
-        var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
         if (appliesTo == Issuer.Unknown)
         {
             return null;
         }
 
-        var samltokenAuthorizationAttributes = statements
+        var samltokenAuthorizationAttributes = statements?
             .Where(att => 
                  att.Name.Contains("xacml") ||
                  att.Name.Contains("xspa") ||
@@ -62,7 +62,7 @@ public static class PolicyRequestMapperSaml
                  att.Name.Contains("urn:ihe:iti") ||
                  att.Name.Contains("acp") ||
                  att.Name.Contains("provider-identifier"))
-            .Append(new(Constants.Xacml.CustomAttributes.SamlNameId, samlToken.Assertion.Subject.NameId.Value));
+            .Append(new(Constants.Xacml.CustomAttributes.SamlNameId, samlToken?.Assertion.Subject.NameId.Value));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
@@ -335,11 +335,11 @@ public static class PolicyRequestMapperSaml
         }
     }
 
-    private static List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
+    private static List<XacmlAttribute> MapSamlAttributesToXacml30Properties(IEnumerable<Saml2Attribute>? samltokenAuthorizationAttributes, string action)
     {
         var xacmlAllAttributes = new List<XacmlAttribute>();
         // SAML token values, map to XACML values
-        foreach (var samlAttribute in samltokenAuthorizationAttributes)
+        foreach (var samlAttribute in samltokenAuthorizationAttributes ?? [])
         {
             foreach (var attributeValue in samlAttribute.Values)
             {
@@ -387,11 +387,11 @@ public static class PolicyRequestMapperSaml
         return xacmlAllAttributes;
     }
 
-    public static List<XacmlContextAttribute> MapSamlAttributesToXacml20Properties(IEnumerable<Saml2Attribute> samltokenAuthorizationAttributes, string action)
+    public static List<XacmlContextAttribute> MapSamlAttributesToXacml20Properties(IEnumerable<Saml2Attribute>? samltokenAuthorizationAttributes, string action)
     {
         var subjectAttributes = new List<XacmlContextAttribute>();
 
-        foreach (var attribute in samltokenAuthorizationAttributes)
+        foreach (var attribute in samltokenAuthorizationAttributes ?? [])
         {
             var attributeValue = attribute.Values.FirstOrDefault(); // Never have i ever: seen a SAML-AttributeStatement with more than one Value
             if (attributeValue == null) continue;
@@ -427,7 +427,7 @@ public static class PolicyRequestMapperSaml
                 }
 
                 // If its structured codedvalue format or just plain text
-                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.Code) &&
+                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue?.Code) &&
                     string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem) &&
                     string.IsNullOrWhiteSpace(attributeValueAsCodedValue.DisplayName))
                 {
@@ -443,10 +443,10 @@ public static class PolicyRequestMapperSaml
                         new XacmlContextAttribute(
                             new Uri(attribute.Name + ":code"),
                             new Uri(Constants.Xacml.DataType.String),
-                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.Code }));
+                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue?.Code }));
                 }
 
-                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem))
+                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue?.CodeSystem))
                 {
                     subjectAttributes.Add(
                         new XacmlContextAttribute(
@@ -455,7 +455,7 @@ public static class PolicyRequestMapperSaml
                             new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.CodeSystem }));
                 }
 
-                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue.DisplayName))
+                if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue?.DisplayName))
                 {
                     subjectAttributes.Add(
                         new XacmlContextAttribute(

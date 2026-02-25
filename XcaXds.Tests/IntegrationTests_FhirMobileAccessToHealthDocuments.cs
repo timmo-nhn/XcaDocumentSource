@@ -1,27 +1,18 @@
 ﻿using Hl7.Fhir.Model;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Interfaces;
-using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
-using XcaXds.WebService.Services;
-using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
+#pragma warning disable CS8604, CS8602 // Possible null reference argument.
 public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     public IntegrationTests_FhirMobileAccessToHealthDocuments(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory, output)
@@ -51,9 +42,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
         RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
-        
+
         var registryObjects = RegistryContent.AsRegistryObjectList();
-        
+
         var registryContentCount = registryObjects.Count;
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
@@ -164,7 +155,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post,"/R4/fhir/Bundle");
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle");
         httpRequest.Content = stringContent;
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
@@ -189,3 +180,4 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     }
 
 }
+#pragma warning restore CS8604, CS8602 // Possible null reference argument.
