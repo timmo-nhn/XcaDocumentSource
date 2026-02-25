@@ -249,7 +249,7 @@ public class UnitTests_BusinessLogic
 
         _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
 
-        Assert.Empty(_documentReferences);
+        Assert.Empty(_documentReferences ?? []);
     }
 
     [Fact]
@@ -274,7 +274,7 @@ public class UnitTests_BusinessLogic
 
         _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
 
-        Assert.Empty(_documentReferences);
+        Assert.Empty(_documentReferences ?? []);
     }
 
     private void SetupTests()
