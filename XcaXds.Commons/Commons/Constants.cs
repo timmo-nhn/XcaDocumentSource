@@ -160,7 +160,7 @@ public static class Constants
 
         public static class CodeValues
         {
-            public static List<string> IheFormatCodes =
+            public static string[] IheFormatCodes =
             [
                 "urn:ihe:iti:xds:2017:mimeTypeSufficient",
                 "urn:no:ehelse:document:pdf",
@@ -168,17 +168,6 @@ public static class Constants
                 "urn:no:kith:xmlstds:henvisning",
                 "urn:no:ehelse:document:image",
             ];
-
-            public static List<ConceptType> ConfidentialityCodes = new()
-            {
-                new()
-                {
-                    code = "N",
-                    codeSystemName = "2.16.578.1.12.4.1.1.9603",
-                    displayName = "Normal"
-                }
-            };
-
         }
 
         public static class QueryParameters

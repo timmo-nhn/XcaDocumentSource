@@ -173,7 +173,7 @@ public partial class XdsRegistryService
                     _logger.LogInformation($"No business logic applied");
                 }
 
-                filteredElements.ObfuscateRestrictedDocumentEntries(xacmlRequest, out var count);
+                filteredElements.ObfuscateRestrictedDocumentEntries(businessLogic, out var count);
 
                 if (count > 0)
                 {
