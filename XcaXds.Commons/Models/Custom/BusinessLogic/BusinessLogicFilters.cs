@@ -55,7 +55,7 @@ public static class BusinessLogicFilters
             logic.SubjectAge > 12
         )
         {
-            return new(true, FilterByConfidentiality(registryObjects, Normal, Restricted), nameof(CitizenShouldSeeOwnDocumentReferences));
+            return new(true, FilterByConfidentiality(registryObjects, allowedLevels: [Normal, Restricted], disallowedLevels: [VeryRestricted]), nameof(CitizenShouldSeeOwnDocumentReferences));
         }
 
         return new(false, registryObjects, nameof(CitizenShouldSeeOwnDocumentReferences));
@@ -93,7 +93,7 @@ public static class BusinessLogicFilters
             logic.SubjectAge is > 16 and < 18
         )
         {
-            return new(true, FilterByConfidentiality(registryObjects, Normal, Restricted), nameof(CitizenBetween16And18ShouldAccesPartsOfDocumentReferences));
+            return new(true, FilterByConfidentiality(registryObjects, [Normal, Restricted], [VeryRestricted]), nameof(CitizenBetween16And18ShouldAccesPartsOfDocumentReferences));
         }
 
         return new(false, registryObjects, nameof(CitizenBetween16And18ShouldAccesPartsOfDocumentReferences));
@@ -113,7 +113,7 @@ public static class BusinessLogicFilters
             logic.SubjectAge < 12
         )
         {
-            return new(true, FilterByConfidentiality(registryObjects, Normal, Restricted), nameof(CitizenShouldSeeChildrenBelow12DocumentReferences));
+            return new(true, FilterByConfidentiality(registryObjects, [Normal, Restricted], [VeryRestricted]), nameof(CitizenShouldSeeChildrenBelow12DocumentReferences));
         }
 
         return new(false, registryObjects, nameof(CitizenBetween12And16ShouldNotSeeDocumentReferences));
@@ -133,7 +133,7 @@ public static class BusinessLogicFilters
             logic.SubjectAge is not (> 12 and < 16)
         )
         {
-            return new(true, FilterByConfidentiality(registryObjects, Normal, Restricted), nameof(CitizenShouldSeePowerOfAttorneyDocumentReferences));
+            return new(true, FilterByConfidentiality(registryObjects, [Normal, Restricted], [VeryRestricted]), nameof(CitizenShouldSeePowerOfAttorneyDocumentReferences));
         }
 
         return new(false, registryObjects, nameof(CitizenShouldSeePowerOfAttorneyDocumentReferences));
@@ -171,7 +171,7 @@ public static class BusinessLogicFilters
             logic.Purpose?.Code?.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5) == true
         )
         {
-            return new(true, FilterByConfidentiality(registryObjects, Normal, Restricted), nameof(HealthcarePersonellShouldSeeOwnDocumentReferences));
+            return new(true, FilterByConfidentiality(registryObjects, [Normal, Restricted], [VeryRestricted]), nameof(HealthcarePersonellShouldSeeOwnDocumentReferences));
         }
 
         return new(false, registryObjects, nameof(HealthcarePersonellShouldSeeOwnDocumentReferences));
@@ -190,7 +190,7 @@ public static class BusinessLogicFilters
             logic.Purpose?.Code?.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5) == true
         )
         {
-            return new(true, FilterByConfidentiality(registryObjects, Normal, Restricted), nameof(HealthcarePersonellShouldSeeRelatedPatientDocumentReferences));
+            return new(true, FilterByConfidentiality(registryObjects, [Normal, Restricted], [VeryRestricted]), nameof(HealthcarePersonellShouldSeeRelatedPatientDocumentReferences));
         }
 
         return new(false, registryObjects, nameof(HealthcarePersonellShouldSeeRelatedPatientDocumentReferences));
@@ -209,7 +209,7 @@ public static class BusinessLogicFilters
             logic.Purpose?.Code?.IsAnyOf(ETREAT, EmergencyCare_2) == true
         )
         {
-            return new(true, FilterByConfidentiality(registryObjects, Normal, Restricted, VeryRestricted), nameof(HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences));
+            return new(true, FilterByConfidentiality(registryObjects, [Normal, Restricted, VeryRestricted]), nameof(HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences));
         }
 
         return new(false, registryObjects, nameof(HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences));
@@ -222,11 +222,10 @@ public static class BusinessLogicFilters
         IEnumerable<IdentifiableType> registryObjects,
         BusinessLogicParameters logic)
     {
-        if (logic.Issuer == Issuer.HelseId && (
-            logic.Subject?.Code == null ||
+        if (logic.Subject?.Code == null ||
             logic.Resource?.Code == null ||
             logic.SubjectOrganization?.Code == null ||
-            logic.Purpose?.Code?.IsAnyOf(TREAT, ETREAT, COC, BTG, PATRQT, FAMRQT, PWATRNY, ClinicalCare_1, EmergencyCare_2, Management_5, SubjectOfCare_13) == false)
+            logic.Purpose?.Code?.IsAnyOf(TREAT, ETREAT, COC, BTG, PATRQT, FAMRQT, PWATRNY, ClinicalCare_1, EmergencyCare_2, Management_5, SubjectOfCare_13) == false
         )
         {
             return new(true, DenyAll(), nameof(HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences));
@@ -272,13 +271,23 @@ public static class BusinessLogicFilters
         return new(false, registryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
     }
 
-    private static IEnumerable<IdentifiableType> FilterByConfidentiality(IEnumerable<IdentifiableType> source, params string[] allowedLevels)
+    private static IEnumerable<IdentifiableType> FilterByConfidentiality(IEnumerable<IdentifiableType> source, string[] allowedLevels, string[]? disallowedLevels = null)
     {
         return source
             .OfType<ExtrinsicObjectType>()
             .Where(ext =>
-                ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
-                   .All(cc => allowedLevels.Contains(cc.NodeRepresentation)))
+            {
+                var classifications = ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
+
+                // Requirements:
+                // - At least 1 classification must match any in allowedLevels
+                // - All classifications must not have any in disallowedLevels
+                // - Classifications can contain other codes not in allowedLevels or disallowedLevels
+                var hasAllowed = classifications.Any(cc => cc?.NodeRepresentation != null && allowedLevels.Contains(cc.NodeRepresentation));
+                var hasDisallowed = classifications.Any(cc => cc?.NodeRepresentation != null && disallowedLevels.Contains(cc.NodeRepresentation));
+
+                return hasAllowed && !hasDisallowed;
+            })
             .Cast<IdentifiableType>();
     }
 

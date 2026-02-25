@@ -222,7 +222,7 @@ public class UnitTests_BusinessLogic
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied)?.ToList();
 
         Assert.Equal(3, _documentReferences?.Count);
     }
@@ -237,6 +237,7 @@ public class UnitTests_BusinessLogic
 
         var businessLogic = new BusinessLogicParameters()
         {
+            Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
@@ -246,7 +247,7 @@ public class UnitTests_BusinessLogic
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
 
         Assert.Empty(_documentReferences);
     }
@@ -271,7 +272,7 @@ public class UnitTests_BusinessLogic
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        _documentReferences = _documentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
 
         Assert.Empty(_documentReferences);
     }
@@ -286,6 +287,11 @@ public class UnitTests_BusinessLogic
                 {
                     CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Normal
+                },
+                new()
+                {
+                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = "othercodethatshouldntaffectlogic"
                 }
             ],
         };
@@ -303,7 +309,13 @@ public class UnitTests_BusinessLogic
                 {
                     CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Restricted
+                },
+                new()
+                {
+                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = "othercodethatshouldntaffectlogic"
                 }
+
             ],
         };
 
@@ -325,7 +337,13 @@ public class UnitTests_BusinessLogic
                 {
                     CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.VeryRestricted
+                },
+                new()
+                {
+                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = "othercodethatshouldntaffectlogic"
                 }
+
             ],
         };
 

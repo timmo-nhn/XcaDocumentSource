@@ -9,6 +9,30 @@ namespace XcaXds.WebService.Services;
 /// </summary>
 public static class BusinessLogicFilteringService
 {
+    public static List<BusinessLogicRule> BusinessLogicRules = new List<BusinessLogicRule>()
+    {
+        BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
+        BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
+        BusinessLogicFilters.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
+        BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
+        BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
+        BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
+
+        //BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
+
+        BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
+        BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
+        BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
+
+        // Comment out this to try only the one below instead
+        //#if DEBUG
+        //BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
+        //#else
+        BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
+        //#endif
+    };
+
+
     public static IEnumerable<IdentifiableType>? FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType>? registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> results)
     {
         results = new Dictionary<string, int>();
@@ -16,36 +40,13 @@ public static class BusinessLogicFilteringService
         if (registryObjects == null || registryObjects.Count() == 0) return registryObjects;
         if (businessLogic == null) return registryObjects;
 
-        var businessLogicRules = new List<BusinessLogicRule>
-        {
-            BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
-            BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
-            BusinessLogicFilters.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
-            BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
-            BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
-            BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
-
-            //BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
-
-            BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
-            BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
-            BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
-
-            // Comment out this to try only the one below instead
-//#if DEBUG
-//            BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
-//#else
-//            BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-//#endif
-        };
-
         var current = registryObjects;
 
         var rulesApplied = new List<BusinessLogicResult>();
 
         var resultCounts = new Dictionary<string, int>();
 
-        foreach (var businessRule in businessLogicRules)
+        foreach (var businessRule in BusinessLogicRules)
         {
             var result = businessRule(current ?? [], businessLogic);
 

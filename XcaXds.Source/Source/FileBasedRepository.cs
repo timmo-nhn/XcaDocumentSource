@@ -115,7 +115,7 @@ public class FileBasedRepository : IRepository
         return !string.IsNullOrEmpty(input) && SafeFileNameRegex.IsMatch(input);
     }
 
-    public bool SetNewOid(string repositoryOid, out string oldId)
+    public bool SetNewOid(string repositoryOid, out string? oldId)
     {
         var parentDir = Directory.GetParent(_repositoryPath)?.FullName;
         if (!Directory.Exists(parentDir))
