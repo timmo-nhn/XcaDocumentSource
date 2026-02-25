@@ -43,14 +43,14 @@ public abstract class Hl7Object
                 var xpn = (XPN?)item.Property.GetGetMethod()?.Invoke(this, null);
                 stringBuilder.Append((xpn != null ? xpn.Serialize(Constants.Hl7.Separator.Hatt) : string.Empty) + separator);
             }
-            else if (item.Property.PropertyType == typeof(DateTime))
+            else if (item.Property?.PropertyType == typeof(DateTime))
             {
                 var dt = (DateTime)(item.Property.GetGetMethod()?.Invoke(this, null) ?? DateTime.MinValue);
                 stringBuilder.Append((dt != DateTime.MinValue ? dt.ToString(Constants.Hl7.Dtm.DtmYmdFormat) : string.Empty) + separator);
             }
             else
             {
-                stringBuilder.Append((string?)item.Property.GetGetMethod()?.Invoke(this, null) + separator);
+                stringBuilder.Append((string?)item.Property?.GetGetMethod()?.Invoke(this, null) + separator);
             }
         }
 
@@ -72,7 +72,7 @@ public abstract class Hl7Object
 
         foreach (var item in propertyAndAttributes)
         {
-            Debug.Assert(item.Hl7Attribute.Sequence == expectedSequence++);
+            Debug.Assert(item.Hl7Attribute?.Sequence == expectedSequence++);
         }
 
         return propertyAndAttributes;
@@ -101,41 +101,41 @@ public abstract class Hl7Object
 
         foreach (var item in GetHl7Properties(output))
         {
-            string value = null;
-            if (item.Hl7Attribute.Sequence - 1 <= parts.Length - 1)
+            string? value = null;
+            if (item.Hl7Attribute?.Sequence - 1 <= parts.Length - 1)
             {
-                value = parts[item.Hl7Attribute.Sequence - 1];
+                value = parts[(item.Hl7Attribute?.Sequence - 1) ?? 0];
                 if (value == "")
                 {
                     value = null;
                 }
             }
 
-            object[] objectValue;
+            object?[] objectValue;
             if (value == null) continue;
 
-            if (item.Property.PropertyType == typeof(HD))
+            if (item.Property?.PropertyType == typeof(HD))
             {
-                objectValue = new object[] { Parse<HD>(value, Constants.Hl7.Separator.Amp) };
+                objectValue = new [] { Parse<HD>(value, Constants.Hl7.Separator.Amp) };
             }
-            else if (item.Property.PropertyType == typeof(CX))
+            else if (item.Property?.PropertyType == typeof(CX))
             {
-                objectValue = new object[] { Parse<CX>(value, Constants.Hl7.Separator.Hatt) };
+                objectValue = new [] { Parse<CX>(value, Constants.Hl7.Separator.Hatt) };
             }
-            else if (item.Property.PropertyType == typeof(XPN))
+            else if (item.Property?.PropertyType == typeof(XPN))
             {
-                objectValue = new object[] { Parse<XPN>(value, Constants.Hl7.Separator.Hatt) };
+                objectValue = new [] { Parse<XPN>(value, Constants.Hl7.Separator.Hatt) };
             }
-            else if (item.Property.PropertyType == typeof(DateTime))
+            else if (item.Property?.PropertyType == typeof(DateTime))
             {
-                objectValue = new object[] { DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture) };
+                objectValue = new object?[] { DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture) };
             }
             else
             {
-                objectValue = new object[] { value };
+                objectValue = new [] { value };
             }
 
-            item.Property.GetSetMethod()?.Invoke(output, objectValue);
+            item.Property?.GetSetMethod()?.Invoke(output, objectValue);
         }
         return output;
     }
