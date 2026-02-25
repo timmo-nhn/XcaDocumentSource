@@ -30,7 +30,7 @@ public class Act : EntryItemBase
     public List<II>? Id { get; set; }
 
     [XmlElement("code")]
-    public CD Code { get; set; }
+    public CD Code { get; set; } = new();
 
     [XmlIgnore]
     private bool? _negationInd;
@@ -38,7 +38,7 @@ public class Act : EntryItemBase
     [XmlAttribute("negationInd")]
     public string? NegationInd
     {
-        get => _negationInd.HasValue ? _negationInd.ToString().ToLowerInvariant() : null;
+        get => _negationInd.HasValue ? _negationInd.ToString()?.ToLowerInvariant() : null;
         set => _negationInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 

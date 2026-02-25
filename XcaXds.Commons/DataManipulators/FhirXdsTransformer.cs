@@ -165,7 +165,8 @@ public static class FhirXdsTransformer
 
         if (submissionSetList != null)
         {
-            var comment = submissionSetList.Note.Select(note => note.Text).Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
+            // note.Text is nullable, so we need to filter out null values before adding to comments slot
+            var comment = submissionSetList.Note.Select(note => note.Text).OfType<string>().Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
 
             // Comment from submission
             if (comment?.Length > 0)
@@ -179,7 +180,6 @@ public static class FhirXdsTransformer
                     }
                 });
             }
-
 
             //SubmissionTime
             if (submissionSetList.Date != null && DateTime.TryParse(submissionSetList.Date, out var submissionTime))
@@ -335,26 +335,36 @@ public static class FhirXdsTransformer
             var submissionConfCode = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType");
             if (submissionConfCode.Value is CodeableConcept valueCodeableConcept && valueCodeableConcept.Coding != null)
             {
-                registryPackage.AddClassification(new ClassificationType()
+                var submissionConcept = valueCodeableConcept.Coding.First();
+
+                var submissionConfClassification = new ClassificationType()
                 {
                     Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = submissionSetList.Id,
+                    ClassifiedObject = submissionSetList.Id ?? "Unknown",
                     ObjectType = Constants.Xds.ObjectTypes.Classification,
                     ClassificationScheme = Constants.Xds.Uuids.SubmissionSet.ContentTypeCode,
-                    NodeRepresentation = valueCodeableConcept.Coding.First().Code,
-                    Slot =
-                    [
-                        new SlotType()
+                    NodeRepresentation = submissionConcept.Code ?? "Unknown",
+                    Slot = []
+                };
+
+                if (!string.IsNullOrWhiteSpace(submissionConcept.System))
                 {
-                    Name = "codingScheme",
-                    ValueList = new()
+                    submissionConfClassification.AddSlot(new SlotType()
                     {
-                        Value = [valueCodeableConcept.Coding.First().System.Replace("urn:oid:","")]
-                    }
+                        Name = "codingScheme",
+                        ValueList = new()
+                        {
+                            Value = [submissionConcept.System.NoUrn()]
+                        }
+                    });
                 }
-                    ],
-                    Name = new InternationalStringType(valueCodeableConcept.Coding.First().Display)
-                });
+
+                if (!string.IsNullOrWhiteSpace(submissionConcept.Display))
+                {
+                    submissionConfClassification.Name = new InternationalStringType(submissionConcept.Display);
+                }
+
+                registryPackage.AddClassification(submissionConfClassification);
             }
             else
             {
@@ -397,14 +407,14 @@ public static class FhirXdsTransformer
                 .FirstOrDefault(dpt => dpt?.PartOf == null);
 
             //Get Extension for SourceId
-            string sourceId = null!;
+            string? sourceId = null;
 
             try
             {
                 //Get Extension for SourceId
                 var extSourceId = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
                 var extResReference = extSourceId!.Value as Identifier; // Changed from reference to identifier
-                sourceId = extResReference!.Value.Replace("urn:oid:", "");
+                sourceId = extResReference!.Value?.NoUrn();
             }
             catch
             {
@@ -425,14 +435,14 @@ public static class FhirXdsTransformer
                 // Replace default value
                 if (!string.IsNullOrEmpty(sourceId))
                 {
-                    value = sourceId.Replace("urn:oid:", "");
+                    value = sourceId.NoUrn();
                 }
 
                 registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
                 {
                     Id = Guid.NewGuid().ToString(),
                     IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.SourceId,
-                    RegistryObject = submissionSetList.Id,
+                    RegistryObject = submissionSetList.Id ?? "Unknown",
                     ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
                     Value = value,
                     Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetSourceId)
@@ -452,18 +462,18 @@ public static class FhirXdsTransformer
             // XDSSubmissionSet.patientId
             //var patientIdFromPix = GetPatient(patientId, GpiOid);
             //var patientIdFromPix = GetPatient(patientId, sourceId);
-            var patientIdFromPix = GetPatient(patientId, homeCommunityId);
+            var patientIdFromPix = GetPatient(patientId, homeCommunityId)?.Serialize();
 
-            if (!string.IsNullOrWhiteSpace(submissionSetList.Id) || patientIdFromPix != null)
+            if (!string.IsNullOrWhiteSpace(submissionSetList.Id) && !string.IsNullOrWhiteSpace(patientIdFromPix))
             {
                 registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
                 {
                     Id = Guid.NewGuid().ToString(),
                     IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.PatientId,
-                    RegistryObject = submissionSetList.Id,
+                    RegistryObject = submissionSetList.Id ?? "Unknown",
                     ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
                     Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetPatientId),
-                    Value = patientIdFromPix?.Serialize().Replace("&&", "")
+                    Value = patientIdFromPix
                 });
             }
             else
@@ -501,11 +511,11 @@ public static class FhirXdsTransformer
         };
 
         var attachment = documentReference.Content.First().Attachment;
-        var documentCreationTime = DateTime.Parse(attachment.Creation).ToUniversalTime();
+        var documentCreationTime = DateTime.Parse(attachment.Creation ?? DateTime.MinValue.ToString()).ToUniversalTime();
 
         var patient = new CX()
         {
-            IdNumber = patientId.Value,
+            IdNumber = patientId.Value ?? "Unknown",
             AssigningAuthority = new HD()
             {
                 NamespaceId = $"&{GpiOid}&",
@@ -515,47 +525,47 @@ public static class FhirXdsTransformer
 
         var extrinsicObject = new ExtrinsicObjectType
         {
-            MimeType = attachment.ContentType,
-            Id = documentReference.Id.Replace("urn:uuid:", ""),
+            MimeType = attachment.ContentType ?? "Unknown",
+            Id = documentReference.Id?.NoUrn(),
             Status = statusType.ToString(),
-            Name = new InternationalStringType(attachment.Title),
+            Name = new InternationalStringType(attachment.Title ?? "Unknown"),
             ObjectType = Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries,
             Slot =
             [
                 /* XDSDocumentEntry.creationTime - mandatory */
                 new SlotType
-            {
-                Name = "creationTime",
-                ValueList = new ValueListType
                 {
-                    Value = [documentCreationTime.ToString(Constants.Hl7.Dtm.DtmFormat)]
-                }
-            },
-            /* XDSDocumentEntry.languageCode - mandatory */
-            new SlotType
-            {
-                Name = "languageCode",
-                ValueList = new ValueListType
+                    Name = "creationTime",
+                    ValueList = new ValueListType
+                    {
+                        Value = [documentCreationTime.ToString(Constants.Hl7.Dtm.DtmFormat)]
+                    }
+                },
+                /* XDSDocumentEntry.languageCode - mandatory */
+                new SlotType
                 {
-                    Value = [attachment.Language]
-                }
+                    Name = "languageCode",
+                    ValueList = new ValueListType
+                    {
+                        Value = [attachment.Language ?? "Unknown"]
+                    }
 
-            },
-            /* XDSDocumentEntry.sourcePatientId - mandatory */
-            new SlotType
-            {
-                Name = "sourcePatientId",
-                ValueList = new ValueListType
+                },
+                /* XDSDocumentEntry.sourcePatientId - mandatory */
+                new SlotType
                 {
-                    Value = [patient.Serialize().Replace("&&", "")]
+                    Name = "sourcePatientId",
+                    ValueList = new ValueListType
+                    {
+                        Value = [patient.Serialize().Replace("&&", "")]
+                    }
                 }
-            }
             ]
         };
 
         // serviceTime elements - optional, but required if known
         /* XDSDocumentEntry.serviceStartTime */
-        if (!string.IsNullOrEmpty(documentReference.Context.Period.Start))
+        if (!string.IsNullOrEmpty(documentReference.Context?.Period?.Start))
         {
             var datePeriodFrom = DateTime.Parse(documentReference.Context.Period.Start);
             extrinsicObject.AddSlot(new SlotType
@@ -579,7 +589,7 @@ public static class FhirXdsTransformer
         }
 
         /* XDSDocumentEntry.serviceStopTime */
-        if (!string.IsNullOrEmpty(documentReference.Context.Period.End))
+        if (!string.IsNullOrEmpty(documentReference.Context?.Period?.End))
         {
             var datePeriodTo = DateTime.Parse(documentReference.Context.Period.End);
             extrinsicObject.AddSlot(new SlotType
@@ -655,7 +665,7 @@ public static class FhirXdsTransformer
             extrinsicObject.AddClassification(new ClassificationType()
             {
                 Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id.Replace("urn:uuid:", ""),
+                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
                 ObjectType = Constants.Xds.ObjectTypes.Classification,
                 NodeRepresentation = string.Empty,
@@ -708,7 +718,7 @@ public static class FhirXdsTransformer
                         extrinsicObject.AddClassification(new ClassificationType()
                         {
                             Id = Guid.NewGuid().ToString(),
-                            ClassifiedObject = documentReference.Id.Replace("urn:uuid:", ""),
+                            ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
                             ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
                             ObjectType = Constants.Xds.ObjectTypes.Classification,
                             NodeRepresentation = string.Empty,
@@ -737,7 +747,11 @@ public static class FhirXdsTransformer
             // Remove processed Organization from main processing list
             foreach (var processedOrganization in listProcessedOrganization)
             {
-                listOrganization.Remove(listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault());
+                var processedOrg = listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault();
+                if (processedOrg != null)
+                {
+                    listOrganization.Remove(processedOrg);
+                }
             }
             listProcessedOrganization.Clear();
 
@@ -768,7 +782,7 @@ public static class FhirXdsTransformer
                     extrinsicObject.AddClassification(new ClassificationType()
                     {
                         Id = Guid.NewGuid().ToString(),
-                        ClassifiedObject = documentReference.Id.Replace("urn:uuid:", ""),
+                        ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
                         ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
                         ObjectType = Constants.Xds.ObjectTypes.Classification,
                         NodeRepresentation = string.Empty,
@@ -788,7 +802,12 @@ public static class FhirXdsTransformer
                 // Remove processed Organization from main list
                 foreach (var processedOrganization in listProcessedOrganization)
                 {
-                    listOrganization.Remove(listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault());
+                    var processedOrganizations = listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault();
+
+                    if (processedOrganizations != null)
+                    {
+                        listOrganization.Remove(processedOrganizations);
+                    }
                 }
                 listProcessedOrganization.Clear();
             }
@@ -809,7 +828,7 @@ public static class FhirXdsTransformer
                 extrinsicObject.AddClassification(new ClassificationType()
                 {
                     Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = documentReference.Id.Replace("urn:uuid:", ""),
+                    ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
                     ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
                     ObjectType = Constants.Xds.ObjectTypes.Classification,
                     NodeRepresentation = string.Empty,
@@ -819,37 +838,51 @@ public static class FhirXdsTransformer
                 // Remove processed Organization from main list
                 foreach (var processedOrganization in listProcessedOrganization)
                 {
-                    listOrganization.Remove(listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault());
+                    var processedOrganizations = listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault();
+
+                    if (processedOrganizations != null)
+                    {
+                        listOrganization.Remove(processedOrganizations);
+                    }
                 }
                 listProcessedOrganization.Clear();
             }
         }
 
         /* XDSDocumentEntry.formatCode */
-        var contenttype = documentReference.Content.FirstOrDefault()?.Format;
-        if (contenttype != null || contenttype?.Code != null)
+        var contentType = documentReference.Content.FirstOrDefault()?.Format;
+        if (contentType != null || contentType?.Code != null)
         {
-            extrinsicObject.AddClassification(new ClassificationType()
+            var contentTypeClassification = new ClassificationType()
             {
                 Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id.Replace("urn:uuid:", ""),
-                Name = new InternationalStringType(contenttype.Display ?? contenttype.Code),
+                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.FormatCode,
                 ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = contenttype.Code,
-                Slot =
-                [
-                    new SlotType()
+                NodeRepresentation = contentType.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = contentType.Display ?? contentType.Code;
+            if (!string.IsNullOrEmpty(name))
+            {
+                contentTypeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(contentType.System))
+            {
+                contentTypeClassification.AddSlot(new SlotType()
                 {
                     Name = "codingScheme",
                     ValueList = new ValueListType()
                     {
                         Value =
-                        [contenttype.System]
+                        [contentType.System]
                     }
-                }
-                ]
-            });
+                });
+            }
+
+            extrinsicObject.AddClassification(contentTypeClassification);
         }
         else
         {
@@ -864,30 +897,40 @@ public static class FhirXdsTransformer
         }
 
         /* XDSDocumentEntry.HealthcareFacilityTypeCode */
-        var healthcareFacilityType = documentReference.Context.FacilityType.Coding.FirstOrDefault();
+        var healthcareFacilityType = documentReference.Context?.FacilityType?.Coding.FirstOrDefault();
 
         if (healthcareFacilityType != null)
         {
-            extrinsicObject.AddClassification(new ClassificationType
+            var healthcareFacilityTypeClassification = new ClassificationType
             {
                 Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id,
+                ClassifiedObject = documentReference.Id ?? "Unknown",
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode,
-                Name = new InternationalStringType(healthcareFacilityType.Display ?? healthcareFacilityType.Code),
                 ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = healthcareFacilityType.Code,
-                Slot =
-                [
-                    new SlotType
+                NodeRepresentation = healthcareFacilityType.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = healthcareFacilityType.Display ?? healthcareFacilityType.Code;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                healthcareFacilityTypeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(healthcareFacilityType.System))
+            {
+                healthcareFacilityTypeClassification.AddSlot(new SlotType
                 {
                     Name = "codingScheme",
                     ValueList = new ValueListType
                     {
-                        Value = [healthcareFacilityType.System.Replace("urn:oid:", "")]
+                        Value = [healthcareFacilityType.System.NoUrn()]
                     }
-                }
-                ]
-            });
+                });
+            }
+
+            extrinsicObject.AddClassification(healthcareFacilityTypeClassification);
 
         }
         else
@@ -903,31 +946,40 @@ public static class FhirXdsTransformer
 
 
         /* XDSDocumentEntry.PracticeSettingCode */
-        var practiceSetting = documentReference.Context.PracticeSetting.Coding.FirstOrDefault();
+        var practiceSetting = documentReference.Context?.PracticeSetting?.Coding.FirstOrDefault();
 
         if (practiceSetting != null)
         {
-            extrinsicObject.AddClassification(new ClassificationType
+            var practiceSettingClassification = new ClassificationType
             {
                 Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id,
+                ClassifiedObject = documentReference.Id ?? "Unknown",
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode,
-                Name = new InternationalStringType(practiceSetting.Display ?? practiceSetting.Code),
                 ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = practiceSetting.Code,
-                Slot =
-                [
-                    new SlotType
+                NodeRepresentation = practiceSetting.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = practiceSetting.Display ?? practiceSetting.Code;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                practiceSettingClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(practiceSetting.System))
+            {
+                practiceSettingClassification.AddSlot(new SlotType
                 {
                     Name = "codingScheme",
                     ValueList = new ValueListType
                     {
-                        Value = [practiceSetting.System.Replace("urn:oid:", "")]
+                        Value = [practiceSetting.System.NoUrn()]
                     }
-                }
-                ]
-            });
+                });
+            }
 
+            extrinsicObject.AddClassification(practiceSettingClassification);
         }
         else
         {
@@ -945,26 +997,36 @@ public static class FhirXdsTransformer
         var classCode = documentReference.Category.First().Coding.First();
         if (classCode != null)
         {
-            extrinsicObject.AddClassification(new ClassificationType
+            var classCodeClassification = new ClassificationType
             {
                 Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference?.Id.Replace("urn:uuid:", ""),
+                ClassifiedObject = documentReference?.Id?.NoUrn() ?? "Unknown",
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.ClassCode,
-                Name = new InternationalStringType(classCode.Display),
                 ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = classCode.Code,
-                Slot =
-                [
-                    new SlotType
+                NodeRepresentation = classCode.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = classCode.Display ?? classCode.Code;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                classCodeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(classCode?.System))
+            {
+                classCodeClassification.AddSlot(new SlotType
                 {
                     Name = "codingScheme",
                     ValueList = new ValueListType
                     {
-                        Value = [classCode.System.Replace("urn:oid:", "")]
+                        Value = [classCode.System.NoUrn()]
                     }
-                }
-                ]
-            });
+                });
+            }
+
+            extrinsicObject.AddClassification(classCodeClassification);
         }
         else
         {
@@ -979,29 +1041,38 @@ public static class FhirXdsTransformer
         }
 
         /* XDSDocumentEntry.typeCode */
-        var typeCode = documentReference!.Type.Coding.FirstOrDefault();
+        var typeCode = documentReference!.Type?.Coding.FirstOrDefault();
         if (typeCode != null)
         {
-            extrinsicObject.AddClassification(new ClassificationType
+            var typeCodeClassification = new ClassificationType
             {
                 Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference?.Id.Replace("urn:uuid:", ""),
+                ClassifiedObject = documentReference?.Id?.NoUrn() ?? "Unknown",
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.TypeCode,
-                Name = new InternationalStringType(typeCode.Display),
                 ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = typeCode.Code,
-                Slot =
-                 [
-                     new SlotType
+                NodeRepresentation = typeCode.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = typeCode.Display ?? typeCode.Code;
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                typeCodeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(typeCode.System))
+            {
+                typeCodeClassification.AddSlot(new SlotType
                 {
                     Name = "codingScheme",
                     ValueList = new ValueListType
                     {
                         Value = [typeCode.System.Replace("urn:oid:", "")]
                     }
-                }
-                 ]
-            });
+                });
+            }
+
+            extrinsicObject.AddClassification(typeCodeClassification);
         }
         else
         {
@@ -1024,25 +1095,36 @@ public static class FhirXdsTransformer
             {
                 foreach (var securityLabelConceptCoding in securityLabelConcept.Coding)
                 {
-                    extrinsicObject.AddClassification(new ClassificationType
+                    var securityLabelConceptClassification = new ClassificationType
                     {
                         Id = Guid.NewGuid().ToString(),
-                        ClassifiedObject = documentReference.Id,
+                        ClassifiedObject = documentReference.Id ?? "Unknown",
                         ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode,
-                        Name = new InternationalStringType(securityLabelConceptCoding.Display ?? securityLabelConceptCoding.Code),
                         ObjectType = Constants.Xds.ObjectTypes.Classification,
-                        NodeRepresentation = securityLabelConceptCoding.Code,
-                        Slot =
-                        [
-                        new SlotType
+                        NodeRepresentation = securityLabelConceptCoding.Code ?? "Unknown",
+                        Slot = []
+                    };
+
+                    var name = securityLabelConceptCoding.Display ?? securityLabelConceptCoding.Code;
+
+                    if (!string.IsNullOrWhiteSpace(name))
                     {
-                        Name = "codingScheme",
-                        ValueList = new ValueListType
+                        securityLabelConceptClassification.Name = new InternationalStringType(name);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(securityLabelConceptCoding.System))
+                    {
+                        securityLabelConceptClassification.AddSlot(new SlotType
                         {
-                            Value = [securityLabelConceptCoding.System.Replace("urn:oid:", "")]
-                        }
-                    }]
-                    });
+                            Name = "codingScheme",
+                            ValueList = new ValueListType
+                            {
+                                Value = [securityLabelConceptCoding.System.NoUrn()]
+                            }
+                        });
+                    }
+
+                    extrinsicObject.AddClassification(securityLabelConceptClassification);
                 }
             }
         }
@@ -1093,7 +1175,7 @@ public static class FhirXdsTransformer
             {
                 Id = Guid.NewGuid().ToString(),
                 ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
-                RegistryObject = documentReference.Id,
+                RegistryObject = documentReference.Id ?? "Unknown",
                 IdentificationScheme = Constants.Xds.Uuids.DocumentEntry.PatientId,
                 Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.DocumentEntryPatientId),
                 Value = patientIdentifierFromPix.Serialize().Replace("&&", ""),
@@ -1164,7 +1246,7 @@ public static class FhirXdsTransformer
         }
 
         /* XDSDocumentEntry.EventCodes */
-        var eventCodeList = documentReference.Context.Event.ToCodings(); //?
+        var eventCodeList = documentReference.Context?.Event.ToCodings(); //?
 
         if (eventCodeList != null)
         {
@@ -1178,23 +1260,26 @@ public static class FhirXdsTransformer
                 var classEventCodeList = new ClassificationType
                 {
                     Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = documentReference.Id,
+                    ClassifiedObject = documentReference.Id ?? "Unknown",
                     Name = new InternationalStringType(e.Display),
                     ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.EventCodeList,
                     ObjectType = Constants.Xds.ObjectTypes.Classification,
-                    NodeRepresentation = e.Code,
-                    Slot =
-                    [
-                        new SlotType
-                            {
-                                Name = "codingScheme",
-                                ValueList = new ValueListType
-                                {
-                                    Value = [e.System]
-                                }
-                            }
-                    ],
+                    NodeRepresentation = e.Code ?? "Unknown",
+                    Slot = []
                 };
+
+                if (!string.IsNullOrWhiteSpace(e.System))
+                {
+                    classEventCodeList.AddSlot(new SlotType
+                    {
+                        Name = "codingScheme",
+                        ValueList = new ValueListType
+                        {
+                            Value = [e.System]
+                        }
+                    });
+                }
+
                 extrinsicObject.AddClassification(classEventCodeList);
             }
         }
@@ -1287,20 +1372,27 @@ public static class FhirXdsTransformer
                 OrganizationName = refAuthorOrg!.OrganizationName
             };
 
-            listAuthorSlots.Add(
-                new SlotType()
+            var authorInstitutionSlot = new SlotType()
+            {
+                Name = "authorInstitution",
+                ValueList = new ValueListType()
                 {
-                    Name = "authorInstitution",
-                    ValueList = new ValueListType()
-                    {
-                        Value =
-                        [
-                            refAuthorOrgNameOnly.Serialize(),
+                    Value =
+                    [
+                        refAuthorOrgNameOnly.Serialize(),
                         refAuthorOrg.Serialize(),
-                        refAuthorDept?.Serialize(),
-                        ]
-                    }
-                });
+                    ]
+                }
+            };
+
+            var refAuthorDeptString = refAuthorDept?.Serialize();
+
+            if (!string.IsNullOrWhiteSpace(refAuthorDeptString))
+            {
+                authorInstitutionSlot.AddValue(refAuthorDeptString);
+            }
+
+            listAuthorSlots.Add(authorInstitutionSlot);
         }
     }
 
@@ -1361,7 +1453,7 @@ public static class FhirXdsTransformer
 
     private static string GetAuthorReferenceTarget(DocumentReference documentReference, ResourceReference authorReference)
     {
-        var containedRef = documentReference.Contained.Where(x => x.Id == authorReference.Reference.Trim('#')).First();
+        var containedRef = documentReference.Contained.Where(x => x.Id == authorReference.Reference?.Trim('#')).First();
 
         return containedRef.TypeName.ToString();
     }
@@ -1416,10 +1508,10 @@ public static class FhirXdsTransformer
         var operationOutcome = new OperationOutcome();
         var document = new DocumentType();
 
-        if (fhirBinary?.Data != null || extrinsicObject?.Id != null)
+        if (fhirBinary?.Data != null && extrinsicObject?.Id != null)
         {
-            document.Value = fhirBinary?.Data;
-            document.Id = extrinsicObject?.Id;
+            document.Value = fhirBinary.Data;
+            document.Id = extrinsicObject.Id;
         }
         else
         {
@@ -1451,12 +1543,12 @@ public static class FhirXdsTransformer
                 .FirstOrDefault(dpt => dpt?.PartOf?.Reference == parentOrgReference.Reference);
 
 
-            if (authorDept != null)
+            if (authorDept != null && authorDept.Name != null)
             {
                 deptOrgReference = orgRef;
                 var authorDepartment = new XON()
                 {
-                    OrganizationName = authorDept?.Name,
+                    OrganizationName = authorDept.Name,
                     AssigningAuthority = new HD()
                     {
                         UniversalId = $"{Constants.Oid.ReshId}",
@@ -1478,14 +1570,14 @@ public static class FhirXdsTransformer
             .OfType<Organization>()
             .FirstOrDefault(dpt => dpt?.PartOf != null);
 
-        if (authorDept == null)
+        if (authorDept == null || authorDept.Name == null)
         {
             return null;
         }
 
         var authorDepartment = new XON()
         {
-            OrganizationName = authorDept?.Name,
+            OrganizationName = authorDept.Name,
             AssigningAuthority = new HD()
             {
                 UniversalId = $"{Constants.Oid.ReshId}",
@@ -1499,14 +1591,14 @@ public static class FhirXdsTransformer
     internal static XON? GetAuthorOrganization(DocumentReference documentReference, ResourceReference authorReference)
     {
         // Opposite to getting department (organization that does not have a "partOf" field)
-        var authorOrg = documentReference.Contained.OfType<Organization>().Where(x => x.Id == authorReference.Reference.Trim('#')).FirstOrDefault(dpt => dpt.PartOf == null);
+        var authorOrg = documentReference.Contained.OfType<Organization>().Where(x => x.Id == authorReference.Reference?.Trim('#')).FirstOrDefault(dpt => dpt.PartOf == null);
 
 
         if (authorOrg == null)
         {
             // Fallback. If authorRole points to department, try to check if this author reference has any departemnt and get that department
-            var possibleDepartment = documentReference.Contained.OfType<Organization>().Where(x => x.Id == authorReference.Reference.Trim('#')).FirstOrDefault(dpt => dpt.PartOf != null);
-            authorOrg = documentReference.Contained.OfType<Organization>().Where(org => org.Id == possibleDepartment.PartOf.Reference.Trim('#')).FirstOrDefault();
+            var possibleDepartment = documentReference.Contained.OfType<Organization>().Where(x => x.Id == authorReference.Reference?.Trim('#')).FirstOrDefault(dpt => dpt.PartOf != null);
+            authorOrg = documentReference.Contained.OfType<Organization>().Where(org => org.Id == possibleDepartment?.PartOf?.Reference?.Trim('#')).FirstOrDefault();
 
 
             if (authorOrg == null)
@@ -1518,7 +1610,7 @@ public static class FhirXdsTransformer
 
         var authorOrganization = new XON()
         {
-            OrganizationName = authorOrg?.Name,
+            OrganizationName = authorOrg?.Name ?? "Unknown",
         };
 
         // Adds org.identifier if known
@@ -1546,7 +1638,7 @@ public static class FhirXdsTransformer
 
         var authorOrganization = new XON()
         {
-            OrganizationName = authorOrg?.Name,
+            OrganizationName = authorOrg?.Name ?? "Unknown",
         };
 
         // Adds org.identifier if known
@@ -1565,7 +1657,7 @@ public static class FhirXdsTransformer
 
     private static XCN? GetAuthorPerson(DocumentReference documentReference, ResourceReference auhtorReference)
     {
-        var authorDocRef = documentReference.Contained.OfType<Practitioner>().Where(x => x.Id == auhtorReference.Reference.Trim('#')).FirstOrDefault();
+        var authorDocRef = documentReference.Contained.OfType<Practitioner>().Where(x => x.Id == auhtorReference.Reference?.Trim('#')).FirstOrDefault();
 
         if (authorDocRef == null)
         {
@@ -1575,8 +1667,8 @@ public static class FhirXdsTransformer
 
         var author = new XCN()
         {
-            GivenName = authorName.Given.Count() == 1 ? authorName.Given.First() : string.Join(" ", authorName.Given),
-            FamilyName = authorName.Family,
+            GivenName = (authorName.Given.Count() == 1 ? authorName.Given.First() : string.Join(" ", authorName.Given)) ?? "Unknown",
+            FamilyName = authorName.Family ?? "Unknown",
 
         };
 
@@ -1584,7 +1676,7 @@ public static class FhirXdsTransformer
         {
             foreach (var identity in authorDocRef!.Identifier)
             {
-                author.PersonIdentifier = identity.Value;
+                author.PersonIdentifier = identity.Value ?? "Unknown";
                 author.AssigningAuthority = new HD()
                 {
                     NamespaceId = $"&{identity.System}&",
@@ -1608,8 +1700,8 @@ public static class FhirXdsTransformer
 
         var author = new XCN()
         {
-            GivenName = authorName.Given.Count() == 1 ? authorName.Given.First() : string.Join(" ", authorName.Given),
-            FamilyName = authorName.Family,
+            GivenName = (authorName.Given.Count() == 1 ? authorName.Given.First() : string.Join(" ", authorName.Given)) ?? "Unknown",
+            FamilyName = authorName.Family ?? "Unknown",
 
         };
 
@@ -1617,7 +1709,7 @@ public static class FhirXdsTransformer
         {
             foreach (var identity in authorDocRef!.Identifier)
             {
-                author.PersonIdentifier = identity.Value;
+                author.PersonIdentifier = identity.Value ?? "Unknown";
                 author.AssigningAuthority = new HD()
                 {
                     NamespaceId = $"&{identity.System}&",
@@ -1643,23 +1735,23 @@ public static class FhirXdsTransformer
 
         // Find PractitionerRole based on reference and belonging to correct practitioner by reference at the same time
         var authorDocRef = documentReference.Contained.OfType<PractitionerRole>()
-            .Where(x => (x.Id == roleReference.Reference.Trim('#')) && (x.Practitioner.Reference == practitionerReference.Reference))
+            .Where(x => (x.Id == roleReference.Reference?.Trim('#')) && (x.Practitioner?.Reference == practitionerReference.Reference))
             .FirstOrDefault();
 
         if (authorDocRef != null)
         {
-            if (authorDocRef.Practitioner.Url == practitionerReference!.Url)
+            if (authorDocRef.Practitioner?.Url == practitionerReference!.Url)
             {
                 // List of roles if declared
                 if (authorDocRef.Code.Count > 0)
                 {
-                    authorRole = authorDocRef.Code.SelectMany(role => role.Coding.Select(code => code.Display)).ToList();
+                    authorRole = authorDocRef.Code.SelectMany(role => role.Coding.Select(code => code.Display)).OfType<string>().ToList();
                 }
 
                 // List of specialties if declared
                 if (authorDocRef.Specialty.Count > 0)
                 {
-                    authorSpecialty = authorDocRef.Specialty.SelectMany(specialty => specialty.Coding.Select(coding => coding.Display)).ToList();
+                    authorSpecialty = authorDocRef.Specialty.SelectMany(specialty => specialty.Coding.Select(coding => coding.Display)).OfType<string>().ToList();
                 }
 
                 // Reference to organization
@@ -1682,20 +1774,20 @@ public static class FhirXdsTransformer
         authorRole = null!;
         authorSpecialty = null!;
 
-        var authorDocRef = documentReference.Contained.OfType<PractitionerRole>().Where(x => x.Id == roleReference.Reference.Trim('#')).FirstOrDefault();
+        var authorDocRef = documentReference.Contained.OfType<PractitionerRole>().Where(x => x.Id == roleReference.Reference?.Trim('#')).FirstOrDefault();
 
         if (authorDocRef != null)
         {
             // List of roles if declared
             if (authorDocRef.Code.Count > 0)
             {
-                authorRole = authorDocRef.Code.SelectMany(role => role.Coding.Select(code => code.Display)).ToList();
+                authorRole = authorDocRef.Code.SelectMany(role => role.Coding.Select(code => code.Display)).OfType<string>().ToList();
             }
 
             // List of specialties if declared
             if (authorDocRef.Specialty.Count > 0)
             {
-                authorSpecialty = authorDocRef.Specialty.SelectMany(specialty => specialty.Coding.Select(coding => coding.Display)).ToList();
+                authorSpecialty = authorDocRef.Specialty.SelectMany(specialty => specialty.Coding.Select(coding => coding.Display)).OfType<string>().ToList();
             }
 
             // Reference to organization
@@ -1719,9 +1811,9 @@ public static class FhirXdsTransformer
 
         var patient = new XCN()
         {
-            GivenName = patientName.Given.Count() == 1 ? patientName.Given.First() : string.Join(" ", patientName.Given),
-            FamilyName = patientName.Family,
-            PersonIdentifier = patientDocRef?.Identifier?.FirstOrDefault()?.Value,
+            GivenName = (patientName.Given.Count() == 1 ? patientName.Given.First() : string.Join(" ", patientName.Given)) ?? "Unknown",
+            FamilyName = patientName.Family ?? "Unknown",
+            PersonIdentifier = patientDocRef?.Identifier?.FirstOrDefault()?.Value ?? "Unknown",
             AssigningAuthority = new HD()
             {
                 NamespaceId = $"&{GpiOid}&",

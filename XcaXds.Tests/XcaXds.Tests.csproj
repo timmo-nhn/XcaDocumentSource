@@ -41,7 +41,6 @@
     <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
     <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
     <ProjectReference Include="..\XcaXds.WebService\XcaXds.WebService.csproj" />
-    <ProjectReference Include="..\Abc.Xacml\Abc.Xacml.csproj" />
   </ItemGroup>
 	
   <ItemGroup>

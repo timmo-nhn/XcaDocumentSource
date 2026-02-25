@@ -29,6 +29,6 @@ public class NonRequestingAtnaLogExporter : BackgroundService
 
             _atnaLogExportedChecker.AtnaMessageString = jsonOutput;
             _atnaLogExportedChecker.AtnaLogExported = true;
-        }
+        }    
     }
 }

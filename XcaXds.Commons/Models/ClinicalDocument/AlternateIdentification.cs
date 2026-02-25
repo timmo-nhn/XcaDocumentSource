@@ -6,10 +6,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class AlternateIdentification
 {
     [XmlAttribute("classCode")]
-    public string ClassCode { get; set; }
+    public string ClassCode { get; set; } = "IDENT";
 
     [XmlElement("id")]
-    public II Id { get; set; }
+    public II Id { get; set; } = new II();
 
     [XmlElement("code")]
     public CD? Code { get; set; }

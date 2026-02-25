@@ -300,7 +300,7 @@ public static class FindDocuments
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryStatus(
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? statuses)
     {
-        if (statuses.Count == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
+        if (statuses == null || statuses.Count == 0) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
 
         return source.Where(eo =>
             statuses.All(group => group.Any(status => status == eo.Status)) // AND logic for groups, OR logic inside groups
@@ -315,9 +315,9 @@ public static class FindDocuments
     {
         // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.6.2
         // If no value is specified for DocumentEntryType, the value requesting only Stable Document Entries shall be assumed.
-        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => eo.ObjectType.NoUrn() == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries.NoUrn());
+        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => eo.ObjectType?.NoUrn() == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries.NoUrn());
 
-        return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType.NoUrn())));
+        return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType?.NoUrn())));
     }
 }
 
@@ -403,7 +403,7 @@ public static class FindSubmissionSets
                     .Replace("%", ".*") // [%]: Matches any string (.*)
                     .Replace("_", "."); // [_]: Matches any single chararcter (.)
 
-                return Regex.IsMatch(author, $"^{authorRegexPattern}$");
+                return Regex.IsMatch(author ?? string.Empty, $"^{authorRegexPattern}$");
             });
         });
     }
@@ -546,8 +546,9 @@ public static class GetFolderAndContents
     {
         // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.6.2
         // If no value is specified for DocumentEntryType, the value requesting only Stable Document Entries shall be assumed
-        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries.NoUrn()))); ;
-        return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType.NoUrn())));
+        if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => eo.ObjectType == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries);
+        
+        return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType?.NoUrn())));
     }
 }
 
@@ -581,7 +582,7 @@ public static class Commons
             .Where(asoc => asoc.AssociationTypeData == Constants.Xds.AssociationType.HasMember)
             .Select(a => a.TargetObject).Distinct().ToList();
 
-        var documentEntries = source.Where(ro => allTargetObjects.Contains(ro.Id)).ToList();
+        var documentEntries = source.Where(ro => allTargetObjects.Contains(ro.Id ?? "")).ToList();
 
         return documentEntries.Concat(folderAssociations);
     }
@@ -627,14 +628,14 @@ public static class Commons
     /// Will not remove the entry from the result list! </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
+    public static List<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
         var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes().GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?.FirstOrDefault() ?? "Unknown");
 
         var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
 
-        foreach (var extrinsicObject in identifiableTypes.OfType<ExtrinsicObjectType>())
+        foreach (var extrinsicObject in identifiableTypes?.OfType<ExtrinsicObjectType>() ?? [])
         {
             // Skip if the entry is just "Normal" classified (No obfuscation needed)
 
@@ -663,7 +664,7 @@ public static class Commons
             // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
             //extrinsicObject.Id = Guid.Empty.ToString();
 
-            if (extrinsicObject.Name.LocalizedString.FirstOrDefault() != null)
+            if (extrinsicObject.Name?.LocalizedString.FirstOrDefault() != null)
             {
                 extrinsicObject.Name.LocalizedString.First().Value = "Sperret";
             }
@@ -748,7 +749,7 @@ public static class Commons
         {
             case Constants.Xds.SlotNames.AuthorPerson:
             case Constants.Xds.SlotNames.LegalAuthenticator:
-                for (int i = 0; i < slot.ValueList.Value.Length; i++)
+                for (int i = 0; i < slot.ValueList?.Value.Length; i++)
                 {
                     var value = slot.ValueList.Value[i];
 
@@ -771,7 +772,7 @@ public static class Commons
                 break;
 
             case Constants.Xds.SlotNames.AuthorInstitution:
-                for (int i = 0; i < slot.ValueList.Value.Length; i++)
+                for (int i = 0; i < slot.ValueList?.Value.Length; i++)
                 {
                     var value = slot.ValueList.Value[i];
 
@@ -786,8 +787,12 @@ public static class Commons
                         structuredValue.OrganizationIdentifier = string.IsNullOrWhiteSpace(structuredValue.OrganizationIdentifier) ? null : "*****";
                         structuredValue.IdNumber = string.IsNullOrWhiteSpace(structuredValue.IdNumber) ? null : "*****";
                         structuredValue.OrganizationName = string.IsNullOrWhiteSpace(structuredValue.OrganizationName) ? null : "*****";
+                        
+                        var structuredValueString = structuredValue?.Serialize();
+                        
+                        if (string.IsNullOrWhiteSpace(structuredValueString)) continue;
 
-                        slot.ValueList.Value[i] = structuredValue?.Serialize();
+                        slot.ValueList.Value[i] = structuredValueString;
                     }
                 }
 

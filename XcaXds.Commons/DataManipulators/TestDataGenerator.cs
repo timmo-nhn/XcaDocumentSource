@@ -110,7 +110,7 @@ public static class TestDataGenerator
         return inputs.PickRandom(amount);
     }
 
-    internal static T PickRandom<T>(IEnumerable<T> inputs)
+    internal static T? PickRandom<T>(IEnumerable<T>? inputs)
     {
         if (inputs == null)
         {

@@ -61,7 +61,7 @@ public static class PolicyDtoTransformer
         return policyDto;
     }
 
-    public static XacmlPolicy TransformPolicyDtoToXacmlVersion20Policy(PolicyDto? policyDto)
+    public static XacmlPolicy? TransformPolicyDtoToXacmlVersion20Policy(PolicyDto? policyDto)
     {
         if (policyDto == null) return null;
 
@@ -103,7 +103,7 @@ public static class PolicyDtoTransformer
         if (policyDto.Resources == null || policyDto.Resources?.Count == 0) return;
         var matches = new List<XacmlResourceMatch>();
 
-        foreach (var subject in policyDto.Resources)
+        foreach (var subject in policyDto.Resources ?? [])
         {
             var xacmlResourceAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), subject.Value);
             var xacmlAttributeDesignator = new XacmlResourceAttributeDesignator(new Uri(subject.AttributeId ?? Constants.Xacml.Attribute.ResourceId), new Uri(Constants.Xacml.DataType.String));
@@ -121,7 +121,7 @@ public static class PolicyDtoTransformer
     {
         if (policyDto.Subjects == null || policyDto.Subjects?.Count == 0) return;
 
-        foreach (var subject in policyDto.Subjects)
+        foreach (var subject in policyDto.Subjects ?? [])
         {
             var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), subject.Value?.ToString());
             var xacmlAttributeDesignator = new XacmlSubjectAttributeDesignator(new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String));
@@ -138,7 +138,7 @@ public static class PolicyDtoTransformer
     {
         if (policyDto.Actions == null || policyDto.Actions?.Count == 0) return;
 
-        foreach (var action in policyDto.Actions)
+        foreach (var action in policyDto.Actions ?? [])
         {
             var xacmlActionAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), action.ToString());
             var xacmlAttributeDesignator = new XacmlActionAttributeDesignator(new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String));
@@ -161,7 +161,7 @@ public static class PolicyDtoTransformer
         var andClause = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
 
 
-        foreach (var rules in policyDto.Rules)
+        foreach (var rules in policyDto.Rules ?? [])
         {
             andClause = new XacmlApply(new Uri(Constants.Xacml.Functions.And));
 
@@ -180,7 +180,7 @@ public static class PolicyDtoTransformer
                         stringEqual.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), value));
 
                         var stringOneAndOnly = new XacmlApply(new Uri(Constants.Xacml.Functions.StringOneAndOnly));
-                        stringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String))
+                        stringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId ?? "urn:uuid:unknown"), new Uri(Constants.Xacml.DataType.String))
                         {
                             MustBePresent = true
                         });
@@ -203,7 +203,7 @@ public static class PolicyDtoTransformer
                         var stringEqual = new XacmlApply(new Uri(Constants.Xacml.Functions.StringEqual));
 
                         var firstStringOneAndOnly = new XacmlApply(new Uri(Constants.Xacml.Functions.StringOneAndOnly));
-                        firstStringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String)) { MustBePresent = true });
+                        firstStringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId ?? "urn:uuid:unknown"), new Uri(Constants.Xacml.DataType.String)) { MustBePresent = true });
                         stringEqual.Parameters.Add(firstStringOneAndOnly);
 
                         var secondStringOneAndOnly = new XacmlApply(new Uri(Constants.Xacml.Functions.StringOneAndOnly));
@@ -227,7 +227,7 @@ public static class PolicyDtoTransformer
                         stringEqual.Parameters.Add(new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), value));
 
                         var stringOneAndOnly = new XacmlApply(new Uri(Constants.Xacml.Functions.StringOneAndOnly));
-                        stringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId), new Uri(Constants.Xacml.DataType.String)) { MustBePresent = true });
+                        stringOneAndOnly.Parameters.Add(new XacmlSubjectAttributeDesignator(new Uri(rule.AttributeId ?? "urn:uuid:unknown"), new Uri(Constants.Xacml.DataType.String)) { MustBePresent = true });
                         stringEqual.Parameters.Add(stringOneAndOnly);
                         andClause.Parameters.Add(stringEqual);
 

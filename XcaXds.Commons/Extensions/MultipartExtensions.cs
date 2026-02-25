@@ -43,7 +43,7 @@ public static class MultipartExtensions
     }
 
 
-    public static string GetMultipartBoundary(string boundary, int lengthLimit)
+    public static string GetMultipartBoundary(string? boundary, int lengthLimit)
     {
         boundary = HeaderUtilities.RemoveQuotes(boundary).Value;
         if (string.IsNullOrEmpty(boundary))
@@ -130,7 +130,11 @@ public static class MultipartExtensions
         var multipart = new MultipartContent("related", boundary);
 
         var soapContent = GetSoapEnvelopeAsStringContent(soapEnvelope);
-        multipart.Add(soapContent);
+
+        if (soapContent != null)
+        {
+            multipart.Add(soapContent);
+        }
 
         return multipart;
     }
@@ -169,7 +173,7 @@ public static class MultipartExtensions
 
                 var contentId = $"{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com";
 
-                documentByteArrayContent.Headers.ContentType = new(documentResponse.MimeType);
+                documentByteArrayContent.Headers.ContentType = new(documentResponse.MimeType ?? string.Empty);
 
                 documentByteArrayContent.Headers.Add("Content-ID", [$"<{contentId}>"]);
                 documentByteArrayContent.Headers.Add("Content-Transfer-Encoding", "binary");
@@ -186,7 +190,10 @@ public static class MultipartExtensions
         var multipart = new MultipartContent("related", boundary);
 
         var soapContent = GetSoapEnvelopeAsStringContent(soapEnvelope);
-        multipart.Add(soapContent);
+        if (soapContent != null)
+        {
+            multipart.Add(soapContent);
+        }
 
         foreach (var docContent in documentContents)
             multipart.Add(docContent);
@@ -197,11 +204,13 @@ public static class MultipartExtensions
     }
 
 
-    private static StringContent GetSoapEnvelopeAsStringContent(SoapEnvelope soapEnvelope)
+    private static StringContent? GetSoapEnvelopeAsStringContent(SoapEnvelope soapEnvelope)
     {
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline);
 
         var soapString = sxmls.SerializeSoapMessageToXmlString(soapEnvelope);
+        if (string.IsNullOrWhiteSpace(soapString.Content)) return null;
+
         var stringContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.XopXml);
         stringContent.Headers.Add("Content-ID", [$"<{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com>"]);
         stringContent.Headers.ContentType?.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue("type", $"\"{Constants.MimeTypes.SoapXml}\""));
@@ -211,3 +220,4 @@ public static class MultipartExtensions
     }
 
 }
+

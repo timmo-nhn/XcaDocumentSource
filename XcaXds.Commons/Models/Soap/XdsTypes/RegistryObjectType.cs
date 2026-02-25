@@ -29,28 +29,28 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 public class RegistryObjectType : IdentifiableType
 {
     [XmlElement(Order = 0)]
-    public InternationalStringType Name;
+    public InternationalStringType? Name;
 
     [XmlElement(Order = 1)]
-    public InternationalStringType Description;
+    public InternationalStringType? Description;
 
     [XmlElement(Order = 2)]
-    public VersionInfoType VersionInfo;
+    public VersionInfoType? VersionInfo;
 
     [XmlElement("Classification", Order = 3)]
-    public ClassificationType[] Classification;
+    public ClassificationType[] Classification = [];
 
     [XmlElement("ExternalIdentifier", Order = 4)]
-    public ExternalIdentifierType[] ExternalIdentifier;
+    public ExternalIdentifierType[] ExternalIdentifier = [];
 
     [XmlAttribute(AttributeName = "lid", DataType = "anyURI")]
-    public string Lid;
+    public string? Lid;
 
     [XmlAttribute(AttributeName = "objectType", DataType = "anyURI")]
-    public string ObjectType;
+    public string? ObjectType;
 
     [XmlAttribute(AttributeName = "status", DataType = "anyURI")]
-    public string Status;
+    public string? Status;
 
     public ClassificationType[] GetClassifications(string classificationScheme)
     {

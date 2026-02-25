@@ -31,5 +31,5 @@ public class PID : Hl7Object
     public DateTime BirthDate { get; set; }
 
     [Hl7(Sequence = 8)]
-    public string Gender { get; set; } = string.Empty;
+    public string? Gender { get; set; }
 }

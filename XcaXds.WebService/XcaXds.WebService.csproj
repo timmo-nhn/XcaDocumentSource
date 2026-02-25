@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Abc.Xacml" Version="1.2.1" />
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="10.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson" Version="10.0.3" />
         <PackageReference Include="Microsoft.FeatureManagement" Version="4.4.0" />
@@ -30,7 +31,6 @@
     <ItemGroup>
         <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
         <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
-        <ProjectReference Include="..\Abc.Xacml\Abc.Xacml.csproj" />
     </ItemGroup>
 
     <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
