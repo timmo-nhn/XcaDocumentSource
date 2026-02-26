@@ -17,12 +17,12 @@ public abstract class Hl7Object
         public Hl7Attribute? Hl7Attribute;
     }
 
-    public string Serialize()
+    public string? Serialize()
     {
         return Serialize(Constants.Hl7.Separator.Hatt);
     }
 
-    public string Serialize(char separator)
+    public string? Serialize(char separator)
     {
         var stringBuilder = new StringBuilder();
 

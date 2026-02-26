@@ -35,7 +35,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
-    private readonly XdsOnFhirService _xdsOnFhirService;
     private readonly FhirService _fhirService;
     private readonly ApplicationConfig _appConfig;
     private readonly AtnaLogGeneratorService _atnaLoggingService;
@@ -49,7 +48,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         XdsRegistryService xdsRegistryService,
         XdsRepositoryService xdsRepositoryService,
         RestfulRegistryRepositoryService restfulRegistryService,
-        XdsOnFhirService xdsOnFhirService,
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
         ApplicationConfig applicationConfig,
@@ -58,7 +56,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     {
         _xdsRegistryService = xdsRegistryService;
         _xdsRepositoryService = xdsRepositoryService;
-        _xdsOnFhirService = xdsOnFhirService;
         _logger = logger;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
@@ -150,7 +147,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var adhocQueryRequest = new AdhocQueryRequest
         {
-            AdhocQuery = _xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery,
+            AdhocQuery = XdsOnFhirTransformer.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery,
             Id = Constants.Xds.StoredQueries.FindDocuments,
             ResponseOption = new()
             {
@@ -166,7 +163,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
 
-        var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(response.Value?.Body?.AdhocQueryResponse?.RegistryObjectList);
+        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(response.Value?.Body?.AdhocQueryResponse?.RegistryObjectList, _registryWrapper.GetDocumentRegistryContentAsDtos());
 
         requestTimer.Stop();
 
@@ -627,7 +624,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 		related.AddRange(associations);
 		related.AddRange(registryPackages);
 
-		var bundle = _xdsOnFhirService.TransformRegistryObjectsToFhirBundle(related.ToArray());
+		var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(related.ToArray(), _registryWrapper.GetDocumentRegistryContentAsDtos());
 		var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
 			?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
 

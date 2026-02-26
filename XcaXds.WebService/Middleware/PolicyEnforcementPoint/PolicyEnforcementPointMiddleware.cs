@@ -67,6 +67,10 @@ public class PolicyEnforcementPointMiddleware
             _logger.LogWarning($"Requesth throttling enabled: {millis} ms");
         }
 
+        var requestUrl = httpContext.Request.GetDisplayUrl();
+        var requestMethod = httpContext.Request.Method;
+        _logger.LogInformation($"{requestMethod} Request to endpoint: {requestUrl}");
+
         if (!IsPolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
         {
             sw.Stop();
@@ -75,9 +79,6 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-        var requestUrl = httpContext.Request.GetDisplayUrl();
-        var requestMethod = httpContext.Request.Method;
-        _logger.LogInformation($"{requestMethod} Request to endpoint: {requestUrl}");
 
         using var activity = StartPepActivity(httpContext);
 
