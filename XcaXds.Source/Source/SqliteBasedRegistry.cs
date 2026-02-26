@@ -183,12 +183,18 @@ public class SqliteBasedRegistry : IRegistry
             }
         }
 
+        // Create a new table with only Id
+
+        db.Database.ExecuteSqlRaw("update DocumentEntries set Title = 'test' where Id = 'c265ea85-2539-4f17-b7b8-d58368695f50'");
+
         // 2) Insert in batches
         for (int i = 0; i < incoming.Count; i += insertBatchSize)
         {
             var batch = incoming.Skip(i).Take(insertBatchSize).ToList();
             set.AddRange(batch);
-            db.SaveChanges();
+
+            
+			db.SaveChanges();
             db.ChangeTracker.Clear();
         }
     }
