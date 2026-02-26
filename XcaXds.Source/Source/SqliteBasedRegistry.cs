@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Models.DatabaseDtos;
+using XcaXds.Source.Models.DatabaseDtos.Types;
 
 namespace XcaXds.Source.Source;
 
@@ -130,8 +131,10 @@ public class SqliteBasedRegistry : IRegistry
         var submissionSets = dbEntities.OfType<DbSubmissionSet>().ToList();
         var associations = dbEntities.OfType<DbAssociation>().ToList();
 
-        db.ChangeTracker.AutoDetectChangesEnabled = false;
+		TestUpdate(db);
 
+		db.ChangeTracker.AutoDetectChangesEnabled = false;
+        
         using var transaction = db.Database.BeginTransaction();
 
         const int idBatchSize = 300;  // keep modest for SQLite parameter limits
@@ -145,7 +148,27 @@ public class SqliteBasedRegistry : IRegistry
         return true;
     }
 
-    private static void DeleteThenInsertBatched<TEntity>(
+	private void TestUpdate(SqliteRegistryDbContext db)
+    {
+		Console.WriteLine("Inside TestUpdate");
+
+		var firstDocument = db.DocumentEntries.OrderByDescending(x => x.CreationTime).FirstOrDefault();    
+
+        if (firstDocument != null)
+        {
+			Console.WriteLine("Will update title on document entry: {0}", firstDocument.Id);
+
+			firstDocument.Title = "Updated Title";
+            db.DocumentEntries.Update(firstDocument);
+            db.SaveChanges();
+
+			Console.WriteLine("Title update successful");
+		}
+
+		Console.WriteLine("Exiting TestUpdate");
+	}
+
+	private static void DeleteThenInsertBatched<TEntity>(
         DbContext db,
         DbSet<TEntity> set,
         List<TEntity> incoming,
@@ -177,23 +200,25 @@ public class SqliteBasedRegistry : IRegistry
 
             if (existing.Count > 0)
             {
-                set.RemoveRange(existing);
+				Console.WriteLine("Trying to delete existing, count = {0}", existing.Count);
+
+				set.RemoveRange(existing);
                 db.SaveChanges();
                 db.ChangeTracker.Clear();
             }
-        }
-
-        // Create a new table with only Id
-
-        db.Database.ExecuteSqlRaw("update DocumentEntries set Title = 'test' where Id = 'c265ea85-2539-4f17-b7b8-d58368695f50'");
-
+        }        
+        
         // 2) Insert in batches
         for (int i = 0; i < incoming.Count; i += insertBatchSize)
         {
             var batch = incoming.Skip(i).Take(insertBatchSize).ToList();
             set.AddRange(batch);
 
-            
+
+            var sql = set.ToQueryString(); // for debugging - shows the SQL EF will execute for this batch
+
+            Console.WriteLine(sql);
+
 			db.SaveChanges();
             db.ChangeTracker.Clear();
         }
