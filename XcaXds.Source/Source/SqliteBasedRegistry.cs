@@ -135,7 +135,7 @@ public class SqliteBasedRegistry : IRegistry
 
 		db.ChangeTracker.AutoDetectChangesEnabled = false;
         
-        using var transaction = db.Database.BeginTransaction();
+        //using var transaction = db.Database.BeginTransaction();
 
         const int idBatchSize = 300;  // keep modest for SQLite parameter limits
         const int insertBatchSize = 500;  // tune based on entity size
@@ -144,7 +144,7 @@ public class SqliteBasedRegistry : IRegistry
         DeleteThenInsertBatched(db, db.SubmissionSets, submissionSets, idBatchSize, insertBatchSize);
         DeleteThenInsertBatched(db, db.Associations, associations, idBatchSize, insertBatchSize);
 
-        transaction.Commit();
+        //transaction.Commit();
         return true;
     }
 
