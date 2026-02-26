@@ -279,6 +279,13 @@ public static class BusinessLogicFilters
             {
                 var classifications = ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
 
+                if (allowedLevels == null || allowedLevels.Length == 0)
+                {
+                    return false;
+                }
+
+                disallowedLevels ??= [];
+
                 // Requirements:
                 // - At least 1 classification must match any in allowedLevels
                 // - All classifications must not have any in disallowedLevels
