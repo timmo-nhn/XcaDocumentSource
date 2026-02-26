@@ -129,9 +129,7 @@ public class SqliteBasedRegistry : IRegistry
 
         var documentEntries = dbEntities.OfType<DbDocumentEntry>().ToList();
         var submissionSets = dbEntities.OfType<DbSubmissionSet>().ToList();
-        var associations = dbEntities.OfType<DbAssociation>().ToList();
-
-		TestUpdate(db);
+        var associations = dbEntities.OfType<DbAssociation>().ToList();		
 
 		db.ChangeTracker.AutoDetectChangesEnabled = false;
         
@@ -147,27 +145,7 @@ public class SqliteBasedRegistry : IRegistry
         //transaction.Commit();
         return true;
     }
-
-	private void TestUpdate(SqliteRegistryDbContext db)
-    {
-		Console.WriteLine("Inside TestUpdate");
-
-		var firstDocument = db.DocumentEntries.OrderByDescending(x => x.CreationTime).FirstOrDefault();    
-
-        if (firstDocument != null)
-        {
-			Console.WriteLine("Will update title on document entry: {0}", firstDocument.Id);
-
-			firstDocument.Title = "Updated Title";
-            db.DocumentEntries.Update(firstDocument);
-            db.SaveChanges();
-
-			Console.WriteLine("Title update successful");
-		}
-
-		Console.WriteLine("Exiting TestUpdate");
-	}
-
+	
 	private static void DeleteThenInsertBatched<TEntity>(
         DbContext db,
         DbSet<TEntity> set,
@@ -213,7 +191,6 @@ public class SqliteBasedRegistry : IRegistry
         {
             var batch = incoming.Skip(i).Take(insertBatchSize).ToList();
             set.AddRange(batch);
-
 
             var sql = set.ToQueryString(); // for debugging - shows the SQL EF will execute for this batch
 
