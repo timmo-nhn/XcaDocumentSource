@@ -27,7 +27,7 @@ public static class TestHelpers
         }
     }
 
-    public static List<DocumentReferenceDto> GenerateRegistryMetadata(string? patientId = null, bool noDeprecatedDocuments = false)
+    public static List<DocumentReferenceDto> GenerateComprehensiveRegistryMetadata(string? patientId = null, bool noDeprecatedDocuments = false)
     {
         return GenerateRegistryMetadata(1, patientId, noDeprecatedDocuments);
     }
@@ -37,7 +37,7 @@ public static class TestHelpers
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
-        var data =  File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json")));
+        var data =  File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json")) ?? "");
 
         return RegistryMetadataGenerator.GenerateRandomizedTestData(
             homeCommunityId:"2.16.578.1.12.4.5.100.1.1", 

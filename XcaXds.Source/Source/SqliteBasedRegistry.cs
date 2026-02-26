@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Net.NetworkInformation;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Models.DatabaseDtos;
@@ -70,14 +71,15 @@ public class SqliteBasedRegistry : IRegistry
         var submissionSets = dbEntities.OfType<DbSubmissionSet>().ToList();
         var associations = dbEntities.OfType<DbAssociation>().ToList();
 
+
         // Perf knobs
         db.ChangeTracker.AutoDetectChangesEnabled = false;
         db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking; // mostly for queries, harmless here
 
-        // SQLite-specific: reduces fsync overhead a lot for bulk-ish writes.
-        // Safe within a transaction, but still a trade-off—remove if you can't allow it.
-        db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
-        db.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
+        //// SQLite-specific: reduces fsync overhead a lot for bulk-ish writes.
+        //// Safe within a transaction, but still a trade-off—remove if you can't allow it.
+        //db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+        //db.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
 
         using var transaction = db.Database.BeginTransaction();
 

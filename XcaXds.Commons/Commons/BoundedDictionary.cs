@@ -10,7 +10,7 @@ public class BoundedDictionary<TKey, TValue>
     {
         if (maxSize <= 0) throw new ArgumentOutOfRangeException(nameof(maxSize));
         _maxSize = maxSize;
-        _dict = new Dictionary<TKey, LinkedListNode<(TKey, TValue)>>();
+        _dict = [];
         _order = new LinkedList<(TKey, TValue)>();
     }
 

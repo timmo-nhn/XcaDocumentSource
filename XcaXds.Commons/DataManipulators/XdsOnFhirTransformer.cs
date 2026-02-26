@@ -11,6 +11,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.WebService.Services;
 
@@ -18,20 +19,9 @@ namespace XcaXds.WebService.Services;
 /// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) - integration of the solution <para/>
 /// <a href="https://profiles.ihe.net/ITI/MHD/"/>
 /// </summary>
-public class XdsOnFhirService
+public static class XdsOnFhirTransformer
 {
-    private readonly IRegistry _registry;
-    private readonly ApplicationConfig _appConfig;
-    private readonly ILogger<XdsOnFhirService> _logger;
-
-    public XdsOnFhirService(IRegistry registry, ApplicationConfig appConfig, ILogger<XdsOnFhirService> logger)
-    {
-        _registry = registry;
-        _appConfig = appConfig;
-        _logger = logger;
-    }
-
-    public AdhocQueryRequest ConvertIti67ToIti18AdhocQuery(MhdDocumentRequest documentRequest)
+    public static AdhocQueryRequest ConvertIti67ToIti18AdhocQuery(MhdDocumentRequest documentRequest)
     {
         var adhocQueryRequest = new AdhocQueryRequest();
         var adhocQuery = new AdhocQueryType();
@@ -47,11 +37,16 @@ public class XdsOnFhirService
                 patientCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = patientOid.AssigningAuthority.UniversalId
+                    UniversalId = patientOid.AssigningAuthority?.UniversalId
                 };
             }
 
-            adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId, [patientCx.Serialize()]);
+            var patientCxString = patientCx?.Serialize();
+
+            if (!string.IsNullOrWhiteSpace(patientCxString))
+            {
+                adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId, [patientCxString]);
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(documentRequest.Creation))
@@ -102,7 +97,12 @@ public class XdsOnFhirService
                     UniversalId = Constants.Oid.CodeSystems.Volven.DocumentType
                 };
 
-                adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.ClassCode, [classCodeCx.Serialize()]);
+                var classCodeCxString = classCodeCx.Serialize();
+
+                if (!string.IsNullOrWhiteSpace(classCodeCxString))
+                {
+                    adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.ClassCode, [classCodeCxString]);
+                }
             }
         }
 
@@ -142,7 +142,7 @@ public class XdsOnFhirService
         return adhocQueryRequest;
     }
 
-    public Bundle? TransformRegistryObjectsToFhirBundle(IdentifiableType[]? registryObjectList)
+    public static Bundle? TransformRegistryObjectsToFhirBundle(IdentifiableType[]? registryObjectList, IEnumerable<RegistryObjectDto> registryObjects)
     {
         // Create a Bundle with DocumentReference resources and return it as the response
         // See example here https://profiles.ihe.net/ITI/MHD/Bundle-Bundle-FindDocumentReferences.json
@@ -166,7 +166,7 @@ public class XdsOnFhirService
         // we need to fetch the registry and get the missing registry objects to properly map this to a FHIR resource
         if (registryObjectList != null && registryObjectList.Length == registryObjectList?.OfType<ExtrinsicObjectType>().ToArray().Length)
         {
-            var registryContent = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(_registry.ReadRegistry());
+            var registryContent = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryObjects);
 
 			var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
 			var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -203,7 +203,7 @@ public class XdsOnFhirService
         return bundle;
     }
 
-    private IEnumerable<DocumentReference> GetFhirDocumentReferencesFromRegistryObjects(IdentifiableType[] registryObjectList)
+    private static IEnumerable<DocumentReference> GetFhirDocumentReferencesFromRegistryObjects(IdentifiableType[] registryObjectList)
     {
         // Mapping table used to generate DocumentReference:
         // https://profiles.ihe.net/ITI/MHD/StructureDefinition-IHE.MHD.Minimal.DocumentReference-mappings.html#mappings-for-xds-and-mhd-mapping-xds
@@ -352,7 +352,7 @@ public class XdsOnFhirService
 	}
 
 
-	private DocumentReference.ContextComponent? GetContextComponentFromExtrinsicObject(ExtrinsicObjectType? assocExtrinsicObject)
+	private static DocumentReference.ContextComponent? GetContextComponentFromExtrinsicObject(ExtrinsicObjectType? assocExtrinsicObject)
     {
         if (assocExtrinsicObject == null) return null;
 
@@ -405,7 +405,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = healthCareFacilityType.Code,
-                        System = healthCareFacilityType.CodeSystem.WithUrnOid(),
+                        System = healthCareFacilityType.CodeSystem?.WithUrnOid(),
                         Display = healthCareFacilityType.DisplayName
                     }
                 ]
@@ -424,7 +424,7 @@ public class XdsOnFhirService
                     new()
                     {
                         Code = practiceSettingCode.Code,
-                        System = practiceSettingCode.CodeSystem.WithUrnOid(),
+                        System = practiceSettingCode.CodeSystem?.WithUrnOid(),
                         Display = practiceSettingCode.DisplayName
                     }
                 ]

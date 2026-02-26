@@ -10,26 +10,13 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 using XcaXds.WebService.Services;
+using XcaXds.Tests.FakesAndDoubles;
+using XcaXds.Tests.Helpers;
 
 namespace XcaXds.Tests;
 
 public class UnitTests_Fhir
 {
-    private readonly ILogger<XdsOnFhirService> _logger;
-    private readonly ApplicationConfig _applicationConfig;
-    private readonly FileBasedRegistry _fileRegistry;
-
-    public UnitTests_Fhir()
-    {
-        var mockLogger = new Mock<ILogger<XdsOnFhirService>>();
-        _logger = mockLogger.Object;
-
-        _applicationConfig = new ApplicationConfig();
-
-        _fileRegistry = new FileBasedRegistry();
-    }
-
-
     [Fact]
     public async Task MHD_Iti67ToIti18AdhocQueryConversion()
     {
@@ -40,9 +27,7 @@ public class UnitTests_Fhir
             Status = "current"
         };
 
-        var xdsOnFhirService = new XdsOnFhirService(_fileRegistry, _applicationConfig, _logger);
-
-        var adhocquery = xdsOnFhirService.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
+        var adhocquery = XdsOnFhirTransformer.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
@@ -52,8 +37,8 @@ public class UnitTests_Fhir
     [Fact]
     public async Task MHD_TransformRegistryObjectsToFhirBundle()
     {
-        var mockRegistry = new FileBasedRegistry();
-        var xdsOnFhirService = new XdsOnFhirService(_fileRegistry, _applicationConfig, _logger);
+        var mockRegistry = new InMemoryRegistry();
+        mockRegistry.WriteRegistry(TestHelpers.GenerateComprehensiveRegistryMetadata("13116900216", noDeprecatedDocuments: true).AsRegistryObjectList());
 
         var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry().ToList());
 
@@ -64,7 +49,7 @@ public class UnitTests_Fhir
         var registryPackages = randomAssociation.Select(ra => registryObjects.GetById(ra?.SourceObject)).OfType<RegistryPackageType>().ToList();
         var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject)).OfType<ExtrinsicObjectType>().ToList();
 
-        var bundle = xdsOnFhirService.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects]);
+        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry());
         var fhirJsonSerializer = new FhirJsonSerializer();
         if (bundle != null)
         {

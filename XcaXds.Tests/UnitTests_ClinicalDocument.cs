@@ -63,7 +63,7 @@ public class UnitTests_ClinicalDocument
     [Fact]
     public async Task TransformRegistryObjectDtosToCda()
     {
-        var registryObjects = TestHelpers.GenerateRegistryMetadata("13116900216");
+        var registryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata("13116900216");
 
         var registryMetadata = registryObjects.AsRegistryObjectList();
         var documents = registryObjects.Select(ro => ro.Document);
