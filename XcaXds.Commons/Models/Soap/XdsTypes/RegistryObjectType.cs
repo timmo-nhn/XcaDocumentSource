@@ -54,20 +54,22 @@ public class RegistryObjectType : IdentifiableType
 
     public ClassificationType[] GetClassifications(string classificationScheme)
     {
-        return Classification.Where(cl => cl.ClassificationScheme == classificationScheme).ToArray();
+        return Classification.Where(cl => cl?.ClassificationScheme == classificationScheme).ToArray();
     }
+
     public ClassificationType? GetFirstClassification(string classificationScheme)
     {
-        return Classification.FirstOrDefault(cl => cl.ClassificationScheme == classificationScheme);
+        return Classification.FirstOrDefault(cl => cl?.ClassificationScheme == classificationScheme);
     }
 
     public ExternalIdentifierType[] GetExternalIdentifiers(string identificationScheme)
     {
-        return ExternalIdentifier.Where(cl => cl.IdentificationScheme == identificationScheme).ToArray();
+        return ExternalIdentifier.Where(cl => cl?.IdentificationScheme == identificationScheme).ToArray();
     }
+
     public ExternalIdentifierType? GetFirstExternalIdentifier(string identificationScheme)
     {
-        return ExternalIdentifier.FirstOrDefault(cl => cl.IdentificationScheme == identificationScheme);
+        return ExternalIdentifier.FirstOrDefault(cl => cl?.IdentificationScheme == identificationScheme);
     }
 
 }

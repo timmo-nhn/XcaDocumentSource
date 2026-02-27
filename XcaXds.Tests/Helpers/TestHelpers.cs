@@ -1,11 +1,10 @@
 ﻿using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.Tests.Helpers;
@@ -27,28 +26,39 @@ public static class TestHelpers
         }
     }
 
-    public static List<DocumentReferenceDto> GenerateComprehensiveRegistryMetadata(string? patientId = null, bool noDeprecatedDocuments = false)
+    /// <summary>
+    /// Generate metadata according to TestDataRegistryObjects.json
+    /// </summary>
+    public static List<DocumentReferenceDto> GenerateComprehensiveRegistryMetadata(int amount = 10, string? patientId = null, bool noDeprecatedDocuments = false)
     {
-        return GenerateRegistryMetadata(1, patientId, noDeprecatedDocuments);
+        return GenerateRegistryMetadata("TestDataRegistryObjects.json", amount, patientId, noDeprecatedDocuments);
     }
 
-    public static List<DocumentReferenceDto> GenerateRegistryMetadata(int amount = 10, string? patientId = null, bool noDeprecatedDocuments = false)
+    /// <summary>
+    /// Generate metadata according to TestDataRegistryObjects_PotentialNulls.json, possibly generating faulty metadata with null values in various fields
+    /// </summary>
+    public static List<DocumentReferenceDto> GeneratePotentiallyFaultyComprehensiveRegistryMetadata(int amount = 10, string? patientId = null, bool noDeprecatedDocuments = false)
+    {
+        return GenerateRegistryMetadata("TestDataRegistryObjects_PotentialNulls.json", amount, patientId, noDeprecatedDocuments);
+    }
+
+    private static List<DocumentReferenceDto> GenerateRegistryMetadata(string fileName, int amount = 10, string? patientId = null, bool noDeprecatedDocuments = false)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
-        var data =  File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json")) ?? "");
+        var data = File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains(fileName)) ?? "");
 
         return RegistryMetadataGenerator.GenerateRandomizedTestData(
-            homeCommunityId:"2.16.578.1.12.4.5.100.1.1", 
-            repositoryUniqueId:"2.16.578.1.12.4.5.100.1.1.2", 
+            homeCommunityId: "2.16.578.1.12.4.5.100.1.1",
+            repositoryUniqueId: "2.16.578.1.12.4.5.100.1.1.2",
             jsonTestData: JsonSerializer.Deserialize<Test_DocumentReference>(data, Constants.JsonDefaultOptions.DefaultSettings),
-            entriesToGenerate:amount,
+            entriesToGenerate: amount,
             patientIdentifier: patientId,
             noDeprecatedDocuments: noDeprecatedDocuments);
     }
 
-    public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string attributeId, string codeValue,string action, string? codeSystemValue = null, bool noCode = false)
+    public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string attributeId, string codeValue, string action, string? codeSystemValue = null, bool noCode = false)
     {
         policyRepositoryService.AddPolicy(new PolicyDto()
         {

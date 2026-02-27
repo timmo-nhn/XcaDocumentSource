@@ -1,17 +1,14 @@
 using Hl7.Fhir.Serialization;
 using Hl7.Fhir.Utility;
-using Microsoft.Extensions.Logging;
-using Moq;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
-using XcaXds.Source.Source;
-using XcaXds.WebService.Services;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.Tests;
 
@@ -32,13 +29,17 @@ public class UnitTests_Fhir
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var adhocquerystring = sxmls.SerializeSoapMessageToXmlString(adhocquery);
+
+        var statusSlot = adhocquery.AdhocQuery.GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.Status);
+
+        Assert.Equal(Constants.Xds.StatusValues.Approved, statusSlot?.GetFirstValue());
     }
 
     [Fact]
     public async Task MHD_TransformRegistryObjectsToFhirBundle()
     {
         var mockRegistry = new InMemoryRegistry();
-        mockRegistry.WriteRegistry(TestHelpers.GenerateComprehensiveRegistryMetadata("13116900216", noDeprecatedDocuments: true).AsRegistryObjectList());
+        mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectList());
 
         var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry().ToList());
 

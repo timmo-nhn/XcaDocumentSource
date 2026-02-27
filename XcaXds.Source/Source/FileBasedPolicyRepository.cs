@@ -1,5 +1,4 @@
-﻿using Abc.Xacml.Policy;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -16,8 +15,10 @@ public class FileBasedPolicyRepository : IPolicyRepository
     public FileBasedPolicyRepository(ILogger<FileBasedPolicyRepository> logger)
     {
         _logger = logger;
+
         // When running in a container the path will be different
         var customPath = Environment.GetEnvironmentVariable("POLICY_REPOSITORY_FILE_PATH");
+
         if (!string.IsNullOrWhiteSpace(customPath))
         {
             _policyRepositoryPath = customPath;
@@ -27,8 +28,13 @@ public class FileBasedPolicyRepository : IPolicyRepository
             string baseDirectory = AppContext.BaseDirectory;
             _policyRepositoryPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "PolicyRepository");
         }
-    }
 
+        _policyRepositoryPath = Path.GetFullPath(_policyRepositoryPath);
+
+        Directory.CreateDirectory(_policyRepositoryPath);
+
+        _logger.LogInformation($"Policy repository path: {_policyRepositoryPath}");
+    }
     public string GetPolicyRepositoryPath()
     {
         return _policyRepositoryPath;

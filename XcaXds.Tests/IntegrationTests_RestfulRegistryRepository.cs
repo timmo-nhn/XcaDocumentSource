@@ -101,7 +101,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
 
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
-        var metadata = TestHelpers.GenerateRegistryMetadata(registryObjectsCount, patientIdentifier, true);
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectList());
 
         foreach (var document in metadata.Select(dto => dto.Document))

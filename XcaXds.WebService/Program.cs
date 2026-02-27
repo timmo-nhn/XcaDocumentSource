@@ -149,7 +149,6 @@ public class Program
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
 
         // FHIR
-        builder.Services.AddScoped<XdsOnFhirTransformer>();
         builder.Services.AddScoped<FhirService>();
 
         // Health check

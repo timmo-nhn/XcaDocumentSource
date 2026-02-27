@@ -769,7 +769,7 @@ public static class XdsOnFhirTransformer
                 new()
                 {
                     Code = classCode.Code,
-                    System = classCode.CodeSystem.WithUrnOid(),
+                    System = classCode.CodeSystem?.WithUrnOid(),
                     Display = classCode.DisplayName
                 }
             ]
@@ -789,7 +789,7 @@ public static class XdsOnFhirTransformer
                 new()
                 {
                     Code = typeCode.Code,
-                    System = typeCode.CodeSystem.WithUrnOid(),
+                    System = typeCode.CodeSystem?.WithUrnOid(),
                     Display = typeCode.DisplayName
                 }
             ]

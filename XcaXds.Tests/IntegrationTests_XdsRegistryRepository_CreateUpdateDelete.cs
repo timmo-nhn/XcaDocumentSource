@@ -443,7 +443,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
 
-        var metadata = TestHelpers.GenerateRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
@@ -503,7 +503,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var amountOfItemsToReplace = Random.Shared.Next(1, RegistryItemCount);
 
         var randomDocumentEntriesToDeprecate = registryContent.PickRandom(amountOfItemsToReplace).ToArray();
-        var newDocumentEntries = TestHelpers.GenerateRegistryMetadata(amountOfItemsToReplace, PatientIdentifier.IdNumber, true);
+        var newDocumentEntries = TestHelpers.GenerateComprehensiveRegistryMetadata(amountOfItemsToReplace, PatientIdentifier.IdNumber, true);
 
         var assocDtos = newDocumentEntries
             .Zip(randomDocumentEntriesToDeprecate, (nuDocEnt, rndDocEntToDprct) => new AssociationDto
@@ -586,7 +586,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var metadata = TestHelpers.GenerateRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
@@ -833,7 +833,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     {
         await NukeRegistryRepository();
 
-        var metadata = TestHelpers.GenerateRegistryMetadata(registryObjectsCount, patientIdentifier, true);
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectList());
 
         foreach (var document in metadata.Select(dto => dto.Document))

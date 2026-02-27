@@ -274,17 +274,16 @@ public static class FhirXdsTransformer
                     OrganizationName = submAuthorOrg.OrganizationName
                 };
 
-                var subAuthorString = submAuthorDept?.Serialize();
+                var subAuthorDeptString = submAuthorDept?.Serialize();
+                var submAuthorOrgNameOnlyString = submAuthorOrgNameOnly.Serialize();
+                var submAuthorOrgString = submAuthorOrg.Serialize();
 
-                string[] items = [
-                            submAuthorOrgNameOnly.Serialize(),
-                            submAuthorOrg.Serialize(),
-                    ];
-
-                if (!string.IsNullOrWhiteSpace(subAuthorString))
+                string[] items = [.. new[]
                 {
-                    items = [.. items, subAuthorString];
-                }
+                    subAuthorDeptString,
+                    submAuthorOrgNameOnlyString,
+                    submAuthorOrgString
+                }.OfType<string>()];
 
                 var authorClassification = new ClassificationType()
                 {
@@ -297,36 +296,39 @@ public static class FhirXdsTransformer
                     Slot = []
                 };
 
+                var authorDepartmentString = submAuthorDept?.Serialize();
                 var authorDepartmentSlot = new SlotType()
                 {
                     Name = "authorInstitution",
                     ValueList = new ValueListType()
                     {
-                        Value =
-                        [
-                            submAuthorOrgNameOnly.Serialize(),
-                            submAuthorOrg.Serialize(),
-                        ]
+                        Value = [.. new[]
+                        {
+                            submAuthorOrgNameOnlyString,
+                            submAuthorOrgString
+                        }.OfType<string>()]
                     }
                 };
 
-                var authorDepartmentString = submAuthorDept?.Serialize();
                 if (!string.IsNullOrWhiteSpace(authorDepartmentString))
                 {
                     authorDepartmentSlot.AddValue(authorDepartmentString);
+                    authorClassification.AddSlot(authorDepartmentSlot);
                 }
 
-                var authorPersonSlot = new SlotType()
+                var submAuthorPersonString = submAuthorPerson.Serialize()?.Replace("&&", "");
+                if (submAuthorPersonString != null)
                 {
-                    Name = "authorPerson",
-                    ValueList = new ValueListType()
+                    var authorPersonSlot = new SlotType()
                     {
-                        Value = [submAuthorPerson.Serialize().Replace("&&", "")]
-                    }
-                };
-
-                authorClassification.AddSlot(authorDepartmentSlot);
-                authorClassification.AddSlot(authorPersonSlot);
+                        Name = "authorPerson",
+                        ValueList = new ValueListType()
+                        {
+                            Value = []
+                        }
+                    };
+                    authorClassification.AddSlot(authorPersonSlot);
+                }
 
                 registryPackage.AddClassification(authorClassification);
             }
@@ -538,7 +540,7 @@ public static class FhirXdsTransformer
                     Name = "creationTime",
                     ValueList = new ValueListType
                     {
-                        Value = [documentCreationTime.ToString(Constants.Hl7.Dtm.DtmFormat)]
+                        Value = [documentCreationTime.ToString(Constants.Hl7.Dtm.DtmFormat) ?? throw new ArgumentNullException("Creation time not set", "ExtrinsicObject.Slot(creationTime)")]
                     }
                 },
                 /* XDSDocumentEntry.languageCode - mandatory */
@@ -557,7 +559,7 @@ public static class FhirXdsTransformer
                     Name = "sourcePatientId",
                     ValueList = new ValueListType
                     {
-                        Value = [patient.Serialize().Replace("&&", "")]
+                        Value = [patient.Serialize()?.Replace("&&", "") ?? throw new ArgumentNullException("Patient Identifier cannot be null", "ExtrinsicObject.Slot(sourcePatientId)")]
                     }
                 }
             ]
@@ -1178,7 +1180,7 @@ public static class FhirXdsTransformer
                 RegistryObject = documentReference.Id ?? "Unknown",
                 IdentificationScheme = Constants.Xds.Uuids.DocumentEntry.PatientId,
                 Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.DocumentEntryPatientId),
-                Value = patientIdentifierFromPix.Serialize().Replace("&&", ""),
+                Value = patientIdentifierFromPix.Serialize()?.Replace("&&", ""),
             });
 
             var valueList = new ValueListType();

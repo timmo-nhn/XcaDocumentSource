@@ -63,17 +63,17 @@ public class UnitTests_ClinicalDocument
     [Fact]
     public async Task TransformRegistryObjectDtosToCda()
     {
-        var registryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata("13116900216");
+        var registryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata(patientId: "13116900216");
 
         var registryMetadata = registryObjects.AsRegistryObjectList();
         var documents = registryObjects.Select(ro => ro.Document);
 
-        var randomIndex = new Random().Next(registryObjects.OfType<DocumentEntryDto>().Count());
+        var randomIndex = new Random().Next(registryObjects.AsRegistryObjectList().OfType<DocumentEntryDto>()?.Count() ?? 0);
 
         var documentEntry = registryMetadata.OfType<DocumentEntryDto>().ElementAt(randomIndex);
         var association = registryMetadata.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.TargetObject == documentEntry.Id);
         var submissionSet = registryMetadata.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
-        var document = documents.FirstOrDefault(doc => doc.DocumentId == documentEntry.UniqueId);
+        var document = documents.FirstOrDefault(doc => doc?.DocumentId == documentEntry.UniqueId);
 
         var cdaDocument = CdaTransformer.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, document);
         var sxmls = new SoapXmlSerializer();
