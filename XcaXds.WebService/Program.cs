@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
@@ -7,8 +6,6 @@ using System.Collections;
 using System.Text.Json.Serialization;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -24,28 +21,28 @@ namespace XcaXds.WebService;
 
 public class Program
 {
-	public const long OneMb = 1L * 1024 * 1024;
-	public const long FiftyMb = 50L * 1024 * 1024;
-	public const long OneHundredMb = 100L * 1024 * 1024;
-	public const long OneGb = 1L * 1024 * 1024 * 1024;
+    public const long OneMb = 1L * 1024 * 1024;
+    public const long FiftyMb = 50L * 1024 * 1024;
+    public const long OneHundredMb = 100L * 1024 * 1024;
+    public const long OneGb = 1L * 1024 * 1024 * 1024;
 
-	public static void Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
         var runningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? bool.FalseString);
 
-		// Begin builder
+        // Begin builder
 
-		builder.WebHost.ConfigureKestrel(options =>
-		{
-			// Upload of multiple huge documents should be done if separate requests and not in the same bundle
-			// In addition to Kestrel limits, we also set limit per document in appsettings.XdsConfiguration.DocumentUploadSizeLimitKb
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            // Upload of multiple huge documents should be done if separate requests and not in the same bundle
+            // In addition to Kestrel limits, we also set limit per document in appsettings.XdsConfiguration.DocumentUploadSizeLimitKb
 
-			options.Limits.MaxRequestBodySize = OneHundredMb; 			
-		});
-		
-		builder.Logging.ClearProviders(); // Clear default logging providers
+            options.Limits.MaxRequestBodySize = OneHundredMb;
+        });
+
+        builder.Logging.ClearProviders(); // Clear default logging providers
         builder.Services.AddLogging(logging =>
         {
             if (runningInContainer)
@@ -120,9 +117,9 @@ public class Program
 
         builder.Services.AddScoped<PolicyEvaluator>();
         builder.Services.AddScoped<PolicyInputBuilder>();
-        builder.Services.AddScoped<IPolicyInputStrategy,FhirJsonPolicyInputStrategy>();
-        builder.Services.AddScoped<IPolicyInputStrategy,SoapSamlXmlPolicyInputStrategy>();
-        builder.Services.AddScoped<IPolicyInputStrategy,JsonPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy, FhirJsonPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy, SoapSamlXmlPolicyInputStrategy>();
+        builder.Services.AddScoped<IPolicyInputStrategy, JsonPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy, GenericPolicyInputStrategy>();
 
         builder.Services.AddScoped<PolicyDenyResponseBuilder>();
@@ -141,7 +138,7 @@ public class Program
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
-        
+
         builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<AppStartupService>();
 
