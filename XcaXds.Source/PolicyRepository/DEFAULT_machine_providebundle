@@ -3,7 +3,7 @@
     "helseId",
     "helsenorge"
   ],
-  "id": "DEFAULT_machine_patchdocumentreference",
+  "id": "DEFAULT_machine_providebundle",
   "rules": [
     [
       {
@@ -15,7 +15,7 @@
     ]
   ],
   "actions": [
-    "Update"
+    "Create"
   ],
   "effect": "Permit"
 }

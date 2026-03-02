@@ -9,12 +9,12 @@ using System.Text.Json;
 using System.Web;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.Helpers;
 using XcaXds.WebService.Models.Custom;
@@ -405,9 +405,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         SoapRequestResult<SoapEnvelope>? registerDocumentSetResponse = null;
         SoapRequestResult<SoapEnvelope>? documentUploadResponse = null;
-        OperationOutcome? validationOutput = null;
-
-        FhirResourceValidator.
+        
+        var validationResult = FhirResourceValidator.ValidateFhirResource(fhirBundle);
 
         // If operation is $validate, we only want to validate the request without actually registering/uploading the documents.
         // https://build.fhir.org/resource-operation-validate.html
@@ -452,7 +451,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded {fhirBundle.Entry.Count} Entries");
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
-        
+
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest.SubmitObjectsRequest.RegistryObjectList), registerDocumentSetResponse.Value);
 
         if (operationOutcome.Issue.Any())
@@ -559,265 +558,265 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Content(jsonResult, "application/json");
     }
 
-	[Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
-	[Produces("application/fhir+json", "application/fhir+xml")]
-	[HttpPatch("DocumentReference/{id}")]
-	public IActionResult PatchDocument(string id, [FromBody] JsonElement json)
-	{
-		_logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to patch DocumentReference.securityLabel for id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
+    [Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpPatch("DocumentReference/{id}")]
+    public IActionResult PatchDocument(string id, [FromBody] JsonElement json)
+    {
+        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to patch DocumentReference.securityLabel for id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
-		if (string.IsNullOrWhiteSpace(id))
-		{
-			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing id", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-		}
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing id", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+        }
 
-		if (!TryExtractSecurityLabelElement(json, out var securityLabelElement, out var errorMessage))
-		{
-			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(errorMessage ?? "Missing securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-		}
+        if (!TryExtractSecurityLabelElement(json, out var securityLabelElement, out var errorMessage))
+        {
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(errorMessage ?? "Missing securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+        }
 
-		var codings = ParseSecurityLabelToCodedValues(securityLabelElement, out var parseError);
-		if (codings == null)
-		{
-			return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(parseError ?? "Invalid securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-		}
+        var codings = ParseSecurityLabelToCodedValues(securityLabelElement, out var parseError);
+        if (codings == null)
+        {
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(parseError ?? "Invalid securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+        }
 
-		var documentEntry = _registryWrapper
-			.GetDocumentRegistryContentAsDtos()
-			.OfType<DocumentEntryDto>()
-			.FirstOrDefault(de => string.Equals(de.Id, id, StringComparison.OrdinalIgnoreCase));
+        var documentEntry = _registryWrapper
+            .GetDocumentRegistryContentAsDtos()
+            .OfType<DocumentEntryDto>()
+            .FirstOrDefault(de => string.Equals(de.Id, id, StringComparison.OrdinalIgnoreCase));
 
-		if (documentEntry == null)
-		{
-			return NotFoundOperationOutcome.Create(OperationOutcome.ForMessage($"DocumentReference/{id} not found", OperationOutcome.IssueType.NotFound, OperationOutcome.IssueSeverity.Error));
-		}
+        if (documentEntry == null)
+        {
+            return NotFoundOperationOutcome.Create(OperationOutcome.ForMessage($"DocumentReference/{id} not found", OperationOutcome.IssueType.NotFound, OperationOutcome.IssueSeverity.Error));
+        }
 
-		var oldSecurityLabel = documentEntry.ConfidentialityCode == null
-			? null
-			: documentEntry.ConfidentialityCode.Select(c => new CodedValue
-			{
-				Code = c.Code,
-				CodeSystem = c.CodeSystem,
-				DisplayName = c.DisplayName
-			}).ToList();
+        var oldSecurityLabel = documentEntry.ConfidentialityCode == null
+            ? null
+            : documentEntry.ConfidentialityCode.Select(c => new CodedValue
+            {
+                Code = c.Code,
+                CodeSystem = c.CodeSystem,
+                DisplayName = c.DisplayName
+            }).ToList();
 
-		documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
-		_registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
+        documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
+        _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
 
-		// Atna log generation
-		var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var _);
-		_atnaLoggingService.CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-			HttpContext.TraceIdentifier,
-			id,
-			oldSecurityLabel,
-			documentEntry.ConfidentialityCode,
-			documentEntry,
-			token);
+        // Atna log generation
+        var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var _);
+        _atnaLoggingService.CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
+            HttpContext.TraceIdentifier,
+            id,
+            oldSecurityLabel,
+            documentEntry.ConfidentialityCode,
+            documentEntry,
+            token);
 
-		// Return the updated DocumentReference
-		var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects().RegistryObjectList;
-		var extrinsic = registryObjects
-			.OfType<ExtrinsicObjectType>()
-			.FirstOrDefault(eo => string.Equals(eo.Id?.NoUrn(), id, StringComparison.OrdinalIgnoreCase));
+        // Return the updated DocumentReference
+        var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects().RegistryObjectList;
+        var extrinsic = registryObjects
+            .OfType<ExtrinsicObjectType>()
+            .FirstOrDefault(eo => string.Equals(eo.Id?.NoUrn(), id, StringComparison.OrdinalIgnoreCase));
 
-		if (extrinsic == null)
-		{
-			return OkOperationOutcome.Create(OperationOutcome.ForMessage($"Updated securityLabel for DocumentReference/{id}", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Information));
-		}
+        if (extrinsic == null)
+        {
+            return OkOperationOutcome.Create(OperationOutcome.ForMessage($"Updated securityLabel for DocumentReference/{id}", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Information));
+        }
 
-		var associations = registryObjects
-			.OfType<AssociationType>()
-			.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && string.Equals(a.TargetObject?.NoUrn(), id, StringComparison.OrdinalIgnoreCase))
-			.ToList();
+        var associations = registryObjects
+            .OfType<AssociationType>()
+            .Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && string.Equals(a.TargetObject?.NoUrn(), id, StringComparison.OrdinalIgnoreCase))
+            .ToList();
 
-		var registryPackages = associations
-			.Select(a => registryObjects.GetById(a.SourceObject))
-			.OfType<RegistryPackageType>()
-			.ToList();
+        var registryPackages = associations
+            .Select(a => registryObjects.GetById(a.SourceObject))
+            .OfType<RegistryPackageType>()
+            .ToList();
 
-		var related = new List<IdentifiableType> { extrinsic };
-		related.AddRange(associations);
-		related.AddRange(registryPackages);
+        var related = new List<IdentifiableType> { extrinsic };
+        related.AddRange(associations);
+        related.AddRange(registryPackages);
 
-		var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(related.ToArray(), _registryWrapper.GetDocumentRegistryContentAsDtos());
-		var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
-			?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
+        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(related.ToArray(), _registryWrapper.GetDocumentRegistryContentAsDtos());
+        var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
+            ?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
 
-		if (updatedDocRef == null)
-		{
-			return OkOperationOutcome.Create(OperationOutcome.ForMessage($"Updated securityLabel for DocumentReference/{id}", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Information));
-		}
+        if (updatedDocRef == null)
+        {
+            return OkOperationOutcome.Create(OperationOutcome.ForMessage($"Updated securityLabel for DocumentReference/{id}", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Information));
+        }
 
-		var serializer = new FhirJsonSerializer();
-		return new CustomContentResult(serializer.SerializeToString(updatedDocRef), StatusCodes.Status200OK, Constants.MimeTypes.FhirJson);
-	}
+        var serializer = new FhirJsonSerializer();
+        return new CustomContentResult(serializer.SerializeToString(updatedDocRef), StatusCodes.Status200OK, Constants.MimeTypes.FhirJson);
+    }
 
-	private static bool TryExtractSecurityLabelElement(JsonElement json, out JsonElement securityLabelElement, out string? errorMessage)
-	{
-		securityLabelElement = default;
-		errorMessage = null;
+    private static bool TryExtractSecurityLabelElement(JsonElement json, out JsonElement securityLabelElement, out string? errorMessage)
+    {
+        securityLabelElement = default;
+        errorMessage = null;
 
-		if (json.ValueKind == JsonValueKind.Array)
-		{
-			// JSON Patch (RFC 6902): [{"op":"replace","path":"/securityLabel","value":[...]}]
-			foreach (var op in json.EnumerateArray())
-			{
-				if (op.ValueKind != JsonValueKind.Object) continue;
-				var hasOp = TryGetPropertyCaseInsensitive(op, "op", out var opName);
-				var hasPath = TryGetPropertyCaseInsensitive(op, "path", out var path);
-				if (!hasOp || !hasPath) continue;
+        if (json.ValueKind == JsonValueKind.Array)
+        {
+            // JSON Patch (RFC 6902): [{"op":"replace","path":"/securityLabel","value":[...]}]
+            foreach (var op in json.EnumerateArray())
+            {
+                if (op.ValueKind != JsonValueKind.Object) continue;
+                var hasOp = TryGetPropertyCaseInsensitive(op, "op", out var opName);
+                var hasPath = TryGetPropertyCaseInsensitive(op, "path", out var path);
+                if (!hasOp || !hasPath) continue;
 
-				var opNameValue = opName.GetString();
-				var pathValue = path.GetString();
-				if (string.IsNullOrWhiteSpace(opNameValue) || string.IsNullOrWhiteSpace(pathValue)) continue;
+                var opNameValue = opName.GetString();
+                var pathValue = path.GetString();
+                if (string.IsNullOrWhiteSpace(opNameValue) || string.IsNullOrWhiteSpace(pathValue)) continue;
 
-				if (!pathValue.Equals("/securityLabel", StringComparison.OrdinalIgnoreCase))
-				{
-					errorMessage = "Only /securityLabel can be patched";
-					return false;
-				}
+                if (!pathValue.Equals("/securityLabel", StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMessage = "Only /securityLabel can be patched";
+                    return false;
+                }
 
-				if (!string.Equals(opNameValue, "add", StringComparison.OrdinalIgnoreCase) &&
-					!string.Equals(opNameValue, "replace", StringComparison.OrdinalIgnoreCase))
-				{
-					errorMessage = "Only add/replace operations are supported";
-					return false;
-				}
+                if (!string.Equals(opNameValue, "add", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(opNameValue, "replace", StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMessage = "Only add/replace operations are supported";
+                    return false;
+                }
 
-				if (!TryGetPropertyCaseInsensitive(op, "value", out var value))
-				{
-					errorMessage = "Patch operation is missing value";
-					return false;
-				}
+                if (!TryGetPropertyCaseInsensitive(op, "value", out var value))
+                {
+                    errorMessage = "Patch operation is missing value";
+                    return false;
+                }
 
-				securityLabelElement = value;
-				return true;
-			}
+                securityLabelElement = value;
+                return true;
+            }
 
-			errorMessage = "Invalid JSON Patch payload";
-			return false;
-		}
+            errorMessage = "Invalid JSON Patch payload";
+            return false;
+        }
 
-		if (json.ValueKind != JsonValueKind.Object)
-		{
-			errorMessage = "Body must be a JSON object or JSON Patch array";
-			return false;
-		}
+        if (json.ValueKind != JsonValueKind.Object)
+        {
+            errorMessage = "Body must be a JSON object or JSON Patch array";
+            return false;
+        }
 
-		// Partial resource style: { "securityLabel": [ ... ] }
-		if (!TryGetPropertyCaseInsensitive(json, "securityLabel", out securityLabelElement))
-		{
-			errorMessage = "Body must include securityLabel";
-			return false;
-		}
+        // Partial resource style: { "securityLabel": [ ... ] }
+        if (!TryGetPropertyCaseInsensitive(json, "securityLabel", out securityLabelElement))
+        {
+            errorMessage = "Body must include securityLabel";
+            return false;
+        }
 
-		// Whitelist (for future expansion, add more here)
-		foreach (var prop in json.EnumerateObject())
-		{
-			if (prop.NameEquals("securityLabel") || prop.NameEquals("resourceType") || prop.NameEquals("id"))
-				continue;
-			errorMessage = $"Property '{prop.Name}' is not allowed to be patched";
-			return false;
-		}
+        // Whitelist (for future expansion, add more here)
+        foreach (var prop in json.EnumerateObject())
+        {
+            if (prop.NameEquals("securityLabel") || prop.NameEquals("resourceType") || prop.NameEquals("id"))
+                continue;
+            errorMessage = $"Property '{prop.Name}' is not allowed to be patched";
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	private static bool TryGetPropertyCaseInsensitive(JsonElement obj, string name, out JsonElement value)
-	{
-		if (obj.ValueKind == JsonValueKind.Object)
-		{
-			foreach (var prop in obj.EnumerateObject())
-			{
-				if (string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
-				{
-					value = prop.Value;
-					return true;
-				}
-			}
-		}
+    private static bool TryGetPropertyCaseInsensitive(JsonElement obj, string name, out JsonElement value)
+    {
+        if (obj.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var prop in obj.EnumerateObject())
+            {
+                if (string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = prop.Value;
+                    return true;
+                }
+            }
+        }
 
-		value = default;
-		return false;
-	}
+        value = default;
+        return false;
+    }
 
-	private static List<CodedValue>? ParseSecurityLabelToCodedValues(JsonElement securityLabelElement, out string? errorMessage)
-	{
-		errorMessage = null;
-		if (securityLabelElement.ValueKind != JsonValueKind.Array)
-		{
-			errorMessage = "securityLabel must be an array";
-			return null;
-		}
+    private static List<CodedValue>? ParseSecurityLabelToCodedValues(JsonElement securityLabelElement, out string? errorMessage)
+    {
+        errorMessage = null;
+        if (securityLabelElement.ValueKind != JsonValueKind.Array)
+        {
+            errorMessage = "securityLabel must be an array";
+            return null;
+        }
 
-		var result = new List<CodedValue>();
-		foreach (var label in securityLabelElement.EnumerateArray())
-		{
-			if (label.ValueKind != JsonValueKind.Object)
-			{
-				errorMessage = "Each securityLabel entry must be an object";
-				return null;
-			}
+        var result = new List<CodedValue>();
+        foreach (var label in securityLabelElement.EnumerateArray())
+        {
+            if (label.ValueKind != JsonValueKind.Object)
+            {
+                errorMessage = "Each securityLabel entry must be an object";
+                return null;
+            }
 
-			if (!TryGetPropertyCaseInsensitive(label, "coding", out var codingElement) || codingElement.ValueKind != JsonValueKind.Array)
-			{
-				errorMessage = "Each securityLabel entry must include coding[]";
-				return null;
-			}
+            if (!TryGetPropertyCaseInsensitive(label, "coding", out var codingElement) || codingElement.ValueKind != JsonValueKind.Array)
+            {
+                errorMessage = "Each securityLabel entry must include coding[]";
+                return null;
+            }
 
-			var addedAny = false;
-			foreach (var coding in codingElement.EnumerateArray())
-			{
-				if (coding.ValueKind != JsonValueKind.Object)
-				{
-					errorMessage = "securityLabel.coding must contain objects";
-					return null;
-				}
+            var addedAny = false;
+            foreach (var coding in codingElement.EnumerateArray())
+            {
+                if (coding.ValueKind != JsonValueKind.Object)
+                {
+                    errorMessage = "securityLabel.coding must contain objects";
+                    return null;
+                }
 
-				string? code = null;
-				string? system = null;
-				string? display = null;
+                string? code = null;
+                string? system = null;
+                string? display = null;
 
-				if (TryGetPropertyCaseInsensitive(coding, "code", out var codeEl))
-				{
-					code = codeEl.GetString();
-				}
-				if (TryGetPropertyCaseInsensitive(coding, "system", out var sysEl))
-				{
-					system = sysEl.GetString();
-				}
-				if (TryGetPropertyCaseInsensitive(coding, "display", out var dispEl))
-				{
-					display = dispEl.GetString();
-				}
+                if (TryGetPropertyCaseInsensitive(coding, "code", out var codeEl))
+                {
+                    code = codeEl.GetString();
+                }
+                if (TryGetPropertyCaseInsensitive(coding, "system", out var sysEl))
+                {
+                    system = sysEl.GetString();
+                }
+                if (TryGetPropertyCaseInsensitive(coding, "display", out var dispEl))
+                {
+                    display = dispEl.GetString();
+                }
 
-				if (string.IsNullOrWhiteSpace(code))
-				{
-					errorMessage = "securityLabel.coding.code is required";
-					return null;
-				}
+                if (string.IsNullOrWhiteSpace(code))
+                {
+                    errorMessage = "securityLabel.coding.code is required";
+                    return null;
+                }
 
-				result.Add(new CodedValue
-				{
-					Code = code,
-					CodeSystem = string.IsNullOrWhiteSpace(system) ? null : system.NoUrn(),
-					DisplayName = display
-				});
-				addedAny = true;
-			}
+                result.Add(new CodedValue
+                {
+                    Code = code,
+                    CodeSystem = string.IsNullOrWhiteSpace(system) ? null : system.NoUrn(),
+                    DisplayName = display
+                });
+                addedAny = true;
+            }
 
-			if (!addedAny)
-			{
-				errorMessage = "securityLabel.coding must contain at least one object";
-				return null;
-			}
-		}
+            if (!addedAny)
+            {
+                errorMessage = "securityLabel.coding must contain at least one object";
+                return null;
+            }
+        }
 
-		return result;
-	}
-    
+        return result;
+    }
 
-	private SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle fhirBundle, List<RegistryErrorType> errors, ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest, HttpRequest request)
+
+    private SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle fhirBundle, List<RegistryErrorType> errors, ProvideAndRegisterDocumentSetRequestType provideAndRegisterRequest, HttpRequest request)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
