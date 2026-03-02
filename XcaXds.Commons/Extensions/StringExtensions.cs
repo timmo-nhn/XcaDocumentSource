@@ -48,13 +48,11 @@ public static class StringExtensions
         return Encoding.UTF8.GetBytes(input);
     }
 
-    public static string? GetMimetypeFromMagicNumber(byte[] input)
+    public static string? GetMimetypeFromMagicNumber(byte[]? input)
     {
-
-        // Make sure the input is large enough to check for magic numbers
-        if (input.Length < 4)
+        if (input == null || input.Length < 4)
         {
-            throw new ArgumentException("Input file is too small to detect MIME type.");
+            return null;
         }
 
         return input[0] switch

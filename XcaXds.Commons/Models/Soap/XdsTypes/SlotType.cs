@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 
@@ -5,6 +6,7 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
+[DebuggerDisplay("Name = {Name}, Values({ValueList.Value.Length})={string.Join(', ', ValueList.Value.Take(5))} ")]
 public partial class SlotType
 {
     public SlotType(string name, string value)
@@ -82,13 +84,13 @@ public partial class SlotType
         return ValueList.Value;
     }
 
-    public void AddValue(string id)
+    public void AddValue(string? value)
     {
         ValueList ??= new();
-        if (id != null)
+        if (value != null)
         {
             ValueList.Value ??= [];
-            ValueList.Value = [.. ValueList.Value, id];
+            ValueList.Value = [.. ValueList.Value, value];
         }
     }
 }

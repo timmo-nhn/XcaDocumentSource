@@ -199,7 +199,7 @@ public class Program
         if (!runningInContainer)
         {
             builder.WebHost.UseUrls(["https://localhost:7176"]);
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
         }
 
         app.MapControllers();

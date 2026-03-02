@@ -774,7 +774,11 @@ public static class Commons
                         structuredValue.Suffix = string.IsNullOrWhiteSpace(structuredValue.Suffix) ? null : "*****";
                         structuredValue.Degree = string.IsNullOrWhiteSpace(structuredValue.Degree) ? null : "*****";
 
-                        slot.ValueList.Value[i] = structuredValue.Serialize();
+                        var structuredValueString = structuredValue.Serialize();
+                        if (!string.IsNullOrWhiteSpace(structuredValueString))
+                        {
+                            slot.ValueList.Value[i] = structuredValueString;
+                        }
                     }
                 }
                 break;

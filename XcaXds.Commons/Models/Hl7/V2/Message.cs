@@ -34,7 +34,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
             HL7Message = strMessage;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Message)
                 return Equals((obj as Message).HL7Message);
@@ -501,7 +501,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
         /// </summary>
         /// <param name="bypassValidation">Bypasses validation of the resulting ACK message</param>
         /// <returns>An ACK message if success, otherwise null</returns>
-        public Message GetACK(bool bypassValidation = false)
+        public Message? GetACK(bool bypassValidation = false)
         {
             return createAckMessage("AA", false, null, bypassValidation);
         }
@@ -513,7 +513,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
         /// <param name="errMsg">Error message to be sent with NACK</param>
         /// <param name="bypassValidation">Bypasses validation of the resulting NACK message</param>
         /// <returns>A NACK message if success, otherwise null</returns>
-        public Message GetNACK(string code, string errMsg, bool bypassValidation = false)
+        public Message? GetNACK(string code, string errMsg, bool bypassValidation = false)
         {
             return createAckMessage(code, true, errMsg, bypassValidation);
         }
@@ -643,7 +643,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
         /// <param name="errMsg">error message to be sent with NACK</param>
         /// <param name="bypassValidation">Bypasses validation of the resulting ACK/NACK message</param>
         /// <returns>An ACK or NACK message if success, otherwise null</returns>
-        private Message createAckMessage(string code, bool isNack, string errMsg, bool bypassValidation)
+        private Message? createAckMessage(string code, bool isNack, string? errMsg, bool bypassValidation)
         {
             var response = new StringBuilder();
 
@@ -683,7 +683,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
         /// <param name="segment">The segment object to search in/param>
         /// <param name="index">The index of the field within the segment/param>
         /// <returns>A Field object</returns>
-        private static Field getField(Segment segment, string index)
+        private static Field? getField(Segment segment, string index)
         {
             int repetition = 0;
             var matches = Regex.Matches(index, fieldRegex);

@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 
 namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
@@ -36,10 +36,13 @@ public class PolicyDto
             }
 
             var targetOrGroup = Rules[orIdx];
-            var dict = targetOrGroup.ToDictionary(r => r.AttributeId, r => r);
+
+            var dict = targetOrGroup.ToDictionary(r => r.AttributeId ?? "", r => r);
 
             foreach (var patchRule in patchOrGroup)
             {
+                if (string.IsNullOrWhiteSpace(patchRule.AttributeId)) continue;
+
                 if (dict.TryGetValue(patchRule.AttributeId, out var existing))
                 {
                     if (append == true)
@@ -73,56 +76,9 @@ public class PolicyDto
             Rules[orIdx] = dict.Values.ToList();
         }
 
-        foreach (var patchRule in patch?.Subjects ?? [])
-        {
-            var idx = Subjects.FindIndex(rule => rule.AttributeId == patchRule.AttributeId);
-
-            if (idx < 0)
-            {
-                Subjects.Add(patchRule);
-                continue;
-            }
-
-            Subjects[idx] = new PolicyMatch
-            {
-                AttributeId = patchRule.AttributeId,
-                Value = patchRule.Value
-            };
-        }
-
-        foreach (var patchRule in patch?.Resources ?? [])
-        {
-            var idx = Resources.FindIndex(rule => rule.AttributeId == patchRule.AttributeId);
-
-            if (idx < 0)
-            {
-                Resources.Add(patchRule);
-                continue;
-            }
-
-            Resources[idx] = new PolicyMatch
-            {
-                AttributeId = patchRule.AttributeId,
-                Value = patchRule.Value
-            };
-        }
-
-        foreach (var patchRule in patch?.Roles ?? [])
-        {
-            var idx = Roles.FindIndex(rule => rule.AttributeId == patchRule.AttributeId);
-
-            if (idx < 0)
-            {
-                Roles.Add(patchRule);
-                continue;
-            }
-
-            Roles[idx] = new PolicyMatch
-            {
-                AttributeId = patchRule.AttributeId,
-                Value = patchRule.Value
-            };
-        }
+        Roles.MergeWith(patch.Roles);
+        Resources.MergeWith(patch.Resources);
+        Subjects.MergeWith(patch.Subjects);
     }
 
     public void SetDefaultValues()

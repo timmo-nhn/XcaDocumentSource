@@ -179,6 +179,7 @@ public class PolicyRepositoryWrapper
         if (!deleteResult) return false;
 
         policySet = _policyRepository.GetAllPolicies();
+        RefreshEvaluationEngine();
         return true;
     }
 
@@ -204,7 +205,10 @@ public class PolicyRepositoryWrapper
 
     public bool DeleteAllPolicies()
     {
-        return _policyRepository.DeleteAllPolicies();
+        var deleteAllResult = _policyRepository.DeleteAllPolicies();
+        policySet = _policyRepository.GetAllPolicies();
+        RefreshEvaluationEngine();
+        return deleteAllResult;
     }
 
     private void OnFileChanged(object sender, FileSystemEventArgs e)

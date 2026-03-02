@@ -47,28 +47,24 @@ public partial class IdentifiableType
 
     public void AddSlot(SlotType slotType)
     {
-        if (Slot == null || Slot.Length == 0)
-        {
-            Slot = [slotType];
-        }
-        else
-        {
-            Slot = [.. Slot, slotType];
-        }
+        Slot ??= [];
+        Slot = [.. Slot, slotType];
     }
 
-    public void AddSlot(string slotName, string[] valueList)
+    public void AddSlot(string slotName, string?[]? valueList)
     {
-
-        Slot ??= [];
-        AddSlot(new()
+        if (valueList?.OfType<string>().Any() ?? false)
         {
-            Name = slotName,
-            ValueList = new()
+            Slot ??= [];
+            AddSlot(new()
             {
-                Value = valueList
-            }
-        });
+                Name = slotName,
+                ValueList = new()
+                {
+                    Value = valueList!
+                }
+            });
+        }
     }
 
     public void UpdateSlot(string slotName, string[] valueList)
@@ -79,7 +75,7 @@ public partial class IdentifiableType
             AddSlot(slotName, valueList);
         }
         else
-        { 
+        {
             var updatedValues = slot.ValueList?.Value?.ToList() ?? new List<string>();
             updatedValues.AddRange(valueList);
             slot.ValueList ??= new();
@@ -93,7 +89,6 @@ public partial class IdentifiableType
         try
         {
             return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.Ordinal)).ToArray();
-
         }
         catch (Exception)
         {

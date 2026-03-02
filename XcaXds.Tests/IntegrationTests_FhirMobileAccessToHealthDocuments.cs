@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -23,6 +24,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     [Trait("Delete", "Delete DocumentReference")]
     public async Task DeleteDocumentsAndMetadata()
     {
+        await NukeRegistryRepository();
+
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
@@ -60,8 +63,10 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var currentRegistry = _registry.ReadRegistry();
         var currentCount = currentRegistry.Count();
-
-        Assert.Equal(registryContentCount - 3, currentCount);
+        
+        var expectedCount = registryContentCount - 3;
+        
+        Assert.Equal(expectedCount, currentCount);
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
         _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
     }
@@ -70,6 +75,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     [Trait("Patch", "Patch DocumentReference securityLabel")]
     public async Task PatchDocumentSecurityLabel_ExportsAtnaLog()
     {
+        await NukeRegistryRepository();
+
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
@@ -130,6 +137,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     [Trait("Upload", "Provide Bundle")]
     public async Task ProvideBundle_RandomAmount()
     {
+        await NukeRegistryRepository();
+
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
@@ -178,6 +187,20 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         return metadata;
     }
+    private async Task NukeRegistryRepository()
+    {
+        var getNukeKey = await _client.GetAsync("api/get-nuke-key");
 
+        var nukeResponse = JsonDocument.Parse(await getNukeKey.Content.ReadAsStringAsync());
+        var nukeKey = nukeResponse.RootElement.GetProperty("nukeKey").GetString();
+
+        var nuked = await _client.DeleteAsync($"/api/nuke?nukeKey={nukeKey}");
+
+        Assert.Empty(_registry.ReadRegistry());
+    }
 }
+
+
+
+
 #pragma warning restore CS8604, CS8602 // Possible null reference argument.

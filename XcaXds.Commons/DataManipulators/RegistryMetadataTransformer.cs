@@ -243,7 +243,7 @@ public static class RegistryMetadataTransformer
                 Organization = GetAuthorOrganizationFromClassification(authorClassification),
                 Department = GetAuthorDepartmentFromClassification(authorClassification),
                 Person = GetAuthorPersonFromClassification(authorClassification),
-                Role = GetAuthorRoleFromClassificaiton(authorClassification),
+                Role = GetAuthorRoleFromClassification(authorClassification),
                 Speciality = GetAuthorSpecialityFromClassification(authorClassification)
             };
 
@@ -545,7 +545,7 @@ public static class RegistryMetadataTransformer
                     Organization = GetAuthorOrganizationFromClassification(authorClassification),
                     Department = GetAuthorDepartmentFromClassification(authorClassification),
                     Person = GetAuthorPersonFromClassification(authorClassification),
-                    Role = GetAuthorRoleFromClassificaiton(authorClassification),
+                    Role = GetAuthorRoleFromClassification(authorClassification),
                     Speciality = GetAuthorSpecialityFromClassification(authorClassification)
                 };
                 authorList.Add(author);
@@ -659,12 +659,12 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    private static CodedValue? GetAuthorRoleFromClassificaiton(ClassificationType classification)
+    private static CodedValue? GetAuthorRoleFromClassification(ClassificationType classification)
     {
         if (classification == null) return null;
 
         var authorRole = classification
-            .GetSlots(Constants.Xds.SlotNames.AuthorRole)
+            . GetSlots(Constants.Xds.SlotNames.AuthorRole)
             .GetValues()
             .Select(rol => Hl7Object.Parse<CX>(rol)).FirstOrDefault();
 
@@ -1177,7 +1177,12 @@ public static class RegistryMetadataTransformer
                 }
             };
 
-            authorInstitutionSlot.ValueList.Value = [.. authorInstitutionSlot.ValueList.Value ?? [], org.Serialize()];
+            var orgString = org.Serialize();
+            
+            if (!string.IsNullOrWhiteSpace(orgString))
+            {
+                authorInstitutionSlot.AddValue(orgString);
+            }
         }
 
         if (author.Department != null)
@@ -1193,7 +1198,8 @@ public static class RegistryMetadataTransformer
                 }
             };
 
-            authorInstitutionSlot.ValueList.Value = [.. authorInstitutionSlot.ValueList.Value ?? [], dpt.Serialize()];
+            var departmentString = dpt.Serialize();
+            authorInstitutionSlot.AddValue(departmentString);
         }
 
         if (authorInstitutionSlot.ValueList?.Value == null || authorInstitutionSlot.ValueList?.Value.Length == 0) return;
@@ -1392,7 +1398,7 @@ public static class RegistryMetadataTransformer
         {
             ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
             IdentificationScheme = externalIdentifierName,
-            Value = valueCx.Serialize(),
+            Value = valueCx.Serialize() ?? string.Empty,
             Name = new() { LocalizedString = [new() { Value = idscheme }] },
         };
     }

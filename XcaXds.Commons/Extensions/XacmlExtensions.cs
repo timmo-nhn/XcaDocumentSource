@@ -51,7 +51,7 @@ public static class XacmlExtensions
 
         return new CodedValue()
         {
-            Code = filteredAttributes.GetValueOrDefault(attributeValue + ":code"),
+            Code = filteredAttributes.GetValueOrDefault(attributeValue + ":code") ?? filteredAttributes.GetValueOrDefault(attributeValue),
             CodeSystem = filteredAttributes.GetValueOrDefault(attributeValue + ":codeSystem"),
             DisplayName = filteredAttributes.GetValueOrDefault(attributeValue + ":displayName"),
         };

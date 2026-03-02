@@ -922,7 +922,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var tempPolicyName = "IT_CrossGateway";
 
-        _policyRepository.AddPolicy(new PolicyDto()
+        _policyRepositoryService.AddPolicy(new PolicyDto()
         {
             Id = tempPolicyName,
             Rules =

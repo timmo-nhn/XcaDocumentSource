@@ -46,4 +46,28 @@ public static class PolicyDtoExtensions
 
         return policyDto;
     }
+
+    public static List<PolicyMatch> MergeWith(this List<PolicyMatch>? matches, IEnumerable<PolicyMatch>? patch)
+    {
+        var result = matches ?? new();
+
+        foreach (var patchRule in patch ?? Enumerable.Empty<PolicyMatch>())
+        {
+            var idx = result.FindIndex(r => r.AttributeId == patchRule.AttributeId);
+
+            if (idx < 0)
+            {
+                result.Add(patchRule);
+                continue;
+            }
+
+            result[idx] = new PolicyMatch
+            {
+                AttributeId = patchRule.AttributeId,
+                Value = patchRule.Value
+            };
+        }
+
+        return result;
+    }
 }

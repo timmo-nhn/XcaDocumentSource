@@ -21,7 +21,6 @@ public class IntegrationTests_DefaultFixture
     internal readonly RestfulRegistryRepositoryService _restfulRegistryService;
     internal readonly PolicyRepositoryService _policyRepositoryService;
     internal readonly RegistryWrapper _registryWrapper;
-    internal readonly IPolicyRepository _policyRepository;
     internal readonly IRegistry _registry;
     internal readonly IRepository _repository;
     internal readonly AtnaLogExportedChecker _atnaLogExportedChecker;
@@ -88,7 +87,6 @@ public class IntegrationTests_DefaultFixture
 
         _registry = customScope.ServiceProvider.GetRequiredService<IRegistry>();
         _repository = customScope.ServiceProvider.GetRequiredService<IRepository>();
-        _policyRepository = customScope.ServiceProvider.GetRequiredService<IPolicyRepository>();
 
         _atnaLogExportedChecker = customScope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();

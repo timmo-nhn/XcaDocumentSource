@@ -39,7 +39,7 @@ public static class FhirXdsTransformer
         return author;
     }
 
-    public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient bundlePatient, List<DocumentReference> documentReferences, List submissionSetList, List<Binary> fhirBinaries, Identifier patientIdentifier, string GpiOid, string homeCommunityId)
+    public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, Identifier? patientIdentifier, string? GpiOid, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -150,7 +150,7 @@ public static class FhirXdsTransformer
         return creationResult;
     }
 
-    private static ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(Patient bundlePatient, List submissionSetList, Identifier patientId, string GpiOid, string homeCommunityId)
+    private static ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(Patient? bundlePatient, List? submissionSetList, Identifier? patientId, string? GpiOid, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -269,22 +269,6 @@ public static class FhirXdsTransformer
             }
             if (submAuthorOrg != null && submAuthorPerson != null)
             {
-                var submAuthorOrgNameOnly = new XON()
-                {
-                    OrganizationName = submAuthorOrg.OrganizationName
-                };
-
-                var subAuthorDeptString = submAuthorDept?.Serialize();
-                var submAuthorOrgNameOnlyString = submAuthorOrgNameOnly.Serialize();
-                var submAuthorOrgString = submAuthorOrg.Serialize();
-
-                string[] items = [.. new[]
-                {
-                    subAuthorDeptString,
-                    submAuthorOrgNameOnlyString,
-                    submAuthorOrgString
-                }.OfType<string>()];
-
                 var authorClassification = new ClassificationType()
                 {
                     Id = Guid.NewGuid().ToString(),
@@ -296,7 +280,15 @@ public static class FhirXdsTransformer
                     Slot = []
                 };
 
-                var authorDepartmentString = submAuthorDept?.Serialize();
+
+                var submAuthorOrgNameOnly = new XON()
+                {
+                    OrganizationName = submAuthorOrg.OrganizationName
+                };
+
+                var submAuthorOrgNameOnlyString = submAuthorOrgNameOnly.Serialize();
+                var submAuthorOrgString = submAuthorOrg.Serialize();
+
                 var authorDepartmentSlot = new SlotType()
                 {
                     Name = "authorInstitution",
@@ -310,11 +302,16 @@ public static class FhirXdsTransformer
                     }
                 };
 
-                if (!string.IsNullOrWhiteSpace(authorDepartmentString))
+                var slotPreview = string.Join(", ", authorDepartmentSlot.ValueList.Value.Select(val => val.Substring(0,5).Trim() + "...")).ToArray();
+
+                var submAuthorDepartmentString = submAuthorDept?.Serialize();
+
+                if (!string.IsNullOrWhiteSpace(submAuthorDepartmentString))
                 {
-                    authorDepartmentSlot.AddValue(authorDepartmentString);
-                    authorClassification.AddSlot(authorDepartmentSlot);
+                    authorDepartmentSlot.AddValue(submAuthorDepartmentString);
                 }
+
+                authorClassification.AddSlot(authorDepartmentSlot);
 
                 var submAuthorPersonString = submAuthorPerson.Serialize()?.Replace("&&", "");
                 if (submAuthorPersonString != null)
@@ -1170,7 +1167,9 @@ public static class FhirXdsTransformer
         /* XDSDocumentEntry.patientId */
         var patientIdentifierFromDocRef = GetPatient(bundlePatient, documentReference, GpiOid);
         var patientIdentifierFromPix = GetPatient(patientId, GpiOid);
-        if (patientIdentifierFromDocRef?.PersonIdentifier != null && patientIdentifierFromPix != null)
+        var pidFromPixString = patientIdentifierFromPix?.Serialize()?.Replace("&&", "");
+
+        if (patientIdentifierFromDocRef?.PersonIdentifier != null && !string.IsNullOrWhiteSpace(pidFromPixString))
         {
             // Add ExternalIdentifier and a new Slot for sourcePatientInfo
             extrinsicObject.AddExternalIdentifier(new ExternalIdentifierType()
@@ -1180,7 +1179,7 @@ public static class FhirXdsTransformer
                 RegistryObject = documentReference.Id ?? "Unknown",
                 IdentificationScheme = Constants.Xds.Uuids.DocumentEntry.PatientId,
                 Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.DocumentEntryPatientId),
-                Value = patientIdentifierFromPix.Serialize()?.Replace("&&", ""),
+                Value = pidFromPixString,
             });
 
             var valueList = new ValueListType();
@@ -1207,7 +1206,7 @@ public static class FhirXdsTransformer
             //}
             if (!string.IsNullOrWhiteSpace(patientName.FamilyName) && !string.IsNullOrWhiteSpace(patientName.GivenName))
             {
-                valueList.AddValue($"PID-5|{patientName.Serialize().Replace("&&", "")}");
+                valueList.AddValue($"PID-5|{patientName.Serialize()?.Replace("&&", "")}");
             }
 
 
@@ -1316,15 +1315,21 @@ public static class FhirXdsTransformer
         }
         else
         {
+            var refAuthorPersonString = refAuthorPerson.Serialize()?.Replace("&&", "");
+
+            if (!string.IsNullOrWhiteSpace(refAuthorPersonString))
+            {
+
             listAuthorSlots.Add(
                 new SlotType()
                 {
                     Name = "authorPerson",
                     ValueList = new ValueListType()
                     {
-                        Value = [refAuthorPerson.Serialize().Replace("&&", "")]
+                        Value = [refAuthorPersonString]
                     }
                 });
+            }
         }
     }
 

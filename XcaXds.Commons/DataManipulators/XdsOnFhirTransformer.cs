@@ -1,17 +1,14 @@
-﻿using System.Globalization;
+﻿using Hl7.Fhir.Model;
+using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
-using Hl7.Fhir.Model;
-using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.WebService.Services;
 
@@ -41,12 +38,7 @@ public static class XdsOnFhirTransformer
                 };
             }
 
-            var patientCxString = patientCx?.Serialize();
-
-            if (!string.IsNullOrWhiteSpace(patientCxString))
-            {
-                adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId, [patientCxString]);
-            }
+            adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId, [patientCx?.Serialize()]);
         }
 
         if (!string.IsNullOrWhiteSpace(documentRequest.Creation))
@@ -97,12 +89,7 @@ public static class XdsOnFhirTransformer
                     UniversalId = Constants.Oid.CodeSystems.Volven.DocumentType
                 };
 
-                var classCodeCxString = classCodeCx.Serialize();
-
-                if (!string.IsNullOrWhiteSpace(classCodeCxString))
-                {
-                    adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.ClassCode, [classCodeCxString]);
-                }
+                adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.ClassCode, [classCodeCx.Serialize()]);
             }
         }
 
@@ -168,29 +155,28 @@ public static class XdsOnFhirTransformer
         {
             var registryContent = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryObjects);
 
-			var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
-			var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
+            var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-			// Pull BOTH membership + lifecycle associations
-			var relatedAssociations = registryContent
-				.OfType<AssociationType>()
-				.Where(a => (a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject.NoUrn())) ||
+            // Pull BOTH membership + lifecycle associations
+            var relatedAssociations = registryContent
+                .OfType<AssociationType>()
+                .Where(a => (a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject.NoUrn())) ||
                             (a.AssociationTypeData != Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.SourceObject.NoUrn()))
-				)
-				.ToArray();
+                )
+                .ToArray();
 
-			// Pull submission sets (registry packages) referenced by HasMember.SourceObject
-			var relatedRegistryPackages = relatedAssociations
-				.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember)
-				.Select(a => registryContent.GetById(a.SourceObject))
-				.OfType<RegistryPackageType>()
-				.ToArray();
+            // Pull submission sets (registry packages) referenced by HasMember.SourceObject
+            var relatedRegistryPackages = relatedAssociations
+                .Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember)
+                .Select(a => registryContent.GetById(a.SourceObject))
+                .OfType<RegistryPackageType>()
+                .ToArray();
 
-			registryObjectList = [.. eos, .. relatedAssociations, .. relatedRegistryPackages];
-		}
+            registryObjectList = [.. eos, .. relatedAssociations, .. relatedRegistryPackages];
+        }
 
-
-		var documentReference = GetFhirDocumentReferencesFromRegistryObjects(registryObjectList);
+        var documentReference = GetFhirDocumentReferencesFromRegistryObjects(registryObjectList ?? []);
 
         bundle.Entry.AddRange(documentReference
             .Select(dr => new Bundle.EntryComponent()
@@ -220,8 +206,8 @@ public static class XdsOnFhirTransformer
             {
                 Id = Guid.NewGuid().ToString(),
                 AssociationTypeData = Constants.Xds.AssociationType.HasMember,
-                SourceObject = registryPackages.First().Id,
-                TargetObject = extrinsicObjects.First().Id
+                SourceObject = registryPackages.FirstOrDefault()?.Id ?? "Unknown",
+                TargetObject = extrinsicObjects.FirstOrDefault()?.Id ?? "Unknown"
             })];
         }
 
@@ -234,9 +220,9 @@ public static class XdsOnFhirTransformer
 
             var documentReference = new DocumentReference();
 
-			documentReference.Id = assocExtrinsicObject?.Id?.NoUrn();
+            documentReference.Id = assocExtrinsicObject?.Id?.NoUrn();
 
-			if (assocRegistryPackage == null || assocExtrinsicObject == null) continue;
+            if (assocRegistryPackage == null || assocExtrinsicObject == null) continue;
 
             documentReference.MasterIdentifier = GetMasterIdentifierFromRegistryPackageSourceId(assocRegistryPackage, assocExtrinsicObject);
             documentReference.Identifier = GetIdentifierFromExtrinsicObjectId(assocExtrinsicObject);
@@ -267,16 +253,16 @@ public static class XdsOnFhirTransformer
                 documentReference.Contained.Add(authenticator);
                 documentReference.Authenticator = Hl7FhirExtensions.GetResourceAsResourceReference(authenticator);
             }
-			
-			// RelatesTo (XDS Associations -> FHIR relatesTo)
-			var relatesTo = BuildRelatesTo(associations, assocExtrinsicObject);
-			if (relatesTo.Count > 0)
-			{
-				documentReference.RelatesTo = relatesTo;
-			}
 
-			// SecurityLabel
-			var securityLabel = GetCodeableConceptFromExtrinsicObjectConfidentialityCode(assocExtrinsicObject);
+            // RelatesTo (XDS Associations -> FHIR relatesTo)
+            var relatesTo = BuildRelatesTo(associations, assocExtrinsicObject);
+            if (relatesTo.Count > 0)
+            {
+                documentReference.RelatesTo = relatesTo;
+            }
+
+            // SecurityLabel
+            var securityLabel = GetCodeableConceptFromExtrinsicObjectConfidentialityCode(assocExtrinsicObject);
             if (securityLabel != null)
             {
                 documentReference.SecurityLabel.AddRange(securityLabel);
@@ -306,53 +292,53 @@ public static class XdsOnFhirTransformer
         return documentReferenceList;
     }
 
-	private static List<DocumentReference.RelatesToComponent> BuildRelatesTo(AssociationType[] allAssociations, ExtrinsicObjectType currentEo)
-	{
-		var relatesTo = new List<DocumentReference.RelatesToComponent>();
+    private static List<DocumentReference.RelatesToComponent> BuildRelatesTo(AssociationType[] allAssociations, ExtrinsicObjectType currentEo)
+    {
+        var relatesTo = new List<DocumentReference.RelatesToComponent>();
 
-		if (currentEo.Id == null) return relatesTo;
+        if (currentEo.Id == null) return relatesTo;
 
-		var sourceId = currentEo.Id.NoUrn();
+        var sourceId = currentEo.Id.NoUrn();
 
-		// Associations where THIS document is the SourceObject
-		var outgoing = allAssociations
-			.Where(a =>
-				a.AssociationTypeData != Constants.Xds.AssociationType.HasMember &&
-				a.SourceObject.NoUrn() == sourceId)
-			.ToList();
+        // Associations where THIS document is the SourceObject
+        var outgoing = allAssociations
+            .Where(a =>
+                a.AssociationTypeData != Constants.Xds.AssociationType.HasMember &&
+                a.SourceObject.NoUrn() == sourceId)
+            .ToList();
 
-		foreach (var a in outgoing)
-		{
-			var code = a.AssociationTypeData switch
-			{
-				var t when t == Constants.Xds.AssociationType.Replace => DocumentRelationshipType.Replaces,
-				var t when t == Constants.Xds.AssociationType.Addendum => DocumentRelationshipType.Appends,
-				var t when t == Constants.Xds.AssociationType.Transformation => DocumentRelationshipType.Transforms,
-				var t when t == Constants.Xds.AssociationType.DigitalSignature /* or Signs */ => DocumentRelationshipType.Signs,
-				_ => (DocumentRelationshipType?)null
-			};
+        foreach (var a in outgoing)
+        {
+            var code = a.AssociationTypeData switch
+            {
+                var t when t == Constants.Xds.AssociationType.Replace => DocumentRelationshipType.Replaces,
+                var t when t == Constants.Xds.AssociationType.Addendum => DocumentRelationshipType.Appends,
+                var t when t == Constants.Xds.AssociationType.Transformation => DocumentRelationshipType.Transforms,
+                var t when t == Constants.Xds.AssociationType.DigitalSignature /* or Signs */ => DocumentRelationshipType.Signs,
+                _ => (DocumentRelationshipType?)null
+            };
 
-			if (code is null) continue;
+            if (code is null) continue;
 
-			var targetUuid = a.TargetObject.NoUrn();
-			if (string.IsNullOrWhiteSpace(targetUuid)) continue;
+            var targetUuid = a.TargetObject.NoUrn();
+            if (string.IsNullOrWhiteSpace(targetUuid)) continue;
 
-			relatesTo.Add(new DocumentReference.RelatesToComponent
-			{
-				Code = code.Value,
-				Target = new ResourceReference
-				{
-					// Your ExistingDocumentId is entryUUID, so reference by id
-					Reference = $"DocumentReference/{targetUuid}"
-				}
-			});
-		}
+            relatesTo.Add(new DocumentReference.RelatesToComponent
+            {
+                Code = code.Value,
+                Target = new ResourceReference
+                {
+                    // Your ExistingDocumentId is entryUUID, so reference by id
+                    Reference = $"DocumentReference/{targetUuid}"
+                }
+            });
+        }
 
-		return relatesTo;
-	}
+        return relatesTo;
+    }
 
 
-	private static DocumentReference.ContextComponent? GetContextComponentFromExtrinsicObject(ExtrinsicObjectType? assocExtrinsicObject)
+    private static DocumentReference.ContextComponent? GetContextComponentFromExtrinsicObject(ExtrinsicObjectType? assocExtrinsicObject)
     {
         if (assocExtrinsicObject == null) return null;
 
@@ -447,10 +433,10 @@ public static class XdsOnFhirTransformer
             size = sizeLong;
         }
         var hash = Encoding.UTF8.GetBytes(assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.Hash)?.GetFirstValue() ?? "");
-        var title = assocExtrinsicObject.Name.GetFirstValue();
+        var title = assocExtrinsicObject.Name?.GetFirstValue();
 
         var creationSlot = assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.CreationTime)?.GetFirstValue();
-        var parsedDate = DateTime.ParseExact(creationSlot, Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+        var parsedDate = DateTime.ParseExact(creationSlot ?? DateTime.MinValue.ToString(Constants.Hl7.Dtm.DtmFormat), Constants.Hl7.Dtm.DtmFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
         var creation = ((DateTimeOffset)parsedDate).ToString(Constants.Hl7.Dtm.DtmFhirIsoDateTimeFormat);
 
         content.Attachment = new Attachment()
@@ -471,7 +457,7 @@ public static class XdsOnFhirTransformer
             content.Format = new Coding()
             {
                 Code = format.Code,
-                System = format.CodeSystem.WithUrnOid(),
+                System = format.CodeSystem?.WithUrnOid(),
                 Display = format.DisplayName
             };
         }
@@ -481,23 +467,23 @@ public static class XdsOnFhirTransformer
 
     private static List<CodeableConcept>? GetCodeableConceptFromExtrinsicObjectConfidentialityCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-		var confidentialityCodes = RegistryMetadataTransformer.MapClassificationToCodedValue(
-			assocExtrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode));
+        var confidentialityCodes = RegistryMetadataTransformer.MapClassificationToCodedValue(
+            assocExtrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode));
 
-		if (confidentialityCodes == null || confidentialityCodes.Count == 0) return null;
+        if (confidentialityCodes == null || confidentialityCodes.Count == 0) return null;
 
-		var codings = confidentialityCodes
-			.Where(c => !string.IsNullOrWhiteSpace(c.Code))
-			.Select(c => new Coding
-			{
-				Code = c.Code,
-				System = string.IsNullOrWhiteSpace(c.CodeSystem) ? null : c.CodeSystem.WithUrnOid(),
-				Display = c.DisplayName
-			})
-			.DistinctBy(c => $"{c.System}|{c.Code}", StringComparer.OrdinalIgnoreCase)
-			.ToList();
+        var codings = confidentialityCodes
+            .Where(c => !string.IsNullOrWhiteSpace(c.Code))
+            .Select(c => new Coding
+            {
+                Code = c.Code,
+                System = string.IsNullOrWhiteSpace(c.CodeSystem) ? null : c.CodeSystem.WithUrnOid(),
+                Display = c.DisplayName
+            })
+            .DistinctBy(c => $"{c.System}|{c.Code}", StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
-		if (codings.Count == 0) return null;
+        if (codings.Count == 0) return null;
 
         var codeableConcepts = new List<CodeableConcept>();
 
@@ -507,9 +493,9 @@ public static class XdsOnFhirTransformer
             {
                 Coding = [coding]
             });
-		}
+        }
 
-        return codeableConcepts; 		
+        return codeableConcepts;
     }
 
     private static Practitioner? GetAuthenticatorFromExtrinsicObjectLegalAuthenticator(ExtrinsicObjectType assocExtrinsicObject)
@@ -542,7 +528,7 @@ public static class XdsOnFhirTransformer
         if (authorInstitutionValues != null && authorInstitutionValues.Count != 0)
         {
             authorInstitution = authorInstitutionValues
-                .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null || 
+                .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||
                                             authInst?.AssigningAuthority?.UniversalId == Constants.Oid.Brreg);
 
             authorDepartment = authorInstitutionValues
@@ -571,7 +557,7 @@ public static class XdsOnFhirTransformer
         {
             department.PartOf = new ResourceReference()
             {
-                Reference = $"#{organization.Id}"
+                Reference = $"#{organization?.Id}"
             };
             resourceList.Add(department);
         }
@@ -602,7 +588,7 @@ public static class XdsOnFhirTransformer
             organization.Name = authorInstitution?.OrganizationName;
             if (authorInstitution?.OrganizationIdentifier != null)
             {
-                organization.Identifier = [new() { Value = authorInstitution?.OrganizationIdentifier, System = authorInstitution?.AssigningAuthority?.UniversalId.WithUrnOid() }];
+                organization.Identifier = [new() { Value = authorInstitution?.OrganizationIdentifier, System = authorInstitution?.AssigningAuthority?.UniversalId?.WithUrnOid() }];
             }
         }
 
@@ -619,7 +605,7 @@ public static class XdsOnFhirTransformer
             department.Name = authorDepartment?.OrganizationName;
             if (authorDepartment?.OrganizationIdentifier != null)
             {
-                department.Identifier = [new() { Value = authorDepartment?.OrganizationIdentifier, System = authorDepartment?.AssigningAuthority?.UniversalId.WithUrnOid() }];
+                department.Identifier = [new() { Value = authorDepartment?.OrganizationIdentifier, System = authorDepartment?.AssigningAuthority?.UniversalId?.WithUrnOid() }];
             }
         }
 
@@ -643,7 +629,7 @@ public static class XdsOnFhirTransformer
                     new()
                     {
                         Code = authorRole.IdNumber,
-                        System = authorRole.AssigningAuthority ?.UniversalId.WithUrnOid()
+                        System = authorRole.AssigningAuthority ?.UniversalId?.WithUrnOid()
                     }
                 ]
             };
@@ -660,7 +646,7 @@ public static class XdsOnFhirTransformer
                     new()
                     {
                         Code = authorSpeciality.IdNumber,
-                        System = authorSpeciality.AssigningAuthority ?.UniversalId.WithUrnOid()
+                        System = authorSpeciality.AssigningAuthority ?.UniversalId?.WithUrnOid()
                     }
                 ]
             };
@@ -692,14 +678,22 @@ public static class XdsOnFhirTransformer
             practitioner.Name.Add(new() { Family = authorPerson.FamilyName, Given = [authorPerson.GivenName] });
             if (authorPerson.PersonIdentifier != null)
             {
-                practitioner.Identifier = [new() { Value = authorPerson.PersonIdentifier, System = authorPerson.AssigningAuthority?.UniversalId.WithUrnOid() }];
-            }   
+                practitioner.Identifier = [new() { Value = authorPerson.PersonIdentifier, System = authorPerson.AssigningAuthority?.UniversalId?.WithUrnOid() }];
+            }
         }
         // If its just a plain text name (authorPerson.PersonIdentifier will contain the name)
         else if (authorPerson != null && authorPerson.GivenName == null && authorPerson.FamilyName == null)
         {
             var nameParts = authorPerson.PersonIdentifier?.Split(" ");
-            practitioner.Name.Add(new() { Family = nameParts?.FirstOrDefault(), Given = nameParts?.Length > 1 ? nameParts.Skip(1) : null });
+
+            var name = new HumanName() { Family = nameParts?.FirstOrDefault()};
+            var lastName = nameParts?.Skip(1);
+
+            if (lastName?.Any() ?? false)
+            {
+                name.Given = lastName;
+            }
+            practitioner.Name.Add(name);
         }
 
         return practitioner;
@@ -732,7 +726,7 @@ public static class XdsOnFhirTransformer
         var patientIdCx = Hl7Object.Parse<CX>(sourcePatientId);
         if (patientIdCx != null)
         {
-            patient.Identifier = [new() { Value = patientIdCx.IdNumber, System = patientIdCx.AssigningAuthority?.UniversalId.WithUrnOid() }];
+            patient.Identifier = [new() { Value = patientIdCx.IdNumber, System = patientIdCx.AssigningAuthority?.UniversalId?.WithUrnOid() }];
         }
 
         // Patient Gender

@@ -82,7 +82,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
     public bool AddPolicy(PolicyDto? policyDto)
     {
-        if (policyDto == null) return false;
+        if (policyDto == null || string.IsNullOrWhiteSpace(policyDto.Id)) return false;
 
         var jsonPolicyDto = JsonSerializer.Serialize(policyDto, Constants.JsonDefaultOptions.DefaultSettings);
 
@@ -96,6 +96,8 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
     public bool DeletePolicy(string? id)
     {
+        if (string.IsNullOrWhiteSpace(id)) return false;
+
         var filePath = Path.Combine(_policyRepositoryPath, id);
 
         if (!File.Exists(filePath))

@@ -51,7 +51,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
         ApplicationConfig applicationConfig,
-        AtnaLogGeneratorService atnaLoggingService
+        AtnaLogGeneratorService atnaLoggingService,
+        FhirService fhirService
         )
     {
         _xdsRegistryService = xdsRegistryService;
@@ -62,6 +63,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _appConfig = applicationConfig;
         _atnaLoggingService = atnaLoggingService;
         _restfulRegistryService = restfulRegistryService;
+        _fhirService = fhirService;
     }
 
     [Consumes("application/fhir+json")]
@@ -212,7 +214,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"Completed action: ITI-68 in {requestTimer.ElapsedMilliseconds} ms with 0 errors");
 
 
-        var fileResponse = File(document, mimetype ?? registryObjectForDocument.MimeType);
+        var fileResponse = File(document, mimetype ?? registryObjectForDocument?.MimeType ?? "Unknown");
         fileResponse.FileDownloadName = $"{documentUniqueId}.{mimetype?.Split('/')[1] ?? registryObjectForDocument?.MimeType?.Split('/')[1]}";
 
         return fileResponse;
@@ -288,18 +290,18 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         }
 
         var patient = fhirBundle.Entry
-            .Where(e => e.Resource is Patient)
-            .Select(e => (Patient)e.Resource)
+            .Select(e => e.Resource)
+            .OfType<Patient>()
             .FirstOrDefault();
 
         var documentReferences = fhirBundle.Entry
-            .Where(e => e.Resource is DocumentReference)
-            .Select(e => (DocumentReference)e.Resource)
+            .Select(e => e.Resource)
+            .OfType<DocumentReference>()
             .ToList();
 
         var fhirBinaries = fhirBundle.Entry
-            .Where(e => e.Resource is Binary)
-            .Select(e => (Binary)e.Resource)
+            .Select(e => e.Resource)
+            .OfType<Binary>()
             .ToList();
 
         var submissionSetList = fhirBundle.Entry
@@ -345,10 +347,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             Diagnostics = $"Patient not found in DocumentReference"
         });
 
-        var identifier = patient.Identifier.First();
+        var identifier = patient?.Identifier.First();
 
-        var patientIdCodeSystem = identifier.System?.NoUrn();
-        var patientIdentifier = identifier.Value;
+        var patientIdCodeSystem = identifier?.System?.NoUrn();
 
         var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
         var extResReference = sourceIdIdentifier!.Value as Identifier; // Changed from reference to identifier
@@ -383,7 +384,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 Diagnostics = "Missing DocumentReference.content.attachment.extension[homeCommunityId]"
             });
         }
-
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...");
         var provideAndRegisterResult = FhirXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
