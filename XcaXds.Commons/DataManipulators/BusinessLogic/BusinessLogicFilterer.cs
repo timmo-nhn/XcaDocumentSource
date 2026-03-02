@@ -2,12 +2,12 @@
 using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs (XACML). Allows for partial filtering of the document list
 /// </summary>
-public static class BusinessLogicFilteringService
+public static class BusinessLogicFilterer
 {
     public static List<BusinessLogicRule> BusinessLogicRules = new List<BusinessLogicRule>()
     {

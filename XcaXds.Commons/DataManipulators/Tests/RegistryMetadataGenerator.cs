@@ -3,7 +3,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 
-namespace XcaXds.Commons.DataManipulators;
+namespace XcaXds.Commons.DataManipulators.Tests;
 
 public static class RegistryMetadataGenerator
 {

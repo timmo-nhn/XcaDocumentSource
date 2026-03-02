@@ -3,7 +3,7 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.WebService.Services;
 

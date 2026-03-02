@@ -1,14 +1,16 @@
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Hl7.Fhir.Utility;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
-using XcaXds.WebService.Services;
+using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
@@ -56,5 +58,22 @@ public class UnitTests_Fhir
         {
             var jsonOutput = fhirJsonSerializer.SerializeToString(bundle);
         }
+    }
+
+    [Fact]
+    public async Task FhirPath_Testing()
+    {
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
+
+        var fhirjsonDeserializer = new FhirJsonDeserializer();
+
+        var bundle = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle);
+
+        var validationResult = FhirResourceValidator.ValidateFhirResource(bundle);
     }
 }

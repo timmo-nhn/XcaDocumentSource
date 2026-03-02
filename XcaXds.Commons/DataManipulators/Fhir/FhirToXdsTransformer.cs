@@ -9,7 +9,7 @@ using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using static XcaXds.Commons.Commons.Constants;
 
-namespace XcaXds.Commons.DataManipulators;
+namespace XcaXds.Commons.DataManipulators.Fhir;
 
 /// <summary>
 /// Transforms between FHIR resources (specifically DocumentReference and related resources) and 

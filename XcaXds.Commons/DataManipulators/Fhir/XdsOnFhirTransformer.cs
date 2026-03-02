@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Text;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -10,7 +10,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.Commons.DataManipulators.Fhir;
 
 /// <summary>
 /// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) profile <para/>

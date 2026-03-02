@@ -150,15 +150,18 @@ public static class PolicyRequestMapperSaml
     }
 
 
-    public static Issuer GetIssuerEnumFromSamlTokenIssuer(string value)
+    public static Issuer GetIssuerEnumFromSamlTokenIssuer(string? value)
     {
-        if (value.Contains("helseid"))
+        if (!string.IsNullOrWhiteSpace(value))
         {
-            return Issuer.HelseId;
-        }
-        if (value.Contains("helsenorge"))
-        {
-            return Issuer.Helsenorge;
+            if (value.Contains("helseid"))
+            {
+                return Issuer.HelseId;
+            }
+            if (value.Contains("helsenorge"))
+            {
+                return Issuer.Helsenorge;
+            }
         }
         return Issuer.Unknown;
     }

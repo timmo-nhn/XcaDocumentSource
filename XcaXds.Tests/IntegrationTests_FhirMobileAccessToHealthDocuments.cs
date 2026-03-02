@@ -67,7 +67,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var expectedCount = registryContentCount - 3;
         
         Assert.Equal(expectedCount, currentCount);
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+
+        await WaitForAtnaLogToBeExported();
+
         _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
     }
 
@@ -122,14 +124,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        // Audit is generated via background service; allow a brief window for the queue to be drained.
-        var timeoutAt = DateTime.UtcNow.AddSeconds(2);
-        while (!_atnaLogExportedChecker.AtnaLogExported && DateTime.UtcNow < timeoutAt)
-        {
-            await Task.Delay(50);
-        }
-
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
         _output.WriteLine("PatchDocumentSecurityLabel_ExportsAtnaLog: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
     }
 
@@ -172,6 +167,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        await WaitForAtnaLogToBeExported();
+
         _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
     }
 
@@ -214,7 +212,21 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        await WaitForAtnaLogToBeExported();
         _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    private async Task WaitForAtnaLogToBeExported()
+    {
+        // Audit is generated via background service; allow a brief window for the queue to be drained.
+        var timeoutAt = DateTime.UtcNow.AddSeconds(2);
+        while (!_atnaLogExportedChecker.AtnaLogExported && DateTime.UtcNow < timeoutAt)
+        {
+            await Task.Delay(50);
+        }
+
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
     }
 
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
@@ -241,8 +253,4 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.Empty(_registry.ReadRegistry());
     }
 }
-
-
-
-
 #pragma warning restore CS8604, CS8602 // Possible null reference argument.

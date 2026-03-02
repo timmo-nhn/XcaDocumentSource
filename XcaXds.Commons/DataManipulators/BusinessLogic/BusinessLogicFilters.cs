@@ -2,13 +2,15 @@
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.ConfidentialityCode;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.OtherIsoDerived.PurposeOfUse;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Volven.ConfidentialityCode;
+using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.BusinessLogic;
 
-namespace XcaXds.Commons.Models.Custom.BusinessLogic;
+namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
 public static class BusinessLogicFilters
 {
@@ -24,15 +26,15 @@ public static class BusinessLogicFilters
 
     public static readonly HashSet<(string?, string?)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(value =>
         value.CodeSystem != null &&
-        value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
+        value.CodeSystem.IsAnyOf(Hl7ConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(NORN_FFL))
+        value.Code.IsAnyOf(VeryRestricted))
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToHashSet();
 
     public static readonly HashSet<(string?, string?)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes!.Where(value =>
         value.CodeSystem != null &&
-        value.CodeSystem.IsAnyOf(Hl7ConfCodeOid, VolvenConfCodeOid) &&
+        value.CodeSystem.IsAnyOf(VolvenConfCodeOid) &&
         value.Code != null &&
         value.Code.IsAnyOf(NORS))
         .Select(h => (Code: h.Code, System: h.CodeSystem))

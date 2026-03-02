@@ -13,6 +13,7 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 using System.Configuration;
+using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.WebService.Services;
 
@@ -31,7 +32,7 @@ public class AtnaLogGeneratorService
         _registryWrapper = registryWrapper;
     }
 
-    public void CreateAuditLogForSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
+    public void CreateAuditLogForSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
     {
         try
         {
@@ -256,25 +257,25 @@ public class AtnaLogGeneratorService
         throw new NotImplementedException();
     }
 
-    private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
+    private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
     {
         var auditEvent = new AuditEvent();
         auditEvent.Id = Guid.NewGuid().ToString();
 
         var samlAssertionXml = requestEnvelope?.Header?.Security?.Assertion?.OuterXml;
         Saml2SecurityToken? samlToken = null;
-        List<Saml2Attribute> statements = new();
+        List<Saml2Attribute>? statements = new();
         Issuer? issuer = null;
 
         if (!string.IsNullOrWhiteSpace(samlAssertionXml))
         {
             samlToken = PolicyRequestMapperSaml.ReadSamlToken(samlAssertionXml);
-            statements = samlToken.Assertion.Statements
+            statements = samlToken?.Assertion.Statements
                 .OfType<Saml2AttributeStatement>()
                 .SelectMany(statement => statement.Attributes)
                 .ToList();
 
-            issuer = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken.Issuer);
+            issuer = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Issuer);
         }
 
         auditEvent.Meta = new Meta()
@@ -292,12 +293,12 @@ public class AtnaLogGeneratorService
 
         auditEvent.Entity.Add(new AuditEvent.EntityComponent()
         {
-            What = new ResourceReference(requestEnvelope.Header.MessageId, "SOAP message ID"),
+            What = new ResourceReference(requestEnvelope?.Header.MessageId, "SOAP message ID"),
         });
 
         if (samlToken != null)
         {
-            var subjectNameRaw = statements
+            var subjectNameRaw = statements?
                 .FirstOrDefault(s => s.Name == Constants.Saml.Attribute.SubjectId)
                 ?.Values
                 .FirstOrDefault();
@@ -305,7 +306,7 @@ public class AtnaLogGeneratorService
             var subjectNameCoded = SamlExtensions.GetSamlAttributeValueAsCodedValue(subjectNameRaw);
             var subjectDisplayName = string.IsNullOrWhiteSpace(subjectNameCoded?.Code) ? null : subjectNameCoded.Code;
 
-            var providerIdentifierValue = statements
+            var providerIdentifierValue = statements?
                 .FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)
                 ?.Values
                 .FirstOrDefault();
@@ -315,13 +316,13 @@ public class AtnaLogGeneratorService
             var hasSubject = !string.IsNullOrWhiteSpace(subjectDisplayName)
                 || (!string.IsNullOrWhiteSpace(providerIdentifierCoded?.Code) || !string.IsNullOrWhiteSpace(providerIdentifierCoded?.CodeSystem));
 
-            var patientResourceId = statements
+            var patientResourceId = statements?
                 .FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ResourceId20)
                 ?.Values
                 .FirstOrDefault();
 
             // is_provide_bundle, patient_given and patient_family are custom attributes added only by FhirMobileAccessToHealthDocumentsController.ProvideBundle method
-            var isProvideBundle = statements
+            var isProvideBundle = statements?
                 .FirstOrDefault(s => s.Name == "is_provide_bundle")
                 ?.Values
                 .FirstOrDefault() == "true";
@@ -331,12 +332,12 @@ public class AtnaLogGeneratorService
 
             if (isProvideBundle)
             {
-                patientGiven = statements
+                patientGiven = statements?
                     .FirstOrDefault(s => s.Name == "patient_given")
                     ?.Values
                     .FirstOrDefault();
 
-                patientFamily = statements
+                patientFamily = statements?
                     .FirstOrDefault(s => s.Name == "patient_family")
                     ?.Values
                     .FirstOrDefault();
@@ -738,8 +739,10 @@ public class AtnaLogGeneratorService
     /// <summary>
     /// Get the patient identifier related to the registry objects being queried or stored
     /// </summary>
-    private CX?[] GetRegistryPatientIdentifierForRequest(SoapEnvelope requestEnvelope)
+    private CX?[] GetRegistryPatientIdentifierForRequest(SoapEnvelope? requestEnvelope)
     {
+        if (requestEnvelope == null) return [];
+        
         // ITI-38 or ITI-18 AdhocQuery FindDocuments 
         var requestPatientIdentifier = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery
             .GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();

@@ -16,7 +16,7 @@ namespace XcaXds.Commons.DataManipulators;
 /// </summary>
 public class AtnaLogEnricher
 {
-    public static SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle? fhirBundle, List<RegistryErrorType>? errors, IdentifiableType[] registryObjects)
+    public static SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle? fhirBundle, List<RegistryErrorType>? errors, IdentifiableType[]? registryObjects)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {

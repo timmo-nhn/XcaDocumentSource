@@ -6,6 +6,7 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 using XcaXds.Tests.Helpers;
+using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.Tests;
 

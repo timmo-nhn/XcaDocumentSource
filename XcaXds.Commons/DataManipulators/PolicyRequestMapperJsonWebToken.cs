@@ -76,13 +76,13 @@ public class PolicyRequestMapperJsonWebToken
         if (urlPath?.Equals("R4/fhir/DocumentReference/_search", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
             return Constants.Xacml.Actions.ReadDocumentList;
 
-        if (urlPath?.Equals("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "GET")
+        if (urlPath?.StartsWith("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "GET")
             return Constants.Xacml.Actions.ReadDocumentList;
 
-        if (urlPath?.Equals("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
+        if (urlPath?.StartsWith("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
             return Constants.Xacml.Actions.Update;
 
-        if (urlPath?.Equals("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "DELETE")
+        if (urlPath?.StartsWith("R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "DELETE")
             return Constants.Xacml.Actions.Delete;
 
         return Constants.Xacml.Actions.Create;

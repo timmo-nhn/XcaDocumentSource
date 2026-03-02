@@ -2,10 +2,11 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.DataManipulators;
 
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
 using XcaXds.WebService.Services;
+using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 
 namespace XcaXds.Tests;
 

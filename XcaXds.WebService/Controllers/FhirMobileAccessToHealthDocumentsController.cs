@@ -10,6 +10,7 @@ using System.Web;
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -39,9 +40,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly ApplicationConfig _appConfig;
     private readonly AtnaLogGeneratorService _atnaLoggingService;
 
-
-    private const string HomeCommunityIdUrl_IheProfiles = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
-    private const string HomeCommunityIdUrl_IheLegacy = "http://ihe.net/fhir/StructureDefinition/homeCommunityId";
 
     public FhirMobileAccessToHealthDocumentsController(
         ILogger<FhirMobileAccessToHealthDocumentsController> logger,
@@ -271,11 +269,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     //[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
-    [HttpPost("Bundle/{operation?}")]
-    public async Task<IActionResult> ProvideBundle([FromRoute] string? operation, [FromBody] JsonElement json)
+    [HttpPost("Bundle")]
+    public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
     {
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: ITI-65 ProvideBundle from {Request.HttpContext.Connection.RemoteIpAddress}");
-        var operationOutcome = new OperationOutcome();
 
         var fhirJsonDeserializer = new FhirJsonDeserializer();
 
@@ -289,161 +286,63 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 OperationOutcome.IssueSeverity.Fatal));
         }
 
-        var patient = fhirBundle.Entry
-            .Select(e => e.Resource)
-            .OfType<Patient>()
-            .FirstOrDefault();
+        // Provide bundle
+        var provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier);
 
-        var documentReferences = fhirBundle.Entry
-            .Select(e => e.Resource)
-            .OfType<DocumentReference>()
-            .ToList();
+        // Atna log generation
+        var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
 
-        var fhirBinaries = fhirBundle.Entry
-            .Select(e => e.Resource)
-            .OfType<Binary>()
-            .ToList();
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded {fhirBundle.Entry.Count} Entries");
 
-        var submissionSetList = fhirBundle.Entry
-            .Select(e => e.Resource)
-            .OfType<List>()
-            .FirstOrDefault();
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request...");
 
-        //if (submissionSetList == null) return BadRequest(OperationOutcome.ForMessage($"List element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
+            AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(
+                jwtToken,
+                fhirBundle,
+                provideBundleResult.Errors,
+                provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
+            provideBundleResult.RegistryResponse);
 
-        //if (documentReferences.Count == 0) return BadRequest(OperationOutcome.ForMessage($"DocumentReference element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-
-        //if (fhirBinaries.Count == 0) return BadRequest(OperationOutcome.ForMessage($"Binary element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-
-        //if (patient == null) return BadRequest(OperationOutcome.ForMessage($"Patient not found in DocumentReference", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-
-        if (submissionSetList == null) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+        if (provideBundleResult.Outcome.Issue.Any())
         {
-            Severity = OperationOutcome.IssueSeverity.Fatal,
-            Code = OperationOutcome.IssueType.Invalid,
-            Diagnostics = $"List element is missing or malformed"
-        });
-
-        if (documentReferences.Count == 0) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
-        {
-            Severity = OperationOutcome.IssueSeverity.Fatal,
-            Code = OperationOutcome.IssueType.Invalid,
-            Diagnostics = $"DocumentReference element is missing or malformed"
-
-        });
-
-        if (fhirBinaries.Count == 0) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
-        {
-            Severity = OperationOutcome.IssueSeverity.Fatal,
-            Code = OperationOutcome.IssueType.Invalid,
-            Diagnostics = $"Binary element is missing or malformed"
-
-        });
-
-        if (patient == null) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
-        {
-            Severity = OperationOutcome.IssueSeverity.Fatal,
-            Code = OperationOutcome.IssueType.Invalid,
-            Diagnostics = $"Patient not found in DocumentReference"
-        });
-
-        var identifier = patient?.Identifier.First();
-
-        var patientIdCodeSystem = identifier?.System?.NoUrn();
-
-        var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
-        var extResReference = sourceIdIdentifier!.Value as Identifier; // Changed from reference to identifier
-        var sourceId = extResReference?.Value?.Replace("urn:oid:", "");
-        //var sourceId = sourceIdIdentifier?.ElementId;
-
-        if (string.IsNullOrEmpty(sourceId))
-        {
-            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
-            {
-                Severity = OperationOutcome.IssueSeverity.Fatal,
-                Code = OperationOutcome.IssueType.Invalid,
-                Diagnostics = "Missing List.extension[ihe-sourceId]"
-            });
+            var fhirSerializer = new FhirJsonSerializer();
+            return new CustomContentResult(fhirSerializer.SerializeToString(provideBundleResult.Outcome), StatusCodes.Status400BadRequest, Constants.MimeTypes.FhirJson);
         }
 
-        var firstDocumentReference = documentReferences.First();
-        var attachment = firstDocumentReference!.Content.FirstOrDefault()?.Attachment;
-        var allAttachments = documentReferences.SelectMany(dr => dr!.Content).Select(c => c.Attachment).ToList();
+        var transactionBundle = CreateFhirTransactionResponseBundle(fhirBundle);
 
-        var homeCommunityIdExtension = attachment.GetExtension(HomeCommunityIdUrl_IheProfiles) ??
-           attachment.GetExtension(HomeCommunityIdUrl_IheLegacy);
+        var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
+        var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
 
-        var homeCommunityId = homeCommunityIdExtension?.Value?.ToString();
+        return Content(jsonResult, Constants.MimeTypes.FhirJson);
+    }
 
-        if (string.IsNullOrEmpty(homeCommunityId))
+
+    // Validate Endpoint
+    [Consumes("application/fhir+json", "application/fhir+xml")]
+    [Produces("application/fhir+json", "application/fhir+xml")]
+    [HttpPost("{resource}/$validate")]
+    public async Task<IActionResult> ProvideBundle([FromRoute] string? resource, [FromBody] JsonElement json)
+    {
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received $validate request for ResourceType {resource} from {Request.HttpContext.Connection.RemoteIpAddress}");
+
+        var fhirJsonDeserializer = new FhirJsonDeserializer();
+
+        var fhirParser = new FhirJsonDeserializer();
+        var fhirResource = fhirParser.DeserializeResource(json.GetRawText());
+
+        if (fhirResource is not Bundle fhirBundle)
         {
-            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Fatal,
-                Code = OperationOutcome.IssueType.Invalid,
-                Diagnostics = "Missing DocumentReference.content.attachment.extension[homeCommunityId]"
-            });
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Endpoint only supports validating FHIR bundles for now",
+                OperationOutcome.IssueType.Invalid,
+                OperationOutcome.IssueSeverity.Fatal));
         }
 
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = FhirToXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+        // Validate bundle
+        var provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, validateOnly: true);
 
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
-
-        var provideAndRegisterRequest = provideAndRegisterResult.Value?.ProvideAndRegisterDocumentSetRequest;
-
-        if (provideAndRegisterResult.Success == false && provideAndRegisterResult.OperationOutcome != null && provideAndRegisterRequest != null)
-        {
-            operationOutcome.Issue.AddRange(provideAndRegisterResult.OperationOutcome.Issue);
-        }
-
-        var submittedDocumentsTooLarge = _xdsRepositoryService.CheckIfDocumentsAreTooLarge(provideAndRegisterRequest);
-
-        var iti42SoapEnvelope = _xdsRegistryService.CopyIti41ToIti42Message(provideAndRegisterRequest);
-
-        var repositoryDocumentExists = _xdsRepositoryService.CheckIfDocumentExistsInRepository(provideAndRegisterRequest);
-
-        SoapRequestResult<SoapEnvelope>? registerDocumentSetResponse = null;
-        SoapRequestResult<SoapEnvelope>? documentUploadResponse = null;
-        
-        var validationResult = FhirResourceValidator.ValidateFhirResource(fhirBundle);
-
-        // If operation is $validate, we only want to validate the request without actually registering/uploading the documents.
-        // https://build.fhir.org/resource-operation-validate.html
-        if (operation != "$validate")
-        {
-            registerDocumentSetResponse = _xdsRegistryService.AppendToRegistry(iti42SoapEnvelope.Value);
-            documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
-        }
-
-
-        var errors = new List<RegistryErrorType>();
-        errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-        errors.AddRange(iti42SoapEnvelope.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-        errors.AddRange(repositoryDocumentExists.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-
-        if (registerDocumentSetResponse != null && documentUploadResponse != null)
-        {
-            errors.AddRange(registerDocumentSetResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-            errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-        }
-
-        var fhirSerializer = new FhirJsonSerializer();
-
-        if (errors.Count > 0)
-        {
-            foreach (var error in errors)
-            {
-                _logger.LogError($"{HttpContext.TraceIdentifier}Error while converting to Bundle\n\tError: {error.ErrorCode}\n\tErrorCode: {error.CodeContext}");
-
-                operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.Value,
-                    Diagnostics = $"{error.ErrorCode}: {error.CodeContext}"
-                });
-            }
-        }
+        //var validationResult = FhirResourceValidator.ValidateFhirResource(fhirBundle);
 
         // Atna log generation
         var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
@@ -452,13 +351,26 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
 
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(jwtToken, fhirBundle, errors, provideAndRegisterRequest.SubmitObjectsRequest.RegistryObjectList), registerDocumentSetResponse.Value);
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
+            AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(
+                jwtToken,
+                fhirBundle,
+                provideBundleResult.Errors,
+                provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
+            provideBundleResult.RegistryResponse);
 
-        if (operationOutcome.Issue.Any())
-        {
-            return new CustomContentResult(fhirSerializer.SerializeToString(operationOutcome), StatusCodes.Status400BadRequest, Constants.MimeTypes.FhirJson);
-        }
+        var fhirSerializer = new FhirJsonSerializer();
 
+        var anyErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
+        
+        return new CustomContentResult(
+            fhirSerializer.SerializeToString(provideBundleResult.Outcome),
+            anyErrors ? StatusCodes.Status400BadRequest : StatusCodes.Status200OK, 
+            Constants.MimeTypes.FhirJson);
+    }
+
+    private Bundle CreateFhirTransactionResponseBundle(Bundle fhirBundle)
+    {
         // --- MHD ProvideDocumentBundleResponse (Bundle type = transaction-response) ---
         var selfUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
 
@@ -486,6 +398,11 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         // One entry in the response for each entry in the request, in the same order
         var now = DateTimeOffset.UtcNow;
 
+        var documentReferences = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<DocumentReference>()
+            .ToList();
+
         foreach (var entry in documentReferences)
         {
             var resourceId = entry?.Id;
@@ -508,16 +425,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                     LastModified = now
                 }
             });
-
         }
 
-        string jsonResult;
-
-        var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
-
-        jsonResult = JsonSerializer.Serialize(responseBundle, options);
-
-        return Content(jsonResult, "application/json");
+        return responseBundle;
     }
 
     [Consumes("application/fhir+json")]

@@ -7,7 +7,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 
-namespace XcaXds.Commons.DataManipulators;
+namespace XcaXds.Commons.DataManipulators.Tests;
 
 public static class RegistryMetadataTransformer
 {

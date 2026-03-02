@@ -4,14 +4,13 @@ using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -727,7 +726,6 @@ public static class Commons
         switch (classification.ClassificationScheme)
         {
             case Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode:
-            case Constants.Xds.Uuids.DocumentEntry.ClassCode:
             case Constants.Xds.Uuids.DocumentEntry.TypeCode:
             case Constants.Xds.Uuids.DocumentEntry.Author:
                 classification.ClassifiedObject = Guid.Empty.ToString();
@@ -743,6 +741,7 @@ public static class Commons
                 }
                 break;
 
+            case Constants.Xds.Uuids.DocumentEntry.ClassCode:
             default:
 
                 break;
