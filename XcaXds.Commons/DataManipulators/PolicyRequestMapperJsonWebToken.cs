@@ -39,15 +39,18 @@ public class PolicyRequestMapperJsonWebToken
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
         var actionAttribute = new XacmlContextAttribute(
-            new Uri(Constants.Xacml.Attribute.ActionId), new Uri(Constants.Xacml.DataType.String), new XacmlContextAttributeValue() { Value = action });
+            new Uri(Constants.Xacml.Attribute.ActionId), 
+            new Uri(Constants.Xacml.DataType.String), 
+            new XacmlContextAttributeValue() { Value = action });
 
         var xacmlAction = new XacmlContextAction(actionAttribute);
 
         // Subject
         var subjectAttributes = samlAttributes
-            .Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) &&
-                                                      (sa.AttributeId.OriginalString.Contains("subject") ||
-                                                       sa.AttributeId.OriginalString.Contains("acp"))).ToList();
+            .Where(sa => sa.AttributeValues.All(av => 
+                !string.IsNullOrWhiteSpace(av.Value)) &&
+                (sa.AttributeId.OriginalString.Contains("subject") ||
+                sa.AttributeId.OriginalString.Contains("acp"))).ToList();
 
         var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 

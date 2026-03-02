@@ -3,7 +3,7 @@
     "helseId",
     "helsenorge"
   ],
-  "id": "DEFAULT_machine_deletedocuments",
+  "id": "DEFAULT_machine_patchdocumentreference",
   "rules": [
     [
       {
@@ -15,7 +15,7 @@
     ]
   ],
   "actions": [
-    "Delete"
+    "Update"
   ],
   "effect": "Permit"
 }

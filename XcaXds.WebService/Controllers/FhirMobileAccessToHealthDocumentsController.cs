@@ -271,8 +271,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     //[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
-    [HttpPost("Bundle")]
-    public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
+    [HttpPost("Bundle/{operation?}")]
+    public async Task<IActionResult> ProvideBundle([FromRoute] string? operation, [FromBody] JsonElement json)
     {
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: ITI-65 ProvideBundle from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
@@ -386,7 +386,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         }
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = FhirXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+        var provideAndRegisterResult = FhirToXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 
@@ -399,20 +399,35 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var submittedDocumentsTooLarge = _xdsRepositoryService.CheckIfDocumentsAreTooLarge(provideAndRegisterRequest);
 
-        var iti42Message = _xdsRegistryService.CopyIti41ToIti42Message(provideAndRegisterRequest);
+        var iti42SoapEnvelope = _xdsRegistryService.CopyIti41ToIti42Message(provideAndRegisterRequest);
 
         var repositoryDocumentExists = _xdsRepositoryService.CheckIfDocumentExistsInRepository(provideAndRegisterRequest);
 
-        var registerDocumentSetResponse = _xdsRegistryService.AppendToRegistry(iti42Message.Value);
+        SoapRequestResult<SoapEnvelope>? registerDocumentSetResponse = null;
+        SoapRequestResult<SoapEnvelope>? documentUploadResponse = null;
+        OperationOutcome? validationOutput = null;
 
-        var documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
+        FhirResourceValidator.
+
+        // If operation is $validate, we only want to validate the request without actually registering/uploading the documents.
+        // https://build.fhir.org/resource-operation-validate.html
+        if (operation != "$validate")
+        {
+            registerDocumentSetResponse = _xdsRegistryService.AppendToRegistry(iti42SoapEnvelope.Value);
+            documentUploadResponse = _xdsRepositoryService.UploadContentToRepository(provideAndRegisterRequest);
+        }
+
 
         var errors = new List<RegistryErrorType>();
         errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-        errors.AddRange(iti42Message.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        errors.AddRange(iti42SoapEnvelope.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
         errors.AddRange(repositoryDocumentExists.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-        errors.AddRange(registerDocumentSetResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
-        errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+
+        if (registerDocumentSetResponse != null && documentUploadResponse != null)
+        {
+            errors.AddRange(registerDocumentSetResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+            errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        }
 
         var fhirSerializer = new FhirJsonSerializer();
 

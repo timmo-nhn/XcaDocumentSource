@@ -54,7 +54,7 @@ public static class PolicyRequestMapperSaml
         }
 
         var samltokenAuthorizationAttributes = statements?
-            .Where(att => 
+            .Where(att =>
                  att.Name.Contains("xacml") ||
                  att.Name.Contains("xspa") ||
                  att.Name.Contains("SecurityLevel") ||
@@ -92,11 +92,11 @@ public static class PolicyRequestMapperSaml
 
                 // Subject
                 var subjectAttributes = samlAttributes
-                    .Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) && 
-                                (sa.AttributeId.OriginalString.Contains("subject") || 
+                    .Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) &&
+                                (sa.AttributeId.OriginalString.Contains("subject") ||
                                  sa.AttributeId.OriginalString.Contains("acp")))
                     .ToList();
-                
+
                 subjectAttributes.AddRange(requestAttributes);
                 var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 
@@ -416,14 +416,14 @@ public static class PolicyRequestMapperSaml
 
                 if (!Uri.IsWellFormedUriString(attribute.Name, UriKind.Absolute))
                 {
-					// Skip the following from HelseID user tokens: 
-					//  - name
-					//  - family_name
-					//  - given_name
+                    // Skip the following from HelseID user tokens: 
+                    //  - name
+                    //  - family_name
+                    //  - given_name
 
-					// and potentially others that are not in URI format, as XACML 2.0 requires AttributeIds to be URIs.
+                    // and potentially others that are not in URI format, as XACML 2.0 requires AttributeIds to be URIs.
 
-					continue; 
+                    continue;
                 }
 
                 // If its structured codedvalue format or just plain text
@@ -431,11 +431,19 @@ public static class PolicyRequestMapperSaml
                     string.IsNullOrWhiteSpace(attributeValueAsCodedValue.CodeSystem) &&
                     string.IsNullOrWhiteSpace(attributeValueAsCodedValue.DisplayName))
                 {
-                    subjectAttributes.Add(
-                        new XacmlContextAttribute(
-                            new Uri(attribute.Name),
-                            new Uri(Constants.Xacml.DataType.String),
-                            new XacmlContextAttributeValue() { Value = attributeValueAsCodedValue.Code }));
+                    var attributeValuesToAdd = attributeValueAsCodedValue.Code.Split(",");
+
+                    var attributeValues = new List<XacmlContextAttributeValue>();
+
+                    foreach (var otherAttributeValues in attributeValuesToAdd)
+                    {
+                        attributeValues.Add(new XacmlContextAttributeValue() { Value = otherAttributeValues });
+                    }
+
+                    subjectAttributes.Add(new XacmlContextAttribute(
+                        new Uri(attribute.Name),
+                        new Uri(Constants.Xacml.DataType.String),
+                        attributeValues));
                 }
                 else
                 {
@@ -480,7 +488,7 @@ public static class PolicyRequestMapperSaml
                 new XacmlContextAttributeValue() { Value = Constants.Oid.Saml.Acp.NullValue }));
         }
 
-        return [.. subjectAttributes.DistinctBy(att => new {att.AttributeId, AttributeValues = string.Join(", ", att.AttributeValues)})];
+        return [.. subjectAttributes.DistinctBy(att => new { att.AttributeId, AttributeValues = string.Join(", ", att.AttributeValues) })];
     }
 
 

@@ -287,24 +287,20 @@ public class XdsRepositoryService
 
         var confCodes = extrinsicObject?.ConfidentialityCode;
 
-        // Dont obscure in emergency situations
-        if (!string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == false) 
+        bool restricted = requestAppliesTo switch
         {
-            if (requestAppliesTo == Issuer.HelseId)
-            {
-                if (!confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate
-                    .Contains((ccode.Code, ccode.CodeSystem))) ?? false)
-                    return false;
-            }
-            if (requestAppliesTo == Issuer.Helsenorge)
-            {
-                if (!confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate
-                    .Contains((ccode.Code, ccode.CodeSystem))) ?? false)
-                    return false;
-            }
+            Issuer.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))) ?? false,
+            Issuer.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))) ?? false,
+            _ => false
+        };
+
+        // Dont obscure in emergency situations
+        if (restricted && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
+        {
+            restricted = false;
         }
 
-        return true;
+        return restricted;
     }
 
     public SoapRequestResult<SoapEnvelope> RemoveDocuments(SoapEnvelope soapEnvelope)

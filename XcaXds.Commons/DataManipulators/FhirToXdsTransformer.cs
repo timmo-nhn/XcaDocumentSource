@@ -11,7 +11,12 @@ using static XcaXds.Commons.Commons.Constants;
 
 namespace XcaXds.Commons.DataManipulators;
 
-public static class FhirXdsTransformer
+/// <summary>
+/// Transforms between FHIR resources (specifically DocumentReference and related resources) and 
+/// XDS registry objects (ExtrinsicObject, RegistryPackage, Association) 
+/// For now it supports only one-directional transformation (FHIR -> XDS)
+/// </summary>
+public static class FhirToXdsTransformer
 {
     public static List<RegistryObjectDto> TransformFhirResourceToRegistryObjectDto(Bundle.EntryComponent bundleEntry)
     {

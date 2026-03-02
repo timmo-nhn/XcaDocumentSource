@@ -13,7 +13,7 @@ using XcaXds.Commons.Serializers;
 namespace XcaXds.WebService.Services;
 
 /// <summary>
-/// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) - integration of the solution <para/>
+/// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) profile <para/>
 /// <a href="https://profiles.ihe.net/ITI/MHD/"/>
 /// </summary>
 public static class XdsOnFhirTransformer
