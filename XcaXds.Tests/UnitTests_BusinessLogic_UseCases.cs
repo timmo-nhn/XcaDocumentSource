@@ -3,7 +3,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 using XcaXds.WebService.Services;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
@@ -25,7 +25,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId),
             Resource = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
@@ -49,7 +49,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId12To16Years),
             Resource = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
@@ -72,7 +72,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId16To18Years),
             Resource = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
@@ -96,7 +96,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
-            Purpose = new() { Code = FAMRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = FAMRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resourceBelow12Years, CodeSystem = Constants.Oid.Fnr },
@@ -120,7 +120,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.RepresentAnotherCitizen,
-            Purpose = new() { Code = PWATRNY, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = PWATRNY, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
@@ -144,7 +144,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
@@ -167,7 +167,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = TREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = TREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
@@ -191,7 +191,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = TREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = TREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
@@ -215,7 +215,7 @@ public class UnitTests_BusinessLogic_UseCases
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = ETREAT, CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = ETREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
@@ -240,7 +240,7 @@ public class UnitTests_BusinessLogic_UseCases
         {
             Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
@@ -265,7 +265,7 @@ public class UnitTests_BusinessLogic_UseCases
         {
             Issuer = Issuer.Helsenorge,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
@@ -286,12 +286,12 @@ public class UnitTests_BusinessLogic_UseCases
             [
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = "othercodethatshouldntaffectlogic"
                 }
             ],
@@ -303,17 +303,17 @@ public class UnitTests_BusinessLogic_UseCases
             [
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Restricted
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Restricted
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 
@@ -326,22 +326,22 @@ public class UnitTests_BusinessLogic_UseCases
             [
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Restricted
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Restricted
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.VeryRestricted
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.VeryRestricted
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 

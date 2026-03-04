@@ -10,7 +10,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.WebService.Services;
 

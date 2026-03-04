@@ -2,10 +2,10 @@
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.ConfidentialityCode;
-using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
-using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.OtherIsoDerived.PurposeOfUse;
-using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Volven.ConfidentialityCode;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.Volven.ConfidentialityCode;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
@@ -14,11 +14,11 @@ namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
 public static class BusinessLogicFilters
 {
-    public static readonly Dictionary<string, string> Hl7ConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.Oid.CodeSystems.Hl7.ConfidentialityCode));
+    public static readonly Dictionary<string, string> Hl7ConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Hl7.ConfidentialityCode));
     public static readonly string? Hl7ConfCodeOid = Hl7ConfCodeClass.Where(kvp => string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
     public static readonly CodedValue[]? Hl7ConfCodeValues = Hl7ConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = Hl7ConfCodeOid }).ToArray();
 
-    public static readonly Dictionary<string, string> VolvenConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.Oid.CodeSystems.Volven.ConfidentialityCode));
+    public static readonly Dictionary<string, string> VolvenConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Volven.ConfidentialityCode));
     public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
     public static readonly CodedValue[]? VolvenConfCodeValues = VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "Oid", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid }).ToArray();
 

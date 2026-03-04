@@ -4,8 +4,10 @@ using Hl7.Fhir.Model;
 using Hl7.Fhir.Support;
 using Hl7.FhirPath;
 using Microsoft.Extensions.Logging;
+using System.Reflection.Metadata;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
 
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
@@ -31,6 +33,7 @@ public class FhirResourceValidatorService
 
     private static readonly HashSet<string> AllowedPractitionerOids =
     [
+        Constants.Oid.Fnr,
         Constants.Oid.Hpr,
     ];
 
@@ -40,6 +43,13 @@ public class FhirResourceValidatorService
         Constants.Oid.Dnr,
         Constants.Oid.Hnr
     ];
+
+    private static readonly HashSet<string> AllowedFacilityTypes =
+    [
+        Constants.CodeSystems.Volven.FacilityType
+    ];
+
+    private static readonly HashSet<KeyValueEntry> AllowedConfidentialityCodes = ConstantsExtensions.GetAsKeyValuePair(typeof(Constants.CodeSystems.Volven.ConfidentialityCode)).ToHashSet();
 
     public OperationOutcome ValidateFhirResource(Resource inputResource)
     {
@@ -68,21 +78,39 @@ public class FhirResourceValidatorService
         var identifiers = fhirBundle.Entry;
 
         ValidateOrganizations(operationOutcome, fhirBundle);
+        ValidatePatients(operationOutcome, fhirBundle);
+        ValidatePractitioners(operationOutcome, fhirBundle);
+        ValidateCodeableConcepts(operationOutcome, fhirBundle);
 
         return operationOutcome;
     }
 
+    private void ValidateCodeableConcepts(OperationOutcome outcome, Bundle bundle)
+    {
+        var codeableConcepts = FindDescendantResources(bundle, "CodeableConcept");
+
+        var facilityType = codeableConcepts.Where(cc => cc.Name == "facilityType").ToArray();
+        ValidateIdentifiers(outcome, codeableConcepts, AllowedFacilityTypes, "facilityType");
+
+        var practiceSettings = codeableConcepts.Where(cc => cc.Name == "practiceSettings").ToArray();
+        ValidateIdentifiers(outcome, codeableConcepts, AllowedFacilityTypes, "practiceSettings");
+    }
+
+    private void ValidatePractitioners(OperationOutcome outcome, Bundle bundle)
+    {
+        var orgs = FindDescendantResources(bundle, "Practitioner");
+        ValidateIdentifiers(outcome, orgs, AllowedPractitionerOids, "Practitioner");
+    }
+
     private static void ValidateOrganizations(OperationOutcome outcome,Bundle bundle)
     {
-        var orgs = FindResources(bundle, "Organization");
-
+        var orgs = FindDescendantResources(bundle, "Organization");
         ValidateIdentifiers(outcome,orgs,AllowedOrganizationOids,"Organization");
     }
 
     private static void ValidatePatients(OperationOutcome outcome, Bundle bundle)
     {
-        var patients = FindResources(bundle, "Patient");
-
+        var patients = FindDescendantResources(bundle, "Patient");
         ValidateIdentifiers(outcome,patients,AllowedPatientOids,"Patient");
     }
 
@@ -123,7 +151,6 @@ public class FhirResourceValidatorService
         }
     }
 
-
     private static IList<Identifier>? GetIdentifiers(Resource resource) =>
     resource switch
     {
@@ -133,7 +160,7 @@ public class FhirResourceValidatorService
         _ => null
     };
 
-    private static IEnumerable<Hl7.Fhir.ElementModel.ITypedElement> FindResources(Bundle bundle,string resourceType)
+    private static IEnumerable<ITypedElement> FindDescendantResources(Bundle bundle,string resourceType)
     {
 #pragma warning disable SDK0001
         var root = bundle.ToTypedElement();

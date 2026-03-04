@@ -510,6 +510,211 @@ public static class Constants
         }
     }
 
+    public static class CodeSystems
+    {
+        public static class Volven
+        {
+            public const string Gender = "2.16.578.1.12.4.1.1.3101";
+            public const string DocumentType = "2.16.578.1.12.4.1.1.9602";
+            public const string EventCode = "2.16.578.1.12.4.1.1.7210";
+            public const string FacilityType = "2.16.578.1.12.4.1.1.1303";
+            public const string PracticeSetting = "2.16.578.1.12.4.1.1.8663";
+
+            public static class ConfidentialityCode
+            {
+                public const string Oid = "2.16.578.1.12.4.1.1.9603";
+
+                /// <summary> Normal</summary>
+                public const string N = "N";
+                /// <summary> Nektet, alle dokumenter</summary>
+                public const string NORN_ALL = "NORN_ALL";
+                /// <summary> Nektet, duplikat</summary>
+                public const string NORN_DUP = "NORN_DUP";
+                /// <summary> Nektet, eget ønske</summary>
+                public const string NORN_EPO = "NORN_EPO";
+                /// <summary> Nektet, fare for helsepersonell</summary>
+                public const string NORN_FFH = "NORN_FFH";
+                /// <summary> Nektet, fare for liv</summary>
+                public const string NORN_FFL = "NORN_FFL";
+                /// <summary> Nektet, foreldet</summary>
+                public const string NORN_FOR = "NORN_FOR";
+                /// <summary> Nektet, foreldreansvarlig</summary>
+                public const string NORN_FORANS = "NORN_FORANS";
+                /// <summary> Nektet, forsvarlig pasientbehandling</summary>
+                public const string NORN_FPB = "NORN_FPB";
+                /// <summary> Nektet, klart utilrådelig</summary>
+                public const string NORN_KUT = "NORN_KUT";
+                /// <summary> Nektet, ungdom</summary>
+                public const string NORN_UNGDOM = "NORN_UNGDOM";
+                /// <summary> Sperret</summary>
+                public const string NORS = "NORS";
+                /// <summary> Utsatt innsyn for innbygger</summary>
+                public const string NORU = "NORU";
+
+            }
+        }
+
+        public static class Hl7
+        {
+            public static class ConfidentialityCode
+            {
+                public const string Oid = "2.16.840.1.113883.5.25";
+
+                /// <summary>low</summary>
+                public const string Low = "L";
+                /// <summary>moderate</summary>
+                public const string Moderate = "M";
+                /// <summary>normal</summary>
+                public const string Normal = "N";
+                /// <summary>restricted</summary>
+                public const string Restricted = "R";
+                /// <summary>unrestricted</summary>
+                public const string Unrestricted = "U";
+                /// <summary>veryrestricted</summary>
+                public const string VeryRestricted = "V";
+
+            }
+            public static class AuditEventId
+            {
+                public const string Oid = "2.16.840.1.113883.4.642.3.462";
+            }
+
+            public static class PurposeOfUse
+            {
+                public const string Oid = "2.16.840.1.113883.1.11.20448";
+                /// <summary>healthcare marketing</summary>
+                public const string HMARKT = "HMARKT";
+                /// <summary>healthcare operations</summary>
+                public const string HOPERAT = "HOPERAT";
+                /// <summary>care management</summary>
+                public const string CAREMGT = "CAREMGT";
+                /// <summary>donation</summary>
+                public const string DONAT = "DONAT";
+                /// <summary>fraud</summary>
+                public const string FRAUD = "FRAUD";
+                /// <summary>government</summary>
+                public const string GOV = "GOV";
+                /// <summary>health accreditation</summary>
+                public const string HACCRED = "HACCRED";
+                /// <summary>health compliance</summary>
+                public const string HCOMPL = "HCOMPL";
+                /// <summary>decedent</summary>
+                public const string HDECD = "HDECD";
+                /// <summary>directory</summary>
+                public const string HDIRECT = "HDIRECT";
+                /// <summary>healthcare delivery management</summary>
+                public const string HDM = "HDM";
+                /// <summary>legal</summary>
+                public const string HLEGAL = "HLEGAL";
+                /// <summary>health outcome measure</summary>
+                public const string HOUTCOMS = "HOUTCOMS";
+                /// <summary>health program reporting</summary>
+                public const string HPRGRP = "HPRGRP";
+                /// <summary>health quality improvement</summary>
+                public const string HQUALIMP = "HQUALIMP";
+                /// <summary>health system administration</summary>
+                public const string HSYSADMIN = "HSYSADMIN";
+                /// <summary>labeling</summary>
+                public const string LABELING = "LABELING";
+                /// <summary>metadata management</summary>
+                public const string METAMGT = "METAMGT";
+                /// <summary>member administration</summary>
+                public const string MEMADMIN = "MEMADMIN";
+                /// <summary>military command</summary>
+                public const string MILCDM = "MILCDM";
+                /// <summary>patient administration</summary>
+                public const string PATADMIN = "PATADMIN";
+                /// <summary>patient safety</summary>
+                public const string PATSFTY = "PATSFTY";
+                /// <summary>performance measure</summary>
+                public const string PERFMSR = "PERFMSR";
+                /// <summary>records management</summary>
+                public const string RECORDMGT = "RECORDMGT";
+                /// <summary>system development</summary>
+                public const string SYSDEV = "SYSDEV";
+                /// <summary>test health data</summary>
+                public const string HTEST = "HTEST";
+                /// <summary>training</summary>
+                public const string TRAIN = "TRAIN";
+                /// <summary>healthcare payment</summary>
+                public const string HPAYMT = "HPAYMT";
+                /// <summary>claim attachment</summary>
+                public const string CLMATTCH = "CLMATTCH";
+                /// <summary>coverage authorization</summary>
+                public const string COVAUTH = "COVAUTH";
+                /// <summary>coverage under policy or program</summary>
+                public const string COVERAGE = "COVERAGE";
+                /// <summary>eligibility determination</summary>
+                public const string ELIGDTRM = "ELIGDTRM";
+                /// <summary>eligibility verification</summary>
+                public const string ELIGVER = "ELIGVER";
+                /// <summary>enrollment</summary>
+                public const string ENROLLM = "ENROLLM";
+                /// <summary>military discharge</summary>
+                public const string MILDCRG = "MILDCRG";
+                /// <summary>remittance advice</summary>
+                public const string REMITADV = "REMITADV";
+                /// <summary>healthcare research</summary>
+                public const string HRESCH = "HRESCH";
+                /// <summary>biomedical research</summary>
+                public const string BIORCH = "BIORCH";
+                /// <summary>clinical trial research</summary>
+                public const string CLINTRCH = "CLINTRCH";
+                /// <summary>clinical trial research without patient care</summary>
+                public const string CLINTRCHNPC = "CLINTRCHNPC";
+                /// <summary>clinical trial research with patient care</summary>
+                public const string CLINTRCHPC = "CLINTRCHPC";
+                /// <summary>preclinical trial research</summary>
+                public const string PRECLINTRCH = "PRECLINTRCH";
+                /// <summary>disease specific healthcare research</summary>
+                public const string DSRCH = "DSRCH";
+                /// <summary>population origins or ancestry healthcare research</summary>
+                public const string POARCH = "POARCH";
+                /// <summary>translational healthcare research</summary>
+                public const string TRANSRCH = "TRANSRCH";
+                /// <summary>patient requested</summary>
+                public const string PATRQT = "PATRQT";
+                /// <summary>family requested</summary>
+                public const string FAMRQT = "FAMRQT";
+                /// <summary>power of attorney</summary>
+                public const string PWATRNY = "PWATRNY";
+                /// <summary>support network</summary>
+                public const string SUPNWK = "SUPNWK";
+                /// <summary>public health</summary>
+                public const string PUBHLTH = "PUBHLTH";
+                /// <summary>disaster</summary>
+                public const string DISASTER = "DISASTER";
+                /// <summary>threat</summary>
+                public const string THREAT = "THREAT";
+                /// <summary>treatment</summary>
+                public const string TREAT = "TREAT";
+                /// <summary>clinical trial</summary>
+                public const string CLINTRL = "CLINTRL";
+                /// <summary>coordination of care</summary>
+                public const string COC = "COC";
+                /// <summary>Emergency Treatment</summary>
+                public const string ETREAT = "ETREAT";
+                /// <summary>break the glass</summary>
+                public const string BTG = "BTG";
+                /// <summary>emergency room treatment</summary>
+                public const string ERTREAT = "ERTREAT";
+                /// <summary>population health</summary>
+                public const string POPHLTH = "POPHLTH";
+            }
+        }
+
+        public static class OtherIsoDerived
+        {
+            public static class PurposeOfUse
+            {
+                public const string Oid = "1.0.14265.1";
+                public const string ClinicalCare_1 = "1";
+                public const string EmergencyCare_2 = "2";
+                public const string Management_5 = "5";
+                public const string SubjectOfCare_13 = "13";
+            }
+        }
+    }
     public static class Oid
     {
         // The correct "system"-value for OID
@@ -523,211 +728,6 @@ public static class Constants
         public const string Brreg = "2.16.578.1.12.4.1.4.101";
         public const string Nhn = "2.16.578.1.12.4.5";
 
-        public static class CodeSystems
-        {
-            public static class Volven
-            {
-                public const string Gender = "2.16.578.1.12.4.1.1.3101";
-                public const string DocumentType = "2.16.578.1.12.4.1.1.9602";
-                public static class ConfidentialityCode
-                {
-                    public const string Oid = "2.16.578.1.12.4.1.1.9603";
-
-                    /// <summary> Normal</summary>
-                    public const string N = "N";
-                    /// <summary> Nektet, alle dokumenter</summary>
-                    public const string NORN_ALL = "NORN_ALL";
-                    /// <summary> Nektet, duplikat</summary>
-                    public const string NORN_DUP = "NORN_DUP";
-                    /// <summary> Nektet, eget ønske</summary>
-                    public const string NORN_EPO = "NORN_EPO";
-                    /// <summary> Nektet, fare for helsepersonell</summary>
-                    public const string NORN_FFH = "NORN_FFH";
-                    /// <summary> Nektet, fare for liv</summary>
-                    public const string NORN_FFL = "NORN_FFL";
-                    /// <summary> Nektet, foreldet</summary>
-                    public const string NORN_FOR = "NORN_FOR";
-                    /// <summary> Nektet, foreldreansvarlig</summary>
-                    public const string NORN_FORANS = "NORN_FORANS";
-                    /// <summary> Nektet, forsvarlig pasientbehandling</summary>
-                    public const string NORN_FPB = "NORN_FPB";
-                    /// <summary> Nektet, klart utilrådelig</summary>
-                    public const string NORN_KUT = "NORN_KUT";
-                    /// <summary> Nektet, ungdom</summary>
-                    public const string NORN_UNGDOM = "NORN_UNGDOM";
-                    /// <summary> Sperret</summary>
-                    public const string NORS = "NORS";
-                    /// <summary> Utsatt innsyn for innbygger</summary>
-                    public const string NORU = "NORU";
-
-                }
-
-                public const string EventCode = "2.16.578.1.12.4.1.1.7210";
-
-
-            }
-
-            public static class Hl7
-            {
-                public static class ConfidentialityCode
-                {
-                    public const string Oid = "2.16.840.1.113883.5.25";
-
-                    /// <summary>low</summary>
-                    public const string Low = "L";
-                    /// <summary>moderate</summary>
-                    public const string Moderate = "M";
-                    /// <summary>normal</summary>
-                    public const string Normal = "N";
-                    /// <summary>restricted</summary>
-                    public const string Restricted = "R";
-                    /// <summary>unrestricted</summary>
-                    public const string Unrestricted = "U";
-                    /// <summary>veryrestricted</summary>
-                    public const string VeryRestricted = "V";
-
-                }
-                public static class AuditEventId
-                {
-                    public const string Oid = "2.16.840.1.113883.4.642.3.462";
-                }
-
-                public static class PurposeOfUse
-                {
-                    public const string Oid = "2.16.840.1.113883.1.11.20448";
-                    /// <summary>healthcare marketing</summary>
-                    public const string HMARKT = "HMARKT";
-                    /// <summary>healthcare operations</summary>
-                    public const string HOPERAT = "HOPERAT";
-                    /// <summary>care management</summary>
-                    public const string CAREMGT = "CAREMGT";
-                    /// <summary>donation</summary>
-                    public const string DONAT = "DONAT";
-                    /// <summary>fraud</summary>
-                    public const string FRAUD = "FRAUD";
-                    /// <summary>government</summary>
-                    public const string GOV = "GOV";
-                    /// <summary>health accreditation</summary>
-                    public const string HACCRED = "HACCRED";
-                    /// <summary>health compliance</summary>
-                    public const string HCOMPL = "HCOMPL";
-                    /// <summary>decedent</summary>
-                    public const string HDECD = "HDECD";
-                    /// <summary>directory</summary>
-                    public const string HDIRECT = "HDIRECT";
-                    /// <summary>healthcare delivery management</summary>
-                    public const string HDM = "HDM";
-                    /// <summary>legal</summary>
-                    public const string HLEGAL = "HLEGAL";
-                    /// <summary>health outcome measure</summary>
-                    public const string HOUTCOMS = "HOUTCOMS";
-                    /// <summary>health program reporting</summary>
-                    public const string HPRGRP = "HPRGRP";
-                    /// <summary>health quality improvement</summary>
-                    public const string HQUALIMP = "HQUALIMP";
-                    /// <summary>health system administration</summary>
-                    public const string HSYSADMIN = "HSYSADMIN";
-                    /// <summary>labeling</summary>
-                    public const string LABELING = "LABELING";
-                    /// <summary>metadata management</summary>
-                    public const string METAMGT = "METAMGT";
-                    /// <summary>member administration</summary>
-                    public const string MEMADMIN = "MEMADMIN";
-                    /// <summary>military command</summary>
-                    public const string MILCDM = "MILCDM";
-                    /// <summary>patient administration</summary>
-                    public const string PATADMIN = "PATADMIN";
-                    /// <summary>patient safety</summary>
-                    public const string PATSFTY = "PATSFTY";
-                    /// <summary>performance measure</summary>
-                    public const string PERFMSR = "PERFMSR";
-                    /// <summary>records management</summary>
-                    public const string RECORDMGT = "RECORDMGT";
-                    /// <summary>system development</summary>
-                    public const string SYSDEV = "SYSDEV";
-                    /// <summary>test health data</summary>
-                    public const string HTEST = "HTEST";
-                    /// <summary>training</summary>
-                    public const string TRAIN = "TRAIN";
-                    /// <summary>healthcare payment</summary>
-                    public const string HPAYMT = "HPAYMT";
-                    /// <summary>claim attachment</summary>
-                    public const string CLMATTCH = "CLMATTCH";
-                    /// <summary>coverage authorization</summary>
-                    public const string COVAUTH = "COVAUTH";
-                    /// <summary>coverage under policy or program</summary>
-                    public const string COVERAGE = "COVERAGE";
-                    /// <summary>eligibility determination</summary>
-                    public const string ELIGDTRM = "ELIGDTRM";
-                    /// <summary>eligibility verification</summary>
-                    public const string ELIGVER = "ELIGVER";
-                    /// <summary>enrollment</summary>
-                    public const string ENROLLM = "ENROLLM";
-                    /// <summary>military discharge</summary>
-                    public const string MILDCRG = "MILDCRG";
-                    /// <summary>remittance advice</summary>
-                    public const string REMITADV = "REMITADV";
-                    /// <summary>healthcare research</summary>
-                    public const string HRESCH = "HRESCH";
-                    /// <summary>biomedical research</summary>
-                    public const string BIORCH = "BIORCH";
-                    /// <summary>clinical trial research</summary>
-                    public const string CLINTRCH = "CLINTRCH";
-                    /// <summary>clinical trial research without patient care</summary>
-                    public const string CLINTRCHNPC = "CLINTRCHNPC";
-                    /// <summary>clinical trial research with patient care</summary>
-                    public const string CLINTRCHPC = "CLINTRCHPC";
-                    /// <summary>preclinical trial research</summary>
-                    public const string PRECLINTRCH = "PRECLINTRCH";
-                    /// <summary>disease specific healthcare research</summary>
-                    public const string DSRCH = "DSRCH";
-                    /// <summary>population origins or ancestry healthcare research</summary>
-                    public const string POARCH = "POARCH";
-                    /// <summary>translational healthcare research</summary>
-                    public const string TRANSRCH = "TRANSRCH";
-                    /// <summary>patient requested</summary>
-                    public const string PATRQT = "PATRQT";
-                    /// <summary>family requested</summary>
-                    public const string FAMRQT = "FAMRQT";
-                    /// <summary>power of attorney</summary>
-                    public const string PWATRNY = "PWATRNY";
-                    /// <summary>support network</summary>
-                    public const string SUPNWK = "SUPNWK";
-                    /// <summary>public health</summary>
-                    public const string PUBHLTH = "PUBHLTH";
-                    /// <summary>disaster</summary>
-                    public const string DISASTER = "DISASTER";
-                    /// <summary>threat</summary>
-                    public const string THREAT = "THREAT";
-                    /// <summary>treatment</summary>
-                    public const string TREAT = "TREAT";
-                    /// <summary>clinical trial</summary>
-                    public const string CLINTRL = "CLINTRL";
-                    /// <summary>coordination of care</summary>
-                    public const string COC = "COC";
-                    /// <summary>Emergency Treatment</summary>
-                    public const string ETREAT = "ETREAT";
-                    /// <summary>break the glass</summary>
-                    public const string BTG = "BTG";
-                    /// <summary>emergency room treatment</summary>
-                    public const string ERTREAT = "ERTREAT";
-                    /// <summary>population health</summary>
-                    public const string POPHLTH = "POPHLTH";
-                }
-            }
-
-            public static class OtherIsoDerived
-            {
-                public static class PurposeOfUse
-                {
-                    public const string Oid = "1.0.14265.1";
-                    public const string ClinicalCare_1 = "1";
-                    public const string EmergencyCare_2 = "2";
-                    public const string Management_5 = "5";
-                    public const string SubjectOfCare_13 = "13";
-                }
-            }
-        }
 
         public static class Saml
         {

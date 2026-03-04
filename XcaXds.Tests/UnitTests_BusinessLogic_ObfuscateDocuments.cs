@@ -4,7 +4,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using Task = System.Threading.Tasks.Task;
-using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.OtherIsoDerived.PurposeOfUse;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.Tests;
@@ -22,7 +22,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "TREAT", CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = "TREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -40,7 +40,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "ETREAT", CodeSystem = Constants.Oid.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = "ETREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -58,7 +58,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.Oid.CodeSystems.OtherIsoDerived.PurposeOfUse.Oid },
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.Oid },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -94,12 +94,12 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             [
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = "othercodethatshouldntaffectlogic"
                 }
             ],
@@ -111,17 +111,17 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             [
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Volven.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Volven.ConfidentialityCode.NORS
+                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Volven.ConfidentialityCode.NORS
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 
@@ -134,17 +134,17 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             [
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Volven.ConfidentialityCode.Oid,
-                    Code = Constants.Oid.CodeSystems.Volven.ConfidentialityCode.NORN_FFL
+                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.Oid,
+                    Code = Constants.CodeSystems.Volven.ConfidentialityCode.NORN_FFL
                 },
                 new()
                 {
-                    CodeSystem = Constants.Oid.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 
