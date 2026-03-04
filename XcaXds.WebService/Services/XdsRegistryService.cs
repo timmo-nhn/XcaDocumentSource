@@ -28,12 +28,16 @@ public partial class XdsRegistryService
         _logger = logger;
     }
 
-    public SoapRequestResult<SoapEnvelope> AppendToRegistry(SoapEnvelope envelope)
+    public SoapRequestResult<SoapEnvelope> AppendToRegistry(SoapEnvelope? envelope, bool validateOnly = false)
     {
         var registryResponse = new RegistryResponseType();
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
-
+        if (envelope == null)
+        {
+            registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "No SOAP envelope provided", "XDS Registry");
+            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+        }
 
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
         if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
@@ -41,7 +45,6 @@ public partial class XdsRegistryService
             _logger.LogError($"{envelope?.Header?.MessageId} - Empty or invalid Registry objects in RegistryObjectList");
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Empty or invalid Registry objects in RegistryObjectList", "XDS Registry");
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
-
         }
 
         var deprecates = submissionRegistryObjects.OfType<AssociationType>().Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace).ToArray();
@@ -78,13 +81,22 @@ public partial class XdsRegistryService
             _logger.LogInformation($"{envelope?.Header?.MessageId} - Successfully deprecated document with id {documentId}");
         }
 
-        var registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos([.. documentRegistry.RegistryObjectList, .. submissionRegistryObjects]));
+        bool registryUpdateResult = false;
 
-        if (registryUpdateResult)
+        if (validateOnly == false)
         {
-            registryResponse.EvaluateStatusCode();
+            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos([.. documentRegistry.RegistryObjectList, .. submissionRegistryObjects]));
+            if (registryUpdateResult)
+            {
+                registryResponse.EvaluateStatusCode();
+                return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+            }
+        }
+        else
+        {
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
+
 
         registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry", _xdsConfig.HomeCommunityId);
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);

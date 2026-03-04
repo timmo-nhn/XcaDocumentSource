@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="Registry\" />
+    <Folder Include="Repository\" />
   </ItemGroup>
 
 </Project>

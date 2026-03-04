@@ -16,14 +16,21 @@ namespace XcaXds.Commons.DataManipulators;
 /// </summary>
 public class AtnaLogEnricher
 {
-    public static SoapEnvelope GetMockSoapEnvelopeFromJwt(string? jwtToken, Bundle? fhirBundle, List<RegistryErrorType>? errors, IdentifiableType[]? registryObjects)
+    public static SoapEnvelope GetMockSoapEnvelopeFromJwt(HttpContext httpContext, string? jwtToken, Bundle? fhirBundle, List<RegistryErrorType>? errors, IdentifiableType[]? registryObjects)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
         }
 
-        XmlElement? samlAssertionElement = GetEnrichedSamlTokenFromTokenAndBundle(jwtToken, fhirBundle, "is_provide_bundle");
+        var requestType = httpContext.Request.Method switch
+        {
+            "POST" => "is_provide_bundle",
+            "DELETE" => "is_delete_bundle",
+            _ => "is_query_bundle"
+        };
+
+        XmlElement? samlAssertionElement = GetEnrichedSamlTokenFromTokenAndBundle(jwtToken, fhirBundle, requestType);
 
         var pnrEnvelope = new SoapEnvelope()
         {
@@ -36,15 +43,33 @@ public class AtnaLogEnricher
             Body = new()
             {
                 RegistryResponse = errors?.Count > 0 ? new() { RegistryErrorList = new() { RegistryError = errors.ToArray() } } : null,
-                ProvideAndRegisterDocumentSetRequest = new()
-                {
-                    SubmitObjectsRequest = new()
-                    {
-                        RegistryObjectList = registryObjects 
-                    }
-                },
             }
         };
+
+        switch (httpContext.Request.Method)
+        {
+            case "POST":
+                if (registryObjects?.Length > 0)
+                {
+                    pnrEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = registryObjects;
+                }
+                break;
+
+            case "DELETE":
+                if (registryObjects?.Length > 0)
+                {
+                    pnrEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef = [.. registryObjects.Select(obj => new ObjectRefType() { Id = obj.Id })];
+                }
+                break;
+
+            default:
+                if (registryObjects?.Length > 0)
+                {
+                    pnrEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = registryObjects;
+                }
+                break;
+        }
+
         pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
 
         return pnrEnvelope;

@@ -1,11 +1,8 @@
 ﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DomainResults;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -17,7 +14,6 @@ public class FhirService
     private readonly XdsRegistryService _registry;
     private readonly XdsRepositoryService _repository;
 
-
     private const string HomeCommunityIdUrl_IheProfiles = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
     private const string HomeCommunityIdUrl_IheLegacy = "http://ihe.net/fhir/StructureDefinition/homeCommunityId";
 
@@ -26,22 +22,6 @@ public class FhirService
         _logger = logger;
         _registry = registry;
         _repository = repository;
-    }
-
-    public OperationOutcome PatchResource(Bundle bundle)
-    {
-        foreach (var entry in bundle.Entry)
-        {
-            var url = entry.FullUrl;
-
-            if (entry.Resource is not Binary fhirBinary) continue;
-
-            var patchData = Encoding.UTF8.GetString(fhirBinary.Data ?? []);
-
-        }
-
-
-        return new OperationOutcome();
     }
 
     public ProvideBundleResult ProvideBundle(Bundle fhirBundle, string sessionId, bool validateOnly = false)
@@ -167,11 +147,8 @@ public class FhirService
 
         // If operation is $validate, we only want to validate the request without actually registering/uploading the documents.
         // https://build.fhir.org/resource-operation-validate.html
-        if (validateOnly == true)
-        {
-            registerDocumentSetResponse = _registry.AppendToRegistry(iti42SoapEnvelope.Value);
-            documentUploadResponse = _repository.UploadContentToRepository(provideAndRegisterRequest);
-        }
+        registerDocumentSetResponse = _registry.AppendToRegistry(iti42SoapEnvelope.Value, validateOnly);
+        documentUploadResponse = _repository.UploadContentToRepository(provideAndRegisterRequest, validateOnly);
 
         var errors = new List<RegistryErrorType>();
         errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);

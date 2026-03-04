@@ -1,31 +1,29 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Text;
+﻿using System.Text;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 
 namespace XcaXds.WebService.Services;
 
 public partial class RepositoryWrapper
 {
     private readonly ApplicationConfig _appConfig;
-
     private readonly RegistryWrapper _registryWrapper;
-
     private readonly IRepository _repository;
+    private readonly ILogger<RepositoryWrapper> _logger;
+    private readonly FileScanner _fileScanner;
 
-    private ILogger<RepositoryWrapper> _logger;
-
-    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger)
+    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger, FileScanner fileScanner)
     {
         _repository = repository;
         _appConfig = appConfig;
         _registryWrapper = registryWrapper;
         _logger = logger;
+        _fileScanner = fileScanner;
     }
 
     public byte[]? GetDocumentFromRepository(string homeCommunityId, string repositoryUniqueId, string documentUniqueId, string? messageId = null)
@@ -69,7 +67,7 @@ public partial class RepositoryWrapper
         if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml || kind == DocumentSniffer.DocumentKind.Xml)
         {
             _logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format or XML format".TrimStart([' ', '-']));
-            cdaXml = Encoding.UTF8.GetString(documentDto.Data);
+            cdaXml = Encoding.UTF8.GetString(documentDto.Data ?? []);
         }
         else
         {
@@ -89,6 +87,7 @@ public partial class RepositoryWrapper
 
     public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart)
     {
+        var result = _fileScanner.ScanFile(documentContent);
         return _repository.Write(documentId, documentContent, patientIdPart);
     }
 

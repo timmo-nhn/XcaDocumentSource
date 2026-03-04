@@ -39,6 +39,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly FhirService _fhirService;
     private readonly ApplicationConfig _appConfig;
     private readonly AtnaLogGeneratorService _atnaLoggingService;
+    private readonly FhirResourceValidatorService _fhirValidator;
 
 
     public FhirMobileAccessToHealthDocumentsController(
@@ -50,7 +51,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         RepositoryWrapper repositoryWrapper,
         ApplicationConfig applicationConfig,
         AtnaLogGeneratorService atnaLoggingService,
-        FhirService fhirService
+        FhirService fhirService,
+        FhirResourceValidatorService fhirValidator
         )
     {
         _xdsRegistryService = xdsRegistryService;
@@ -62,6 +64,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _atnaLoggingService = atnaLoggingService;
         _restfulRegistryService = restfulRegistryService;
         _fhirService = fhirService;
+        _fhirValidator = fhirValidator;
     }
 
     [Consumes("application/fhir+json")]
@@ -228,17 +231,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id, out var deletedEntry);
 
-        // Atna log generation
-        XacmlContextRequest? xacmlRequest = null;
-
-        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
-        {
-            xacmlRequest = xacmlContextRequest;
-        }
-
-        var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var ok);
-
-        _atnaLoggingService.CreateAuditLogForFhirDeleteDocumentsRequest(HttpContext.TraceIdentifier, deletedEntry, token);
 
         if (deleteResponse.Success)
         {
@@ -257,9 +249,25 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 {
                     Severity = OperationOutcome.IssueSeverity.Error,
                     Code = OperationOutcome.IssueType.Value,
-                    Diagnostics = $"{ooc.Code}: {ooc.Message}"
+                    Diagnostics = $"{ooc.Code}: {ooc.Message}",
+                    Location = [id]
                 });
             }
+        }
+
+        // Atna log generation
+        XacmlContextRequest? xacmlRequest = null;
+
+        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
+        {
+            xacmlRequest = xacmlContextRequest;
+        }
+        var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var ok);
+
+        _atnaLoggingService.CreateAuditLogForFhirDeleteDocumentsRequest(HttpContext, deletedEntry, operationOutcome, token);
+
+        if (operationOutcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error))
+        {
             return BadRequestOperationOutcome.Create(operationOutcome);
         }
 
@@ -298,6 +306,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
             AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(
+                HttpContext,
                 jwtToken,
                 fhirBundle,
                 provideBundleResult.Errors,
@@ -325,6 +334,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpPost("{resource}/$validate")]
     public async Task<IActionResult> ProvideBundle([FromRoute] string? resource, [FromBody] JsonElement json)
     {
+        var operationOutcome = new OperationOutcome();
+
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received $validate request for ResourceType {resource} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
         var fhirJsonDeserializer = new FhirJsonDeserializer();
@@ -341,8 +352,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Validate bundle
         var provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, validateOnly: true);
+        var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
 
-        //var validationResult = FhirResourceValidator.ValidateFhirResource(fhirBundle);
+        operationOutcome.Issue.AddRange(provideBundleResult.Outcome.Issue);
+        operationOutcome.Issue.AddRange(validationResult.Issue);
 
         // Atna log generation
         var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
@@ -353,6 +366,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
             AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(
+                HttpContext,
                 jwtToken,
                 fhirBundle,
                 provideBundleResult.Errors,
@@ -361,11 +375,21 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var fhirSerializer = new FhirJsonSerializer();
 
-        var anyErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
-        
+        var anyErrors = operationOutcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
+
+        if (!anyErrors)
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Information,
+                Code = OperationOutcome.IssueType.Success,
+                Diagnostics = $"Bundle validated with 0 errors or warnings"
+            });
+        }
+
         return new CustomContentResult(
-            fhirSerializer.SerializeToString(provideBundleResult.Outcome),
-            anyErrors ? StatusCodes.Status400BadRequest : StatusCodes.Status200OK, 
+            fhirSerializer.SerializeToString(operationOutcome),
+            anyErrors ? StatusCodes.Status400BadRequest : StatusCodes.Status200OK,
             Constants.MimeTypes.FhirJson);
     }
 
@@ -430,44 +454,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return responseBundle;
     }
 
-    [Consumes("application/fhir+json")]
-    [Produces("application/fhir+json", "application/fhir+xml")]
-    [HttpPatch("Bundle/{id}")]
-    public async Task<IActionResult> PatchBundle(string id, [FromBody] JsonElement json)
-    {
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} Received ITI-65 Patch Bundle Request");
-        var operationOutcome = new OperationOutcome();
-
-        var fhirJsonDeserializer = new FhirJsonDeserializer();
-
-        var fhirParser = new FhirJsonDeserializer();
-        var resource = fhirParser.DeserializeResource(json.GetRawText());
-
-        if (resource is not Bundle fhirBundle)
-        {
-            return BadRequestOperationOutcome.Create(OperationOutcome
-                .ForMessage($"Request body does not contain a well formatted FHIR bundle",
-                    OperationOutcome.IssueType.Invalid,
-                    OperationOutcome.IssueSeverity.Fatal));
-        }
-
-        if (fhirBundle.Entry.Any(ent => ent.Request?.Method != Bundle.HTTPVerb.PATCH))
-        {
-            return BadRequestOperationOutcome.Create(OperationOutcome
-                .ForMessage($"Bundle must contain a PATCH entry",
-                    OperationOutcome.IssueType.Invalid,
-                    OperationOutcome.IssueSeverity.Fatal));
-        }
-
-        var response = _fhirService.PatchResource(fhirBundle);
-
-        var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
-
-        var jsonResult = JsonSerializer.Serialize(response, options);
-
-        return Content(jsonResult, "application/json");
-    }
-
     [Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPatch("DocumentReference/{id}")]
@@ -516,7 +502,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         // Atna log generation
         var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var _);
         _atnaLoggingService.CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-            HttpContext.TraceIdentifier,
+            HttpContext,
             id,
             oldSecurityLabel,
             documentEntry.ConfidentialityCode,

@@ -14,6 +14,7 @@ using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 using System.Configuration;
 using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.DataManipulators.Fhir;
 
 namespace XcaXds.WebService.Services;
 
@@ -56,11 +57,11 @@ public class AtnaLogGeneratorService
         }
     }
 
-    public void CreateAuditLogForFhirDeleteDocumentsRequest(string sessionId, DocumentEntryDto? deletedEntry, JwtSecurityToken? token)
+    public void CreateAuditLogForFhirDeleteDocumentsRequest(HttpContext httpContext, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
         try
         {
-            _queue.Enqueue(() => GetAuditEventFromDocumentEntryAndJwt(sessionId, deletedEntry, token));
+            _queue.Enqueue(() => GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(httpContext, deletedEntry, operationOutcome, token));
         }
         catch (Exception ex)
         {
@@ -68,11 +69,11 @@ public class AtnaLogGeneratorService
         }
     }
 
-    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(string sessionId, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
+    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(HttpContext httpContext, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
     {
         try
         {
-            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(sessionId, updatedEntry, token, null, null, null));
+            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedEntry, token, null, null, null));
         }
         catch (Exception ex)
         {
@@ -81,7 +82,7 @@ public class AtnaLogGeneratorService
     }
 
     public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-        string sessionId,
+        HttpContext httpContext,
         string documentReferenceId,
         List<CodedValue>? oldSecurityLabel,
         List<CodedValue>? newSecurityLabel,
@@ -95,7 +96,7 @@ public class AtnaLogGeneratorService
             var newCopy = CloneCodedValues(newSecurityLabel);
             var updatedCopy = CloneDocumentEntryDto(updatedEntry);
 
-            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(sessionId, updatedCopy, token, documentReferenceId, oldCopy, newCopy));
+            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedCopy, token, documentReferenceId, oldCopy, newCopy));
         }
         catch (Exception ex)
         {
@@ -103,14 +104,24 @@ public class AtnaLogGeneratorService
         }
     }
 
-    private AuditEvent GetAuditEventFromDocumentEntryAndJwt(string sessionId, DocumentEntryDto? deletedEntry, JwtSecurityToken? token)
+    private AuditEvent GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(HttpContext httpContext, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
+        var documentId = operationOutcome.Issue.FirstOrDefault()?.Location.FirstOrDefault();
+
+        // If a resource that doesnt exist was attempted to be deleted
+        if (deletedEntry == null && documentId != null)
+        {
+            deletedEntry = new DocumentEntryDto() { Id = documentId };
+        }
+
         var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
 
-        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(token?.RawData, null, null, [extrinsicObject]);
+        var errors = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(operationOutcome);
+
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(httpContext, token?.RawData, null, errors.RegistryError.ToList(), [extrinsicObject]);
 
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
-        soapEnvelope.Header.MessageId = sessionId;
+        soapEnvelope.Header.MessageId = httpContext.TraceIdentifier;
 
         var responseEnvelope = new SoapEnvelope()
         {
@@ -118,10 +129,12 @@ public class AtnaLogGeneratorService
             {
                 RegistryResponse = new()
                 {
-                    Status = Constants.Xds.ResponseStatusTypes.Success 
+                    RegistryErrorList = errors,
                 }
             }
         };
+
+        responseEnvelope.Body.RegistryResponse.EvaluateStatusCode();
 
         var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
 
@@ -129,7 +142,7 @@ public class AtnaLogGeneratorService
     }
 
     private AuditEvent GetAuditEventFromPatchedDocumentEntryAndJwt(
-        string sessionId,
+        HttpContext httpContext,
         DocumentEntryDto? updatedEntry,
         JwtSecurityToken? token,
         string? documentReferenceId,
@@ -158,11 +171,11 @@ public class AtnaLogGeneratorService
             ? [association]
             : [extrinsicObject, association];
 
-        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(token?.RawData, null, null, registryObjects);
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(httpContext, token?.RawData, null, null, registryObjects);
 
         // ITI-42 is used here to represent an update/amend of registry metadata.
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
-        soapEnvelope.Header.MessageId = sessionId;
+        soapEnvelope.Header.MessageId = httpContext.TraceIdentifier;
 
         var responseEnvelope = new SoapEnvelope()
         {
@@ -347,6 +360,7 @@ public class AtnaLogGeneratorService
 
             var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).Append(patientIdentifierCx)
                 .DistinctBy(pid => new { pid?.IdNumber, pid?.AssigningAuthority?.UniversalId })
+                .OfType<CX>()
                 .ToList();
 
             var patientResource = new Patient

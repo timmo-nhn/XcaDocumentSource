@@ -22,7 +22,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Delete", "Delete DocumentReference")]
-    public async Task DeleteDocumentsAndMetadata()
+    public async Task DeleteDocumentsAndMetadata_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
 
@@ -65,6 +65,59 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var currentCount = currentRegistry.Count();
         
         var expectedCount = registryContentCount - 3;
+        
+        Assert.Equal(expectedCount, currentCount);
+
+        await WaitForAtnaLogToBeExported();
+
+        _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    [Fact]
+    [Trait("Delete", "Delete DocumentReference")]
+    public async Task DeleteDocumentsAndMetadata_DocumentDoesNotExist_ExportsAtnaLog()
+    {
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_deletedocuments",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            action: "Delete",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+
+        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var registryObjects = RegistryContent.AsRegistryObjectList();
+
+        var registryContentCount = registryObjects.Count;
+
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+
+        var documentEntryThatDoesntExist = Guid.NewGuid().ToString();
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Delete, $"/R4/fhir/DocumentReference/{documentEntryThatDoesntExist}");
+
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+
+        var firstResponse = await _client.SendAsync(httpRequest);
+
+        var currentRegistry = _registry.ReadRegistry();
+        var currentCount = currentRegistry.Count();
+        
+        var expectedCount = registryContentCount;
         
         Assert.Equal(expectedCount, currentCount);
 
@@ -130,7 +183,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Upload", "Provide Bundle")]
-    public async Task ProvideBundle_RandomAmount()
+    public async Task ProvideBundle_RandomAmount_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
 
@@ -175,7 +228,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Upload", "Validate Bundle")]
-    public async Task ProvideBundle_Validate_RandomAmount()
+    public async Task ProvideBundle_Validate_RandomAmount_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
 
@@ -234,9 +287,11 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectList());
 
-        foreach (var document in metadata.Select(dto => dto.Document))
+        var documents = metadata.Select(dto => dto.Document);
+
+        foreach (var document in documents)
         {
-            _repository.Write(document.DocumentId, document.Data);
+            _repository.Write(document.DocumentId, document.Data, patientIdentifier);
         }
 
         return metadata;

@@ -1,6 +1,9 @@
+using Castle.Core.Logging;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Hl7.Fhir.Utility;
+using Microsoft.Extensions.Logging.Testing;
+using Moq;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -61,19 +64,24 @@ public class UnitTests_Fhir
     }
 
     [Fact]
-    public async Task FhirPath_Testing()
+    public async Task FhirPath_Testing_ValidateBundle()
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
 
-        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")) ?? "");
+        var fhirProvideBundleWrongValues = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01_WrongValues.json")) ?? "");
 
         var fhirjsonDeserializer = new FhirJsonDeserializer();
 
         var bundle = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle);
+        var bundleWrongValues = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundleWrongValues);
 
-        var validationResult = FhirResourceValidator.ValidateFhirResource(bundle);
+        var fhirValidator = new FhirResourceValidatorService(new FakeLogger<FhirResourceValidatorService>(), new Mock<ApplicationConfig>().Object);
+
+        var validationResult = fhirValidator.ValidateFhirResource(bundle);
+        var validationResultWrongValues = fhirValidator.ValidateFhirResource(bundleWrongValues);
     }
 }

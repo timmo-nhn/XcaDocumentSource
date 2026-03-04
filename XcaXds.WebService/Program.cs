@@ -4,6 +4,7 @@ using Microsoft.FeatureManagement;
 using NHN.OpenTelemetryExtensions;
 using System.Collections;
 using System.Text.Json.Serialization;
+using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Source.Source;
@@ -127,6 +128,7 @@ public class Program
         builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
 
+        builder.Services.AddSingleton<FileScanner>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddSingleton<RegistryWrapper>();
@@ -142,11 +144,12 @@ public class Program
         builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<AppStartupService>();
 
-        // REST services
+        // Custom REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
 
         // FHIR
         builder.Services.AddScoped<FhirService>();
+        builder.Services.AddSingleton<FhirResourceValidatorService>();
 
         // Health check
         builder.Services.AddHealthChecks();

@@ -135,8 +135,8 @@ public class XdsRepositoryController : ControllerBase
                 if (iti42Message.IsSuccess is false)
                 {
                     responseEnvelope.Body ??= new();
-                    responseEnvelope.Body.RegistryResponse = iti42Message.Value.Body.RegistryResponse;
-                    responseEnvelope.Header = new() { Action = iti42Message.Value.GetCorrespondingResponseAction(), RelatesTo = iti42Message.Value.Header.MessageId };
+                    responseEnvelope.Body.RegistryResponse = iti42Message.Value?.Body.RegistryResponse;
+                    responseEnvelope.Header = new() { Action = iti42Message.Value?.GetCorrespondingResponseAction(), RelatesTo = iti42Message.Value?.Header.MessageId };
                     break;
                 }
 
@@ -175,7 +175,7 @@ public class XdsRepositoryController : ControllerBase
                     Security = null,
                     RelatesTo = soapEnvelope.Header.MessageId
                 };
-                responseEnvelope.Body = documentUploadResponse.Value.Body;
+                responseEnvelope.Body = documentUploadResponse.Value?.Body;
 
                 break;
 

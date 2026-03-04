@@ -90,19 +90,17 @@ public class FileBasedRepository : IRepository
         {
             if (!Directory.Exists(_repositoryPath)) return false;
 
-            foreach (var directory in Directory.GetDirectories(_repositoryPath))
+            var repositoryDirectories = Directory.GetDirectories(_repositoryPath).SelectMany(f => Directory.GetFiles(f)).ToArray();
+
+            var documentToDelete = repositoryDirectories.FirstOrDefault(file => Path.GetFileName(file) == documentUniqueId);
+
+            if (string.IsNullOrWhiteSpace(documentToDelete))
             {
-                foreach (var file in Directory.GetFiles(directory))
-                {
-                    var name = Path.GetFileName(file);
-                    if (name == documentUniqueId)
-                    {
-                        File.Delete(file);
-                        return true;
-                    }
-                }
+                return false;
             }
-            return false;
+
+            File.Delete(documentToDelete);
+            return true;
         }
     }
 
@@ -135,7 +133,7 @@ public class FileBasedRepository : IRepository
         var currentDir = Path.Combine(parentDir, currentId);
 
         if (newDir == currentDir) return false;
-        
+
         Directory.Move(currentDir, Path.Combine(parentDir, repositoryOid));
         return true;
     }

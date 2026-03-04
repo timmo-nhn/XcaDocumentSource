@@ -1,18 +1,16 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.FhirPath.Sprache;
-using Microsoft.Extensions.Logging;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Buffers.Text;
 using System.Text;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Source.Source;
 using static XcaXds.Commons.Commons.Constants.Oid.CodeSystems.Hl7.PurposeOfUse;
-using XcaXds.Commons.DataManipulators.BusinessLogic;
 
 namespace XcaXds.WebService.Services;
 
@@ -31,12 +29,12 @@ public class XdsRepositoryService
         _logger = logger;
     }
 
-    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(SoapEnvelope iti41Envelope)
+    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(SoapEnvelope iti41Envelope, bool validateOnly = false)
     {
-        return UploadContentToRepository(iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest);
+        return UploadContentToRepository(iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest, validateOnly);
     }
 
-    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterDocumentSetRequest)
+    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterDocumentSetRequest, bool validateOnly = false)
     {
         var registryResponse = new RegistryResponseType();
 
@@ -91,10 +89,15 @@ public class XdsRepositoryService
 
                 if (assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
                 {
-                    var repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart);
-                    if (!repositoryUpdateOk)
+                    bool repositoryUpdateOk = false;
+                    
+                    if (validateOnly == false)
                     {
-                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                        repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart);
+                        if (!repositoryUpdateOk)
+                        {
+                            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                        }
                     }
                 }
             }
@@ -275,7 +278,7 @@ public class XdsRepositoryService
     {
         var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes()
             .GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?
-            .FirstOrDefault() 
+            .FirstOrDefault()
             ?? "Unknown");
 
         var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
