@@ -10,7 +10,8 @@
         "attributeId": "urn:no:ehelse:saml:1.0:subject:Scope",
         "compareRule": "Equals",
         "value": "nhn:phr/mhd/create-documents-with-reference"
-      }
+      },
+      null
     ]
   ],
   "actions": [

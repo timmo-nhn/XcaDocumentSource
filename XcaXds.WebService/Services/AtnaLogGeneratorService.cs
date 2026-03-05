@@ -1,8 +1,10 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
-using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -10,11 +12,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
-using System.Configuration;
-using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.DataManipulators.Fhir;
 
 namespace XcaXds.WebService.Services;
 
@@ -363,57 +361,66 @@ public class AtnaLogGeneratorService
                 .OfType<CX>()
                 .ToList();
 
-            var patientResource = new Patient
+            Patient? patientResource = null;
+
+            if (registryPatientIdentifiers.Count > 0)
             {
-                Id = "patient-1",
-            };
-
-            _logger.LogDebug($"AtnaLogGenerator Resolved {registryPatientIdentifiers.Count} identifiers from request");
-
-            foreach (var identifier in registryPatientIdentifiers)
-            {
-                if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
-
-                _logger.LogDebug($"AtnaLogGenerator found Patient Identifier: {identifier?.Serialize()}");
-                patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
-            }
-
-            if (isProvideBundle)
-            {
-                // For ProvideBundle calls, we have explicit given/family names, because the following scenarios are possible:
-                // - JWT (machine-to-machine) token without any logged in user. Patient exists only in the Bundle and is added to SAML assertion from there. There is no subject in the assertion.
-                // - JWT (HelseID user token) token where the logged in user is healthcare professional.
-                //		The patient exists only in the Bundle and is added to SAML assertion from there. The subject in the assertion will be the healthcare professional, not the patient.
-
-                if (!string.IsNullOrWhiteSpace(patientFamily) || !string.IsNullOrWhiteSpace(patientGiven))
+                 patientResource = new Patient
                 {
-                    var patientHumanName = new HumanName
-                    {
-                        Family = string.IsNullOrWhiteSpace(patientFamily) ? null : patientFamily,
-                        Given = string.IsNullOrWhiteSpace(patientGiven) ? null : [patientGiven]
-                    };
-                    patientResource.Name = [patientHumanName];
-                }
-            }
-            else if (issuer == Issuer.Helsenorge && hasSubject)
-            {
-                var subjectPersonNameParts = subjectDisplayName?.Split().ToList();
-                if (subjectPersonNameParts != null && subjectPersonNameParts.Count != 0)
+                    Id = "patient-1",
+                };
+
+                _logger.LogDebug($"AtnaLogGenerator Resolved {registryPatientIdentifiers.Count} identifiers from request");
+
+                foreach (var identifier in registryPatientIdentifiers)
                 {
-                    var patientHumanName = new HumanName
-                    {
-                        Family = subjectPersonNameParts.LastOrDefault(),
-                        Given = subjectPersonNameParts.Count > 1 ? subjectPersonNameParts.Take(subjectPersonNameParts.Count - 1).ToList() : null
-                    };
-                    patientResource.Name = [patientHumanName];
+                    if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
+
+                    _logger.LogDebug($"AtnaLogGenerator found Patient Identifier: {identifier?.Serialize()}");
+                    patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
                 }
+
+                if (isProvideBundle)
+                {
+                    // For ProvideBundle calls, we have explicit given/family names, because the following scenarios are possible:
+                    // - JWT (machine-to-machine) token without any logged in user. Patient exists only in the Bundle and is added to SAML assertion from there. There is no subject in the assertion.
+                    // - JWT (HelseID user token) token where the logged in user is healthcare professional.
+                    //		The patient exists only in the Bundle and is added to SAML assertion from there. The subject in the assertion will be the healthcare professional, not the patient.
+
+                    if (!string.IsNullOrWhiteSpace(patientFamily) || !string.IsNullOrWhiteSpace(patientGiven))
+                    {
+                        var patientHumanName = new HumanName
+                        {
+                            Family = string.IsNullOrWhiteSpace(patientFamily) ? null : patientFamily,
+                            Given = string.IsNullOrWhiteSpace(patientGiven) ? null : [patientGiven]
+                        };
+                        patientResource.Name = [patientHumanName];
+                    }
+                }
+                else if (issuer == Issuer.Helsenorge && hasSubject)
+                {
+                    var subjectPersonNameParts = subjectDisplayName?.Split().ToList();
+                    if (subjectPersonNameParts != null && subjectPersonNameParts.Count != 0)
+                    {
+                        var patientHumanName = new HumanName
+                        {
+                            Family = subjectPersonNameParts.LastOrDefault(),
+                            Given = subjectPersonNameParts.Count > 1 ? subjectPersonNameParts.Take(subjectPersonNameParts.Count - 1).ToList() : null
+                        };
+                        patientResource.Name = [patientHumanName];
+                    }
+                }
+                else
+                {
+                    patientResource.Identifier.Add(new(Constants.Urn.Custom.UnknownPatientIdentifier, "Unknown"));
+                }
+                auditEvent.Contained.Add(patientResource);
             }
 
-            auditEvent.Contained.Add(patientResource);
 
             auditEvent.Entity.Add(new AuditEvent.EntityComponent()
             {
-                What = new ResourceReference($"#{patientResource.Id}")
+                What = patientResource == null ? null : new ResourceReference($"#{patientResource.Id}")
                 {
                     Display = "patient"
                 },
@@ -432,13 +439,13 @@ public class AtnaLogGeneratorService
             });
 
 
-            var orgnrParent = statements.FirstOrDefault(s => s.Name == "helseid://claims/client/claims/orgnr_parent")
+            var orgnrParent = statements?.FirstOrDefault(s => s.Name == "helseid://claims/client/claims/orgnr_parent")
                 ?.Values
                 .FirstOrDefault();
-            var clientName = statements.FirstOrDefault(s => s.Name == "helseid://claims/client/client_name")
+            var clientName = statements?.FirstOrDefault(s => s.Name == "helseid://claims/client/client_name")
                 ?.Values
                 .FirstOrDefault();
-            var clientId = statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.EhelseClientId)
+            var clientId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.EhelseClientId)
                 ?.Values
                 .FirstOrDefault();
 
@@ -756,7 +763,7 @@ public class AtnaLogGeneratorService
     private CX?[] GetRegistryPatientIdentifierForRequest(SoapEnvelope? requestEnvelope)
     {
         if (requestEnvelope == null) return [];
-        
+
         // ITI-38 or ITI-18 AdhocQuery FindDocuments 
         var requestPatientIdentifier = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery
             .GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();

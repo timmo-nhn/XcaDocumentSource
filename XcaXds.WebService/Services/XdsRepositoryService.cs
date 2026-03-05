@@ -277,7 +277,7 @@ public class XdsRepositoryService
     private bool DocumentIsRestrictedForUser(DocumentRequestType document, XacmlContextRequest? xacmlRequest)
     {
         var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes()
-            .GetXacmlAttributeValuesAsString(Constants.Xacml.CustomAttributes.AppliesTo)?
+            .GetXacmlAttributeValuesAsString(Constants.Urn.Custom.AppliesTo)?
             .FirstOrDefault()
             ?? "Unknown");
 

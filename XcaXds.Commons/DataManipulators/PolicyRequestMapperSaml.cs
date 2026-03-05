@@ -62,7 +62,7 @@ public static class PolicyRequestMapperSaml
                  att.Name.Contains("urn:ihe:iti") ||
                  att.Name.Contains("acp") ||
                  att.Name.Contains("provider-identifier"))
-            .Append(new(Constants.Xacml.CustomAttributes.SamlNameId, samlToken?.Assertion.Subject.NameId.Value));
+            .Append(new(Constants.Urn.Custom.SamlNameId, samlToken?.Assertion.Subject.NameId.Value));
 
         var xacmlAttributesList = new List<XacmlContextAttributes>();
 
@@ -174,14 +174,14 @@ public static class PolicyRequestMapperSaml
             case Issuer.Helsenorge:
                 xacmlAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri(Constants.Xacml.CustomAttributes.AppliesTo),
+                        new Uri(Constants.Urn.Custom.AppliesTo),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = appliesTo.ToString() }));
                 break;
             case Issuer.HelseId:
                 xacmlAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri(Constants.Xacml.CustomAttributes.AppliesTo),
+                        new Uri(Constants.Urn.Custom.AppliesTo),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = appliesTo.ToString() }));
                 break;
@@ -224,7 +224,7 @@ public static class PolicyRequestMapperSaml
         {
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
-                    new Uri(Constants.Xacml.CustomAttributes.DocumentUniqueId),
+                    new Uri(Constants.Urn.Custom.DocumentUniqueId),
                     new Uri(Constants.Xacml.DataType.String),
                     new XacmlContextAttributeValue() { Value = removeObject.Id }));
         }
@@ -251,13 +251,13 @@ public static class PolicyRequestMapperSaml
         {
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
-                    new Uri(Constants.Xacml.CustomAttributes.RepositoryUniqueId),
+                    new Uri(Constants.Urn.Custom.RepositoryUniqueId),
                     new Uri(Constants.Xacml.DataType.String),
                     new XacmlContextAttributeValue() { Value = registryRepository.Repository }));
 
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
-                    new Uri(Constants.Xacml.CustomAttributes.HomeCommunityId),
+                    new Uri(Constants.Urn.Custom.HomeCommunityId),
                     new Uri(Constants.Xacml.DataType.String),
                     new XacmlContextAttributeValue() { Value = registryRepository.HomeCommunity }));
         }
@@ -271,7 +271,7 @@ public static class PolicyRequestMapperSaml
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri(Constants.Xacml.CustomAttributes.DocumentUniqueId),
+                        new Uri(Constants.Urn.Custom.DocumentUniqueId),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentRequest.DocumentUniqueId }));
             }
@@ -280,7 +280,7 @@ public static class PolicyRequestMapperSaml
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri(Constants.Xacml.CustomAttributes.HomeCommunityId),
+                        new Uri(Constants.Urn.Custom.HomeCommunityId),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentRequest.HomeCommunityId }));
             }
@@ -289,7 +289,7 @@ public static class PolicyRequestMapperSaml
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri(Constants.Xacml.CustomAttributes.RepositoryUniqueId),
+                        new Uri(Constants.Urn.Custom.RepositoryUniqueId),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentRequest.RepositoryUniqueId }));
             }
@@ -304,7 +304,7 @@ public static class PolicyRequestMapperSaml
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri($"{Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier}:code"),
+                        new Uri($"{Constants.Urn.Custom.DocumentEntryPatientIdentifier}:code"),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentEntryForDocument.SourcePatientInfo.PatientId.Id }));
             }
@@ -313,7 +313,7 @@ public static class PolicyRequestMapperSaml
             {
                 xacmlRequestAttributes.Add(
                     new XacmlContextAttribute(
-                        new Uri($"{Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier}:codeSystem"),
+                        new Uri($"{Constants.Urn.Custom.DocumentEntryPatientIdentifier}:codeSystem"),
                         new Uri(Constants.Xacml.DataType.String),
                         new XacmlContextAttributeValue() { Value = documentEntryForDocument.SourcePatientInfo.PatientId.System }));
             }
@@ -326,13 +326,13 @@ public static class PolicyRequestMapperSaml
         {
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
-                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:code"),
+                    new Uri($"{Constants.Urn.Custom.AdhocQueryPatientIdentifier}:code"),
                     new Uri(Constants.Xacml.DataType.String),
                     new XacmlContextAttributeValue() { Value = patientIdentifier.Code }));
 
             xacmlRequestAttributes.Add(
                 new XacmlContextAttribute(
-                    new Uri($"{Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier}:codeSystem"),
+                    new Uri($"{Constants.Urn.Custom.AdhocQueryPatientIdentifier}:codeSystem"),
                     new Uri(Constants.Xacml.DataType.String),
                     new XacmlContextAttributeValue() { Value = patientIdentifier.CodeSystem }));
         }
@@ -414,7 +414,7 @@ public static class PolicyRequestMapperSaml
                 }
                 if (!Uri.TryCreate(attribute.Name, UriKind.Absolute, out _))
                 {
-                    attribute.Name = Constants.Xacml.CustomAttributes.UnknownAttribute + attribute.Name;
+                    attribute.Name = Constants.Urn.Custom.UnknownAttribute + ":" + attribute.Name;
                 }
 
                 if (!Uri.IsWellFormedUriString(attribute.Name, UriKind.Absolute))

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
-using System.Globalization;
+﻿using System.Globalization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -664,7 +663,7 @@ public static class RegistryMetadataTransformer
         if (classification == null) return null;
 
         var authorRole = classification
-            . GetSlots(Constants.Xds.SlotNames.AuthorRole)
+            .GetSlots(Constants.Xds.SlotNames.AuthorRole)
             .GetValues()
             .Select(rol => Hl7Object.Parse<CX>(rol)).FirstOrDefault();
 
@@ -701,10 +700,14 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    public static IdentifiableType[] TransformDocumentReferenceDtoListToRegistryObjects(List<RegistryObjectDto> documentReferences)
+    public static IdentifiableType[] TransformDocumentReferenceDtoListToRegistryObjects(List<RegistryObjectDto?>? documentReferences)
     {
         var registryObjectList = new List<IdentifiableType>();
-        registryObjectList.AddRange(TransformRegistryObjectDtosToRegistryObjects(documentReferences));
+
+        if (documentReferences?.Count > 0)
+        {
+            registryObjectList.AddRange(TransformRegistryObjectDtosToRegistryObjects(documentReferences.OfType<RegistryObjectDto>()));
+        }
 
         return registryObjectList.ToArray();
     }
@@ -800,9 +803,9 @@ public static class RegistryMetadataTransformer
 
     private static AssociationType? GetAssociationFromAssociationDto(AssociationDto? association)
     {
-        if (association == null || 
-            string.IsNullOrWhiteSpace(association?.SourceObject) || 
-            string.IsNullOrWhiteSpace(association.TargetObject) || 
+        if (association == null ||
+            string.IsNullOrWhiteSpace(association?.SourceObject) ||
+            string.IsNullOrWhiteSpace(association.TargetObject) ||
             string.IsNullOrWhiteSpace(association.AssociationType)) return null;
 
         var ebRimAssociation = new AssociationType()
@@ -1062,7 +1065,7 @@ public static class RegistryMetadataTransformer
             }
 
             extrinsicObject.Classification ??= [];
-            extrinsicObject.Classification = [.. extrinsicObject.Classification, .. confCodeClassifications! ];
+            extrinsicObject.Classification = [.. extrinsicObject.Classification, .. confCodeClassifications!];
         }
     }
 
@@ -1178,7 +1181,7 @@ public static class RegistryMetadataTransformer
             };
 
             var orgString = org.Serialize();
-            
+
             if (!string.IsNullOrWhiteSpace(orgString))
             {
                 authorInstitutionSlot.AddValue(orgString);

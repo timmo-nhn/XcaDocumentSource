@@ -1,11 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Commons;
 
@@ -519,6 +517,8 @@ public static class Constants
             public const string EventCode = "2.16.578.1.12.4.1.1.7210";
             public const string FacilityType = "2.16.578.1.12.4.1.1.1303";
             public const string PracticeSetting = "2.16.578.1.12.4.1.1.8663";
+            public const string TypeCode = "2.16.578.1.12.4.1.1.9602";
+            public const string CategoryCode = "2.16.578.1.12.4.1.1.9602";
 
             public static class ConfidentialityCode
             {
@@ -917,19 +917,6 @@ public static class Constants
             public const string Role = "urn:oasis:names:tc:xspa:1.0:subject:role";
         }
 
-        public static class CustomAttributes
-        {
-            public const string BaseUrn = "urn:no:nhn:xcads:";
-            public const string DocumentEntryPatientIdentifier = BaseUrn + "document:patient-identifier";
-            public const string AdhocQueryPatientIdentifier = BaseUrn + "adhocquery:patient-identifier";
-            public const string DocumentUniqueId = BaseUrn + "document:uniqueid";
-            public const string RepositoryUniqueId = BaseUrn + "document:repositoryuniqueid";
-            public const string HomeCommunityId = BaseUrn + "document:homecommunityid";
-            public const string SamlNameId = BaseUrn + "saml:nameid";
-            public const string AppliesTo = BaseUrn + "xacml:appliesto";
-            public const string UnknownAttribute = BaseUrn + "xacml:unknownattribute:";
-        }
-
         public static class Category
         {
             public const string V30_Subject = "urn:oasis:names:tc:xacml:3.0:attribute-category:access-subject";
@@ -1034,73 +1021,22 @@ public static class Constants
         public const string FastlegeClaimType = "fastlege";
 
     }
-
-    public static class AuditLogging
+    public static class Urn
     {
-        public class XcaAction
+        public static class Custom
         {
-            public const string ITI18 = "ITI-18";
-            public const string ITI39 = "ITI-39";
+            public const string BaseUrn = "urn:no:nhn:xcads:";
+            public const string DocumentEntryPatientIdentifier = BaseUrn + "document:patient-identifier";
+            public const string AdhocQueryPatientIdentifier = BaseUrn + "adhocquery:patient-identifier";
+            public const string DocumentUniqueId = BaseUrn + "document:uniqueid";
+            public const string RepositoryUniqueId = BaseUrn + "document:repositoryuniqueid";
+            public const string HomeCommunityId = BaseUrn + "document:homecommunityid";
+            public const string SamlNameId = BaseUrn + "saml:nameid";
+            public const string AppliesTo = BaseUrn + "xacml:appliesto";
+            public const string UnknownAttribute = BaseUrn + "xacml:unknownattribute";
+            public const string UnknownPatientIdentifier = BaseUrn + "unknown-patient-identifier";
         }
 
-        // purposeOfUse Code values
-        public const string TREAT = "TREAT";
-        public const string ETREAT = "ETREAT";
-        public const string COC = "COC";
-
-        // old purposeOfUse Codes
-        public const string subject_of_care = "1"; // TREAT
-        public const string emergency_care = "2"; // ETREAT
-        public const string management_qa = "5"; // COC
-
-        // citizen codes
-        public const string OPPSLAG_HELSENORGE = "13";
-
-        // ACP-fields
-        public class ACP
-        {
-            public const string segselv = "segselv";
-            public const string fullmakt = "2.16.578.1.12.4.1.7.2.1.4";
-            public const string cannot_consent = "2.16.578.1.12.4.1.7.2.1.3";
-            public const string verge = "2.16.578.1.12.4.1.7.2.1.2";
-            public const string foreldre = "2.16.578.1.12.4.1.7.2.1.1";
-        }
-
-        public class LoggerNames
-        {
-            public const string AT_SENSE_XUA = "at.sense.xua.module.handler.XUAOutHandler";
-            //public const string HTTP_WIRE = "httpclient.wire.content";   
-            public const string HTTP_WIRE = "org.apache.http.wire";
-            public const string ACTION_CLASS = "at.sense.util.operationtemplate.OperationLogger";
-            public const string AUDIT_MESSAGE_WRITER = "at.sense.logging.atna.content.AuditMessageWriter";
-        }
-
-        public class RegexPatterns
-        {
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string ConfidentialityCode = @"confidentialityCode\s+code=\\?\""([^\""]+)\\\""";
-
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string DocumentSourceName = @"<name>([^<]+)</name>";
-
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string DocumentTitle = @"<title>([^<]+)</title>";
-
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string DocumentEffectiveTime = @"<effectiveTime value=\\?\""([^\""]+)\\?\""";
-
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string HomeCommunityId = @"<ns.:HomeCommunityId>([^<]+)";
-
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string RepositoryUniqueId = @"<ns.:RepositoryUniqueId>([^<]+)";
-
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string DocumentUniqueId = @"<ns.:DocumentUniqueId>([^<]+)";
-
-            [StringSyntax(StringSyntaxAttribute.Regex)]
-            public const string DocumentIdWithOid = @"[\.\d]+\^[\w\d]+";
-        }
     }
 }
 

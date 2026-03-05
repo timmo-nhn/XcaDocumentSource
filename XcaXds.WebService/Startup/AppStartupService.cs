@@ -86,6 +86,13 @@ public class AppStartupService : IHostedService
         return Task.CompletedTask;
     }
 
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Stopping XcaDocumentSource...");
+        return Task.CompletedTask;
+    }
+
     private void FindDudsInRepository()
     {
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
@@ -99,13 +106,6 @@ public class AppStartupService : IHostedService
             _logger.LogWarning($"Repository contains a dud (No Registry metadata associated with it): {dud}");
         }
     }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Stopping XcaDocumentSource...");
-        return Task.CompletedTask;
-    }
-
     private void AddDefaultAccessControlPolicies()
     {
         var cz_deny_adhocquery_resourceid = new PolicyDto()
@@ -115,7 +115,7 @@ public class AppStartupService : IHostedService
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
             [[
-                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                 new(Constants.Saml.Attribute.XuaAcp, CompareRule.Equals, Constants.Oid.Saml.Acp.NullValue)
             ]],
             Actions = ["ReadDocumentList"],
@@ -132,11 +132,11 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.ProviderIdentifier + ":code",CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                 new(Constants.Saml.Attribute.ProviderIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                new(Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Xacml.CustomAttributes.DocumentEntryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Xacml.CustomAttributes.AdhocQueryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
                 new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
             ]],

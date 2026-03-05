@@ -52,8 +52,8 @@ public class UnitTests_Fhir
 
         var randomAssociation = registryObjects.OfType<AssociationType>().PickRandom(8).ToList();
 
-        var registryPackages = randomAssociation.Select(ra => registryObjects.GetById(ra?.SourceObject)).OfType<RegistryPackageType>().ToList();
-        var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject)).OfType<ExtrinsicObjectType>().ToList();
+        var registryPackages = randomAssociation.Select(ra => registryObjects.GetById(ra?.SourceObject ?? "")).OfType<RegistryPackageType>().ToList();
+        var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject ?? "")).OfType<ExtrinsicObjectType>().ToList();
 
         var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry());
         var fhirJsonSerializer = new FhirJsonSerializer();
@@ -71,17 +71,25 @@ public class UnitTests_Fhir
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
 
-        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")) ?? "");
-        var fhirProvideBundleWrongValues = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01_WrongValues.json")) ?? "");
+        var fhirProvideBundle01 = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")) ?? "");
+        var fhirProvideBundle02 = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle02.json")) ?? "");
+        var fhirProvideBundle01WrongValues = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01_WrongValues.json")) ?? "");
 
         var fhirjsonDeserializer = new FhirJsonDeserializer();
 
-        var bundle = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle);
-        var bundleWrongValues = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundleWrongValues);
+        var bundle01 = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle01);
+        var bundle02 = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle02);
+        var bundleWrongValues = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle01WrongValues);
 
         var fhirValidator = new FhirResourceValidatorService(new FakeLogger<FhirResourceValidatorService>(), new Mock<ApplicationConfig>().Object);
 
-        var validationResult = fhirValidator.ValidateFhirResource(bundle);
-        var validationResultWrongValues = fhirValidator.ValidateFhirResource(bundleWrongValues);
+        var fhirJsonSerializer = new FhirJsonSerializer();
+
+        var validationResult01 = fhirValidator.ValidateFhirResource(bundle01);
+
+        var jsonResponse = fhirJsonSerializer.SerializeToString(validationResult01);
+
+        var validationResult02 = fhirValidator.ValidateFhirResource(bundle02);
+        var validationResult01WrongValues = fhirValidator.ValidateFhirResource(bundleWrongValues);
     }
 }
