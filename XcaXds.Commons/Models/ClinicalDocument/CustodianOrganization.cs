@@ -3,6 +3,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 
 namespace XcaXds.Commons.Models.ClinicalDocument;
+
 [Serializable]
 [XmlType("custodianOrganization", Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class CustodianOrganization
@@ -17,7 +18,7 @@ public class CustodianOrganization
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public List<II> Id { get; set; }
+    public List<II> Id { get; set; } = new();
 
     [XmlElement("name")]
     public ON? Name { get; set; }

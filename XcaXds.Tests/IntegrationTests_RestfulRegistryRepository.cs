@@ -28,9 +28,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
     private readonly IRepository _repository;
     private readonly ITestOutputHelper _output;
 
-    private List<DocumentReferenceDto> RegistryContent { get; set; }
-
-    private readonly int RegistryItemCount = 1000; // The amount of registry objects to generate and evaluate against
+    private List<DocumentReferenceDto> RegistryContent { get; set; } = new();
 
     private readonly CX PatientIdentifier = new()
     {
@@ -89,7 +87,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
     {
         var days = Random.Shared.Next(30, 365);
 
-        var documentEntries = EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber).AsRegistryObjectList().OfType<DocumentEntryDto>().ToArray();
+        var documentEntries = EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber).AsRegistryObjectDtoList().OfType<DocumentEntryDto>().ToArray();
 
         var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.Now.AddDays(-days)).ToArray();
 
@@ -102,11 +100,14 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectList());
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtoList());
 
         foreach (var document in metadata.Select(dto => dto.Document))
         {
-            _repository.Write(document.DocumentId, document.Data);
+            if (document != null && document?.DocumentId != null && document.Data?.Length > 0)
+            {
+                _repository.Write(document.DocumentId, document.Data);
+            }
         }
 
         return metadata;

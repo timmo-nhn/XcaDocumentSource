@@ -24,6 +24,6 @@ public class Precondition
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("criterion")]
-    public Criterion Criterion { get; set; }
+    public Criterion Criterion { get; set; } = new();
 
 }

@@ -35,7 +35,7 @@ public class Hl7InputFormatter : TextInputFormatter
 
             return await InputFormatterResult.SuccessAsync(hl7RawMessage);
         }
-        catch (Exception ex)
+        catch
         {
 
             return await InputFormatterResult.FailureAsync();

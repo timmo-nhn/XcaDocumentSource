@@ -20,5 +20,5 @@ public class Subject : InfrastructureRoot
     public CE? AwarenessCode { get; set; }
 
     [XmlElement("relatedSubject")]
-    public RelatedSubject RelatedSubject { get; set; }
+    public RelatedSubject RelatedSubject { get; set; } = new();
 }

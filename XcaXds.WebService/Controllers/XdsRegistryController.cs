@@ -5,6 +5,7 @@ using System.Diagnostics;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
@@ -111,7 +112,8 @@ public class XdsRegistryController : ControllerBase
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
 
                     registryResponse.RegistryErrorList ??= new();
-                    registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError];
+                    registryResponse.RegistryErrorList.RegistryError = [.. registryResponse.RegistryErrorList.RegistryError, .. registryUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []];
+                    registryResponse.RegistryErrorList.RegistryError.OfType<RegistryErrorType>(); // Filter out null values
 
                     responseEnvelope = SoapExtensions.CreateSoapResultRegistryResponse(registryResponse).Value;
                 }
@@ -129,10 +131,8 @@ public class XdsRegistryController : ControllerBase
                 var deleteDocumentSetResponse = _registryService.DeleteDocumentSet(soapEnvelope, out var deletedObjects);
                 if (deleteDocumentSetResponse.IsSuccess)
                 {
-                    responseEnvelope.Header ??= new();
                     responseEnvelope.Header.Action = soapEnvelope.GetCorrespondingResponseAction();
-                    responseEnvelope.Body = new();
-                    responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body;
+                    responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body ?? new();
 
                     // DeleteDocuments_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
                     soapEnvelope.Body.RegisterDocumentSetRequest = new()

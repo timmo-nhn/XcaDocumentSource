@@ -10,17 +10,17 @@ public partial class RegistryErrorType
     public RegistryErrorType() { }
 
     [XmlAttribute(AttributeName = "codeContext")]
-    public string CodeContext;
+    public string? CodeContext;
 
     [XmlAttribute(AttributeName = "errorCode")]
-    public string ErrorCode;
+    public string? ErrorCode;
 
     [XmlAttribute(AttributeName = "severity")]
-    public string Severity;
+    public string? Severity;
 
     [XmlAttribute(AttributeName = "location")]
-    public string Location;
+    public string? Location;
 
     [XmlText]
-    public string Value;
+    public string? Value;
 }

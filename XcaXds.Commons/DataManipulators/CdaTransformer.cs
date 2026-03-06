@@ -366,7 +366,7 @@ public static partial class CdaTransformer
     /// Will preserve the document content in the CDA documents NonXmlBody <para/>
     /// <a href="https://build.fhir.org/ig/HL7/CDA-core-2.0/" />
     /// </summary>
-    public static ClinicalDocument? TransformRegistryObjectsToClinicalDocument(DocumentEntryDto documentEntry, SubmissionSetDto submissionSet, DocumentDto document)
+    public static ClinicalDocument? TransformRegistryObjectsToClinicalDocument(DocumentEntryDto? documentEntry, SubmissionSetDto? submissionSet, DocumentDto? document)
     {
         var cdaDocument = new ClinicalDocument();
 
@@ -395,13 +395,20 @@ public static partial class CdaTransformer
             cdaDocument.RecordTarget.Add(SetClinicalDocumentRecordTarget(documentEntry));
 
             // ClinicalDocument.author
-            cdaDocument.Author ??= new();
-            cdaDocument.Author.AddRange(SetClinicalDocumentAuthors(submissionSet));
+            var cdaAuthors = SetClinicalDocumentAuthors(submissionSet);
+            if (cdaAuthors?.Count > 0)
+            {
+                cdaDocument.Author ??= new();
+                cdaDocument.Author.AddRange(cdaAuthors);
+            }
 
             // ClinicalDocument.custodian
-            cdaDocument.Custodian ??= new();
-            cdaDocument.Custodian = SetClinicalDocumentCustodian(submissionSet) ?? new();
-
+            var custodian = SetClinicalDocumentCustodian(submissionSet);
+            if (custodian != null)
+            {
+                cdaDocument.Custodian ??= new();
+                cdaDocument.Custodian = custodian;
+            }
         }
 
         // ClinicalDocument.nonXmlBody
@@ -435,8 +442,10 @@ public static partial class CdaTransformer
         return nonXmlBody;
     }
 
-    private static List<Author> SetClinicalDocumentAuthors(SubmissionSetDto submissionSet)
+    private static List<Author>? SetClinicalDocumentAuthors(SubmissionSetDto? submissionSet)
     {
+        if (submissionSet == null) return null;
+
         var authorList = new List<Author>();
 
         foreach (var author in submissionSet.Author ?? new List<AuthorInfo>())
@@ -510,8 +519,10 @@ public static partial class CdaTransformer
         return ts;
     }
 
-    private static Custodian? SetClinicalDocumentCustodian(SubmissionSetDto submissionsSet)
+    private static Custodian? SetClinicalDocumentCustodian(SubmissionSetDto? submissionsSet)
     {
+        if (submissionsSet == null) return null;
+
         var custodian = new Custodian();
 
         if (submissionsSet.Author == null) return null;

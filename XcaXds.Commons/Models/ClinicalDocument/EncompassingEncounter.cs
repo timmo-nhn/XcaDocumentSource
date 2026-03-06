@@ -36,7 +36,7 @@ public class EncompassingEncounter
     public ResponsibleParty? ResponsibleParty { get; set; }
 
     [XmlElement("encounterParticipant")]
-    public List<EncounterParticipant> EncounterParticipant { get; set; }
+    public List<EncounterParticipant> EncounterParticipant { get; set; } = new();
 
     [XmlElement("location")]
     public Location? Location { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace XcaXds.Commons.Commons;
 
-public class BoundedDictionary<TKey, TValue>
+public class BoundedDictionary<TKey, TValue> where TKey : notnull
 {
     private readonly int _maxSize;
     private readonly Dictionary<TKey, LinkedListNode<(TKey Key, TValue Value)>> _dict;

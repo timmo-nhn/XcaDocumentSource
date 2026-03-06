@@ -10,16 +10,16 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 public partial class DocumentResponseType
 {
     [XmlElement(Order = 0)]
-    public string HomeCommunityId;
+    public string? HomeCommunityId { get; set; }
 
     [XmlElement(Order = 1)]
-    public string RepositoryUniqueId;
+    public string? RepositoryUniqueId { get; set; }
 
     [XmlElement(Order = 2)]
-    public string DocumentUniqueId;
+    public string? DocumentUniqueId { get; set; }
 
     [XmlElement(ElementName = "mimeType", Order = 3)]
-    public string? MimeType;
+    public string? MimeType { get; set; }
 
     [XmlAnyElement("Document", Order = 4)]
     public XmlElement? Document { get; set; }

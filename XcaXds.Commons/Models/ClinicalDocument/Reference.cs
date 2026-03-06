@@ -18,5 +18,5 @@ public class Reference
     [XmlElement("externalObservation", typeof(ExternalObservation))]
     [XmlElement("externalProcedure", typeof(ExternalProcedure))]
     [XmlElement("externalDocument", typeof(ExternalDocument))]
-    public ExternalBase ExternalItem { get; set; }
+    public ExternalBase ExternalItem { get; set; } = new();
 }

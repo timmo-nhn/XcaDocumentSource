@@ -1,10 +1,17 @@
-﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Extensions;
 
 public static class RegistryDtoExtensions
 {
-    public static List<RegistryObjectDto> AsRegistryObjectList(this List<DocumentReferenceDto> documentReference)
+    public static List<IdentifiableType> AsRegistryObjectList(this List<DocumentReferenceDto> documentReference)
+    {
+        return RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(documentReference.AsRegistryObjectDtoList()).ToList();
+    }
+
+    public static List<RegistryObjectDto> AsRegistryObjectDtoList(this List<DocumentReferenceDto> documentReference)
     {
         var registryObjectDtos = new List<RegistryObjectDto>();
 

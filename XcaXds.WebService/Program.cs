@@ -93,7 +93,11 @@ public class Program
         // If we are running in a container, override appsettings.json and environment variables for configuration
         if (runningInContainer)
         {
-            var envVars = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key, entry => (string?)entry.Value).ToList();
+            var envVars = Environment.GetEnvironmentVariables()
+                .Cast<DictionaryEntry>()
+                .Select(e => new KeyValuePair<string, string>((string)e.Key, (string)e.Value!))
+                .ToList();
+
             xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(envVars);
 
             builder.Configuration.Bind(xdsConfig);

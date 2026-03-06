@@ -4,12 +4,10 @@ using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Serializers;
 using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
 
@@ -92,52 +90,6 @@ public class XdsRespondingGatewayController : ControllerBase
 
         switch (action)
         {
-            case Constants.Xds.OperationContract.Iti38ActionAsync:
-
-                // Prototyping
-
-                var iti38AsyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
-
-                iti38AsyncReplyTo = iti38AsyncReplyTo.Replace("10.89.0.90", "pjd-ehs.test.nhn.no");
-
-                if (string.IsNullOrEmpty(iti38AsyncReplyTo))
-                    throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
-
-                var iti38AsyncMessageId = soapEnvelope.Header.MessageId;
-
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        var response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
-
-                        var sxmls = new SoapXmlSerializer();
-                        var soapXml = sxmls.SerializeSoapMessageToXmlString(response.Value).Content;
-
-                        var soapXmlContent = new StringContent(soapXml, Encoding.UTF8, new MediaTypeHeaderValue(Constants.MimeTypes.SoapXml));
-
-                        var client = _httpClientFactory.CreateClient();
-
-                        var replyToResponse = await client.PostAsync(iti38AsyncReplyTo, soapXmlContent);
-
-                        requestTimer.Stop();
-                        _logger.LogInformation($"ReplyTo Endpoint status: {replyToResponse.StatusCode}");
-                        _logger.LogInformation($"Completed async action: {action} in {requestTimer.ElapsedMilliseconds} ms");
-
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogInformation($"Async exception thrown!\n{ex.ToString()}");
-
-                        throw;
-                    }
-                });
-
-                requestTimer.Stop();
-
-                _logger.LogInformation($"Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
-
-                return Accepted();
 
             case Constants.Xds.OperationContract.Iti38Action:
                 if (!await _featureManager.IsEnabledAsync("Iti38CrossGatewayQuery")) return NotFound();
@@ -150,67 +102,6 @@ public class XdsRespondingGatewayController : ControllerBase
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
                 responseEnvelope = iti38Response.Value;
                 break;
-
-
-            case Constants.Xds.OperationContract.Iti39ActionAsync:
-
-                var iti39AyncReplyTo = soapEnvelope.Header.ReplyTo?.Address;
-
-                if (string.IsNullOrEmpty(iti39AyncReplyTo))
-                    throw new InvalidOperationException("ReplyTo header is required for async ITI-39.");
-
-                var iti39AsyncMessageId = Request.HttpContext.TraceIdentifier;
-
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        var response = _xdsRepositoryService.RetrieveDocumentSet(soapEnvelope);
-
-                        var sxmls = new SoapXmlSerializer();
-
-                        var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(response.Value, out var boundary);
-
-                        string contentId = null;
-
-                        if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
-                        {
-                            contentId = contentIdValues.First();
-                        }
-
-                        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = multipartContent
-                        };
-
-
-                        var bytes = await multipartContent.ReadAsByteArrayAsync();
-                        var content = new ByteArrayContent(bytes);
-                        content.Headers.ContentType = MediaTypeHeaderValue.Parse(
-                            $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\""
-                        );
-
-                        var client = _httpClientFactory.CreateClient();
-
-                        var replyToResponse = await client.PostAsync(iti39AyncReplyTo, content);
-
-                        requestTimer.Stop();
-                        _logger.LogInformation($"{iti39AsyncMessageId} - ReplyTo Endpoint status: {replyToResponse.StatusCode}");
-                        _logger.LogInformation($"{iti39AsyncMessageId} - Completed async action: {action} in {requestTimer.ElapsedMilliseconds} ms");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogInformation($"{iti39AsyncMessageId} - Async exception thrown!\n{ex.ToString()}");
-
-                        throw;
-                    }
-                });
-
-                requestTimer.Stop();
-
-                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Accepted async action: {action.Replace("Async", "")} in {requestTimer.ElapsedMilliseconds} ms");
-
-                return Accepted();
 
 
             case Constants.Xds.OperationContract.Iti39Action:
@@ -231,11 +122,11 @@ public class XdsRespondingGatewayController : ControllerBase
                     break;
                 }
 
-                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true && Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated)
+                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true && Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated && iti39Response.Value != null)
                 {
                     var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(iti39Response.Value, out var boundary);
 
-                    string contentId = null;
+                    string? contentId = null;
 
                     if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
                     {

@@ -13,7 +13,7 @@ public class IVXB_TS : TS
     [XmlAttribute("inclusive")]
     public string? Inclusive
     {
-        get => _inclusive.HasValue ? _inclusive.ToString().ToLowerInvariant() : null;
+        get => _inclusive.HasValue ? _inclusive.ToString()?.ToLowerInvariant() : null;
         set => _inclusive = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 }

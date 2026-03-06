@@ -142,7 +142,7 @@ public static class Hl7FhirExtensions
         var year = inputNin.Substring(4, 2);
         var control = inputNin.Substring(6, 3);
 
-        
+
         // https://www.matematikk.org/artikkel.html?tid=64296
 
         var century = (int.Parse(control), int.Parse(year)) switch

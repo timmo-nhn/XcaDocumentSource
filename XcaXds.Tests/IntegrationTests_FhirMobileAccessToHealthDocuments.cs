@@ -46,7 +46,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var registryObjects = RegistryContent.AsRegistryObjectList();
+        var registryObjects = RegistryContent.AsRegistryObjectDtoList();
 
         var registryContentCount = registryObjects.Count;
 
@@ -63,9 +63,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var currentRegistry = _registry.ReadRegistry();
         var currentCount = currentRegistry.Count();
-        
+
         var expectedCount = registryContentCount - 3;
-        
+
         Assert.Equal(expectedCount, currentCount);
 
         await WaitForAtnaLogToBeExported();
@@ -99,7 +99,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var registryObjects = RegistryContent.AsRegistryObjectList();
+        var registryObjects = RegistryContent.AsRegistryObjectDtoList();
 
         var registryContentCount = registryObjects.Count;
 
@@ -116,9 +116,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var currentRegistry = _registry.ReadRegistry();
         var currentCount = currentRegistry.Count();
-        
+
         var expectedCount = registryContentCount;
-        
+
         Assert.Equal(expectedCount, currentCount);
 
         await WaitForAtnaLogToBeExported();
@@ -285,7 +285,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectList());
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtoList());
 
         var documents = metadata.Select(dto => dto.Document);
 

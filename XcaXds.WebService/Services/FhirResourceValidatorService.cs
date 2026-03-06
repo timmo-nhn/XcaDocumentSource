@@ -10,7 +10,6 @@ using Hl7.Fhir.Support;
 using Hl7.FhirPath;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Helpers;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
@@ -204,7 +203,7 @@ public class FhirResourceValidatorService
 
         var terminologyService = new LocalTerminologyService(resolver);
 
-        return new Validator(resolver, terminologyService, null, new ValidationSettings() { ConformanceResourceResolver = packageSource});
+        return new Validator(resolver, terminologyService, null, new ValidationSettings() { ConformanceResourceResolver = packageSource });
     }
 
     private static readonly HashSet<string> AllowedOrganizationOids =

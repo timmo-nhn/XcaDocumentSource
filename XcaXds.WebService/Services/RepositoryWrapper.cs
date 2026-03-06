@@ -26,10 +26,10 @@ public partial class RepositoryWrapper
         _fileScanner = fileScanner;
     }
 
-    public byte[]? GetDocumentFromRepository(string homeCommunityId, string repositoryUniqueId, string documentUniqueId, string? messageId = null)
+    public byte[]? GetDocumentFromRepository(string? homeCommunityId, string? repositoryUniqueId, string? documentUniqueId, string? messageId = null)
     {
-        homeCommunityId = homeCommunityId.NoUrn();
-        repositoryUniqueId = repositoryUniqueId.NoUrn();
+        homeCommunityId = homeCommunityId?.NoUrn();
+        repositoryUniqueId = repositoryUniqueId?.NoUrn();
 
         if (_appConfig.HomeCommunityId != homeCommunityId)
         {
@@ -37,9 +37,15 @@ public partial class RepositoryWrapper
             return null;
         }
 
-        if (repositoryUniqueId.Substring(repositoryUniqueId.LastIndexOf('/') + 1) != _appConfig.RepositoryUniqueId)
+        if (repositoryUniqueId?.Substring(repositoryUniqueId.LastIndexOf('/') + 1) != _appConfig.RepositoryUniqueId)
         {
             _logger.LogInformation($"{messageId} - Got document request with invalid RepositoryUniqueId {repositoryUniqueId}, Expected: {_appConfig.RepositoryUniqueId}".TrimStart([' ', '-']));
+            return null;
+        }
+
+        if (documentUniqueId == null)
+        {
+            _logger.LogInformation($"{messageId} - No documentUniqueId specified");
             return null;
         }
 
@@ -79,7 +85,9 @@ public partial class RepositoryWrapper
             var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
 
             var clinicalDocument = CdaTransformer.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
-            cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content;
+
+            cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content ??
+                throw new InvalidOperationException("ClinicalDocument transformation resulted in empty ClinicalDocument");
         }
 
         return Encoding.UTF8.GetBytes(cdaXml);
@@ -98,10 +106,10 @@ public partial class RepositoryWrapper
 
     public bool CheckIfFileExistsInRepository(string? documentUniqueId)
     {
-        return _repository.Read(documentUniqueId) != null;
+        return _repository.Read(documentUniqueId ?? "") != null;
     }
 
-    public bool SetNewRepositoryOid(string repositoryUniqueId, out string oldId)
+    public bool SetNewRepositoryOid(string repositoryUniqueId, out string? oldId)
     {
         return _repository.SetNewOid(repositoryUniqueId, out oldId);
     }

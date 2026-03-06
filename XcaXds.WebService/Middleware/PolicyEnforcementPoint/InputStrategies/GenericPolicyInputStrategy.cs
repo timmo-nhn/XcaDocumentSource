@@ -1,6 +1,6 @@
 ﻿using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.Helpers;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
 
@@ -8,7 +8,7 @@ namespace XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputStrategies;
 
 public class GenericPolicyInputStrategy : IPolicyInputStrategy
 {
-    public string[] GetAcceptedContentTypes()
+    public string?[] GetAcceptedContentTypes()
     {
         return [null];
     }
@@ -22,7 +22,8 @@ public class GenericPolicyInputStrategy : IPolicyInputStrategy
         if (!ok || token == null)
             return PolicyInputResult.Fail("Invalid or missing JWT");
 
-        var xacml = PolicyRequestMapperJsonWebToken.GetXacml20RequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method);
+        var xacml = PolicyRequestMapperJsonWebToken.GetXacml20RequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method) ??
+            throw new InvalidOperationException("Failed to create XACML request from JWT.");
 
         return PolicyInputResult.Success(xacml, Issuer.HelseId, this);
     }

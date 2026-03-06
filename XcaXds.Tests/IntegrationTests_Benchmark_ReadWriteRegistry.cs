@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Testing;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -35,7 +36,7 @@ public class IntegrationTests_Benchmark_ReadWriteRegistry : IClassFixture<WebApp
     public async Task RegistryBenchmark()
     {
         var statistics = new List<object>();
-        var registry = new FileBasedRegistry();
+        var registry = new FileBasedRegistry(new FakeLogger<FileBasedRegistry>());
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "SoapRequests"));
 
         var iti38Request = File.ReadAllText(testDataFiles.First(f => f.Contains("iti38-iti40-request-kj.xml")));
@@ -59,7 +60,7 @@ public class IntegrationTests_Benchmark_ReadWriteRegistry : IClassFixture<WebApp
             var response = await fetchResponse.Content.ReadAsStringAsync();
             var registryObjects = sxmls.DeserializeXmlString<SoapEnvelope>(response);
 
-            var regObjects = registryObjects.Body?.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0;
+            var regObjects = registryObjects.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0;
             Debug.WriteLine(i);
             Debug.WriteLine(regObjects);
             statistics.Add(new { RegistryObjects = regObjects, Read = swRead.ElapsedMilliseconds, Write = swWrite.ElapsedMilliseconds });

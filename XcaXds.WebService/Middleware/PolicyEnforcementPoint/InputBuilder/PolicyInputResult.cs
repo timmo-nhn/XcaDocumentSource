@@ -33,7 +33,7 @@ public class PolicyInputResult
 
     public XacmlContextRequest? XacmlRequest { get; init; }
     public Issuer AppliesTo { get; init; } = Issuer.Unknown;
-    public IPolicyInputStrategy Strategy { get; init; }
+    public IPolicyInputStrategy? Strategy { get; init; }
 
 
     public static PolicyInputResult Fail(string message)

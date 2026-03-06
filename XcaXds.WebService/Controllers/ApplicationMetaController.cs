@@ -3,13 +3,12 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
-using XcaXds.Source.Source;
 using XcaXds.WebService.Services;
-using XcaXds.Commons.Extensions;
-using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -28,11 +27,11 @@ public class ApplicationMetaController : ControllerBase
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
 
     public ApplicationMetaController(
-        ILogger<XdsRegistryController> logger, 
-        ApplicationConfig xdsConfig, 
-        RegistryWrapper registryWrapper, 
-        RepositoryWrapper repositoryWrapper, 
-        HealthCheckService healthCheckService, 
+        ILogger<XdsRegistryController> logger,
+        ApplicationConfig xdsConfig,
+        RegistryWrapper registryWrapper,
+        RepositoryWrapper repositoryWrapper,
+        HealthCheckService healthCheckService,
         MonitoringStatusService monitoringService,
         RequestThrottlingService requestThrottlingService
         )
@@ -138,7 +137,7 @@ public class ApplicationMetaController : ControllerBase
 
         var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_xdsConfig.HomeCommunityId, _xdsConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
 
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectList());
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtoList());
 
         return Ok("Metadata generated");
     }

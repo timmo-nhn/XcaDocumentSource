@@ -9,16 +9,16 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class Order
 {
     [XmlAttribute("classCode")]
-    public string classCode { get; set; }
+    public string classCode { get; set; } = string.Empty;
 
     [XmlAttribute("moodCode")]
-    public string? moodCode { get; set; }
+    public string? moodCode { get; set; } = "RQO";
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public List<II> Id { get; set; }
+    public List<II> Id { get; set; } = new();
 
     [XmlElement("code")]
     public CE? Code { get; set; }

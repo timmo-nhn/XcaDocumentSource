@@ -23,7 +23,7 @@ public class IVL_PQ : ANY
     public TS? Center { get; set; }
 
     [XmlElement("width")]
-    public PQ Width { get; set; }
+    public PQ Width { get; set; } = new();
 
     [XmlElement("high")]
     public IVXB_PQ? High { get; set; }

@@ -27,5 +27,5 @@ public class RecordTarget
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("patientRole")]
-    public PatientRole PatientRole { get; set; }
+    public PatientRole PatientRole { get; set; } = new();
 }

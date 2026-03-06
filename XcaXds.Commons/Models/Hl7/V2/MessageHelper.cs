@@ -96,7 +96,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
         /// <param name="message">String to serialize</param>
         /// <param name="encoding">Text encoder (optional)</param>
         /// <returns>MLLP escaped byte array</returns>
-        public static byte[] GetMLLP(string message, Encoding encoding = null)
+        public static byte[] GetMLLP(string message, Encoding? encoding = null)
         {
             if (encoding == null)
                 encoding = Encoding.UTF8;

@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 public class PQ : QTY
 {
     [XmlAttribute("unit")]
-    public string Unit { get; set; }
+    public string Unit { get; set; } = string.Empty;
 
     [XmlAttribute("value")]
-    public string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
 
     [XmlElement("translation")]
     public List<PQR>? Translation { get; set; }

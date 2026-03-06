@@ -10,13 +10,13 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class IntendedRecipient
 {
     [XmlAttribute("classCode")]
-    public string classCode { get; set; }
+    public string classCode { get; set; } = string.Empty;
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public List<II> Id { get; set; }
+    public List<II> Id { get; set; } = new();
 
     [XmlElement("identifiedBy", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<IdentifiedBy>? SdtcIdentifiedBy { get; set; }

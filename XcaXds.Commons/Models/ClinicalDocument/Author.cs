@@ -31,8 +31,8 @@ public class Author
     public CE? FunctionCode { get; set; }
 
     [XmlElement("time")]
-    public TS Time { get; set; }
+    public TS Time { get; set; } = new();
 
     [XmlElement("assignedAuthor")]
-    public AssignedAuthor AssignedAuthor { get; set; }
+    public AssignedAuthor AssignedAuthor { get; set; } = new();
 }

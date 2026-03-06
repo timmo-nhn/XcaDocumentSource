@@ -24,13 +24,13 @@ public class RegionOfInterest : EntryItemBase
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public List<II> Id { get; set; }
+    public List<II> Id { get; set; } = new();
 
     [XmlElement("code")]
-    public CD Code { get; set; }
+    public CD Code { get; set; } = new();
 
     [XmlElement("value")]
-    public List<INT> Value { get; set; }
+    public List<INT> Value { get; set; } = new();
 
     [XmlElement("subject")]
     public Subject? Subject { get; set; }

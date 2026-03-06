@@ -8,5 +8,5 @@ namespace XcaXds.Commons.Models;
 public partial class IncludeType
 {
     [XmlAttribute()]
-    public string href { get; set; }
+    public string? href { get; set; }
 }

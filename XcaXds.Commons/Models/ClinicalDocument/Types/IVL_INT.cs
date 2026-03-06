@@ -20,7 +20,7 @@ public class IVL_INT : ANY
     public INT? Center { get; set; }
 
     [XmlElement("width")]
-    public INT Width { get; set; }
+    public INT Width { get; set; } = new();
 
     [XmlElement("high")]
     public IVXB_INT? High { get; set; }

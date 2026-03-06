@@ -15,6 +15,6 @@ public class BusinessLogicParameters
     public int ResourceAge { get; set; }
     public CodedValue? Role { get; set; }
     public string? Acp { get; set; }
-    public string? Bppc {  get; set; }
+    public string? Bppc { get; set; }
     public Issuer? Issuer { get; set; }
 }

@@ -8,11 +8,11 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 public class ExternalIdentifierType : RegistryObjectType
 {
     [XmlAttribute(AttributeName = "registryObject", DataType = "anyURI")]
-    public string RegistryObject;
+    public string? RegistryObject;
 
     [XmlAttribute(AttributeName = "identificationScheme", DataType = "anyURI")]
-    public string IdentificationScheme;
+    public string? IdentificationScheme;
 
     [XmlAttribute(AttributeName = "value")]
-    public string Value;
+    public string? Value;
 }

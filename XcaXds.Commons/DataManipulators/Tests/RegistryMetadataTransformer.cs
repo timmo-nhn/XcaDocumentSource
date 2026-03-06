@@ -108,7 +108,7 @@ public static class RegistryMetadataTransformer
         return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<AssociationDto>().ToList();
     }
 
-    public static List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<IdentifiableType> registryObjectList)
+    public static List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<IdentifiableType>? registryObjectList)
     {
         var listDto = new List<RegistryObjectDto>();
         var currentType = string.Empty;
@@ -116,7 +116,7 @@ public static class RegistryMetadataTransformer
 
         try
         {
-            foreach (var registryObject in registryObjectList)
+            foreach (var registryObject in registryObjectList ?? [])
             {
                 if (registryObject == null) continue;
                 currentType = registryObject.GetType().Name;

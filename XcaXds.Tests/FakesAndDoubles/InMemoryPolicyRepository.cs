@@ -32,6 +32,7 @@ public sealed class InMemoryPolicyRepository : IPolicyRepository
         if (_policySet.Policies!.Any(p => p.Id == policyDto.Id))
             return false;
 
+        _policySet.Policies ??= new();
         _policySet.Policies.Add(policyDto);
         return true;
     }

@@ -12,5 +12,5 @@ public class BirthPlace
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("place")]
-    public Place Place { get; set; }
+    public Place Place { get; set; } = new();
 }

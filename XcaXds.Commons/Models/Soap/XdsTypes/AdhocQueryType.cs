@@ -7,6 +7,4 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public partial class AdhocQueryType : RegistryObjectType
 {
-    [XmlElement(Order = 0)]
-    public QueryExpressionType? QueryExpression;
 }

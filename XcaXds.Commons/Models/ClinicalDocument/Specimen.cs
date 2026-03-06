@@ -11,5 +11,5 @@ public class Specimen
     public string? TypeCode { get; set; }
 
     [XmlElement("specimenRole")]
-    public SpecimenRole SpecimenRole { get; set; }
+    public SpecimenRole SpecimenRole { get; set; } = new();
 }

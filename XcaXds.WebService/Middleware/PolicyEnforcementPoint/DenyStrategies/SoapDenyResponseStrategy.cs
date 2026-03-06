@@ -2,7 +2,7 @@
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Serializers;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyWriter;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
@@ -12,7 +12,7 @@ public class SoapDenyResponseStrategy : IPepDenyResponseStrategy
     public bool CanHandle(string? contentType, PolicyInputResult input) =>
         GetAcceptedContentTypes().Contains(contentType);
 
-    public async Task WriteAsync(HttpContext context, PolicyInputResult input, ApplicationConfig appConfig, string message)
+    public async Task WriteAsync(HttpContext context, PolicyInputResult input, ApplicationConfig appConfig, string? message)
     {
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
@@ -38,7 +38,7 @@ public class SoapDenyResponseStrategy : IPepDenyResponseStrategy
         };
 
         var registryResponse = new RegistryResponseType();
-        registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, appConfig.HomeCommunityId);
+        registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message ?? "Registry error", appConfig.HomeCommunityId);
 
         SoapExtensions.PutRegistryResponseInTheCorrectPlaceAccordingToSoapAction(soapEnvelopeResponse, registryResponse);
 

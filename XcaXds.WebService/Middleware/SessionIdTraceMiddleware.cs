@@ -1,9 +1,7 @@
-﻿using Hl7.Fhir.Model.CdsHooks;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -46,7 +44,7 @@ public class SessionIdTraceMiddleware
 
                 var soapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody.Trim());
 
-                httpContext.TraceIdentifier = soapEnvelope.Header?.MessageId ?? Guid.NewGuid().ToString();
+                httpContext.TraceIdentifier = soapEnvelope.Header.MessageId ?? Guid.NewGuid().ToString();
 
                 break;
 

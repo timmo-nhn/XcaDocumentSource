@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
@@ -13,23 +13,28 @@ namespace XcaXds.WebService.Controllers;
 [Route("api/policy")]
 public class PolicyManagementController : ControllerBase
 {
-    private readonly ILogger<PolicyManagementController> _logger;
     private readonly PolicyRepositoryService _policyRepositoryService;
     private readonly PolicyDecisionPointService _policyDecisionPointService;
     private readonly RegistryWrapper _registryWrapper;
+    private readonly ILogger<PolicyManagementController> _logger;
 
-    public PolicyManagementController(PolicyRepositoryService policyRepositoryService, PolicyDecisionPointService policyDecisionPointService, RegistryWrapper registryWrapper)
+    public PolicyManagementController(PolicyRepositoryService policyRepositoryService, PolicyDecisionPointService policyDecisionPointService, RegistryWrapper registryWrapper, ILogger<PolicyManagementController> logger)
     {
         _policyRepositoryService = policyRepositoryService;
         _policyDecisionPointService = policyDecisionPointService;
         _registryWrapper = registryWrapper;
+        _logger = logger;
     }
 
     [Produces("application/json", "application/xml")]
     [HttpGet("get-all")]
     public IActionResult GetAllPolicies(bool xml = false)
     {
+        _logger.LogInformation($"Received request to get all policies. Returning in XML format: {xml}");
+
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
+
+        _logger.LogInformation($"Returned PolicySet with {policySet.Policies?.Count ?? 0} Policies");
 
         if (xml)
         {
@@ -37,8 +42,9 @@ public class PolicyManagementController : ControllerBase
 
             var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
 
-            return Content(xmlPolicySet, Constants.MimeTypes.Xml);
+            if (string.IsNullOrWhiteSpace(xmlPolicySet)) return NotFound();
 
+            return Content(xmlPolicySet, Constants.MimeTypes.Xml);
         }
 
         return Ok(policySet);
@@ -55,6 +61,7 @@ public class PolicyManagementController : ControllerBase
             var xacmlPolicySet = PolicyDtoTransformer.TransformPolicyDtoToXacmlVersion20Policy(policySet);
 
             var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
+            if (string.IsNullOrWhiteSpace(xmlPolicySet)) return NotFound();
 
             return Content(xmlPolicySet, Constants.MimeTypes.Xml);
         }
@@ -187,8 +194,8 @@ public class PolicyManagementController : ControllerBase
     public async Task<IActionResult> GetXacmlRequest([FromBody] SoapEnvelope soapEnvelope)
     {
         var response = new RestfulApiResponse();
-        var samlToken = PolicyRequestMapperSaml.ReadSamlToken(soapEnvelope.Header.Security.Assertion?.OuterXml);
-        var issuer = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken.Assertion.Issuer.Value);
+        var samlToken = PolicyRequestMapperSaml.ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
+        var issuer = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Assertion.Issuer.Value);
 
         var xacmlRequest = PolicyRequestMapperSaml.GetXacmlRequest(soapEnvelope, XacmlVersion.Version20, issuer, _registryWrapper.GetDocumentRegistryContentAsDtos().ToList());
 

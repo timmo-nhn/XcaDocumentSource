@@ -1,5 +1,4 @@
-﻿using Abc.Xacml.Policy;
-using XcaXds.Commons.Models.Custom.PolicyDtos;
+﻿using XcaXds.Commons.Models.Custom.PolicyDtos;
 
 namespace XcaXds.Commons.Interfaces;
 

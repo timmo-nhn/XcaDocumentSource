@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection;
 using XcaXds.Source.Models.DatabaseDtos;
 
 namespace XcaXds.Source.Source;
@@ -11,8 +9,6 @@ public class SqliteRegistryDbContext : DbContext
     public DbSet<DbDocumentEntry> DocumentEntries => Set<DbDocumentEntry>();
     public DbSet<DbSubmissionSet> SubmissionSets => Set<DbSubmissionSet>();
     public DbSet<DbAssociation> Associations => Set<DbAssociation>();
-
-    private readonly string _dbPath;
 
     public SqliteRegistryDbContext(DbContextOptions<SqliteRegistryDbContext> options) : base(options) { }
 

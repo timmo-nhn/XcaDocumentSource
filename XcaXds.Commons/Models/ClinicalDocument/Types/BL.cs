@@ -13,7 +13,7 @@ public class BL : ANY
     [XmlAttribute("value")]
     public string? Value
     {
-        get => _value.HasValue ? _value.ToString().ToLowerInvariant() : null;
+        get => _value.HasValue ? _value.ToString()?.ToLowerInvariant() : null;
         set => _value = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 

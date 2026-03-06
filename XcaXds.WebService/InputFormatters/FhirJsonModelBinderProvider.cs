@@ -2,10 +2,7 @@
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using System.Text;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -50,7 +47,7 @@ public class FhirJsonModelBinder : IModelBinder
 
             bindingContext.Result = ModelBindingResult.Success(content);
         }
-        catch (Exception ex)
+        catch
         {
             response.StatusCode = StatusCodes.Status500InternalServerError;
         }

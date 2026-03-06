@@ -18,9 +18,9 @@ public class IVXB_INT : INT
     }
 
     [XmlAttribute("inclusive")]
-    public string InclusiveAsString
+    public string? InclusiveAsString
     {
-        get => _inclusive.HasValue ? _inclusive.ToString().ToLowerInvariant() : null;
+        get => _inclusive.HasValue ? _inclusive.Value.ToString().ToLowerInvariant() : null;
         set => _inclusive = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 }

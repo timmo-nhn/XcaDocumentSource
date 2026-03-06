@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Models.Custom.DomainResults;

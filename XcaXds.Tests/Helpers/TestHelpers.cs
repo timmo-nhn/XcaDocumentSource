@@ -20,7 +20,7 @@ public static class TestHelpers
             document.LoadXml(fileContent);
             return document;
         }
-        catch (Exception ex)
+        catch
         {
             return null;
         }
@@ -60,18 +60,23 @@ public static class TestHelpers
 
     public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string attributeId, string codeValue, string action, string? codeSystemValue = null, bool noCode = false)
     {
+        var rules = new List<PolicyMatch>
+        {
+            new() { AttributeId = attributeId + $"{(noCode ? string.Empty : ":code")}", Value = codeValue }
+        };
+
+        if (codeSystemValue != null)
+        {
+            rules.Add(new() { AttributeId = attributeId + ":codeSystem", Value = codeSystemValue });
+        }
+
         policyRepositoryService.AddPolicy(new PolicyDto()
         {
             AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
             Id = policyName,
-            Rules =
-            [[
-                new() { AttributeId = attributeId + $"{(noCode ? string.Empty: ":code")}", Value = codeValue },
-                codeSystemValue == null ? null : new() { AttributeId = attributeId + ":codeSystem", Value = codeSystemValue }
-            ]],
+            Rules = [rules],
             Actions = [action],
             Effect = "Permit",
         });
     }
-
 }

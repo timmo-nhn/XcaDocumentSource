@@ -27,9 +27,9 @@ public class DataEnterer
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("time")]
-    public TS Time { get; set; }
+    public TS Time { get; set; } = new();
 
     [XmlElement("assignedEntity")]
-    public AssignedEntity AssignedEntity { get; set; }
+    public AssignedEntity AssignedEntity { get; set; } = new();
 
 }

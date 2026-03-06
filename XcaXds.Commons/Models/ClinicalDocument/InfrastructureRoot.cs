@@ -15,7 +15,7 @@ public class InfrastructureRoot : ANY
     public II? TypeId { get; set; }
 
     [XmlElement("templateId")]
-    public List<II> TemplateId { get; set; }
+    public List<II> TemplateId { get; set; } = new();
 }
 
 [Serializable]
@@ -61,7 +61,7 @@ public class Consumable : InfrastructureRoot
     public string? TypeCode { get; set; }
 
     [XmlElement("manufacturedProduct")]
-    public ManufacturedProduct ManufacturedProduct { get; set; }
+    public ManufacturedProduct ManufacturedProduct { get; set; } = new();
 }
 
 [Serializable]
@@ -72,5 +72,5 @@ public class Product : InfrastructureRoot
     public string? TypeCode { get; set; }
 
     [XmlElement("manufacturedProduct")]
-    public ManufacturedProduct ManufacturedProduct { get; set; }
+    public ManufacturedProduct ManufacturedProduct { get; set; } = new();
 }

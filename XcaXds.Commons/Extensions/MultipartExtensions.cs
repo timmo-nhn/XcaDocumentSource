@@ -62,7 +62,7 @@ public static class MultipartExtensions
     {
         SoapEnvelope? soapMultipartMessage = new();
 
-        if (!MediaTypeHeaderValue.TryParse(contentTypeHeader, out MediaTypeHeaderValue? mediaTypeHeaderValue) || 
+        if (!MediaTypeHeaderValue.TryParse(contentTypeHeader, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             using (var stream = new MemoryStream())
@@ -76,7 +76,7 @@ public static class MultipartExtensions
 
                 var structuredSoapEnvelopeMultiparts = await GetSoapEnvelopeMultipartSections(multipartReader);
 
-                foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body?.RetrieveDocumentSetResponse?.DocumentResponse ?? [])
+                foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body.RetrieveDocumentSetResponse?.DocumentResponse ?? [])
                 {
                     var xopInclude = documentResponse.GetXmlDocumentAsXopInclude();
                     documentResponse.SetInlineDocument(structuredSoapEnvelopeMultiparts.MultiPartSections.FirstOrDefault(section => section.ContentId == xopInclude.href)?.Section ?? []);

@@ -4,12 +4,12 @@ using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.DataManipulators.BusinessLogic;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.Commons.Extensions;
@@ -330,9 +330,9 @@ public static class FindSubmissionSets
         this IEnumerable<RegistryPackageType> source, string? patientId)
     {
         if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<RegistryPackageType>();  // Required field, return nothing if not specified
-        return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
+        return source.Where(eo => eo.ExternalIdentifier != null && eo.ExternalIdentifier.Any(ei =>
             ei.IdentificationScheme == Constants.Xds.Uuids.SubmissionSet.PatientId &&
-            ei.Value.Contains(patientId)));
+            ei.Value != null && ei.Value.Contains(patientId)));
     }
 
     /// | Parameter Name (ITI-18)    | Attribute                  | Opt | Mult |
@@ -434,7 +434,7 @@ public static class FindFolders
 
         return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
             ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
-            ei.Value.Contains(patientId)));
+            ei.Value != null && ei.Value.Contains(patientId)));
     }
 
 }
@@ -547,7 +547,7 @@ public static class GetFolderAndContents
         // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.6.2
         // If no value is specified for DocumentEntryType, the value requesting only Stable Document Entries shall be assumed
         if (typeCodes == null || typeCodes.Count == 0) return source.Where(eo => eo.ObjectType == Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries);
-        
+
         return source.Where(eo => typeCodes.Any(tcArr => tcArr.Any(tc => tc.NoUrn() == eo.ObjectType?.NoUrn())));
     }
 }
@@ -568,11 +568,13 @@ public static class Commons
             .Where(aso => folders.Any(fol => aso.TargetObject == fol.Id)).ToList();
 
         var associationsBySource = source.OfType<AssociationType>()
-            .GroupBy(a => a.SourceObject)
+            .Where(a => a.TargetObject != null && a.SourceObject != null)
+            .GroupBy(a => a.SourceObject!)
             .ToDictionary(g => g.Key, g => g.ToList());
 
         var allRelatedAssociations = folderAssociations
-            .SelectMany(folderAssoc => associationsBySource.TryGetValue(folderAssoc.SourceObject, out var related)
+            .Where(a => a.TargetObject != null && a.SourceObject != null)
+            .SelectMany(folderAssoc => associationsBySource.TryGetValue(folderAssoc.SourceObject!, out var related)
                 ? related
                 : Enumerable.Empty<AssociationType>())
             .ToList();
@@ -618,7 +620,7 @@ public static class Commons
             .ToList();
     }
 
-    public static IdentifiableType? GetById(this IEnumerable<IdentifiableType> identifiableTypes, string id)
+    public static IdentifiableType? GetById(this IEnumerable<IdentifiableType> identifiableTypes, string? id)
     {
         return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
     }
@@ -657,7 +659,7 @@ public static class Commons
             // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
             //extrinsicObject.Id = Guid.Empty.ToString();
 
-            if (extrinsicObject.Name?.LocalizedString.FirstOrDefault() != null)
+            if (extrinsicObject.Name?.LocalizedString?.FirstOrDefault() != null)
             {
                 extrinsicObject.Name.LocalizedString.First().Value = "Sperret";
             }
@@ -733,7 +735,7 @@ public static class Commons
 
                 if (classification.Name != null)
                 {
-                    classification.Name.LocalizedString = classification.Name.LocalizedString.Select(nm => new LocalizedStringType() { Value = "*****" }).ToArray();
+                    classification.Name.LocalizedString = classification.Name.LocalizedString?.Select(nm => new LocalizedStringType() { Value = "*****" }).ToArray();
                 }
                 foreach (var slot in classification.Slot ?? [])
                 {
@@ -756,7 +758,7 @@ public static class Commons
         {
             case Constants.Xds.SlotNames.AuthorPerson:
             case Constants.Xds.SlotNames.LegalAuthenticator:
-                for (int i = 0; i < slot.ValueList?.Value.Length; i++)
+                for (int i = 0; i < slot.ValueList?.Value?.Length; i++)
                 {
                     var value = slot.ValueList.Value[i];
 
@@ -783,7 +785,7 @@ public static class Commons
                 break;
 
             case Constants.Xds.SlotNames.AuthorInstitution:
-                for (int i = 0; i < slot.ValueList?.Value.Length; i++)
+                for (int i = 0; i < slot.ValueList?.Value?.Length; i++)
                 {
                     var value = slot.ValueList.Value[i];
 
@@ -798,9 +800,9 @@ public static class Commons
                         structuredValue.OrganizationIdentifier = string.IsNullOrWhiteSpace(structuredValue.OrganizationIdentifier) ? null : "*****";
                         structuredValue.IdNumber = string.IsNullOrWhiteSpace(structuredValue.IdNumber) ? null : "*****";
                         structuredValue.OrganizationName = string.IsNullOrWhiteSpace(structuredValue.OrganizationName) ? null : "*****";
-                        
+
                         var structuredValueString = structuredValue?.Serialize();
-                        
+
                         if (string.IsNullOrWhiteSpace(structuredValueString)) continue;
 
                         slot.ValueList.Value[i] = structuredValueString;
@@ -812,7 +814,7 @@ public static class Commons
             case Constants.Xds.SlotNames.AuthorSpecialty:
             case Constants.Xds.SlotNames.AuthorRole:
             case Constants.Xds.SlotNames.CodingScheme:
-                for (int i = 0; i < slot.ValueList?.Value.Length; i++)
+                for (int i = 0; i < slot.ValueList?.Value?.Length; i++)
                 {
                     slot.ValueList.Value[i] = "*****";
                 }

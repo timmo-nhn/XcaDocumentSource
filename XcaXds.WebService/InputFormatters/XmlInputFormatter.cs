@@ -1,16 +1,14 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 
 public class SoapEnvelopeModelBinderProvider : IModelBinderProvider
 {
-    public IModelBinder GetBinder(ModelBinderProviderContext context)
+    public IModelBinder? GetBinder(ModelBinderProviderContext context)
     {
         if (context.Metadata.ModelType == typeof(SoapEnvelope))
         {
@@ -34,9 +32,9 @@ public class SoapEnvelopeModelBinder : IModelBinder
         var request = bindingContext.HttpContext.Request;
         var response = bindingContext.HttpContext.Response;
 
-        if (request.ContentType != null && 
-            !(request.ContentType.Contains(Constants.MimeTypes.SoapXml) || 
-              request.ContentType.Contains(Constants.MimeTypes.XopXml) || 
+        if (request.ContentType != null &&
+            !(request.ContentType.Contains(Constants.MimeTypes.SoapXml) ||
+              request.ContentType.Contains(Constants.MimeTypes.XopXml) ||
               request.ContentType.Contains(Constants.MimeTypes.MultipartRelated)))
         {
             await CreateStatus500SoapError("InvalidContentType", "The request content type is not XML.", response);
@@ -88,7 +86,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
     {
         var sxmls = new SoapXmlSerializer();
         var soapFault = SoapExtensions.CreateSoapFault(message, code).Value;
-        var soapFaultXml = sxmls.SerializeSoapMessageToXmlString(soapFault).Content;
+        var soapFaultXml = sxmls.SerializeSoapMessageToXmlString(soapFault).Content!;
 
         response.StatusCode = StatusCodes.Status500InternalServerError;
         response.ContentType = "application/soap+xml";

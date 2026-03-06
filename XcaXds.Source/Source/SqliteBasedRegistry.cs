@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Net.NetworkInformation;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Models.DatabaseDtos;
-using XcaXds.Source.Models.DatabaseDtos.Types;
 
 namespace XcaXds.Source.Source;
 
@@ -32,8 +30,8 @@ public class SqliteBasedRegistry : IRegistry
         using var context = _contextFactory.CreateDbContext();
         context.Database.EnsureCreated();
 
-		context.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
-	}
+        context.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
+    }
 
     public string GetDatabaseFile()
     {
@@ -82,8 +80,8 @@ public class SqliteBasedRegistry : IRegistry
         // SQLite-specific: reduces fsync overhead a lot for bulk-ish writes.
         // Safe within a transaction, but still a trade-off—remove if you can't allow it.
         //db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
-		db.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
-		db.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
+        db.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
+        db.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
 
         using var transaction = db.Database.BeginTransaction();
 
@@ -131,10 +129,10 @@ public class SqliteBasedRegistry : IRegistry
 
         var documentEntries = dbEntities.OfType<DbDocumentEntry>().ToList();
         var submissionSets = dbEntities.OfType<DbSubmissionSet>().ToList();
-        var associations = dbEntities.OfType<DbAssociation>().ToList();		
+        var associations = dbEntities.OfType<DbAssociation>().ToList();
 
-		db.ChangeTracker.AutoDetectChangesEnabled = false;
-        
+        db.ChangeTracker.AutoDetectChangesEnabled = false;
+
         //using var transaction = db.Database.BeginTransaction();
 
         const int idBatchSize = 300;  // keep modest for SQLite parameter limits
@@ -147,8 +145,8 @@ public class SqliteBasedRegistry : IRegistry
         //transaction.Commit();
         return true;
     }
-	
-	private static void DeleteThenInsertBatched<TEntity>(
+
+    private static void DeleteThenInsertBatched<TEntity>(
         DbContext db,
         DbSet<TEntity> set,
         List<TEntity> incoming,
@@ -180,14 +178,14 @@ public class SqliteBasedRegistry : IRegistry
 
             if (existing.Count > 0)
             {
-				Console.WriteLine("Trying to delete existing, count = {0}", existing.Count);
+                Console.WriteLine("Trying to delete existing, count = {0}", existing.Count);
 
-				set.RemoveRange(existing);
+                set.RemoveRange(existing);
                 db.SaveChanges();
                 db.ChangeTracker.Clear();
             }
-        }        
-        
+        }
+
         // 2) Insert in batches
         for (int i = 0; i < incoming.Count; i += insertBatchSize)
         {
@@ -198,7 +196,7 @@ public class SqliteBasedRegistry : IRegistry
 
             Console.WriteLine(sql);
 
-			db.SaveChanges();
+            db.SaveChanges();
             db.ChangeTracker.Clear();
         }
     }

@@ -17,7 +17,7 @@ public class EntryRelationship : InfrastructureRoot
     [XmlAttribute("inversionInd")]
     public string? InversionInd
     {
-        get => _inversionInd.HasValue ? _inversionInd.ToString().ToLowerInvariant() : null;
+        get => _inversionInd.HasValue ? _inversionInd.ToString()?.ToLowerInvariant() : null;
         set => _inversionInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 
@@ -27,7 +27,7 @@ public class EntryRelationship : InfrastructureRoot
     [XmlAttribute("contextConductionInd")]
     public string? ContextConductionInd
     {
-        get => _contextConductionInd.HasValue ? _contextConductionInd.ToString().ToLowerInvariant() : null;
+        get => _contextConductionInd.HasValue ? _contextConductionInd.ToString()?.ToLowerInvariant() : null;
         set => _contextConductionInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 
@@ -36,7 +36,7 @@ public class EntryRelationship : InfrastructureRoot
     [XmlAttribute("negationInd")]
     public string? NegationInd
     {
-        get => _negationInd.HasValue ? _negationInd.ToString().ToLowerInvariant() : null;
+        get => _negationInd.HasValue ? _negationInd.ToString()?.ToLowerInvariant() : null;
         set => _negationInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 

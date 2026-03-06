@@ -11,17 +11,17 @@ public static class FindDocumentEntry
     {
         if (string.IsNullOrWhiteSpace(patientId?.IdNumber)) return Enumerable.Empty<DocumentEntryDto>(); // Mandatory
         return source
-            .Where(eo => 
+            .Where(eo =>
             eo?.SourcePatientInfo?.PatientId?.Id == patientId.IdNumber &&
             eo?.SourcePatientInfo?.PatientId?.System?.NoUrn() == patientId.AssigningAuthority?.UniversalId?.NoUrn());
     }
 
     public static IEnumerable<DocumentEntryDto> ByDocumentEntryStatus(
-        this IEnumerable<DocumentEntryDto> source, string? status) 
+        this IEnumerable<DocumentEntryDto> source, string? status)
     {
         if (string.IsNullOrWhiteSpace(status)) return source; // Optional
         return source
-            .Where(eo => string.Equals(eo?.AvailabilityStatus, "urn:oasis:names:tc:ebxml-regrep:StatusType:" + status,StringComparison.InvariantCultureIgnoreCase));
+            .Where(eo => string.Equals(eo?.AvailabilityStatus, "urn:oasis:names:tc:ebxml-regrep:StatusType:" + status, StringComparison.InvariantCultureIgnoreCase));
     }
 
     public static IEnumerable<DocumentEntryDto> ByDocumentEntryServiceStartTime(

@@ -12,13 +12,13 @@ namespace XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyWriter
         public bool CanHandle(string? contentType, PolicyInputResult input) =>
             GetAcceptedContentTypes().Contains(contentType);
 
-        public async Task WriteAsync(HttpContext context, PolicyInputResult input, ApplicationConfig appConfig, string message)
+        public async Task WriteAsync(HttpContext context, PolicyInputResult input, ApplicationConfig appConfig, string? message)
         {
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             context.Response.ContentType = Constants.MimeTypes.FhirJson;
 
             var outcome = OperationOutcome.ForMessage(
-                message,
+                message ?? "Error",
                 OperationOutcome.IssueType.Forbidden,
                 OperationOutcome.IssueSeverity.Error);
 

@@ -8,8 +8,8 @@ namespace XcaXds.Commons.Models.ClinicalDocument.Types;
 public class II : ANY
 {
     [XmlAttribute("root")]
-    public string Root { get; set; }
+    public string Root { get; set; } = string.Empty;
 
     [XmlAttribute("extension")]
-    public string Extension { get; set; }
+    public string Extension { get; set; } = string.Empty;
 }

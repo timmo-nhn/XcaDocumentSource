@@ -125,11 +125,11 @@ public class FhirService
         }
 
         _logger.LogInformation($"{sessionId} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = FhirToXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId.NoUrn());
+        var provideAndRegisterResult = FhirToXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId?.NoUrn());
 
         _logger.LogInformation($"{sessionId} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 
-        var provideAndRegisterRequest = provideAndRegisterResult.Value?.ProvideAndRegisterDocumentSetRequest;
+        var provideAndRegisterRequest = provideAndRegisterResult.Value;
 
         if (provideAndRegisterResult.Success == false && provideAndRegisterResult.OperationOutcome != null && provideAndRegisterRequest != null)
         {

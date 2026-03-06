@@ -139,12 +139,12 @@ public class FindDocuments
 public class FindSubmissionSets
 {
     public string? XdsSubmissionSetPatientId { get; set; }
-    public List<string[]> XdsSubmissionSetSourceId { get; set; }
+    public List<string[]>? XdsSubmissionSetSourceId { get; set; }
     public string? XdsSubmissionSetSubmissionTimeFrom { get; set; }
     public string? XdsSubmissionSetSubmissionTimeTo { get; set; }
     public string? XdsSubmissionSetAuthorPerson { get; set; }
-    public List<string[]> XdsSubmissionSetContentType { get; set; }
-    public List<string[]> XdsSubmissionSetStatus { get; set; }
+    public List<string[]>? XdsSubmissionSetContentType { get; set; }
+    public List<string[]>? XdsSubmissionSetStatus { get; set; }
 }
 
 public class FindFolders
@@ -159,25 +159,25 @@ public class FindFolders
 public class GetAll
 {
     public string? PatientId { get; set; }
-    public List<string[]> XdsDocumentEntryStatus { get; set; }
-    public List<string[]> XdsSubmissionSetStatus { get; set; }
-    public List<string[]> XdsFolderStatus { get; set; }
-    public List<string[]> XdsDocumentEntryFormatCode { get; set; }
-    public List<string[]> XdsDocumentEntryConfidentialityCode { get; set; }
-    public List<string[]> XdsDocumentEntryType { get; set; }
+    public List<string[]>? XdsDocumentEntryStatus { get; set; }
+    public List<string[]>? XdsSubmissionSetStatus { get; set; }
+    public List<string[]>? XdsFolderStatus { get; set; }
+    public List<string[]>? XdsDocumentEntryFormatCode { get; set; }
+    public List<string[]>? XdsDocumentEntryConfidentialityCode { get; set; }
+    public List<string[]>? XdsDocumentEntryType { get; set; }
 }
 
 public class GetDocuments
 {
-    public List<string[]> XdsDocumentEntryUuid { get; set; }
-    public List<string[]> XdsDocumentEntryUniqueId { get; set; }
+    public List<string[]>? XdsDocumentEntryUuid { get; set; }
+    public List<string[]>? XdsDocumentEntryUniqueId { get; set; }
     public string? HomeCommunityId { get; set; }
 }
 
 
 public class GetAssociations
 {
-    public List<string[]> Uuid { get; set; }
+    public List<string[]>? Uuid { get; set; }
     public string? HomeCommunityId { get; set; }
 
 }

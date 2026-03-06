@@ -1,6 +1,4 @@
-﻿using Abc.Xacml.Policy;
-
-namespace XcaXds.Commons.Models.Custom.PolicyDtos;
+﻿namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicySetDto
 {

@@ -30,7 +30,7 @@ public class Organizer : EntryItemBase
     public CD? Code { get; set; }
 
     [XmlElement("statusCode")]
-    public CS StatusCode { get; set; }
+    public CS StatusCode { get; set; } = new();
 
     [XmlElement("effectiveTime")]
     public IVL_TS? EffectiveTime { get; set; }

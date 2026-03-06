@@ -22,7 +22,7 @@ public class PIVL_TS : SXCM_TS
     [XmlAttribute("institutionSpecified")]
     public string? InstitutionSpecified
     {
-        get => _institutionSpecified.HasValue ? _institutionSpecified.ToString().ToLowerInvariant() : null;
+        get => _institutionSpecified.HasValue ? _institutionSpecified.ToString()?.ToLowerInvariant() : null;
         set => _institutionSpecified = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 }

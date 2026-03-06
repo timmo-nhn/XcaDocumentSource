@@ -16,14 +16,14 @@ public class RestfulApiResponse
 
     public RestfulApiResponse()
     {
-        
+
     }
 
     public bool Success { get; set; } = true;
 
-    public List<Error> Errors { get; set; }
+    public List<Error>? Errors { get; set; }
 
-    public string Message { get; set; }
+    public string? Message { get; set; }
 
     public void AddError(string code, string message)
     {

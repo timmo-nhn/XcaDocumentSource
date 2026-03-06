@@ -15,8 +15,8 @@ public class MaintainedEntity
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("effectiveTime")]
-    public IVL_TS EffectiveTime { get; set; }
+    public IVL_TS EffectiveTime { get; set; } = new();
 
     [XmlElement("maintainingPerson")]
-    public Person MaintainingPerson { get; set; }
+    public Person MaintainingPerson { get; set; } = new();
 }

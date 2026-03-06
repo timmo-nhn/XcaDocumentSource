@@ -35,7 +35,7 @@ public class Procedure : EntryItemBase
     [XmlAttribute("negationInd")]
     public string? NegationInd
     {
-        get => _negationInd.HasValue ? _negationInd.ToString().ToLowerInvariant() : null;
+        get => _negationInd.HasValue ? _negationInd.ToString()?.ToLowerInvariant() : null;
         set => _negationInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 

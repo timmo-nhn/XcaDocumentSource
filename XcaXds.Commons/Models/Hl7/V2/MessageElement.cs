@@ -10,16 +10,19 @@ namespace XcaXds.Commons.Models.Hl7.V2
         {
             get
             {
-                return _value == Encoding.PresentButNull ? null : Encoding.Decode(_value);
+                return _value == Encoding.PresentButNull ? string.Empty : Encoding.Decode(_value);
             }
             set
             {
-                _value = value;
-                ProcessValue();
+                if (value != null)
+                {
+                    _value = value;
+                    ProcessValue();
+                }
             }
         }
 
-        public string UndecodedValue
+        public string? UndecodedValue
         {
             get
             {
@@ -27,7 +30,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
             }
         }
 
-        public HL7Encoding Encoding { get; protected set; }
+        public HL7Encoding Encoding { get; protected set; } = new();
 
         protected abstract void ProcessValue();
     }

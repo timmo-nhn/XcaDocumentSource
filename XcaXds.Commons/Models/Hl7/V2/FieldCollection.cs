@@ -2,11 +2,11 @@ namespace XcaXds.Commons.Models.Hl7.V2
 {
     internal sealed class FieldCollection : List<Field>
     {
-        internal new Field this[int index]
+        internal new Field? this[int index]
         {
             get
             {
-                Field field = null;
+                Field? field = null;
 
                 if (index < Count)
                     field = base[index];
@@ -15,7 +15,10 @@ namespace XcaXds.Commons.Models.Hl7.V2
             }
             set
             {
-                base[index] = value;
+                if (value != null)
+                {
+                    base[index] = value;
+                }
             }
         }
 

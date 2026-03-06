@@ -194,18 +194,18 @@ public static class PolicyRequestMapperSaml
     public static List<XacmlContextAttribute> MapRequestAttributesToXacml20Properties(SoapEnvelope soapEnvelope, IEnumerable<RegistryObjectDto>? documentRegistry = null)
     {
         // ReadDocumentList
-        var adhocQueryPatientId = soapEnvelope.Body?.AdhocQueryRequest?.AdhocQuery?.GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();
+        var adhocQueryPatientId = soapEnvelope.Body.AdhocQueryRequest?.AdhocQuery?.GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();
         var adhocQueryPatientValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(adhocQueryPatientId);
 
         // ReadDocuments
-        var documentRequests = soapEnvelope.Body?.RetrieveDocumentSetRequest?.DocumentRequest;
+        var documentRequests = soapEnvelope.Body.RetrieveDocumentSetRequest?.DocumentRequest;
 
         // Create
-        var provideAndRegisterRequest = soapEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList ?? soapEnvelope.Body?.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+        var provideAndRegisterRequest = soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ?? soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
         // Delete
-        var removeObjectsRequest = soapEnvelope.Body?.RemoveObjectsRequest?.ObjectRefList?.ObjectRef;
-        var removeDocumentsRequest = soapEnvelope.Body?.RemoveDocumentsRequest?.DocumentRequest;
+        var removeObjectsRequest = soapEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef;
+        var removeDocumentsRequest = soapEnvelope.Body.RemoveDocumentsRequest?.DocumentRequest;
 
         var xacmlRequestAttributes = new List<XacmlContextAttribute>();
 
@@ -528,7 +528,7 @@ public static class PolicyRequestMapperSaml
 
     public static string MapXacmlActionFromSoapEnvelope(SoapEnvelope soapEnvelope)
     {
-        switch (soapEnvelope?.Header?.Action)
+        switch (soapEnvelope?.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
             case Constants.Xds.OperationContract.Iti38Action:
@@ -553,9 +553,9 @@ public static class PolicyRequestMapperSaml
 
     private static string GetCreateOrUpdateFromRequest(SoapEnvelope soapEnvelope)
     {
-        var registryObjects = soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+        var registryObjects = soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
-        var isReplaceUpdate = registryObjects?.OfType<AssociationType>().Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation)) ?? false;
+        var isReplaceUpdate = registryObjects?.OfType<AssociationType>().Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation) == true) ?? false;
         return isReplaceUpdate ? Constants.Xacml.Actions.Update : Constants.Xacml.Actions.Create;
     }
 }

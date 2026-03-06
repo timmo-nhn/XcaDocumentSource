@@ -8,13 +8,13 @@
         public const string ParsingError = "Parsing Error";
         public const string SerializationError = "Serialization Error";
 
-        public string ErrorCode { get; set; }
+        public string? ErrorCode { get; set; }
 
-        public HL7Exception(string message, Exception inner = null) : base(message, inner)
+        public HL7Exception(string message, Exception? inner = null) : base(message, inner)
         {
         }
 
-        public HL7Exception(string message, string Code, Exception inner = null) : base(message, inner)
+        public HL7Exception(string message, string Code, Exception? inner = null) : base(message, inner)
         {
             ErrorCode = Code;
         }

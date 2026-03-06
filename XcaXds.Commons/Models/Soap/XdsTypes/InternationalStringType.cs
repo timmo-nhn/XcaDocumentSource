@@ -9,7 +9,7 @@ public class InternationalStringType
 {
     public InternationalStringType()
     {
-        
+
     }
     public InternationalStringType(string input)
     {
@@ -17,7 +17,7 @@ public class InternationalStringType
     }
 
     [XmlElement("LocalizedString", Order = 0)]
-    public LocalizedStringType[] LocalizedString;
+    public LocalizedStringType[]? LocalizedString;
     public string? GetFirstValue()
     {
         return LocalizedString?.FirstOrDefault()?.Value;

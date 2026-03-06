@@ -1,9 +1,7 @@
 ﻿using Abc.Xacml.Policy;
-using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.DataManipulators;
-using XcaXds.Source.Source;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 
 namespace XcaXds.WebService.Services;
 
@@ -52,6 +50,7 @@ public class PolicyRepositoryService
 
     public bool UpdatePolicy(PolicyDto policyDto, string? id)
     {
+        if (string.IsNullOrWhiteSpace(id)) return false;
         return _policyRepositoryWrapper.UpdatePolicy(policyDto, id);
     }
 

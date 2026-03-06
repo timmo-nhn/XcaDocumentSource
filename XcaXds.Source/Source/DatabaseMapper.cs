@@ -98,7 +98,7 @@ public static class DatabaseMapper
                     FirstName = documentEntry.LegalAuthenticator?.FirstName,
                     LastName = documentEntry.LegalAuthenticator?.LastName,
                 },
-                Id = documentEntry.Id,
+                Id = documentEntry.Id ?? "Unknown",
                 MimeType = documentEntry.MimeType,
                 ObjectType = documentEntry.ObjectType,
                 PracticeSettingCode = new()
@@ -175,7 +175,7 @@ public static class DatabaseMapper
 
                 AvailabilityStatus = submissionSet.AvailabilityStatus,
                 HomeCommunityId = submissionSet.HomeCommunityId,
-                Id = submissionSet.Id,
+                Id = submissionSet.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
                 Title = submissionSet.Title,
                 UniqueId = submissionSet.UniqueId
             });
@@ -185,7 +185,7 @@ public static class DatabaseMapper
         {
             registryObjectDtos.Add(new AssociationDto()
             {
-                Id = association.Id,
+                Id = association.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
                 AssociationType = association.AssociationType,
                 SourceObject = association.SourceObjectId,
                 TargetObject = association.TargetObjectId,

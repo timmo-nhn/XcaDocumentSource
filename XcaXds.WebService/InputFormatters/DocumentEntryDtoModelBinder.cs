@@ -41,7 +41,7 @@ public class DocumentEntryDtoModelBinder : IModelBinder
             var content = JsonSerializer.Deserialize<DocumentEntryDto>(request.Body);
             bindingContext.Result = ModelBindingResult.Success(content);
         }
-        catch (Exception ex)
+        catch
         {
             response.StatusCode = StatusCodes.Status500InternalServerError;
         }

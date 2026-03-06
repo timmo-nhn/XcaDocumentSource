@@ -9,6 +9,7 @@ using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 
@@ -54,9 +55,9 @@ public class XdsRepositoryService
         // Only process HasMember associations (SubmissionSet pointing to a document) for document storage (others such as RPLC, XFRM etc. are not handled here)
         foreach (var association in associations.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember))
         {
-            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());
-            var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject.NoUrn());
-            var assocDocument = documents?.FirstOrDefault(doc => doc.Id.NoUrn() == assocExtrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value.NoUrn());
+            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject?.NoUrn());
+            var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject?.NoUrn());
+            var assocDocument = documents?.FirstOrDefault(doc => doc.Id?.NoUrn() == assocExtrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value?.NoUrn());
 
             if (assocExtrinsicObject == null)
             {
@@ -67,7 +68,7 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Document missing", "SubmitObjectsRequest");
             }
 
-            var patientId = assocExtrinsicObject?.Slot?.FirstOrDefault(s => s.Name == "sourcePatientId")?.ValueList.Value.FirstOrDefault();
+            var patientId = assocExtrinsicObject?.Slot?.FirstOrDefault(s => s.Name == "sourcePatientId")?.ValueList?.Value?.FirstOrDefault();
             if (patientId == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Patient ID missing", "ExtrinsicObject");
@@ -82,7 +83,7 @@ public class XdsRepositoryService
             }
             else
             {
-                if (documentEntryUniqueId.NoUrn() != assocDocument?.Id.NoUrn())
+                if (documentEntryUniqueId.NoUrn() != assocDocument?.Id?.NoUrn())
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Unique ID in DocumentEntry does not match Document unique ID. DocumentEntry UniqueID: {documentEntryUniqueId}, Document ID: {assocDocument?.Id}", $"XDS Repository");
                 }
@@ -90,7 +91,7 @@ public class XdsRepositoryService
                 if (assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
                 {
                     bool repositoryUpdateOk = false;
-                    
+
                     if (validateOnly == false)
                     {
                         repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart);
@@ -116,11 +117,11 @@ public class XdsRepositoryService
         var registryResponse = new RegistryResponseType();
         var documents = provideAndRegisterRequest?.Document;
 
-        if (documents != null && documents.Length != 0)
+        if (documents?.Length > 0)
         {
             foreach (var document in documents)
             {
-                if (document != null && _repositoryWrapper.CheckIfFileExistsInRepository(document.Id.NoUrn()))
+                if (document != null && _repositoryWrapper.CheckIfFileExistsInRepository(document.Id?.NoUrn()))
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Non unique ID in repository {document.Id}".Trim(), _xdsConfig.HomeCommunityId);
                 }
@@ -138,8 +139,8 @@ public class XdsRepositoryService
     {
         var registryResponse = new RegistryResponseType();
 
-        var oversizedDocuments = provideAndRegisterRequest?.Document
-            .Where(doc => doc.Value.Length > (_xdsConfig.DocumentUploadSizeLimitKb * 1024)).ToList();
+        var oversizedDocuments = provideAndRegisterRequest?.Document?
+            .Where(doc => doc.Value?.Length > (_xdsConfig.DocumentUploadSizeLimitKb * 1024)).ToList();
 
         // var oversizedDocuments = provideAndRegisterRequest?.Document.ToList(); Debug line to test oversize handling
 
@@ -204,7 +205,7 @@ public class XdsRepositoryService
 
             var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, iti43envelope.Header.MessageId);
 
-            if (file != null && file.Length != 0)
+            if (file?.Length > 0)
             {
                 var inputString = Encoding.UTF8.GetString(file);
 

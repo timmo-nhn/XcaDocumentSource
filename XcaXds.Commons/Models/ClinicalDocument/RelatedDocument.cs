@@ -24,5 +24,5 @@ public class RelatedDocument
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("parentDocument")]
-    public ParentDocument ParentDocument { get; set; }
+    public ParentDocument ParentDocument { get; set; } = new();
 }

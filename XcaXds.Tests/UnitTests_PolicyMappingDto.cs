@@ -1,13 +1,14 @@
 ﻿using Abc.Xacml.Context;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.Source.Source;
 using XcaXds.WebService.Services;
 
@@ -19,14 +20,14 @@ public class UnitTests_PolicyMappingDto
     public async Task AuthZ_EvaluateFromService()
     {
         var repository = new FileBasedPolicyRepository(new Mock<ILogger<FileBasedPolicyRepository>>().Object);
-        var policyWrapper = new PolicyRepositoryWrapper(repository);
+        var policyWrapper = new PolicyRepositoryWrapper(repository, new FakeLogger<PolicyRepositoryWrapper>());
 
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "SoapRequests"));
-        var registry = new FileBasedRegistry();
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSaml.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18")), Encoding.UTF8), Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, registry.ReadRegistry());
+        var registry = new FileBasedRegistry(new FakeLogger<FileBasedRegistry>());
+        XacmlContextRequest xacmlObject = PolicyRequestMapperSaml.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))!, Encoding.UTF8), Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, registry.ReadRegistry())!;
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
-        requestDoc.LoadXml(requestXml);
+        requestDoc.LoadXml(requestXml!);
 
         var evaluateResponse = policyWrapper.EvaluateRequest_V20(xacmlObject, Issuer.HelseId);
     }
@@ -45,7 +46,7 @@ public class UnitTests_PolicyMappingDto
 
             var xacmlPolicyString = XacmlSerializer.SerializeXacmlToXml(xacmlPolicy, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-            var policyDtoRecreated = PolicyDtoTransformer.TransformXacmlVersion20PolicyToPolicyDto(xacmlPolicy);
+            var policyDtoRecreated = PolicyDtoTransformer.TransformXacmlVersion20PolicyToPolicyDto(xacmlPolicy!);
 
         }
     }

@@ -60,7 +60,7 @@ public class AtnaLogExporterService : BackgroundService
     private async Task ExportAtnaLog(AuditEvent auditEvent)
     {
         var serializer = new FhirJsonSerializer();
-        var atnaJson = serializer.SerializeToString(auditEvent,true);
+        var atnaJson = serializer.SerializeToString(auditEvent, true);
         _logger.LogDebug("Created FHIR AuditEvent: \n" + atnaJson);
         //File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents", $"{auditEvent.Id}.json"), atnaJson);
 
@@ -83,9 +83,9 @@ public class AtnaLogExporterService : BackgroundService
                 _logger.LogError($"Failed to export AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}. Status Code: {response.StatusCode}, Response: {await response.Content.ReadAsStringAsync()}");
             }
         }
-        catch (Exception ex)		
-		{
-			_logger.LogError($"Exception during export of AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}. Exception: {ex}");
-		}
-	}
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception during export of AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}. Exception: {ex}");
+        }
+    }
 }

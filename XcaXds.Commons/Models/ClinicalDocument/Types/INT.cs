@@ -14,7 +14,7 @@ public class INT : QTY
     [XmlAttribute("value")]
     public string? ValueAsString
     {
-        get => Value.HasValue ? Value.ToString().ToLowerInvariant() : null;
+        get => Value.HasValue ? Value.ToString()?.ToLowerInvariant() : null;
         set => Value = string.IsNullOrEmpty(value) ? null : int.Parse(value);
     }
 }

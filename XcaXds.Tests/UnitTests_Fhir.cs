@@ -1,7 +1,5 @@
-using Castle.Core.Logging;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Hl7.Fhir.Utility;
 using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using XcaXds.Commons.Commons;
@@ -44,9 +42,9 @@ public class UnitTests_Fhir
     public async Task MHD_TransformRegistryObjectsToFhirBundle()
     {
         var mockRegistry = new InMemoryRegistry();
-        mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectList());
+        mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectDtoList());
 
-        var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry().ToList());
+        var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry().ToList()!);
 
         var rng = new Random();
 

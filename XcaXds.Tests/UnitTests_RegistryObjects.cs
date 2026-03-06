@@ -1,16 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Testing;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.Custom;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Models.DatabaseDtos;
 using XcaXds.Source.Source;
 using Xunit.Abstractions;
-using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.Tests;
 
@@ -30,7 +31,7 @@ public class UnitTests_RegistryObjects
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("PnR")));
+        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("PnR")) ?? "");
         var fileContent = await reader.ReadToEndAsync();
 
         var docc = sxmls.DeserializeXmlString<SoapEnvelope>(fileContent);
@@ -39,7 +40,7 @@ public class UnitTests_RegistryObjects
         {
             var documentEntryDto = new DocumentReferenceDto();
 
-            var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+            var registryObjectList = docc.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
 
             var documentReference = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(registryObjectList?.ToList());
@@ -80,13 +81,13 @@ public class UnitTests_RegistryObjects
 
         var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry", "SoapRequests");
         var testDataFiles = Directory.GetFiles(registryPath);
-        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.xml")));
+        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.xml")) ?? "");
 
         var content = await reader.ReadToEndAsync();
-        var registryContent = sxmls.DeserializeXmlString<XmlDocumentRegistry>(content);
+        var registryContent = sxmls.DeserializeXmlString<IdentifiableType[]>(content);
 
 
-        var documentDtoEntries = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(registryContent.RegistryObjectList);
+        var documentDtoEntries = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(registryContent);
 
         var jsonRegistry = RegistryJsonSerializer.Serialize(documentDtoEntries);
 
@@ -100,11 +101,11 @@ public class UnitTests_RegistryObjects
 
         var registryPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");
         var testDataFiles = Directory.GetFiles(registryPath);
-        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")));
+        using var reader = File.OpenText(testDataFiles.FirstOrDefault(f => f.Contains("Registry.json")) ?? "");
         var jsonContent = await reader.ReadToEndAsync();
         var content = RegistryJsonSerializer.Deserialize<List<RegistryObjectDto>>(jsonContent);
 
-        var jsonRegistry = RegistryJsonSerializer.Serialize(content);
+        var jsonRegistry = RegistryJsonSerializer.Serialize(content ?? []);
 
         Assert.Equal(jsonRegistry, jsonContent);
     }
@@ -133,9 +134,9 @@ public class UnitTests_RegistryObjects
         var generatedTestRegistryObjects = TestDataGenerator.GenerateRegistryObjectsFromTestData(jsonTestData, 250);
 
 
-        var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = generatedTestRegistryObjects.OfType<DocumentEntryDto>().FirstOrDefault().RepositoryUniqueId });
+        var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = generatedTestRegistryObjects.Select(dr => dr.DocumentEntry)?.FirstOrDefault()?.RepositoryUniqueId ?? "" });
 
-        var registryService = new FileBasedRegistry();
+        var registryService = new FileBasedRegistry(new FakeLogger<FileBasedRegistry>());
 
         var documentRegistryObjects = registryService.ReadRegistry();
         foreach (var docentry in documentRegistryObjects.OfType<DocumentEntryDto>())
@@ -148,7 +149,7 @@ public class UnitTests_RegistryObjects
         registryService.WriteRegistry(documentRegistryObjects.ToList());
 
 
-        foreach (var generatedTestObject in generatedTestRegistryObjects.OfType<DocumentEntryDto>())
+        foreach (var generatedTestObject in generatedTestRegistryObjects.Select(dr => dr.DocumentEntry))
         {
             var randomFileAsByteArray = files.ElementAt(new Random().Next(files.Count()));
 
@@ -168,7 +169,7 @@ public class UnitTests_RegistryObjects
     {
         var repoService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = "2.16.578.1.12.4.5.100.1.2", HomeCommunityId = "2.16.578.1.12.4.5.100.1" });
 
-        var registryService = new FileBasedRegistry();
+        var registryService = new FileBasedRegistry(new FakeLogger<FileBasedRegistry>());
 
         var registryContent = registryService.ReadRegistry();
 
@@ -178,7 +179,7 @@ public class UnitTests_RegistryObjects
 
         foreach (var documentEntry in documentEntries)
         {
-            if (repoService.Read(documentEntry.UniqueId) == null)
+            if (repoService.Read(documentEntry.UniqueId ?? "") == null)
             {
                 duds.Add($"{documentEntry.Id} for patient {documentEntry.SourcePatientInfo?.FirstName} {documentEntry.SourcePatientInfo?.LastName} (id: {documentEntry?.SourcePatientInfo?.PatientId?.Id}) is a dud!!");
             }
@@ -196,7 +197,7 @@ public class UnitTests_RegistryObjects
     {
         var repositoryService = new FileBasedRepository(new ApplicationConfig() { RepositoryUniqueId = "2.16.578.1.12.4.5.100.1.2", HomeCommunityId = "2.16.578.1.12.4.5.100.1" });
 
-        var registryService = new FileBasedRegistry();
+        var registryService = new FileBasedRegistry(new FakeLogger<FileBasedRegistry>());
 
         var registryContent = registryService.ReadRegistry();
         var databasePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Source", "Registry");

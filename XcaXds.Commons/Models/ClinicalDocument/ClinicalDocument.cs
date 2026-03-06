@@ -54,7 +54,7 @@ public class ClinicalDocument
     public List<RecordTarget> RecordTarget { get; set; } = new();
 
     [XmlElement("author")]
-    public List<Author> Author { get; set; }
+    public List<Author> Author { get; set; } = new();
 
     [XmlElement("dataEnterer")]
     public DataEnterer? DataEnterer { get; set; }

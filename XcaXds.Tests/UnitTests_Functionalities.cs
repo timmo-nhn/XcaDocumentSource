@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 
 namespace XcaXds.Tests;

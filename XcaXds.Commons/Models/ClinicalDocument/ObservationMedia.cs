@@ -30,7 +30,7 @@ public class ObservationMedia : EntryItemBase
     public CS? LanguageCode { get; set; }
 
     [XmlElement("value")]
-    public ED Value { get; set; }
+    public ED Value { get; set; } = new();
 
     [XmlElement("subject")]
     public Subject? Subject { get; set; }

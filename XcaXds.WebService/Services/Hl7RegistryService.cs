@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Globalization;
+﻿using System.Globalization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Hl7.V2;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Services;
 
@@ -30,17 +28,17 @@ public class Hl7RegistryService
         var qpdSegment = findCandidatesQuery.Segments("QPD").FirstOrDefault();
 
 
-        var patientIds = qpdSegment.GetAllFields().Where(f => f.Value.Contains("PID"));
+        var patientIds = qpdSegment?.GetAllFields().Where(f => f.Value.Contains("PID"));
 
         // QPD|IHE PDQ Query|Q1234|@PID.3.1^131169~@PID.5^Danser^Line
 
-        var patientFields = patientIds.FirstOrDefault().Value.Split("~");
+        var patientFields = patientIds?.FirstOrDefault()?.Value.Split("~");
 
         var patient = new PID();
         patient.PatientIdentifier ??= new();
 
 
-        for (int i = 0; i < patientFields.Length; i++)
+        for (int i = 0; i < patientFields?.Length; i++)
         {
             var field = patientFields[i];
             if (field.StartsWith("@PID.3"))
@@ -75,14 +73,14 @@ public class Hl7RegistryService
         var matchingPatientIds = extrinsicObjectPatientIds
             .Where(eop =>
             {
-                bool nameMatch = eop.PatientName != null && 
+                bool nameMatch = eop.PatientName != null &&
                                  patient.PatientName != null &&
                                  !string.IsNullOrEmpty(patient.PatientName?.GivenName) &&
-                                 eop.PatientName.GivenName?.Contains(patient.PatientName?.GivenName) == true ||
+                                 eop.PatientName.GivenName?.Contains(patient.PatientName.GivenName) == true ||
                                  !string.IsNullOrEmpty(patient.PatientName?.FamilyName) &&
-                                 eop.PatientName?.FamilyName?.Contains(patient.PatientName?.FamilyName) == true;
+                                 eop.PatientName?.FamilyName?.Contains(patient.PatientName.FamilyName) == true;
 
-                bool birthDateMatch = eop.BirthDate != DateTime.MinValue && 
+                bool birthDateMatch = eop.BirthDate != DateTime.MinValue &&
                                       patient.BirthDate != DateTime.MinValue &&
                                       eop.BirthDate == patient.BirthDate;
 

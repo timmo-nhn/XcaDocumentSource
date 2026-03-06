@@ -23,9 +23,9 @@ public static class RegistryMetadataGenerator
             jsonTestData.PossibleDocumentEntryValues.AvailabilityStatuses = [Constants.Xds.StatusValues.Approved];
         }
 
-        jsonTestData.PossibleSubmissionSetValues.Authors ??= jsonTestData.PossibleDocumentEntryValues.Authors;
+        jsonTestData.PossibleSubmissionSetValues?.Authors ??= jsonTestData.PossibleDocumentEntryValues.Authors;
 
-        var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos.FirstOrDefault(spi => spi?.PatientId?.Id == patientIdentifier);
+        var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos?.FirstOrDefault(spi => spi?.PatientId?.Id == patientIdentifier);
 
         if (sourcePatientInfoForPatient != null)
         {

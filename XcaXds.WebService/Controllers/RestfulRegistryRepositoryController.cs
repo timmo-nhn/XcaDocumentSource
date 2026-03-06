@@ -46,9 +46,15 @@ public class RestfulRegistryRepositoryController : ControllerBase
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
-        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("X-Patient-Id", out var patientId))
         {
             id = patientId;
+        }
+
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            ModelState.AddModelError("MissingValue", "Id or X-Patient-Id Header is required");
+            return BadRequest(ModelState);
         }
 
         var requestTimer = Stopwatch.StartNew();
@@ -61,11 +67,11 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         if (entries.Success)
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {entries.DocumentListEntries.Count} entries in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {entries.DocumentListEntries?.Count ?? 0} entries in {requestTimer.ElapsedMilliseconds} ms");
             return Ok(entries);
         }
 
-        for (int i = 0; i < entries.Errors.Count; i++) _logger.LogError($"{Request.HttpContext.TraceIdentifier}\n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
+        for (int i = 0; i < entries.Errors?.Count; i++) _logger.LogError($"{Request.HttpContext.TraceIdentifier}\n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
 
         return BadRequest(entries);
     }
@@ -74,13 +80,19 @@ public class RestfulRegistryRepositoryController : ControllerBase
     [HttpGet("document-history")]
     public async Task<IActionResult> GetDocumentHistory(string? id, bool minimal)
     {
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-history");
 
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
-        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("X-Patient-Id", out var patientId))
         {
             id = patientId;
+        }
+
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            ModelState.AddModelError("MissingValue", "Id or X-Patient-Id Header is required");
+            return BadRequest(ModelState);
         }
 
         var requestTimer = Stopwatch.StartNew();
@@ -114,6 +126,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
                     var otherId = assoc.SourceObject == currentId
                         ? assoc.TargetObject
                         : assoc.SourceObject;
+                    if (otherId == null) continue;
 
                     if (visitedDocs.Add(otherId))
                     {
@@ -134,6 +147,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         var relatedSubmissionSets = allSubmissionSets
             .Where(ss =>
                 allAssociations.Any(a =>
+                    a.SourceObject != null &&
                     visitedDocs.Contains(a.SourceObject) &&
                     a.SourceObject == ss.Id))
             .ToList();
@@ -149,6 +163,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         result.AddRange(
             allSubmissionSets.Where(ss =>
                 allAssociations.Any(a =>
+                    a.SourceObject != null &&
                     visitedDocs.Contains(a.SourceObject) &&
                     a.SourceObject == ss.Id)));
 
@@ -190,10 +205,17 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry");
 
-        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
+        if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("X-Patient-Id", out var patientId))
         {
             id = patientId;
         }
+
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            ModelState.AddModelError("MissingValue", "Id or X-Patient-Id Header is required");
+            return BadRequest(ModelState);
+        }
+
 
         var requestTimer = Stopwatch.StartNew();
 
@@ -214,8 +236,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
             SubmissionSet = submissionSet,
             Document = new()
             {
-                Data = _repositoryWrapper.GetDocumentFromRepository(documentEntry.HomeCommunityId, documentEntry.RepositoryUniqueId, documentEntry.UniqueId),
-                DocumentId = documentEntry.UniqueId
+                Data = _repositoryWrapper.GetDocumentFromRepository(documentEntry?.HomeCommunityId, documentEntry?.RepositoryUniqueId, documentEntry?.UniqueId),
+                DocumentId = documentEntry?.UniqueId
             }
         };
         requestTimer.Stop();
@@ -266,12 +288,6 @@ public class RestfulRegistryRepositoryController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
 
         var documentStatus = _restfulRegistryService.GetDocumentStatus(home, repository, document);
-
-        //if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("x-patient-id", out var patientId))
-        //{
-        //	id = patientId;
-        //}		
-
 
         requestTimer.Stop();
 

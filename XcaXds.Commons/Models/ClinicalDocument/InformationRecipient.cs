@@ -24,5 +24,5 @@ public class InformationRecipient
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("intendedRecipient")]
-    public IntendedRecipient IntendedRecipient { get; set; }
+    public IntendedRecipient IntendedRecipient { get; set; } = new();
 }

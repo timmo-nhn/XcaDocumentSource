@@ -1,11 +1,10 @@
-﻿using System.Text.Json;
-using Abc.Xacml.Context;
+﻿using Abc.Xacml.Context;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Services;
 
@@ -80,7 +79,7 @@ public class PolicyDecisionPointService
                     if (soapAction == Constants.Xds.OperationContract.Iti43Action && soapAction == Constants.Xds.OperationContract.Iti39Action)
                     {
                         var patientInfosFromEntries = documentEntries?.Select(de => JsonSerializer.Serialize(new CodedValue() { Code = de.SourcePatientInfo?.PatientId?.Id, CodeSystem = de.SourcePatientInfo?.PatientId?.System })) ?? [];
-                        
+
                         // If they are trying to access a document for a patient thats not in the SAML-token
                         if (patientInfosFromEntries.Any(pinfo => pinfo != resourceValueJson))
                         {

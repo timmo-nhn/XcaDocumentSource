@@ -44,7 +44,7 @@ public static class FhirToXdsTransformer
         return author;
     }
 
-    public static ServiceResultDto<ProvideAndRegisterDocumentSetbRequest> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, Identifier? patientIdentifier, string? GpiOid, string? homeCommunityId)
+    public static ServiceResultDto<ProvideAndRegisterDocumentSetRequestType> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, Identifier? patientIdentifier, string? GpiOid, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -59,7 +59,7 @@ public static class FhirToXdsTransformer
         var documents = new List<DocumentType>();
         var associations = new List<AssociationType>();
 
-        for (var i = 0; i < documentReferences.Count; i++)
+        for (var i = 0; i < documentReferences?.Count; i++)
         {
             var documentReference = documentReferences[i];
 
@@ -129,24 +129,21 @@ public static class FhirToXdsTransformer
             combinedRegistryObjects.Add(registryPackage);
         }
 
-        var request = new ProvideAndRegisterDocumentSetbRequest
+        var request = new ProvideAndRegisterDocumentSetRequestType
         {
-            ProvideAndRegisterDocumentSetRequest = new ProvideAndRegisterDocumentSetRequestType
+            SubmitObjectsRequest = new SubmitObjectsRequest
             {
-                SubmitObjectsRequest = new SubmitObjectsRequest
-                {
-                    RegistryObjectList = combinedRegistryObjects.ToArray()
-                },
-                // Document list can be empty for metadata-only submissions
-                Document = documents.Count > 0 ? [.. documents] : []
-            }
+                RegistryObjectList = combinedRegistryObjects.ToArray()
+            },
+            // Document list can be empty for metadata-only submissions
+            Document = documents.Count > 0 ? [.. documents] : []
         };
 
         // We're now sending both:
         // HasMember associations(SubmissionSet -> DocumentEntry)
         // Relation associations(New DocumentEntry -> Old DocumentEntry), i.e.RPLC / APND / XFRM / SIGN
 
-        var creationResult = new ServiceResultDto<ProvideAndRegisterDocumentSetbRequest>()
+        var creationResult = new ServiceResultDto<ProvideAndRegisterDocumentSetRequestType>()
         {
             Value = request,
             OperationOutcome = operationOutcome
@@ -161,8 +158,8 @@ public static class FhirToXdsTransformer
 
         var registryPackage = new RegistryPackageType
         {
-            Id = submissionSetList.Id,
-            Name = new InternationalStringType($"{submissionSetList.Title}"),
+            Id = submissionSetList?.Id,
+            Name = string.IsNullOrWhiteSpace(submissionSetList?.Title) ? null : new InternationalStringType($"{submissionSetList?.Title}"),
             ObjectType = Constants.Xds.ObjectTypes.RegistryPackage,
             Classification = [],
             ExternalIdentifier = [],
@@ -307,7 +304,7 @@ public static class FhirToXdsTransformer
                     }
                 };
 
-                var slotPreview = string.Join(", ", authorDepartmentSlot.ValueList.Value.Select(val => val.Substring(0,5).Trim() + "...")).ToArray();
+                var slotPreview = string.Join(", ", authorDepartmentSlot.ValueList.Value.Select(val => val.Substring(0, 5).Trim() + "...")).ToArray();
 
                 var submAuthorDepartmentString = submAuthorDept?.Serialize();
 
@@ -503,7 +500,7 @@ public static class FhirToXdsTransformer
         }
     }
 
-    private static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient bundlePatient, DocumentReference documentReference, Identifier patientId, string GpiOid)
+    private static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Identifier? patientId, string? GpiOid)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -519,10 +516,10 @@ public static class FhirToXdsTransformer
 
         var patient = new CX()
         {
-            IdNumber = patientId.Value ?? "Unknown",
+            IdNumber = patientId?.Value ?? "Unknown",
             AssigningAuthority = new HD()
             {
-                NamespaceId = $"&{GpiOid}&",
+                NamespaceId = GpiOid,
                 UniversalIdType = "ISO"
             },
         };
@@ -1092,8 +1089,8 @@ public static class FhirToXdsTransformer
 
         /* XDSDocumentEntry.ConfidentialityCode (1..*) - required */
 
-        if (documentReference!.SecurityLabel.Count != 0 ||
-            documentReference!.SecurityLabel.FirstOrDefault()?.Coding.Count != 0)
+        if (documentReference!.SecurityLabel.Count > 0 ||
+            documentReference!.SecurityLabel.FirstOrDefault()?.Coding.Count > 0)
         {
             foreach (var securityLabelConcept in documentReference.SecurityLabel)
             {
@@ -1325,15 +1322,15 @@ public static class FhirToXdsTransformer
             if (!string.IsNullOrWhiteSpace(refAuthorPersonString))
             {
 
-            listAuthorSlots.Add(
-                new SlotType()
-                {
-                    Name = "authorPerson",
-                    ValueList = new ValueListType()
+                listAuthorSlots.Add(
+                    new SlotType()
                     {
-                        Value = [refAuthorPersonString]
-                    }
-                });
+                        Name = "authorPerson",
+                        ValueList = new ValueListType()
+                        {
+                            Value = [refAuthorPersonString]
+                        }
+                    });
             }
         }
     }
@@ -1384,18 +1381,13 @@ public static class FhirToXdsTransformer
                 OrganizationName = refAuthorOrg!.OrganizationName
             };
 
-            var authorInstitutionSlot = new SlotType()
-            {
-                Name = "authorInstitution",
-                ValueList = new ValueListType()
-                {
-                    Value =
-                    [
-                        refAuthorOrgNameOnly.Serialize(),
-                        refAuthorOrg.Serialize(),
-                    ]
-                }
-            };
+            var refAuthorOrgNameOnlyString = refAuthorOrgNameOnly.Serialize();
+            var refAuthorOrgString = refAuthorOrg.Serialize();
+
+            var authorInstitutionSlot = new SlotType("authorInstitution");
+
+            authorInstitutionSlot.AddValue(refAuthorOrgString);
+            authorInstitutionSlot.AddValue(refAuthorOrgNameOnlyString);
 
             var refAuthorDeptString = refAuthorDept?.Serialize();
 
@@ -1626,7 +1618,7 @@ public static class FhirToXdsTransformer
         };
 
         // Adds org.identifier if known
-        if (authorOrg?.Identifier.Count != 0)
+        if (authorOrg?.Identifier.Count > 0)
         {
             authorOrganization.AssigningAuthority = new HD()
             {
@@ -1654,7 +1646,7 @@ public static class FhirToXdsTransformer
         };
 
         // Adds org.identifier if known
-        if (authorOrg?.Identifier.Count != 0)
+        if (authorOrg?.Identifier.Count > 0)
         {
             authorOrganization.AssigningAuthority = new HD()
             {
@@ -1684,14 +1676,14 @@ public static class FhirToXdsTransformer
 
         };
 
-        if (authorDocRef?.Identifier.Count != 0)
+        if (authorDocRef?.Identifier.Count > 0)
         {
             foreach (var identity in authorDocRef!.Identifier)
             {
                 author.PersonIdentifier = identity.Value ?? "Unknown";
                 author.AssigningAuthority = new HD()
                 {
-                    NamespaceId = $"&{identity.System}&",
+                    NamespaceId = identity.System,
                     UniversalIdType = "ISO"
                 };
             }
@@ -1717,14 +1709,14 @@ public static class FhirToXdsTransformer
 
         };
 
-        if (authorDocRef?.Identifier.Count != 0)
+        if (authorDocRef?.Identifier.Count > 0)
         {
             foreach (var identity in authorDocRef!.Identifier)
             {
                 author.PersonIdentifier = identity.Value ?? "Unknown";
                 author.AssigningAuthority = new HD()
                 {
-                    NamespaceId = $"&{identity.System}&",
+                    NamespaceId = identity.System,
                     UniversalIdType = "ISO"
                 };
             }
@@ -1811,7 +1803,7 @@ public static class FhirToXdsTransformer
     }
 
 
-    internal static XCN? GetPatient(Patient bundlePatient, DocumentReference documentReference, string GpiOid)
+    internal static XCN? GetPatient(Patient? bundlePatient, DocumentReference documentReference, string? GpiOid)
     {
         var patientDocRef = documentReference.Contained.OfType<Patient>().FirstOrDefault() ?? bundlePatient;
 
@@ -1828,7 +1820,7 @@ public static class FhirToXdsTransformer
             PersonIdentifier = patientDocRef?.Identifier?.FirstOrDefault()?.Value ?? "Unknown",
             AssigningAuthority = new HD()
             {
-                NamespaceId = $"&{GpiOid}&",
+                NamespaceId = GpiOid,
                 UniversalIdType = "ISO"
             }
         };
@@ -1836,9 +1828,9 @@ public static class FhirToXdsTransformer
         return patient;
     }
 
-    internal static XCN? GetPatient(Identifier identifier, string assigningAuthorityId)
+    internal static XCN? GetPatient(Identifier? identifier, string? assigningAuthorityId)
     {
-        var patientId = identifier.Value;
+        var patientId = identifier?.Value;
 
         if (patientId == null)
         {
@@ -1850,7 +1842,7 @@ public static class FhirToXdsTransformer
             PersonIdentifier = patientId,
             AssigningAuthority = new HD()
             {
-                NamespaceId = $"&{assigningAuthorityId}&",
+                NamespaceId = assigningAuthorityId,
                 UniversalIdType = "ISO"
             }
         };
@@ -1926,9 +1918,11 @@ public static class FhirToXdsTransformer
     Bundle bundle,
     DocumentReference documentReference,
     int indexFallback,
-    List<Binary> binaries,
+    List<Binary>? binaries,
     OperationOutcome operationOutcome)
     {
+        if (binaries?.Count == 0) return null;
+
         // 1) Try attachment.url → Bundle.Entry.fullUrl
         var attachmentUrl = documentReference.Content
             .FirstOrDefault()?.Attachment?.Url;
@@ -1953,7 +1947,7 @@ public static class FhirToXdsTransformer
                 .Replace("Binary/", "", StringComparison.OrdinalIgnoreCase)
                 .Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
 
-            var binaryById = binaries.FirstOrDefault(b =>
+            var binaryById = binaries?.FirstOrDefault(b =>
                 string.Equals(b.Id, idCandidate, StringComparison.OrdinalIgnoreCase));
 
             if (binaryById != null)
@@ -1963,7 +1957,7 @@ public static class FhirToXdsTransformer
         }
 
         // 3) Fallback to index-based matching
-        var fallbackBinary = binaries.ElementAtOrDefault(indexFallback);
+        var fallbackBinary = binaries?.ElementAtOrDefault(indexFallback);
 
         if (fallbackBinary != null)
         {

@@ -15,7 +15,7 @@ public class RelatedEntity
     public CE? Code { get; set; }
 
     [XmlElement("addr")]
-    public AD Address { get; set; }
+    public AD Address { get; set; } = new();
 
     [XmlElement("telecom")]
     public List<TEL>? Telecom { get; set; }

@@ -15,7 +15,7 @@ public class NonXmlBody
     public string? MoodCode { get; set; }
 
     [XmlElement("text")]
-    public ED Text { get; set; }
+    public ED Text { get; set; } = new();
 
     [XmlElement("confidentialityCode")]
     public CE? ConfidentialityCode { get; set; }

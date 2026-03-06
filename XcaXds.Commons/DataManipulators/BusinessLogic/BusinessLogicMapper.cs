@@ -2,8 +2,6 @@
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Custom.BusinessLogic;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 

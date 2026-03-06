@@ -3,6 +3,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 
 namespace XcaXds.Commons.Models.ClinicalDocument;
+
 [Serializable]
 [XmlType("patientRole", Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class PatientRole
@@ -14,7 +15,7 @@ public class PatientRole
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public List<II> Id { get; set; }
+    public List<II> Id { get; set; } = new();
 
     [XmlElement("identifiedBy", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public List<IdentifiedBy>? SdtcIdentifiedBy { get; set; }

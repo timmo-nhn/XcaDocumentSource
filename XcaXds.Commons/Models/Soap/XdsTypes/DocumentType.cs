@@ -9,8 +9,8 @@ public class DocumentType
 {
 
     [XmlAttribute(AttributeName = "id", DataType = "anyURI")]
-    public string Id;
+    public string? Id;
 
     [XmlText(DataType = "base64Binary")]
-    public byte[] Value;
+    public byte[]? Value;
 }

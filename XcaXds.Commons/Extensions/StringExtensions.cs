@@ -13,8 +13,8 @@ public static class StringExtensions
         {
             return input;
         }
-		
-		return input.Replace("urn:uuid:", "").Replace("urn:oid:", "");
+
+        return input.Replace("urn:uuid:", "").Replace("urn:oid:", "");
     }
 
     /// <summary>

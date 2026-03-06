@@ -1,7 +1,4 @@
 ﻿using Hl7.Fhir.Model;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 

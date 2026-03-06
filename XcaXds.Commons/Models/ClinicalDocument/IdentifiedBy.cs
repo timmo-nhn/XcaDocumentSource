@@ -8,8 +8,8 @@ namespace XcaXds.Commons.Models.ClinicalDocument;
 public class IdentifiedBy
 {
     [XmlAttribute("typeCode")]
-    public string TypeCode { get; set; }
+    public string TypeCode { get; set; } = "REL";
 
     [XmlElement("alternateIdentification", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
-    public AlternateIdentification SdtcAlternateIdentification { get; set; }
+    public AlternateIdentification SdtcAlternateIdentification { get; set; } = new();
 }

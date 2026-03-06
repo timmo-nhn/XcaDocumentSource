@@ -9,6 +9,7 @@ namespace XcaXds.WebService.Startup;
 public class AppStartupService : IHostedService
 {
     private readonly ILogger<AppStartupService> _logger;
+    private readonly ILogger<FileBasedRegistry> _logger2;
     private readonly IHostEnvironment _env;
     private readonly IConfiguration _config;
     private readonly MonitoringStatusService _monitoringService;
@@ -19,6 +20,7 @@ public class AppStartupService : IHostedService
 
     public AppStartupService(
         ILogger<AppStartupService> logger,
+        ILogger<FileBasedRegistry> logger2,
         IHostEnvironment env,
         IConfiguration config,
         ApplicationConfig appConfig,
@@ -29,6 +31,7 @@ public class AppStartupService : IHostedService
         )
     {
         _logger = logger;
+        _logger2 = logger2;
         _env = env;
         _config = config;
         _appConfig = appConfig;
@@ -250,7 +253,7 @@ public class AppStartupService : IHostedService
 
     private void MigrateFromJsonRegistryToDatabase()
     {
-        var fileBasedRegistry = new FileBasedRegistry();
+        var fileBasedRegistry = new FileBasedRegistry(_logger2);
 
         // If registry doesnt exist yet, no need to migrate
         if (fileBasedRegistry.RegistryExists() == false) return;

@@ -1,14 +1,14 @@
 ﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Volven.ConfidentialityCode;
-using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Custom.BusinessLogic;
 
 namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
@@ -243,8 +243,8 @@ public static class BusinessLogicFilters
             var allowedRegistryObjects = registryObjects
                 .OfType<ExtrinsicObjectType>()
                 .Where(ext =>
-                    RegistryMetadataTransformer.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
-                    .All(cc => CitizenConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
+                    (RegistryMetadataTransformer.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)) ?? [])
+                        .All(cc => CitizenConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
                 )
                 .ToArray();
 
@@ -263,8 +263,8 @@ public static class BusinessLogicFilters
             var allowedRegistryObjects = registryObjects
                 .OfType<ExtrinsicObjectType>()
                 .Where(ext =>
-                    RegistryMetadataTransformer.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode))
-                    .All(cc => HealthcarePersonellConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
+                    (RegistryMetadataTransformer.MapClassificationToCodedValue(ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)) ?? [])
+                        .All(cc => HealthcarePersonellConfidentialityCodesToObfuscate.Contains((cc.Code, cc.CodeSystem)))
                 )
                 .ToArray();
 
@@ -273,7 +273,7 @@ public static class BusinessLogicFilters
         return new(false, registryObjects, nameof(CitizenShouldNotSeeCertainDocumentReferencesForThemself));
     }
 
-    private static IEnumerable<IdentifiableType> FilterByConfidentiality(IEnumerable<IdentifiableType> source, string[] allowedLevels, string[]? disallowedLevels = null)
+    public static IEnumerable<IdentifiableType> FilterByConfidentiality(IEnumerable<IdentifiableType> source, string[] allowedLevels, string[]? disallowedLevels = null)
     {
         return source
             .OfType<ExtrinsicObjectType>()

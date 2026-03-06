@@ -126,7 +126,7 @@ public class PolicyEnforcementPointMiddleware
 
         var decision = policyEvaluator.Evaluate(policyInput.XacmlRequest, policyInput.AppliesTo);
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Response.Results.FirstOrDefault()?.Decision.ToString()}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Response?.Results.FirstOrDefault()?.Decision.ToString()}");
 
         if (decision.Permit)
         {

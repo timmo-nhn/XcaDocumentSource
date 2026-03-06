@@ -24,5 +24,5 @@ public class DocumentationOf
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("serviceEvent")]
-    public ServiceEvent ServiceEvent { get; set; }
+    public ServiceEvent ServiceEvent { get; set; } = new();
 }

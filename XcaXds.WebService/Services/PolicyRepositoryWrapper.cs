@@ -1,12 +1,10 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Runtime;
-using Microsoft.Extensions.Logging;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
-using XcaXds.Commons.DataManipulators;
-using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Services;
 
@@ -41,22 +39,15 @@ public class PolicyRepositoryWrapper
 
         _policyRepositoryPath = _policyRepository.GetPolicyRepositoryPath();
 
-        if (!string.IsNullOrWhiteSpace(_policyRepositoryPath))
-        {
-            _watcher = new FileSystemWatcher(_policyRepositoryPath)
-            {
-                NotifyFilter = NotifyFilters.LastWrite
-            };
-            _watcher.Changed += OnFileChanged;
-            _watcher.EnableRaisingEvents = true;
-        }
-    }
+        if (string.IsNullOrWhiteSpace(_policyRepositoryPath)) throw new InvalidOperationException("No PolicyRepository Path found!");
 
-    // For use in unit tests
-    public PolicyRepositoryWrapper(FileBasedPolicyRepository policyRepository)
-    {
-        _policyRepository = policyRepository;
-        policySet = _policyRepository.GetAllPolicies();
+        _watcher = new FileSystemWatcher(_policyRepositoryPath)
+        {
+            NotifyFilter = NotifyFilters.LastWrite
+        };
+        _watcher.Changed += OnFileChanged;
+        _watcher.EnableRaisingEvents = true;
+
     }
 
     private void RefreshEvaluationEngine()
@@ -137,7 +128,7 @@ public class PolicyRepositoryWrapper
 
     public bool UpdatePolicy(PolicyDto policyDto, string id)
     {
-        if (policySet.Policies == null) return false;
+        if (policySet.Policies == null || string.IsNullOrWhiteSpace(policyDto.Id)) return false;
 
         id ??= policyDto.Id;
 

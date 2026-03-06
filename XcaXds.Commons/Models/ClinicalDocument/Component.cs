@@ -16,7 +16,7 @@ public class Component : InfrastructureRoot
     [XmlAttribute("contextConductionInd")]
     public string? ContextConductionInd
     {
-        get => _contextConductionInd.HasValue ? _contextConductionInd.ToString().ToLowerInvariant() : null;
+        get => _contextConductionInd.HasValue ? _contextConductionInd.ToString()?.ToLowerInvariant() : null;
         set => _contextConductionInd = string.IsNullOrEmpty(value) ? null : bool.Parse(value);
     }
 

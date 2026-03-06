@@ -24,6 +24,6 @@ public class Authorization
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("consent")]
-    public Consent Consent { get; set; }
+    public Consent Consent { get; set; } = new();
 
 }

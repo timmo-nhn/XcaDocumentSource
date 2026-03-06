@@ -11,7 +11,7 @@ public class TS : ANY
     [XmlIgnore]
     public DateTimeOffset EffectiveTime { get; set; }
 
-    private string _dateFormat;
+    private string? _dateFormat;
 
     [XmlIgnore]
     private string? RawEffectiveTimeValue { get; set; }

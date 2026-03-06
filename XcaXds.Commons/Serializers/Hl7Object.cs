@@ -116,15 +116,15 @@ public abstract class Hl7Object
 
             if (item.Property?.PropertyType == typeof(HD))
             {
-                objectValue = new [] { Parse<HD>(value, Constants.Hl7.Separator.Amp) };
+                objectValue = new[] { Parse<HD>(value, Constants.Hl7.Separator.Amp) };
             }
             else if (item.Property?.PropertyType == typeof(CX))
             {
-                objectValue = new [] { Parse<CX>(value, Constants.Hl7.Separator.Hatt) };
+                objectValue = new[] { Parse<CX>(value, Constants.Hl7.Separator.Hatt) };
             }
             else if (item.Property?.PropertyType == typeof(XPN))
             {
-                objectValue = new [] { Parse<XPN>(value, Constants.Hl7.Separator.Hatt) };
+                objectValue = new[] { Parse<XPN>(value, Constants.Hl7.Separator.Hatt) };
             }
             else if (item.Property?.PropertyType == typeof(DateTime))
             {
@@ -132,7 +132,7 @@ public abstract class Hl7Object
             }
             else
             {
-                objectValue = new [] { value };
+                objectValue = new[] { value };
             }
 
             item.Property?.GetSetMethod()?.Invoke(output, objectValue);

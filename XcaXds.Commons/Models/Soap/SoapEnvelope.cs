@@ -2,29 +2,19 @@
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap.Actions;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Models.Soap;
 
 [Serializable]
 [XmlType(AnonymousType = true, Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-[XmlInclude(typeof(RegistryStoredQueryRequest))]
-[XmlInclude(typeof(ProvideAndRegisterDocumentSetbRequest))]
-[XmlInclude(typeof(RegisterDocumentSetbRequest))]
-[XmlInclude(typeof(SubmitObjectsRequest))]
-[XmlInclude(typeof(IdentifiableType))]
-[XmlInclude(typeof(RegistryResponseType))]
-[XmlInclude(typeof(RetrieveDocumentSetResponseType))]
-[XmlInclude(typeof(RetrieveDocumentSetbResponse))]
-[XmlInclude(typeof(RetrieveDocumentSetbRequest))]
 [XmlRoot("Envelope", Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
 public class SoapEnvelope
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-    public SoapHeader Header { get; set; }
+    public SoapHeader Header { get; set; } = new();
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-    public SoapBody Body { get; set; }
+    public SoapBody Body { get; set; } = new();
 
     public void SetAction(string action)
     {
@@ -33,7 +23,7 @@ public class SoapEnvelope
     }
     public string GetCorrespondingResponseAction()
     {
-        return Header?.Action switch
+        return Header.Action switch
         {
             Constants.Xds.OperationContract.Iti18Action => Constants.Xds.OperationContract.Iti18Reply,
             Constants.Xds.OperationContract.Iti41Action => Constants.Xds.OperationContract.Iti41Reply,
@@ -83,7 +73,7 @@ public partial class SoapBody
     public ProvideAndRegisterDocumentSetRequestType? ProvideAndRegisterDocumentSetRequest { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
-    public ProvideAndRegisterDocumentSetbResponse? ProvideAndRegisterDocumentSetResponse { get; set; }
+    public ProvideAndRegisterDocumentSetbResponseType? ProvideAndRegisterDocumentSetResponse { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
     public RegisterDocumentSetRequestType? RegisterDocumentSetRequest { get; set; }
@@ -92,7 +82,7 @@ public partial class SoapBody
     public RegistryResponseType? RegisterDocumentSetResponse { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
-    public RetrieveDocumentSetbRequest? RetrieveDocumentSetRequest { get; set; }
+    public RetrieveDocumentSetbRequestType? RetrieveDocumentSetRequest { get; set; }
 
     [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb)]
     public RetrieveDocumentSetResponseType? RetrieveDocumentSetResponse { get; set; }
@@ -170,10 +160,10 @@ public class Security
 public partial class SoapTimestamp
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.SecurityUtility)]
-    public string Created { get; set; }
+    public string? Created { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.SecurityUtility)]
-    public string Expires { get; set; }
+    public string? Expires { get; set; }
 }
 
 [Serializable]
@@ -189,10 +179,10 @@ public partial class Assertion
 public class Fault
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-    public Code Code { get; set; }
+    public Code? Code { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-    public Reason Reason { get; set; }
+    public Reason? Reason { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
     public Detail? Detail { get; set; }
@@ -203,7 +193,7 @@ public class Fault
 public class Code
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-    public string Value { get; set; }
+    public string? Value { get; set; }
 
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
     public Subcode? Subcode { get; set; }
@@ -214,7 +204,7 @@ public class Code
 public class Detail
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
-    public ProblemAction Value { get; set; }
+    public ProblemAction? Value { get; set; }
 }
 
 [Serializable]
@@ -222,7 +212,7 @@ public class Detail
 public class ProblemAction
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.Addressing)]
-    public string Action { get; set; }
+    public string? Action { get; set; }
 }
 
 
@@ -231,7 +221,7 @@ public class ProblemAction
 public class Subcode
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-    public string Value { get; set; }
+    public string? Value { get; set; }
 }
 
 [Serializable]
@@ -239,5 +229,5 @@ public class Subcode
 public class Reason
 {
     [XmlElement(Namespace = Constants.Soap.Namespaces.SoapEnvelope)]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 }

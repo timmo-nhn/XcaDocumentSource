@@ -13,8 +13,13 @@ public class PolicyEvaluator
         _pdp = pdp;
     }
 
-    public PolicyDecisionResult Evaluate(XacmlContextRequest req, Issuer appliesTo)
+    public PolicyDecisionResult Evaluate(XacmlContextRequest? req, Issuer appliesTo)
     {
+        if (req == null)
+        {
+            return new PolicyDecisionResult(false, null);
+        }
+
         var resp = _pdp.EvaluateXacmlRequest(req, appliesTo);
         var permit = resp.Results.All(r => r.Decision == XacmlContextDecision.Permit);
 

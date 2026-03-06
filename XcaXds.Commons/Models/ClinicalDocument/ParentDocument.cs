@@ -15,7 +15,7 @@ public class ParentDocument
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public List<II> Id { get; set; }
+    public List<II> Id { get; set; } = new();
 
     [XmlElement("code")]
     public CV? Code { get; set; }

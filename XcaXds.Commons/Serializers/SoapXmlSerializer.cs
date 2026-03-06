@@ -86,7 +86,7 @@ public class SoapXmlSerializer
         }
     }
 
-    public SoapXmlSerializerResult SerializeSoapMessageToXmlString(object soapElement, XmlWriterSettings? settings = null)
+    public SoapXmlSerializerResult SerializeSoapMessageToXmlString(object? soapElement, XmlWriterSettings? settings = null)
     {
         if (soapElement == null) throw new ArgumentNullException(nameof(soapElement));
 

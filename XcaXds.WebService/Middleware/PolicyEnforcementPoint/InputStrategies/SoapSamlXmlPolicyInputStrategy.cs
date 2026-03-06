@@ -1,10 +1,10 @@
 ﻿using Microsoft.IdentityModel.Tokens.Saml2;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.WebService.Services;
 
@@ -25,9 +25,9 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
     public async Task<PolicyInputResult> BuildAsync(HttpContext context, ApplicationConfig appConfig, IEnumerable<RegistryObjectDto> documentRegistry)
     {
         string requestBody;
-        
+
         requestBody = await HttpRequestResponseExtensions.GetHttpRequestBodyAsStringAsync(context.Request);
-        
+
         if (context.Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated)
         {
             requestBody = await MultipartExtensions.ReadMultipartContentFromRequest(context.Request);

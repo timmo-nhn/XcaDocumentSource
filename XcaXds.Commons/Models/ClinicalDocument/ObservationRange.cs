@@ -18,7 +18,7 @@ public class ObservationRange
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("code")]
-    public CD Code { get; set; }
+    public CD Code { get; set; } = new();
 
     [XmlElement("text")]
     public ED? Text { get; set; }

@@ -15,10 +15,10 @@ public class Section
     public string? NullFlavor { get; set; }
 
     [XmlAttribute("classCode")]
-    public string ClassCode { get; set; }
+    public string ClassCode { get; set; } = "DOCSECT";
 
     [XmlAttribute("moodCode")]
-    public string MoodCode { get; set; }
+    public string MoodCode { get; set; } = "EVN";
 
     [XmlElement("templateId")]
     public List<II>? TemplateId { get; set; }

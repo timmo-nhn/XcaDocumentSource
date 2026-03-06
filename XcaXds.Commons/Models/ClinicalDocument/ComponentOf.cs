@@ -11,6 +11,6 @@ public class ComponentOf : InfrastructureRoot
     public string? TypeCode { get; set; }
 
     [XmlElement("encompassingEncounter")]
-    public EncompassingEncounter EncompassingEncounter { get; set; }
+    public EncompassingEncounter EncompassingEncounter { get; set; } = new();
 }
 

@@ -15,14 +15,14 @@ public class LocalizedStringType
     }
 
     [XmlAttribute(AttributeName = "lang", Form = XmlSchemaForm.Qualified, Namespace = "http://www.w3.org/XML/1998/namespace")]
-    public string Lang;
+    public string? Lang { get; set; }
 
     [XmlAttribute(AttributeName = "charset")]
     [DefaultValue("UTF-8")]
-    public string Charset;
+    public string Charset { get; set; }
 
     [XmlAttribute(AttributeName = "value")]
-    public string Value;
+    public string? Value { get; set; }
 
 
 }

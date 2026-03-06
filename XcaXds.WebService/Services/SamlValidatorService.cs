@@ -18,7 +18,7 @@ public class Saml2Validator
             throw new Exception("Signing certificate missing! SAML-token cannot be validated!");
         }
 
-        var idpCert = signingCertificates.Select(cs => new X509Certificate2(Convert.FromBase64String(cs)));
+        var idpCert = signingCertificates.Select(cs => X509CertificateLoader.LoadCertificate(Convert.FromBase64String(cs)));
         var signingKeys = idpCert.Select(idpC => new X509SecurityKey(idpC));
 
         _validationParameters = new TokenValidationParameters

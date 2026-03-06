@@ -1,12 +1,10 @@
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
-using XcaXds.WebService.Services;
-using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.DataManipulators.BusinessLogic;
 
 namespace XcaXds.Tests;
 
@@ -59,7 +57,7 @@ public class UnitTests_BusinessLogic_UseCases
 
         DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
-        Assert.Empty(DocumentReferences);
+        Assert.Empty(DocumentReferences ?? []);
     }
 
     [Fact]
@@ -154,7 +152,7 @@ public class UnitTests_BusinessLogic_UseCases
 
         DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
 
-        Assert.Empty(DocumentReferences);
+        Assert.Empty(DocumentReferences ?? []);
     }
 
     [Fact]

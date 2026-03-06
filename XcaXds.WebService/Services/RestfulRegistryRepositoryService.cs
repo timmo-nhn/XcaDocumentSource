@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Text.Json;
+﻿using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
-using XcaXds.Source.Source;
 
 namespace XcaXds.WebService.Services;
 
@@ -201,7 +199,12 @@ public class RestfulRegistryRepositoryService
             documentReference.Association = CreateAssociationBetweenObjects(documentReference.SubmissionSet, documentReference.DocumentEntry);
         }
 
-        var elementsToBeUploaded = new List<RegistryObjectDto>() { documentReference.DocumentEntry, documentReference.SubmissionSet, documentReference.Association };
+        var elementsToBeUploaded = new List<RegistryObjectDto?>()
+        {
+            documentReference.DocumentEntry,
+            documentReference.SubmissionSet,
+            documentReference.Association
+        }.OfType<RegistryObjectDto>().ToList();
 
         if (DuplicateUuidsExist(documentRegistry, elementsToBeUploaded, out var dupliacteIds))
         {
@@ -209,12 +212,16 @@ public class RestfulRegistryRepositoryService
             return uploadResponse;
         }
 
-        if (documentReference.Document != null)
-        {
-            _repositoryWrapper.StoreDocument(documentReference.Document.DocumentId, documentReference.Document.Data, documentReference.DocumentEntry.SourcePatientInfo?.PatientId?.Id);
+        var doc = documentReference.Document;
+        var patientId = documentReference.DocumentEntry?.SourcePatientInfo?.PatientId?.Id;
 
+        if (doc?.DocumentId == null || doc.Data == null || patientId == null)
+        {
+            uploadResponse.AddError("MissingValue", "Document, DocumentId, Document Data and PatientId are required for upload");
+            return uploadResponse;
         }
 
+        _repositoryWrapper.StoreDocument(doc.DocumentId, doc.Data, patientId);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(elementsToBeUploaded);
 
         return uploadResponse;
@@ -263,7 +270,7 @@ public class RestfulRegistryRepositoryService
 
             _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry.ToList());
 
-            if (inputDocumentReference.Document != null && inputDocumentReference.Document.Data?.Length != 0 && inputDocumentReference.DocumentEntry?.SourcePatientInfo?.PatientId?.Id != null)
+            if (inputDocumentReference.Document != null && inputDocumentReference.Document.DocumentId != null && inputDocumentReference.Document.Data?.Length > 0 && inputDocumentReference.DocumentEntry?.SourcePatientInfo?.PatientId?.Id != null)
             {
                 var storeResult = _repositoryWrapper.StoreDocument(inputDocumentReference.Document.DocumentId, inputDocumentReference.Document.Data, inputDocumentReference.DocumentEntry.SourcePatientInfo.PatientId.Id);
                 if (storeResult == false)
@@ -279,13 +286,13 @@ public class RestfulRegistryRepositoryService
         {
             // Create new identifiers
             var documentEntryId = Guid.NewGuid().ToString();
-            _logger.LogInformation($"REPLACE: \nDocumentEntry new ID: {documentEntryId} \nPrevious: {inputDocumentReference.DocumentEntry.Id}");
-            inputDocumentReference.DocumentEntry.Id = documentEntryId;
+            _logger.LogInformation($"REPLACE: \nDocumentEntry new ID: {documentEntryId} \nPrevious: {inputDocumentReference.DocumentEntry?.Id}");
+            inputDocumentReference.DocumentEntry?.Id = documentEntryId;
 
 
             var submissionSetId = Guid.NewGuid().ToString();
-            _logger.LogInformation($"REPLACE: \nSubmissionSet new ID: {submissionSetId} \nPrevious: {inputDocumentReference.SubmissionSet.Id}");
-            inputDocumentReference.SubmissionSet.Id = submissionSetId;
+            _logger.LogInformation($"REPLACE: \nSubmissionSet new ID: {submissionSetId} \nPrevious: {inputDocumentReference.SubmissionSet?.Id}");
+            inputDocumentReference.SubmissionSet?.Id = submissionSetId;
 
             // Deprecate the old DocumentEntry
             documentRegistry = documentRegistry.DeprecateEntry(documentEntryToBeReplaced.Id);
@@ -296,6 +303,9 @@ public class RestfulRegistryRepositoryService
                 documentEntryToBeReplaced,
                 Constants.Xds.AssociationType.Replace);
 
+            if (replaceAssociation == null) throw new InvalidOperationException($"Cannot create association between {inputDocumentReference.DocumentEntry?.Id} and {documentEntryToBeReplaced.Id}");
+            if (inputDocumentReference.DocumentEntry == null) throw new InvalidOperationException($"DocumentEntry cannot be null");
+
             _logger.LogInformation($"REPLACE: \nReplace Association: {replaceAssociation.Id} Created between {inputDocumentReference.DocumentEntry.Id} and {documentEntryToBeReplaced.Id}");
 
             // Recreate association with new identifiers
@@ -303,13 +313,13 @@ public class RestfulRegistryRepositoryService
                 inputDocumentReference.SubmissionSet,
                 inputDocumentReference.DocumentEntry);
 
-            _registryWrapper.UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>()
+            _registryWrapper.UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto?>()
             {
                 inputDocumentReference.DocumentEntry,
                 inputDocumentReference.SubmissionSet,
                 inputDocumentReference.Association,
                 replaceAssociation
-            });
+            }.OfType<RegistryObjectDto>().ToList());
 
             updateResponse.SetMessage($"REPLACE: \nDocument deprecated and replaced by new DocumentEntry {inputDocumentReference.DocumentEntry.Id}");
         }
@@ -346,7 +356,9 @@ public class RestfulRegistryRepositoryService
             ObjectMerger.MergeObjects(associationToPatch, value.Association);
         }
 
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos([documentEntryToPatch, submissionSetToPatch, associationToPatch]);
+        var patchedResources = new List<RegistryObjectDto?>() { documentEntryToPatch, submissionSetToPatch, associationToPatch }.OfType<RegistryObjectDto>().ToList();
+
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(patchedResources);
 
         return partialUpdateResponse;
     }
@@ -362,9 +374,9 @@ public class RestfulRegistryRepositoryService
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
         var documentEntryForDocument = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(de => de.Id == id);
-        
+
         deletedEntry = documentEntryForDocument;
-        
+
         if (documentEntryForDocument == null)
         {
             _logger.LogWarning($"Error while deleting document");
@@ -438,13 +450,16 @@ public class RestfulRegistryRepositoryService
         return duplicateIds.Length > 0;
     }
 
-    private AssociationDto CreateAssociationBetweenObjects(RegistryObjectDto sourceRegistryObject, RegistryObjectDto targetRegistryObject, string associationType = null)
+    private AssociationDto? CreateAssociationBetweenObjects(RegistryObjectDto? sourceRegistryObject, RegistryObjectDto? targetRegistryObject, string associationType = Constants.Xds.AssociationType.HasMember)
     {
+        if (sourceRegistryObject?.Id == null || targetRegistryObject?.Id == null)
+            return null;
+
         var association = new AssociationDto();
 
         if (targetRegistryObject != null && sourceRegistryObject != null)
         {
-            association.AssociationType = associationType ?? Constants.Xds.AssociationType.HasMember;
+            association.AssociationType = associationType;
             association.SourceObject = sourceRegistryObject.Id;
             association.TargetObject = targetRegistryObject.Id;
             association.SubmissionSetStatus = "Current";
@@ -458,8 +473,11 @@ public class RestfulRegistryRepositoryService
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
         var patientIdentifiers = documentRegistry.OfType<DocumentEntryDto>()
             .Select(de => de.SourcePatientInfo)
-            .Where(spi => !string.IsNullOrWhiteSpace(spi?.PatientId?.Id))
-            .DistinctBy(gob => gob?.PatientId?.Id).ToList();
+            .Where(spi => spi != null && !string.IsNullOrWhiteSpace(spi?.PatientId?.Id))
+            .DistinctBy(gob => gob?.PatientId?.Id)
+            .OfType<SourcePatientInfo>()
+            .ToList();
+
         return patientIdentifiers;
     }
 
@@ -508,7 +526,7 @@ public class RestfulRegistryRepositoryService
         }
 
         var registry = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        
+
         var dateInstant = DateTime.Now.AddDays(-days.Value);
 
         var oldDocumentEntries = registry.OfType<DocumentEntryDto>().Where(de => de.ServiceStopTime < dateInstant).ToArray();

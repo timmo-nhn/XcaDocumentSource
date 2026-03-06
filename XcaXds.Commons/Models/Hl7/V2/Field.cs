@@ -4,9 +4,9 @@ namespace XcaXds.Commons.Models.Hl7.V2
 {
     public class Field : MessageElement
     {
-        private List<Field> _RepetitionList;
+        private List<Field>? _RepetitionList;
 
-        internal ComponentCollection ComponentList { get; set; }
+        internal ComponentCollection ComponentList { get; set; } = new();
 
         public bool IsComponentized { get; set; } = false;
         public bool HasRepetitions { get; set; } = false;
@@ -111,7 +111,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
             }
         }
 
-        public Component Components(int position)
+        public Component? Components(int position)
         {
             position--;
 
@@ -130,7 +130,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
             return ComponentList;
         }
 
-        public List<Field> Repetitions()
+        public List<Field>? Repetitions()
         {
             if (HasRepetitions)
                 return RepetitionList;
@@ -138,7 +138,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
             return null;
         }
 
-        public Field Repetitions(int repetitionNumber)
+        public Field? Repetitions(int repetitionNumber)
         {
             if (HasRepetitions)
                 return RepetitionList[repetitionNumber - 1];
@@ -152,8 +152,8 @@ namespace XcaXds.Commons.Models.Hl7.V2
             {
                 for (var eachComponent = ComponentList.Count - 1; eachComponent >= 0; eachComponent--)
                 {
-                    if (ComponentList[eachComponent].Value == "")
-                        ComponentList.Remove(ComponentList[eachComponent]);
+                    if (ComponentList[eachComponent]?.Value == "")
+                        ComponentList.Remove(ComponentList[eachComponent]!);
                     else
                         break;
                 }

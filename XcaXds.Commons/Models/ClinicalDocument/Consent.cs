@@ -24,6 +24,6 @@ public class Consent
     public CE? Code { get; set; }
 
     [XmlElement("statusCode")]
-    public CS StatusCode { get; set; }
+    public CS StatusCode { get; set; } = new();
 
 }

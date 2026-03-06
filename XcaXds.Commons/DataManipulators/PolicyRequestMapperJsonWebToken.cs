@@ -20,7 +20,7 @@ public class PolicyRequestMapperJsonWebToken
         var samlToken = MapJsonWebTokenToSamlToken(jwtToken);
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
-        var samltokenAuthorizationAttributes = statements.Where(att => 
+        var samltokenAuthorizationAttributes = statements.Where(att =>
             att.Name.Contains("xacml") ||
             att.Name.Contains("xspa") ||
             att.Name.Contains("SecurityLevel") ||
@@ -39,15 +39,15 @@ public class PolicyRequestMapperJsonWebToken
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
         var actionAttribute = new XacmlContextAttribute(
-            new Uri(Constants.Xacml.Attribute.ActionId), 
-            new Uri(Constants.Xacml.DataType.String), 
+            new Uri(Constants.Xacml.Attribute.ActionId),
+            new Uri(Constants.Xacml.DataType.String),
             new XacmlContextAttributeValue() { Value = action });
 
         var xacmlAction = new XacmlContextAction(actionAttribute);
 
         // Subject
         var subjectAttributes = samlAttributes
-            .Where(sa => sa.AttributeValues.All(av => 
+            .Where(sa => sa.AttributeValues.All(av =>
                 !string.IsNullOrWhiteSpace(av.Value)) &&
                 (sa.AttributeId.OriginalString.Contains("subject") ||
                 sa.AttributeId.OriginalString.Contains("acp"))).ToList();
@@ -64,15 +64,15 @@ public class PolicyRequestMapperJsonWebToken
 
     private static string MapXacmlActionFromUrlPath(string? urlPath, string method)
     {
-        if (urlPath?.Equals("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")   
+        if (urlPath?.Equals("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
             return Constants.Xacml.Actions.Create;
 
         if (urlPath?.StartsWith("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
             return Constants.Xacml.Actions.Update;
 
-		if (urlPath?.Equals("/R4/fhir/mhd/document", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
+        if (urlPath?.Equals("/R4/fhir/mhd/document", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
             return Constants.Xacml.Actions.ReadDocuments;
-            
+
         if (urlPath?.Equals("/R4/fhir/DocumentReference/_search", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
             return Constants.Xacml.Actions.ReadDocumentList;
 
@@ -107,10 +107,10 @@ public class PolicyRequestMapperJsonWebToken
             {
                 IEnumerable<string> stringEnumerable => [.. stringEnumerable],
                 System.Text.Json.JsonElement jsonElement => jsonElement.ValueKind switch
-                    { 
-                        System.Text.Json.JsonValueKind.Array => jsonElement.EnumerateArray().Select(je => je.ToString()).ToArray(), 
-                        _ => [jsonElement.ToString()]
-                    },
+                {
+                    System.Text.Json.JsonValueKind.Array => jsonElement.EnumerateArray().Select(je => je.ToString()).ToArray(),
+                    _ => [jsonElement.ToString()]
+                },
                 _ => [claim.Value.ToString() ?? ""]
             };
 

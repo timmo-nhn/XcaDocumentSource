@@ -25,12 +25,8 @@
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
     </ItemGroup>
-	
-    <ItemGroup>
-        <InternalsVisibleTo Include="..\XcaXds.WebService\XcaXds.WebService.csproj" />
-    </ItemGroup>
 
-    <ItemGroup>
+	<ItemGroup>
         <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
         <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
     </ItemGroup>

@@ -27,5 +27,5 @@ public class InFulfillmentOf
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("order")]
-    public Order Order { get; set; }
+    public Order Order { get; set; } = new();
 }

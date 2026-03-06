@@ -23,7 +23,7 @@ public sealed class InMemoryRepository : IRepository
         throw new NotImplementedException();
     }
 
-    public bool Write(string documentId, byte[] data, string patientId = null)
+    public bool Write(string documentId, byte[] data, string? patientId = null)
     {
         DocumentRepository.Add(new() { DocumentId = documentId, Data = data });
         return true;

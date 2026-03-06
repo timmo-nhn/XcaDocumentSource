@@ -24,7 +24,7 @@ public class EncounterParticipant
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("time")]
-    public IVL_TS Time { get; set; }
+    public IVL_TS Time { get; set; } = new();
 
     [XmlElement("assignedEntity")]
     public AssignedEntity? AssignedEntity { get; set; }

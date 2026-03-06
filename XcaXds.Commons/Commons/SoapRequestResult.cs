@@ -1,10 +1,10 @@
 ﻿using XcaXds.Commons.Models.Soap;
 namespace XcaXds.Commons.Commons;
 
-public class SoapRequestResult<T>
+public class SoapRequestResult<T> where T : notnull
 {
     public bool IsSuccess { get; set; }
-    public T? Value { get; set; }
+    public T Value { get; set; } = default!;
     public Fault? FaultResult { get; set; }
 
 

@@ -13,11 +13,11 @@ namespace XcaXds.Commons.Models.Hl7.V2
         /// <summary>
         /// Component indexer
         /// </summary>
-        internal new Component this[int index]
+        internal new Component? this[int index]
         {
             get
             {
-                Component component = null;
+                Component? component = null;
 
                 if (index < Count)
                     component = base[index];
@@ -26,7 +26,10 @@ namespace XcaXds.Commons.Models.Hl7.V2
             }
             set
             {
-                base[index] = value;
+                if (value != null)
+                {
+                    base[index] = value;
+                }
             }
         }
 
@@ -57,9 +60,12 @@ namespace XcaXds.Commons.Models.Hl7.V2
             {
                 for (int comIndex = listCount; comIndex < position; comIndex++)
                 {
-                    Component blankComponent = new Component(component.Encoding);
-                    blankComponent.Value = string.Empty;
-                    base.Add(blankComponent);
+                    if (component.Encoding != null)
+                    {
+                        Component blankComponent = new(component.Encoding);
+                        blankComponent.Value = string.Empty;
+                        base.Add(blankComponent);
+                    }
                 }
 
                 base.Add(component);

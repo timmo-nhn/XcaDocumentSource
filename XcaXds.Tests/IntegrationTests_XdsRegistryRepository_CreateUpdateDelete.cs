@@ -1,5 +1,4 @@
 ﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Utility;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text;
 using System.Text.Json;
@@ -15,6 +14,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Tests.Helpers;
 using Xunit.Abstractions;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
@@ -57,13 +57,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
-        var count = firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
+        var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
-        var excpectedRegistryObjects = RegistryContent.Select(dr => dr.DocumentEntry).Where(rc => !rc.ConfidentialityCode.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
+        var excpectedRegistryObjects = BusinessLogicFilters.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted], [VeryRestricted]).ToArray();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.Length ?? 0);
+        Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList.Length ?? 0);
 
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
@@ -71,7 +71,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         _output.WriteLine($"Fetched {count} entries");
 
         // Cleanup
-        await NukeRegistryRepository(); 
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
     }
 
@@ -104,13 +104,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
 
-        var count = firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
+        var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
         var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem)))).ToArray();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(0, firstResponseSoap?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
@@ -172,13 +172,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var excpectedDocumentCount = RegistryContent.Count(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))));
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
+        Assert.Equal(0, retrieveDocumentSetResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
 
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse.Length}");
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse.Length}");
 
         // Cleanup
         await NukeRegistryRepository();
@@ -234,13 +234,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var excpectedDocumentCount = RegistryContent.Count(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))));
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, retrieveDocumentSetResponse?.Body?.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
+        Assert.Equal(0, retrieveDocumentSetResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length);
 
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse}");
 
         // Cleanup
         await NukeRegistryRepository();
@@ -297,7 +297,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         // Cleanup
         await NukeRegistryRepository();
@@ -353,12 +353,12 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, retrieveDocumentSetResponse?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, retrieveDocumentSetResponse?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.DocumentResponse}");
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse}");
 
         // Cleanup
         await NukeRegistryRepository();
@@ -398,7 +398,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
                 RepositoryUniqueId = rc?.DocumentEntry?.RepositoryUniqueId,
                 HomeCommunityId = rc?.DocumentEntry?.HomeCommunityId,
             }).ToArray();
-       
+
         iti39SoapEnvelope = sxmls.SerializeSoapMessageToXmlString(iti39Request).Content;
 
         var crossGatewayRetrieve = GetSoapEnvelopeWithHelsenorgeSamlToken(iti39SoapEnvelope);
@@ -413,7 +413,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(1, retrieveDocumentSetResponse?.Body?.RetrieveDocumentSetResponse?.RegistryResponse.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         // Cleanup
         await NukeRegistryRepository();
@@ -463,10 +463,10 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, firstResponseSoap?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         Assert.Equal(expectedCountAfterPnR, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
-       
+
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
@@ -553,7 +553,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(expectedCountAfterPnrUpdate, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
         //Assert.Equal(expectedCountAfterPnrUpdate, _repository.().Count);
         Assert.Equal(randomDocumentEntriesToDeprecate.Length, deprecatedDocuments.Length);
-        
+
         Thread.Sleep(5000); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
@@ -608,7 +608,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(expectedCountAfterRds, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
         //Assert.Equal(RegistryItemCount, _repository.DocumentRepository.Count);
-      
+
         Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
@@ -690,7 +690,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var iti18RmdResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti18RmdRequestResponseContent);
 
 
-        Assert.Empty(iti18RmdResponseSoapObject?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        Assert.Empty(iti18RmdResponseSoapObject?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
 
         var documentEntriesToRemove = new HashSet<string>(documentEntryToRemove?.Select(de => de.Id));
         var amountOfEntitiesToRemove = documentEntriesToRemove.Count;
@@ -834,7 +834,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         await NukeRegistryRepository();
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectList());
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtoList());
 
         foreach (var document in metadata.Select(dto => dto.Document))
         {

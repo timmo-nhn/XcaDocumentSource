@@ -79,7 +79,7 @@ public class XdsRepositoryController : ControllerBase
                 {
                     var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(iti43Response.Value, out var boundary);
 
-                    string contentId = null;
+                    string? contentId = null;
 
                     if (multipartContent.FirstOrDefault()?.Headers.TryGetValues("Content-ID", out var contentIdValues) ?? false)
                     {
@@ -144,7 +144,7 @@ public class XdsRepositoryController : ControllerBase
 
                 if (repositoryDocumentExists.IsSuccess is false)
                 {
-                    var registryError = repositoryDocumentExists.Value?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError?.FirstOrDefault();
+                    var registryError = repositoryDocumentExists.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.FirstOrDefault();
                     if (registryError != null)
                     {
                         _logger.LogError($"Error while updating Registry:\n\tError: {registryError.ErrorCode}\n\tCodeContext: {registryError.CodeContext}\n\tLocation: {registryError.Location}");
@@ -175,7 +175,7 @@ public class XdsRepositoryController : ControllerBase
                     Security = null,
                     RelatesTo = soapEnvelope.Header.MessageId
                 };
-                responseEnvelope.Body = documentUploadResponse.Value?.Body;
+                responseEnvelope.Body = documentUploadResponse.Value?.Body ?? new();
 
                 break;
 

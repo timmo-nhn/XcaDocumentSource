@@ -21,7 +21,7 @@ public static class PolicyDtoTransformer
             .Select(match => match.AttributeValue.Value))
             .ToList();
 
-        if (actions.Count != 0)
+        if (actions.Count > 0)
         {
             policyDto.Actions ??= new();
             policyDto.Actions.AddRange(actions);
@@ -35,7 +35,7 @@ public static class PolicyDtoTransformer
                 Value = subjects?.AttributeValue?.Value,
             })).ToList();
 
-        if (subjects.Count != 0)
+        if (subjects.Count > 0)
         {
             policyDto.Subjects ??= new();
             policyDto.Subjects.AddRange(subjects);
@@ -50,7 +50,7 @@ public static class PolicyDtoTransformer
 
             })).ToList();
 
-        if (resources.Count != 0)
+        if (resources.Count > 0)
         {
             policyDto.Resources ??= new();
             policyDto.Resources.AddRange(resources);
@@ -168,7 +168,7 @@ public static class PolicyDtoTransformer
             foreach (var rule in rules)
             {
                 if (rule == null) continue;
-                
+
                 var values = rule.Value?.Split(";");
 
                 if (values?.Length > 1)
@@ -262,7 +262,7 @@ public static class PolicyDtoTransformer
     {
         var policySetDto = new PolicySetDto();
 
-        if (xacmlPolicySet.Policies.Count != 0)
+        if (xacmlPolicySet.Policies.Count > 0)
         {
             foreach (var xacmlPolicy in xacmlPolicySet.Policies)
             {
@@ -286,7 +286,7 @@ public static class PolicyDtoTransformer
 
         xacmlPolicySet.PolicySetId = new Uri($"urn:uuid:{policySetDto.SetId}", UriKind.Absolute);
 
-        if (policySetDto.Policies?.Count != 0)
+        if (policySetDto.Policies?.Count > 0)
         {
             foreach (var policyDto in policySetDto.Policies ?? new List<PolicyDto>())
             {

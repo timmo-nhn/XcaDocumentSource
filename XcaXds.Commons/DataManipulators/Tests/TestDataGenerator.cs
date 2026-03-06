@@ -64,12 +64,12 @@ public static class TestDataGenerator
                 TargetObject = documentEntry.Id,
             };
 
-            var documents = documentEntryValues.Documents.Select(file => Convert.FromBase64String(file));
+            var documents = documentEntryValues.Documents?.Select(file => Convert.FromBase64String(file));
 
             var document = new DocumentDto()
             {
                 DocumentId = documentEntry.UniqueId,
-                Data = documents.ElementAt(Random.Shared.Next(documents.Count()))
+                Data = documents?.ElementAt(Random.Shared.Next(documents?.Count() ?? 0))
             };
 
             registryObjects.Add(new()
@@ -86,8 +86,10 @@ public static class TestDataGenerator
         return registryObjects;
     }
 
-    private static List<AuthorInfo>? GetRandomAuthors(TestAuthors authors, int amount)
+    private static List<AuthorInfo>? GetRandomAuthors(TestAuthors? authors, int amount)
     {
+        if (authors == null) return null;
+
         var authorInfo = new List<AuthorInfo>();
 
         for (int i = 0; i < amount; i++)
@@ -105,8 +107,13 @@ public static class TestDataGenerator
         return authorInfo.Count == 0 ? null : authorInfo;
     }
 
-    private static IEnumerable<T> PickRandomAmount<T>(IEnumerable<T> inputs, int amount)
+    private static IEnumerable<T>? PickRandomAmount<T>(IEnumerable<T>? inputs, int amount)
     {
+        if (inputs == null)
+        {
+            return default;
+        }
+
         return inputs.PickRandom(amount);
     }
 

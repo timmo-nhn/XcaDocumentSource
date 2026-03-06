@@ -2,9 +2,9 @@
 
 public class TestAuthors
 {
-    public List<AuthorOrganization> Organizations { get; set; }
-    public List<AuthorOrganization> Departments { get; set; }
-    public List<AuthorPerson> Persons { get; set; }
-    public List<CodedValue> Roles { get; set; }
-    public List<CodedValue> Specialities { get; set; }
+    public List<AuthorOrganization> Organizations { get; set; } = new();
+    public List<AuthorOrganization> Departments { get; set; } = new();
+    public List<AuthorPerson> Persons { get; set; } = new();
+    public List<CodedValue> Roles { get; set; } = new();
+    public List<CodedValue> Specialities { get; set; } = new();
 }

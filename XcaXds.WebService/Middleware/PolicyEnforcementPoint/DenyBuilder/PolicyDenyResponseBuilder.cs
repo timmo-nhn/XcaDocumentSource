@@ -10,7 +10,7 @@ public class PolicyDenyResponseBuilder
     public PolicyDenyResponseBuilder(IEnumerable<IPepDenyResponseStrategy> strategies)
         => _strategies = strategies;
 
-    public Task WriteAsync(HttpContext ctx, PolicyInputResult input, ApplicationConfig appConfig, string message)
+    public Task WriteAsync(HttpContext ctx, PolicyInputResult input, ApplicationConfig appConfig, string? message)
     {
         var contentType = ctx.Request.ContentType?.Split(";").FirstOrDefault();
         var strategy = _strategies.First(s => s.CanHandle(contentType, input));

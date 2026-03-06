@@ -20,4 +20,4 @@ public sealed class BusinessLogicResult
     public string? Name { get; set; }
 }
 
-public delegate BusinessLogicResult BusinessLogicRule(IEnumerable<IdentifiableType> registryObjects,BusinessLogicParameters businessLogic);
+public delegate BusinessLogicResult BusinessLogicRule(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters businessLogic);

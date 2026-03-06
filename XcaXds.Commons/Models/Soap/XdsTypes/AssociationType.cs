@@ -8,17 +8,17 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 public class AssociationType : RegistryObjectType
 {
     [XmlAttribute(AttributeName = "associationType", DataType = "anyURI")]
-    public string AssociationTypeData;
+    public string? AssociationTypeData { get; set; } = Constants.Xds.AssociationType.HasMember;
 
     /// <summary>
     /// Usually the RegistryPackage/Submissionset/Folder
     /// </summary>
     [XmlAttribute(AttributeName = "sourceObject", DataType = "anyURI")]
-    public string SourceObject;
+    public string? SourceObject { get; set; }
 
     /// <summary>
     /// Usually the ExtrinsicObject/DocumentEntry
     /// </summary>
     [XmlAttribute(AttributeName = "targetObject", DataType = "anyURI")]
-    public string TargetObject;
+    public string? TargetObject { get; set; }
 }

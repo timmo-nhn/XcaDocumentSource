@@ -1,7 +1,7 @@
 ﻿using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Models.Soap.Actions;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -85,21 +85,17 @@ public static class SoapExtensions
             resultEnvelope.Value.Header.RelatesTo = message.Header.MessageId;
         }
 
-
-        if (resultEnvelope.Value.Body.RegistryResponse != null)
+        // Base Success property on whether Value...RegistryErrorList has any errors
+        if (resultEnvelope.Value.Body.RegistryResponse?.RegistryErrorList == null)
         {
-            // Base Success property on whether Value...RegistryErrorList has any errors
-            if (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList == null)
-            {
-                resultEnvelope.IsSuccess = true;
-            }
-            else
-            {
-                var isSuccess = bool.Equals(false, resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList.RegistryError
-                .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
-                resultEnvelope.Value.Header?.Action = isSuccess == true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
-                resultEnvelope.IsSuccess = isSuccess;
-            }
+            resultEnvelope.IsSuccess = true;
+        }
+        else
+        {
+            var isSuccess = bool.Equals(false, resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList.RegistryError?
+            .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
+            resultEnvelope.Value.Header?.Action = isSuccess == true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
+            resultEnvelope.IsSuccess = isSuccess;
         }
 
         return resultEnvelope;

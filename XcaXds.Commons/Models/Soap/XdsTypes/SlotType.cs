@@ -14,6 +14,12 @@ public partial class SlotType
         Name = name;
         ValueList = new() { Value = [value] };
     }
+
+    public SlotType(string name)
+    {
+        Name = name;
+    }
+
     public SlotType()
     {
     }
@@ -67,8 +73,8 @@ public partial class SlotType
                 }
             }
 
-			// The \u0027 is to handle cases where the string is encoded with single quotes (such as in GetDocumentAssociations with a list of UUIDs)
-			/* Example content from AdhocQuery received from XCA (for GetDocumentAssociations): 
+            // The \u0027 is to handle cases where the string is encoded with single quotes (such as in GetDocumentAssociations with a list of UUIDs)
+            /* Example content from AdhocQuery received from XCA (for GetDocumentAssociations): 
 			   <ns2:Slot name="$uuid">
 					<ns2:ValueList>
 						<ns2:Value>(\u0027urn:uuid:0ae98a90-f5ef-4bde-b717-dc0119a5777f\u0027)</ns2:Value>
@@ -77,7 +83,7 @@ public partial class SlotType
 				</ns2:Slot>
 			*/
 
-			resultList = resultList.Select(val => val.Trim().Trim(['(', ')']).Trim('\'').Replace("\\u0027", "")).ToList();
+            resultList = resultList.Select(val => val.Trim().Trim(['(', ')']).Trim('\'').Replace("\\u0027", "")).ToList();
             return resultList.ToArray();
         }
 
@@ -86,9 +92,9 @@ public partial class SlotType
 
     public void AddValue(string? value)
     {
-        ValueList ??= new();
         if (value != null)
         {
+            ValueList ??= new();
             ValueList.Value ??= [];
             ValueList.Value = [.. ValueList.Value, value];
         }

@@ -1,16 +1,15 @@
 ﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Soap.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.WebService.Services;
 
 
 public class RegistryWrapper
 {
-    internal volatile IEnumerable<RegistryObjectDto> _registryObjectList = null;
+    internal volatile IEnumerable<RegistryObjectDto>? _registryObjectList = null;
 
     private readonly IRegistry _documentRegistry;
 
@@ -30,7 +29,7 @@ public class RegistryWrapper
             {
                 _registryObjectList = _documentRegistry.ReadRegistry();
             }
-            catch (Exception ex)
+            catch
             {
                 _registryObjectList = Enumerable.Empty<RegistryObjectDto>();
             }
@@ -38,13 +37,13 @@ public class RegistryWrapper
         return _registryObjectList;
     }
 
-    public XmlDocumentRegistry GetDocumentRegistryContentAsRegistryObjects()
+    public IdentifiableType[] GetDocumentRegistryContentAsRegistryObjects()
     {
         var dtoList = GetDocumentRegistryContentAsDtos();
         var registryObjs = RegistryMetadataTransformer
                 .TransformRegistryObjectDtosToRegistryObjects(dtoList);
 
-        return new XmlDocumentRegistry { RegistryObjectList = registryObjs };
+        return registryObjs.ToArray();
     }
 
     public bool SetDocumentRegistryContentWithDtos(List<RegistryObjectDto>? registryObjectDtos)
@@ -61,12 +60,12 @@ public class RegistryWrapper
         return UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
     }
 
-	public bool InsertOrUpdateDocumentRegistryContentWithDtos(RegistryObjectDto registryObjectDto)
-	{
-		return InsertOrUpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
-	}
+    public bool InsertOrUpdateDocumentRegistryContentWithDtos(RegistryObjectDto registryObjectDto)
+    {
+        return InsertOrUpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
+    }
 
-	public bool DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
+    public bool DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
     {
         if (registryObjectDto == null) return false;
 
@@ -90,18 +89,18 @@ public class RegistryWrapper
         return true;
     }
 
-	public bool InsertOrUpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
-	{
-		if (registryObjectDtos.Count == 0) return false;
-		_registryObjectList ??= GetDocumentRegistryContentAsDtos();
+    public bool InsertOrUpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
+    {
+        if (registryObjectDtos.Count == 0) return false;
+        _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
-		_documentRegistry.InsertOrUpdateRegistry(registryObjectDtos);
-		_registryObjectList = _documentRegistry.ReadRegistry();
+        _documentRegistry.InsertOrUpdateRegistry(registryObjectDtos);
+        _registryObjectList = _documentRegistry.ReadRegistry();
 
-		return true;
-	}
+        return true;
+    }
 
-	public SoapRequestResult<string> SetDocumentRegistryFromRegistryObjects(IdentifiableType[] registryObjects)
+    public SoapRequestResult<string> SetDocumentRegistryFromRegistryObjects(IdentifiableType[] registryObjects)
     {
         try
         {

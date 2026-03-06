@@ -7,6 +7,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 
@@ -161,8 +162,8 @@ public static class XdsOnFhirTransformer
             // Pull BOTH membership + lifecycle associations
             var relatedAssociations = registryContent
                 .OfType<AssociationType>()
-                .Where(a => (a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject.NoUrn())) ||
-                            (a.AssociationTypeData != Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.SourceObject.NoUrn()))
+                .Where(a => (a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject?.NoUrn())) ||
+                            (a.AssociationTypeData != Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.SourceObject?.NoUrn()))
                 )
                 .ToArray();
 
@@ -215,8 +216,8 @@ public static class XdsOnFhirTransformer
         {
             if (association.AssociationTypeData is not Constants.Xds.AssociationType.HasMember) continue;
 
-            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject.NoUrn());
-            var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject.NoUrn());
+            var assocExtrinsicObject = extrinsicObjects.FirstOrDefault(eo => eo.Id?.NoUrn() == association.TargetObject?.NoUrn());
+            var assocRegistryPackage = registryPackages.FirstOrDefault(rp => rp.Id?.NoUrn() == association.SourceObject?.NoUrn());
 
             var documentReference = new DocumentReference();
 
@@ -304,7 +305,7 @@ public static class XdsOnFhirTransformer
         var outgoing = allAssociations
             .Where(a =>
                 a.AssociationTypeData != Constants.Xds.AssociationType.HasMember &&
-                a.SourceObject.NoUrn() == sourceId)
+                a.SourceObject?.NoUrn() == sourceId)
             .ToList();
 
         foreach (var a in outgoing)
@@ -320,7 +321,7 @@ public static class XdsOnFhirTransformer
 
             if (code is null) continue;
 
-            var targetUuid = a.TargetObject.NoUrn();
+            var targetUuid = a.TargetObject?.NoUrn();
             if (string.IsNullOrWhiteSpace(targetUuid)) continue;
 
             relatesTo.Add(new DocumentReference.RelatesToComponent
@@ -525,7 +526,7 @@ public static class XdsOnFhirTransformer
         var authorDepartment = new XON();
         var authorInstitutionValues = authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorInstitution)?.GetValues().Select(auth => Hl7Object.Parse<XON>(auth)).ToList();
 
-        if (authorInstitutionValues != null && authorInstitutionValues.Count != 0)
+        if (authorInstitutionValues != null && authorInstitutionValues.Count > 0)
         {
             authorInstitution = authorInstitutionValues
                 .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||
@@ -686,7 +687,7 @@ public static class XdsOnFhirTransformer
         {
             var nameParts = authorPerson.PersonIdentifier?.Split(" ");
 
-            var name = new HumanName() { Family = nameParts?.FirstOrDefault()};
+            var name = new HumanName() { Family = nameParts?.FirstOrDefault() };
             var lastName = nameParts?.Skip(1);
 
             if (lastName?.Any() ?? false)

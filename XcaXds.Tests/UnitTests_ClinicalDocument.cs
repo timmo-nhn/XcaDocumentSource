@@ -1,12 +1,11 @@
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
-using XcaXds.Commons.DataManipulators;
-using XcaXds.Source.Source;
 using XcaXds.Tests.Helpers;
-using XcaXds.Commons.DataManipulators.Tests;
 
 namespace XcaXds.Tests;
 
@@ -30,7 +29,7 @@ public class UnitTests_ClinicalDocument
             var doccCDA = sxmls.SerializeSoapMessageToXmlString(docc);
 
             int file1 = fileContent.Split("\n").Length;
-            int file2 = doccCDA.Content.Split("\n").Length;
+            int file2 = doccCDA.Content!.Split("\n").Length;
             int diff = file1 - file2;
             Assert.InRange(diff, 0, 3);
         }
@@ -66,10 +65,10 @@ public class UnitTests_ClinicalDocument
     {
         var registryObjects = TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(patientId: "13116900216");
 
-        var registryMetadata = registryObjects.AsRegistryObjectList();
+        var registryMetadata = registryObjects.AsRegistryObjectDtoList();
         var documents = registryObjects.Select(ro => ro.Document);
 
-        var randomIndex = new Random().Next(registryObjects.AsRegistryObjectList().OfType<DocumentEntryDto>()?.Count() ?? 0);
+        var randomIndex = new Random().Next(registryObjects.AsRegistryObjectDtoList().OfType<DocumentEntryDto>()?.Count() ?? 0);
 
         var documentEntry = registryMetadata.OfType<DocumentEntryDto>().ElementAt(randomIndex);
         var association = registryMetadata.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.TargetObject == documentEntry.Id);
@@ -87,7 +86,7 @@ public class UnitTests_ClinicalDocument
     {
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData", "ClinicalDocumentArchitecture"));
 
-        foreach (var file in testDataFiles.Where(fl => fl.Contains("cda",StringComparison.CurrentCultureIgnoreCase)) ?? [])
+        foreach (var file in testDataFiles.Where(fl => fl.Contains("cda", StringComparison.CurrentCultureIgnoreCase)) ?? [])
         {
             var cdaXml = File.ReadAllText(file);
 

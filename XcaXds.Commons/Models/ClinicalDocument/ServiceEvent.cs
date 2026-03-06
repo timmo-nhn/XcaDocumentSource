@@ -18,10 +18,10 @@ public class ServiceEvent
     public List<II>? TemplateId { get; set; }
 
     [XmlElement("id")]
-    public II Id { get; set; }
+    public II Id { get; set; } = new();
 
     [XmlElement("code")]
-    public CE Code { get; set; }
+    public CE Code { get; set; } = new();
 
     [XmlElement("effectiveTime")]
     public IVL_TS? EffectiveTime { get; set; }

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using XcaXds.Source.Models.DatabaseDtos.Types;
+﻿using XcaXds.Source.Models.DatabaseDtos.Types;
 
 namespace XcaXds.Source.Models.DatabaseDtos;
 

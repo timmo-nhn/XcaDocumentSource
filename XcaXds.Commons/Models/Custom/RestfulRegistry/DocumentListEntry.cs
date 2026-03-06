@@ -4,6 +4,6 @@ namespace XcaXds.Commons.Models.Custom.RestfulRegistry;
 
 public class DocumentListEntry
 {
-    public DocumentEntryDto DocumentReference { get; set; }
-    public LinkToDocument LinkToDocument { get; set; }
+    public DocumentEntryDto? DocumentReference { get; set; }
+    public LinkToDocument? LinkToDocument { get; set; }
 }

@@ -24,17 +24,17 @@ public class LegalAuthenticator
     public II? TypeId { get; set; }
 
     [XmlElement("templateId")]
-    public List<II> TemplateId { get; set; }
+    public List<II> TemplateId { get; set; } = new();
 
     [XmlElement("time")]
-    public TS Time { get; set; }
+    public TS Time { get; set; } = new();
 
     [XmlElement("signatureCode")]
-    public CS SignatureCode { get; set; }
+    public CS SignatureCode { get; set; } = new();
 
     [XmlElement("signatureText", Namespace = Constants.Hl7.Namespaces.Hl7Sdtc)]
     public ED? SdtcSignatureText { get; set; }
 
     [XmlElement("assignedEntity")]
-    public AssignedEntity AssignedEntity { get; set; }
+    public AssignedEntity AssignedEntity { get; set; } = new();
 }

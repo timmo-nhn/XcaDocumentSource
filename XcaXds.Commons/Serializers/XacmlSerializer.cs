@@ -6,6 +6,7 @@ using System.Xml;
 using XcaXds.Commons.Extensions;
 
 namespace XcaXds.Commons.Serializers;
+
 public static class XacmlSerializer
 {
     public static string? SerializeXacmlToXml(XacmlContextRequest? request, XmlWriterSettings? options = null)

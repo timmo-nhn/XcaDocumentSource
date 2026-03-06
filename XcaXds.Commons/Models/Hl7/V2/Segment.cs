@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
         internal FieldCollection FieldList { get; set; }
         internal int SequenceNo { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public Segment(HL7Encoding encoding)
         {
@@ -99,7 +99,7 @@ namespace XcaXds.Commons.Models.Hl7.V2
             }
         }
 
-        public Field Fields(int position)
+        public Field? Fields(int position)
         {
             position--;
 
@@ -142,6 +142,8 @@ namespace XcaXds.Commons.Models.Hl7.V2
                     strMessage.Append(Encoding.FieldDelimiter);
 
                 var field = FieldList[i];
+
+                if (field == null) continue;
 
                 if (field.IsDelimitersField)
                 {

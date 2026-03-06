@@ -81,8 +81,8 @@
 //            contentType == Constants.MimeTypes.SoapXml ||
 //            contentType == Constants.MimeTypes.Xml)
 //        {
-            
-            
+
+
 //            var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 //            var soapEnvelopeRequest = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody);
 

@@ -55,11 +55,11 @@ public class AtnaLogGeneratorService
         }
     }
 
-    public void CreateAuditLogForFhirDeleteDocumentsRequest(HttpContext httpContext, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
+    public void CreateAuditLogForFhirDeleteDocumentsRequest(AdditionalParameters additionalParameters, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
         try
         {
-            _queue.Enqueue(() => GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(httpContext, deletedEntry, operationOutcome, token));
+            _queue.Enqueue(() => GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(additionalParameters, deletedEntry, operationOutcome, token));
         }
         catch (Exception ex)
         {
@@ -67,11 +67,11 @@ public class AtnaLogGeneratorService
         }
     }
 
-    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(HttpContext httpContext, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
+    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(AdditionalParameters additionalParameters, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
     {
         try
         {
-            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedEntry, token, null, null, null));
+            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(additionalParameters, updatedEntry, token, null, null, null));
         }
         catch (Exception ex)
         {
@@ -80,7 +80,7 @@ public class AtnaLogGeneratorService
     }
 
     public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-        HttpContext httpContext,
+        AdditionalParameters httpContext,
         string documentReferenceId,
         List<CodedValue>? oldSecurityLabel,
         List<CodedValue>? newSecurityLabel,
@@ -102,7 +102,7 @@ public class AtnaLogGeneratorService
         }
     }
 
-    private AuditEvent GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(HttpContext httpContext, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
+    private AuditEvent GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(AdditionalParameters additionalParameters, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
         var documentId = operationOutcome.Issue.FirstOrDefault()?.Location.FirstOrDefault();
 
@@ -116,10 +116,10 @@ public class AtnaLogGeneratorService
 
         var errors = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(operationOutcome);
 
-        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(httpContext, token?.RawData, null, errors.RegistryError.ToList(), [extrinsicObject]);
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, errors.RegistryError.ToList(), [extrinsicObject]);
 
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
-        soapEnvelope.Header.MessageId = httpContext.TraceIdentifier;
+        soapEnvelope.Header.MessageId = additionalParameters.TraceIdentifier;
 
         var responseEnvelope = new SoapEnvelope()
         {
@@ -140,7 +140,7 @@ public class AtnaLogGeneratorService
     }
 
     private AuditEvent GetAuditEventFromPatchedDocumentEntryAndJwt(
-        HttpContext httpContext,
+        AdditionalParameters additionalParameters,
         DocumentEntryDto? updatedEntry,
         JwtSecurityToken? token,
         string? documentReferenceId,
@@ -169,11 +169,11 @@ public class AtnaLogGeneratorService
             ? [association]
             : [extrinsicObject, association];
 
-        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(httpContext, token?.RawData, null, null, registryObjects);
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, null, registryObjects);
 
         // ITI-42 is used here to represent an update/amend of registry metadata.
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
-        soapEnvelope.Header.MessageId = httpContext.TraceIdentifier;
+        soapEnvelope.Header.MessageId = additionalParameters.TraceIdentifier;
 
         var responseEnvelope = new SoapEnvelope()
         {
@@ -273,7 +273,7 @@ public class AtnaLogGeneratorService
         var auditEvent = new AuditEvent();
         auditEvent.Id = Guid.NewGuid().ToString();
 
-        var samlAssertionXml = requestEnvelope?.Header?.Security?.Assertion?.OuterXml;
+        var samlAssertionXml = requestEnvelope?.Header.Security?.Assertion?.OuterXml;
         Saml2SecurityToken? samlToken = null;
         List<Saml2Attribute>? statements = new();
         Issuer? issuer = null;
@@ -365,7 +365,7 @@ public class AtnaLogGeneratorService
 
             if (registryPatientIdentifiers.Count > 0)
             {
-                 patientResource = new Patient
+                patientResource = new Patient
                 {
                     Id = "patient-1",
                 };
@@ -392,21 +392,31 @@ public class AtnaLogGeneratorService
                         var patientHumanName = new HumanName
                         {
                             Family = string.IsNullOrWhiteSpace(patientFamily) ? null : patientFamily,
-                            Given = string.IsNullOrWhiteSpace(patientGiven) ? null : [patientGiven]
                         };
+
+                        if (!string.IsNullOrWhiteSpace(patientGiven))
+                        {
+                            patientHumanName.Given = [patientGiven];
+                        }
+
                         patientResource.Name = [patientHumanName];
                     }
                 }
                 else if (issuer == Issuer.Helsenorge && hasSubject)
                 {
                     var subjectPersonNameParts = subjectDisplayName?.Split().ToList();
-                    if (subjectPersonNameParts != null && subjectPersonNameParts.Count != 0)
+                    if (subjectPersonNameParts != null && subjectPersonNameParts.Count > 0)
                     {
                         var patientHumanName = new HumanName
                         {
-                            Family = subjectPersonNameParts.LastOrDefault(),
-                            Given = subjectPersonNameParts.Count > 1 ? subjectPersonNameParts.Take(subjectPersonNameParts.Count - 1).ToList() : null
+                            Family = string.IsNullOrWhiteSpace(patientFamily) ? null : patientFamily,
                         };
+
+                        if (!string.IsNullOrWhiteSpace(patientGiven))
+                        {
+                            patientHumanName.Given = [patientGiven];
+                        }
+
                         patientResource.Name = [patientHumanName];
                     }
                 }
@@ -480,7 +490,7 @@ public class AtnaLogGeneratorService
                 });
             }
 
-            var purposeOfUseValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.PurposeOfUse || s.Name == Constants.Saml.Attribute.PurposeOfUse_Helsenorge)?.Values.FirstOrDefault());
+            var purposeOfUseValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name.IsAnyOf(Constants.Saml.Attribute.PurposeOfUse, Constants.Saml.Attribute.PurposeOfUse_Helsenorge))?.Values.FirstOrDefault());
 
             if (purposeOfUseValue != null && (!string.IsNullOrWhiteSpace(purposeOfUseValue.Code) || !string.IsNullOrWhiteSpace(purposeOfUseValue.CodeSystem) || !string.IsNullOrWhiteSpace(purposeOfUseValue.DisplayName)))
             {
@@ -506,13 +516,17 @@ public class AtnaLogGeneratorService
             {
                 HumanName? healthcarePersonHumanName = null;
                 var subjectNameParts = subjectDisplayName?.Split().ToList();
-                if (subjectNameParts != null && subjectNameParts.Count != 0)
+                if (subjectNameParts != null && subjectNameParts.Count > 0)
                 {
                     healthcarePersonHumanName = new HumanName
                     {
                         Family = subjectNameParts.LastOrDefault(),
-                        Given = subjectNameParts.Count > 1 ? subjectNameParts.Take(subjectNameParts.Count - 1).ToList() : null
                     };
+
+                    if (subjectNameParts.Count > 1)
+                    {
+                        healthcarePersonHumanName.Given = subjectNameParts.Take(subjectNameParts.Count - 1).ToList();
+                    }
                 }
 
                 var subjectUser = new Practitioner
@@ -547,8 +561,8 @@ public class AtnaLogGeneratorService
                 };
                 auditEvent.Contained.Add(practitionerRole);
 
-                var pointOfCareStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ChildOrganization)?.Values.FirstOrDefault());
-                var pointOfCareName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.TrustChildOrgName)?.Values.FirstOrDefault());
+                var pointOfCareStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ChildOrganization)?.Values.FirstOrDefault());
+                var pointOfCareName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.TrustChildOrgName)?.Values.FirstOrDefault());
 
                 var pointOfCare = new Organization()
                 {
@@ -568,8 +582,8 @@ public class AtnaLogGeneratorService
                 auditEvent.Contained.Add(pointOfCare);
                 practitionerRole.Location = [new ResourceReference() { Reference = $"#{pointOfCare.Id}" }];
 
-                var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
-                var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
+                var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
+                var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
 
                 var legalEntity = new Organization()
                 {
@@ -593,36 +607,46 @@ public class AtnaLogGeneratorService
                 auditEvent.Contained.Add(subjectUser);
                 practitionerRole.Practitioner = new ResourceReference($"#{subjectUser.Id}");
 
-                auditEvent.Agent.Add(new AuditEvent.AgentComponent()
+                var agent = new AuditEvent.AgentComponent()
                 {
                     Who = new ResourceReference($"#{practitionerRole.Id}")
                     {
-                        Identifier = practitionerRole.Identifier.FirstOrDefault()
+                        Identifier = practitionerRole.Identifier?.FirstOrDefault()
                     },
                     Requestor = true,
                     PurposeOfUse = auditEvent.PurposeOfEvent,
-                    Policy = string.IsNullOrWhiteSpace(samlToken.Id) ? null : [samlToken.Id],
                     Network = string.IsNullOrWhiteSpace(_appConfig.IpAddress)
                         ? null
                         : new AuditEvent.NetworkComponent()
                         {
                             Address = _appConfig.IpAddress
                         }
-                });
+                };
+
+                if (samlToken.Id.Length > 0)
+                {
+                    agent.Policy = [samlToken.Id];
+                }
+                auditEvent.Agent.Add(agent);
             }
             else
             {
-                auditEvent.Agent.Add(new AuditEvent.AgentComponent()
+                var agent = new AuditEvent.AgentComponent()
                 {
                     Requestor = true,
-                    Policy = string.IsNullOrWhiteSpace(samlToken.Id) ? null : [samlToken.Id],
                     Network = string.IsNullOrWhiteSpace(_appConfig.IpAddress)
-                        ? null
-                        : new AuditEvent.NetworkComponent()
-                        {
-                            Address = _appConfig.IpAddress
-                        }
-                });
+                    ? null
+                    : new AuditEvent.NetworkComponent()
+                    {
+                        Address = _appConfig.IpAddress
+                    }
+                };
+
+                if (samlToken.Id.Length > 0)
+                {
+                    agent.Policy = [samlToken.Id];
+                }
+                auditEvent.Agent.Add(agent);
             }
         }
 
@@ -633,8 +657,8 @@ public class AtnaLogGeneratorService
 
         var detail = new List<AuditEvent.DetailComponent>();
 
-        var adhocQueryType = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery.Id;
-        var docRequest = requestEnvelope?.Body?.ProvideAndRegisterDocumentSetRequest;
+        var adhocQueryType = requestEnvelope?.Body.AdhocQueryRequest?.AdhocQuery?.Id;
+        var docRequest = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest;
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
@@ -652,7 +676,7 @@ public class AtnaLogGeneratorService
         if (xdsDocEntry == null)
         {
             var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
-            var retrieveDocumentsRequest = requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest.FirstOrDefault();
+            var retrieveDocumentsRequest = requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest?.FirstOrDefault();
 
             xdsDocEntry = registryContent.OfType<DocumentEntryDto>().FirstOrDefault(rc => rc.UniqueId == retrieveDocumentsRequest?.DocumentUniqueId);
         }
@@ -765,7 +789,7 @@ public class AtnaLogGeneratorService
         if (requestEnvelope == null) return [];
 
         // ITI-38 or ITI-18 AdhocQuery FindDocuments 
-        var requestPatientIdentifier = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery
+        var requestPatientIdentifier = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery?
             .GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.PatientId)?.GetFirstValue();
 
         if (requestPatientIdentifier != null)
@@ -776,7 +800,7 @@ public class AtnaLogGeneratorService
 
         // ITI-41 or ITI-42
         // DeleteDocuments_Jank! ITI-86 or ITI-62 DeleteDocumentSet
-        var provideAndRegister = requestEnvelope.Body?.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ?? requestEnvelope.Body?.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
+        var provideAndRegister = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ?? requestEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
         if (provideAndRegister != null)
         {
@@ -787,7 +811,7 @@ public class AtnaLogGeneratorService
 
         // ITI-39 or ITI-43 RetrieveDocumentSet
         var registry = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        var retrieveDocumentRequest = requestEnvelope.Body?.RetrieveDocumentSetRequest;
+        var retrieveDocumentRequest = requestEnvelope.Body.RetrieveDocumentSetRequest;
 
         if (retrieveDocumentRequest != null)
         {
@@ -821,11 +845,9 @@ public class AtnaLogGeneratorService
         }).ToArray();
     }
 
-    private AuditEvent.AuditEventAction? GetActionFromSoapEnvelope(SoapEnvelope requestEnvelope)
+    private AuditEvent.AuditEventAction? GetActionFromSoapEnvelope(SoapEnvelope? requestEnvelope)
     {
-        var action = requestEnvelope.Header.Action;
-
-        switch (action)
+        switch (requestEnvelope?.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
             case Constants.Xds.OperationContract.Iti38Action:
@@ -848,20 +870,21 @@ public class AtnaLogGeneratorService
 
     private AuditEvent.AuditEventAction? GetCreateOrUpdateFromRequest(SoapEnvelope requestEnvelope)
     {
-        var registryObjects = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList;
+        var registryObjects = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
         var isReplaceUpdate = registryObjects?.OfType<AssociationType>()
-            .Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation)) ?? false;
+            .Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation) == true) ?? false;
 
         return isReplaceUpdate ? AuditEvent.AuditEventAction.U : AuditEvent.AuditEventAction.C;
     }
 
-    private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope responseEnvelope)
+    private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? requestEnvelope, SoapEnvelope? responseEnvelope)
     {
-        var registryErrors = responseEnvelope?.Body?.RegistryResponse?.RegistryErrorList?.RegistryError;
-        var soapFault = responseEnvelope?.Body?.Fault;
+        var registryErrors = responseEnvelope?.Body.RegistryResponse?.RegistryErrorList?.RegistryError;
+        var soapFault = responseEnvelope?.Body.Fault;
 
-        if (soapFault != null)
+        // If we don't even have a Soap request or response, or if there is a SOAP fault, consider it a major failure (N8)
+        if (requestEnvelope == null || responseEnvelope == null || soapFault != null)
         {
             return AuditEvent.AuditEventOutcome.N8;
         }
@@ -877,9 +900,9 @@ public class AtnaLogGeneratorService
     /// <summary>
     /// <a href="https://hl7.org/fhir/R4/valueset-audit-event-type.html"/>
     /// </summary>
-    private Coding GetAuditEventTypeFromSoapEnvelope(SoapEnvelope requestEnvelope)
+    private Coding GetAuditEventTypeFromSoapEnvelope(SoapEnvelope? requestEnvelope)
     {
-        var action = requestEnvelope.Header.Action;
+        var action = requestEnvelope?.Header.Action;
 
         switch (action)
         {
@@ -896,11 +919,11 @@ public class AtnaLogGeneratorService
 
             case Constants.Xds.OperationContract.Iti41Action:
             case Constants.Xds.OperationContract.Iti42Action:
-                var associations = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList?.OfType<AssociationType>();
+                var associations = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.OfType<AssociationType>();
 
-                var isOriginate = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(HasMember, Addendum)) ?? false;
-                var isTransform = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Transformation, ReplaceWithTransformation)) ?? false;
-                var isAmend = associations?.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace)) ?? false;
+                var isOriginate = associations?.Any(assoc => assoc.AssociationTypeData?.IsAnyOf(HasMember, Addendum) == true) ?? false;
+                var isTransform = associations?.Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Transformation, ReplaceWithTransformation) == true) ?? false;
+                var isAmend = associations?.Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Replace) == true) ?? false;
 
                 if (isAmend)
                 {
