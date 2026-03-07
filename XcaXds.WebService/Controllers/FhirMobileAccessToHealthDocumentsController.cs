@@ -318,7 +318,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         }
 
         var transactionBundle = CreateFhirTransactionResponseBundle(fhirBundle);
-
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
         var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
 
