@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Registry\" />
     <Folder Include="Repository\" />
   </ItemGroup>
 
