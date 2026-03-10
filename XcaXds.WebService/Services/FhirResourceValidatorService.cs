@@ -10,6 +10,7 @@ using Hl7.Fhir.Support;
 using Hl7.FhirPath;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
@@ -27,7 +28,7 @@ public class FhirResourceValidatorService
 
         _validator = InitValidator();
 
-        AllowedPatientOids.Add(_appConfig.HomeCommunityId);
+        AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
     }
 
     public OperationOutcome ValidateFhirResource(Resource inputResource)
@@ -80,7 +81,7 @@ public class FhirResourceValidatorService
         ValidateIdentifiers(outcome, codeableConcepts, "type", AllowedTypeCodes);
         ValidateIdentifiers(outcome, codeableConcepts, "category", AllowedCategoryCodes);
         ValidateIdentifiers(outcome, codeableConcepts, "format", AllowedFormatCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "attachment", _appConfig.HomeCommunityId);
+        ValidateIdentifiers(outcome, codeableConcepts, "attachment", new ComprehensiveCodeSystem(_appConfig.HomeCommunityId));
     }
 
     private void ValidatePractitioners(OperationOutcome outcome, Bundle bundle)
@@ -101,12 +102,12 @@ public class FhirResourceValidatorService
         ValidateIdentifiers(outcome, patients, "Patient", AllowedPatientOids);
     }
 
-    private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, string allowedSystems)
+    private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, ComprehensiveCodeSystem allowedSystems)
     {
         ValidateIdentifiers(outcome, resources, resourceName, [allowedSystems]);
     }
 
-    private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, HashSet<string> allowedSystems)
+    private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, HashSet<ComprehensiveCodeSystem> allowedSystems)
     {
         // Filter out unrelated resources
         resources = resources.Where(cc => cc.Name == resourceName).ToArray();
@@ -135,22 +136,24 @@ public class FhirResourceValidatorService
             {
                 var identifier = identifiers[i];
 
-                if (string.IsNullOrWhiteSpace(identifier.System))
+                if (string.IsNullOrWhiteSpace(identifier.System) || string.IsNullOrWhiteSpace(identifier.Value))
                     continue;
 
-                if (allowedSystems.Contains(identifier.System.NoUrn()))
+                var systemsMatch = allowedSystems.Systems().Contains(identifier.System.NoUrn());
+                
+                // If Values is empty, accept anything
+                // The most psuedo-ternary-operatorial thing
+                var valuesMatch = (allowedSystems.Values() ?? [identifier.Value]).Contains(identifier.Value);
+
+                if (valuesMatch && systemsMatch)
                     continue;
 
                 outcome.AddIssue(new OperationOutcome.IssueComponent
                 {
                     Severity = OperationOutcome.IssueSeverity.Warning,
                     Code = OperationOutcome.IssueType.CodeInvalid,
-                    Diagnostics =
-                        $"Unknown OID for {resourceName} (Id={identifier.Value}, OID={identifier.System})",
-                    Location =
-                    [
-                        $"{resourceElement.Location}.identifier[{i}]"
-                    ]
+                    Diagnostics = $"Unknown {(valuesMatch ? "System" : systemsMatch ? "Value" : "System and Value")} for {resourceName} (Value={identifier.Value}, System={identifier.System})",
+                    Location = [resourceElement.Location]
                 });
             }
         }
@@ -206,54 +209,55 @@ public class FhirResourceValidatorService
         return new Validator(resolver, terminologyService, null, new ValidationSettings() { ConformanceResourceResolver = packageSource });
     }
 
-    private static readonly HashSet<string> AllowedOrganizationOids =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedOrganizationOids =
     [
-        Constants.Oid.Brreg,
-        Constants.Oid.ReshId
+        new (Constants.Oid.Brreg),
+        new (Constants.Oid.ReshId)
     ];
 
-    private static readonly HashSet<string> AllowedPractitionerOids =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedPractitionerOids =
     [
-        Constants.Oid.Fnr,
-        Constants.Oid.Hpr,
+        new(Constants.Oid.Fnr),
+        new(Constants.Oid.Hpr),
     ];
 
-    private static readonly HashSet<string> AllowedPatientOids =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedPatientOids =
     [
-        Constants.Oid.Fnr,
-        Constants.Oid.Dnr,
-        Constants.Oid.Hnr
+        new(Constants.Oid.Fnr),
+        new(Constants.Oid.Dnr),
+        new(Constants.Oid.Hnr)
     ];
 
-    private static readonly HashSet<string> AllowedFacilityTypes =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedFacilityTypes =
     [
-        Constants.CodeSystems.Volven.FacilityType
+        typeof(Constants.CodeSystems.Volven.FacilityType).GetAsComprehensiveCodesystem()
     ];
 
-    private static readonly HashSet<string> AllowedPracticeSettings =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedPracticeSettings =
     [
-        Constants.CodeSystems.Volven.PracticeSetting
+        typeof(Constants.CodeSystems.Volven.PracticeSetting).GetAsComprehensiveCodesystem()
     ];
 
-    private static readonly HashSet<string> AllowedTypeCodes =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedTypeCodes =
     [
-        Constants.CodeSystems.Volven.TypeCode
+        typeof(Constants.CodeSystems.Volven.TypeCode).GetAsComprehensiveCodesystem(),
     ];
 
-    private static readonly HashSet<string> AllowedCategoryCodes =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedCategoryCodes =
     [
-        Constants.CodeSystems.Volven.CategoryCode
+        typeof(Constants.CodeSystems.Volven.CategoryCode).GetAsComprehensiveCodesystem()
     ];
 
-    private static readonly HashSet<string> AllowedConfidentialityCodes =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedConfidentialityCodes =
     [
-        Constants.CodeSystems.Volven.ConfidentialityCode.Oid,
-        "http://terminology.hl7.org/CodeSystem/v3-Confidentiality"
+        typeof(Constants.CodeSystems.Volven.ConfidentialityCode).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Hl7.ConfidentialityCode).GetAsComprehensiveCodesystem(),
+        new("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
     ];
 
-    private static readonly HashSet<string> AllowedFormatCodes =
+    private static readonly HashSet<ComprehensiveCodeSystem> AllowedFormatCodes =
     [
-        "http://www.kith.no/xmlstds/epikrise/2012-02-15",
-        "formatCodes"
+        new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
+        new("formatCodes")
     ];
 }

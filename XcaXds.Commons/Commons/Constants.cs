@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
+using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Models.Custom;
 
 namespace XcaXds.Commons.Commons;
@@ -100,7 +101,8 @@ public static class Constants
             /// <summary>
             /// Root OID for the ITI Domain (ITI-messages)
             /// </summary>
-            public const string Oid = "1.3.6.1.4.1.19376.1.2";
+            public const string System = "1.3.6.1.4.1.19376.1.2";
+
             public const string Iti18Action = "urn:ihe:iti:2007:RegistryStoredQuery";
             public const string Iti18ActionAsync = "urn:ihe:iti:2007:RegistryStoredQueryAsync";
             public const string Iti18Reply = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
@@ -501,28 +503,345 @@ public static class Constants
         {
             public const string PidBase = "PID-";
         }
-
-        public static class CodeSystems
-        {
-            public const string IsoHealthRecordLifecycleEvent = "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle";
-        }
     }
 
     public static class CodeSystems
     {
         public static class Volven
         {
-            public const string Gender = "2.16.578.1.12.4.1.1.3101";
-            public const string DocumentType = "2.16.578.1.12.4.1.1.9602";
-            public const string EventCode = "2.16.578.1.12.4.1.1.7210";
-            public const string FacilityType = "2.16.578.1.12.4.1.1.1303";
-            public const string PracticeSetting = "2.16.578.1.12.4.1.1.8663";
-            public const string TypeCode = "2.16.578.1.12.4.1.1.9602";
-            public const string CategoryCode = "2.16.578.1.12.4.1.1.9602";
+            public static class Gender
+            {
+                public const string System = "2.16.578.1.12.4.1.1.3101";
+
+                ///<summary>Ikke kjent</summary>
+                public const string Unknown = "0";
+                ///<summary>Mann</summary>
+                public const string Male = "1";
+                ///<summary>Kvinne</summary>
+                public const string Female = "2";
+                ///<summary>Ikke spesifisert</summary>
+                public const string Unspecified = "9";
+            }
+
+            public static class EventCode
+            {
+                public const string System = "2.16.578.1.12.4.1.1.7210";
+            }
+
+            public static class FacilityType
+            {
+                public const string System = "2.16.578.1.12.4.1.1.1303";
+
+                /// <summary>Alminnelige somatiske sykehus</summary>
+                public const string _86_101 = "86.101";
+                /// <summary>Somatiske spesialsykehus</summary>
+                public const string _86_102 = "86.102";
+                /// <summary>Andre somatiske spesialinstitusjoner</summary>
+                public const string _86_103 = "86.103";
+                /// <summary>Institusjoner i psykisk helsevern for voksne</summary>
+                public const string _86_104 = "86.104";
+                /// <summary>Institusjoner i psykisk helsevern for barn og unge</summary>
+                public const string _86_105 = "86.105";
+                /// <summary>Rusmiddelinstitusjoner</summary>
+                public const string _86_106 = "86.106";
+                /// <summary>Rehabiliterings- og opptreningsinstitusjoner</summary>
+                public const string _86_107 = "86.107";
+                /// <summary>Allmenn legetjeneste</summary>
+                public const string _86_211 = "86.211";
+                /// <summary>Somatiske poliklinikker</summary>
+                public const string _86_212 = "86.212";
+                /// <summary>Spesialisert legetjeneste, unntatt psykiatrisk legetjeneste</summary>
+                public const string _86_221 = "86.221";
+                /// <summary>Legetjenester innen psykisk helsevern</summary>
+                public const string _86_222 = "86.222";
+                /// <summary>Poliklinikker i psykisk helsevern for voksne</summary>
+                public const string _86_223 = "86.223";
+                /// <summary>Poliklinikker i psykisk helsevern for barn og unge</summary>
+                public const string _86_224 = "86.224";
+                /// <summary>Rusmiddelpoliklinikker</summary>
+                public const string _86_225 = "86.225";
+                /// <summary>Tannhelsetjenester</summary>
+                public const string _86_230 = "86.230";
+                /// <summary>Hjemmesykepleie</summary>
+                public const string _86_901 = "86.901";
+                /// <summary>Fysioterapitjeneste</summary>
+                public const string _86_902 = "86.902";
+                /// <summary>Helsestasjons- og skolehelsetjeneste</summary>
+                public const string _86_903 = "86.903";
+                /// <summary>Annen forebyggende helsetjeneste</summary>
+                public const string _86_904 = "86.904";
+                /// <summary>Klinisk psykologtjeneste</summary>
+                public const string _86_905 = "86.905";
+                /// <summary>Medisinske laboratorietjenester</summary>
+                public const string _86_906 = "86.906";
+                /// <summary>Ambulansetjenester</summary>
+                public const string _86_907 = "86.907";
+                /// <summary>Andre helsetjenester</summary>
+                public const string _86_909 = "86.909";
+                /// <summary>Somatiske spesialsykehjem</summary>
+                public const string _87_101 = "87.101";
+                /// <summary>Somatiske sykehjem</summary>
+                public const string _87_102 = "87.102";
+                /// <summary>Psykiatriske sykehjem</summary>
+                public const string _87_201 = "87.201";
+                /// <summary>Omsorgsinstitusjoner for rusmiddelmisbrukere</summary>
+                public const string _87_202 = "87.202";
+                /// <summary>Bofellesskap for psykisk utviklingshemmede</summary>
+                public const string _87_203 = "87.203";
+                /// <summary>Aldershjem</summary>
+                public const string _87_301 = "87.301";
+                /// <summary>Bofellesskap for eldre og funksjonshemmede med fast tilknyttet personell hele døgnet</summary>
+                public const string _87_302 = "87.302";
+                /// <summary>Bofellesskap for eldre og funksjonshemmede med fast tilknyttet personell deler av døgnet</summary>
+                public const string _87_303 = "87.303";
+                /// <summary>Avlastningsboliger/-institusjoner</summary>
+                public const string _87_304 = "87.304";
+                /// <summary>Barneboliger</summary>
+                public const string _87_305 = "87.305";
+                /// <summary>Institusjoner innen barne- og ungdomsvern</summary>
+                public const string _87_901 = "87.901";
+                /// <summary>Omsorgsinstitusjoner ellers</summary>
+                public const string _87_909 = "87.909";
+                /// <summary>Hjemmehjelp</summary>
+                public const string _88_101 = "88.101";
+                /// <summary>Dagsentra/aktivitetssentra for eldre og funksjonshemmede</summary>
+                public const string _88_102 = "88.102";
+                /// <summary>Eldresentre</summary>
+                public const string _88_103 = "88.103";
+                /// <summary>Barnehager</summary>
+                public const string _88_911 = "88.911";
+                /// <summary>Barneparker og dagmammaer</summary>
+                public const string _88_912 = "88.912";
+                /// <summary>Skolefritidsordninger</summary>
+                public const string _88_913 = "88.913";
+                /// <summary>Fritidsklubber for barn og ungdom</summary>
+                public const string _88_914 = "88.914";
+                /// <summary>Barneverntjenester</summary>
+                public const string _88_991 = "88.991";
+                /// <summary>Familieverntjenester</summary>
+                public const string _88_992 = "88.992";
+                /// <summary>Arbeidstrening for ordinært arbeidsmarked</summary>
+                public const string _88_993 = "88.993";
+                /// <summary>Varig tilrettelagt arbeid</summary>
+                public const string _88_994 = "88.994";
+                /// <summary>Sosiale velferdsorganisasjoner</summary>
+                public const string _88_995 = "88.995";
+                /// <summary>Asylmottak</summary>
+                public const string _88_996 = "88.996";
+                /// <summary>Sosialtjenester for rusmiddelmisbrukere uten botilbud</summary>
+                public const string _88_997 = "88.997";
+                /// <summary>Kommunale sosialkontortjenester</summary>
+                public const string _88_998 = "88.998";
+                /// <summary>Andre sosialtjenester uten botilbud</summary>
+                public const string _88_999 = "88.999";
+
+            }
+
+            public static class PracticeSetting
+            {
+                public const string System = "2.16.578.1.12.4.1.1.8663";
+
+                /// <summary>Legevakt</summary>
+                public const string KA02 = "KA02";
+                /// <summary>Kommuneoverlege</summary>
+                public const string KA03 = "KA03";
+                /// <summary>Smittevern</summary>
+                public const string KA0301 = "KA0301";
+                /// <summary>Migrasjonshelse</summary>
+                public const string KA04 = "KA04";
+                /// <summary>Kommunal nettlege</summary>
+                public const string KA05 = "KA05";
+                /// <summary>Sosialtjeneste</summary>
+                public const string KD01 = "KD01";
+                /// <summary>Saksbehandling</summary>
+                public const string KD0501 = "KD0501";
+                /// <summary>Helsestasjons- og skolehelsetjeneste</summary>
+                public const string KF01 = "KF01";
+                /// <summary>Helsestasjon for ungdom</summary>
+                public const string KF0103 = "KF0103";
+                /// <summary>Legetjeneste ved sykehjem mv.</summary>
+                public const string KP01 = "KP01";
+                /// <summary>Sykepleietjeneste</summary>
+                public const string KP02 = "KP02";
+                /// <summary>Fengselshelsetjeneste</summary>
+                public const string KX01 = "KX01";
+                /// <summary>Frisklivssentral</summary>
+                public const string KX04 = "KX04";
+                /// <summary>Øyeblikkelig hjelp døgntilbud (ØHD)</summary>
+                public const string KX05 = "KX05";
+                /// <summary>Kreftkoordinator</summary>
+                public const string KX06 = "KX06";
+                /// <summary>Demenskoordinator</summary>
+                public const string KX07 = "KX07";
+                /// <summary>Familieteam</summary>
+                public const string KX12 = "KX12";
+                /// <summary>Barnevern</summary>
+                public const string KX15 = "KX15";
+                /// <summary>Pedagogisk-psykologisk tjeneste (PPT)</summary>
+                public const string KX16 = "KX16";
+                /// <summary>Barnevernvakt</summary>
+                public const string KX18 = "KX18";
+            }
+
+            public static class TypeCode
+            {
+                public const string System = "2.16.578.1.12.4.1.1.9602";
+
+                /// <summary>Kriseplan</summary>
+                public const string A01_2 = "A01-2";
+                /// <summary>Individuell plan</summary>
+                public const string A02_2 = "A02-2";
+                /// <summary>Epikrise</summary>
+                public const string A03_2 = "A03-2";
+                /// <summary>Sykepleiesammenfatning</summary>
+                public const string A04_2 = "A04-2";
+                /// <summary>Fysioterapisammenfatning</summary>
+                public const string A05_2 = "A05-2";
+                /// <summary>Ergoterapisammenfatning</summary>
+                public const string A06_2 = "A06-2";
+                /// <summary>Psykologsammenfatning</summary>
+                public const string A07_2 = "A07-2";
+                /// <summary>Sosionomsammenfatning</summary>
+                public const string A08_2 = "A08-2";
+                /// <summary>Ernæringsfysiologsammenfatning</summary>
+                public const string A09_2 = "A09-2";
+                /// <summary>Annet fagpersonell sammenfatning</summary>
+                public const string A10_2 = "A10-2";
+                /// <summary>Tverrfaglig sammenfatning</summary>
+                public const string A11_2 = "A11-2";
+                /// <summary>Utskrivings-/Pasientorientering</summary>
+                public const string A12_2 = "A12-2";
+                /// <summary>Poliklinisk epikrise</summary>
+                public const string A13_2 = "A13-2";
+
+                /// <summary>Tverrfaglig behandlingsplan</summary>
+                public const string B01_2 = "B01-2";
+                /// <summary>Journalnotat</summary>
+                public const string B02_2 = "B02-2";
+                /// <summary>Poliklinisk notat</summary>
+                public const string B03_2 = "B03-2";
+
+                /// <summary>Medisinsk biokjemi</summary>
+                public const string C01_2 = "C01-2";
+                /// <summary>Blodbank og immunologi</summary>
+                public const string C02_2 = "C02-2";
+                /// <summary>Mikrobiologi, virologi og serologi</summary>
+                public const string C03_2 = "C03-2";
+                /// <summary>Patologi, histologi og cytologi</summary>
+                public const string C04_2 = "C04-2";
+                /// <summary>Klinisk farmakologi</summary>
+                public const string C05_2 = "C05-2";
+                /// <summary>Medisinsk genetikk</summary>
+                public const string C06_2 = "C06-2";
+                /// <summary>Allergiutredning</summary>
+                public const string C07_2 = "C07-2";
+
+                /// <summary>Hjerte og kretsløp</summary>
+                public const string D01_2 = "D01-2";
+                /// <summary>Lunge</summary>
+                public const string D02_2 = "D02-2";
+                /// <summary>Fordøyelse</summary>
+                public const string D03_2 = "D03-2";
+                /// <summary>Urinveier</summary>
+                public const string D04_2 = "D04-2";
+                /// <summary>Gyn/Reproduksjon</summary>
+                public const string D05_2 = "D05-2";
+                /// <summary>Nervesystemet</summary>
+                public const string D06_2 = "D06-2";
+                /// <summary>Ledd/ ben/ skjelett</summary>
+                public const string D07_2 = "D07-2";
+                /// <summary>ØNH</summary>
+                public const string D08_2 = "D08-2";
+                /// <summary>Øye</summary>
+                public const string D09_2 = "D09-2";
+                /// <summary>Hud</summary>
+                public const string D10_2 = "D10-2";
+                /// <summary>Endokrinologi</summary>
+                public const string D11_2 = "D11-2";
+                /// <summary>Metabolisme</summary>
+                public const string D12_2 = "D12-2";
+                /// <summary>Beinmargsutstryk</summary>
+                public const string D13_2 = "D13-2";
+
+                /// <summary>Bildediagnostiske svar</summary>
+                public const string E01_2 = "E01-2";
+                /// <summary>Foto og film</summary>
+                public const string E02_2 = "E02-2";
+
+                /// <summary>Kurve</summary>
+                public const string F01_2 = "F01-2";
+                /// <summary>Anestesi- og opr. Rapporter</summary>
+                public const string F02_2 = "F02-2";
+                /// <summary>Intensiv/postoperativ observasjon</summary>
+                public const string F03_2 = "F03-2";
+                /// <summary>Svangerskap og fødsel</summary>
+                public const string F04_2 = "F04-2";
+                /// <summary>Diabetes/ endokrinologi</summary>
+                public const string F05_2 = "F05-2";
+                /// <summary>Onkologi/ hematologi</summary>
+                public const string F06_2 = "F06-2";
+                /// <summary>Nyre/ dialyse</summary>
+                public const string F07_2 = "F07-2";
+                /// <summary>Smertebehandling</summary>
+                public const string F08_2 = "F08-2";
+                /// <summary>Ambulansejournal</summary>
+                public const string F09_2 = "F09-2";
+                /// <summary>Transplantasjon</summary>
+                public const string F10_2 = "F10-2";
+
+                /// <summary>Henvisninger</summary>
+                public const string I01_2 = "I01-2";
+                /// <summary>Brev</summary>
+                public const string I02_2 = "I02-2";
+
+                /// <summary>Sykmeldinger og trygdesaker</summary>
+                public const string J01_2 = "J01-2";
+                /// <summary>Legeerklæring om dødsfall</summary>
+                public const string J02_2 = "J02-2";
+
+                /// <summary>Tester</summary>
+                public const string S01_2 = "S01-2";
+                /// <summary>Systematiserte diagnostiske intervju</summary>
+                public const string S02_2 = "S02-2";
+                /// <summary>Voldsrisikovurdering</summary>
+                public const string S03_2 = "S03-2";
+            }
+
+            public static class CategoryCode
+            {
+                public const string System = "2.16.578.1.12.4.1.1.9602";
+
+                /// <summary>Epikriser og sammenfatninger</summary>
+                public const string A00_1 = "A00-1";
+
+                /// <summary>Kontinuerlig/løpende journal</summary>
+                public const string B00_1 = "B00-1";
+
+                /// <summary>Prøvesvar, vev og væsker</summary>
+                public const string C00_1 = "C00-1";
+
+                /// <summary>Organfunksjon</summary>
+                public const string D00_1 = "D00-1";
+
+                /// <summary>Bildediagnostikk</summary>
+                public const string E00_1 = "E00-1";
+
+                /// <summary>Kurve, observasjon og behandling</summary>
+                public const string F00_1 = "F00-1";
+
+                /// <summary>Korrespondanse</summary>
+                public const string I00_1 = "I00-1";
+
+                /// <summary>Attester, melding og erklæringer</summary>
+                public const string J00_1 = "J00-1";
+
+                /// <summary>Test og scoring</summary>
+                public const string S00_1 = "S00-1";
+            }
 
             public static class ConfidentialityCode
             {
-                public const string Oid = "2.16.578.1.12.4.1.1.9603";
+                public const string System = "2.16.578.1.12.4.1.1.9603";
 
                 /// <summary> Normal</summary>
                 public const string N = "N";
@@ -558,7 +877,7 @@ public static class Constants
         {
             public static class ConfidentialityCode
             {
-                public const string Oid = "2.16.840.1.113883.5.25";
+                public const string System = "2.16.840.1.113883.5.25";
 
                 /// <summary>low</summary>
                 public const string Low = "L";
@@ -572,16 +891,21 @@ public static class Constants
                 public const string Unrestricted = "U";
                 /// <summary>veryrestricted</summary>
                 public const string VeryRestricted = "V";
-
             }
+
+            public static class Lifecycle
+            {
+                public const string IsoHealthRecordLifecycleEvent = "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle";
+            }
+
             public static class AuditEventId
             {
-                public const string Oid = "2.16.840.1.113883.4.642.3.462";
+                public const string System = "2.16.840.1.113883.4.642.3.462";
             }
 
             public static class PurposeOfUse
             {
-                public const string Oid = "2.16.840.1.113883.1.11.20448";
+                public const string System = "2.16.840.1.113883.1.11.20448";
                 /// <summary>healthcare marketing</summary>
                 public const string HMARKT = "HMARKT";
                 /// <summary>healthcare operations</summary>
@@ -707,7 +1031,7 @@ public static class Constants
         {
             public static class PurposeOfUse
             {
-                public const string Oid = "1.0.14265.1";
+                public const string System = "1.0.14265.1";
                 public const string ClinicalCare_1 = "1";
                 public const string EmergencyCare_2 = "2";
                 public const string Management_5 = "5";
@@ -1061,6 +1385,46 @@ public static class ConstantsExtensions
 
         return constants;
     }
+
+    public static ComprehensiveCodeSystem GetAsComprehensiveCodesystem(this Type type, Func<string, bool>? filter = null)
+    {
+        var codeSystem = type.GetAsKeyValuePair();
+
+        var system = codeSystem.First(v => v.Key.Equals("system", StringComparison.OrdinalIgnoreCase)).Value;
+        var values = codeSystem.Where(v => !v.Key.Equals("system", StringComparison.OrdinalIgnoreCase)).Select(v => v.Value).ToArray();
+
+        return new(system, values);
+    }
+
+    public static string[] GetAsStringList(this Type type, Func<string, bool> filter)
+    {
+        return type.GetAsStringList().Where(filter).ToArray();
+    }
+
+    /// <summary>
+    /// Get all public static/readonly/const fields from a class type as a string[]
+    /// </summary>
+    /// <returns>string[] of the desired typeof(class)</returns>
+    public static string[] GetAsStringList(this Type type)
+    {
+        var constants = new List<string>();
+
+        // Get all static fields of the class
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+        foreach (var field in fields)
+        {
+            var value = (string?)field.GetValue(null);
+            // Ensure that the field is a constant (it should be a static readonly or const field)
+            if (field.IsLiteral && !field.IsInitOnly && value != null)
+            {
+                constants.Add(value);
+            }
+        }
+
+        return constants.ToArray();
+    }
+
     public static List<KeyValueEntry> GetAsKeyValuePair(this Type type)
     {
         var constants = new List<KeyValueEntry>();

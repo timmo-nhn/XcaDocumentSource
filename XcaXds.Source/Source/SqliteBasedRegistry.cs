@@ -146,12 +146,7 @@ public class SqliteBasedRegistry : IRegistry
         return true;
     }
 
-    private static void DeleteThenInsertBatched<TEntity>(
-        DbContext db,
-        DbSet<TEntity> set,
-        List<TEntity> incoming,
-        int idBatchSize,
-        int insertBatchSize)
+    private void DeleteThenInsertBatched<TEntity>(DbContext db, DbSet<TEntity> set, List<TEntity> incoming, int idBatchSize, int insertBatchSize)
         where TEntity : DbRegistryObject
     {
         if (incoming.Count == 0) return;
@@ -178,7 +173,7 @@ public class SqliteBasedRegistry : IRegistry
 
             if (existing.Count > 0)
             {
-                Console.WriteLine("Trying to delete existing, count = {0}", existing.Count);
+                _logger.LogWarning($"Trying to delete existing, count = {existing.Count}");
 
                 set.RemoveRange(existing);
                 db.SaveChanges();
@@ -194,7 +189,7 @@ public class SqliteBasedRegistry : IRegistry
 
             var sql = set.ToQueryString(); // for debugging - shows the SQL EF will execute for this batch
 
-            Console.WriteLine(sql);
+            _logger.LogDebug($"{sql}");
 
             db.SaveChanges();
             db.ChangeTracker.Clear();

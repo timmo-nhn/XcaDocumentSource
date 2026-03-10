@@ -913,7 +913,7 @@ public class AtnaLogGeneratorService
                 return new Coding()
                 {
                     Code = "access",
-                    System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                     Display = "Access/View Record Lifecycle Event"
                 };
 
@@ -930,7 +930,7 @@ public class AtnaLogGeneratorService
                     return new Coding()
                     {
                         Code = "amend",
-                        System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                         Display = "Amend (Update) Record Lifecycle Event"
                     };
                 }
@@ -939,7 +939,7 @@ public class AtnaLogGeneratorService
                     return new Coding()
                     {
                         Code = "transform",
-                        System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                         Display = "Transform/Translate Record Lifecycle Event"
                     };
                 }
@@ -948,7 +948,7 @@ public class AtnaLogGeneratorService
                     return new Coding()
                     {
                         Code = "originate",
-                        System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                         Display = "Originate/Retain Record Lifecycle Event"
                     };
                 }
@@ -957,7 +957,7 @@ public class AtnaLogGeneratorService
                 return new Coding()
                 {
                     Code = "originate",
-                    System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                     Display = "Originate/Retain Record Lifecycle Event"
                 };
 
@@ -966,7 +966,7 @@ public class AtnaLogGeneratorService
                 return new Coding()
                 {
                     Code = "destroy",
-                    System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                     Display = "Destroy/Delete Record Lifecycle Event"
                 };
 
@@ -974,7 +974,7 @@ public class AtnaLogGeneratorService
                 return new Coding()
                 {
                     Code = "access",
-                    System = Constants.Hl7.CodeSystems.IsoHealthRecordLifecycleEvent,
+                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                     Display = "Access/View Record Lifecycle Event"
                 };
         }

@@ -22,7 +22,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "TREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = "TREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -40,7 +40,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "ETREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.Oid },
+            Purpose = new() { Code = "ETREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -58,7 +58,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             Issuer = Issuer.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.Oid },
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -94,12 +94,12 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             [
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = "othercodethatshouldntaffectlogic"
                 }
             ],
@@ -111,17 +111,17 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             [
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.System,
                     Code = Constants.CodeSystems.Volven.ConfidentialityCode.NORS
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 
@@ -134,17 +134,17 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             [
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.System,
                     Code = Constants.CodeSystems.Volven.ConfidentialityCode.NORN_FFL
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.Oid,
+                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 

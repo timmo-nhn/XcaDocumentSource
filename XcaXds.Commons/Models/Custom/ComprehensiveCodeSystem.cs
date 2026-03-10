@@ -1,0 +1,44 @@
+﻿using Hl7.Fhir.Model;
+
+namespace XcaXds.Commons.Models.Custom;
+
+public class ComprehensiveCodeSystem
+{
+    public ComprehensiveCodeSystem(string oid, string[] values)
+    {
+        System = oid;
+        Values = values;
+    }
+
+    public ComprehensiveCodeSystem(string system)
+    {
+        System = system;
+    }
+
+    public string System { get; set; }
+
+    public string[]? Values { get; set; }
+}
+
+public static class ComprehensiveCodeSystemExtensions
+{
+    public static string[] Systems(this HashSet<ComprehensiveCodeSystem> source)
+    {
+        return source.Select(ccs => ccs.System).ToArray();
+    }
+
+    public static string[]? Values(this HashSet<ComprehensiveCodeSystem> source)
+    {
+        var elements = source.SelectMany(v => v.Values ?? []).ToArray();
+
+        return elements.Length > 0 ? elements : null;
+    }
+
+    /// <summary>
+    /// Get a certain value, and its associated system. If the value is not found, returns null.
+    /// </summary>
+    public static KeyValuePair<string, string>? GetValue(this HashSet<ComprehensiveCodeSystem> source, string value)
+    {
+        return source.Where(v => v.Values?.Contains(value) ?? false).Select(v => new KeyValuePair<string, string>(v.System, value)).FirstOrDefault();
+    }
+}
