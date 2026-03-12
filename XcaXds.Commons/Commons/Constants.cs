@@ -509,7 +509,7 @@ public static class Constants
     {
         public static class Volven
         {
-            public static class Gender
+            public static class Gender_3101
             {
                 public const string System = "2.16.578.1.12.4.1.1.3101";
 
@@ -523,12 +523,27 @@ public static class Constants
                 public const string Unspecified = "9";
             }
 
-            public static class EventCode
+            public static class EventCode_7010
+            {
+                public const string System = "2.16.578.1.12.4.1.1.7010";
+            }
+
+            public static class EventCode_7210
             {
                 public const string System = "2.16.578.1.12.4.1.1.7210";
             }
 
-            public static class FacilityType
+            public static class EventCode_7220
+            {
+                public const string System = "2.16.578.1.12.4.1.1.7220";
+            }
+
+            public static class EventCode_7270
+            {
+                public const string System = "2.16.578.1.12.4.1.1.7270";
+            }
+
+            public static class FacilityType_1303
             {
                 public const string System = "2.16.578.1.12.4.1.1.1303";
 
@@ -634,10 +649,324 @@ public static class Constants
                 public const string _88_998 = "88.998";
                 /// <summary>Andre sosialtjenester uten botilbud</summary>
                 public const string _88_999 = "88.999";
+            }
+
+            public static class PracticeSetting_8651
+            {
+                public const string System = "2.16.578.1.12.4.1.1.8651";
+
+                ///<summary>Operasjon</summary>
+                public const string A01 = "A01";
+                ///<summary>Observasjonsenhet</summary>
+                public const string A02 = "A02";
+                ///<summary>Intensivenhet</summary>
+                public const string A03 = "A03";
+                ///<summary>Overvåkningsenhet</summary>
+                public const string A04 = "A04";
+                ///<summary>Intermediærenhet</summary>
+                public const string A05 = "A05";
+            }
+
+            public static class PracticeSetting_8653
+            {
+                public const string System = "2.16.578.1.12.4.1.1.8653";
+
+                /// <summary>Pleietjenester</summary>
+                public const string _1 = "1";
+                /// <summary>Pasienthotell</summary>
+                public const string _2 = "2";
+                /// <summary>Pasientmottak, elektiv</summary>
+                public const string _3 = "3";
+                /// <summary>Legevakt</summary>
+                public const string _4 = "4";
+                /// <summary>Vurdering av henvisning</summary>
+                public const string _5 = "5";
+                /// <summary>Akuttmottak	</summary>
+                public const string _6 = "6";
+                /// <summary>Ambulansetjeneste, ordinær</summary>
+                public const string _7 = "7";
+                /// <summary>Luftambulanse</summary>
+                public const string _8 = "8";
+                /// <summary>AMK-sentral</summary>
+                public const string _9 = "9";
+            }
+
+            public static class PracticeSetting_8654
+            {
+                public const string System = "2.16.578.1.12.4.1.1.8654";
+
+                /// <summary>Bildediagnostikk</summary>
+                public const string B = "B";
+                /// <summary>Røntgen</summary>
+                public const string B01 = "B01";
+                /// <summary>Ultralyd</summary>
+                public const string B02 = "B02";
+                /// <summary>Angiografi</summary>
+                public const string B03 = "B03";
+                /// <summary>Tomografi MR</summary>
+                public const string B04 = "B04";
+                /// <summary>Tomografi CT</summary>
+                public const string B05 = "B05";
+                /// <summary>Nukleærmedisin</summary>
+                public const string B06 = "B06";
+                /// <summary>Nevroradiologi</summary>
+                public const string B07 = "B07";
+                /// <summary>Intervensjonsradiologi</summary>
+                public const string B08 = "B08";
+                /// <summary>Laboratoriefag</summary>
+                public const string L = "L";
+                /// <summary>Klinisk farmakologi</summary>
+                public const string L01 = "L01";
+                /// <summary>Immunologi, allergologi og transfusjonsmedisin</summary>
+                public const string L02 = "L02";
+                /// <summary>Immunologi og allergologi</summary>
+                public const string L0201 = "L0201";
+                /// <summary>Transfusjonsmedisin</summary>
+                public const string L0202 = "L0202";
+                /// <summary>Medisinsk biokjemi</summary>
+                public const string L03 = "L03";
+                /// <summary>Medisinsk mikrobiologi</summary>
+                public const string L04 = "L04";
+                /// <summary>Patologi</summary>
+                public const string L06 = "L06";
+                /// <summary>Klinisk nevrofysiologi</summary>
+                public const string L07 = "L07";
+                /// <summary>Nevrovaskulært laboratorium</summary>
+                public const string L08 = "L08";
+                /// <summary>Nevroimmunologisk laboratorium</summary>
+                public const string L09 = "L09";
+                /// <summary>Cytogenetikk og molekylærgenetikk</summary>
+                public const string L10 = "L10";
 
             }
 
-            public static class PracticeSetting
+            public static class PracticeSetting_8655
+            {
+                public const string System = "2.16.578.1.12.4.1.1.8655";
+
+                /// <summmary>Andre helsehjelpsområder</summary>
+                public const string A = "A";
+                /// <summmary>Sosionomtjenester</summary>
+                public const string A01 = "A01";
+                /// <summmary>Ergoterapi</summary>
+                public const string A02 = "A02";
+                /// <summmary>Fysioterapi</summary>
+                public const string A03 = "A03";
+                /// <summmary>Kiropraktikk</summary>
+                public const string A04 = "A04";
+                /// <summmary>Ernæringsfysiologi</summary>
+                public const string A05 = "A05";
+                /// <summmary>Tannhelse</summary>
+                public const string A06 = "A06";
+                /// <summmary>Audiografi</summary>
+                public const string A07 = "A07";
+                /// <summmary>Spesialpedagogikk</summary>
+                public const string A08 = "A08";
+                /// <summmary>Logopedi</summary>
+                public const string A09 = "A09";
+                /// <summmary>Farmasi</summary>
+                public const string A10 = "A10";
+                /// <summmary>Yrkes- og arbeidsmedisin</summary>
+                public const string A11 = "A11";
+                /// <summmary>Psykologtjeneste</summary>
+                public const string A12 = "A12";
+                /// <summmary>Helsehjelp knyttet til habilitering og rehabilitering</summary>
+                public const string H = "H";
+                /// <summmary>Barnehabilitering</summary>
+                public const string H07 = "H07";
+                /// <summmary>Voksenhabilitering</summary>
+                public const string H08 = "H08";
+                /// <summmary>Rehabilitering</summary>
+                public const string H09 = "H09";
+                /// <summmary>Psykisk helsevern</summary>
+                public const string P = "P";
+                /// <summmary>Psykisk helsevern for barn og unge (BUP)</summary>
+                public const string PB = "PB";
+                /// <summmary>Familieterapi</summary>
+                public const string PB01 = "PB01";
+                /// <summmary>Spiseforstyrrelser hos barn</summary>
+                public const string PB02 = "PB02";
+                /// <summmary>Psykisk helsevern for voksne</summary>
+                public const string PV = "PV";
+                /// <summmary>Spiseforstyrrelser hos voksne</summary>
+                public const string PV01 = "PV01";
+                /// <summmary>Psykiatrisk helsehjelp til døve</summary>
+                public const string PV02 = "PV02";
+                /// <summmary>Unge schizofrene</summary>
+                public const string PV03 = "PV03";
+                /// <summmary>Alderspsykiatrisk behandling</summary>
+                public const string PV04 = "PV04";
+                /// <summmary>Psykiatrisk helsehjelp til asylsøkere og flyktninger</summary>
+                public const string PV05 = "PV05";
+                /// <summmary>Tidlig intervensjon</summary>
+                public const string PV06 = "PV06";
+                /// <summmary>Pasienter med langvarig funksjonssvikt</summary>
+                public const string PV07 = "PV07";
+                /// <summmary>Førstegangspsykose</summary>
+                public const string PV08 = "PV08";
+                /// <summmary>Habilitering/Rehabilitering (psykisk helsevern for voksne)</summary>
+                public const string PV09 = "PV09";
+                /// <summmary>Familieterapi/behandling</summary>
+                public const string PV10 = "PV10";
+                /// <summmary>Sikkerhetspsykiatri</summary>
+                public const string PV11 = "PV11";
+                /// <summmary>Helsehjelp knyttet til rusmiddelavhengighet og annen avhengighet</summary>
+                public const string R = "R";
+                /// <summmary>Spilleavhengighet og annen avhengighet</summary>
+                public const string R01 = "R01";
+                /// <summmary>Rusmiddelavhengighet med alvorlig psykiatrisk sykdom (dobbeldiagnose)</summary>
+                public const string R02 = "R02";
+                /// <summmary>Rusmiddelavhengighet med langvarig funksjonssvikt</summary>
+                public const string R03 = "R03";
+                /// <summmary>Førstegangspsykose knyttet til rusmiddelavhengighet</summary>
+                public const string R04 = "R04";
+                /// <summmary>Utredning av rusmiddelavhengighet eller annen avhengighet</summary>
+                public const string R05 = "R05";
+                /// <summmary>Avrusning/ avgiftning/ stabilisering</summary>
+                public const string R06 = "R06";
+                /// <summmary>Familieterapi, parterapi og pårørendeterapi</summary>
+                public const string R07 = "R07";
+                /// <summmary>Legemiddelassistert rehabilitering (LAR)</summary>
+                public const string R08 = "R08";
+                /// <summmary>Terapeutisk samfunn, kollektiv osv.</summary>
+                public const string R09 = "R09";
+                /// <summmary>Innsatte under paragraf 12-soning</summary>
+                public const string R10 = "R10";
+                /// <summmary>Tverrfaglig spesialisert behandling av rusmiddelmisbruk</summary>
+                public const string R11 = "R11";
+                /// <summmary>Helsehjelp knyttet til somatisk sykdom</summary>
+                public const string S = "S";
+                /// <summmary>Allmennmedisin</summary>
+                public const string S01 = "S01";
+                /// <summmary>Kirurgi</summary>
+                public const string S02 = "S02";
+                /// <summmary>Generell kirurgi</summary>
+                public const string S0201 = "S0201";
+                /// <summmary>Barnekirurgi</summary>
+                public const string S0202 = "S0202";
+                /// <summmary>Bryst og endokrin kirurgi</summary>
+                public const string S0203 = "S0203";
+                /// <summmary>Gastroenterologisk kirurgi</summary>
+                public const string S0204 = "S0204";
+                /// <summmary>Karkirurgi</summary>
+                public const string S0205 = "S0205";
+                /// <summmary>Kjeve- og ansiktskirurgi</summary>
+                public const string S0206 = "S0206";
+                /// <summmary>Nevrokirurgi</summary>
+                public const string S0207 = "S0207";
+                /// <summmary>Ortopedisk kirurgi</summary>
+                public const string S0208 = "S0208";
+                /// <summmary>Plastikkirurgi</summary>
+                public const string S0209 = "S0209";
+                /// <summmary>Thoraxkirurgi</summary>
+                public const string S0210 = "S0210";
+                /// <summmary>Urologi</summary>
+                public const string S0211 = "S0211";
+                /// <summmary>Indremedisin</summary>
+                public const string S03 = "S03";
+                /// <summmary>Endokrinologi</summary>
+                public const string S0301 = "S0301";
+                /// <summmary>Fordøyelsessykdommer</summary>
+                public const string S0302 = "S0302";
+                /// <summmary>Geriatri</summary>
+                public const string S0303 = "S0303";
+                /// <summmary>Blodsykdommer</summary>
+                public const string S0304 = "S0304";
+                /// <summmary>Infeksjonsmedisin</summary>
+                public const string S0305 = "S0305";
+                /// <summmary>Hjertesykdommer</summary>
+                public const string S0306 = "S0306";
+                /// <summmary>Hjerterytmeforstyrrelser</summary>
+                public const string S030601 = "S030601";
+                /// <summmary>Ekkokardiografi og bildediagnostikk</summary>
+                public const string S030602 = "S030602";
+                /// <summmary>Klinisk kardiologi</summary>
+                public const string S030603 = "S030603";
+                /// <summmary>Forebyggende kardiologi</summary>
+                public const string S030604 = "S030604";
+                /// <summmary>Invasiv kardiologi</summary>
+                public const string S030605 = "S030605";
+                /// <summmary>Lungesykdommer</summary>
+                public const string S0307 = "S0307";
+                /// <summmary>Nyresykdommer</summary>
+                public const string S0308 = "S0308";
+                /// <summmary>Dialyse</summary>
+                public const string S0309 = "S0309";
+                /// <summmary>Fødselshjelp og kvinnesykdommer</summary>
+                public const string S04 = "S04";
+                /// <summmary>Generell gynekologi</summary>
+                public const string S0401 = "S0401";
+                /// <summmary>Gynekologisk onkologi</summary>
+                public const string S0402 = "S0402";
+                /// <summmary>Obstetrikk</summary>
+                public const string S0403 = "S0403";
+                /// <summmary>Assistert befruktning</summary>
+                public const string S0404 = "S0404";
+                /// <summmary>Fostermedisin</summary>
+                public const string S0405 = "S0405";
+                /// <summmary>Hud- og veneriske sykdommer</summary>
+                public const string S05 = "S05";
+                /// <summmary>Hudsykdommer</summary>
+                public const string S0501 = "S0501";
+                /// <summmary>Veneriske sykdommer</summary>
+                public const string S0502 = "S0502";
+                /// <summmary>Barnesykdommer</summary>
+                public const string S06 = "S06";
+                /// <summmary>Nyfødtmedisin</summary>
+                public const string S0601 = "S0601";
+                /// <summmary>Intensivbehandling av barn</summary>
+                public const string S0602 = "S0602";
+                /// <summmary>Nevrologi</summary>
+                public const string S07 = "S07";
+                /// <summmary>Generell nevrologi</summary>
+                public const string S0701 = "S0701";
+                /// <summmary>Cerebrovaskulære sykdommer</summary>
+                public const string S0702 = "S0702";
+                /// <summmary>Epilepsi</summary>
+                public const string S0703 = "S0703";
+                /// <summmary>Nevrofysiologi</summary>
+                public const string S0704 = "S0704";
+                /// <summmary>Anestesiologi/smertebehandling</summary>
+                public const string S08 = "S08";
+                /// <summmary>Øre-nese-halssykdommer</summary>
+                public const string S09 = "S09";
+                /// <summmary>Audiologi</summary>
+                public const string S0901 = "S0901";
+                /// <summmary>Laryngologi/Foniatri</summary>
+                public const string S0902 = "S0902";
+                /// <summmary>Balansemedisin</summary>
+                public const string S0903 = "S0903";
+                /// <summmary>Søvnrelaterte sykdommer</summary>
+                public const string S0904 = "S0904";
+                /// <summmary>Nese- og bihulesykdommer</summary>
+                public const string S0905 = "S0905";
+                /// <summmary>Otologi</summary>
+                public const string S0906 = "S0906";
+                /// <summmary>Hode- og halskirurgi</summary>
+                public const string S0907 = "S0907";
+                /// <summmary>Allergologi</summary>
+                public const string S0908 = "S0908";
+                /// <summmary>Pediatriske øre-nese-halssykdommer</summary>
+                public const string S0909 = "S0909";
+                /// <summmary>Øyesykdommer</summary>
+                public const string S10 = "S10";
+                /// <summmary>Onkologi</summary>
+                public const string S11 = "S11";
+                /// <summmary>Sarkomer</summary>
+                public const string S1101 = "S1101";
+                /// <summmary>Revmatologi</summary>
+                public const string S12 = "S12";
+                /// <summmary>Tverrfaglig ryggbehandling</summary>
+                public const string S13 = "S13";
+                /// <summmary>Palliativ medisin</summary>
+                public const string S14 = "S14";
+                /// <summmary>Medisinsk genetikk</summary>
+                public const string S15 = "S15";
+                /// <summmary>Fysikalsk medisin og rehabilitering</summary>
+                public const string S16 = "S16";
+            }
+
+            public static class PracticeSetting_8663
             {
                 public const string System = "2.16.578.1.12.4.1.1.8663";
 
@@ -683,7 +1012,7 @@ public static class Constants
                 public const string KX18 = "KX18";
             }
 
-            public static class TypeCode
+            public static class TypeCode_9602
             {
                 public const string System = "2.16.578.1.12.4.1.1.9602";
 
@@ -807,7 +1136,7 @@ public static class Constants
                 public const string S03_2 = "S03-2";
             }
 
-            public static class CategoryCode
+            public static class CategoryCode_9602
             {
                 public const string System = "2.16.578.1.12.4.1.1.9602";
 
@@ -839,7 +1168,7 @@ public static class Constants
                 public const string S00_1 = "S00-1";
             }
 
-            public static class ConfidentialityCode
+            public static class ConfidentialityCode_9603
             {
                 public const string System = "2.16.578.1.12.4.1.1.9603";
 
@@ -869,7 +1198,6 @@ public static class Constants
                 public const string NORS = "NORS";
                 /// <summary> Utsatt innsyn for innbygger</summary>
                 public const string NORU = "NORU";
-
             }
         }
 

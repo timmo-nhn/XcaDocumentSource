@@ -1980,14 +1980,14 @@ public static class FhirToXdsTransformer
 
     private static OperationOutcome ValidateDocumentRelations(DocumentReference dr)
     {
-        var oo = new OperationOutcome();
+        var operationOutcome = new OperationOutcome();
 
         if (dr.RelatesTo == null || dr.RelatesTo.Count == 0)
-            return oo;
+            return operationOutcome;
 
         void Error(string diagnostics, params string[] location)
         {
-            oo.AddIssue(new OperationOutcome.IssueComponent
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
             {
                 Severity = OperationOutcome.IssueSeverity.Error,
                 Code = OperationOutcome.IssueType.Invalid,
@@ -1995,12 +1995,6 @@ public static class FhirToXdsTransformer
                 Location = location?.Length > 0 ? location : new[] { "DocumentReference.relatesTo" }
             });
         }
-
-        // --- Helpers ---
-        static string StripUrnUuid(string? v) =>
-            string.IsNullOrWhiteSpace(v)
-                ? ""
-                : v.Replace("urn:uuid:", "", StringComparison.OrdinalIgnoreCase);
 
         static string StripDocRefPrefix(string? v) =>
             string.IsNullOrWhiteSpace(v)
@@ -2018,7 +2012,7 @@ public static class FhirToXdsTransformer
             // - "DocumentReference/<uuid>"
             // - "urn:uuid:<uuid>"
             // - "<uuid>"
-            var candidate = StripUrnUuid(StripDocRefPrefix(reference)).Trim();
+            var candidate = StripDocRefPrefix(reference).Trim().NoUrn();
 
             // Guard against contained refs like "#something"
             if (candidate.StartsWith("#", StringComparison.Ordinal))
@@ -2060,11 +2054,11 @@ public static class FhirToXdsTransformer
         }
 
         // If we already have target/code errors, stop early (avoid misleading combo errors)
-        if (oo.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
-            return oo;
+        if (operationOutcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
+            return operationOutcome;
 
         // --- 2) Prevent "document relates to itself" ---
-        var selfId = StripUrnUuid(dr.Id);
+        var selfId = dr.Id?.NoUrn();
 
         if (!string.IsNullOrWhiteSpace(selfId) && Guid.TryParse(selfId, out _))
         {
@@ -2119,14 +2113,14 @@ public static class FhirToXdsTransformer
             .Where(r => r.Code != DocumentRelationshipType.Signs)
             .Select(r => r.Target?.Reference)
             .Where(r => !string.IsNullOrWhiteSpace(r))
-            .Select(r => StripUrnUuid(StripDocRefPrefix(r)))
+            .Select(r => StripDocRefPrefix(r).NoUrn())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         if (nonSignTargets.Count > 1)
             Error("All non-sign relationships must reference the same target document.");
 
-        return oo;
+        return operationOutcome;
     }
 }
 

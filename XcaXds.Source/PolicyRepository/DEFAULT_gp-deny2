@@ -1,15 +1,14 @@
 {
   "appliesTo": [
-    "helseId",
-    "helsenorge"
+    "helseId"
   ],
-  "id": "IT_CrossGatewayQuery",
+  "id": "DEFAULT_gp-deny2",
   "rules": [
     [
       {
         "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:code",
         "compareRule": "Equals",
-        "value": "LE;SP;PS"
+        "value": "XX;VE;FB"
       },
       {
         "attributeId": "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem",
@@ -18,8 +17,5 @@
       }
     ]
   ],
-  "actions": [
-    "Update"
-  ],
-  "effect": "Permit"
+  "effect": "Deny"
 }

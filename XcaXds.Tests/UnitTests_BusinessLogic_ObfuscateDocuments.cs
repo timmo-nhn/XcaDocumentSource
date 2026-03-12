@@ -116,8 +116,8 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Volven.ConfidentialityCode.NORS
+                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode_9603.System,
+                    Code = Constants.CodeSystems.Volven.ConfidentialityCode_9603.NORS
                 },
                 new()
                 {
@@ -139,8 +139,8 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Volven.ConfidentialityCode.NORN_FFL
+                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode_9603.System,
+                    Code = Constants.CodeSystems.Volven.ConfidentialityCode_9603.NORN_FFL
                 },
                 new()
                 {

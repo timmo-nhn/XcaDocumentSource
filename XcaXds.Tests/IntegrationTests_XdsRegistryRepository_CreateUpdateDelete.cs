@@ -29,6 +29,54 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
     [Fact]
     [Trait("Read", "DocumentList")]
+    public async Task XGQ_CrossGatewayQuery_KjernejournalForskriften()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_kjforskriften_readdocumentlist",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "journaldokumenter_helsepersonell",
+            action: "ReadDocumentList",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
+
+        var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalSamlToken(iti38SoapEnvelope);
+
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
+
+        var excpectedRegistryObjects = BusinessLogicFilters.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()).ToArray();
+
+        Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList.Length ?? 0);
+
+        Thread.Sleep(500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+
+        _output.WriteLine($"Fetched {count} entries");
+
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+    }
+
+    [Fact]
+    [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Kjernejournal()
     {
         _policyRepositoryService.DeleteAllPolicies();

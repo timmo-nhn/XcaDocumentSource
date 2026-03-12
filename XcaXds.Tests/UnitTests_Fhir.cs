@@ -84,10 +84,16 @@ public class UnitTests_Fhir
         var fhirJsonSerializer = new FhirJsonSerializer();
 
         var validationResult01 = fhirValidator.ValidateFhirResource(bundle01);
-
         var jsonResponse = fhirJsonSerializer.SerializeToString(validationResult01);
+        Assert.DoesNotContain(OperationOutcome.IssueSeverity.Error, validationResult01.Issue.Select(iss => iss.Severity));
+
 
         var validationResult02 = fhirValidator.ValidateFhirResource(bundle02);
+        Assert.DoesNotContain(OperationOutcome.IssueSeverity.Error, validationResult02.Issue.Select(iss => iss.Severity));
+
         var validationResult01WrongValues = fhirValidator.ValidateFhirResource(bundleWrongValues);
+        Assert.Contains(OperationOutcome.IssueSeverity.Error, validationResult01WrongValues.Issue.Select(iss => iss.Severity));
+
+        jsonResponse = fhirJsonSerializer.SerializeToString(validationResult01);
     }
 }

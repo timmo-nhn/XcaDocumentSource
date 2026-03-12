@@ -30,7 +30,7 @@ public class SqliteBasedRegistry : IRegistry
         using var context = _contextFactory.CreateDbContext();
         context.Database.EnsureCreated();
 
-        context.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
+        //context.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
     }
 
     public string GetDatabaseFile()
@@ -78,10 +78,9 @@ public class SqliteBasedRegistry : IRegistry
         db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking; // mostly for queries, harmless here
 
         // SQLite-specific: reduces fsync overhead a lot for bulk-ish writes.
-        // Safe within a transaction, but still a trade-off—remove if you can't allow it.
-        //db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
-        db.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
-        db.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
+        db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+        //db.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
+        //db.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
 
         using var transaction = db.Database.BeginTransaction();
 
@@ -90,10 +89,6 @@ public class SqliteBasedRegistry : IRegistry
         InsertInBatches(db, documentEntries, batchSize);
         InsertInBatches(db, submissionSets, batchSize);
         InsertInBatches(db, associations, batchSize);
-
-        var asscount = db.Associations.Count();
-        var robjcount = db.DocumentEntries.Count();
-        var subscount = db.SubmissionSets.Count();
 
         transaction.Commit();
         return true;

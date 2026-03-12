@@ -27,6 +27,7 @@ public static class BusinessLogicMapper
         businessLogic.Subject = xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.ProviderIdentifier);
         businessLogic.SubjectOrganization = xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.OrganizationId);
         businessLogic.SubjectAge = GetAgeFromPatientId(businessLogic.Subject?.Code);
+        businessLogic.Scope = xacmlAttributes.GetXacmlAttributeValuesAsString(Constants.Saml.Attribute.EhelseScope)?.FirstOrDefault()?.Split(",");
         businessLogic.Role = xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.Role) ?? xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.SubjectRole20);
         businessLogic.Acp = xacmlAttributes.GetXacmlAttributeValuesAsString(Constants.Saml.Attribute.XuaAcp)?.FirstOrDefault();
         businessLogic.Bppc = xacmlAttributes.GetXacmlAttributeValuesAsString(Constants.Saml.Attribute.BppcDocId)?.FirstOrDefault();

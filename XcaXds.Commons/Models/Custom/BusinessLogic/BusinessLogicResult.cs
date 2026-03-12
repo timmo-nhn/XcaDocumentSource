@@ -2,9 +2,9 @@
 
 namespace XcaXds.Commons.Models.Custom.BusinessLogic;
 
-public sealed class BusinessLogicResult
+public sealed class BusinessLogicResult<T>
 {
-    public BusinessLogicResult(bool ruleApplied, IEnumerable<IdentifiableType> registryObjects, string name)
+    public BusinessLogicResult(bool ruleApplied, IEnumerable<T> registryObjects, string name)
     {
         RuleApplied = ruleApplied;
         RegistryObjects = registryObjects;
@@ -16,8 +16,6 @@ public sealed class BusinessLogicResult
     }
 
     public bool RuleApplied { get; set; }
-    public IEnumerable<IdentifiableType>? RegistryObjects { get; set; }
+    public IEnumerable<T>? RegistryObjects { get; set; }
     public string? Name { get; set; }
 }
-
-public delegate BusinessLogicResult BusinessLogicRule(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters businessLogic);

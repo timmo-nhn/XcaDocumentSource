@@ -1,4 +1,6 @@
-﻿using XcaXds.Commons.Models.Custom;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -9,7 +11,7 @@ namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 /// </summary>
 public static class BusinessLogicFilterer
 {
-    public static List<BusinessLogicRule> BusinessLogicRules = new List<BusinessLogicRule>()
+    public static List<BusinessRule<IdentifiableType>> BusinessLogicRules = new List<BusinessRule<IdentifiableType>>()
     {
         BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
         BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
@@ -18,19 +20,21 @@ public static class BusinessLogicFilterer
         BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
         BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
 
-        //BusinessLogicFilters.CitizenShouldNotSeeCertainDocumentReferencesForThemself, // Filter out certain document types when returning document list for helsenorge
-
         BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
         BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
         BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
 
-        // Comment out this to try only the one below instead
-        //#if DEBUG
-        //BusinessLogicFilters.HealthcarePersonellFilterOutCertainDocumentReferencesForPatient, // Filter out certain document types when returning document list for kjernejournal
-        //#else
+        //BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften,
+
         BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-        //#endif
     };
+
+    private static readonly ConcurrentDictionary<LambdaExpression, Delegate> _compiled = new();
+
+    private static Func<BusinessLogicParameters, bool> CompileCached(Expression<Func<BusinessLogicParameters, bool>> expr)
+    {
+        return (Func<BusinessLogicParameters, bool>)_compiled.GetOrAdd(expr, e => e.Compile());
+    }
 
 
     public static IEnumerable<IdentifiableType>? FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType>? registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> results)
@@ -42,13 +46,13 @@ public static class BusinessLogicFilterer
 
         var current = registryObjects;
 
-        var rulesApplied = new List<BusinessLogicResult>();
+        var rulesApplied = new List<BusinessLogicResult<IdentifiableType>>();
 
         var resultCounts = new Dictionary<string, int>();
 
         foreach (var businessRule in BusinessLogicRules)
         {
-            var result = businessRule(current ?? [], businessLogic);
+            var result = ExecuteRule(businessRule, current ?? [], businessLogic);
 
             if (result.RuleApplied)
             {
@@ -61,4 +65,18 @@ public static class BusinessLogicFilterer
         results = resultCounts;
         return current;
     }
+
+    public static BusinessLogicResult<T> ExecuteRule<T>(BusinessRule<T> rule, IEnumerable<T> objects, BusinessLogicParameters logic)
+    {
+        var condition = CompileCached(rule.Condition!);
+
+        if (condition(logic))
+        {
+            var filtered = rule.Filter!.Compile()(objects);
+            return new(true, filtered, rule.Name);
+        }
+
+        return new(false, objects, rule.Name);
+    }
+
 }

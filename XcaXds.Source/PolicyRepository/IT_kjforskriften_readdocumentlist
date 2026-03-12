@@ -3,18 +3,18 @@
     "helseId",
     "helsenorge"
   ],
-  "id": "DEFAULT_machine_providebundle",
+  "id": "IT_kjforskriften_readdocumentlist",
   "rules": [
     [
       {
         "attributeId": "urn:no:ehelse:saml:1.0:subject:Scope",
         "compareRule": "Equals",
-        "value": "nhn:phr/mhd/create-documents-with-reference"
+        "value": "journaldokumenter_helsepersonell"
       }
     ]
   ],
   "actions": [
-    "Create"
+    "ReadDocumentList"
   ],
   "effect": "Permit"
 }

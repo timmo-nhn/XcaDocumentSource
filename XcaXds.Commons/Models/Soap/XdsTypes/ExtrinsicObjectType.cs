@@ -63,4 +63,33 @@ public partial class ExtrinsicObjectType : RegistryObjectType
 
     }
 
+    public DateTime? GetServiceStartTime()
+    {
+        var input = GetFirstSlot(Constants.Xds.SlotNames.ServiceStartTime)
+                        ?.ValueList?.Value?.FirstOrDefault();
+
+        return DateTime.TryParseExact(
+            input,
+            Constants.Hl7.Dtm.AllFormats,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+            out var dtm)
+            ? dtm
+            : null;
+    }
+
+    public DateTime? GetServiceStopTime()
+    {
+        var input = GetFirstSlot(Constants.Xds.SlotNames.ServiceStopTime)
+                        ?.ValueList?.Value?.FirstOrDefault();
+
+        return DateTime.TryParseExact(
+            input,
+            Constants.Hl7.Dtm.AllFormats,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+            out var dtm)
+            ? dtm
+            : null;
+    }
 }

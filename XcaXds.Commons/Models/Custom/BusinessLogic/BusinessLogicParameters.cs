@@ -16,5 +16,6 @@ public class BusinessLogicParameters
     public CodedValue? Role { get; set; }
     public string? Acp { get; set; }
     public string? Bppc { get; set; }
+    public string[]? Scope { get; set; }
     public Issuer? Issuer { get; set; }
 }

@@ -593,7 +593,7 @@ public static partial class CdaTransformer
                     "O" => "9",
                     _ => "0"
                 },
-                CodeSystem = Constants.CodeSystems.Volven.Gender.System,
+                CodeSystem = Constants.CodeSystems.Volven.Gender_3101.System,
                 DisplayName = patientGender switch
                 {
                     "U" => "Not known",

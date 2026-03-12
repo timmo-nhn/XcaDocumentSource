@@ -3,6 +3,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -179,5 +180,26 @@ public class ApplicationMetaController : ControllerBase
         documentIds.ForEach(docid => _repositoryWrapper.DeleteSingleDocument(docid));
 
         return Ok($"Nuked {amount} entries!");
+    }
+
+    [Produces("application/json")]
+    [HttpGet("business-logic-names")]
+    public async Task<IActionResult> GetBusinessLogicNames()
+    {
+        return Ok(BusinessLogicFilterer.BusinessLogicRules.Select(br => br.Name));
+    }
+
+    [Produces("text/plain")]
+    [HttpGet("business-logic")]
+    public async Task<IActionResult> GetBusinessLogicRules(bool plainText)
+    {
+        return Ok(plainText ? BusinessRulesDescriptor.BusinessRulesPlainText : BusinessRulesDescriptor.BusinessRulesJson);
+    }
+
+    [Produces("text/plain")]
+    [HttpGet("business-logic-obfuscation")]
+    public async Task<IActionResult> GetObfuscationRules()
+    {
+        return Ok(BusinessRulesDescriptor.EntriesToObfuscateJson);
     }
 }
