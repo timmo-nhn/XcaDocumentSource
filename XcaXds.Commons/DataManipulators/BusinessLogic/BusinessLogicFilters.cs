@@ -29,17 +29,15 @@ public static class BusinessLogicFilters
 
     public static readonly List<(string?, string?)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(value =>
         value.CodeSystem != null &&
-        value.CodeSystem.IsAnyOf(Hl7ConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(VeryRestricted))
+        value.Code.IsAnyOf(VeryRestricted, NORN_ANG))
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToList();
 
     public static readonly List<(string?, string?)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes!.Where(value =>
         value.CodeSystem != null &&
-        value.CodeSystem.IsAnyOf(VolvenConfCodeOid) &&
         value.Code != null &&
-        value.Code.IsAnyOf(NORS))
+        value.Code.IsAnyOf(NORS, N))
         .Select(h => (Code: h.Code, System: h.CodeSystem))
         .ToList();
 

@@ -36,7 +36,6 @@ public static class BusinessLogicFilterer
         return (Func<BusinessLogicParameters, bool>)_compiled.GetOrAdd(expr, e => e.Compile());
     }
 
-
     public static IEnumerable<IdentifiableType>? FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType>? registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> results)
     {
         results = new Dictionary<string, int>();

@@ -1174,6 +1174,8 @@ public static class Constants
 
                 /// <summary> Normal</summary>
                 public const string N = "N";
+                /// <summary> Nektet, andre grunner</summary>
+                public const string NORN_ANG = "NORN_ANG";
                 /// <summary> Nektet, alle dokumenter</summary>
                 public const string NORN_ALL = "NORN_ALL";
                 /// <summary> Nektet, duplikat</summary>
