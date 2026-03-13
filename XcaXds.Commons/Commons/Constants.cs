@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Xml;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Models.Custom;
@@ -37,7 +38,7 @@ public static class Constants
             Converters =
             {
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
-            }
+            },
         };
 
         public static readonly JsonSerializerOptions DefaultSettingsInline = new()

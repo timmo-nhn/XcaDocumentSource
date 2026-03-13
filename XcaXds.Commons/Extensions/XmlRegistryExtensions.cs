@@ -607,11 +607,11 @@ public static class Commons
             .ToArray();
     }
 
-    public static List<string[]> GetValuesGrouped(this SlotType[] slotTypes, bool codeMultipleValues = true)
+    public static List<string[]>? GetValuesGrouped(this SlotType[] slotTypes, bool codeMultipleValues = true)
     {
         if (slotTypes == null || slotTypes.Length == 0)
         {
-            return new List<string[]>();
+            return null;
         }
 
         return slotTypes

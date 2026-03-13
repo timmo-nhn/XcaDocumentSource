@@ -120,6 +120,8 @@ public partial class XdsRegistryService
                 var registryFindDocumentEntriesResult = documentRegistry
                     .OfType<ExtrinsicObjectType>();
 
+                _logger.LogDebug("FindDocuments parameters\n" + JsonSerializer.Serialize(findDocumentsSearchParameters, Constants.JsonDefaultOptions.DefaultSettings));
+
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryPatientId(findDocumentsSearchParameters.XdsDocumentEntryPatientId);
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
