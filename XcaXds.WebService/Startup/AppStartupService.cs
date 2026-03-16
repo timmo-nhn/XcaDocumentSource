@@ -218,8 +218,8 @@ public class AppStartupService : IHostedService
     /// </summary>
     private void NormalizeAppconfigOidsWithRegistryRepositoryContent()
     {
-        var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        if (registryContent == null || registryContent.Count() == 0) return;
+        var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos().ToList();
+        if (registryContent == null || registryContent.Count == 0) return;
 
         //if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
         //    registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))
@@ -236,7 +236,7 @@ public class AppStartupService : IHostedService
             registryObject.HomeCommunityId = _appConfig.HomeCommunityId;
             registryObject.RepositoryUniqueId = _appConfig.RepositoryUniqueId;
 
-            if (registryObject.SourcePatientInfo?.PatientId?.System == null ||
+            if (string.IsNullOrWhiteSpace(registryObject.SourcePatientInfo?.PatientId?.System) ||
                 registryObject.SourcePatientInfo?.PatientId?.System == oldHomeCommunityId)
             {
                 _logger.LogInformation($"Fixing stale patient identifier System, new OID: {_appConfig.HomeCommunityId}");
