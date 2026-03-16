@@ -221,43 +221,48 @@ public class AppStartupService : IHostedService
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos().ToList();
         if (registryContent == null || registryContent.Count == 0) return;
 
-        //if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
-        //    registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))
-        //{
-        //    return;
-        //}
+        if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
+            registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))
+        {
+            return;
+        }
 
         _logger.LogInformation("New OID Detected! Normalizing registry entries");
 
-        foreach (var registryObject in registryContent.OfType<DocumentEntryDto>())
+        foreach (var registryObject in registryContent)
         {
-            var oldHomeCommunityId = registryObject.HomeCommunityId;
-
-            registryObject.HomeCommunityId = _appConfig.HomeCommunityId;
-            registryObject.RepositoryUniqueId = _appConfig.RepositoryUniqueId;
-
-            if (string.IsNullOrWhiteSpace(registryObject.SourcePatientInfo?.PatientId?.System) ||
-                registryObject.SourcePatientInfo?.PatientId?.System == oldHomeCommunityId)
+            switch (registryObject)
             {
-                _logger.LogInformation($"Fixing stale patient identifier System, new OID: {_appConfig.HomeCommunityId}");
-                registryObject.SourcePatientInfo?.PatientId?.System = _appConfig.HomeCommunityId;
+                case DocumentEntryDto doc:
+                    var oldHomeCommunityId = doc.HomeCommunityId;
+
+                    doc.HomeCommunityId = _appConfig.HomeCommunityId;
+                    doc.RepositoryUniqueId = _appConfig.RepositoryUniqueId;
+
+                    if (string.IsNullOrWhiteSpace(doc.SourcePatientInfo?.PatientId?.System) ||
+                        doc.SourcePatientInfo?.PatientId?.System == oldHomeCommunityId)
+                    {
+                        _logger.LogInformation($"Fixing stale patient identifier System, new OID: {_appConfig.HomeCommunityId}",);
+
+                        doc.SourcePatientInfo!.PatientId!.System = _appConfig.HomeCommunityId;
+                    }
+
+                    break;
+
+                case SubmissionSetDto sub:
+                    sub.HomeCommunityId = _appConfig.HomeCommunityId;
+                    sub.SourceId = _appConfig.RepositoryUniqueId;
+                    break;
             }
         }
-
-        foreach (var registryObject in registryContent.OfType<SubmissionSetDto>())
-        {
-            registryObject.HomeCommunityId = _appConfig.HomeCommunityId;
-            registryObject.SourceId = _appConfig.RepositoryUniqueId;
-        }
-
         _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent.ToList());
 
-        //var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
+        var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
 
-        //if (newIdSet)
-        //{
-        //    _logger.LogInformation($"New Repository Unique Id set: '{_appConfig.RepositoryUniqueId}' (old: '{oldId}')");
-        //}
+        if (newIdSet)
+        {
+            _logger.LogInformation($"New Repository Unique Id set: '{_appConfig.RepositoryUniqueId}' (old: '{oldId}')");
+        }
     }
 
     private void MigrateFromJsonRegistryToDatabase()
