@@ -27,6 +27,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
         {
             throw new ArgumentNullException(nameof(bindingContext));
         }
+
         var sxmls = new SoapXmlSerializer();
 
         var request = bindingContext.HttpContext.Request;
