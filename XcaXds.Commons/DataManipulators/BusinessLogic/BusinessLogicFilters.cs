@@ -288,10 +288,10 @@ public static class BusinessLogicFilters
     /// Category | Dokumentgruppe               | Visning i KJ | Eksempler på dokumenter
     /// ====================================================================================
     /// A00-1    | Epikriser og sammenfatninger | Ubegrenset   | Epikriser etter innleggelse, poliklinikk m.m.
-    /// C00-1    | Prøvesvar, vev og vesker     | Etter 1 år   | Medisinks biokjemi, patologi m.m.
-    /// D00-1    | Organfunksjon                | Etter 5 år   | Ultralyd av hjerte, spirometri m.m.
-    /// E00-1    | Bildediagnostikk             | Etter 5 år   | Radiologi, ultralyd m.m.
-    /// I00-1    | Korrespondanse               | Etter 1 år   | Henvisninger
+    /// C00-1    | Prøvesvar, vev og vesker     | Siste 1 år   | Medisinks biokjemi, patologi m.m.
+    /// D00-1    | Organfunksjon                | Siste 5 år   | Ultralyd av hjerte, spirometri m.m.
+    /// E00-1    | Bildediagnostikk             | Siste 5 år   | Radiologi, ultralyd m.m.
+    /// I00-1    | Korrespondanse               | Siste 1 år   | Henvisninger
     /// </code>
     /// </summary>
     public static BusinessRule<IdentifiableType> HealthcarePersonellKjernejournalForskriften { get; set; } = new()

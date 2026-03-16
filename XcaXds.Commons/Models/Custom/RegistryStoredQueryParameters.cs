@@ -1,6 +1,8 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Models.Custom;
 
@@ -110,6 +112,33 @@ public static class RegistryStoredQueryParameters
             XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.XdsDocumentEntryType).GetValuesGrouped(),
             homeCommunityId = adhocQuery.GetSlots(Constants.Xds.QueryParameters.GetFolderAndContents.homeCommunityId).FirstOrDefault()?.GetFirstValue(),
         };
+    }
+
+    public static void AddAlternateRepresentationsForCodeSystems(FindDocuments findDocumentsSearchParameters)
+    {
+        if (findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode != null)
+        {
+            // ConfidentialityCode
+            var confidentialityCodes = findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode.SelectMany(c => c).Select(Hl7Object.Parse<mCE>).ToList();
+
+            var alternateCodeSystems = confidentialityCodes?.Where(c => c?.AssigningAuthority == Constants.CodeSystems.Hl7.ConfidentialityCode.System);
+
+            var newCodeSystems = alternateCodeSystems?
+                .Select(acs => new mCE()
+                {
+                    IdNumber = acs?.IdNumber,
+                    AssigningAuthority = acs?.AssigningAuthority = Constants.CodeSystems.Hl7.ConfidentialityCode.System_Alternate
+                }.Serialize())
+                .OfType<string>()
+                .ToArray();
+
+            if (newCodeSystems?.Length > 0)
+            {
+                findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode.Add(newCodeSystems);
+                var allCodes = findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode.SelectMany(c => c).OfType<string>();
+                findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode = [[.. allCodes]];
+            }
+        }
     }
 }
 

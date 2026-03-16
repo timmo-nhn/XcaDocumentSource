@@ -6,6 +6,7 @@ using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -82,7 +83,11 @@ public partial class XdsRegistryService
 
         if (validateOnly == false)
         {
-            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos([.. registryObjects, .. submissionRegistryObjects]));
+            var elementsToUpdate = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos([.. registryObjects, .. submissionRegistryObjects]);
+
+            RegistryMetadataTransformer.TransformFhirConceptsToXdsConcepts(elementsToUpdate);
+
+            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(elementsToUpdate);
             if (registryUpdateResult)
             {
                 registryResponse.EvaluateStatusCode();
@@ -117,6 +122,9 @@ public partial class XdsRegistryService
         {
             case Constants.Xds.StoredQueries.FindDocuments:
                 var findDocumentsSearchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
+
+                RegistryStoredQueryParameters.AddAlternateRepresentationsForCodeSystems(findDocumentsSearchParameters);
+
                 var registryFindDocumentEntriesResult = documentRegistry
                     .OfType<ExtrinsicObjectType>();
 

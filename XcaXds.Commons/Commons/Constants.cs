@@ -1209,6 +1209,7 @@ public static class Constants
             public static class ConfidentialityCode
             {
                 public const string System = "2.16.840.1.113883.5.25";
+                public const string System_Alternate = "http://terminology.hl7.org/CodeSystem/v3-Confidentiality";
 
                 /// <summary>low</summary>
                 public const string Low = "L";

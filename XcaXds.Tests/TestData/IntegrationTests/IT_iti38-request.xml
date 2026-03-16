@@ -35,6 +35,13 @@ For Integration tests to work properly, its recommended to not touch these files
                         <Value>('urn:oasis:names:tc:ebxml-regrep:StatusType:Approved')</Value>
                     </ValueList>
                 </Slot>
+                <Slot name="$XDSDocumentEntryConfidentialityCode">
+                    <ValueList>
+                        <Value>N^^2.16.578.1.12.4.1.1.9603</Value>
+                        <Value>('N^^2.16.840.1.113883.5.25')</Value>
+                        <Value>('R^^2.16.840.1.113883.5.25')</Value>
+                    </ValueList>
+                </Slot>
             </AdhocQuery>
         </AdhocQueryRequest>
     </s:Body>

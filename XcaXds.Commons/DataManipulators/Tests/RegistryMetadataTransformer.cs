@@ -1,10 +1,12 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7;
 
 namespace XcaXds.Commons.DataManipulators.Tests;
 
@@ -1425,4 +1427,39 @@ public static class RegistryMetadataTransformer
         return codedValues.Select(cv => MapCodedValueToClassification(classificationScheme, cv)).ToArray();
     }
 
+    /// <summary>
+    /// When uploading a FHIR-bundle, the uploaded metadata can contain FHIR-specific values which can be deemed invalid by XDS consumers
+    /// Map them to the values XDS-based systems might expect (OIDs instead of )
+    /// </summary>
+    /// <param name="elementsToUpdate"></param>
+    public static void TransformFhirConceptsToXdsConcepts(List<RegistryObjectDto> elementsToUpdate)
+    {
+        foreach (var registryObject in elementsToUpdate)
+        {
+            if (registryObject is DocumentEntryDto documentEntry && documentEntry.ConfidentialityCode?.Count > 0)
+            {
+                var alternateCodeSystems = documentEntry.ConfidentialityCode.Where(c => c?.CodeSystem?.NoUrn() == Constants.CodeSystems.Hl7.ConfidentialityCode.System_Alternate).ToArray();
+                
+                if (!(alternateCodeSystems?.Length > 0)) return;
+
+                var newCodeSystems = alternateCodeSystems
+                    .Select(acs => new CodedValue()
+                    {
+                        Code = acs.Code,
+                        CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
+                        DisplayName = acs.DisplayName
+                    }).ToArray();
+
+                foreach (var item in alternateCodeSystems)
+                {
+                    documentEntry.ConfidentialityCode.Remove(item);
+                }
+
+                documentEntry.ConfidentialityCode.AddRange(newCodeSystems);
+
+                // Deduplicate
+                documentEntry.ConfidentialityCode = [.. documentEntry.ConfidentialityCode.DistinctBy(cv => new { cv.Code, cv.CodeSystem, cv.DisplayName })];
+            }
+        }
+    }
 }

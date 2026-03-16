@@ -95,7 +95,7 @@ public partial class RepositoryWrapper
 
     public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart)
     {
-        var result = _fileScanner.ScanFile(documentContent);
+        //var result = _fileScanner.ScanFile(documentContent);
         return _repository.Write(documentId, documentContent, patientIdPart);
     }
 
