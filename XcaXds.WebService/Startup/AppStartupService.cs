@@ -242,7 +242,7 @@ public class AppStartupService : IHostedService
                     if (string.IsNullOrWhiteSpace(doc.SourcePatientInfo?.PatientId?.System) ||
                         doc.SourcePatientInfo?.PatientId?.System == oldHomeCommunityId)
                     {
-                        _logger.LogInformation($"Fixing stale patient identifier System, new OID: {_appConfig.HomeCommunityId}",);
+                        _logger.LogInformation($"Fixing stale patient identifier System, new OID: {_appConfig.HomeCommunityId}");
 
                         doc.SourcePatientInfo!.PatientId!.System = _appConfig.HomeCommunityId;
                     }
