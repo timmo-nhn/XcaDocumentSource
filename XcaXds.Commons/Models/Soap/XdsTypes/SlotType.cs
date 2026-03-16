@@ -6,9 +6,28 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
-[DebuggerDisplay("Name = {Name}, Values({ValueList.Value.Length})={string.Join(', ', ValueList.Value.Take(5))} ")]
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
 public partial class SlotType
 {
+    private string DebuggerDisplay
+    {
+        get
+        {
+            var values = ValueList?.Value;
+
+            if (values == null)
+                return $"Name={Name}, Values=null";
+
+            var preview = values.Take(2);
+            var previewText = string.Join(", ", preview);
+
+            if (values.Length > 2)
+                previewText += ", ...";
+
+            return $"Name={Name}, Values({values.Length})=[{previewText}]";
+        }
+    }
+
     public SlotType(string name, string value)
     {
         Name = name;

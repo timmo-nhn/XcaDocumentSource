@@ -25,9 +25,7 @@ public static class BusinessLogicFilters
     public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
     public static readonly CodedValue[]? VolvenConfCodeValues = VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid }).ToArray();
 
-    public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues)
-        .Select(val => (val.Code!, val.CodeSystem!))
-        .ToHashSet();
+    public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!)).ToHashSet();
 
     private static readonly HashSet<(string Code, string CodeSystem)> CitizenRules =
     [
@@ -42,7 +40,6 @@ public static class BusinessLogicFilters
 
     public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => CitizenRules.Contains(v)).ToList();
     public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => HealthcarePersonellRules.Contains(v)).ToList();
-
 
     /// <summary>
     /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter

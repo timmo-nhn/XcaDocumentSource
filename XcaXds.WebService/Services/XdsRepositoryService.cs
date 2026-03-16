@@ -296,8 +296,8 @@ public class XdsRepositoryService
 
         bool restricted = requestAppliesTo switch
         {
-            Issuer.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))) ?? false,
-            Issuer.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))) ?? false,
+            Issuer.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            Issuer.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             _ => false
         };
 

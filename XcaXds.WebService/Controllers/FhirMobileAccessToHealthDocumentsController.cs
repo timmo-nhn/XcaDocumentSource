@@ -318,10 +318,16 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
             provideBundleResult.RegistryResponse);
 
-        if (provideBundleResult.Outcome.Issue.Any())
+        var anyErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
+
+        if (!anyErrors)
         {
-            var fhirSerializer = new FhirJsonSerializer();
-            return new CustomContentResult(fhirSerializer.SerializeToString(provideBundleResult.Outcome), StatusCodes.Status400BadRequest, Constants.MimeTypes.FhirJson);
+            provideBundleResult.Outcome.Issue.Add(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Information,
+                Code = OperationOutcome.IssueType.Success,
+                Diagnostics = $"Bundle validated with 0 errors or warnings"
+            });
         }
 
         var transactionBundle = CreateFhirTransactionResponseBundle(fhirBundle);

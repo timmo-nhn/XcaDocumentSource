@@ -642,8 +642,8 @@ public static class Commons
 
             bool obfuscate = requestAppliesTo switch
             {
-                Issuer.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))),
-                Issuer.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code, ccode.CodeSystem))),
+                Issuer.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                Issuer.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
                 _ => false
             };
 
