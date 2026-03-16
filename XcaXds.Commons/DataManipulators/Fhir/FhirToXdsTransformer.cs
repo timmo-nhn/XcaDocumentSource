@@ -519,8 +519,8 @@ public static class FhirToXdsTransformer
             IdNumber = patientId?.Value ?? "Unknown",
             AssigningAuthority = new HD()
             {
-                NamespaceId = GpiOid,
-                UniversalIdType = "ISO"
+                UniversalId = GpiOid,
+                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
             },
         };
 

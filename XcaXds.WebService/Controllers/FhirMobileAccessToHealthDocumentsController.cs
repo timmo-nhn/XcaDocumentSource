@@ -283,7 +283,12 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var fhirJsonDeserializer = new FhirJsonDeserializer();
 
         var fhirParser = new FhirJsonDeserializer();
-        var resource = fhirParser.DeserializeResource(json.GetRawText());
+
+        var rawJsonBundle = json.GetRawText();
+
+        _logger.LogDebug($"{HttpContext.TraceIdentifier} - FHIR-Bundle:\n" + rawJsonBundle);
+
+        var resource = fhirParser.DeserializeResource(rawJsonBundle);
 
         if (resource is not Bundle fhirBundle)
         {
@@ -294,6 +299,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Provide bundle
         var provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier);
+        var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
+        provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
 
         // Atna log generation
         var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
@@ -349,7 +356,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Validate bundle
         var provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, validateOnly: true);
-        var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
+        var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle, useFirelyValidator: true);
 
         operationOutcome.Issue.AddRange(provideBundleResult.Outcome.Issue);
         operationOutcome.Issue.AddRange(validationResult.Issue);

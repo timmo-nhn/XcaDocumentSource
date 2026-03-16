@@ -128,7 +128,7 @@ public partial class XdsRegistryService
                 var registryFindDocumentEntriesResult = documentRegistry
                     .OfType<ExtrinsicObjectType>();
 
-                _logger.LogDebug("FindDocuments parameters\n" + JsonSerializer.Serialize(findDocumentsSearchParameters, Constants.JsonDefaultOptions.DefaultSettings));
+                _logger.LogDebug($"{soapEnvelope.Header.MessageId} - FindDocuments parameters\n" + JsonSerializer.Serialize(findDocumentsSearchParameters, Constants.JsonDefaultOptions.DefaultSettings));
 
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryPatientId(findDocumentsSearchParameters.XdsDocumentEntryPatientId);
@@ -179,17 +179,17 @@ public partial class XdsRegistryService
                 filteredElements = [.. registryFindDocumentEntriesResult];
 
                 // Apply business-logic filtering
-                _logger.LogInformation($"Applying business logic, current XDSEntry count: {filteredElements.Count}");
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntry count: {filteredElements.Count}");
                 var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
                 filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
 
                 if (result.Count > 0)
                 {
-                    _logger.LogInformation($"Business logic applied: {JsonSerializer.Serialize(result)}");
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic applied: {JsonSerializer.Serialize(result)}");
                 }
                 else
                 {
-                    _logger.LogInformation($"No business logic applied, XDSEntry count: {filteredElements?.Count ?? 0}");
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntry count: {filteredElements?.Count ?? 0}");
                 }
 
                 filteredElements.ObfuscateRestrictedDocumentEntries(businessLogic, out var count);

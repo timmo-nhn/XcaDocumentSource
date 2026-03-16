@@ -32,7 +32,7 @@ public class FhirResourceValidatorService
         AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
     }
 
-    public OperationOutcome ValidateFhirResource(Resource inputResource)
+    public OperationOutcome ValidateFhirResource(Resource inputResource, bool useFirelyValidator = false)
     {
         var outcome = new OperationOutcome();
 
@@ -53,9 +53,11 @@ public class FhirResourceValidatorService
                 break;
         }
 
-        var oo = _validator.Validate(inputResource);
-
-        outcome.Issue.AddRange(oo.Issue);
+        if (useFirelyValidator)
+        {
+            var oo = _validator.Validate(inputResource);
+            outcome.Issue.AddRange(oo.Issue);
+        }
         return outcome;
     }
 
@@ -266,6 +268,7 @@ public class FhirResourceValidatorService
 
     private static readonly List<ComprehensiveCodeSystem> AllowedFormatCodes =
     [
+        new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
         new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
         new("formatCodes")
     ];
