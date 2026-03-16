@@ -568,4 +568,26 @@ public class UnitTests_Functionalities
             counter++;
         }
     }
+
+    [Fact]
+    public async Task AsyncTest()
+    {
+        var result = DoAsyncWork("test");
+
+        while (result.IsCompleted == false)
+        {
+            Console.WriteLine("waiting...");
+        }
+        Console.WriteLine("testing");
+        Console.WriteLine("testing");
+        Console.WriteLine("testing");
+
+        var stridng = await result;
+    }
+
+    private async Task<string> DoAsyncWork(string input)
+    {
+        await Task.Delay(2000);
+        return $"This is {input}";
+    }
 }

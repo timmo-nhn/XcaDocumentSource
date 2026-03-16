@@ -1,3 +1,4 @@
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Models.Hl7.DataType;
@@ -9,6 +10,16 @@ namespace XcaXds.Commons.Models.Hl7.DataType;
 /// </summary>
 public class HD : Hl7Object
 {
+    public HD(string? universalId)
+    {
+        UniversalId = universalId;
+        UniversalIdType = Constants.Hl7.UniversalIdType.Iso;
+    }
+    public HD()
+    {
+        
+    }
+
     [Hl7(Sequence = 1)]
     public string? NamespaceId { get; set; }
     [Hl7(Sequence = 2)]

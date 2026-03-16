@@ -1,9 +1,11 @@
-﻿using System.Text;
+﻿using nClam;
+using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
 
@@ -93,10 +95,24 @@ public partial class RepositoryWrapper
         return Encoding.UTF8.GetBytes(cdaXml);
     }
 
-    public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart)
+    public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart, out string? errorMessage)
     {
-        //var result = _fileScanner.ScanFile(documentContent);
-        return _repository.Write(documentId, documentContent, patientIdPart);
+        var storeResult = StoreDocumentAsync(documentId, documentContent, patientIdPart).GetAwaiter().GetResult();
+        errorMessage = storeResult.Message;
+        return storeResult.Success;
+    }
+
+    public async Task<StoreDocumentResult> StoreDocumentAsync(string documentId, byte[] documentContent, string patientIdPart)
+    {
+        var scanResult = await _fileScanner.ScanFile(documentContent);
+
+        var result = _repository.Write(documentId, documentContent, patientIdPart);
+        var errorMessage = scanResult == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult}" : string.Empty;
+        return new()
+        {
+            Success = result && scanResult != ClamScanResults.VirusDetected,
+            Message = errorMessage
+        };
     }
 
     public bool DeleteSingleDocument(string? documentUniqueId)

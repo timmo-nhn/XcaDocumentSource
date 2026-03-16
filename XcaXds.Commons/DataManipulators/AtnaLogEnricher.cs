@@ -5,6 +5,7 @@ using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -105,11 +106,12 @@ public class AtnaLogEnricher
             {
                 var patientSystem = samlPatientIdentifier.System?.NoUrn();
                 var patientValue = samlPatientIdentifier.Value;
-                var resourceId = !string.IsNullOrWhiteSpace(patientSystem) ? $"{patientSystem}^{patientValue}" : patientValue;
+
+                var resourceId = new CX(patientValue, patientSystem);
 
                 samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     Constants.Saml.Attribute.ResourceId20,
-                    resourceId)));
+                    resourceId.Serialize())));
 
                 var patientName = patient?.Name?.FirstOrDefault();
                 var patientGiven = patientName?.Given?.FirstOrDefault(g => !string.IsNullOrWhiteSpace(g));

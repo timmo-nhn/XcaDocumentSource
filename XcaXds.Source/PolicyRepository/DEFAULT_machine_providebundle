@@ -3,7 +3,7 @@
     "helseId",
     "helsenorge"
   ],
-  "id": "DEFAULT_machine_deletedocuments",
+  "id": "DEFAULT_machine_providebundle",
   "rules": [
     [
       {
@@ -14,7 +14,7 @@
     ]
   ],
   "actions": [
-    "Delete"
+    "Create"
   ],
   "effect": "Permit"
 }

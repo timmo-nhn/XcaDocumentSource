@@ -94,8 +94,12 @@ public class XdsRepositoryService
 
                     if (validateOnly == false)
                     {
-                        repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart);
-                        if (!repositoryUpdateOk)
+                        repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart, out var message);
+                        if (!repositoryUpdateOk && !string.IsNullOrWhiteSpace(message))
+                        {
+                            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Potentially malicious file detected!\n {message}", $"XDS Repository");
+                        }
+                        else if (!repositoryUpdateOk)
                         {
                             registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
                         }

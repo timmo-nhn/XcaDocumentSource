@@ -9,6 +9,14 @@ namespace XcaXds.Commons.Models.Hl7.DataType;
 /// </summary>
 public class CX : Hl7Object
 {
+    public CX(string? code, string? codeSystem)
+    {
+        IdNumber = code;
+        AssigningAuthority = new(codeSystem);
+    }
+
+    public CX() { }
+
     [Hl7(Sequence = 1)]
     public string? IdNumber { get; set; }
 
