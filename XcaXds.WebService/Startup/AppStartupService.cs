@@ -219,13 +219,13 @@ public class AppStartupService : IHostedService
     private void NormalizeAppconfigOidsWithRegistryRepositoryContent()
     {
         var registryContent = _registryWrapper.GetDocumentRegistryContentAsDtos();
-        if (registryContent == null || registryContent.Count() == 0) return;
+        //if (registryContent == null || registryContent.Count() == 0) return;
 
-        if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
-            registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))
-        {
-            return;
-        }
+        //if (registryContent.OfType<DocumentEntryDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId || de.RepositoryUniqueId == _appConfig.RepositoryUniqueId) ||
+        //    registryContent.OfType<SubmissionSetDto>().Any(de => de.HomeCommunityId == _appConfig.HomeCommunityId))
+        //{
+        //    return;
+        //}
 
         _logger.LogInformation("New OID Detected! Normalizing registry entries");
 
@@ -233,6 +233,8 @@ public class AppStartupService : IHostedService
         {
             registryObject.HomeCommunityId = _appConfig.HomeCommunityId;
             registryObject.RepositoryUniqueId = _appConfig.RepositoryUniqueId;
+            
+            registryObject.SourcePatientInfo?.PatientId?.System ??= _appConfig.HomeCommunityId;
         }
 
         foreach (var registryObject in registryContent.OfType<SubmissionSetDto>())
@@ -243,12 +245,12 @@ public class AppStartupService : IHostedService
 
         _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent.ToList());
 
-        var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
+        //var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
 
-        if (newIdSet)
-        {
-            _logger.LogInformation($"New Repository Unique Id set: '{_appConfig.RepositoryUniqueId}' (old: '{oldId}')");
-        }
+        //if (newIdSet)
+        //{
+        //    _logger.LogInformation($"New Repository Unique Id set: '{_appConfig.RepositoryUniqueId}' (old: '{oldId}')");
+        //}
     }
 
     private void MigrateFromJsonRegistryToDatabase()
