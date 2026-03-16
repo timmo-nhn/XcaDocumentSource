@@ -25,21 +25,23 @@ public static class BusinessLogicFilters
     public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
     public static readonly CodedValue[]? VolvenConfCodeValues = VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid }).ToArray();
 
-    public static readonly CodedValue[]? AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).ToArray();
+    public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues)
+        .Select(val => (val.Code!, val.CodeSystem!))
+        .ToHashSet();
 
-    public static readonly List<(string?, string?)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(value =>
-        value.CodeSystem != null &&
-        value.Code != null &&
-        value.Code.IsAnyOf(VeryRestricted, NORN_ANG))
-        .Select(h => (Code: h.Code, System: h.CodeSystem))
-        .ToList();
+    private static readonly HashSet<(string Code, string CodeSystem)> CitizenRules =
+    [
+        (VeryRestricted, Constants.CodeSystems.Hl7.ConfidentialityCode.System),
+        (NORN_ANG, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
+    ];
 
-    public static readonly List<(string?, string?)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes!.Where(value =>
-        value.CodeSystem != null &&
-        value.Code != null &&
-        value.Code.IsAnyOf(NORS, N))
-        .Select(h => (Code: h.Code, System: h.CodeSystem))
-        .ToList();
+    private static readonly HashSet<(string Code, string CodeSystem)> HealthcarePersonellRules =
+    [
+        (NORS, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
+    ];
+
+    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => CitizenRules.Contains(v)).ToList();
+    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => HealthcarePersonellRules.Contains(v)).ToList();
 
 
     /// <summary>
