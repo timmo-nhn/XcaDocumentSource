@@ -341,6 +341,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         return metadata;
     }
+
     private async Task NukeRegistryRepository()
     {
         var getNukeKey = await _client.GetAsync("api/get-nuke-key");

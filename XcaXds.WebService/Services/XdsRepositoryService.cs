@@ -125,7 +125,7 @@ public class XdsRepositoryService
         {
             foreach (var document in documents)
             {
-                if (document != null && _repositoryWrapper.CheckIfFileExistsInRepository(document.Id?.NoUrn()))
+                if (document != null && _repositoryWrapper.FileExistsInRepository(document.Id?.NoUrn()))
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Non unique ID in repository {document.Id}".Trim(), _xdsConfig.HomeCommunityId);
                 }

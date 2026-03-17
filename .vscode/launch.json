@@ -1,8 +1,8 @@
 {
   "compounds": [
     {
-      "name": "Run WS + FE (Watch)",
-      "configurations": ["WebService", "Watch Frontend"]
+      "name": "Run WS (Watch)",
+      "configurations": ["WebService"]
     }
   ],
   "version": "0.2.0",
@@ -12,7 +12,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-webservice",
-      "program": "${workspaceFolder}/XcaXds.WebService/bin/Debug/net8.0/XcaXds.WebService.dll",
+      "program": "${workspaceFolder}/XcaXds.WebService/bin/Debug/net10.0/XcaXds.WebService.dll",
       "args": [],
       "cwd": "${workspaceFolder}/XcaXds.WebService",
       "console": "internalConsole",
@@ -25,7 +25,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-frontend",
-      "program": "${workspaceFolder}/XcaXds.Frontend/bin/Debug/net8.0/XcaXds.Frontend.dll",
+      "program": "${workspaceFolder}/XcaXds.Frontend/bin/Debug/net10.0/XcaXds.Frontend.dll",
       "args": [],
       "cwd": "${workspaceFolder}/XcaXds.Frontend",
       "env": {
@@ -33,14 +33,6 @@
       },
       "internalConsoleOptions": "openOnSessionStart",
       "stopAtEntry": false
-    },
-    {
-      "name": "Watch Frontend",
-      "type": "chrome",
-      "request": "launch",
-      "preLaunchTask": "watch-frontend",
-      "url": "https://localhost:7213/",
-      "webRoot": "${workspaceFolder}/XcaXds.Frontend"
     }
   ]
 }

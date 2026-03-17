@@ -27,19 +27,19 @@ public static class BusinessLogicFilters
 
     public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!)).ToHashSet();
 
-    private static readonly HashSet<(string Code, string CodeSystem)> CitizenRules =
+    private static readonly HashSet<(string Code, string CodeSystem)> CitizenObfuscationRules =
     [
         (VeryRestricted, Constants.CodeSystems.Hl7.ConfidentialityCode.System),
         (NORN_ANG, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
     ];
 
-    private static readonly HashSet<(string Code, string CodeSystem)> HealthcarePersonellRules =
+    private static readonly HashSet<(string Code, string CodeSystem)> HealthcarePersonellObfuscationRules =
     [
         (NORS, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
     ];
 
-    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => CitizenRules.Contains(v)).ToList();
-    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => HealthcarePersonellRules.Contains(v)).ToList();
+    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => CitizenObfuscationRules.Contains(v)).ToList();
+    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => HealthcarePersonellObfuscationRules.Contains(v)).ToList();
 
     /// <summary>
     /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter

@@ -24,6 +24,7 @@ public class ApplicationMetaController : ControllerBase
     private readonly HealthCheckService _healthCheckService;
     private readonly MonitoringStatusService _monitoringService;
     private readonly RequestThrottlingService _requestThrottlingService;
+    private readonly ApplicationMetaService _applicationMetaService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
 
@@ -34,7 +35,8 @@ public class ApplicationMetaController : ControllerBase
         RepositoryWrapper repositoryWrapper,
         HealthCheckService healthCheckService,
         MonitoringStatusService monitoringService,
-        RequestThrottlingService requestThrottlingService
+        RequestThrottlingService requestThrottlingService,
+        ApplicationMetaService applicationMetaService
         )
     {
         _logger = logger;
@@ -44,6 +46,7 @@ public class ApplicationMetaController : ControllerBase
         _healthCheckService = healthCheckService;
         _monitoringService = monitoringService;
         _requestThrottlingService = requestThrottlingService;
+        _applicationMetaService = applicationMetaService;
     }
 
     [HttpGet("health-check")]
@@ -155,31 +158,16 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("get-nuke-key")]
     public async Task<IActionResult> GetNukeKey()
     {
-        var datetime = DateTime.Now.ToString("ddMMyyhhMM");
-        return Ok(new { nukeKey = datetime, superSecret = true });
+        var dateTime = _applicationMetaService.GetNukeKeyForRegistryRepository();
+        return Ok(new { nukeKey = dateTime, superSecret = true });
     }
 
     [Tags("_Purge registry and repository! ⚠️")]
     [HttpDelete("nuke")]
     public async Task<IActionResult> NukeRegistryRepository(string nukeKey)
     {
-        var datetime = DateTime.Now.ToString("ddMMyyhhMM");
-        if (datetime != nukeKey) return BadRequest("Invalid Nuke key, get nuke key from the 'get-nuke-key'-endpoint");
-
-        var documentIds = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(dent => dent.UniqueId).ToList();
-
-        var amount = documentIds.Count;
-        _logger.LogInformation($"Fetched {amount} for nuking");
-
-        if (amount == 0)
-        {
-            return Ok("Nothing to nuke");
-        }
-
-        _registryWrapper.SetDocumentRegistryContentWithDtos(new List<RegistryObjectDto>());
-        documentIds.ForEach(docid => _repositoryWrapper.DeleteSingleDocument(docid));
-
-        return Ok($"Nuked {amount} entries!");
+        var apiResponse = _applicationMetaService.NukeRegistryRepository(nukeKey);
+        return Ok(apiResponse);
     }
 
     [Produces("application/json")]

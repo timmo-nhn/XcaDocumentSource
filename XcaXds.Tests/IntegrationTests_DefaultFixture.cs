@@ -70,6 +70,7 @@ public class IntegrationTests_DefaultFixture
 
                 services.AddSingleton<AtnaLogExportedChecker>();
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
+                services.AddHostedService<IntegrationTestCleanupService>();
 
                 builder.Configure(app =>
                 {

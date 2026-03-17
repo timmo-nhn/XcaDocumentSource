@@ -147,8 +147,19 @@ public class FhirService
 
         // If operation is $validate, we only want to validate the request without actually registering/uploading the documents.
         // https://build.fhir.org/resource-operation-validate.html
-        registerDocumentSetResponse = _registry.AppendToRegistry(iti42SoapEnvelope.Value, validateOnly);
         documentUploadResponse = _repository.UploadContentToRepository(provideAndRegisterRequest, validateOnly);
+
+        if (documentUploadResponse.IsSuccess)
+        {
+            registerDocumentSetResponse = _registry.AppendToRegistry(iti42SoapEnvelope.Value, validateOnly);
+        }
+        else
+        {
+            registerDocumentSetResponse ??= new()
+            {
+                Value = documentUploadResponse.Value 
+            };
+        }
 
         var errors = new List<RegistryErrorType>();
         errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);

@@ -1,85 +1,22 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
-using XcaXds.WebService.Services;
-using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
-public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFixture<WebApplicationFactory<WebService.Program>>
+public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    private readonly HttpClient _client;
-    private readonly RestfulRegistryRepositoryService _restfulRegistryService;
-    private readonly PolicyRepositoryService _policyRepositoryService;
-    private readonly RegistryWrapper _registryWrapper;
-    private readonly IPolicyRepository _policyRepository;
-    private readonly IRegistry _registry;
-    private readonly IRepository _repository;
-    private readonly ITestOutputHelper _output;
-
-    private List<DocumentReferenceDto> RegistryContent { get; set; } = new();
-
-    private readonly CX PatientIdentifier = new()
+    public IntegrationTests_RestfulRegistryRepository_CRUD(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
     {
-        IdNumber = "13116900216",
-        AssigningAuthority = new HD()
-        {
-            UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-            UniversalId = Constants.Oid.Fnr
-        }
-    };
-
-    public IntegrationTests_RestfulRegistryRepository_CRUD(
-        WebApplicationFactory<WebService.Program> factory,
-        ITestOutputHelper output)
-    {
-        _output = output;
-
-        using var scope = factory.Services.CreateScope();
-
-        _policyRepository = new InMemoryPolicyRepository();
-
-
-        var customFactory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                services.RemoveAll<AppStartupService>();
-
-                // Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
-                services.RemoveAll<IPolicyRepository>();
-                services.RemoveAll<IRegistry>();
-                services.RemoveAll<IRepository>();
-
-                // ...so replace with the mock implementations
-                services.AddSingleton<IPolicyRepository>(new InMemoryPolicyRepository());
-                services.AddSingleton<IRegistry>(new InMemoryRegistry());
-                services.AddSingleton<IRepository>(new InMemoryRepository());
-            });
-        });
-
-        _client = customFactory.CreateClient();
-        using var customScope = customFactory.Services.CreateScope();
-
-        _registry = customScope.ServiceProvider.GetRequiredService<IRegistry>();
-        _repository = customScope.ServiceProvider.GetRequiredService<IRepository>();
-        _policyRepository = customScope.ServiceProvider.GetRequiredService<IPolicyRepository>();
-
-        _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
-        _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
-        _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
     }
+
 
     [Fact]
     [Trait("Delete", "Registry/Repository")]
@@ -97,10 +34,150 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : IClassFix
         Assert.Equal(_registry.ReadRegistry().OfType<DocumentEntryDto>().Count(), documentEntries.Length - oldDocumentEntries.Length);
     }
 
+    [Fact]
+    [Trait("Delete", "Registry/Repository")]
+    public async Task Delete_SpecificParameteres()
+    {
+      SetDocumentRegistryContent();
+
+        var parameters = new List<KeyValuePair<string, string?>>
+        {
+            new("patientIdentifier", "2.16.578.1.12.4.1.4.1|13116900216"),
+            new("securityLabel", "2.16.840.1.113883.5.25|V"),
+            new("securityLabel", "2.16.578.1.12.4.1.1.9603|NORN_ANG"),
+        };
+
+        var url = QueryHelpers.AddQueryString("/api/rest/by-parameters", parameters);
+        var firstResponse = await _client.DeleteAsync(url);
+
+        var content = await firstResponse.Content.ReadAsStringAsync();
+    }
+
+    private void SetDocumentRegistryContent()
+    {
+        var documentEntries = new List<RegistryObjectDto> 
+        {
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [new(Constants.CodeSystems.Hl7.ConfidentialityCode.Normal, Constants.CodeSystems.Hl7.ConfidentialityCode.System)],
+                SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
+
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [new(Constants.CodeSystems.Hl7.ConfidentialityCode.Normal, Constants.CodeSystems.Hl7.ConfidentialityCode.System)],
+                SourcePatientInfo = new(){PatientId = new(){Id = "AnotherPatient", System = "123.123.123"}}
+
+            },
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode = [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                SourcePatientInfo = new(){PatientId = new(){Id = "AnotherPatient", System = "123.123.123"}}
+            },
+        };
+
+        _registryWrapper.SetDocumentRegistryContentWithDtos(documentEntries);
+    }
+
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtoList());
+        _registryWrapper.SetDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtoList());
 
         foreach (var document in metadata.Select(dto => dto.Document))
         {

@@ -102,7 +102,7 @@ public class AppStartupService : IHostedService
 
         var documentUniqueIds = registryContent.OfType<DocumentEntryDto>().Select(de => de.UniqueId);
 
-        var duds = documentUniqueIds.Where(did => _repositoryWrapper.CheckIfFileExistsInRepository(did) == false).ToList();
+        var duds = documentUniqueIds.Where(did => _repositoryWrapper.FileExistsInRepository(did) == false).ToList();
 
         foreach (var dud in duds)
         {

@@ -127,7 +127,7 @@ public partial class RepositoryWrapper
         return _repository.Delete(documentUniqueId);
     }
 
-    public bool CheckIfFileExistsInRepository(string? documentUniqueId)
+    public bool FileExistsInRepository(string? documentUniqueId)
     {
         return _repository.Read(documentUniqueId ?? "") != null;
     }

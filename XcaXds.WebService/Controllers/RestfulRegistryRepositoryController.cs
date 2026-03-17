@@ -419,4 +419,19 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         return Ok(deleteResponse);
     }
+
+    [Produces("application/json")]
+    [HttpDelete("by-parameters")]
+    public async Task<IActionResult> DeleteByParameters([FromQuery] string[]? patientIdentifier, [FromQuery] string[]? securityLabel)
+    {
+        if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
+
+        var requestTimer = Stopwatch.StartNew();
+
+        var deleteResponse = _restfulRegistryService.DeleteByParameters(patientIdentifier, securityLabel);
+
+        requestTimer.Stop();
+
+        return Ok(deleteResponse);
+    }
 }

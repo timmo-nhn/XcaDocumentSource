@@ -22,11 +22,4 @@
 	<PackageReference Include="System.ServiceModel.Primitives" Version="10.0.652802" />
   </ItemGroup>
 
-
-	<ItemGroup>
-		<ProjectReference Include="..\Abc.Xacml\Abc.Xacml.csproj" />
-	</ItemGroup>
-
-
-
 </Project>

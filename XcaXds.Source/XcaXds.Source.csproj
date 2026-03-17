@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="PolicyRepository\" />
     <Folder Include="Repository\" />
   </ItemGroup>
 

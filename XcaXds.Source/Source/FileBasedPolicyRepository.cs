@@ -35,6 +35,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         _logger.LogInformation($"Policy repository path: {_policyRepositoryPath}");
     }
+
     public string GetPolicyRepositoryPath()
     {
         return _policyRepositoryPath;
@@ -119,6 +120,8 @@ public class FileBasedPolicyRepository : IPolicyRepository
         {
             foreach (var file in policyFiles)
             {
+                if (Path.GetFileName(file).StartsWith('.')) continue;
+
                 File.Delete(file);
             }
         }

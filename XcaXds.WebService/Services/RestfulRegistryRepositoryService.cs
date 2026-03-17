@@ -1,4 +1,6 @@
 ﻿using System.Text.Json;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Rest;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -383,27 +385,27 @@ public class RestfulRegistryRepositoryService
             apiResponse.AddError("DeleteError", $"RegistryObject {id} not found");
         }
 
-        var deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.Id);
-
-        if (deleteResponse == false)
+        if (_repositoryWrapper.FileExistsInRepository(documentEntryForDocument?.Id ?? documentEntryForDocument?.UniqueId))
         {
-            deleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.UniqueId);
+            var documentDeleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.Id);
+
+            if (documentDeleteResponse == false)
+            {
+                documentDeleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.UniqueId);
+            }
+
+            if (documentDeleteResponse == false)
+            {
+                _logger.LogWarning($"Error while deleting document");
+                apiResponse.AddError("DeleteError", $"Error while deleting document {id}");
+                return apiResponse;
+            }
         }
 
-        if (deleteResponse == false)
-        {
-            _logger.LogWarning($"Error while deleting document");
-            apiResponse.AddError("DeleteError", $"Error while deleting document {id}");
-            return apiResponse;
-        }
-
-        var associationsForEntry = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.TargetObject == id && assoc.AssociationType == Constants.Xds.AssociationType.HasMember).ToList();
-
-        if (associationsForEntry == null)
-        {
-            apiResponse.SetMessage($"No document with id {id} found");
-            return apiResponse;
-        }
+        var associationsForEntry = documentRegistry
+            .OfType<AssociationDto>()
+            .Where(assoc => assoc.TargetObject == id && assoc.AssociationType == Constants.Xds.AssociationType.HasMember)
+            .ToList();
 
         var docentryCount = 0;
         var submissionSetCount = 0;
@@ -427,6 +429,13 @@ public class RestfulRegistryRepositoryService
 
             _registryWrapper.DeleteDocumentEntryFromRegistry(association);
             associationCount++;
+        }
+
+        if ((associationsForEntry.Count > 0) == false && documentEntryForDocument != null)
+        {
+            docentryCount++;
+            _registryWrapper.DeleteDocumentEntryFromRegistry(documentEntryForDocument);
+            apiResponse.SetMessage($"Successfully removed {docentryCount} DocumentEntry");
         }
 
         apiResponse.SetMessage($"Successfully removed {docentryCount} DocumentEntries, {submissionSetCount} SubmissisonSets and {associationCount} Associations");
@@ -538,5 +547,53 @@ public class RestfulRegistryRepositoryService
 
         response.SetMessage($"Deleted {oldDocumentEntries.Length} entries");
         return response;
+    }
+
+    public RestfulApiResponse DeleteByParameters(string[] patientIdentifier, string[] securityLabel)
+    {
+        // Find entries matching criteria
+        var patientIdToken = patientIdentifier.Select(cv => cv.Split("|")).Select(pid => new PatientId()
+        {
+            Id = pid.LastOrDefault(),
+            System = pid.FirstOrDefault()?.NoUrn()
+        }).ToArray();
+
+
+        var confidentialityCodes = securityLabel.SelectMany(sp => sp.Split(";")
+            .Select(sl => 
+            {
+                var parts = sl.Split("|");
+                return new CodedValue(parts.LastOrDefault(), parts.FirstOrDefault());
+            })).ToArray();
+
+
+        var registry = _registryWrapper.GetDocumentRegistryContentAsDtos().ToArray();
+
+        var matchingDocuments = registry
+            .OfType<DocumentEntryDto>()
+            .Where(doc => doc.SourcePatientInfo?.PatientId is { } pid &&
+                patientIdToken.Any(patid => pid.Id == patid.Id && pid.System == patid.System))
+            .ToArray();
+        
+        matchingDocuments = matchingDocuments
+            .Where(doc => doc.ConfidentialityCode != null && doc.ConfidentialityCode
+                .Any(docCc => confidentialityCodes
+                    .Any(cc => cc.Code == docCc.Code && cc.CodeSystem == docCc.CodeSystem)))
+            .ToArray();
+        
+        var deleteResponses = new List<RestfulApiResponse>();
+
+        foreach (var documentEntry in matchingDocuments)
+        {
+            deleteResponses.Add(DeleteDocumentAndMetadata(documentEntry.Id));
+        }
+
+        var deleteResponseFinal = new RestfulApiResponse()
+        {
+            Success = deleteResponses.All(dr => dr.Success),
+            Message = $"Deleted {deleteResponses.Count(dr => dr.Success)} entries out of {deleteResponses.Count} matching entries"
+        };
+
+        return deleteResponseFinal;
     }
 }
