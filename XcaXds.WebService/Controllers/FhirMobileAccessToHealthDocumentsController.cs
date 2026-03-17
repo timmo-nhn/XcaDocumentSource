@@ -320,14 +320,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var anyErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
 
-        if (!anyErrors)
+        if (anyErrors)
         {
-            provideBundleResult.Outcome.Issue.Add(new OperationOutcome.IssueComponent()
-            {
-                Severity = OperationOutcome.IssueSeverity.Information,
-                Code = OperationOutcome.IssueType.Success,
-                Diagnostics = $"Bundle validated with 0 errors or warnings"
-            });
+            return BadRequestOperationOutcome.Create(provideBundleResult.Outcome);
         }
 
         var transactionBundle = CreateFhirTransactionResponseBundle(fhirBundle);

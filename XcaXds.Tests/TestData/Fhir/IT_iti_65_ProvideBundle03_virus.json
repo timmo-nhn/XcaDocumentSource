@@ -1,0 +1,344 @@
+{
+  "resourceType": "Bundle",
+  "id": "55a2fcde-fa5c-45e5-9d2a-f2a861377613",
+  "meta": {
+    "profile": [
+      "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.ProvideBundle"
+    ],
+    "security": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "HTEST"
+      }
+    ]
+  },
+  "type": "transaction",
+  "timestamp": "2026-03-16T12:33:19.1452441+00:00",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:17f12ae2-4fcd-4adc-bbc8-8fbbc87dff3c",
+      "resource": {
+        "resourceType": "List",
+        "id": "17f12ae2-4fcd-4adc-bbc8-8fbbc87dff3c",
+        "meta": {
+          "profile": [
+            "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.SubmissionSet"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">SubmissionSet Narrative</div>"
+        },
+        "contained": [
+          {
+            "resourceType": "Practitioner",
+            "id": "3521880a-c58f-481c-927b-889f0636c0b8",
+            "name": [
+              {
+                "family": "GREVLING",
+                "given": [
+                  "KVART"
+                ]
+              }
+            ]
+          },
+          {
+            "resourceType": "Organization",
+            "id": "93214345-61cb-4beb-91dd-f1d30827e069",
+            "identifier": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.4.101",
+                "value": "981275721"
+              }
+            ],
+            "name": "STIFTELSEN BETANIEN HOSPITAL SKIEN"
+          }
+        ],
+        "extension": [
+          {
+            "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                  "code": "F02-2",
+                  "display": "Anestesi- og opr. rapporter"
+                }
+              ]
+            }
+          },
+          {
+            "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId",
+            "valueIdentifier": {
+              "value": "urn:oid:1.1"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "use": "usual",
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.25.81080266650901813888202622028190132962"
+          },
+          {
+            "use": "official",
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:uuid:17f12ae2-4fcd-4adc-bbc8-8fbbc87dff3c"
+          }
+        ],
+        "status": "current",
+        "mode": "working",
+        "title": "SubmissionSet-17855599120-03/16/2026 13:12:52",
+        "code": {
+          "coding": [
+            {
+              "system": "https://profiles.ihe.net/ITI/MHD/CodeSystem/MHDlistTypes",
+              "code": "submissionset"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "urn:uuid:5a34ac5a-46af-4614-9767-9aba39666965"
+        },
+        "date": "2026-03-16T00:00:00Z",
+        "source": {
+          "extension": [
+            {
+              "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-authorOrg",
+              "valueReference": {
+                "reference": "#93214345-61cb-4beb-91dd-f1d30827e069"
+              }
+            }
+          ],
+          "reference": "#3521880a-c58f-481c-927b-889f0636c0b8"
+        },
+        "entry": [
+          {
+            "item": {
+              "reference": "urn:uuid:86d825c5-f70a-40ea-ba59-9981872599c0"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "List"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:5a34ac5a-46af-4614-9767-9aba39666965",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "5a34ac5a-46af-4614-9767-9aba39666965",
+        "text": {
+          "status": "extensions",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">SubmissionSet with Patient</div>"
+        },
+        "identifier": [
+          {
+            "system": "urn:oid:2.16.578.1.12.4.1.4.1",
+            "value": "17855599120"
+          }
+        ],
+        "name": [
+          {
+            "family": "KLOKKE",
+            "given": [
+              "USNOBBET"
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "birthDate": "1955-05-17"
+      },
+      "request": {
+        "method": "POST",
+        "url": "Patient"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:02d87f4f-db20-463b-b5dd-b0b2e8ab3d42",
+      "resource": {
+        "resourceType": "Binary",
+        "id": "02d87f4f-db20-463b-b5dd-b0b2e8ab3d42",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/Binary"
+          ]
+        },
+        "contentType": "application/xml",
+        "data": "WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo="
+      },
+      "request": {
+        "method": "POST",
+        "url": "Binary"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:86d825c5-f70a-40ea-ba59-9981872599c0",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "86d825c5-f70a-40ea-ba59-9981872599c0",
+        "meta": {
+          "profile": [
+            "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.DocumentReference"
+          ],
+          "security": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.5.25",
+              "code": "N",
+              "display": "Normal"
+            }
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Narrative for DocumentReference</div>"
+        },
+        "contained": [
+          {
+            "resourceType": "Practitioner",
+            "id": "427d53b3-a395-4887-a1eb-51dd3f33f4f3",
+            "name": [
+              {
+                "family": "GREVLING",
+                "given": [
+                  "KVART"
+                ]
+              }
+            ]
+          },
+          {
+            "resourceType": "PractitionerRole",
+            "id": "ba14f708-a3ef-4c6d-bcac-c08d33d6bf6f",
+            "practitioner": {
+              "reference": "#427d53b3-a395-4887-a1eb-51dd3f33f4f3"
+            },
+            "organization": {
+              "reference": "#40ff6665-12ed-4adc-afed-958b290fd0c1"
+            }
+          },
+          {
+            "resourceType": "Organization",
+            "id": "40ff6665-12ed-4adc-afed-958b290fd0c1",
+            "identifier": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.4.101",
+                "value": "981275721"
+              }
+            ],
+            "name": "STIFTELSEN BETANIEN HOSPITAL SKIEN"
+          }
+        ],
+        "masterIdentifier": {
+          "use": "usual",
+          "system": "urn:ietf:rfc:3986",
+          "value": "urn:uuid:86d825c5-f70a-40ea-ba59-9981872599c0"
+        },
+        "status": "current",
+        "type": {
+          "coding": [
+            {
+              "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+              "code": "F02-2",
+              "display": "Anestesi- og opr. rapporter"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                "code": "F00-1",
+                "display": "Kurve, observasjon og behandling"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "urn:uuid:5a34ac5a-46af-4614-9767-9aba39666965"
+        },
+        "date": "2026-03-16T13:13:09+01:00",
+        "author": [
+          {
+            "reference": "#427d53b3-a395-4887-a1eb-51dd3f33f4f3",
+            "type": "Practitioner"
+          },
+          {
+            "reference": "#ba14f708-a3ef-4c6d-bcac-c08d33d6bf6f",
+            "type": "PractitionerRole"
+          },
+          {
+            "reference": "#40ff6665-12ed-4adc-afed-958b290fd0c1",
+            "type": "Organization"
+          }
+        ],
+        "securityLabel": [
+          {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.840.1.113883.5.25",
+                "code": "N",
+                "display": "Normal"
+              }
+            ]
+          }
+        ],
+        "content": [
+          {
+            "attachment": {
+              "extension": [
+                {
+                  "url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId",
+                  "valueUri": "urn:oid:2.16.578.1.12.4.5.100.3.15"
+                }
+              ],
+              "contentType": "application/xml",
+              "url": "urn:uuid:02d87f4f-db20-463b-b5dd-b0b2e8ab3d42",
+              "size": 80601,
+              "hash": "F5dDeNy9RIgzduXMgbxLo13cLk4=",
+              "title": "XcaDS - Epikrise - Korttidsopphold sykehjem",
+              "creation": "2026-03-16T13:13:09Z"
+            },
+            "format": {
+              "system": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode",
+              "code": "urn:hl7-org:sdwg:ccda-nonXMLBody:2.1"
+            }
+          }
+        ],
+        "context": {
+          "period": {
+            "start": "2026-03-09T00:00:00Z",
+            "end": "2026-03-10T00:00:00Z"
+          },
+          "facilityType": {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.1.1303",
+                "code": "86.909",
+                "display": "Andre helsetjenester"
+              }
+            ]
+          },
+          "practiceSetting": {
+            "coding": [
+              {
+                "system": "urn:oid:2.16.578.1.12.4.1.1.8651",
+                "code": "A02",
+                "display": "Observasjonsenhet"
+              }
+            ]
+          },
+          "sourcePatientInfo": {
+            "reference": "urn:uuid:5a34ac5a-46af-4614-9767-9aba39666965"
+          }
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "DocumentReference"
+      }
+    }
+  ]
+}

@@ -183,7 +183,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Upload", "Provide Bundle")]
-    public async Task ProvideBundle_RandomAmount_ExportsAtnaLog()
+    public async Task ProvideBundle_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
 
@@ -220,6 +220,51 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        await WaitForAtnaLogToBeExported();
+
+        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    [Fact]
+    [Trait("Upload", "Provide Bundle (virus)")]
+    public async Task ProvideBundle_Virus_ExportsAtnaLog()
+    {
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_providebundle",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            action: "Create",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+
+        EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03_virus.json")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+
+        var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle");
+        httpRequest.Content = stringContent;
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+
+        var firstResponse = await _client.SendAsync(httpRequest);
+
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
         await WaitForAtnaLogToBeExported();
 
