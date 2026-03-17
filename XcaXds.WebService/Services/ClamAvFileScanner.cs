@@ -1,22 +1,25 @@
 ﻿using nClam;
+using System.Buffers.Text;
+using System.Text;
+using XcaXds.Commons.Extensions;
 
 namespace XcaXds.WebService.Services;
 
-public class FileScanner
+public class ClamAvFileScanner
 {
-    private readonly ILogger<FileScanner> _logger;
+    private readonly ILogger<ClamAvFileScanner> _logger;
     private readonly ApplicationConfig _config;
 
     private readonly ClamClient _scanClient;
 
-    public FileScanner(ILogger<FileScanner> logger, ApplicationConfig config)
+    public ClamAvFileScanner(ILogger<ClamAvFileScanner> logger, ApplicationConfig config)
     {
         _logger = logger;
         _config = config;
         _scanClient = new ClamClient(_config.ClamAvEndpoint);
     }
 
-    public async Task<ClamScanResults> ScanFile(byte[] fileContent)
+    public async Task<ClamScanResult?> ScanFile(byte[] fileContent)
     {
         ClamScanResult? scanResult = null;
 
@@ -30,7 +33,6 @@ public class FileScanner
             _logger.LogInformation($"Error while trying send file to ClamAv server: \"{_scanClient.Server?.ToString() + ":" + _scanClient.Port}\": {ex.ToString()}");
         }
 
-
-        return scanResult?.Result ?? ClamScanResults.Unknown;
+        return scanResult;
     }
 }

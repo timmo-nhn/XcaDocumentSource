@@ -17,9 +17,9 @@ public partial class RepositoryWrapper
     private readonly RegistryWrapper _registryWrapper;
     private readonly IRepository _repository;
     private readonly ILogger<RepositoryWrapper> _logger;
-    private readonly FileScanner _fileScanner;
+    private readonly ClamAvFileScanner _fileScanner;
 
-    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger, FileScanner fileScanner)
+    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger, ClamAvFileScanner fileScanner)
     {
         _repository = repository;
         _appConfig = appConfig;
@@ -104,13 +104,20 @@ public partial class RepositoryWrapper
 
     public async Task<StoreDocumentResult> StoreDocumentAsync(string documentId, byte[] documentContent, string patientIdPart)
     {
+        bool result = false;
+
         var scanResult = await _fileScanner.ScanFile(documentContent);
 
-        var result = _repository.Write(documentId, documentContent, patientIdPart);
-        var errorMessage = scanResult == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult}" : string.Empty;
+        if (scanResult?.Result == ClamScanResults.Clean)
+        {
+            result = _repository.Write(documentId, documentContent, patientIdPart);
+        }
+
+        var errorMessage = scanResult?.Result == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult.RawResult}" : null;
+
         return new()
         {
-            Success = result && scanResult != ClamScanResults.VirusDetected,
+            Success = result && scanResult?.Result != ClamScanResults.VirusDetected,
             Message = errorMessage
         };
     }

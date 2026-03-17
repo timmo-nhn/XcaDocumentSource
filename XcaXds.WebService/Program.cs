@@ -132,7 +132,7 @@ public class Program
         builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
 
-        builder.Services.AddSingleton<FileScanner>();
+        builder.Services.AddSingleton<ClamAvFileScanner>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddSingleton<RegistryWrapper>();
