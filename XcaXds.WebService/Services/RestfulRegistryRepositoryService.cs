@@ -392,12 +392,16 @@ public class RestfulRegistryRepositoryService
 
         if (deleteResponse == false)
         {
-            _logger.LogWarning($"Error while deleting document");
-            apiResponse.AddError("DeleteError", $"Error while deleting document {id}");
-            return apiResponse;
-        }
+            _logger.LogWarning($"Error while deleting document {id} in repository. Either not found or an error occurred.");
 
-        var associationsForEntry = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.TargetObject == id && assoc.AssociationType == Constants.Xds.AssociationType.HasMember).ToList();
+			// It's possible that the document was not found in the repository, but we should still attempt to delete the metadata from the registry to keep it consistent.
+            // Therefore, we log the error but do not return at this point.
+
+			//apiResponse.AddError("DeleteError", $"Error while deleting document {id}");
+			//return apiResponse;
+		}
+
+		var associationsForEntry = documentRegistry.OfType<AssociationDto>().Where(assoc => assoc.TargetObject == id && assoc.AssociationType == Constants.Xds.AssociationType.HasMember).ToList();
 
         if (associationsForEntry == null)
         {
