@@ -40,7 +40,7 @@ public static class BusinessLogicFilterer
     {
         results = new Dictionary<string, int>();
 
-        if (registryObjects == null || registryObjects.Count() == 0) return registryObjects;
+        if (registryObjects == null || registryObjects.Any() == false) return registryObjects;
         if (businessLogic == null) return registryObjects;
 
         var current = registryObjects;

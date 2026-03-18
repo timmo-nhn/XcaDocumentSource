@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Globalization;
+﻿using System.Globalization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7;
 
 namespace XcaXds.Commons.DataManipulators.Tests;
 
@@ -19,6 +17,7 @@ public static class RegistryMetadataTransformer
         documentEntryDto.DocumentEntry = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
         documentEntryDto.SubmissionSet = TransformRegistryPackageToSubmissionSetDto(registryPackage);
         documentEntryDto.Association = TransformToAssociationDto(association, extrinsicObject, registryPackage);
+
         if (document?.Value != null)
         {
             documentEntryDto.Document = new() { DocumentId = document.Id, Data = document.Value };
@@ -27,144 +26,115 @@ public static class RegistryMetadataTransformer
         return documentEntryDto;
     }
 
-    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<DocumentEntryDto> registryObjectDtos)
+    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<RegistryObjectDto>? registryObjectDtos)
     {
-        return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
-    }
-
-    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<SubmissionSetDto> registryObjectDtos)
-    {
-        return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
-    }
-
-    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<AssociationDto> registryObjectDtos)
-    {
-        return TransformRegistryObjectDtosToRegistryObjects(registryObjectDtos.Cast<RegistryObjectDto>().ToList());
-    }
-
-    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<RegistryObjectDto> registryObjectDtos)
-    {
-        var registryObjects = new List<IdentifiableType>();
-
-        if (registryObjectDtos == null) return registryObjects;
+        if (registryObjectDtos == null) yield break;
 
         foreach (var registryObjectDto in registryObjectDtos)
+        {
+            var registryObject = TransformRegistryObjectDtoToRegistryObject(registryObjectDto);
+
+            if (registryObject == null) continue;
+
+            yield return registryObject;
+        }
+    }
+
+    public static IdentifiableType? TransformRegistryObjectDtoToRegistryObject(RegistryObjectDto? registryObjectDto)
+    {
+        try
         {
             if (registryObjectDto is AssociationDto associationDto)
             {
                 var associationType = GetAssociationFromAssociationDto(associationDto);
 
-                if (associationType == null) continue;
+                if (associationType == null) return null;
 
-                registryObjects.Add(associationType);
-                continue;
+                return associationType;
             }
 
             if (registryObjectDto is DocumentEntryDto documentEntryDto)
             {
                 var extrinsicObjectType = GetExtrinsicObjectFromDocumentEntryDto(documentEntryDto);
 
-                if (extrinsicObjectType == null) continue;
+                if (extrinsicObjectType == null) return null;
 
-                registryObjects.Add(extrinsicObjectType);
-                continue;
+                return extrinsicObjectType;
             }
 
             if (registryObjectDto is SubmissionSetDto submissionsetDto)
             {
                 var associationType = GetRegistryPackageFromSubmissionSetDto(submissionsetDto);
 
-                if (associationType == null) continue;
+                if (associationType == null) return null;
 
-                registryObjects.Add(associationType);
-                continue;
+                return associationType;
             }
+            return null;
         }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {registryObjectDto?.Id}\n\tType: {registryObjectDto?.GetType().Name}\n\tError: {ex.Message}");
+        }
+    }
 
-        return registryObjects;
+    public static IEnumerable<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<IdentifiableType>? registryObjectList)
+    {
+        if (registryObjectList == null) yield break;
 
+        var currentType = string.Empty;
+        var currentId = string.Empty;
+
+        foreach (var registryObject in registryObjectList)
+        {
+            var registryObjectDto = TransformRegistryObjectToRegistryObjectDto(registryObject);
+            if (registryObjectDto == null) continue;
+
+            currentId = registryObjectDto.Id;
+            currentType = registryObject.GetType().Name;
+            yield return registryObjectDto;
+        }
     }
 
     public static RegistryObjectDto? TransformRegistryObjectToRegistryObjectDto(IdentifiableType? registryObject)
     {
-        if (registryObject == null) return null;
-
-        return TransformRegistryObjectsToRegistryObjectDtos([registryObject]).FirstOrDefault();
-    }
-
-    public static IEnumerable<DocumentEntryDto>? TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<ExtrinsicObjectType>? registryObjectList)
-    {
-        if (registryObjectList == null) return null;
-        return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<DocumentEntryDto>().ToList();
-    }
-
-    public static IEnumerable<SubmissionSetDto>? TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<RegistryPackageType>? registryObjectList)
-    {
-        if (registryObjectList == null) return null;
-        return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<SubmissionSetDto>().ToList();
-    }
-
-    public static IEnumerable<AssociationDto>? TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<AssociationType>? registryObjectList)
-    {
-        if (registryObjectList == null) return null;
-        return TransformRegistryObjectsToRegistryObjectDtos(registryObjectList.Cast<IdentifiableType>().ToList()).Cast<AssociationDto>().ToList();
-    }
-
-    public static List<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<IdentifiableType>? registryObjectList)
-    {
-        var listDto = new List<RegistryObjectDto>();
-        var currentType = string.Empty;
-        var currentId = string.Empty;
-
         try
         {
-            foreach (var registryObject in registryObjectList ?? [])
+            if (registryObject == null) return null;
+
+            if (registryObject is AssociationType association)
             {
-                if (registryObject == null) continue;
-                currentType = registryObject.GetType().Name;
+                var associationDto = TransformAssociationToAssociationDto(association);
 
-                if (registryObject is AssociationType association)
-                {
-                    currentId = association.Id;
-                    var associationDto = TransformAssociationToAssociationDto(association);
+                if (associationDto == null) return null;
 
-                    if (associationDto == null) continue;
-
-                    listDto.Add(associationDto);
-                    continue;
-                }
-
-                if (registryObject is ExtrinsicObjectType extrinsicObject)
-                {
-                    currentId = extrinsicObject.Id;
-                    var documentEntryDto = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
-
-                    if (documentEntryDto == null) continue;
-
-                    listDto.Add(documentEntryDto);
-                    continue;
-                }
-
-                if (registryObject is RegistryPackageType registryPackage)
-                {
-                    currentId = registryPackage.Id;
-                    var submissionSetDto = TransformRegistryPackageToSubmissionSetDto(registryPackage);
-
-                    if (submissionSetDto == null) continue;
-
-                    listDto.Add(submissionSetDto);
-                    continue;
-                }
+                return associationDto;
             }
+
+            if (registryObject is ExtrinsicObjectType extrinsicObject)
+            {
+                var documentEntryDto = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
+
+                if (documentEntryDto == null) return null;
+
+                return documentEntryDto;
+            }
+
+            if (registryObject is RegistryPackageType registryPackage)
+            {
+                var submissionSetDto = TransformRegistryPackageToSubmissionSetDto(registryPackage);
+
+                if (submissionSetDto == null) return null;
+
+                return submissionSetDto;
+            }
+            return null;
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {currentId}\n\tType: {currentType}\n\tIndex: {listDto.Count}\n\tError: {ex.Message}");
+            throw new Exception($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {registryObject?.Id}\n\tType: {registryObject?.GetType().Name}\n\tError: {ex.Message}");
         }
-
-        return listDto;
     }
-
 
     private static AssociationDto? TransformAssociationToAssociationDto(AssociationType association)
     {
@@ -1419,7 +1389,6 @@ public static class RegistryMetadataTransformer
             Name = confCode?.DisplayName != null ? new() { LocalizedString = [new() { Value = confCode.DisplayName }] } : null,
             Slot = confCode?.CodeSystem != null ? [new() { Name = Constants.Xds.SlotNames.CodingScheme, ValueList = new() { Value = [confCode.CodeSystem] } }] : null
         };
-
     }
 
     private static ClassificationType?[] MapCodedValueToMultipleClassifications(string classificationScheme, List<CodedValue> codedValues)
@@ -1432,14 +1401,14 @@ public static class RegistryMetadataTransformer
     /// Map them to the values XDS-based systems might expect (OIDs instead of )
     /// </summary>
     /// <param name="elementsToUpdate"></param>
-    public static void TransformFhirConceptsToXdsConcepts(List<RegistryObjectDto> elementsToUpdate)
+    public static void TransformFhirConceptsToXdsConcepts(IEnumerable<RegistryObjectDto> elementsToUpdate)
     {
-        foreach (var registryObject in elementsToUpdate)
+        foreach (var registryObject in elementsToUpdate.OfType<DocumentEntryDto>())
         {
-            if (registryObject is DocumentEntryDto documentEntry && documentEntry.ConfidentialityCode?.Count > 0)
+            if (registryObject.ConfidentialityCode?.Count > 0)
             {
-                var alternateCodeSystems = documentEntry.ConfidentialityCode.Where(c => c?.CodeSystem?.NoUrn() == Constants.CodeSystems.Hl7.ConfidentialityCode.System_Alternate).ToArray();
-                
+                var alternateCodeSystems = registryObject.ConfidentialityCode.Where(c => c?.CodeSystem?.NoUrn() == Constants.CodeSystems.Hl7.ConfidentialityCode.System_Alternate).ToArray();
+
                 if (!(alternateCodeSystems?.Length > 0)) return;
 
                 var newCodeSystems = alternateCodeSystems
@@ -1452,13 +1421,13 @@ public static class RegistryMetadataTransformer
 
                 foreach (var item in alternateCodeSystems)
                 {
-                    documentEntry.ConfidentialityCode.Remove(item);
+                    registryObject.ConfidentialityCode.Remove(item);
                 }
 
-                documentEntry.ConfidentialityCode.AddRange(newCodeSystems);
+                registryObject.ConfidentialityCode.AddRange(newCodeSystems);
 
                 // Deduplicate
-                documentEntry.ConfidentialityCode = [.. documentEntry.ConfidentialityCode.DistinctBy(cv => new { cv.Code, cv.CodeSystem, cv.DisplayName })];
+                registryObject.ConfidentialityCode = [.. registryObject.ConfidentialityCode.DistinctBy(cv => new { cv.Code, cv.CodeSystem, cv.DisplayName })];
             }
         }
     }

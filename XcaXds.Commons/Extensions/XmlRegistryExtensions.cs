@@ -625,7 +625,7 @@ public static class Commons
         return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
     }
 
-    public static List<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
+    public static IEnumerable<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this IEnumerable<IdentifiableType>? identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
 
@@ -689,7 +689,7 @@ public static class Commons
     /// Will not remove the entry from the result list! </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static List<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this List<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
+    public static IEnumerable<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this IEnumerable<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
 

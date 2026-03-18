@@ -65,10 +65,10 @@ public class UnitTests_ClinicalDocument
     {
         var registryObjects = TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(patientId: "13116900216");
 
-        var registryMetadata = registryObjects.AsRegistryObjectDtoList();
+        var registryMetadata = registryObjects.AsRegistryObjectDtos();
         var documents = registryObjects.Select(ro => ro.Document);
 
-        var randomIndex = new Random().Next(registryObjects.AsRegistryObjectDtoList().OfType<DocumentEntryDto>()?.Count() ?? 0);
+        var randomIndex = new Random().Next(registryObjects.AsRegistryObjectDtos().OfType<DocumentEntryDto>()?.Count() ?? 0);
 
         var documentEntry = registryMetadata.OfType<DocumentEntryDto>().ElementAt(randomIndex);
         var association = registryMetadata.OfType<AssociationDto>().FirstOrDefault(assoc => assoc.TargetObject == documentEntry.Id);

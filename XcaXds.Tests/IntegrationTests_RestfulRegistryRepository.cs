@@ -24,11 +24,11 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
     {
         var days = Random.Shared.Next(30, 365);
 
-        var documentEntries = EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber).AsRegistryObjectDtoList().OfType<DocumentEntryDto>().ToArray();
+        var documentEntries = EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber).AsRegistryObjectDtos().OfType<DocumentEntryDto>().ToArray();
 
         var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.Now.AddDays(-days)).ToArray();
 
-        var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days); // Geeked up implicit type cast!?
+        var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days);
         var firstResponse = await _client.DeleteAsync(url);
 
         Assert.Equal(_registry.ReadRegistry().OfType<DocumentEntryDto>().Count(), documentEntries.Length - oldDocumentEntries.Length);
@@ -177,7 +177,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.SetDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtoList());
+        _registryWrapper.SetDocumentRegistryContentWithDtos([.. metadata.AsRegistryObjectDtos()]);
 
         foreach (var document in metadata.Select(dto => dto.Document))
         {

@@ -59,7 +59,7 @@ public class PolicyEnforcementPointMiddleware
         PolicyDenyResponseBuilder policyDenyResponseBuilder)
     {
         var sw = Stopwatch.StartNew();
-
+        
         ThrottleRequestIfRequestThrottlingEnabled(out var millis);
 
         if (millis > 0)

@@ -141,7 +141,7 @@ public class ApplicationMetaController : ControllerBase
 
         var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_xdsConfig.HomeCommunityId, _xdsConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
 
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtoList());
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos().ToList());
 
         return Ok("Metadata generated");
     }

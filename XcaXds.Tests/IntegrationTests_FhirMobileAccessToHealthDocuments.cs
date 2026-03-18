@@ -46,9 +46,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var registryObjects = RegistryContent.AsRegistryObjectDtoList();
+        var registryObjects = RegistryContent.AsRegistryObjectDtos();
 
-        var registryContentCount = registryObjects.Count;
+        var registryContentCount = registryObjects.Count();
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
@@ -99,9 +99,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var registryObjects = RegistryContent.AsRegistryObjectDtoList();
+        var registryObjects = RegistryContent.AsRegistryObjectDtos();
 
-        var registryContentCount = registryObjects.Count;
+        var registryContentCount = registryObjects.Count();
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
@@ -330,7 +330,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtoList());
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtos().ToList());
 
         var documents = metadata.Select(dto => dto.Document);
 

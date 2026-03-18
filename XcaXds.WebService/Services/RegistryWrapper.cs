@@ -37,13 +37,17 @@ public class RegistryWrapper
         return _registryObjectList;
     }
 
-    public IdentifiableType[] GetDocumentRegistryContentAsRegistryObjects()
+    public IEnumerable<IdentifiableType> GetDocumentRegistryContentAsRegistryObjects()
     {
         var dtoList = GetDocumentRegistryContentAsDtos();
-        var registryObjs = RegistryMetadataTransformer
-                .TransformRegistryObjectDtosToRegistryObjects(dtoList);
+        foreach (var dto in dtoList)
+        {
+            var item = RegistryMetadataTransformer.TransformRegistryObjectDtoToRegistryObject(dto);
 
-        return registryObjs.ToArray();
+            if (item == null) continue;
+
+            yield return item;
+        }
     }
 
     public bool SetDocumentRegistryContentWithDtos(List<RegistryObjectDto>? registryObjectDtos)
@@ -106,7 +110,7 @@ public class RegistryWrapper
         {
             var dtoList = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
-            SetDocumentRegistryContentWithDtos(dtoList);
+            SetDocumentRegistryContentWithDtos([.. dtoList]);
 
             return new SoapRequestResult<string>().Success("Updated OK");
         }
@@ -123,7 +127,7 @@ public class RegistryWrapper
             var dtoList = RegistryMetadataTransformer
                 .TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
-            UpdateDocumentRegistryContentWithDtos(dtoList);
+            UpdateDocumentRegistryContentWithDtos([.. dtoList]);
 
             return new SoapRequestResult<string>().Success("Updated OK");
         }

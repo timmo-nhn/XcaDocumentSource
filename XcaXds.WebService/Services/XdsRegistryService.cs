@@ -21,7 +21,6 @@ public partial class XdsRegistryService
 
     private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));
 
-
     public XdsRegistryService(ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
     {
         _xdsConfig = xdsConfig;
@@ -74,8 +73,6 @@ public partial class XdsRegistryService
                 continue;
             }
 
-            var deprecatess = registryObjects.OfType<ExtrinsicObjectType>().Where(eo => eo.Status == Constants.Xds.StatusValues.Deprecated).ToArray();
-
             _logger.LogInformation($"{envelope?.Header.MessageId} - Successfully deprecated document with id {documentId}");
         }
 
@@ -87,7 +84,7 @@ public partial class XdsRegistryService
 
             RegistryMetadataTransformer.TransformFhirConceptsToXdsConcepts(elementsToUpdate);
 
-            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(elementsToUpdate);
+            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(elementsToUpdate.ToList());
             if (registryUpdateResult)
             {
                 registryResponse.EvaluateStatusCode();
@@ -116,7 +113,7 @@ public partial class XdsRegistryService
         var isLeafClass = returnType == ResponseOptionTypeReturnType.LeafClass;
         var isObjectRef = returnType == ResponseOptionTypeReturnType.ObjectRef;
 
-        var filteredElements = new List<IdentifiableType>();
+        var filteredElements = Enumerable.Empty<IdentifiableType>();
 
         switch (adhocQueryRequest?.AdhocQuery?.Id)
         {
@@ -163,8 +160,8 @@ public partial class XdsRegistryService
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryStatus(findDocumentsSearchParameters.XdsDocumentEntryStatus);
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
-                    .ByDocumentEntryType(findDocumentsSearchParameters.XdsDocumentEntryType)
-                    .ToList();
+                    .ByDocumentEntryType(findDocumentsSearchParameters.XdsDocumentEntryType);
+
 
 
                 if (findDocumentsSearchParameters.XdsDocumentEntryPatientId == null)
@@ -176,12 +173,19 @@ public partial class XdsRegistryService
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing required parameter $XDSDocumentEntryStatus {string.Join(" ", findDocumentsSearchParameters.XdsDocumentEntryStatus ?? new List<string[]>())}".Trim(), "XDS Registry");
                 }
 
-                filteredElements = [.. registryFindDocumentEntriesResult];
+                filteredElements = registryFindDocumentEntriesResult;
+
+                int count = 0;
+                if (filteredElements.TryGetNonEnumeratedCount(out var enumCount))
+                {
+                    count = enumCount;
+                }
 
                 // Apply business-logic filtering
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntry count: {filteredElements.Count}");
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntry count: {count}");
+
                 var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-                filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
+                filteredElements = filteredElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result);
 
                 if (result.Count > 0)
                 {
@@ -189,24 +193,21 @@ public partial class XdsRegistryService
                 }
                 else
                 {
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntry count: {filteredElements?.Count ?? 0}");
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntry count: {count}");
                 }
 
-                filteredElements.ObfuscateRestrictedDocumentEntries(businessLogic, out var count);
+                filteredElements = filteredElements.ObfuscateRestrictedDocumentEntries(businessLogic, out var obfuscateCount);
 
                 if (count > 0)
                 {
-                    _logger.LogInformation($"{soapEnvelope?.Header.MessageId} - {count} XDSEntries obfuscated");
+                    _logger.LogInformation($"{soapEnvelope?.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
                 }
 
                 // Safe guard to avoid duplicate IDs in response
                 filteredElements = filteredElements?
                     .GroupBy(x => x.Id)
-                    .Select(g => g.First())
-                    .ToList();
+                    .Select(g => g.First());
 
-                // FIXME change to debug when going to production
-                _logger.LogInformation($"{soapEnvelope?.Header.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
                 _logger.LogDebug($"{soapEnvelope?.Header.MessageId} - Patient Identifier: {findDocumentsSearchParameters.XdsDocumentEntryPatientId}");
 
                 break;
@@ -341,15 +342,17 @@ public partial class XdsRegistryService
                 //    break;
         }
 
+        var enumeratedRegistryObjectList = filteredElements?.ToArray();
+
         if (adhocQueryRequest?.ResponseOption != null)
         {
             switch (adhocQueryRequest.ResponseOption.ReturnType)
             {
                 case ResponseOptionTypeReturnType.ObjectRef:
                     // Only return the unique identifiers and HomeCommunityId
-                    if (filteredElements?.Count > 0)
+                    if (enumeratedRegistryObjectList?.Length > 0)
                     {
-                        var objectRefs = filteredElements
+                        var objectRefs = enumeratedRegistryObjectList
                             .Select(eo => new ObjectRefType() { Id = eo.Id }).ToList();
                         filteredElements = [.. objectRefs];
                     }
@@ -387,15 +390,16 @@ public partial class XdsRegistryService
             }
         };
 
-        if (filteredElements?.Count > 0)
+
+        if (enumeratedRegistryObjectList?.Length > 0)
         {
-            responseEnvelope.Body.AdhocQueryResponse.RegistryObjectList = [.. filteredElements];
+            responseEnvelope.Body.AdhocQueryResponse.RegistryObjectList = [.. enumeratedRegistryObjectList];
         }
 
 
         var adhocQuery = AdhocQueries.FirstOrDefault(id => id.Value == adhocQueryRequest?.AdhocQuery.Id);
 
-        _logger.LogInformation($"{soapEnvelope?.Header.MessageId} - Registry Stored Query Complete, returned {filteredElements?.Count} XDSEntries for AdhocQuery Type {adhocQuery.Key} ({adhocQuery.Value})");
+        _logger.LogInformation($"{soapEnvelope?.Header.MessageId} - Registry Stored Query Complete, returned {enumeratedRegistryObjectList?.Length ?? 0} XDSEntries for AdhocQuery Type {adhocQuery.Key} ({adhocQuery.Value})");
         return new SoapRequestResult<SoapEnvelope>() { Value = responseEnvelope, IsSuccess = true };
     }
 
@@ -548,7 +552,7 @@ public partial class XdsRegistryService
             var dtoList = RegistryMetadataTransformer
                 .TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
-            _registryWrapper.SetDocumentRegistryContentWithDtos(dtoList);
+            _registryWrapper.SetDocumentRegistryContentWithDtos([.. dtoList]);
 
             return new SoapRequestResult<string>().Success("Updated OK");
         }

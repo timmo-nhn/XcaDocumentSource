@@ -42,7 +42,7 @@ public class UnitTests_Fhir
     public async Task MHD_TransformRegistryObjectsToFhirBundle()
     {
         var mockRegistry = new InMemoryRegistry();
-        mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectDtoList());
+        mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectDtos().ToList());
 
         var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry().ToList()!);
 

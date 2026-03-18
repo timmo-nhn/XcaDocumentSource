@@ -77,7 +77,7 @@ public class AppStartupService : IHostedService
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
-        FindDudsInRepository();
+        //FindDudsInRepository();
 
         MigrateFromJsonRegistryToDatabase();
 
@@ -106,7 +106,7 @@ public class AppStartupService : IHostedService
 
         foreach (var dud in duds)
         {
-            _logger.LogWarning($"Repository contains a dud (No Registry metadata associated with it): {dud}");
+            _logger.LogWarning($"Registry contains a dud (No Registry metadata associated with it): {dud}");
         }
     }
     private void AddDefaultAccessControlPolicies()

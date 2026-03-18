@@ -26,7 +26,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries);
+        DocumentReferences = [.. DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries)!];
 
         Assert.Equal(1, entries);
     }
@@ -44,7 +44,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries);
+        DocumentReferences = [.. DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries)!];
 
         Assert.Equal(0, entries);
     }
@@ -62,7 +62,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries);
+        DocumentReferences = [.. DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries)!];
 
         Assert.Equal(1, entries);
     }
@@ -81,7 +81,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries);
+        DocumentReferences = [.. DocumentReferences.ObfuscateRestrictedDocumentEntries(businessLogic, out var entries)!];
 
         Assert.Equal(3, entries);
     }
