@@ -25,7 +25,7 @@ public class RestfulApiResponse
 
     public string? Message { get; set; }
 
-    public void AddError(string code, string message)
+    public RestfulApiResponse AddError(string code, string message)
     {
         Success = false;
         Errors ??= new();
@@ -35,6 +35,8 @@ public class RestfulApiResponse
             Message = string.IsNullOrWhiteSpace(message) ? null : message
 
         });
+
+        return this; 
     }
 
     public void SetMessage(string message)

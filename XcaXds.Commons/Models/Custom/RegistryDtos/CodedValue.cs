@@ -7,7 +7,7 @@ public class CodedValue
 {
     public CodedValue(){}
 
-    public CodedValue(string code, string codeSystem)
+    public CodedValue(string? code, string? codeSystem)
     {
         Code = code;
         CodeSystem = codeSystem;

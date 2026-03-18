@@ -549,10 +549,20 @@ public class RestfulRegistryRepositoryService
         return response;
     }
 
-    public RestfulApiResponse DeleteByParameters(string[] patientIdentifier, string[] securityLabel)
+    public RestfulApiResponse DeleteByParameters(string[]? patientIdentifier, string[]? securityLabel)
     {
-        // Find entries matching criteria
-        var patientIdToken = patientIdentifier.Select(cv => cv.Split("|")).Select(pid => new PatientId()
+		if (securityLabel == null || securityLabel.Length == 0)
+        {
+            return new RestfulApiResponse().AddError("MissingParameter", $"{nameof(DeleteByParameters)}: securityLabel cannot be an empty array");            
+		}
+
+		if (patientIdentifier == null || patientIdentifier.Length == 0)
+		{
+			return new RestfulApiResponse().AddError("MissingParameter", $"{nameof(DeleteByParameters)}: patientIdentifier cannot be an empty array");			
+		}
+
+		// Find entries matching criteria
+		var patientIdToken = patientIdentifier.Select(cv => cv.Split("|")).Select(pid => new PatientId()
         {
             Id = pid.LastOrDefault(),
             System = pid.FirstOrDefault()?.NoUrn()
@@ -574,14 +584,32 @@ public class RestfulRegistryRepositoryService
             .Where(doc => doc.SourcePatientInfo?.PatientId is { } pid &&
                 patientIdToken.Any(patid => pid.Id == patid.Id && pid.System == patid.System))
             .ToArray();
-        
+
+		/*
+         
+        Get set of matching documents where at least one confidentiality code in the document entry's confidentiality codes matches at least one confidentiality code in the request.
+
+        Code kept as comment in case we want to switch to this logic later. 
+
         matchingDocuments = matchingDocuments
             .Where(doc => doc.ConfidentialityCode != null && doc.ConfidentialityCode
                 .Any(docCc => confidentialityCodes
                     .Any(cc => cc.Code == docCc.Code && cc.CodeSystem == docCc.CodeSystem)))
             .ToArray();
-        
-        var deleteResponses = new List<RestfulApiResponse>();
+
+        */
+		
+		// Get set of matching documents where all confidentiality codes in the request are present in the document entry's confidentiality codes.        
+		matchingDocuments = matchingDocuments
+			.Where(doc => doc.ConfidentialityCode != null &&
+				confidentialityCodes.All(required =>
+					doc.ConfidentialityCode.Any(docCc =>
+						docCc.Code == required.Code &&
+						docCc.CodeSystem == required.CodeSystem)))
+			.ToArray();
+	
+
+		var deleteResponses = new List<RestfulApiResponse>();
 
         foreach (var documentEntry in matchingDocuments)
         {
