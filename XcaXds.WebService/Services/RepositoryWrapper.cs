@@ -108,7 +108,7 @@ public partial class RepositoryWrapper
 
         var scanResult = await _fileScanner.ScanFile(documentContent);
 
-        if (scanResult?.Result == ClamScanResults.Clean)
+        if (scanResult?.Result != ClamScanResults.VirusDetected)
         {
             result = _repository.Write(documentId, documentContent, patientIdPart);
         }
