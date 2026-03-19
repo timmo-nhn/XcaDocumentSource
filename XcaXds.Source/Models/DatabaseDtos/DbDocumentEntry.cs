@@ -24,7 +24,7 @@ public class DbDocumentEntry : DbRegistryObject
     public DbCodedValue? PracticeSettingCode { get; set; }
     public DbCodedValue? HealthCareFacilityTypeCode { get; set; }
     public DbLegalAuthenticator? LegalAuthenticator { get; set; }
-    public DbSourcePatientInfo? SourcePatientInfo { get; set; }
+    public required DbSourcePatientInfo SourcePatientInfo { get; set; }
     public List<DbAuthorInfo> Author { get; set; } = [];
     public List<DbCodedValue> ConfidentialityCode { get; set; } = [];
 }

@@ -9,7 +9,6 @@ public class ClamAvFileScanner
 {
     private readonly ILogger<ClamAvFileScanner> _logger;
     private readonly ApplicationConfig _config;
-
     private readonly ClamClient _scanClient;
 
     public ClamAvFileScanner(ILogger<ClamAvFileScanner> logger, ApplicationConfig config)
@@ -22,7 +21,6 @@ public class ClamAvFileScanner
     public async Task<ClamScanResult?> ScanFile(byte[] fileContent)
     {
         ClamScanResult? scanResult = null;
-
         try
         {
             scanResult = await _scanClient.SendAndScanFileAsync(fileContent);

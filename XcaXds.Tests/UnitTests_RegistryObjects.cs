@@ -210,7 +210,8 @@ public class UnitTests_RegistryObjects
 
         var doc = new DbDocumentEntry
         {
-            HomeCommunityId = "123213"
+            HomeCommunityId = "123213",
+            SourcePatientInfo = new() { PatientId = "123123" }
         };
 
         db.Database.EnsureCreated();

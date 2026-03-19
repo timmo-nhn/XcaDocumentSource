@@ -44,33 +44,26 @@ public static class RegistryMetadataTransformer
     {
         try
         {
-            if (registryObjectDto is AssociationDto associationDto)
+            switch (registryObjectDto)
             {
-                var associationType = GetAssociationFromAssociationDto(associationDto);
+                case AssociationDto associationDto:
+                    var associationType = GetAssociationFromAssociationDto(associationDto);
+                    if (associationType == null) return null;
+                    return associationType;
 
-                if (associationType == null) return null;
+                case DocumentEntryDto documentEntryDto:
+                    var extrinsicObjectType = GetExtrinsicObjectFromDocumentEntryDto(documentEntryDto);
+                    if (extrinsicObjectType == null) return null;
+                    return extrinsicObjectType;
 
-                return associationType;
+                case SubmissionSetDto submissionSetDto:
+                    var registryPackageType = GetRegistryPackageFromSubmissionSetDto(submissionSetDto);
+                    if (registryPackageType == null) return null;
+                    return registryPackageType;
+
+                default:
+                    return null;
             }
-
-            if (registryObjectDto is DocumentEntryDto documentEntryDto)
-            {
-                var extrinsicObjectType = GetExtrinsicObjectFromDocumentEntryDto(documentEntryDto);
-
-                if (extrinsicObjectType == null) return null;
-
-                return extrinsicObjectType;
-            }
-
-            if (registryObjectDto is SubmissionSetDto submissionsetDto)
-            {
-                var associationType = GetRegistryPackageFromSubmissionSetDto(submissionsetDto);
-
-                if (associationType == null) return null;
-
-                return associationType;
-            }
-            return null;
         }
         catch (Exception ex)
         {
@@ -82,16 +75,11 @@ public static class RegistryMetadataTransformer
     {
         if (registryObjectList == null) yield break;
 
-        var currentType = string.Empty;
-        var currentId = string.Empty;
-
         foreach (var registryObject in registryObjectList)
         {
             var registryObjectDto = TransformRegistryObjectToRegistryObjectDto(registryObject);
             if (registryObjectDto == null) continue;
 
-            currentId = registryObjectDto.Id;
-            currentType = registryObject.GetType().Name;
             yield return registryObjectDto;
         }
     }
@@ -100,35 +88,26 @@ public static class RegistryMetadataTransformer
     {
         try
         {
-            if (registryObject == null) return null;
-
-            if (registryObject is AssociationType association)
+            switch (registryObject)
             {
-                var associationDto = TransformAssociationToAssociationDto(association);
+                case AssociationType association:
+                    var associationDto = TransformAssociationToAssociationDto(association);
+                    if (associationDto == null) return null;
+                    return associationDto;
 
-                if (associationDto == null) return null;
+                case ExtrinsicObjectType extrinsicObject:
+                    var documentEntryDto = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
+                    if (documentEntryDto == null) return null;
+                    return documentEntryDto;
 
-                return associationDto;
+                case RegistryPackageType registryPackage:
+                    var submissionSetDto = TransformRegistryPackageToSubmissionSetDto(registryPackage);
+                    if (submissionSetDto == null) return null;
+                    return submissionSetDto;
+
+                default:
+                    return null;
             }
-
-            if (registryObject is ExtrinsicObjectType extrinsicObject)
-            {
-                var documentEntryDto = TransformExtrinsicObjectToDocumentEntryDto(extrinsicObject);
-
-                if (documentEntryDto == null) return null;
-
-                return documentEntryDto;
-            }
-
-            if (registryObject is RegistryPackageType registryPackage)
-            {
-                var submissionSetDto = TransformRegistryPackageToSubmissionSetDto(registryPackage);
-
-                if (submissionSetDto == null) return null;
-
-                return submissionSetDto;
-            }
-            return null;
         }
         catch (Exception ex)
         {

@@ -14,7 +14,7 @@ public class InMemoryRegistry : IRegistry
         return removedCount > 0;
     }
 
-    public IEnumerable<RegistryObjectDto> ReadRegistry()
+    public IEnumerable<RegistryObjectDto> ReadRegistry(PatientId? patientIdentifier = null)
     {
         return DocumentRegistry;
     }

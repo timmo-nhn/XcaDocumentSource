@@ -9,37 +9,44 @@ namespace XcaXds.WebService.Services;
 
 public class RegistryWrapper
 {
-    internal volatile IEnumerable<RegistryObjectDto>? _registryObjectList = null;
-
     private readonly IRegistry _documentRegistry;
+    private readonly ILogger<RegistryWrapper> _logger;
 
-    public RegistryWrapper(IRegistry documentRegistry)
+
+    internal static readonly string IndexSeparator = "^^";
+    internal volatile IEnumerable<RegistryObjectDto>? _registryObjectList = null;
+    internal volatile Dictionary<string, List<DocumentEntryDto>> _registryObjectsByPatientId = new();
+    public RegistryWrapper(IRegistry documentRegistry, ILogger<RegistryWrapper> logger)
     {
         _documentRegistry = documentRegistry;
     }
 
-    public IEnumerable<RegistryObjectDto> GetDocumentRegistryContentAsDtos()
+    public void BuildIndex()
     {
-        if (_registryObjectList != null)
-            return _registryObjectList;
+        var index = _registryObjectList?
+            .OfType<DocumentEntryDto>()
+            .Where(de => de.SourcePatientInfo?.PatientId?.Id != null)
+            .GroupBy(de => de.SourcePatientInfo!.PatientId!.System + IndexSeparator + de.SourcePatientInfo!.PatientId!.Id)
+            .ToDictionary(g => g.Key, g => g.ToList());
 
-        if (_registryObjectList == null)
+        if (index != null)
         {
-            try
-            {
-                _registryObjectList = _documentRegistry.ReadRegistry();
-            }
-            catch
-            {
-                _registryObjectList = Enumerable.Empty<RegistryObjectDto>();
-            }
+            _registryObjectsByPatientId = index;
         }
-        return _registryObjectList;
     }
 
-    public IEnumerable<IdentifiableType> GetDocumentRegistryContentAsRegistryObjects()
+    public IEnumerable<RegistryObjectDto>? GetDocumentRegistryContentAsDtosByPatientId(PatientId? patientIdentifier = null)
     {
-        var dtoList = GetDocumentRegistryContentAsDtos();
+        if (patientIdentifier == null || patientIdentifier.Id == null) return null;
+
+        var key = patientIdentifier.System + IndexSeparator + patientIdentifier.Id;
+
+        return _registryObjectsByPatientId.TryGetValue(key, out var list) ? list : Enumerable.Empty<RegistryObjectDto>();
+    }
+
+    public IEnumerable<IdentifiableType> GetDocumentRegistryContentAsRegistryObjects(PatientId? patientIdentifier = null)
+    {
+        var dtoList = GetDocumentRegistryContentAsDtos(patientIdentifier);
         foreach (var dto in dtoList)
         {
             var item = RegistryMetadataTransformer.TransformRegistryObjectDtoToRegistryObject(dto);
@@ -50,12 +57,35 @@ public class RegistryWrapper
         }
     }
 
+    public IEnumerable<RegistryObjectDto> GetDocumentRegistryContentAsDtos(PatientId? patientIdentifier = null)
+    {
+        if (_registryObjectList != null && patientIdentifier == null)
+            return _registryObjectList;
+
+        // Return pre-filtered list
+        if (patientIdentifier != null)
+            return _documentRegistry.ReadRegistry(patientIdentifier);
+
+        try
+        {
+            _registryObjectList = _documentRegistry.ReadRegistry();
+            BuildIndex();
+        }
+        catch
+        {
+            _registryObjectList = Enumerable.Empty<RegistryObjectDto>();
+        }
+
+        return _registryObjectList;
+    }
+
     public bool SetDocumentRegistryContentWithDtos(List<RegistryObjectDto>? registryObjectDtos)
     {
         if (registryObjectDtos == null) return false;
 
         _documentRegistry.WriteRegistry(registryObjectDtos);
         _registryObjectList = _documentRegistry.ReadRegistry();
+        BuildIndex();
         return true;
     }
 
@@ -75,6 +105,7 @@ public class RegistryWrapper
 
         var deleteResponse = _documentRegistry.DeleteRegistryItem(registryObjectDto.Id);
         _registryObjectList = _documentRegistry.ReadRegistry();
+        BuildIndex();
 
 
         return deleteResponse;
@@ -85,10 +116,9 @@ public class RegistryWrapper
         if (registryObjectDtos.Count == 0) return false;
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
-        var deprecates = registryObjectDtos.OfType<DocumentEntryDto>().Where(docent => docent.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated);
-
         _documentRegistry.UpdateRegistry(registryObjectDtos);
         _registryObjectList = _documentRegistry.ReadRegistry();
+        BuildIndex();
 
         return true;
     }
@@ -100,6 +130,7 @@ public class RegistryWrapper
 
         _documentRegistry.InsertOrUpdateRegistry(registryObjectDtos);
         _registryObjectList = _documentRegistry.ReadRegistry();
+        BuildIndex();
 
         return true;
     }

@@ -6,209 +6,206 @@ namespace XcaXds.Source.Source;
 
 public static class DatabaseMapper
 {
-    public static RegistryObjectDto? MapFromDatabaseEntityToDto(DbRegistryObject registryObjects)
-    {
-        return MapFromDatabaseEntityToDto([registryObjects]).FirstOrDefault();
-    }
-
-    public static List<RegistryObjectDto> MapFromDatabaseEntityToDto(List<DbRegistryObject> registryObjects)
+    public static IEnumerable<RegistryObjectDto> MapFromDatabaseEntityToDto(IEnumerable<DbRegistryObject> registryObjects)
     {
         var registryObjectDtos = new List<RegistryObjectDto>();
-        if (registryObjects?.Count == 0) return registryObjectDtos;
+        if (registryObjects == null) yield break;
 
-        foreach (var documentEntry in registryObjects?.OfType<DbDocumentEntry>() ?? [])
+        foreach (var registryObject in registryObjects)
         {
-            registryObjectDtos.Add(new DocumentEntryDto()
-            {
-                Author = documentEntry.Author?.Select(a => new AuthorInfo()
-                {
-                    Organization = new()
-                    {
-                        Id = a.OrganizationId,
-                        OrganizationName = a.OrganizationName,
-                        AssigningAuthority = a.OrganizationAssigningAuthority
-                    },
-                    Department = new()
-                    {
-                        Id = a.DepartmentId,
-                        OrganizationName = a.DepartmentName,
-                        AssigningAuthority = a.DepartmentAssigningAuthority
-                    },
-                    Person = new()
-                    {
-                        Id = a.PersonId,
-                        AssigningAuthority = a.PersonAssigningAuthority,
-                        FirstName = a.PersonFirstName,
-                        LastName = a.PersonLastName
-                    },
-                    Role = new()
-                    {
-                        Code = a.RoleCode,
-                        CodeSystem = a.RoleCodeSystem,
-                        DisplayName = a.RoleDisplayName
-                    },
-                    Speciality = new()
-                    {
-                        Code = a.SpecialityCode,
-                        CodeSystem = a.SpecialityCodeSystem,
-                        DisplayName = a.SpecialityDisplayName
-                    }
-                }).ToList(),
+            var dtoObject = MapFromDatabaseEntityToDto(registryObject);
+            if (dtoObject == null) continue;
 
-                AvailabilityStatus = documentEntry.AvailabilityStatus,
-                ClassCode = new()
-                {
-                    Code = documentEntry.ClassCode?.Code,
-                    CodeSystem = documentEntry.ClassCode?.CodeSystem,
-                    DisplayName = documentEntry.ClassCode?.DisplayName
-                },
-                ConfidentialityCode = documentEntry.ConfidentialityCode?.Select(c => new CodedValue()
-                {
-                    Code = c.Code,
-                    CodeSystem = c.CodeSystem,
-                    DisplayName = c.DisplayName
-                }).ToList(),
-
-                CreationTime = documentEntry.CreationTime,
-                EventCodeList = new()
-                {
-                    Code = documentEntry.EventCodeList?.Code,
-                    CodeSystem = documentEntry.EventCodeList?.CodeSystem,
-                    DisplayName = documentEntry.EventCodeList?.DisplayName
-                },
-                FormatCode = new()
-                {
-                    Code = documentEntry.FormatCode?.Code,
-                    CodeSystem = documentEntry.FormatCode?.CodeSystem,
-                    DisplayName = documentEntry.FormatCode?.DisplayName,
-                },
-                Hash = documentEntry.Hash,
-                HealthCareFacilityTypeCode = new()
-                {
-                    Code = documentEntry.HealthCareFacilityTypeCode?.Code,
-                    CodeSystem = documentEntry.HealthCareFacilityTypeCode?.CodeSystem,
-                    DisplayName = documentEntry.HealthCareFacilityTypeCode?.DisplayName,
-                },
-                HomeCommunityId = documentEntry.HomeCommunityId,
-                LanguageCode = documentEntry.LanguageCode,
-                LegalAuthenticator = new()
-                {
-                    Id = documentEntry.LegalAuthenticator?.Id,
-                    IdSystem = documentEntry.LegalAuthenticator?.IdSystem,
-                    FirstName = documentEntry.LegalAuthenticator?.FirstName,
-                    LastName = documentEntry.LegalAuthenticator?.LastName,
-                },
-                Id = documentEntry.Id ?? "Unknown",
-                MimeType = documentEntry.MimeType,
-                ObjectType = documentEntry.ObjectType,
-                PracticeSettingCode = new()
-                {
-                    Code = documentEntry.PracticeSettingCode?.Code,
-                    CodeSystem = documentEntry.PracticeSettingCode?.CodeSystem,
-                    DisplayName = documentEntry.PracticeSettingCode?.DisplayName
-                },
-                RepositoryUniqueId = documentEntry.RepositoryUniqueId,
-                ServiceStartTime = documentEntry.ServiceStartTime,
-                ServiceStopTime = documentEntry.ServiceStopTime,
-                Size = documentEntry.Size,
-                SourcePatientInfo = new()
-                {
-                    PatientId = new()
-                    {
-                        Id = documentEntry.SourcePatientInfo?.PatientId,
-                        System = documentEntry.SourcePatientInfo?.PatientSystem
-                    },
-                    FirstName = documentEntry.SourcePatientInfo?.FirstName,
-                    LastName = documentEntry.SourcePatientInfo?.LastName,
-                    BirthTime = documentEntry.SourcePatientInfo?.BirthTime,
-                    Gender = documentEntry.SourcePatientInfo?.Gender,
-                },
-                Title = documentEntry.Title,
-                TypeCode = new()
-                {
-                    Code = documentEntry.TypeCode?.Code,
-                    CodeSystem = documentEntry.TypeCode?.CodeSystem,
-                    DisplayName = documentEntry.TypeCode?.DisplayName
-                },
-                UniqueId = documentEntry.UniqueId
-            });
+            yield return dtoObject;
         }
-
-        foreach (var submissionSet in registryObjects?.OfType<DbSubmissionSet>() ?? [])
-        {
-            registryObjectDtos.Add(new SubmissionSetDto()
-            {
-                Author = submissionSet.Author.Select(a => new AuthorInfo()
-                {
-                    Organization = new()
-                    {
-                        Id = a.OrganizationId,
-                        OrganizationName = a.OrganizationName,
-                        AssigningAuthority = a.OrganizationAssigningAuthority
-                    },
-                    Department = new()
-                    {
-                        Id = a.DepartmentId,
-                        OrganizationName = a.DepartmentName,
-                        AssigningAuthority = a.DepartmentAssigningAuthority
-                    },
-                    Person = new()
-                    {
-                        Id = a.PersonId,
-                        AssigningAuthority = a.PersonAssigningAuthority,
-                        FirstName = a.PersonFirstName,
-                        LastName = a.PersonLastName
-                    },
-                    Role = new()
-                    {
-                        Code = a.RoleCode,
-                        CodeSystem = a.RoleCodeSystem,
-                        DisplayName = a.RoleDisplayName
-                    },
-                    Speciality = new()
-                    {
-                        Code = a.SpecialityCode,
-                        CodeSystem = a.SpecialityCodeSystem,
-                        DisplayName = a.SpecialityDisplayName
-                    }
-                }).ToList(),
-
-                AvailabilityStatus = submissionSet.AvailabilityStatus,
-                HomeCommunityId = submissionSet.HomeCommunityId,
-                Id = submissionSet.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
-                Title = submissionSet.Title,
-                UniqueId = submissionSet.UniqueId
-            });
-        }
-
-        foreach (var association in registryObjects?.OfType<DbAssociation>() ?? [])
-        {
-            registryObjectDtos.Add(new AssociationDto()
-            {
-                Id = association.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
-                AssociationType = association.AssociationType,
-                SourceObject = association.SourceObjectId,
-                TargetObject = association.TargetObjectId,
-                SubmissionSetStatus = association.SubmissionSetStatus
-            });
-        }
-
-        return registryObjectDtos;
     }
 
-    public static DbRegistryObject? MapFromDtoToDatabaseEntity(RegistryObjectDto registryObjectDtos)
+    public static RegistryObjectDto? MapFromDatabaseEntityToDto(DbRegistryObject registryObject)
     {
-        return MapFromDtoToDatabaseEntity([registryObjectDtos]).FirstOrDefault();
+        switch (registryObject)
+        {
+            case DbDocumentEntry documentEntry:
+                return new DocumentEntryDto()
+                {
+                    Author = documentEntry.Author?.Select(a => new AuthorInfo()
+                    {
+                        Organization = new()
+                        {
+                            Id = a.OrganizationId,
+                            OrganizationName = a.OrganizationName,
+                            AssigningAuthority = a.OrganizationAssigningAuthority
+                        },
+                        Department = new()
+                        {
+                            Id = a.DepartmentId,
+                            OrganizationName = a.DepartmentName,
+                            AssigningAuthority = a.DepartmentAssigningAuthority
+                        },
+                        Person = new()
+                        {
+                            Id = a.PersonId,
+                            AssigningAuthority = a.PersonAssigningAuthority,
+                            FirstName = a.PersonFirstName,
+                            LastName = a.PersonLastName
+                        },
+                        Role = new()
+                        {
+                            Code = a.RoleCode,
+                            CodeSystem = a.RoleCodeSystem,
+                            DisplayName = a.RoleDisplayName
+                        },
+                        Speciality = new()
+                        {
+                            Code = a.SpecialityCode,
+                            CodeSystem = a.SpecialityCodeSystem,
+                            DisplayName = a.SpecialityDisplayName
+                        }
+                    }).ToList(),
+
+                    AvailabilityStatus = documentEntry.AvailabilityStatus,
+                    ClassCode = new()
+                    {
+                        Code = documentEntry.ClassCode?.Code,
+                        CodeSystem = documentEntry.ClassCode?.CodeSystem,
+                        DisplayName = documentEntry.ClassCode?.DisplayName
+                    },
+                    ConfidentialityCode = documentEntry.ConfidentialityCode?.Select(c => new CodedValue()
+                    {
+                        Code = c.Code,
+                        CodeSystem = c.CodeSystem,
+                        DisplayName = c.DisplayName
+                    }).ToList(),
+
+                    CreationTime = documentEntry.CreationTime,
+                    EventCodeList = new()
+                    {
+                        Code = documentEntry.EventCodeList?.Code,
+                        CodeSystem = documentEntry.EventCodeList?.CodeSystem,
+                        DisplayName = documentEntry.EventCodeList?.DisplayName
+                    },
+                    FormatCode = new()
+                    {
+                        Code = documentEntry.FormatCode?.Code,
+                        CodeSystem = documentEntry.FormatCode?.CodeSystem,
+                        DisplayName = documentEntry.FormatCode?.DisplayName,
+                    },
+                    Hash = documentEntry.Hash,
+                    HealthCareFacilityTypeCode = new()
+                    {
+                        Code = documentEntry.HealthCareFacilityTypeCode?.Code,
+                        CodeSystem = documentEntry.HealthCareFacilityTypeCode?.CodeSystem,
+                        DisplayName = documentEntry.HealthCareFacilityTypeCode?.DisplayName,
+                    },
+                    HomeCommunityId = documentEntry.HomeCommunityId,
+                    LanguageCode = documentEntry.LanguageCode,
+                    LegalAuthenticator = new()
+                    {
+                        Id = documentEntry.LegalAuthenticator?.Id,
+                        IdSystem = documentEntry.LegalAuthenticator?.IdSystem,
+                        FirstName = documentEntry.LegalAuthenticator?.FirstName,
+                        LastName = documentEntry.LegalAuthenticator?.LastName,
+                    },
+                    Id = documentEntry.Id ?? "Unknown",
+                    MimeType = documentEntry.MimeType,
+                    ObjectType = documentEntry.ObjectType,
+                    PracticeSettingCode = new()
+                    {
+                        Code = documentEntry.PracticeSettingCode?.Code,
+                        CodeSystem = documentEntry.PracticeSettingCode?.CodeSystem,
+                        DisplayName = documentEntry.PracticeSettingCode?.DisplayName
+                    },
+                    RepositoryUniqueId = documentEntry.RepositoryUniqueId,
+                    ServiceStartTime = documentEntry.ServiceStartTime,
+                    ServiceStopTime = documentEntry.ServiceStopTime,
+                    Size = documentEntry.Size,
+                    SourcePatientInfo = new()
+                    {
+                        PatientId = new()
+                        {
+                            Id = documentEntry.SourcePatientInfo?.PatientId,
+                            System = documentEntry.SourcePatientInfo?.PatientSystem
+                        },
+                        FirstName = documentEntry.SourcePatientInfo?.FirstName,
+                        LastName = documentEntry.SourcePatientInfo?.LastName,
+                        BirthTime = documentEntry.SourcePatientInfo?.BirthTime,
+                        Gender = documentEntry.SourcePatientInfo?.Gender,
+                    },
+                    Title = documentEntry.Title,
+                    TypeCode = new()
+                    {
+                        Code = documentEntry.TypeCode?.Code,
+                        CodeSystem = documentEntry.TypeCode?.CodeSystem,
+                        DisplayName = documentEntry.TypeCode?.DisplayName
+                    },
+                    UniqueId = documentEntry.UniqueId
+                };
+
+            case DbSubmissionSet submissionSet:
+                return new SubmissionSetDto()
+                {
+                    Author = submissionSet.Author.Select(a => new AuthorInfo()
+                    {
+                        Organization = new()
+                        {
+                            Id = a.OrganizationId,
+                            OrganizationName = a.OrganizationName,
+                            AssigningAuthority = a.OrganizationAssigningAuthority
+                        },
+                        Department = new()
+                        {
+                            Id = a.DepartmentId,
+                            OrganizationName = a.DepartmentName,
+                            AssigningAuthority = a.DepartmentAssigningAuthority
+                        },
+                        Person = new()
+                        {
+                            Id = a.PersonId,
+                            AssigningAuthority = a.PersonAssigningAuthority,
+                            FirstName = a.PersonFirstName,
+                            LastName = a.PersonLastName
+                        },
+                        Role = new()
+                        {
+                            Code = a.RoleCode,
+                            CodeSystem = a.RoleCodeSystem,
+                            DisplayName = a.RoleDisplayName
+                        },
+                        Speciality = new()
+                        {
+                            Code = a.SpecialityCode,
+                            CodeSystem = a.SpecialityCodeSystem,
+                            DisplayName = a.SpecialityDisplayName
+                        }
+                    }).ToList(),
+
+                    AvailabilityStatus = submissionSet.AvailabilityStatus,
+                    HomeCommunityId = submissionSet.HomeCommunityId,
+                    Id = submissionSet.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
+                    Title = submissionSet.Title,
+                    UniqueId = submissionSet.UniqueId
+                };
+
+
+            case DbAssociation association:
+                return new AssociationDto()
+                {
+                    Id = association.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
+                    AssociationType = association.AssociationType,
+                    SourceObject = association.SourceObjectId,
+                    TargetObject = association.TargetObjectId,
+                    SubmissionSetStatus = association.SubmissionSetStatus
+                };
+
+            default:
+                return null;
+        }
     }
 
-    public static List<DbRegistryObject> MapFromDtoToDatabaseEntity(List<RegistryObjectDto> registryObjectDtos)
+    public static DbRegistryObject? MapFromDtoToDatabaseEntity(RegistryObjectDto registryObjectDto)
     {
-        var registryObjects = new List<DbRegistryObject>();
-        if (registryObjectDtos?.Count == 0) return registryObjects;
-
-        foreach (var documentEntryDto in registryObjectDtos?.OfType<DocumentEntryDto>() ?? [])
+        if (registryObjectDto is DocumentEntryDto documentEntryDto)
         {
-            registryObjects.Add(new DbDocumentEntry()
+            return new DbDocumentEntry()
             {
                 Author = documentEntryDto.Author?.Select(a => new DbAuthorInfo()
                 {
@@ -306,12 +303,12 @@ public static class DatabaseMapper
                     DisplayName = documentEntryDto.TypeCode?.DisplayName,
                 },
                 UniqueId = documentEntryDto.UniqueId
-            });
+            };
         }
 
-        foreach (var submissionSetDto in registryObjectDtos?.OfType<SubmissionSetDto>() ?? [])
+        if (registryObjectDto is SubmissionSetDto submissionSetDto)
         {
-            registryObjects.Add(new DbSubmissionSet()
+            return new DbSubmissionSet()
             {
                 Author = submissionSetDto.Author?.Select(a => new DbAuthorInfo()
                 {
@@ -344,21 +341,36 @@ public static class DatabaseMapper
                 UniqueId = submissionSetDto.UniqueId,
                 SourceId = submissionSetDto.SourceId,
                 SubmissionTime = submissionSetDto.SubmissionTime
-            });
+            };
         }
 
-        foreach (var associationDto in registryObjectDtos?.OfType<AssociationDto>() ?? [])
+        if (registryObjectDto is AssociationDto associationDto)
         {
-            registryObjects.Add(new DbAssociation()
+            return new DbAssociation()
             {
                 Id = associationDto.Id,
                 AssociationType = associationDto.AssociationType,
                 SourceObjectId = associationDto.SourceObject,
                 TargetObjectId = associationDto.TargetObject,
                 SubmissionSetStatus = associationDto.SubmissionSetStatus
-            });
+            };
         }
 
-        return registryObjects;
+        return null;
+    }
+
+    public static IEnumerable<DbRegistryObject> MapFromDtoToDatabaseEntity(IEnumerable<RegistryObjectDto> registryObjectDtos)
+    {
+        var registryObjects = new List<DbRegistryObject>();
+        if (registryObjectDtos == null) yield break;
+
+        foreach (var documentEntryDto in registryObjectDtos)
+        {
+            var databaseEntity = MapFromDtoToDatabaseEntity(documentEntryDto);
+
+            if (databaseEntity == null) continue;
+
+            yield return databaseEntity;
+        }
     }
 }

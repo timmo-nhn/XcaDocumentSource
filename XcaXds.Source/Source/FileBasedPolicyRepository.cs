@@ -56,7 +56,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
             {
                 try
                 {
-                    if (IsTemporaryFile(policyFilePath)) continue;
+                    if (IsTemporaryFile(policyFilePath) || Path.GetFileName(policyFilePath).StartsWith(".")) continue;
 
                     var policyFileContent = File.ReadAllText(policyFilePath);
                     var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent, Constants.JsonDefaultOptions.DefaultSettings);

@@ -31,7 +31,7 @@ public class FileBasedRegistry : IRegistry
         _registryFile = Path.Combine(_registryPath, "Registry.json");
     }
 
-    public IEnumerable<RegistryObjectDto> ReadRegistry()
+    public IEnumerable<RegistryObjectDto> ReadRegistry(PatientId? patientIdentifier = null)
     {
         EnsureRegistryFileExists();
         lock (_lock)

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hl7.Fhir.Utility;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -38,12 +39,22 @@ public class SqliteBasedRegistry : IRegistry
         return _databaseFile;
     }
 
-    public IEnumerable<RegistryObjectDto> ReadRegistry()
+    public IEnumerable<RegistryObjectDto> ReadRegistry(PatientId? patientIdentifier = null)
     {
         using var db = _contextFactory.CreateDbContext();
 
         foreach (var entity in db.RegistryObjects.AsNoTracking())
         {
+            if (patientIdentifier != null && entity is DbDocumentEntry dbDocumentEntry)
+            {
+                if ((dbDocumentEntry.SourcePatientInfo?.PatientId == patientIdentifier.Id &&
+                    dbDocumentEntry.SourcePatientInfo?.PatientSystem == patientIdentifier.System) == false)
+                {
+                    continue;
+                }
+
+            }
+
             var entityDto = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
 
             if (entityDto != null)

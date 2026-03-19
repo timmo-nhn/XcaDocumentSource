@@ -1,4 +1,5 @@
-﻿using Hl7.Fhir.Model;
+﻿using Castle.Components.DictionaryAdapter.Xml;
+using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text;
 using System.Text.Json;
@@ -58,7 +59,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
 
         var excpectedRegistryObjects = BusinessLogicFilters.FilterByConfidentiality(
-            BusinessLogicFilters.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()), 
+            BusinessLogicFilters.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()),
             [Normal, Restricted], [VeryRestricted])
             .ToArray();
 
@@ -146,7 +147,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
             registryObjectsCount: RegistryItemCount
             // ,patientIdentifier: PatientIdentifier.IdNumber
             );
-        
+
         var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
 
         var crossGatewayQuery = GetSoapEnvelopeWithHelsenorgeSamlToken(iti38SoapEnvelope);
@@ -155,8 +156,74 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
-        
+
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
+
+        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
+
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+
+        Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+
+        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+
+        _output.WriteLine($"Fetched {count} entries");
+    }
+
+    [Fact]
+    [Trait("Read", "DocumentList")]
+    public async Task XGQ_CrossGatewayQuery_Helsenorge_PerformanceTest()
+    {
+        // Override default with many more entries to simulate a very mature registry/repository.
+        RegistryItemCount = 10000;
+
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_CrossGatewayQuery",
+            attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
+            codeValue: "13",
+            codeSystemValue: "1.0.14265.1",
+            action: "ReadDocumentList");
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+
+        await EnsureRegistryAndRepositoryHasContent(
+            registryObjectsCount: RegistryItemCount
+            // ,patientIdentifier: PatientIdentifier.IdNumber
+            );
+
+        var patientIdentifier = "UniqueId";
+
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos([new DocumentEntryDto() 
+        {
+            AvailabilityStatus = Constants.Xds.StatusValues.Approved,
+            ConfidentialityCode = [new("N", "2.16.578.1.12.4.1.1.9603")],
+            SourcePatientInfo = new() { PatientId = new() { Id = patientIdentifier }},
+        }]);
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
+        var iti38SoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti38SoapEnvelope);
+        iti38SoapObject.Body.AdhocQueryRequest.AdhocQuery.Slot
+            .FirstOrDefault(s => s.Name == "$XDSDocumentEntryPatientId")?.ValueList?.Value = [patientIdentifier];
+        iti38SoapEnvelope = sxmls.SerializeSoapMessageToXmlString(iti38SoapObject).Content;
+        var crossGatewayQuery = GetSoapEnvelopeWithHelsenorgeSamlToken(iti38SoapEnvelope);
+
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
+
+        var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
         var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
 
@@ -902,8 +969,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var nukeKey = nukeResponse.RootElement.GetProperty("nukeKey").GetString();
 
         var nuked = await _client.DeleteAsync($"/api/nuke?nukeKey={nukeKey}");
-
-        Assert.Empty(_registry.ReadRegistry());
+        var registry = _registry.ReadRegistry();
+        Assert.Empty(registry.ToList());
     }
 
     private XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(string soapEnvelope)

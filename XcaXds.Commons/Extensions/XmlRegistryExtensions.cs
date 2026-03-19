@@ -48,10 +48,19 @@ public static class FindDocuments
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryPatientId(
         this IEnumerable<ExtrinsicObjectType> source, string? patientId)
     {
-        if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<ExtrinsicObjectType>();  // Required field, return nothing if not specified
-        return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
-            ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
-            ei.Value == patientId));
+        if (string.IsNullOrWhiteSpace(patientId)) yield break;  // Required field, return nothing if not specified
+
+        foreach (var extrinsicObject in source)
+        {
+            foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier)
+            {
+                if (externalIdentifier.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
+                    externalIdentifier.Value == patientId)
+                {
+                    yield return extrinsicObject;
+                }
+            }
+        }
     }
 
     /// | Parameter Name (ITI-18)       | Attribute                   | Opt | Mult |
@@ -225,20 +234,18 @@ public static class FindDocuments
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryConfidentialityCode(
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? confidentialityGroups)
     {
-        if (confidentialityGroups == null || confidentialityGroups.Count == 0) return source; // Optional field, return everything if not specified
+        if (confidentialityGroups == null || confidentialityGroups.Count == 0) yield break; // Optional field, return everything if not specified
 
-        return source.Where(eo =>
+        foreach (var extrinsicObject in source)
         {
-            // Get all the confidentiality codes for the current ExtrinsicObject (eo)
-            var confidentialityCodesForExtrinsicObject = eo.Classification
-                .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
-                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
-                .ToArray();
-
-            return confidentialityGroups.All(singleConfidentialityGroup =>
-                singleConfidentialityGroup.Any(confCode => confidentialityCodesForExtrinsicObject.Contains(confCode))
-            );
-        });
+            var confidentialityCodes = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
+                .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue());
+            
+            if (confidentialityGroups.All(singleConfidentialityGroup => singleConfidentialityGroup.Any(confCode => confidentialityCodes.Contains(confCode))))
+            {
+                yield return extrinsicObject;
+            }
+        }
     }
 
     /// | Parameter Name (ITI-18)              | Attribute               | Opt | Mult |
@@ -625,60 +632,65 @@ public static class Commons
         return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
     }
 
-    public static IEnumerable<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this IEnumerable<IdentifiableType>? identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
+    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
 
+        if (identifiableTypes == null) return null;
+
         var requestAppliesTo = businessLogic?.Issuer ?? Issuer.Unknown;
 
-        foreach (var extrinsicObject in identifiableTypes?.OfType<ExtrinsicObjectType>() ?? [])
+        foreach (var identifiableType in identifiableTypes)
         {
-            var confCodes = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
-                .Select(cls => new CodedValue()
+            if (identifiableType is ExtrinsicObjectType extrinsicObject)
+            {
+                var confCodes = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
+                    .Select(cls => new CodedValue()
+                    {
+                        Code = cls.NodeRepresentation,
+                        CodeSystem = cls.GetFirstSlot()?.GetFirstValue()
+                    }).ToArray();
+
+                bool obfuscate = requestAppliesTo switch
                 {
-                    Code = cls.NodeRepresentation,
-                    CodeSystem = cls.GetFirstSlot()?.GetFirstValue()
-                }).ToArray();
+                    Issuer.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    Issuer.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    _ => false
+                };
 
-            bool obfuscate = requestAppliesTo switch
-            {
-                Issuer.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
-                Issuer.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
-                _ => false
-            };
+                // Dont obscure in emergency situations
+                if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
+                {
+                    obfuscate = false;
+                }
 
-            // Dont obscure in emergency situations
-            if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
-            {
-                obfuscate = false;
+                if (!obfuscate && requestAppliesTo != Issuer.Unknown) continue;
+
+                // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
+                // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
+                //extrinsicObject.Id = Guid.Empty.ToString();
+
+                if (extrinsicObject.Name?.LocalizedString?.FirstOrDefault() != null)
+                {
+                    extrinsicObject.Name.LocalizedString.First().Value = "Sperret";
+                }
+
+                foreach (var slot in extrinsicObject.Slot ?? [])
+                {
+                    ObfuscateSlot(slot);
+                }
+
+                foreach (var classification in extrinsicObject.Classification ?? [])
+                {
+                    ObfuscateClassification(classification);
+                }
+
+                foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier ?? [])
+                {
+                    ObfuscateExternalIdentifier(externalIdentifier);
+                }
+                obfuscatedEntriesCount++;
             }
-
-            if (!obfuscate && requestAppliesTo != Issuer.Unknown) continue;
-
-            // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
-            // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
-            //extrinsicObject.Id = Guid.Empty.ToString();
-
-            if (extrinsicObject.Name?.LocalizedString?.FirstOrDefault() != null)
-            {
-                extrinsicObject.Name.LocalizedString.First().Value = "Sperret";
-            }
-
-            foreach (var slot in extrinsicObject.Slot ?? [])
-            {
-                ObfuscateSlot(slot);
-            }
-
-            foreach (var classification in extrinsicObject.Classification ?? [])
-            {
-                ObfuscateClassification(classification);
-            }
-
-            foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier ?? [])
-            {
-                ObfuscateExternalIdentifier(externalIdentifier);
-            }
-            obfuscatedEntriesCount++;
         }
 
         return identifiableTypes;
@@ -689,7 +701,7 @@ public static class Commons
     /// Will not remove the entry from the result list! </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the entry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static IEnumerable<IdentifiableType>? ObfuscateRestrictedDocumentEntries(this IEnumerable<IdentifiableType>? identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
+    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
 

@@ -69,7 +69,7 @@ public partial class IdentifiableType
         }
     }
 
-    public SlotType[] GetSlots(string slotName)
+    public SlotType[] GetSlots(string slotName = "CodingScheme")
     {
         if (Slot == null) return [new SlotType()];
         try

@@ -372,29 +372,30 @@ public static class BusinessLogicFilters
 
     public static IEnumerable<IdentifiableType> FilterByConfidentiality(IEnumerable<IdentifiableType> source, string[] allowedLevels, string[]? disallowedLevels = null)
     {
-        return source
-            .OfType<ExtrinsicObjectType>()
-            .Where(ext =>
+        foreach (var registryObject in source)
+        {
+            if (registryObject is ExtrinsicObjectType extrinsicObject)
             {
-                var classifications = ext.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
+                var classifications = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
 
                 if (allowedLevels == null || allowedLevels.Length == 0)
                 {
-                    return false;
+                    yield break;
                 }
-
-                disallowedLevels ??= [];
 
                 // Requirements:
                 // - At least 1 classification must match any in allowedLevels
                 // - All classifications must not have any in disallowedLevels
                 // - Classifications can contain other codes not in allowedLevels or disallowedLevels
                 var hasAllowed = classifications.Any(cc => cc?.NodeRepresentation != null && allowedLevels.Contains(cc.NodeRepresentation));
-                var hasDisallowed = classifications.Any(cc => cc?.NodeRepresentation != null && disallowedLevels.Contains(cc.NodeRepresentation));
+                var hasDisallowed = classifications.Any(cc => cc?.NodeRepresentation != null && (disallowedLevels ?? []).Contains(cc.NodeRepresentation));
 
-                return hasAllowed && !hasDisallowed;
-            })
-            .Cast<IdentifiableType>();
+                if (hasAllowed && !hasDisallowed)
+                {
+                    yield return registryObject;
+                }
+            }
+        }
     }
 
     private static IEnumerable<IdentifiableType> DenyAll() =>

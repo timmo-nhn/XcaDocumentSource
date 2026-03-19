@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks.Dataflow;
 using XcaXds.Source.Models.DatabaseDtos;
 
 namespace XcaXds.Source.Source;
@@ -30,7 +31,7 @@ public class SqliteRegistryDbContext : DbContext
         doc.OwnsOne(d => d.EventCodeList);
         doc.OwnsOne(d => d.LegalAuthenticator);
         doc.OwnsOne(d => d.SourcePatientInfo);
-
+        
         doc.OwnsMany(d => d.Author, a =>
         {
             a.WithOwner().HasForeignKey("DocumentEntryId");
