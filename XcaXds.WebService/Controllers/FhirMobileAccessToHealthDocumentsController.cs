@@ -10,6 +10,7 @@ using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.DomainResults;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
@@ -219,6 +220,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return fileResponse;
     }
 
+    [ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpDelete("DocumentReference/{id}")]
@@ -297,10 +299,26 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 OperationOutcome.IssueSeverity.Fatal));
         }
 
-        // Provide bundle
-        var provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier);
+        ProvideBundleResult? provideBundleResult = new();
+
+        // Validate bundle first
         var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
-        provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
+        var anyValidationErrors = validationResult.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error) == false;
+
+        if (anyValidationErrors)
+        {
+            // Add ProvideBundle validation aswell to avoid the user thinking that the only errors are the validation results
+            // Preventing them from fighting "waves" of errors :P 
+            var provideBundleValidationResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, false);
+            validationResult.Issue.AddRange(provideBundleValidationResult.Outcome.Issue);
+            provideBundleResult.Outcome = validationResult;
+        }
+        else
+        {
+            // Then provide
+            provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, true);
+            provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
+        }
 
         // Atna log generation
         var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
@@ -314,19 +332,19 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
                 jwtToken,
                 fhirBundle,
-                provideBundleResult.Errors,
                 provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
             provideBundleResult.RegistryResponse);
 
-        var anyErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
+        var anyProvideErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
 
-        if (anyErrors)
+        if (anyProvideErrors)
         {
             return BadRequestOperationOutcome.Create(provideBundleResult.Outcome);
         }
 
         var transactionBundle = CreateFhirTransactionResponseBundle(fhirBundle);
-        
+        transactionBundle.Entry.Add(new() { Resource = provideBundleResult.Outcome });
+
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
         var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
 
@@ -374,7 +392,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
                 jwtToken,
                 fhirBundle,
-                provideBundleResult.Errors,
                 provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
             provideBundleResult.RegistryResponse);
 

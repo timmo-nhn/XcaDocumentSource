@@ -172,7 +172,6 @@ public class FhirService
             errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
         }
 
-
         if (errors.Count > 0)
         {
             foreach (var error in errors)
@@ -183,7 +182,7 @@ public class FhirService
                 {
                     Severity = OperationOutcome.IssueSeverity.Error,
                     Code = OperationOutcome.IssueType.Value,
-                    Diagnostics = $"{error.ErrorCode}: {error.CodeContext}"
+                    Diagnostics = $"XDSError_Code: {error.ErrorCode}, XDSError_CodeContext: {error.CodeContext}"
                 });
             }
         }
@@ -192,8 +191,7 @@ public class FhirService
         {
             Outcome = operationOutcome,
             ProvideAndRegisterRequest = provideAndRegisterRequest,
-            RegistryResponse = registerDocumentSetResponse?.Value,
-            Errors = errors,
+            RegistryResponse = registerDocumentSetResponse?.Value
         };
     }
 }

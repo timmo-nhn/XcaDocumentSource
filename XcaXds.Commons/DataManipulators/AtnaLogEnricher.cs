@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -17,7 +18,7 @@ namespace XcaXds.Commons.DataManipulators;
 /// </summary>
 public class AtnaLogEnricher
 {
-    public static SoapEnvelope GetMockSoapEnvelopeFromJwt(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, List<RegistryErrorType>? errors, IdentifiableType?[]? registryObjects)
+    public static SoapEnvelope GetMockSoapEnvelopeFromJwt(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, IdentifiableType?[]? registryObjects)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
@@ -33,6 +34,13 @@ public class AtnaLogEnricher
 
         XmlElement? samlAssertionElement = GetEnrichedSamlTokenFromTokenAndBundle(jwtToken, fhirBundle, requestType);
 
+        var errors = fhirBundle?.Entry
+            .Select(res => res.Resource)
+            .OfType<OperationOutcome>()
+            .FirstOrDefault();
+
+        var xdsErrors = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(errors);
+
         var pnrEnvelope = new SoapEnvelope()
         {
             Header = new()
@@ -43,7 +51,7 @@ public class AtnaLogEnricher
             },
             Body = new()
             {
-                RegistryResponse = errors?.Count > 0 ? new() { RegistryErrorList = new() { RegistryError = errors.ToArray() } } : null,
+                RegistryResponse = xdsErrors?.RegistryError.Length > 0 ? new() { RegistryErrorList = xdsErrors } : null,
             }
         };
 
@@ -52,21 +60,41 @@ public class AtnaLogEnricher
             case "POST":
                 if (registryObjects?.Length > 0)
                 {
-                    pnrEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList = registryObjects!;
+                    pnrEnvelope.Body.ProvideAndRegisterDocumentSetRequest = new()
+                    {
+                        SubmitObjectsRequest = new()
+                        {
+                            RegistryObjectList = registryObjects!
+                        }
+                    };
                 }
                 break;
 
             case "DELETE":
                 if (registryObjects?.Length > 0)
                 {
-                    pnrEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef = [.. registryObjects.Select(obj => new ObjectRefType() { Id = obj?.Id })];
+                    pnrEnvelope.Body.RemoveObjectsRequest = new() 
+                    {
+                        ObjectRefList = new() 
+                        {
+                            ObjectRef = [.. registryObjects.Select(obj => new ObjectRefType() { Id = obj?.Id })] 
+                        }
+                    };
+                    pnrEnvelope.Body.ProvideAndRegisterDocumentSetRequest = new()
+                    {
+                        SubmitObjectsRequest = new()
+                        {
+                            RegistryObjectList = registryObjects!
+                        }
+                    };
+
                 }
                 break;
 
             default:
                 if (registryObjects?.Length > 0)
                 {
-                    pnrEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = registryObjects!;
+                    pnrEnvelope.Body.AdhocQueryResponse = new() { RegistryObjectList = registryObjects! };
                 }
                 break;
         }

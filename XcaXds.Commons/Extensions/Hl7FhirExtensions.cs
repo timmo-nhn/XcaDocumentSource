@@ -3,6 +3,7 @@ using System.Globalization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Extensions;
 

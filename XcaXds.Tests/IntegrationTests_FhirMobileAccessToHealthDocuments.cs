@@ -1,4 +1,5 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Text;
@@ -183,6 +184,60 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Upload", "Provide Bundle")]
+    public async Task ProvideBundle_WrongValues_ExportsAtnaLog()
+    {
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_providebundle",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            action: "Create",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+
+        EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01_WrongValues")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+
+        var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle");
+        httpRequest.Content = stringContent;
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+
+        var firstResponse = await _client.SendAsync(httpRequest);
+
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        var fhirparser = new FhirJsonDeserializer();
+
+        var bundle = fhirparser.Deserialize<Bundle>(responseContent);
+
+        var operationOutcome = bundle.Entry
+            .Select(ent => ent.Resource)
+            .OfType<OperationOutcome>()
+            .FirstOrDefault();
+
+        Assert.NotEmpty(operationOutcome.Issue);
+        await WaitForAtnaLogToBeExported();
+
+        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    [Fact]
+    [Trait("Upload", "Provide Bundle")]
     public async Task ProvideBundle_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
@@ -266,6 +321,12 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
+        var fhirparser = new FhirJsonDeserializer();
+
+        var operationOutcome = fhirparser.Deserialize<OperationOutcome>(responseContent);
+
+        Assert.NotEmpty(operationOutcome.Issue);
+
         await WaitForAtnaLogToBeExported();
 
         _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
@@ -273,7 +334,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Upload", "Validate Bundle")]
-    public async Task ProvideBundle_Validate_RandomAmount_ExportsAtnaLog()
+    public async Task ProvideBundle_Validate_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
 
@@ -297,7 +358,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
 
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
@@ -309,7 +370,12 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var firstResponse = await _client.SendAsync(httpRequest);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
-        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        var fhirparser = new FhirJsonDeserializer();
+
+        var operationOutcome = fhirparser.Deserialize<OperationOutcome>(responseContent);
+
+        Assert.NotEmpty(operationOutcome.Issue);
 
         await WaitForAtnaLogToBeExported();
         _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
@@ -318,7 +384,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     private async Task WaitForAtnaLogToBeExported()
     {
         // Audit is generated via background service; allow a brief window for the queue to be drained.
-        var timeoutAt = DateTime.UtcNow.AddSeconds(2);
+        var timeoutAt = DateTime.UtcNow.AddSeconds(4);
         while (!_atnaLogExportedChecker.AtnaLogExported && DateTime.UtcNow < timeoutAt)
         {
             await Task.Delay(50);

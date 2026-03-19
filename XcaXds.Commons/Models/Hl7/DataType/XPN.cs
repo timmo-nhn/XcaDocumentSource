@@ -10,6 +10,16 @@ namespace XcaXds.Commons.Models.Hl7.DataType;
 /// </summary>
 public class XPN : Hl7Object
 {
+    public XPN(string? firstName, string? lastName)
+    {
+        GivenName = firstName;
+        FamilyName = lastName;
+    }
+    public XPN()
+    {
+        
+    }
+
     [Hl7(Sequence = 1)]
     public string? FamilyName { get; set; }
     [Hl7(Sequence = 2)]

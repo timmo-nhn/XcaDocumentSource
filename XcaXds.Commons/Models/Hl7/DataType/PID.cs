@@ -9,6 +9,21 @@ namespace XcaXds.Commons.Models.Hl7.DataType;
 /// </summary>
 public class PID : Hl7Object
 {
+    public PID(CX? identifier)
+    {
+        PatientIdentifier = identifier;
+    }
+
+    public PID(CX identifier, XPN? name)
+    {
+        PatientIdentifier = identifier;
+        PatientName = name;
+    }
+    public PID()
+    {
+
+    }
+
     [Hl7(Sequence = 1)]
     public string SetId { get; set; } = string.Empty;
 

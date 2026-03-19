@@ -191,6 +191,7 @@ public class Program
         // Middleware, only enabled for endpoints with attributes
         app.UseMiddleware<SessionIdTraceMiddleware>();
         app.UseMiddleware<PolicyEnforcementPointMiddleware>();
+        app.UseMiddleware<AtnaAuditLoggingMiddleware>();
 
         if (app.Environment.IsDevelopment())
         {

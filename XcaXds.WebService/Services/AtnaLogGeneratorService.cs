@@ -114,9 +114,7 @@ public class AtnaLogGeneratorService
 
         var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
 
-        var errors = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(operationOutcome);
-
-        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, errors.RegistryError.ToList(), [extrinsicObject]);
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, [extrinsicObject]);
 
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
         soapEnvelope.Header.MessageId = additionalParameters.TraceIdentifier;
@@ -127,7 +125,7 @@ public class AtnaLogGeneratorService
             {
                 RegistryResponse = new()
                 {
-                    RegistryErrorList = errors,
+                    RegistryErrorList = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(operationOutcome),
                 }
             }
         };
@@ -169,7 +167,7 @@ public class AtnaLogGeneratorService
             ? [association]
             : [extrinsicObject, association];
 
-        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, null, registryObjects);
+        var soapEnvelope = AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, registryObjects);
 
         // ITI-42 is used here to represent an update/amend of registry metadata.
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
@@ -324,8 +322,6 @@ public class AtnaLogGeneratorService
 
             var providerIdentifierCoded = SamlExtensions.GetSamlAttributeValueAsCodedValue(providerIdentifierValue);
 
-            var hasSubject = !string.IsNullOrWhiteSpace(subjectDisplayName)
-                || (!string.IsNullOrWhiteSpace(providerIdentifierCoded?.Code) || !string.IsNullOrWhiteSpace(providerIdentifierCoded?.CodeSystem));
 
             var patientResourceId = statements?
                 .FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ResourceId20)
@@ -340,6 +336,7 @@ public class AtnaLogGeneratorService
 
             string? patientGiven = null;
             string? patientFamily = null;
+            XPN? patientNameXpn = null;
 
             if (isProvideBundle)
             {
@@ -352,32 +349,46 @@ public class AtnaLogGeneratorService
                     .FirstOrDefault(s => s.Name == "patient_family")
                     ?.Values
                     .FirstOrDefault();
+
+                patientNameXpn = new(patientGiven, patientFamily);
             }
 
-            var patientIdentifierCx = Hl7Object.Parse<CX>(patientResourceId);
 
-            var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).Append(patientIdentifierCx)
-                .DistinctBy(pid => new { pid?.IdNumber, pid?.AssigningAuthority?.UniversalId })
-                .OfType<CX>()
+            var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).ToList();
+
+            var patientIdentifierCx = Hl7Object.Parse<CX>(patientResourceId);
+            if (!string.IsNullOrWhiteSpace(patientIdentifierCx?.IdNumber))
+            {
+                var gobb = new PID(patientIdentifierCx, patientNameXpn);
+                registryPatientIdentifiers.Add(gobb);
+            }
+
+            var allPatientIdentifiers = registryPatientIdentifiers
+                .DistinctBy(pid => new { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
+                .OfType<PID>()
                 .ToList();
+
+            var hasSubject = !string.IsNullOrWhiteSpace(subjectDisplayName) ||
+                !string.IsNullOrWhiteSpace(providerIdentifierCoded?.Code) ||
+                !string.IsNullOrWhiteSpace(providerIdentifierCoded?.CodeSystem);
 
             Patient? patientResource = null;
 
-            if (registryPatientIdentifiers.Count > 0)
+            if (allPatientIdentifiers.Count > 0)
             {
                 patientResource = new Patient
                 {
                     Id = "patient-1",
                 };
 
-                _logger.LogDebug($"AtnaLogGenerator Resolved {registryPatientIdentifiers.Count} identifiers from request");
+                _logger.LogDebug($"AtnaLogGenerator Resolved {allPatientIdentifiers.Count} identifiers from request");
 
-                foreach (var identifier in registryPatientIdentifiers)
+                foreach (var identifier in allPatientIdentifiers)
                 {
-                    if (identifier == null || string.IsNullOrWhiteSpace(identifier.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.IdNumber)) continue;
+                    if (identifier == null || string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.IdNumber)) continue;
 
                     _logger.LogDebug($"AtnaLogGenerator found Patient Identifier: {identifier?.Serialize()}");
-                    patientResource.Identifier.Add(new Identifier(identifier?.AssigningAuthority?.UniversalId, identifier?.IdNumber));
+                    patientResource.Identifier.Add(new Identifier(identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId.WithUrnOid(), identifier?.PatientIdentifier?.IdNumber));
                 }
 
                 if (isProvideBundle)
@@ -420,10 +431,7 @@ public class AtnaLogGeneratorService
                         patientResource.Name = [patientHumanName];
                     }
                 }
-                else
-                {
-                    patientResource.Identifier.Add(new(Constants.Urn.Custom.UnknownPatientIdentifier, "Unknown"));
-                }
+
                 auditEvent.Contained.Add(patientResource);
             }
 
@@ -784,7 +792,7 @@ public class AtnaLogGeneratorService
     /// <summary>
     /// Get the patient identifier related to the registry objects being queried or stored
     /// </summary>
-    private CX?[] GetRegistryPatientIdentifierForRequest(SoapEnvelope? requestEnvelope)
+    private PID?[] GetRegistryPatientIdentifierForRequest(SoapEnvelope? requestEnvelope)
     {
         if (requestEnvelope == null) return [];
 
@@ -795,7 +803,7 @@ public class AtnaLogGeneratorService
         if (requestPatientIdentifier != null)
         {
             _logger.LogDebug(requestPatientIdentifier, "Found patient identifier in AdhocQueryRequest");
-            return [Hl7Object.Parse<CX>(requestPatientIdentifier)];
+            return [new() { PatientIdentifier = Hl7Object.Parse<CX>(requestPatientIdentifier) }];
         }
 
         // ITI-41 or ITI-42
@@ -806,11 +814,10 @@ public class AtnaLogGeneratorService
         {
             var registryObjects = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister);
 
-            return PatientIdCxFromDocumentEntries(registryObjects);
+            return PatientIdPidFromDocumentEntries(registryObjects);
         }
 
         // ITI-39 or ITI-43 RetrieveDocumentSet
-        var registry = _registryWrapper.GetDocumentRegistryContentAsDtos();
         var retrieveDocumentRequest = requestEnvelope.Body.RetrieveDocumentSetRequest;
 
         if (retrieveDocumentRequest != null)
@@ -819,30 +826,25 @@ public class AtnaLogGeneratorService
 
             if (docEntryUniqueId?.Length < 0)
             {
+                var registry = _registryWrapper.GetDocumentRegistryContentAsDtos();
                 var ids = new HashSet<string>(docEntryUniqueId.Select(x => x.DocumentUniqueId ?? string.Empty));
 
                 var documentEntries = registry
                     .OfType<DocumentEntryDto>()
                     .Where(de => ids.Contains(de.UniqueId ?? string.Empty));
 
-                return PatientIdCxFromDocumentEntries(documentEntries);
+                return PatientIdPidFromDocumentEntries(documentEntries);
             }
         }
 
         return [];
     }
 
-    private CX?[] PatientIdCxFromDocumentEntries(IEnumerable<RegistryObjectDto> registryObjects)
+    private PID?[] PatientIdPidFromDocumentEntries(IEnumerable<RegistryObjectDto> registryObjects)
     {
-        return registryObjects.OfType<DocumentEntryDto>().Select(de => new CX()
-        {
-            IdNumber = de.SourcePatientInfo?.PatientId?.Id ?? "Unknown",
-            AssigningAuthority = new HD()
-            {
-                UniversalId = de.SourcePatientInfo?.PatientId?.System ?? "Unknown",
-                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
-            }
-        }).ToArray();
+        return registryObjects.OfType<DocumentEntryDto>().Select(de => de.SourcePatientInfo is { } pid
+        ? new PID(new(pid.PatientId?.Id ?? "Unknown", pid.PatientId?.System ?? "Unknown"), new(pid.FirstName, pid.LastName))
+        : null).ToArray();
     }
 
     private AuditEvent.AuditEventAction? GetActionFromSoapEnvelope(SoapEnvelope? requestEnvelope)

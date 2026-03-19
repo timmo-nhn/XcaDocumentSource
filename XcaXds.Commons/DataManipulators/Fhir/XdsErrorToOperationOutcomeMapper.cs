@@ -6,17 +6,27 @@ namespace XcaXds.Commons.DataManipulators.Fhir;
 
 public static class XdsErrorToOperationOutcomeMapper
 {
-    public static RegistryErrorList GetXdsErrorsFromOperationOutcome(OperationOutcome operationOutcome)
+    public static RegistryErrorList? GetXdsErrorsFromOperationOutcome(OperationOutcome? operationOutcome)
     {
+        if (operationOutcome == null) return null;
+
         var xdsErrors = operationOutcome.Issue
-        .Where(iss => iss.Severity != OperationOutcome.IssueSeverity.Success)
+        .Where(iss => 
+            iss.Severity == OperationOutcome.IssueSeverity.Fatal || 
+            iss.Severity == OperationOutcome.IssueSeverity.Warning || 
+            iss.Severity == OperationOutcome.IssueSeverity.Error)
         .Select(iss => new RegistryErrorType()
         {
             CodeContext = iss.Diagnostics ?? "",
             ErrorCode = iss.Code.ToString() ?? "Unknown",
             Location = string.Join(", ", iss.Location),
             Severity = MapRegistrySeverity(iss.Severity),
-        });
+        }).ToArray();
+
+        if (xdsErrors.Length == 0)
+        {
+
+        }
 
         var registryErrorList = new RegistryErrorList()
         {
