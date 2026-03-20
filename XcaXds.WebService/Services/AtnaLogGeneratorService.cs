@@ -352,6 +352,13 @@ public class AtnaLogGeneratorService
 
                 patientNameXpn = new(patientGiven, patientFamily);
             }
+            else
+            {
+                var patientName = subjectDisplayName?.Split() is { Length: > 2} gobb 
+                    ? patientNameXpn = new(gobb.FirstOrDefault(),gobb.LastOrDefault())
+                    : null;
+
+            }
 
 
             var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).ToList();

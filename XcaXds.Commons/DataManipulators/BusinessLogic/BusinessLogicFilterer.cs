@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using Hl7.Fhir.Model;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.BusinessLogic;
@@ -11,7 +12,7 @@ namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 /// </summary>
 public static class BusinessLogicFilterer
 {
-    public static List<BusinessRule<IdentifiableType>> BusinessLogicRules = new List<BusinessRule<IdentifiableType>>()
+    public static readonly List<BusinessRule<IdentifiableType>> BusinessLogicRules = new List<BusinessRule<IdentifiableType>>()
     {
         BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
         BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
@@ -28,6 +29,16 @@ public static class BusinessLogicFilterer
 
         BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
     };
+
+    public static void AddRule(BusinessRule<IdentifiableType> rule)
+    {
+        BusinessLogicRules.Add(rule);
+    }
+
+    public static void RemoveRule(string ruleName)
+    {
+        BusinessLogicRules.RemoveAll(rul => rul.Name == ruleName);
+    }
 
     private static readonly ConcurrentDictionary<LambdaExpression, Delegate> _compiled = new();
 

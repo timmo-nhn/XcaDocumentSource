@@ -135,7 +135,7 @@ public partial class XdsRegistryService
                     .Select(RegistryMetadataTransformer.TransformRegistryObjectDtoToRegistryObject)
                     .OfType<ExtrinsicObjectType>() ?? [];
 
-                _logger.LogDebug($"{soapEnvelope.Header.MessageId} - FindDocuments parameters\n" + JsonSerializer.Serialize(findDocumentsSearchParameters, Constants.JsonDefaultOptions.DefaultSettings));
+                _logger.LogDebug($"{soapEnvelope.Header.MessageId} - FindDocuments parameters:\n" + JsonSerializer.Serialize(findDocumentsSearchParameters, Constants.JsonDefaultOptions.DefaultSettings));
 
                 registryFindDocumentEntriesResult = registryFindDocumentEntriesResult
                     .ByDocumentEntryPatientId(findDocumentsSearchParameters.XdsDocumentEntryPatientId);
@@ -191,7 +191,7 @@ public partial class XdsRegistryService
                 var count = enumeratedEntriesResult.Count;
                 
                 // Apply business-logic filtering
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntry count: {count}");
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {count}");
 
                 var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
                 enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)];
@@ -202,7 +202,7 @@ public partial class XdsRegistryService
                 }
                 else
                 {
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntry count: {count}");
+                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {count}");
                 }
 
                 enumeratedEntriesResult = enumeratedEntriesResult.ObfuscateRestrictedDocumentEntries(businessLogic, out var obfuscateCount);

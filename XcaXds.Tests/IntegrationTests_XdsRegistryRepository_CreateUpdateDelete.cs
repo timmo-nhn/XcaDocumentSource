@@ -44,6 +44,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
+        // Explicitly add KjernejournalForskriften rule for this test
+        BusinessLogicFilterer.AddRule(BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften);
+
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
