@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace XcaXds.Source.Models.DatabaseDtos;
+﻿namespace XcaXds.Source.Models.DatabaseDtos;
 
 public class DbAssociation : DbRegistryObject
 {
@@ -9,10 +7,4 @@ public class DbAssociation : DbRegistryObject
 
     public string? SourceObjectId { get; set; }
     public string? TargetObjectId { get; set; }
-
-    [ForeignKey(nameof(SourceObjectId))]
-    public DbRegistryObject? SourceObject { get; set; }
-
-    [ForeignKey(nameof(TargetObjectId))]
-    public DbRegistryObject? TargetObject { get; set; }
 }

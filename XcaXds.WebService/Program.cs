@@ -161,7 +161,9 @@ public class Program
 
         // Database context
         builder.Services.AddDbContextFactory<SqliteRegistryDbContext>(options =>
-            options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\""));
+            options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\"", 
+            sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
 
         // Feature Toggle (located in XcaXds.WebService/appsettings.json)
         builder.Services.AddFeatureManagement();

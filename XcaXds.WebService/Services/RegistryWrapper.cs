@@ -12,7 +12,6 @@ public class RegistryWrapper
     private readonly IRegistry _documentRegistry;
     private readonly ILogger<RegistryWrapper> _logger;
 
-
     internal static readonly string IndexSeparator = "^^";
     internal volatile IEnumerable<RegistryObjectDto>? _registryObjectList = null;
     internal volatile Dictionary<string, List<DocumentEntryDto>> _registryObjectsByPatientId = new();

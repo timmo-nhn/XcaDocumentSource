@@ -42,19 +42,17 @@ public class SqliteBasedRegistry : IRegistry
     public IEnumerable<RegistryObjectDto> ReadRegistry(PatientId? patientIdentifier = null)
     {
         using var db = _contextFactory.CreateDbContext();
+        var entities = patientIdentifier == null
+            ? db.RegistryObjects.AsNoTracking()
+            : db.RegistryObjects
+                .AsNoTracking()
+                .OfType<DbDocumentEntry>()
+                .Where(de => de.SourcePatientInfo != null &&
+                             de.SourcePatientInfo.PatientId == patientIdentifier.Id &&
+                             de.SourcePatientInfo.PatientSystem == patientIdentifier.System);
 
-        foreach (var entity in db.RegistryObjects.AsNoTracking())
+        foreach (var entity in entities)
         {
-            if (patientIdentifier != null && entity is DbDocumentEntry dbDocumentEntry)
-            {
-                if ((dbDocumentEntry.SourcePatientInfo?.PatientId == patientIdentifier.Id &&
-                    dbDocumentEntry.SourcePatientInfo?.PatientSystem == patientIdentifier.System) == false)
-                {
-                    continue;
-                }
-
-            }
-
             var entityDto = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
 
             if (entityDto != null)

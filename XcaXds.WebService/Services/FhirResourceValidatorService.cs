@@ -9,6 +9,7 @@ using Hl7.Fhir.Specification.Source;
 using Hl7.Fhir.Specification.Terminology;
 using Hl7.Fhir.Support;
 using Hl7.FhirPath;
+using SQLitePCL;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -30,6 +31,7 @@ public class FhirResourceValidatorService
         _validator = InitValidator();
 
         AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
+        AllowedAttachments.Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [_appConfig.HomeCommunityId]));
     }
 
     public OperationOutcome ValidateFhirResource(Resource inputResource, bool useFirelyValidator = false)
@@ -84,7 +86,7 @@ public class FhirResourceValidatorService
         ValidateIdentifiers(outcome, codeableConcepts, "type", AllowedTypeCodes);
         ValidateIdentifiers(outcome, codeableConcepts, "category", AllowedCategoryCodes);
         ValidateIdentifiers(outcome, codeableConcepts, "format", AllowedFormatCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "attachment", new ComprehensiveCodeSystem(_appConfig.HomeCommunityId));
+        ValidateIdentifiers(outcome, codeableConcepts, "attachment", AllowedAttachments);
     }
 
     private void ValidatePractitioners(OperationOutcome outcome, Bundle bundle)
@@ -143,10 +145,10 @@ public class FhirResourceValidatorService
                     continue;
 
                 var systemsMatch = codeSystems.Systems().Contains(identifier.System.NoUrn());
-                
+
                 // If Values is empty, accept anything
                 // The most psuedo-ternary-operatorial thing
-                var valuesMatch = (codeSystems.Values(identifier.System) ?? [identifier.Value]).Contains(identifier.Value);
+                var valuesMatch = (codeSystems.Values(identifier.System) ?? [identifier.Value]).Contains(identifier.Value.NoUrn());
 
                 if (valuesMatch && systemsMatch)
                     continue;
@@ -154,7 +156,7 @@ public class FhirResourceValidatorService
                 outcome.AddIssue(new OperationOutcome.IssueComponent
                 {
                     // We will allow unknown Systems with a warning, but if the system is known but the value in it isn't, it's an error.
-                    Severity = systemsMatch && !valuesMatch ? OperationOutcome.IssueSeverity.Error: OperationOutcome.IssueSeverity.Warning,
+                    Severity = systemsMatch && !valuesMatch ? OperationOutcome.IssueSeverity.Error : OperationOutcome.IssueSeverity.Warning,
                     Code = OperationOutcome.IssueType.CodeInvalid,
                     // Nested ternary for a nice diagnostics message
                     Diagnostics = $"Unknown {(valuesMatch ? "System" : systemsMatch ? "Value" : "System and Value")} for {resourceName} (Value={identifier.Value}, System={identifier.System})",
@@ -204,7 +206,7 @@ public class FhirResourceValidatorService
 
         var iheSource = new FhirPackageSource(
             inspector,
-            "https://packages.simplifier.net", 
+            "https://packages.simplifier.net",
             ["ihe.iti.mhd@4.2.0"]);
 
 
@@ -271,5 +273,9 @@ public class FhirResourceValidatorService
         new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
         new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
         new("formatCodes")
+    ];
+
+    private static readonly List<ComprehensiveCodeSystem> AllowedAttachments =
+    [
     ];
 }

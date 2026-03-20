@@ -1,7 +1,4 @@
 ﻿using nClam;
-using System.Buffers.Text;
-using System.Text;
-using XcaXds.Commons.Extensions;
 
 namespace XcaXds.WebService.Services;
 

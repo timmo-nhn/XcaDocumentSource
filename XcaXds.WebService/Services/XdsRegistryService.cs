@@ -123,8 +123,8 @@ public partial class XdsRegistryService
                 var findDocumentsSearchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
 
                 var patientIdentifier = Hl7Object.Parse<CX>(findDocumentsSearchParameters.XdsDocumentEntryPatientId) 
-                    is { } pago 
-                    ? new PatientId(pago.IdNumber, pago.AssigningAuthority?.UniversalId)
+                    is { } patId 
+                    ? new PatientId(patId.IdNumber, patId.AssigningAuthority?.UniversalId)
                     : null;
 
                 var prefilteredDocumentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtosByPatientId(patientIdentifier);
