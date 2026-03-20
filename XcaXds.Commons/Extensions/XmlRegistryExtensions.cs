@@ -49,7 +49,8 @@ public static class FindDocuments
         this IEnumerable<ExtrinsicObjectType> source, string? patientId)
     {
         if (string.IsNullOrWhiteSpace(patientId)) yield break;  // Required field, return nothing if not specified
-
+        
+        // Heavy usage, use deferred execution but avoid LINQ for better performance
         foreach (var extrinsicObject in source)
         {
             foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier)

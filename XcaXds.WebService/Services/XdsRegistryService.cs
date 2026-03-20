@@ -173,7 +173,6 @@ public partial class XdsRegistryService
                     .ByDocumentEntryType(findDocumentsSearchParameters.XdsDocumentEntryType);
 
 
-
                 if (findDocumentsSearchParameters.XdsDocumentEntryPatientId == null)
                 {
                     registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, $"Missing or malformed required parameter $XDSDocumentEntryPatientId {findDocumentsSearchParameters.XdsDocumentEntryPatientId}".Trim(), "XDS Registry");
@@ -185,17 +184,17 @@ public partial class XdsRegistryService
 
                 IEnumerable<IdentifiableType> registryElements = registryFindDocumentEntriesResult;
 
-                int count = 0;
-                if (registryElements.TryGetNonEnumeratedCount(out var enumCount))
-                {
-                    count = enumCount;
-                }
 
+                // Materialize the query results before doing more granular filtering
+                enumeratedEntriesResult = [.. registryElements ?? []];
+                
+                var count = enumeratedEntriesResult.Count;
+                
                 // Apply business-logic filtering
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntry count: {count}");
 
                 var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-                registryElements = registryElements.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result);
+                enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)];
 
                 if (result.Count > 0)
                 {
@@ -205,9 +204,6 @@ public partial class XdsRegistryService
                 {
                     _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntry count: {count}");
                 }
-
-                // Materialize the query results before obfuscation
-                enumeratedEntriesResult = [.. registryElements ?? []];
 
                 enumeratedEntriesResult = enumeratedEntriesResult.ObfuscateRestrictedDocumentEntries(businessLogic, out var obfuscateCount);
 
