@@ -1,6 +1,6 @@
 ﻿using XcaXds.WebService.Attributes;
 
-namespace XcaXds.WebService.Middleware;
+namespace XcaXds.WebService.Middleware.AtnaAuditLogging;
 
 internal class AtnaAuditLoggingMiddleware
 {
@@ -15,6 +15,7 @@ internal class AtnaAuditLoggingMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
+        await _next(httpContext);
         if (IsMiddlewareEnabledForRequestEndpoint(httpContext))
         {
             _logger.LogInformation("ATNA audit logging is enabled for this endpoint. Logging request.");
@@ -23,7 +24,6 @@ internal class AtnaAuditLoggingMiddleware
         {
             _logger.LogInformation("ATNA audit logging is not enabled for this endpoint. Skipping logging.");
         }
-        await _next(httpContext);
     }
 
     private bool IsMiddlewareEnabledForRequestEndpoint(HttpContext httpContext)

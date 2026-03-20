@@ -24,7 +24,7 @@ public static class BusinessLogicFilterer
         BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
         BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
 
-        BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften,
+        //BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften,
 
         BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
     };

@@ -303,7 +303,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Validate bundle first
         var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
-        var anyValidationErrors = validationResult.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error) == false;
+        var anyValidationErrors = validationResult.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error) == true;
 
         if (anyValidationErrors)
         {

@@ -10,6 +10,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
+using XcaXds.WebService.Middleware.AtnaAuditLogging;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyWriter;

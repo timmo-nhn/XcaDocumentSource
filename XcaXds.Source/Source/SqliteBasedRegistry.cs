@@ -137,7 +137,7 @@ public class SqliteBasedRegistry : IRegistry
 
         db.ChangeTracker.AutoDetectChangesEnabled = false;
 
-        //using var transaction = db.Database.BeginTransaction();
+        using var transaction = db.Database.BeginTransaction();
 
         const int idBatchSize = 300;  // keep modest for SQLite parameter limits
         const int insertBatchSize = 500;  // tune based on entity size
@@ -146,7 +146,7 @@ public class SqliteBasedRegistry : IRegistry
         DeleteThenInsertBatched(db, db.SubmissionSets, submissionSets, idBatchSize, insertBatchSize);
         DeleteThenInsertBatched(db, db.Associations, associations, idBatchSize, insertBatchSize);
 
-        //transaction.Commit();
+        transaction.Commit();
         return true;
     }
 
@@ -166,11 +166,9 @@ public class SqliteBasedRegistry : IRegistry
         if (ids.Count == 0) return;
 
         // 1) Delete existing in ID batches
-        foreach (var idBatch in Batch(ids, idBatchSize))
+        var batches = Batch(ids, idBatchSize);
+        foreach (var idBatch in batches)
         {
-            // For owned collections:
-            // If your DB schema has cascade delete for owned types (typical), you do NOT need Include().
-            // If you don't have cascade, you'll need Include() like you had, or delete owned rows separately.
             var existing = set
                 .Where(x => x.Id != null && idBatch.Contains(x.Id))
                 .ToList();
@@ -181,7 +179,6 @@ public class SqliteBasedRegistry : IRegistry
 
                 set.RemoveRange(existing);
                 db.SaveChanges();
-                db.ChangeTracker.Clear();
             }
         }
 
@@ -195,7 +192,15 @@ public class SqliteBasedRegistry : IRegistry
 
             _logger.LogDebug($"{sql}");
 
-            db.SaveChanges();
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Ignore — row already gone
+            }
+
             db.ChangeTracker.Clear();
         }
     }
