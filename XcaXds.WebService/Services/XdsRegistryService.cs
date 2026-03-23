@@ -194,6 +194,9 @@ public partial class XdsRegistryService
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {count}");
 
                 var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
+                
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
+
                 enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)];
 
                 if (result.Count > 0)

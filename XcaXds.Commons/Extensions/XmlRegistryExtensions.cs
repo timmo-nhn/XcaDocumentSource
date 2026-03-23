@@ -668,7 +668,8 @@ public static class Commons
                 if (!obfuscate && requestAppliesTo != Issuer.Unknown) continue;
 
                 // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
-                // This might cause a risk of exposing metadata that can be used to retrieve the document through other means.
+                // WARNING: This might cause a risk of exposing metadata that can be used to retrieve the document through other means,
+                // though XcaDS Has measures in place to keep this from happening
                 //extrinsicObject.Id = Guid.Empty.ToString();
 
                 if (extrinsicObject.Name?.LocalizedString?.FirstOrDefault() != null)

@@ -1,4 +1,5 @@
 ﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -11,7 +12,7 @@ namespace XcaXds.Tests;
 
 public class UnitTests_BusinessLogic_ObfuscateDocuments
 {
-    public List<IdentifiableType>? DocumentReferences { get; private set; }
+    public List<IdentifiableType> DocumentReferences { get; private set; } = [];
 
     [Fact]
     public async Task HealthcarePersonell_TREAT_ShouldPartiallyObfuscate()
@@ -56,7 +57,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Issuer = Issuer.HelseId,
+            Issuer = Issuer.Helsenorge,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
@@ -109,16 +110,8 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             ConfidentialityCode =
             [
-                new()
-                {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
-                },
-                new()
-                {
-                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode_9603.System,
-                    Code = Constants.CodeSystems.Volven.ConfidentialityCode_9603.NORS
-                },
+                .. BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate
+               .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
                 new()
                 {
                     CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
@@ -132,16 +125,8 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             ConfidentialityCode =
             [
-                new()
-                {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
-                },
-                new()
-                {
-                    CodeSystem = Constants.CodeSystems.Volven.ConfidentialityCode_9603.System,
-                    Code = Constants.CodeSystems.Volven.ConfidentialityCode_9603.NORN_FFL
-                },
+                .. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate
+                .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
                 new()
                 {
                     CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,

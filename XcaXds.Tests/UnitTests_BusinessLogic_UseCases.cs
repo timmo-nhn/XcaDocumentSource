@@ -10,7 +10,7 @@ namespace XcaXds.Tests;
 
 public class UnitTests_BusinessLogic_UseCases
 {
-    private List<IdentifiableType>? DocumentReferences = new();
+    private List<IdentifiableType> DocumentReferences = new();
 
 
     [Fact]
@@ -31,7 +31,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Equal(3, DocumentReferences?.Count);
     }
@@ -55,7 +55,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Empty(DocumentReferences ?? []);
     }
@@ -78,7 +78,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Equal(2, DocumentReferences?.Count);
     }
@@ -102,7 +102,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Equal(3, DocumentReferences?.Count);
     }
@@ -126,7 +126,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Equal(2, DocumentReferences?.Count);
     }
@@ -150,7 +150,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Empty(DocumentReferences ?? []);
     }
@@ -173,7 +173,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Equal(2, DocumentReferences?.Count);
     }
@@ -197,7 +197,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
         Assert.Equal(2, DocumentReferences?.Count);
     }
@@ -221,7 +221,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
 
         Assert.Equal(3, DocumentReferences?.Count);
     }
@@ -246,7 +246,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result).ToList();
 
         Assert.Empty(DocumentReferences ?? []);
     }
@@ -271,7 +271,7 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)?.ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result).ToList();
 
         Assert.Empty(DocumentReferences ?? []);
     }

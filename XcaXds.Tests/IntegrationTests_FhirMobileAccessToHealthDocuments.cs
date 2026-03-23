@@ -201,7 +201,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
@@ -255,12 +254,11 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var content = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
@@ -274,7 +272,12 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var firstResponse = await _client.SendAsync(httpRequest);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        var excpectedCount = content.Count + 1;
+        var actualCount = _registry.ReadRegistry().OfType<DocumentEntryDto>().Count();
+
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(excpectedCount, actualCount);
 
         await WaitForAtnaLogToBeExported();
 
@@ -300,7 +303,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
@@ -351,7 +353,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
