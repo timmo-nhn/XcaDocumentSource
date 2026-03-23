@@ -309,14 +309,14 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         {
             // Add ProvideBundle validation aswell to avoid the user thinking that the only errors are the validation results
             // Preventing them from fighting "waves" of errors :P 
-            var provideBundleValidationResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, false);
+            var provideBundleValidationResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, true);
             validationResult.Issue.AddRange(provideBundleValidationResult.Outcome.Issue);
             provideBundleResult.Outcome = validationResult;
         }
         else
         {
             // Then provide
-            provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, true);
+            provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, false);
             provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
         }
 
