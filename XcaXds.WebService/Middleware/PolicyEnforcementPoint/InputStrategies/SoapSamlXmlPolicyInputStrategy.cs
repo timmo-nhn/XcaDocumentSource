@@ -34,6 +34,8 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
         string requestBody;
 
         requestBody = await HttpRequestResponseExtensions.GetHttpRequestBodyAsStringAsync(context.Request);
+        
+        _logger.LogDebug($"SOAP request body: {requestBody}");
 
         if (context.Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated)
         {

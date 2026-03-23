@@ -30,11 +30,11 @@ internal class AtnaAuditLoggingMiddleware
     private async Task CreateAtnaLogForRequest(HttpContext httpContext)
     {
         var request = httpContext.Request;
-        var method = request.Method;
-        var path = request.Path;
+                var method = request.Method;
+                var path = request.Path;
 
         var response = httpContext.Response;
-        var statusCode = response.StatusCode;
+                var statusCode = response.StatusCode;
     }
 
     private bool IsMiddlewareEnabledForRequestEndpoint(HttpContext httpContext)

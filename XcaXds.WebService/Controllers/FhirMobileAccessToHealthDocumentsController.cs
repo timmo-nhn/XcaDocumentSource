@@ -323,7 +323,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         // Atna log generation
         var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded {fhirBundle.Entry.Count} Entries");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded: {fhirBundle.Entry.Count} XDSEntries");
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request...");
 
