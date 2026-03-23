@@ -1,4 +1,5 @@
 ﻿using Hl7.Fhir.Utility;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Interfaces;
@@ -139,8 +140,8 @@ public class SqliteBasedRegistry : IRegistry
 
         //using var transaction = db.Database.BeginTransaction();
 
-        const int idBatchSize = 300;  // keep modest for SQLite parameter limits
-        const int insertBatchSize = 500;  // tune based on entity size
+        const int idBatchSize = 1;  // keep modest for SQLite parameter limits
+        const int insertBatchSize = 1;  // tune based on entity size
 
         DeleteThenInsertBatched(db, db.DocumentEntries, documentEntries, idBatchSize, insertBatchSize);
         DeleteThenInsertBatched(db, db.SubmissionSets, submissionSets, idBatchSize, insertBatchSize);
@@ -178,7 +179,7 @@ public class SqliteBasedRegistry : IRegistry
                 _logger.LogWarning($"Trying to delete existing, count = {existing.Count}");
 
                 set.RemoveRange(existing);
-                db.SaveChanges();
+                //db.SaveChanges();
             }
         }
 
@@ -199,6 +200,14 @@ public class SqliteBasedRegistry : IRegistry
             catch (DbUpdateConcurrencyException)
             {
                 // Ignore — row already gone
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
+            {
+                _logger.LogError(ex,
+                "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
+                sqlEx.SqliteErrorCode,
+                sqlEx.SqliteExtendedErrorCode);
+                throw;
             }
 
             db.ChangeTracker.Clear();

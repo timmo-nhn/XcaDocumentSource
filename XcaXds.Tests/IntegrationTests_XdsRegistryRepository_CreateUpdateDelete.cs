@@ -581,7 +581,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
-
+        var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -589,7 +589,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
-        Assert.Equal(expectedCountAfterPnR, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+        Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
 
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);

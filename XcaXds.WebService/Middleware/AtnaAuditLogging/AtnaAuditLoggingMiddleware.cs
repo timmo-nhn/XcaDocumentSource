@@ -19,11 +19,22 @@ internal class AtnaAuditLoggingMiddleware
         if (IsMiddlewareEnabledForRequestEndpoint(httpContext))
         {
             _logger.LogInformation("ATNA audit logging is enabled for this endpoint. Logging request.");
+            await CreateAtnaLogForRequest(httpContext);
         }
         else
         {
             _logger.LogInformation("ATNA audit logging is not enabled for this endpoint. Skipping logging.");
         }
+    }
+
+    private async Task CreateAtnaLogForRequest(HttpContext httpContext)
+    {
+        var request = httpContext.Request;
+        var method = request.Method;
+        var path = request.Path;
+
+        var response = httpContext.Response;
+        var statusCode = response.StatusCode;
     }
 
     private bool IsMiddlewareEnabledForRequestEndpoint(HttpContext httpContext)

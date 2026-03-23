@@ -129,7 +129,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Patch", "Patch DocumentReference securityLabel")]
-    public async Task PatchDocumentSecurityLabel_ExportsAtnaLog()
+    public async Task ProvideBundle_PatchDocumentSecurityLabel_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
 
