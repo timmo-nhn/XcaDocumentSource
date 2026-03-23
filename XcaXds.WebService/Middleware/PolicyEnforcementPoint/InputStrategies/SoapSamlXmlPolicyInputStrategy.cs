@@ -12,6 +12,13 @@ namespace XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputStrategies;
 
 public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 {
+    private readonly ILogger<SoapSamlXmlPolicyInputStrategy> _logger;
+
+    public SoapSamlXmlPolicyInputStrategy(ILogger<SoapSamlXmlPolicyInputStrategy>logger)
+    {
+        _logger = logger;
+    }
+
     public string[] GetAcceptedContentTypes()
     {
         return
@@ -54,8 +61,10 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(requestBody);
         var samlToken = PolicyRequestMapperSaml.ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
-
+        
         var appliesTo = PolicyRequestMapperSaml.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Assertion.Issuer.Value);
+
+        _logger.LogInformation($"Issuer: {samlToken?.Assertion.Issuer.Value} Policy AppliesTo: {appliesTo}");
 
         var xacmlRequest = PolicyRequestMapperSaml.GetXacmlRequest(soapEnvelope, samlToken, XacmlVersion.Version20, appliesTo, documentRegistry);
         if (xacmlRequest == null)

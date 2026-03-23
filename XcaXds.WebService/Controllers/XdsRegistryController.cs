@@ -134,7 +134,7 @@ public class XdsRegistryController : ControllerBase
                     responseEnvelope.Header.Action = soapEnvelope.GetCorrespondingResponseAction();
                     responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body ?? new();
 
-                    // DeleteDocuments_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
+                    // HAYO! DeleteDocuments_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
                     soapEnvelope.Body.RegisterDocumentSetRequest = new()
                     {
                         SubmitObjectsRequest = new()

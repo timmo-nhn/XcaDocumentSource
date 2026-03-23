@@ -82,7 +82,10 @@ public class PolicyEnforcementPointMiddleware
 
         using var activity = StartPepActivity(httpContext);
 
+        _logger.LogInformation($"Beginning policy input builder...");
         var policyInput = await policyInputBuilder.BuildAsync(httpContext, _xdsConfig, _registryWrapper.GetDocumentRegistryContentAsDtos());
+        
+        _logger.LogInformation($"Policy input builder complete. Success: {policyInput.IsSuccess}");
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {

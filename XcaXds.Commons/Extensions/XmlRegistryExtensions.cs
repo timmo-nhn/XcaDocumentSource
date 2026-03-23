@@ -638,7 +638,7 @@ public static class Commons
         obfuscatedEntriesCount = 0;
 
         if (identifiableTypes == null) return null;
-
+        
         var requestAppliesTo = businessLogic?.Issuer ?? Issuer.Unknown;
 
         foreach (var identifiableType in identifiableTypes)
@@ -667,7 +667,7 @@ public static class Commons
 
                 if (!obfuscate && requestAppliesTo != Issuer.Unknown) continue;
 
-                // GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
+                // HAYO! GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
                 // WARNING: This might cause a risk of exposing metadata that can be used to retrieve the document through other means,
                 // though XcaDS Has measures in place to keep this from happening
                 //extrinsicObject.Id = Guid.Empty.ToString();
@@ -712,7 +712,7 @@ public static class Commons
         return ObfuscateRestrictedDocumentEntries(identifiableTypes, businessLogic, out obfuscatedEntriesCount);
     }
 
-    private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier)
+    private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier, Issuer issuer = Issuer.Unknown)
     {
         if (externalIdentifier == null || string.IsNullOrWhiteSpace(externalIdentifier.IdentificationScheme)) return;
 
@@ -721,7 +721,7 @@ public static class Commons
             case Constants.Xds.Uuids.DocumentEntry.UniqueId:
                 //externalIdentifier.Value = "*****";
 
-                //// GUID_OBSCURE
+                //// HAYO! GUID_OBSCURE
                 //goto default;
                 //externalIdentifier.RegistryObject = "-1";
                 break;

@@ -814,7 +814,7 @@ public class AtnaLogGeneratorService
         }
 
         // ITI-41 or ITI-42
-        // DeleteDocuments_Jank! ITI-86 or ITI-62 DeleteDocumentSet
+        // HAYO! DeleteDocuments_Jank! ITI-86 or ITI-62 DeleteDocumentSet
         var provideAndRegister = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ?? requestEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
         if (provideAndRegister != null)
