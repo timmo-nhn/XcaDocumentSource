@@ -79,7 +79,6 @@ public class PolicyEnforcementPointMiddleware
             return;
         }
 
-
         using var activity = StartPepActivity(httpContext);
 
         _logger.LogInformation($"Beginning policy input builder...");

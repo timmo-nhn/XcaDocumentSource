@@ -18,7 +18,6 @@ namespace XcaXds.Commons.DataManipulators;
 /// </summary>
 public static class PolicyRequestMapperSaml
 {
-
     public static Saml2SecurityToken? ReadSamlToken(string? inputSamlToken)
     {
         if (inputSamlToken == null) return null;

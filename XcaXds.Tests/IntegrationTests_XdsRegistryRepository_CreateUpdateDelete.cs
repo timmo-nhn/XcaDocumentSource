@@ -151,11 +151,11 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
             // ,patientIdentifier: PatientIdentifier.IdNumber
             );
 
-        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38_TEST_HN_DEBUG01.xml")));
 
-        var crossGatewayQuery = GetSoapEnvelopeWithHelsenorgeSamlToken(iti38SoapEnvelope);
+        //var crossGatewayQuery = GetSoapEnvelopeWithHelsenorgeSamlToken(iti38SoapEnvelope);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(iti38SoapEnvelope, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
