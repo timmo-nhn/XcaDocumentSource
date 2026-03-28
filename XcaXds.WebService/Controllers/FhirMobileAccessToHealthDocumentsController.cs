@@ -528,7 +528,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
             id,
             oldSecurityLabel,
-            documentEntry.ConfidentialityCode,
             documentEntry,
             token);
 
