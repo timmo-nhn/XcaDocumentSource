@@ -199,7 +199,7 @@ public class UnitTests_BusinessLogic_UseCases
 
         DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
 
-        Assert.Equal(2, DocumentReferences?.Count);
+        Assert.Equal(3, DocumentReferences?.Count);
     }
 
     [Fact]

@@ -4,11 +4,11 @@ namespace XcaXds.Source.Models.DatabaseDtos;
 
 public class DbSubmissionSet : DbRegistryObject
 {
-    public string? AvailabilityStatus { get; set; }
-    public string? HomeCommunityId { get; set; }
-    public string? Title { get; set; }
-    public DateTime? SubmissionTime { get; set; }
-    public string? SourceId { get; set; }
-    public string? UniqueId { get; set; }
-    public List<DbAuthorInfo> Author { get; set; } = [];
+    public string? SS_AvailabilityStatus { get; set; }
+    public string? SS_HomeCommunityId { get; set; }
+    public string? SS_Title { get; set; }
+    public DateTime? SS_SubmissionTime { get; set; }
+    public string? SS_SourceId { get; set; }
+    public string? SS_UniqueId { get; set; }
+    public List<DbAuthorInfo> SS_Author { get; set; } = [];
 }

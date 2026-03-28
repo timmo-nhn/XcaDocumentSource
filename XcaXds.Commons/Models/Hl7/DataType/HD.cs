@@ -17,7 +17,7 @@ public class HD : Hl7Object
     }
     public HD()
     {
-        
+
     }
 
     [Hl7(Sequence = 1)]

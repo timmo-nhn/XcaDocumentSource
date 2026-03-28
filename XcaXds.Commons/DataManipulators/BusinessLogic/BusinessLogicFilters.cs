@@ -27,19 +27,19 @@ public static class BusinessLogicFilters
 
     public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!)).ToHashSet();
 
-    private static readonly HashSet<(string Code, string CodeSystem)> CitizenObfuscationRules =
+    private static readonly HashSet<(string Code, string CodeSystem)> CitizenObfuscationCodes =
     [
         (VeryRestricted, Constants.CodeSystems.Hl7.ConfidentialityCode.System),
         (NORN_ANG, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
     ];
 
-    private static readonly HashSet<(string Code, string CodeSystem)> HealthcarePersonellObfuscationRules =
+    private static readonly HashSet<(string Code, string CodeSystem)> HealthcarePersonellObfuscationCodes =
     [
         (NORS, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
     ];
 
-    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => CitizenObfuscationRules.Contains(v)).ToList();
-    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => HealthcarePersonellObfuscationRules.Contains(v)).ToList();
+    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => CitizenObfuscationCodes.Contains(v)).ToList();
+    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => HealthcarePersonellObfuscationCodes.Contains(v)).ToList();
 
     /// <summary>
     /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
@@ -62,7 +62,7 @@ public static class BusinessLogicFilters
 
             logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
             logic.Acp == Constants.Oid.Saml.Acp.NullValue &&
-            logic.SubjectAge > 12,
+            logic.SubjectAge >= 18,
 
         Filter = robjs =>
             FilterByConfidentiality(
@@ -217,8 +217,6 @@ public static class BusinessLogicFilters
     /// <summary>
     /// Jeg som helsepersonell skal se alle dokumentreferanser/dokumenter for en pasient med relasjon til virksomheten som jeg representerer i en normal situasjon
     /// </summary>
-
-    /// 
     public static BusinessRule<IdentifiableType> HealthcarePersonellShouldSeeRelatedPatientDocumentReferences { get; set; } = new()
     {
         Name = nameof(HealthcarePersonellShouldSeeRelatedPatientDocumentReferences),
@@ -228,15 +226,16 @@ public static class BusinessLogicFilters
             logic.Resource != null &&
             logic.Purpose != null &&
             logic.Purpose.Code != null &&
+            logic.Scope != null &&
 
             logic.Subject.Code != logic.Resource.Code &&
+            logic.Scope.Contains("journaldokumenter_helsepersonell") &&
             logic.Purpose.Code.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5),
 
         Filter = robjs =>
             FilterByConfidentiality(
                 robjs,
-                allowedLevels: Strings(Normal, Restricted),
-                disallowedLevels: Strings(VeryRestricted))
+                allowedLevels: Strings(Normal, Restricted, VeryRestricted))
     };
 
     /// <summary>
@@ -300,9 +299,11 @@ public static class BusinessLogicFilters
         Condition = logic =>
             logic.Scope != null &&
             logic.Scope.Length > 0 &&
-            
+
             logic.Issuer == Issuer.HelseId &&
-            logic.Scope.Contains("journaldokumenter_helsepersonell"),
+        // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
+        // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
+            logic.Scope.Contains("kjernejournalforskriften"),
 
         Filter = robjs => FilterByKjernejournalForskriften(robjs)
     };
@@ -403,7 +404,7 @@ public static class BusinessLogicFilters
 
     public static bool InRange(this int input, int lower, int upper)
     {
-        return input > lower && input < upper;
+        return input >= lower && input <= upper;
     }
 
     /// <summary>

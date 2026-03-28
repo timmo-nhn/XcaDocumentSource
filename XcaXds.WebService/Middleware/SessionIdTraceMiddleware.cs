@@ -26,11 +26,11 @@ public class SessionIdTraceMiddleware
 
         httpContext.Request.EnableBuffering();
 
-        var requestBody = await HttpRequestResponseExtensions.GetHttpRequestBodyAsStringAsync(httpContext.Request);
+        var requestBody = await HttpRequestResponseExtensions.GetStreamAsStringAsync(httpContext.Request.Body);
 
         if (httpContext.Request.ContentType != null && (httpContext.Request.ContentType.Contains(Constants.MimeTypes.MultipartRelated)))
         {
-            requestBody = await MultipartExtensions.ReadMultipartContentFromRequest(httpContext.Request);
+            requestBody = await MultipartExtensions.ReadMultipartContentFromStream(httpContext.Request.Body, httpContext.Request.ContentType);
         }
 
 

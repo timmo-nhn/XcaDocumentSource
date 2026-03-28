@@ -132,6 +132,8 @@ permitdeny --Permit-->repep
 ### Business logic
 **PJD.XcaDocumentSource** has specific business rules that go out of the scope of the **XACML**-policy evaluation, and describes more domain-specific rules for access control.  
 
+The more granular business logic is defined as [Expression Trees](https://learn.microsoft.com/en-us/dotnet/csharp/advanced-topics/expression-trees/) in `BusinessLogicFilters.cs`
+
 #### Access Control Policy (ACP)
 The ACP field (Attribute Name: `urn:ihe:iti:xua:2012:acp`) is a policy identifier, signaling which access control policy is relevant for this request.  
 The values are a set of OIDs:

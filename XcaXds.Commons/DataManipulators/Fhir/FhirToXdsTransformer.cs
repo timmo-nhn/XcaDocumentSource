@@ -167,7 +167,7 @@ public static class FhirToXdsTransformer
 
         if (submissionSetList != null)
         {
-            // note.Text is nullable, so we need to filter out null values before adding to comments slot
+            // property note.Text is nullable, so we need to filter out null values before adding to comments slot
             var comment = submissionSetList.Note.Select(note => note.Text).OfType<string>().Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
 
             // Comment from submission

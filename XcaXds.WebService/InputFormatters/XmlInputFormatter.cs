@@ -60,7 +60,7 @@ public class SoapEnvelopeModelBinder : IModelBinder
 
             if (request.ContentType != null && (request.ContentType.Contains(Constants.MimeTypes.XopXml) || request.ContentType.Contains(Constants.MimeTypes.MultipartRelated)))
             {
-                xmlString = await MultipartExtensions.ReadMultipartContentFromRequest(bindingContext.HttpContext.Request);
+                xmlString = await MultipartExtensions.ReadMultipartContentFromStream(request.Body, request.ContentType);
             }
             else
             {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace XcaXds.Commons.Models.Custom.BusinessLogic;
+﻿namespace XcaXds.Commons.Models.Custom.BusinessLogic;
 
 public class BusinessRulesDocument
 {

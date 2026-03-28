@@ -90,19 +90,15 @@ public class XdsRepositoryService
 
                 if (assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
                 {
-                    bool repositoryUpdateOk = false;
+                    var repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart, validateOnly, out var message);
 
-                    if (validateOnly == false)
+                    if (!repositoryUpdateOk && !string.IsNullOrWhiteSpace(message))
                     {
-                        repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart, out var message);
-                        if (!repositoryUpdateOk && !string.IsNullOrWhiteSpace(message))
-                        {
-                            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Potentially malicious file detected!\n {message}", $"XDS Repository");
-                        }
-                        else if (!repositoryUpdateOk)
-                        {
-                            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
-                        }
+                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Potentially malicious file detected!\n {message}", $"XDS Repository");
+                    }
+                    else if (!repositoryUpdateOk)
+                    {
+                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
                     }
                 }
             }
@@ -288,9 +284,7 @@ public class XdsRepositoryService
 
         var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
 
-        var extrinsicObject = _registry.GetDocumentRegistryContentAsDtos()
-            .OfType<DocumentEntryDto>()
-            .FirstOrDefault(gob => gob.UniqueId == document.DocumentUniqueId);
+        var extrinsicObject = _registry.GetSingleRegistryObjectAsDto(document.DocumentUniqueId) as DocumentEntryDto;
 
         var confCodes = extrinsicObject?.ConfidentialityCode;
 

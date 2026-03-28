@@ -38,7 +38,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
     [Trait("Delete", "Registry/Repository")]
     public async Task Delete_SpecificParameteres()
     {
-      SetDocumentRegistryContent();
+        SetDocumentRegistryContent();
 
         var parameters = new List<KeyValuePair<string, string?>>
         {
@@ -55,7 +55,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
 
     private void SetDocumentRegistryContent()
     {
-        var documentEntries = new List<RegistryObjectDto> 
+        var documentEntries = new List<RegistryObjectDto>
         {
             new DocumentEntryDto()
             {

@@ -3,75 +3,75 @@
 For Integration tests to work properly, its recommended to not touch these files. 
                 Use the testdata files in the directory above 
 -->
-    <saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_81e650b0-24e4-4502-a010-64286d5ca6dd" IssueInstant="2026-03-23T13:43:39.377Z" Version="2.0">
-        <saml:Issuer>sikkerhet.helsenorge.no</saml:Issuer>
-        <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
-            <SignedInfo>
-                <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
-                <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
-                <Reference URI="#_81e650b0-24e4-4502-a010-64286d5ca6dd">
-                    <Transforms>
-                        <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
-                        <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
-                    </Transforms>
-                    <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
-                    <DigestValue>HS44bOOl2AWOIy/cihG1MMdjcTyizYxr8f1j0SWpWDs=</DigestValue>
-                </Reference>
-            </SignedInfo>
-            <SignatureValue>oHJnjnuS93iW6V5mhREZ9fmjtSuVBIZg8lTgknlSjDNubsBmzOVecJ5BmPBFAcPxGfX3V9vCBGsowGc1yDLzrFxpJJHrRbHFy0pm6SvywKOuSBI0z64UPtmY8A9kZg+UgWRChHv9h4AETPspXoNaJiq5YymufMT+S04Q573Pjlb9Piq51jLSpWgfScM5Vp1FCnj+HjHJ7RBCQy/F7LvkELnCo1L9XfN/LFgq75bbDuYpy8AcxTSSwtodpUUlr+UwEUuCquWNF9L5oug8V6o67PDWuC7IvIYlzICVe+6ORXp/4f1Nh8Xzo2IpP96qQNb4wm7+rf3CQZweU0Fk1HyS72tOIRcGURC9mbT2uIG6AxO7B5ZUzawRqZFXdjXi/9HYcOoUAQFOryZj5SMzkR7oBmkZmK/PfIACZDg3ZeZ9QJCI+2i1d5BHXkNfjvaxt5JiPmebJMSa/7Jm5eBKKCVmapzde8AT0AHToDbVPO9qHBeusl9s5cNg1hHqIv4C7PyU</SignatureValue>
-            <KeyInfo>
-                <X509Data>
-                    <X509Certificate>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</X509Certificate>
-                </X509Data>
-            </KeyInfo>
-        </Signature>
-        <saml:Subject>
-            <saml:NameID>29844697323</saml:NameID>
-            <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer" />
-        </saml:Subject>
-        <saml:Conditions NotBefore="2026-03-23T13:43:39.377Z" NotOnOrAfter="2026-03-23T14:03:39.377Z">
-            <saml:AudienceRestriction>
-                <saml:Audience>https://xds-web.test.nhn.no/</saml:Audience>
-            </saml:AudienceRestriction>
-        </saml:Conditions>
-        <saml:AttributeStatement>
-            <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:subject-id">
-                <saml:AttributeValue>Salig Jordbær</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization">
-                <saml:AttributeValue>Norsk Helsenett</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization-id">
-                <saml:AttributeValue>994598759</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="urn:ihe:iti:xca:2010:homeCommunityId">
-                <saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="urn:oasis:names:tc:xspa:2.0:subject:npi">
-                <saml:AttributeValue>29844697323</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="urn:ihe:iti:xua:2017:subject:provider-identifier">
-                <saml:AttributeValue>&lt;id xmlns="urn:hl7-org:v3" type="II" extension="29844697323" root="2.16.578.1.12.4.1.4.1" displayable="false" /&gt;</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
-                <saml:AttributeValue>&lt;PurposeOfUse xmlns="urn:hl7-org:v3" type="CE" code="13" codeSystem="1.0.14265.1" codeSystemName="ISO 14265 Classification of Purposes for processing personal health information" displayName="Subject of care uses"/&gt;</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="urn:oasis:names:tc:xacml:2.0:resource:resource-id">
-                <saml:AttributeValue>29844697323^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="SecurityLevel">
-                <saml:AttributeValue>4</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="Scope">
-                <saml:AttributeValue>innsynregisterbruk,innsynregisterinnhold,innsynpasientjournal,prover</saml:AttributeValue>
-            </saml:Attribute>
-            <saml:Attribute Name="client_id">
-                <saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1.1</saml:AttributeValue>
-            </saml:Attribute>
-        </saml:AttributeStatement>
-        <saml:AuthnStatement AuthnInstant="2026-03-23T13:43:39.381Z" SessionNotOnOrAfter="2026-03-23T14:03:39.381Z">
-            <saml:AuthnContext>
-                <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</saml:AuthnContextClassRef>
-            </saml:AuthnContext>
-        </saml:AuthnStatement>
-    </saml:Assertion>
+<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" ID="_b87d1f0b-a6b2-46ac-b94f-7a6e6eb552c9" IssueInstant="2026-03-23T15:19:39.275Z" Version="2.0">
+	<saml:Issuer>sikkerhet.helsenorge.no</saml:Issuer>
+	<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+		<SignedInfo>
+			<CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+			<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+			<Reference URI="#_b87d1f0b-a6b2-46ac-b94f-7a6e6eb552c9">
+				<Transforms>
+					<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</Transforms>
+				<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+				<DigestValue>IKNIJG4yqxWkS37LajPpVrOtzQFTvLeErw8V8mjZ3TI=</DigestValue>
+			</Reference>
+		</SignedInfo>
+		<SignatureValue>iXfPQE/MN8DEbLMgc1EzkPv/whYgT6icPHH3wnMLmp1kNIuxm1KPkltmmLUXFjYaIFjYJl0HRLzFDRaSHkTO6/W9VfMzaUM478dwqh11qi8SjEeRWnvXTfUBYd9YwY1rnLuPr5bZh7/7DmmItIKckY8rab0iAH47ee3x2JCs05G0EtLsVwDWhjew7SK\u002B2g2Vt27GDDkLIC0W1R4a7agvLviVueiynClaWSuSC\u002BqddSAU6RyN1Baxx7umiRRR0JmY/KTc3cw8rUV43sfV\u002BEANdX90A9Iz2dwKEU87Ir85GJqAuY0koK/kmKqjP3ssXEF1n4SwLXiimXywiFWnvg7nhQdpM2AfdO3iTxU\u002BCNQef\u002Be5K8n/zfVsVgt03\u002BcDk\u002BrYd7jefy9r/pFfd\u002BQD1tePc/10/PEIYbFMYrNmuvYf1kl9hCb4jjzmnzyxajUiDohb7tDotYQRJbvLSrTwRSUjsXEYmlqiAm4DWS22wYdKUvrItaR2k0dWLIkjrC6CwTaI</SignatureValue>
+		<KeyInfo>
+			<X509Data>
+				<X509Certificate>MIIGYDCCBEigAwIBAgILAav51qUP6unELxwwDQYJKoZIhvcNAQELBQAwbjELMAkGA1UEBhMCTk8xGDAWBgNVBGEMD05UUk5PLTk4MzE2MzMyNzETMBEGA1UECgwKQnV5cGFzcyBBUzEwMC4GA1UEAwwnQnV5cGFzcyBDbGFzcyAzIFRlc3Q0IENBIEcyIFNUIEJ1c2luZXNzMB4XDTI2MDMxNjEwNTEzNFoXDTI5MDMxNjIyNTkwMFowgYMxCzAJBgNVBAYTAk5PMRswGQYDVQQKDBJOT1JTSyBIRUxTRU5FVFQgU0YxFjAUBgNVBAsMDWhlbHNlbm9yZ2Uubm8xJTAjBgNVBAMMHGhlbHNlbm9yZ2Uubm8gU2lra2VyaGV0IFRFU1QxGDAWBgNVBGEMD05UUk5PLTk5NDU5ODc1OTCCAaIwDQYJKoZIhvcNAQEBBQADggGPADCCAYoCggGBAKgHwTgxMGM3XQpb26EIfWAISlpu5LkhsTMBjVPnxHt6gfOT0e3166CmSonkaoUua5rH1X7kEpl6IztVfvYSSRZTEgTvtOSjXZb4CHrMD/QikekTM6L4Xns9vxrsHViSnvx8Et3lwt74D1Oy0A5Za/Ey1JofdAHpvMjRvUo2uH7YODzXitnKX/ZTWpsQv9c6sdRoiIMUmstQPiYfAY8Q\u002BTBz6quR4ox/txfjUYPKjdM/Xv35LaVrQhN5OsAklIVCs44Z0ZZZo1oYOyaJ0j04tqyb4qqiy1ijTmOpSUwGMhiPIA7/fTOvZH7R3UrZ3sg56qSkmphprfHvXDeLz\u002BuqvwelilsUF/CCwwT17CaremxLPm4pnnnBvobyC1Bl7\u002BZj6YjKLR8yz28uAgOVsA4KZKdkduMs24rysZwYDE0UJVwHoOD4tA\u002BnD/tj4/qNaFNftknHcpIuVDW11MJFCelxz62\u002BjRD5w4suZ6cdUGPitZeX2JjhiMQccPV15RUE7MIA2wIDAQABo4IBZzCCAWMwCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSn/rtsWYitdC5GXnpo\u002BdG7v8\u002B2izAdBgNVHQ4EFgQUpiR2N\u002BL3y6Bd4\u002B6/jqtYe\u002BNK4vUwDgYDVR0PAQH/BAQDAgZAMB8GA1UdIAQYMBYwCgYIYIRCARoBAwIwCAYGBACPegEBMEEGA1UdHwQ6MDgwNqA0oDKGMGh0dHA6Ly9jcmwudGVzdDQuYnV5cGFzc2NhLmNvbS9CUENsM0NhRzJTVEJTLmNybDB7BggrBgEFBQcBAQRvMG0wLQYIKwYBBQUHMAGGIWh0dHA6Ly9vY3NwYnMudGVzdDQuYnV5cGFzc2NhLmNvbTA8BggrBgEFBQcwAoYwaHR0cDovL2NydC50ZXN0NC5idXlwYXNzY2EuY29tL0JQQ2wzQ2FHMlNUQlMuY2VyMCUGCCsGAQUFBwEDBBkwFzAVBggrBgEFBQcLAjAJBgcEAIvsSQECMA0GCSqGSIb3DQEBCwUAA4ICAQA6LxCmSRc8b/0wOOIy\u002BHKSbWt0p7atXhsdpa8Ngs5cC9NNSOjlhuBs9vKugZIYtpk20319x6Ek/mlg4bBfY2Bkicisg6sEZjGUeNwjeYXc\u002Bpa7FOsC6I66sryo5\u002Blch4vR30L0xl92lkfaNgKorBxP0JZjMT8KRauCgeRyKKk/AopH5hNBrB18L5wvmS9QWQcM8YmVuixUZq/WKjM9OxCCAUeVgvS7GYGxZqZ63hgVEXPLxJALavGEyPLWmoY0q2DAI8pMJExxIEyXGNbBrr4a4KOJUNQeTLTXp4g4idSZT6OtBlTrxfPPd1beOXlb\u002BZoatqJY4uzxYG12X5OGB6\u002Bfx1n0l6H1Oc20MG7kV3zSTjRgrcizWK3Hp2uhQUp9xkxOaKGvNuBmw7YsFV2zENOR25PefYf5Hsup9UbkMB/oxWf/ozXHPqRowULPMQ4YLjV3vtHctU1reqELWEOR6JZvm0aTs2WhZUNf/RrZuowbXIetWi16fz6roIQV1YGLE/fnWqttv\u002BcQEi4LhbpfAYYvaqZtCpiCVOvyGNI9r76TesuakNkq64dEIXFqDIJUhlkOtaz4f4lHGYnbr6f7e1kZGOzPYR7dMdem6NXFSt6UkoRUC4uHJsSgHGz1OR21Lf/AdpVrbA9M6wQHi/Gh2H5paFxshengBe6bcNIz/q147w==</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</Signature>
+	<saml:Subject>
+		<saml:NameID>29844697323</saml:NameID>
+		<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer" />
+	</saml:Subject>
+	<saml:Conditions NotBefore="2026-03-23T15:19:39.275Z" NotOnOrAfter="2026-03-23T15:39:39.275Z">
+		<saml:AudienceRestriction>
+			<saml:Audience>https://xds-web.test.nhn.no/</saml:Audience>
+		</saml:AudienceRestriction>
+	</saml:Conditions>
+	<saml:AttributeStatement>
+		<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:subject-id">
+			<saml:AttributeValue>Salig Jordb\u00E6r</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization">
+			<saml:AttributeValue>Norsk Helsenett</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:organization-id">
+			<saml:AttributeValue>994598759</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="urn:ihe:iti:xca:2010:homeCommunityId">
+			<saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="urn:oasis:names:tc:xspa:2.0:subject:npi">
+			<saml:AttributeValue>29844697323</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="urn:ihe:iti:xua:2017:subject:provider-identifier">
+			<saml:AttributeValue>&lt;id xmlns="urn:hl7-org:v3" type="II" extension="29844697323" root="2.16.578.1.12.4.1.4.1" displayable="false" /&gt;</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="urn:oasis:names:tc:xspa:1.0:subject:purposeofuse">
+			<saml:AttributeValue>&lt;PurposeOfUse xmlns="urn:hl7-org:v3" type="CE" code="13" codeSystem="1.0.14265.1" codeSystemName="ISO 14265 Classification of Purposes for processing personal health information" displayName="Subject of care uses"/&gt;</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="urn:oasis:names:tc:xacml:2.0:resource:resource-id">
+			<saml:AttributeValue>29844697323^^^&amp;2.16.578.1.12.4.1.4.1&amp;ISO</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="SecurityLevel">
+			<saml:AttributeValue>4</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="Scope">
+			<saml:AttributeValue>innsynregisterbruk,innsynregisterinnhold,innsynpasientjournal,prover</saml:AttributeValue>
+		</saml:Attribute>
+		<saml:Attribute Name="client_id">
+			<saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1.1</saml:AttributeValue>
+		</saml:Attribute>
+	</saml:AttributeStatement>
+	<saml:AuthnStatement AuthnInstant="2026-03-23T15:19:39.278Z" SessionNotOnOrAfter="2026-03-23T15:39:39.278Z">
+		<saml:AuthnContext>
+			<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</saml:AuthnContextClassRef>
+		</saml:AuthnContext>
+	</saml:AuthnStatement>
+</saml:Assertion>

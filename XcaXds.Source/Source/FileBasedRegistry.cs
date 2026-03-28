@@ -31,7 +31,7 @@ public class FileBasedRegistry : IRegistry
         _registryFile = Path.Combine(_registryPath, "Registry.json");
     }
 
-    public IEnumerable<RegistryObjectDto> ReadRegistry(PatientId? patientIdentifier = null)
+    public IEnumerable<RegistryObjectDto> GetRegistryItemsForPatient(PatientId? patientIdentifier = null)
     {
         EnsureRegistryFileExists();
         lock (_lock)
@@ -124,5 +124,15 @@ public class FileBasedRegistry : IRegistry
 
             return hasContent;
         }
+    }
+
+    public RegistryObjectDto? GetRegistryItemsAndRelated(string? identifier)
+    {
+        return ReadRegistry().FirstOrDefault(x => x.Id == identifier);
+    }
+
+    public IEnumerable<RegistryObjectDto> ReadRegistry()
+    {
+        return ReadRegistry();
     }
 }

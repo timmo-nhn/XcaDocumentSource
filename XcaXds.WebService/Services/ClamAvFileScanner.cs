@@ -2,7 +2,7 @@
 
 namespace XcaXds.WebService.Services;
 
-public class ClamAvFileScanner
+public class ClamAvFileScanner : IClamAvFileScanner
 {
     private readonly ILogger<ClamAvFileScanner> _logger;
     private readonly ApplicationConfig _config;

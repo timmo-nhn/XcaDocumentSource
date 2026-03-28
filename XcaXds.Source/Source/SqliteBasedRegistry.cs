@@ -1,5 +1,4 @@
-﻿using Hl7.Fhir.Utility;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XcaXds.Commons.Interfaces;
@@ -16,9 +15,7 @@ public class SqliteBasedRegistry : IRegistry
     private readonly string _connectionString;
     private readonly string _databaseFile;
 
-    public SqliteBasedRegistry(
-        ILogger<SqliteBasedRegistry> logger,
-        IDbContextFactory<SqliteRegistryDbContext> contextFactory)
+    public SqliteBasedRegistry(ILogger<SqliteBasedRegistry> logger, IDbContextFactory<SqliteRegistryDbContext> contextFactory)
     {
         _logger = logger;
         _contextFactory = contextFactory;
@@ -40,28 +37,72 @@ public class SqliteBasedRegistry : IRegistry
         return _databaseFile;
     }
 
-    public IEnumerable<RegistryObjectDto> ReadRegistry(PatientId? patientIdentifier = null)
+    public IEnumerable<RegistryObjectDto> ReadRegistry()
     {
         using var db = _contextFactory.CreateDbContext();
-        var entities = patientIdentifier == null
-            ? db.RegistryObjects.AsNoTracking()
-            : db.RegistryObjects
-                .AsNoTracking()
-                .OfType<DbDocumentEntry>()
-                .Where(de => de.SourcePatientInfo != null &&
-                             de.SourcePatientInfo.PatientId == patientIdentifier.Id &&
-                             de.SourcePatientInfo.PatientSystem == patientIdentifier.System);
 
-        foreach (var entity in entities)
+        foreach (var entity in db.RegistryObjects.AsNoTracking())
         {
             var entityDto = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
-
             if (entityDto != null)
             {
                 yield return entityDto;
             }
         }
     }
+
+    public IEnumerable<RegistryObjectDto> GetRegistryItemsForPatient(PatientId patientIdentifier)
+    {
+        using var db = _contextFactory.CreateDbContext();
+        var entities = db.DocumentEntries
+            .AsNoTracking()
+            .Where(de =>
+                de.DE_SourcePatientInfoPatientId == patientIdentifier.Id &&
+                de.DE_SourcePatientInfoPatientSystem == patientIdentifier.System);
+
+        foreach (var entity in entities)
+        {
+            var entityDto = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
+            if (entityDto != null)
+            {
+                yield return entityDto;
+            }
+        }
+    }
+
+
+    public IEnumerable<RegistryObjectDto>? GetRegistryItemsAndRelated(string identifier)
+    {
+        using var db = _contextFactory.CreateDbContext();
+
+        var singleItem = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
+
+        if (singleItem == null) return null;
+
+        var association = db.Associations.AsNoTracking().FirstOrDefault(ro => ro.AS_TargetObjectId == singleItem.Id);
+
+        var submissionSet = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == (association ?? new()).AS_SourceObjectId);
+
+        var resultList = new[] { singleItem, association, submissionSet }.OfType<DbRegistryObject>();
+        if (resultList == null) return null;
+
+        return DatabaseMapper.MapFromDatabaseEntityToDto(resultList);
+    }
+
+    public RegistryObjectDto? GetSingleRegistryItem(string identifier)
+    {
+        using var db = _contextFactory.CreateDbContext();
+
+        var entity = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
+
+        if (entity == null)
+        {
+            return null;
+        }
+
+        return DatabaseMapper.MapFromDatabaseEntityToDto(entity);
+    }
+
 
     public bool UpdateRegistry(List<RegistryObjectDto> dtos)
     {
@@ -94,130 +135,96 @@ public class SqliteBasedRegistry : IRegistry
 
         using var transaction = db.Database.BeginTransaction();
 
-        const int batchSize = 2_000; // tune: 500..10_000 depending on payload size
 
-        InsertInBatches(db, documentEntries, batchSize);
-        InsertInBatches(db, submissionSets, batchSize);
-        InsertInBatches(db, associations, batchSize);
+        InsertInBatches(db, documentEntries);
+        InsertInBatches(db, submissionSets);
+        InsertInBatches(db, associations);
 
         transaction.Commit();
         return true;
     }
 
-    private static void InsertInBatches<T>(DbContext db, List<T> items, int batchSize) where T : class
+    private static void InsertInBatches<T>(DbContext db, List<T> items) where T : class
     {
         if (items.Count == 0) return;
 
-        for (int i = 0; i < items.Count; i += batchSize)
-        {
-            var batch = items.Skip(i).Take(batchSize).ToList();
-
-            // Add without calling DetectChanges repeatedly
-            db.Set<T>().AddRange(batch);
-
-            // Persist this chunk
-            db.SaveChanges();
-
-            // IMPORTANT: prevent EF from accumulating tracked entities and slowing down / bloating memory
-            db.ChangeTracker.Clear();
-        }
+        db.Set<T>().AddRange(items);
+        db.SaveChanges();
+        db.ChangeTracker.Clear();
     }
 
     public bool InsertOrUpdateRegistry(List<RegistryObjectDto> dtos)
     {
         using var db = _contextFactory.CreateDbContext();
-        var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
+        var incomingDbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos).ToList();
 
-        foreach (var e in dbEntities)
+        foreach (var e in incomingDbEntities)
             if (string.IsNullOrWhiteSpace(e.Id))
                 e.Id = Guid.NewGuid().ToString();
 
-        var documentEntries = dbEntities.OfType<DbDocumentEntry>().ToList();
-        var submissionSets = dbEntities.OfType<DbSubmissionSet>().ToList();
-        var associations = dbEntities.OfType<DbAssociation>().ToList();
+        var documentEntriesToUpload = incomingDbEntities.OfType<DbDocumentEntry>().ToList();
+        var submissionSetsToUpload = incomingDbEntities.OfType<DbSubmissionSet>().ToList();
+        var associationsToUpload = incomingDbEntities.OfType<DbAssociation>().ToList();
 
         db.ChangeTracker.AutoDetectChangesEnabled = false;
 
-        //using var transaction = db.Database.BeginTransaction();
 
-        const int idBatchSize = 1;  // keep modest for SQLite parameter limits
-        const int insertBatchSize = 1;  // tune based on entity size
-
-        DeleteThenInsertBatched(db, db.DocumentEntries, documentEntries, idBatchSize, insertBatchSize);
-        DeleteThenInsertBatched(db, db.SubmissionSets, submissionSets, idBatchSize, insertBatchSize);
-        DeleteThenInsertBatched(db, db.Associations, associations, idBatchSize, insertBatchSize);
-
-        //transaction.Commit();
+        DeleteThenInsert(db, db.DocumentEntries, documentEntriesToUpload);
+        DeleteThenInsert(db, db.SubmissionSets, submissionSetsToUpload);
+        DeleteThenInsert(db, db.Associations, associationsToUpload);
         return true;
     }
 
-    private void DeleteThenInsertBatched<TEntity>(DbContext db, DbSet<TEntity> set, List<TEntity> incoming, int idBatchSize, int insertBatchSize)
-        where TEntity : DbRegistryObject
+    private void DeleteThenInsert<TEntity>(DbContext db, DbSet<TEntity> existingDbSet, List<TEntity> toUpload) where TEntity : DbRegistryObject
     {
-        if (incoming.Count == 0) return;
+        if (toUpload.Count == 0) return;
 
         // Ensure distinct IDs to avoid duplicates
-        incoming = incoming
+        toUpload = toUpload
             .Where(x => !string.IsNullOrWhiteSpace(x.Id))
             .GroupBy(x => x.Id!)
             .Select(g => g.Last())
             .ToList();
 
-        var ids = incoming.Select(x => x.Id!).ToList();
+        var ids = toUpload.Select(x => x.Id!).ToList();
         if (ids.Count == 0) return;
 
-        // 1) Delete existing in ID batches
-        var batches = Batch(ids, idBatchSize);
-        foreach (var idBatch in batches)
+        var existing = existingDbSet
+            .Where(x => x.Id != null && ids.Contains(x.Id))
+            .ToList();
+
+        if (existing.Count > 0)
         {
-            var existing = set
-                .Where(x => x.Id != null && idBatch.Contains(x.Id))
-                .ToList();
+            _logger.LogWarning($"Replace: Trying to delete existing {existing.GetType().Name}, count = {existing.Count}");
 
-            if (existing.Count > 0)
-            {
-                _logger.LogWarning($"Trying to delete existing, count = {existing.Count}");
-
-                set.RemoveRange(existing);
-                //db.SaveChanges();
-            }
+            existingDbSet.RemoveRange(existing);
+            db.SaveChanges();
         }
 
-        // 2) Insert in batches
-        for (int i = 0; i < incoming.Count; i += insertBatchSize)
+        existingDbSet.AddRange(toUpload);
+
+        var sql = existingDbSet.ToQueryString(); // for debugging - shows the SQL EF will execute for this batch
+
+        _logger.LogDebug($"{sql}");
+
+        try
         {
-            var batch = incoming.Skip(i).Take(insertBatchSize).ToList();
-            set.AddRange(batch);
-
-            var sql = set.ToQueryString(); // for debugging - shows the SQL EF will execute for this batch
-
-            _logger.LogDebug($"{sql}");
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Ignore — row already gone
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
-            {
-                _logger.LogError(ex,
-                "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
-                sqlEx.SqliteErrorCode,
-                sqlEx.SqliteExtendedErrorCode);
-                throw;
-            }
-
-            db.ChangeTracker.Clear();
+            db.SaveChanges();
         }
-    }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Ignore — row already gone
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
+        {
+            _logger.LogError(ex,
+            "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
+            sqlEx.SqliteErrorCode,
+            sqlEx.SqliteExtendedErrorCode);
+            throw;
+        }
 
-    private static IEnumerable<List<T>> Batch<T>(List<T> items, int size)
-    {
-        for (int i = 0; i < items.Count; i += size)
-            yield return items.GetRange(i, Math.Min(size, items.Count - i));
+        db.ChangeTracker.Clear();
     }
 
     public bool WriteRegistry(List<RegistryObjectDto> dtos)

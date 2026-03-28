@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Rest;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -223,7 +223,7 @@ public class RestfulRegistryRepositoryService
             return uploadResponse;
         }
 
-        _repositoryWrapper.StoreDocument(doc.DocumentId, doc.Data, patientId, out _);
+        _repositoryWrapper.StoreDocument(doc.DocumentId, doc.Data, patientId, false, out _);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(elementsToBeUploaded);
 
         return uploadResponse;
@@ -274,7 +274,7 @@ public class RestfulRegistryRepositoryService
 
             if (inputDocumentReference.Document != null && inputDocumentReference.Document.DocumentId != null && inputDocumentReference.Document.Data?.Length > 0 && inputDocumentReference.DocumentEntry?.SourcePatientInfo?.PatientId?.Id != null)
             {
-                var storeResult = _repositoryWrapper.StoreDocument(inputDocumentReference.Document.DocumentId, inputDocumentReference.Document.Data, inputDocumentReference.DocumentEntry.SourcePatientInfo.PatientId.Id, out _);
+                var storeResult = _repositoryWrapper.StoreDocument(inputDocumentReference.Document.DocumentId, inputDocumentReference.Document.Data, inputDocumentReference.DocumentEntry.SourcePatientInfo.PatientId.Id, false, out _);
                 if (storeResult == false)
                 {
                     updateResponse.AddError("UploadError", "Error while uploading document");
@@ -551,18 +551,18 @@ public class RestfulRegistryRepositoryService
 
     public RestfulApiResponse DeleteByParameters(string[]? patientIdentifier, string[]? securityLabel)
     {
-		if (securityLabel == null || securityLabel.Length == 0)
+        if (securityLabel == null || securityLabel.Length == 0)
         {
-            return new RestfulApiResponse().AddError("MissingParameter", $"{nameof(DeleteByParameters)}: securityLabel cannot be an empty array");            
-		}
+            return new RestfulApiResponse().AddError("MissingParameter", $"{nameof(DeleteByParameters)}: securityLabel cannot be an empty array");
+        }
 
-		if (patientIdentifier == null || patientIdentifier.Length == 0)
-		{
-			return new RestfulApiResponse().AddError("MissingParameter", $"{nameof(DeleteByParameters)}: patientIdentifier cannot be an empty array");			
-		}
+        if (patientIdentifier == null || patientIdentifier.Length == 0)
+        {
+            return new RestfulApiResponse().AddError("MissingParameter", $"{nameof(DeleteByParameters)}: patientIdentifier cannot be an empty array");
+        }
 
-		// Find entries matching criteria
-		var patientIdToken = patientIdentifier.Select(cv => cv.Split("|")).Select(pid => new PatientId()
+        // Find entries matching criteria
+        var patientIdToken = patientIdentifier.Select(cv => cv.Split("|")).Select(pid => new PatientId()
         {
             Id = pid.LastOrDefault(),
             System = pid.FirstOrDefault()?.NoUrn()
@@ -570,7 +570,7 @@ public class RestfulRegistryRepositoryService
 
 
         var confidentialityCodes = securityLabel.SelectMany(sp => sp.Split(";")
-            .Select(sl => 
+            .Select(sl =>
             {
                 var parts = sl.Split("|");
                 return new CodedValue(parts.LastOrDefault(), parts.FirstOrDefault());
@@ -585,7 +585,7 @@ public class RestfulRegistryRepositoryService
                 patientIdToken.Any(patid => pid.Id == patid.Id && pid.System == patid.System))
             .ToArray();
 
-		/*
+        /*
          
         Get set of matching documents where at least one confidentiality code in the document entry's confidentiality codes matches at least one confidentiality code in the request.
 
@@ -598,18 +598,18 @@ public class RestfulRegistryRepositoryService
             .ToArray();
 
         */
-		
-		// Get set of matching documents where all confidentiality codes in the request are present in the document entry's confidentiality codes.        
-		matchingDocuments = matchingDocuments
-			.Where(doc => doc.ConfidentialityCode != null &&
-				confidentialityCodes.All(required =>
-					doc.ConfidentialityCode.Any(docCc =>
-						docCc.Code == required.Code &&
-						docCc.CodeSystem == required.CodeSystem)))
-			.ToArray();
-	
 
-		var deleteResponses = new List<RestfulApiResponse>();
+        // Get set of matching documents where all confidentiality codes in the request are present in the document entry's confidentiality codes.        
+        matchingDocuments = matchingDocuments
+            .Where(doc => doc.ConfidentialityCode != null &&
+                confidentialityCodes.All(required =>
+                    doc.ConfidentialityCode.Any(docCc =>
+                        docCc.Code == required.Code &&
+                        docCc.CodeSystem == required.CodeSystem)))
+            .ToArray();
+
+
+        var deleteResponses = new List<RestfulApiResponse>();
 
         foreach (var documentEntry in matchingDocuments)
         {

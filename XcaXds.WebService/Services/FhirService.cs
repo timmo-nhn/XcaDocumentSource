@@ -145,21 +145,26 @@ public class FhirService
         SoapRequestResult<SoapEnvelope>? registerDocumentSetResponse = null;
         SoapRequestResult<SoapEnvelope>? documentUploadResponse = null;
 
-        // If operation is $validate, we only want to validate the request without actually registering/uploading the documents.
-        // https://build.fhir.org/resource-operation-validate.html
-        documentUploadResponse = _repository.UploadContentToRepository(provideAndRegisterRequest, validateOnly);
+        // Any errors that have previously occured will override the validateOnly parameter, supporting
+        // the atomic nature of provide and register (all-or-nothing),
+        // while also allowing us to validate everything without returning too early, preventing
+        // the end user from fighting "waves" of errors
+        var effectiveValidateOnly =
+            repositoryDocumentExists.IsSuccess == false ||
+            iti42SoapEnvelope.IsSuccess == false ||
+            submittedDocumentsTooLarge.IsSuccess == false ||
+            validateOnly;
 
-        if (documentUploadResponse.IsSuccess)
-        {
-            registerDocumentSetResponse = _registry.AppendToRegistry(iti42SoapEnvelope.Value, validateOnly);
-        }
-        else
-        {
-            registerDocumentSetResponse ??= new()
-            {
-                Value = documentUploadResponse.Value 
-            };
-        }
+        documentUploadResponse = _repository.UploadContentToRepository(
+            provideAndRegisterRequest,
+            effectiveValidateOnly);
+
+        effectiveValidateOnly = documentUploadResponse.IsSuccess == false;
+
+        registerDocumentSetResponse = _registry.AppendToRegistry(
+            iti42SoapEnvelope.Value,
+            effectiveValidateOnly);
+
 
         var errors = new List<RegistryErrorType>();
         errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);

@@ -1,6 +1,4 @@
-﻿
-using Microsoft.OpenApi.MicrosoftExtensions;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 
 namespace XcaXds.WebService.Services;
@@ -13,7 +11,7 @@ public class ApplicationMetaService
 
     public ApplicationMetaService(ILogger<ApplicationMetaService> logger, RepositoryWrapper repositoryWrapper, RegistryWrapper registryWrapper)
     {
-        _logger = logger;   
+        _logger = logger;
         _repositoryWrapper = repositoryWrapper;
         _registryWrapper = registryWrapper;
     }
@@ -34,7 +32,8 @@ public class ApplicationMetaService
             return apiResponse;
         }
 
-        var documentIds = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(dent => dent.UniqueId).ToList();
+        var documentEntries = _registryWrapper.GetDocumentRegistryContentAsDtos().ToArray();
+        var documentIds = documentEntries.OfType<DocumentEntryDto>().Select(dent => dent.UniqueId).ToList();
 
         var amount = documentIds.Count;
         _logger.LogInformation($"Fetched {amount} for nuking");

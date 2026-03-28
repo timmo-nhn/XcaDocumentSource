@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging.Testing;
 using Moq;
 using System.Xml;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Source.Source;
@@ -27,7 +26,9 @@ public class UnitTests_PolicyAuthorization
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))!));
 
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSaml.GetXacmlRequest(soapEnvelope, Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, new FileBasedRegistry(new FakeLogger<FileBasedRegistry>()).ReadRegistry())!;
+        var policyrequestmappermock = new Mock<PolicyRequestMapperSamlService>();
+
+        XacmlContextRequest xacmlObject = policyrequestmappermock.Object.GetXacmlRequest(soapEnvelope, Issuer.HelseId)!;
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml!);

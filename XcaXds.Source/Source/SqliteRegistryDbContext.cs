@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System.Threading.Tasks.Dataflow;
 using XcaXds.Source.Models.DatabaseDtos;
 
 namespace XcaXds.Source.Source;
@@ -16,30 +14,30 @@ public class SqliteRegistryDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<DbRegistryObject>().UseTpcMappingStrategy();
+        var robj = modelBuilder.Entity<DbRegistryObject>()
+            .UseTphMappingStrategy();
 
-        modelBuilder.Entity<DbDocumentEntry>().ToTable("DocumentEntries");
-        modelBuilder.Entity<DbSubmissionSet>().ToTable("SubmissionSets");
-        modelBuilder.Entity<DbAssociation>().ToTable("Associations");
+        modelBuilder.Entity<DbRegistryObject>().ToTable("RegistryObjects");
 
         var doc = modelBuilder.Entity<DbDocumentEntry>();
+        doc.HasIndex(d => d.DE_UniqueId).IsUnique();
+        doc.HasIndex(d => new { d.DE_SourcePatientInfoPatientId, d.DE_SourcePatientInfoPatientSystem });
 
-        doc.OwnsOne(d => d.ClassCode);
-        doc.OwnsOne(d => d.TypeCode);
-        doc.OwnsOne(d => d.FormatCode);
-        doc.OwnsOne(d => d.PracticeSettingCode);
-        doc.OwnsOne(d => d.HealthCareFacilityTypeCode);
-        doc.OwnsOne(d => d.EventCodeList);
-        doc.OwnsOne(d => d.LegalAuthenticator);
-        doc.OwnsOne(d => d.SourcePatientInfo);
-        
-        doc.OwnsMany(d => d.Author, a =>
+        doc.ComplexProperty(d => d.DE_ClassCode).HasDiscriminator();
+        doc.ComplexProperty(d => d.DE_TypeCode).HasDiscriminator();
+        doc.ComplexProperty(d => d.DE_FormatCode).HasDiscriminator();
+        doc.ComplexProperty(d => d.DE_PracticeSettingCode).HasDiscriminator();
+        doc.ComplexProperty(d => d.DE_HealthCareFacilityTypeCode).HasDiscriminator();
+        doc.ComplexProperty(d => d.DE_EventCodeList).HasDiscriminator();
+        doc.ComplexProperty(d => d.DE_LegalAuthenticator).HasDiscriminator();
+
+        doc.OwnsMany(d => d.DE_Author, a =>
         {
             a.WithOwner().HasForeignKey("DocumentEntryId");
             a.ToTable("DocumentEntry_Authors");
             a.Property(x => x.Id).ValueGeneratedOnAdd();
         });
-        doc.OwnsMany(d => d.ConfidentialityCode, a =>
+        doc.OwnsMany(d => d.DE_ConfidentialityCode, a =>
         {
             a.WithOwner().HasForeignKey("DocumentEntryId");
             a.ToTable("DocumentEntry_ConfidentialityCodes");
@@ -47,13 +45,23 @@ public class SqliteRegistryDbContext : DbContext
         });
 
         var sub = modelBuilder.Entity<DbSubmissionSet>();
-        sub.OwnsMany(s => s.Author, a =>
+        sub.OwnsMany(s => s.SS_Author, a =>
         {
             a.WithOwner().HasForeignKey("SubmissionSetId");
             a.ToTable("SubmissionSet_Authors");
             a.Property(x => x.Id).ValueGeneratedOnAdd();
         });
 
-        modelBuilder.Entity<DbAssociation>();
+        modelBuilder.Entity<DbAssociation>()
+            .HasOne<DbRegistryObject>()
+            .WithMany()
+            .HasForeignKey(a => a.AS_SourceObjectId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<DbAssociation>()
+            .HasOne<DbRegistryObject>()
+            .WithMany()
+            .HasForeignKey(a => a.AS_TargetObjectId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

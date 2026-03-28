@@ -5,12 +5,44 @@ namespace XcaXds.Commons.Interfaces;
 
 public interface IRegistry
 {
-    IEnumerable<RegistryObjectDto> ReadRegistry(PatientId? patientIdentifier = null);
+    /// <summary>
+    /// (Optional) Read items and related items (Associations/Submissionset) from the Registry 
+    /// </summary>
+    IEnumerable<RegistryObjectDto>? GetRegistryItemsAndRelated(string identifier) { throw new NotImplementedException(); }
+
+    // (Optional) Read a single item from the registry by its unique identifier
+    RegistryObjectDto? GetSingleRegistryItem(string identifier) { throw new NotImplementedException(); }
+
+    /// <summary>
+    /// (Optional) Read data for a specific patient from the registry
+    /// </summary>
+    IEnumerable<RegistryObjectDto> GetRegistryItemsForPatient(PatientId patientIdentifier) { throw new NotImplementedException(); }
+
+    /// <summary>
+    /// Read everything from the registry
+    /// </summary>
+    IEnumerable<RegistryObjectDto> ReadRegistry();
+
+    /// <summary>
+    /// Write a list of entities to the registry
+    /// </summary>
     bool WriteRegistry(List<RegistryObjectDto> dtos);
-    bool UpdateRegistry(List<RegistryObjectDto> dtos);          // Bulk inserts without checking for existing items
-    bool InsertOrUpdateRegistry(List<RegistryObjectDto> dtos)   // Checks for existing items and updates them, otherwise inserts new items
+
+    /// <summary>
+    /// Bulk inserts without checking for existing items
+    /// </summary>
+    bool UpdateRegistry(List<RegistryObjectDto> dtos);
+
+    /// <summary>
+    /// Checks for existing items and updates them, otherwise inserts new items
+    /// </summary>
+    bool InsertOrUpdateRegistry(List<RegistryObjectDto> dtos)
     {
         throw new NotImplementedException();
     }
+
+    /// <summary>
+    /// Delete a single registry item
+    /// </summary>
     bool DeleteRegistryItem(string id);
 }

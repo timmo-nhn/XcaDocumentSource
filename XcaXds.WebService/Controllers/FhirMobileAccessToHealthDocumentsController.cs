@@ -6,9 +6,9 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.Web;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.DomainResults;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -16,7 +16,6 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.WebService.Attributes;
-using XcaXds.WebService.Middleware.PolicyEnforcementPoint.Helpers;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 
@@ -31,15 +30,13 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly ILogger<FhirMobileAccessToHealthDocumentsController> _logger;
 
     private readonly XdsRegistryService _xdsRegistryService;
-    private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly FhirService _fhirService;
-    private readonly ApplicationConfig _appConfig;
     private readonly AtnaLogGeneratorService _atnaLoggingService;
+    private readonly AtnaLogEnricherService _atnaLogEnricherService;
     private readonly FhirResourceValidatorService _fhirValidator;
-
 
     public FhirMobileAccessToHealthDocumentsController(
         ILogger<FhirMobileAccessToHealthDocumentsController> logger,
@@ -50,17 +47,17 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         RepositoryWrapper repositoryWrapper,
         ApplicationConfig applicationConfig,
         AtnaLogGeneratorService atnaLoggingService,
+        AtnaLogEnricherService atnaLogEnricherService,
         FhirService fhirService,
         FhirResourceValidatorService fhirValidator
         )
     {
         _xdsRegistryService = xdsRegistryService;
-        _xdsRepositoryService = xdsRepositoryService;
         _logger = logger;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
-        _appConfig = applicationConfig;
         _atnaLoggingService = atnaLoggingService;
+        _atnaLogEnricherService = atnaLogEnricherService;
         _restfulRegistryService = restfulRegistryService;
         _fhirService = fhirService;
         _fhirValidator = fhirValidator;
@@ -231,6 +228,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id, out var deletedEntry);
 
+        HttpContext.Items.Add("deltedEntry", deletedEntry);
 
         if (deleteResponse.Success)
         {
@@ -328,7 +326,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request...");
 
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
-            AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(
+            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwt(
                 new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
                 jwtToken,
                 fhirBundle,
@@ -388,7 +386,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
 
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
-            AtnaLogEnricher.GetMockSoapEnvelopeFromJwt(
+            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwt(
                 new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
                 jwtToken,
                 fhirBundle,
@@ -517,6 +515,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 CodeSystem = c.CodeSystem,
                 DisplayName = c.DisplayName
             }).ToList();
+        
+        HttpContext.Items.Add("oldSecurityLabel", oldSecurityLabel);
 
         documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
         _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);

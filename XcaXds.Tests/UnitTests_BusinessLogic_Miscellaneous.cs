@@ -1,9 +1,6 @@
-﻿using System.Text;
-using XcaXds.Commons.DataManipulators.BusinessLogic;
+﻿using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Commons.Serializers;
 using XcaXds.Tests.Helpers;
 using Task = System.Threading.Tasks.Task;
 

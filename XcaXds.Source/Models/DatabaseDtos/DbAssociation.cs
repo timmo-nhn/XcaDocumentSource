@@ -2,9 +2,9 @@
 
 public class DbAssociation : DbRegistryObject
 {
-    public string? AssociationType { get; set; }
-    public string? SubmissionSetStatus { get; set; }
+    public string? AS_AssociationType { get; set; }
+    public string? AS_SubmissionSetStatus { get; set; }
 
-    public string? SourceObjectId { get; set; }
-    public string? TargetObjectId { get; set; }
+    public string? AS_SourceObjectId { get; set; }
+    public string? AS_TargetObjectId { get; set; }
 }

@@ -1,5 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.IdentityModel.Tokens.Saml2;
+using System.Text.RegularExpressions;
 using System.Xml;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
@@ -8,6 +10,30 @@ namespace XcaXds.Commons.Extensions;
 
 public class SamlExtensions
 {
+    public static Issuer GetIssuerEnumFromSamlTokenIssuer(string? value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            if (value.Contains("helseid"))
+            {
+                return Issuer.HelseId;
+            }
+            if (value.Contains("helsenorge"))
+            {
+                return Issuer.Helsenorge;
+            }
+        }
+        return Issuer.Unknown;
+    }
+
+    public static Saml2SecurityToken? ReadSamlToken(string? inputSamlToken)
+    {
+        if (inputSamlToken == null) return null;
+
+        var handler = new Saml2SecurityTokenHandler();
+        return handler.ReadSaml2Token(inputSamlToken);
+    }
+
     public static CodedValue? GetSamlAttributeValueAsCodedValue(string? attributeValue)
     {
         if (attributeValue == null) return null;

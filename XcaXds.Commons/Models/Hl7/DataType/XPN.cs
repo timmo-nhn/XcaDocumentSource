@@ -17,7 +17,7 @@ public class XPN : Hl7Object
     }
     public XPN()
     {
-        
+
     }
 
     [Hl7(Sequence = 1)]

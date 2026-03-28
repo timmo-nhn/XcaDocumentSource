@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using XcaXds.Commons.Serializers;
+﻿using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Models.Hl7.DataType;
 

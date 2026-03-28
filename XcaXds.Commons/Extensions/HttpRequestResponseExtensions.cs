@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-
-public static class HttpRequestResponseExtensions
+﻿public static class HttpRequestResponseExtensions
 {
-    public static async Task<string> GetHttpRequestBodyAsStringAsync(HttpRequest httpRequest)
+    public static async Task<string> GetStreamAsStringAsync(Stream stream)
     {
-        using var reader = new StreamReader(httpRequest.Body, leaveOpen: true);
+        using var reader = new StreamReader(stream, leaveOpen: true);
         var bodyContent = await reader.ReadToEndAsync();
-        httpRequest.Body.Position = 0; // Reset stream position for next reader
+        stream.Position = 0; // Reset stream position for next reader
         return bodyContent;
     }
 }

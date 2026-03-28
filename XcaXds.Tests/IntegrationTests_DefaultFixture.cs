@@ -28,11 +28,11 @@ public class IntegrationTests_DefaultFixture
 
     internal List<DocumentReferenceDto> RegistryContent { get; set; } = new();
 
-    internal int RegistryItemCount = 50; // The amount of registry objects to generate and evaluate against
+    internal int RegistryItemCount = 100; // The amount of registry objects to generate and evaluate against
 
     internal readonly CX PatientIdentifier = new()
     {
-        IdNumber = "13116900216",
+        IdNumber = "17855599120",
         AssigningAuthority = new HD()
         {
             UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
@@ -66,8 +66,9 @@ public class IntegrationTests_DefaultFixture
 
                 services.RemoveAll<AtnaLogExporterService>();
                 services.RemoveAll<IHostedService>();
+                services.RemoveAll<IClamAvFileScanner>();
 
-
+                services.AddSingleton<IClamAvFileScanner, FakeClamAvFileScanner>();
                 services.AddSingleton<AtnaLogExportedChecker>();
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
                 services.AddHostedService<IntegrationTestCleanupService>();

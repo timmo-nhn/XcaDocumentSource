@@ -1,6 +1,4 @@
-﻿using XcaXds.Commons.Models.Soap.XdsTypes;
-
-namespace XcaXds.Commons.Models.Custom.BusinessLogic;
+﻿namespace XcaXds.Commons.Models.Custom.BusinessLogic;
 
 public sealed class BusinessLogicResult<T>
 {

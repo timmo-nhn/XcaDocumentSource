@@ -10,13 +10,14 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Source.Source;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
-using XcaXds.WebService.Middleware.AtnaAuditLogging;
-using XcaXds.WebService.Middleware.PolicyEnforcementPoint;
-using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyBuilder;
-using XcaXds.WebService.Middleware.PolicyEnforcementPoint.DenyWriter;
-using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputBuilder;
-using XcaXds.WebService.Middleware.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
+using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
@@ -133,7 +134,14 @@ public class Program
         builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
 
-        builder.Services.AddSingleton<ClamAvFileScanner>();
+        builder.Services.AddScoped<AtnaLogBuilderService>();
+        builder.Services.AddScoped<IAtnaLogStrategy, SoapEnvelopeStrategy>();
+
+        builder.Services.AddSingleton<AtnaLogEnricherService>();
+        builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
+        builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
+
+        builder.Services.AddSingleton<IClamAvFileScanner, ClamAvFileScanner>();
         builder.Services.AddSingleton<ApplicationMetaService>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
@@ -162,7 +170,7 @@ public class Program
 
         // Database context
         builder.Services.AddDbContextFactory<SqliteRegistryDbContext>(options =>
-            options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\"", 
+            options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\"",
             sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 
@@ -191,8 +199,9 @@ public class Program
 
         app.UseRouting();
 
-        // Middleware, only enabled for endpoints with attributes
+        // Middleware
         app.UseMiddleware<SessionIdTraceMiddleware>();
+        // Only enabled for endpoints with attributes
         app.UseMiddleware<PolicyEnforcementPointMiddleware>();
         app.UseMiddleware<AtnaAuditLoggingMiddleware>();
 

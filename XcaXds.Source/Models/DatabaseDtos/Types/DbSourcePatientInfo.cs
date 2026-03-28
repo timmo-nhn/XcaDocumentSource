@@ -3,7 +3,7 @@
 public class DbSourcePatientInfo
 {
     public required string PatientId { get; init; }
-    public string? PatientSystem { get; set; }
+    public required string PatientSystem { get; init; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public DateTime? BirthTime { get; set; }

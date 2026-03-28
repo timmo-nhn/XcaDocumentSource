@@ -1,3 +1,7 @@
+default:
+  tags:
+    - 2026-03-standard
+
 include:
   - project: helsepersonell/team-plattform/nhn-ci-template
     file: .gitlab-ci.yml
@@ -9,6 +13,8 @@ variables:
   HARBOR_IMAGE_REPOSITORY: $IMAGE_NAME
 
 build image and push to harbor:
+  tags:
+    - 2026-03-standard
   variables:
     SRC_FOLDER: "XcaXds.WebService"
     CONTEXT_FOLDER: "."
@@ -18,6 +24,8 @@ build image and push to harbor:
     - .nhn-image-build-and-push-harbor
 
 tag manifest:
+  tags:
+    - 2026-03-standard
   extends:
     - .manifest-repo-update-singlefile
   variables:
@@ -29,6 +37,8 @@ tag manifest:
     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
 
 tag manifest prod:
+  tags:
+    - 2026-03-standard
   extends:
     - tag manifest
   variables:

@@ -2,9 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using System.Xml;
-using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Models.Custom;
 
 namespace XcaXds.Commons.Commons;
@@ -650,6 +648,105 @@ public static class Constants
                 public const string _88_998 = "88.998";
                 /// <summary>Andre sosialtjenester uten botilbud</summary>
                 public const string _88_999 = "88.999";
+            }
+
+            public static class FacilityType_1305
+            {
+                public const string System = "2.16.578.1.12.4.1.1.1305";
+
+                ///<summary>Somatiske sykehustjenester</summary>
+                public const string _86_101 = "86.101";
+                ///<summary>Psykiatriske sykehustjenester for voksne</summary>
+                public const string _86_102 = "86.102";
+                ///<summary>Spesialisert rusbehandling</summary>
+                public const string _86_103 = "86.103";
+                ///<summary>Psykiatriske sykehustjenester for barn og ungdom</summary>
+                public const string _86_104 = "86.104";
+                ///<summary>Allmennlegetjenester</summary>
+                public const string _86_210 = "86.210";
+                ///<summary>Spesialiserte legetjenester, unntatt psykiatriske legetjenester</summary>
+                public const string _86_221 = "86.221";
+                ///<summary>Psykiatriske legetjenester</summary>
+                public const string _86_222 = "86.222";
+                ///<summary>Tannlegetjenester</summary>
+                public const string _86_230 = "86.230";
+                ///<summary>Medisinske laboratorietjenester og bildediagnostikk</summary>
+                public const string _86_910 = "86.910";
+                ///<summary>Ambulansetransport unntatt luftambulanse</summary>
+                public const string _86_921 = "86.921";
+                ///<summary>Luftambulansetransport med fly eller helikopter</summary>
+                public const string _86_922 = "86.922";
+                ///<summary>Psykolog- og psykoterapitjenester, unntatt legetjenester innenfor psykiatri</summary>
+                public const string _86_930 = "86.930";
+                ///<summary>Sykepleietjenester og andre helsetjenester i hjemmet</summary>
+                public const string _86_941 = "86.941";
+                ///<summary>Helsestasjons- og skolehelsetjenester</summary>
+                public const string _86_942 = "86.942";
+                ///<summary>Fysioterapi- og ergoterapitjenester</summary>
+                public const string _86_950 = "86.950";
+                ///<summary>Aktiviteter innenfor tradisjonell, komplementær og alternativ medisin</summary>
+                public const string _86_960 = "86.960";
+                ///<summary>Formidlingstjenester tilknyttet lege-, tannlegetjenester og andre helsetjenester</summary>
+                public const string _86_970 = "86.970";
+                ///<summary>Ortopedi- og fotterapitjenester</summary>
+                public const string _86_991 = "86.991";
+                ///<summary>Forebyggende helsearbeid</summary>
+                public const string _86_992 = "86.992";
+                ///<summary>Andre helsetjenester ellers</summary>
+                public const string _86_993 = "86.993";
+                ///<summary>Tjenester i spesialinstitusjon innenfor helse- og omsorg</summary>
+                public const string _87_101 = "87.101";
+                ///<summary>Sykehjemstjenester</summary>
+                public const string _87_102 = "87.102";
+                ///<summary>Øyeblikkelig hjelp døgntilbud</summary>
+                public const string _87_103 = "87.103";
+                ///<summary>Tjenester i avlastningsboliger/-institusjoner</summary>
+                public const string _87_104 = "87.104";
+                ///<summary>Tjenester i barneboliger</summary>
+                public const string _87_105 = "87.105";
+                ///<summary>Helse- og omsorgstjenester i bofelleskap, samlokaliserte omsorgsboliger og lignende</summary>
+                public const string _87_106 = "87.106";
+                ///<summary>Omsorgstjenester i botilbud for personer med psykiske helseproblemer og/eller rusmiddelproblemer</summary>
+                public const string _87_201 = "87.201";
+                ///<summary>Omsorgstjenester i botilbud for personer med utviklingshemming eller med tilsvarende funksjonsnedsettelse</summary>
+                public const string _87_202 = "87.202";
+                ///<summary>Omsorgstjenester i botilbud for eldre eller personer med fysisk funksjonsnedsettelse</summary>
+                public const string _87_300 = "87.300";
+                ///<summary>Formidlingstjenester tilknyttet omsorgstjenester i botilbud</summary>
+                public const string _87_910 = "87.910";
+                ///<summary>Tjenester i barneverninstitusjoner</summary>
+                public const string _87_991 = "87.991";
+                ///<summary>Asylmottakstjenester</summary>
+                public const string _87_992 = "87.992";
+                ///<summary>Andre botilbud innenfor sosiale tjenester ikke nevnt annet sted</summary>
+                public const string _87_999 = "87.999";
+                ///<summary>Praktisk bistand i hjemmet</summary>
+                public const string _88_101 = "88.101";
+                ///<summary>Dagaktivitetstilbud tilpasset målgrupper</summary>
+                public const string _88_102 = "88.102";
+                ///<summary>Tjenester i seniorsentre</summary>
+                public const string _88_103 = "88.103";
+                ///<summary>Brukerstyrt personlig assistanse (BPA)</summary>
+                public const string _88_104 = "88.104";
+                ///<summary>Avlastning utenfor institusjon</summary>
+                public const string _88_105 = "88.105";
+                ///<summary>Støttekontakt- og besøkstjeneste</summary>
+                public const string _88_106 = "88.106";
+                ///<summary>Dagaktivitetstilbud for barn</summary>
+                public const string _88_910 = "88.910";
+                ///<summary>Barneverntjenester</summary>
+                public const string _88_991 = "88.991";
+                ///<summary>Familieverntjenester</summary>
+                public const string _88_992 = "88.992";
+                ///<summary>Arbeidstrening og varig tilrettelagt arbeid</summary>
+                public const string _88_993 = "88.993";
+                ///<summary>Velferdstjenester til sårbare grupper</summary>
+                public const string _88_994 = "88.994";
+                ///<summary>Sosialkontortjenester</summary>
+                public const string _88_995 = "88.995";
+                ///<summary>Andre sosialtjenester uten botilbud ellers</summary>
+                public const string _88_996 = "88.996";
+
             }
 
             public static class PracticeSetting_8651

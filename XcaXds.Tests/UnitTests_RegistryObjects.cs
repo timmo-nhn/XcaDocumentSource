@@ -210,8 +210,9 @@ public class UnitTests_RegistryObjects
 
         var doc = new DbDocumentEntry
         {
-            HomeCommunityId = "123213",
-            SourcePatientInfo = new() { PatientId = "123123" }
+            DE_HomeCommunityId = "123213",
+            DE_SourcePatientInfoPatientId = "123123",
+            DE_SourcePatientInfoPatientSystem = "1.2.3.4.5"
         };
 
         db.Database.EnsureCreated();
@@ -220,7 +221,7 @@ public class UnitTests_RegistryObjects
         db.SaveChanges();
 
         var found = db.RegistryObjects.OfType<DbDocumentEntry>()
-            .Where(d => d.HomeCommunityId == "123123")
+            .Where(d => d.DE_HomeCommunityId == "123123")
             .ToList();
     }
 }

@@ -43,7 +43,7 @@ public class FhirJsonModelBinder : IModelBinder
         {
             var fhirJsonSerializer = new FhirJsonDeserializer();
 
-            var content = fhirJsonSerializer.DeserializeResource(await HttpRequestResponseExtensions.GetHttpRequestBodyAsStringAsync(request));
+            var content = fhirJsonSerializer.DeserializeResource(await HttpRequestResponseExtensions.GetStreamAsStringAsync(request.Body));
 
             bindingContext.Result = ModelBindingResult.Success(content);
         }

@@ -20,15 +20,23 @@ public class NonRequestingAtnaLogExporter : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var auditEventFunction in _atnaLogQueue.DequeueAllAsync(stoppingToken).WithCancellation(stoppingToken))
+        try
         {
-            var auditEvent = auditEventFunction();
+            await foreach (var auditEventFunction in _atnaLogQueue.DequeueAllAsync(stoppingToken).WithCancellation(stoppingToken))
+            {
+                var auditEvent = auditEventFunction();
 
-            var fhirJsonSerializer = new FhirJsonSerializer();
-            var jsonOutput = fhirJsonSerializer.SerializeToString(auditEvent);
+                var fhirJsonSerializer = new FhirJsonSerializer();
+                var jsonOutput = fhirJsonSerializer.SerializeToString(auditEvent);
 
-            _atnaLogExportedChecker.AtnaMessageString = jsonOutput;
-            _atnaLogExportedChecker.AtnaLogExported = true;
+                _atnaLogExportedChecker.AtnaMessageString = jsonOutput;
+                _atnaLogExportedChecker.AtnaLogExported = true;
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
         }
     }
 }

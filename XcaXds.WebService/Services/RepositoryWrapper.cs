@@ -17,9 +17,9 @@ public partial class RepositoryWrapper
     private readonly RegistryWrapper _registryWrapper;
     private readonly IRepository _repository;
     private readonly ILogger<RepositoryWrapper> _logger;
-    private readonly ClamAvFileScanner _fileScanner;
+    private readonly IClamAvFileScanner _fileScanner;
 
-    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger, ClamAvFileScanner fileScanner)
+    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger, IClamAvFileScanner fileScanner)
     {
         _repository = repository;
         _appConfig = appConfig;
@@ -56,7 +56,7 @@ public partial class RepositoryWrapper
             return _repository.Read(documentUniqueId);
         }
 
-        _logger.LogInformation($"{messageId} - WrapRetrievedDocumentInCda Enabled".TrimStart([' ', '-']));
+        _logger.LogInformation($"{messageId} - {nameof(_appConfig.WrapRetrievedDocumentInCda)} Enabled".TrimStart([' ', '-']));
 
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
@@ -72,21 +72,19 @@ public partial class RepositoryWrapper
 
         var kind = DocumentSniffer.DetectKind(documentDto.Data);
 
-        if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml || kind == DocumentSniffer.DocumentKind.Xml)
+        _logger.LogInformation($"{messageId} - Document kind {kind.ToString()}");
+
+        if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml)
         {
-            _logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format or XML format".TrimStart([' ', '-']));
+            _logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format".TrimStart([' ', '-']));
             cdaXml = Encoding.UTF8.GetString(documentDto.Data ?? []);
         }
         else
         {
             // Not XML -> wrap into ClinicalDocument
-            var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+            var documentEntries = _registryWrapper.GetRegistryItemAndRelated(documentUniqueId);
 
-            var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro?.UniqueId == documentUniqueId);
-            var associations = documentRegistry.OfType<AssociationDto>().FirstOrDefault(assoc => assoc?.TargetObject == documentEntry?.Id);
-            var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => associations?.SourceObject == ss.Id);
-
-            var clinicalDocument = CdaTransformer.TransformRegistryObjectsToClinicalDocument(documentEntry, submissionSet, documentDto);
+            var clinicalDocument = CdaTransformer.TransformRegistryObjectsToClinicalDocument(documentEntries?.OfType<DocumentEntryDto>().FirstOrDefault(), documentEntries?.OfType<SubmissionSetDto>().FirstOrDefault(), documentDto);
 
             cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content ??
                 throw new InvalidOperationException("ClinicalDocument transformation resulted in empty ClinicalDocument");
@@ -95,20 +93,20 @@ public partial class RepositoryWrapper
         return Encoding.UTF8.GetBytes(cdaXml);
     }
 
-    public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart, out string? errorMessage)
+    public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart, bool validateOnly, out string? errorMessage)
     {
-        var storeResult = StoreDocumentAsync(documentId, documentContent, patientIdPart).GetAwaiter().GetResult();
+        var storeResult = StoreDocumentAsync(documentId, documentContent, patientIdPart, validateOnly).GetAwaiter().GetResult();
         errorMessage = storeResult.Message;
         return storeResult.Success;
     }
 
-    public async Task<StoreDocumentResult> StoreDocumentAsync(string documentId, byte[] documentContent, string patientIdPart)
+    public async Task<StoreDocumentResult> StoreDocumentAsync(string documentId, byte[] documentContent, string patientIdPart, bool validateOnly)
     {
         bool result = false;
 
         var scanResult = await _fileScanner.ScanFile(documentContent);
 
-        if (scanResult?.Result != ClamScanResults.VirusDetected)
+        if (scanResult?.Result != ClamScanResults.VirusDetected && validateOnly == false)
         {
             result = _repository.Write(documentId, documentContent, patientIdPart);
         }

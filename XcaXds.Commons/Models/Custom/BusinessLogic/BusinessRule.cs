@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
-using XcaXds.Commons.Models.Soap.XdsTypes;
+﻿using System.Linq.Expressions;
 
 namespace XcaXds.Commons.Models.Custom.BusinessLogic;
 

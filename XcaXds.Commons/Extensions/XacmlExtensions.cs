@@ -57,8 +57,8 @@ public static class XacmlExtensions
         };
     }
 
-    public static List<string?>? GetXacmlAttributeValuesAsString(this List<XacmlContextAttribute>? xacmlAttributes, string id)
+    public static List<string>? GetXacmlAttributeValuesAsString(this List<XacmlContextAttribute>? xacmlAttributes, string id)
     {
-        return xacmlAttributes?.Where(att => att.AttributeId.AbsoluteUri.Contains(id)).Select(att => att.AttributeValues.FirstOrDefault()?.Value).ToList();
+        return xacmlAttributes?.Where(att => att.AttributeId.AbsoluteUri.Contains(id)).Select(att => att.AttributeValues.FirstOrDefault()?.Value).OfType<string>().ToList();
     }
 }

@@ -9,7 +9,6 @@ using Hl7.Fhir.Specification.Source;
 using Hl7.Fhir.Specification.Terminology;
 using Hl7.Fhir.Support;
 using Hl7.FhirPath;
-using SQLitePCL;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -239,7 +238,8 @@ public class FhirResourceValidatorService
 
     private static readonly List<ComprehensiveCodeSystem> AllowedFacilityTypes =
     [
-        typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem()
+        typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Volven.FacilityType_1305).GetAsComprehensiveCodesystem()
     ];
 
     private static readonly List<ComprehensiveCodeSystem> AllowedPracticeSettings =

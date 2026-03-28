@@ -1,8 +1,4 @@
-﻿using Hl7.Fhir.Serialization;
-using Microsoft.Extensions.Hosting;
-using System.Text.Json;
-using XcaXds.Commons.Models.Custom;
-using XcaXds.WebService.Controllers;
+﻿using Microsoft.Extensions.Hosting;
 using XcaXds.WebService.Services;
 using Task = System.Threading.Tasks.Task;
 

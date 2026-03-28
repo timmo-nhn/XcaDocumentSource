@@ -1,0 +1,15 @@
+﻿using Abc.Xacml.Context;
+
+namespace XcaXds.WebService.Services.PolicyEnforcementPoint;
+
+public class PolicyDecisionResult
+{
+    public bool Permit { get; set; }
+    public XacmlContextResponse? Response { get; set; }
+
+    public PolicyDecisionResult(bool permit, XacmlContextResponse? resp)
+    {
+        Permit = permit;
+        Response = resp;
+    }
+}

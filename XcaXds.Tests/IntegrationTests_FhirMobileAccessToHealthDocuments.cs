@@ -222,12 +222,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var fhirparser = new FhirJsonDeserializer();
 
-        var bundle = fhirparser.Deserialize<Bundle>(responseContent);
-
-        var operationOutcome = bundle.Entry
-            .Select(ent => ent.Resource)
-            .OfType<OperationOutcome>()
-            .FirstOrDefault();
+        var operationOutcome = fhirparser.Deserialize<OperationOutcome>(responseContent);
 
         Assert.NotEmpty(operationOutcome.Issue);
         await WaitForAtnaLogToBeExported();
@@ -258,7 +253,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        var content = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
@@ -269,15 +264,18 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Content = stringContent;
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
+        var expectedCount = RegistryContent.Count + 1;
+
         var firstResponse = await _client.SendAsync(httpRequest);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
-        var excpectedCount = content.Count + 1;
-        var actualCount = _registry.ReadRegistry().OfType<DocumentEntryDto>().Count();
+        var actualCount = _registry.ReadRegistry().OfType<DocumentEntryDto>()?.Count() ?? 0;
+
+        await NukeRegistryRepository();
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(excpectedCount, actualCount);
+        Assert.Equal(expectedCount, actualCount);
 
         await WaitForAtnaLogToBeExported();
 

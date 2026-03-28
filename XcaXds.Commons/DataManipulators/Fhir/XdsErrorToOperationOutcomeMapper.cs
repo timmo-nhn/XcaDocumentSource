@@ -11,9 +11,9 @@ public static class XdsErrorToOperationOutcomeMapper
         if (operationOutcome == null) return null;
 
         var xdsErrors = operationOutcome.Issue
-        .Where(iss => 
-            iss.Severity == OperationOutcome.IssueSeverity.Fatal || 
-            iss.Severity == OperationOutcome.IssueSeverity.Warning || 
+        .Where(iss =>
+            iss.Severity == OperationOutcome.IssueSeverity.Fatal ||
+            iss.Severity == OperationOutcome.IssueSeverity.Warning ||
             iss.Severity == OperationOutcome.IssueSeverity.Error)
         .Select(iss => new RegistryErrorType()
         {

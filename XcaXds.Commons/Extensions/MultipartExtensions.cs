@@ -19,16 +19,16 @@ public static class MultipartExtensions
         return ms.ToArray();
     }
 
-    public static async Task<string> ReadMultipartContentFromRequest(HttpRequest httpRequest)
+    public static async Task<string> ReadMultipartContentFromStream(Stream body, string contentType)
     {
         var sb = new StringBuilder();
 
-        if (!MediaTypeHeaderValue.TryParse(httpRequest.ContentType, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
+        if (!MediaTypeHeaderValue.TryParse(contentType, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             var boundary = GetMultipartBoundary(mediaTypeHeaderValue.Boundary.Value, 512);
 
-            var multipartReader = new MultipartReader(boundary, httpRequest.Body);
+            var multipartReader = new MultipartReader(boundary, body);
             while (await multipartReader.ReadNextSectionAsync() is { } section)
             {
                 using (var sr = new StreamReader(section.Body))
@@ -38,7 +38,7 @@ public static class MultipartExtensions
             }
         }
 
-        httpRequest.Body.Position = 0;
+        body.Position = 0;
         return sb.ToString();
     }
 
@@ -171,7 +171,7 @@ public static class MultipartExtensions
 
                 var documentByteArrayContent = new ByteArrayContent(documentBytes);
 
-                var contentId = $"{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com";
+                var contentId = $"{Guid.NewGuid().ToString().Replace("-", "")}@nhn.no";
 
                 documentByteArrayContent.Headers.ContentType = new(documentResponse.MimeType ?? string.Empty);
 

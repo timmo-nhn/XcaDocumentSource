@@ -49,7 +49,7 @@ public static class FindDocuments
         this IEnumerable<ExtrinsicObjectType> source, string? patientId)
     {
         if (string.IsNullOrWhiteSpace(patientId)) yield break;  // Required field, return nothing if not specified
-        
+
         // Heavy usage, use deferred execution but avoid LINQ for better performance
         foreach (var extrinsicObject in source)
         {
@@ -235,13 +235,21 @@ public static class FindDocuments
     public static IEnumerable<ExtrinsicObjectType> ByDocumentEntryConfidentialityCode(
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? confidentialityGroups)
     {
-        if (confidentialityGroups == null || confidentialityGroups.Count == 0) yield break; // Optional field, return everything if not specified
+        if (confidentialityGroups == null || confidentialityGroups.Count == 0)
+        {
+            // Optional field, return everything if not specified
+            foreach (var item in source)
+            {
+                yield return item;
+            }
+            yield break;
+        }
 
         foreach (var extrinsicObject in source)
         {
             var confidentialityCodes = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode)
                 .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue());
-            
+
             if (confidentialityGroups.All(singleConfidentialityGroup => singleConfidentialityGroup.Any(confCode => confidentialityCodes.Contains(confCode))))
             {
                 yield return extrinsicObject;
@@ -637,8 +645,8 @@ public static class Commons
     {
         obfuscatedEntriesCount = 0;
 
-        if (identifiableTypes == null) return null;
-        
+        if (identifiableTypes == null) return [];
+
         var requestAppliesTo = businessLogic?.Issuer ?? Issuer.Unknown;
 
         foreach (var identifiableType in identifiableTypes)

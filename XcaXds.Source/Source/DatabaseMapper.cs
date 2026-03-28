@@ -20,14 +20,14 @@ public static class DatabaseMapper
         }
     }
 
-    public static RegistryObjectDto? MapFromDatabaseEntityToDto(DbRegistryObject registryObject)
+    public static RegistryObjectDto MapFromDatabaseEntityToDto(DbRegistryObject registryObject)
     {
         switch (registryObject)
         {
             case DbDocumentEntry documentEntry:
                 return new DocumentEntryDto()
                 {
-                    Author = documentEntry.Author?.Select(a => new AuthorInfo()
+                    Author = documentEntry.DE_Author?.Select(a => new AuthorInfo()
                     {
                         Organization = new()
                         {
@@ -62,88 +62,88 @@ public static class DatabaseMapper
                         }
                     }).ToList(),
 
-                    AvailabilityStatus = documentEntry.AvailabilityStatus,
+                    AvailabilityStatus = documentEntry.DE_AvailabilityStatus,
                     ClassCode = new()
                     {
-                        Code = documentEntry.ClassCode?.Code,
-                        CodeSystem = documentEntry.ClassCode?.CodeSystem,
-                        DisplayName = documentEntry.ClassCode?.DisplayName
+                        Code = documentEntry.DE_ClassCode?.Code,
+                        CodeSystem = documentEntry.DE_ClassCode?.CodeSystem,
+                        DisplayName = documentEntry.DE_ClassCode?.DisplayName
                     },
-                    ConfidentialityCode = documentEntry.ConfidentialityCode?.Select(c => new CodedValue()
+                    ConfidentialityCode = documentEntry.DE_ConfidentialityCode?.Select(c => new CodedValue()
                     {
                         Code = c.Code,
                         CodeSystem = c.CodeSystem,
                         DisplayName = c.DisplayName
                     }).ToList(),
 
-                    CreationTime = documentEntry.CreationTime,
+                    CreationTime = documentEntry.DE_CreationTime,
                     EventCodeList = new()
                     {
-                        Code = documentEntry.EventCodeList?.Code,
-                        CodeSystem = documentEntry.EventCodeList?.CodeSystem,
-                        DisplayName = documentEntry.EventCodeList?.DisplayName
+                        Code = documentEntry.DE_EventCodeList?.Code,
+                        CodeSystem = documentEntry.DE_EventCodeList?.CodeSystem,
+                        DisplayName = documentEntry.DE_EventCodeList?.DisplayName
                     },
                     FormatCode = new()
                     {
-                        Code = documentEntry.FormatCode?.Code,
-                        CodeSystem = documentEntry.FormatCode?.CodeSystem,
-                        DisplayName = documentEntry.FormatCode?.DisplayName,
+                        Code = documentEntry.DE_FormatCode?.Code,
+                        CodeSystem = documentEntry.DE_FormatCode?.CodeSystem,
+                        DisplayName = documentEntry.DE_FormatCode?.DisplayName,
                     },
-                    Hash = documentEntry.Hash,
+                    Hash = documentEntry.DE_Hash,
                     HealthCareFacilityTypeCode = new()
                     {
-                        Code = documentEntry.HealthCareFacilityTypeCode?.Code,
-                        CodeSystem = documentEntry.HealthCareFacilityTypeCode?.CodeSystem,
-                        DisplayName = documentEntry.HealthCareFacilityTypeCode?.DisplayName,
+                        Code = documentEntry.DE_HealthCareFacilityTypeCode?.Code,
+                        CodeSystem = documentEntry.DE_HealthCareFacilityTypeCode?.CodeSystem,
+                        DisplayName = documentEntry.DE_HealthCareFacilityTypeCode?.DisplayName,
                     },
-                    HomeCommunityId = documentEntry.HomeCommunityId,
-                    LanguageCode = documentEntry.LanguageCode,
+                    HomeCommunityId = documentEntry.DE_HomeCommunityId,
+                    LanguageCode = documentEntry.DE_LanguageCode,
                     LegalAuthenticator = new()
                     {
-                        Id = documentEntry.LegalAuthenticator?.Id,
-                        IdSystem = documentEntry.LegalAuthenticator?.IdSystem,
-                        FirstName = documentEntry.LegalAuthenticator?.FirstName,
-                        LastName = documentEntry.LegalAuthenticator?.LastName,
+                        Id = documentEntry.DE_LegalAuthenticator?.Id,
+                        IdSystem = documentEntry.DE_LegalAuthenticator?.IdSystem,
+                        FirstName = documentEntry.DE_LegalAuthenticator?.FirstName,
+                        LastName = documentEntry.DE_LegalAuthenticator?.LastName,
                     },
                     Id = documentEntry.Id ?? "Unknown",
-                    MimeType = documentEntry.MimeType,
-                    ObjectType = documentEntry.ObjectType,
+                    MimeType = documentEntry.DE_MimeType,
+                    ObjectType = documentEntry.DE_ObjectType,
                     PracticeSettingCode = new()
                     {
-                        Code = documentEntry.PracticeSettingCode?.Code,
-                        CodeSystem = documentEntry.PracticeSettingCode?.CodeSystem,
-                        DisplayName = documentEntry.PracticeSettingCode?.DisplayName
+                        Code = documentEntry.DE_PracticeSettingCode?.Code,
+                        CodeSystem = documentEntry.DE_PracticeSettingCode?.CodeSystem,
+                        DisplayName = documentEntry.DE_PracticeSettingCode?.DisplayName
                     },
-                    RepositoryUniqueId = documentEntry.RepositoryUniqueId,
-                    ServiceStartTime = documentEntry.ServiceStartTime,
-                    ServiceStopTime = documentEntry.ServiceStopTime,
-                    Size = documentEntry.Size,
+                    RepositoryUniqueId = documentEntry.DE_RepositoryUniqueId,
+                    ServiceStartTime = documentEntry.DE_ServiceStartTime,
+                    ServiceStopTime = documentEntry.DE_ServiceStopTime,
+                    Size = documentEntry.DE_Size,
                     SourcePatientInfo = new()
                     {
                         PatientId = new()
                         {
-                            Id = documentEntry.SourcePatientInfo?.PatientId,
-                            System = documentEntry.SourcePatientInfo?.PatientSystem
+                            Id = documentEntry.DE_SourcePatientInfoPatientId,
+                            System = documentEntry.DE_SourcePatientInfoPatientSystem
                         },
-                        FirstName = documentEntry.SourcePatientInfo?.FirstName,
-                        LastName = documentEntry.SourcePatientInfo?.LastName,
-                        BirthTime = documentEntry.SourcePatientInfo?.BirthTime,
-                        Gender = documentEntry.SourcePatientInfo?.Gender,
+                        FirstName = documentEntry.DE_SourcePatientInfoFirstName,
+                        LastName = documentEntry.DE_SourcePatientInfoLastName,
+                        BirthTime = documentEntry.DE_SourcePatientInfoBirthTime,
+                        Gender = documentEntry.DE_SourcePatientInfoGender,
                     },
-                    Title = documentEntry.Title,
+                    Title = documentEntry.DE_Title,
                     TypeCode = new()
                     {
-                        Code = documentEntry.TypeCode?.Code,
-                        CodeSystem = documentEntry.TypeCode?.CodeSystem,
-                        DisplayName = documentEntry.TypeCode?.DisplayName
+                        Code = documentEntry.DE_TypeCode?.Code,
+                        CodeSystem = documentEntry.DE_TypeCode?.CodeSystem,
+                        DisplayName = documentEntry.DE_TypeCode?.DisplayName
                     },
-                    UniqueId = documentEntry.UniqueId
+                    UniqueId = documentEntry.DE_UniqueId
                 };
 
             case DbSubmissionSet submissionSet:
                 return new SubmissionSetDto()
                 {
-                    Author = submissionSet.Author.Select(a => new AuthorInfo()
+                    Author = submissionSet.SS_Author.Select(a => new AuthorInfo()
                     {
                         Organization = new()
                         {
@@ -178,11 +178,11 @@ public static class DatabaseMapper
                         }
                     }).ToList(),
 
-                    AvailabilityStatus = submissionSet.AvailabilityStatus,
-                    HomeCommunityId = submissionSet.HomeCommunityId,
+                    AvailabilityStatus = submissionSet.SS_AvailabilityStatus,
+                    HomeCommunityId = submissionSet.SS_HomeCommunityId,
                     Id = submissionSet.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
-                    Title = submissionSet.Title,
-                    UniqueId = submissionSet.UniqueId
+                    Title = submissionSet.SS_Title,
+                    UniqueId = submissionSet.SS_UniqueId
                 };
 
 
@@ -190,14 +190,14 @@ public static class DatabaseMapper
                 return new AssociationDto()
                 {
                     Id = association.Id ?? throw new InvalidOperationException("Submissionset id is null!"),
-                    AssociationType = association.AssociationType,
-                    SourceObject = association.SourceObjectId,
-                    TargetObject = association.TargetObjectId,
-                    SubmissionSetStatus = association.SubmissionSetStatus
+                    AssociationType = association.AS_AssociationType,
+                    SourceObject = association.AS_SourceObjectId,
+                    TargetObject = association.AS_TargetObjectId,
+                    SubmissionSetStatus = association.AS_SubmissionSetStatus
                 };
 
             default:
-                return null;
+                throw new InvalidOperationException($"Unknown entity type ({registryObject.GetType().Name})");
         }
     }
 
@@ -205,9 +205,18 @@ public static class DatabaseMapper
     {
         if (registryObjectDto is DocumentEntryDto documentEntryDto)
         {
+            if (string.IsNullOrWhiteSpace(documentEntryDto.SourcePatientInfo?.PatientId?.Id))
+            {
+                throw new InvalidOperationException("Patient Id cannot be null");
+            }
+            if (string.IsNullOrWhiteSpace(documentEntryDto.SourcePatientInfo?.PatientId?.System))
+            {
+                throw new InvalidOperationException("Patient System cannot be null");
+            }
+
             return new DbDocumentEntry()
             {
-                Author = documentEntryDto.Author?.Select(a => new DbAuthorInfo()
+                DE_Author = documentEntryDto.Author?.Select(a => new DbAuthorInfo()
                 {
                     DepartmentId = a.Department?.Id,
                     DepartmentAssigningAuthority = a.Department?.AssigningAuthority,
@@ -231,78 +240,75 @@ public static class DatabaseMapper
                     SpecialityDisplayName = a.Speciality?.DisplayName,
                 }).ToList() ?? [],
 
-                AvailabilityStatus = documentEntryDto.AvailabilityStatus,
-                ClassCode = new()
+                DE_AvailabilityStatus = documentEntryDto.AvailabilityStatus,
+                DE_ClassCode = new()
                 {
                     Code = documentEntryDto.ClassCode?.Code,
                     CodeSystem = documentEntryDto.ClassCode?.CodeSystem,
                     DisplayName = documentEntryDto.ClassCode?.DisplayName
                 },
-                ConfidentialityCode = documentEntryDto.ConfidentialityCode?.Select(c => new DbCodedValue()
+                DE_ConfidentialityCode = documentEntryDto.ConfidentialityCode?.Select(c => new DbCodedValue()
                 {
                     Code = c.Code,
                     CodeSystem = c.CodeSystem,
                     DisplayName = c.DisplayName,
                 }).ToList() ?? [],
-                CreationTime = documentEntryDto.CreationTime,
-                EventCodeList = new()
+                DE_CreationTime = documentEntryDto.CreationTime,
+                DE_EventCodeList = new()
                 {
                     Code = documentEntryDto.EventCodeList?.Code,
                     CodeSystem = documentEntryDto.EventCodeList?.CodeSystem,
                     DisplayName = documentEntryDto.EventCodeList?.DisplayName
                 },
-                FormatCode = new()
+                DE_FormatCode = new()
                 {
                     Code = documentEntryDto.FormatCode?.Code,
                     CodeSystem = documentEntryDto.FormatCode?.CodeSystem,
                     DisplayName = documentEntryDto.FormatCode?.DisplayName
                 },
-                Hash = documentEntryDto.Hash,
-                HealthCareFacilityTypeCode = new()
+                DE_Hash = documentEntryDto.Hash,
+                DE_HealthCareFacilityTypeCode = new()
                 {
                     Code = documentEntryDto.HealthCareFacilityTypeCode?.Code,
                     CodeSystem = documentEntryDto.HealthCareFacilityTypeCode?.CodeSystem,
                     DisplayName = documentEntryDto.HealthCareFacilityTypeCode?.DisplayName,
                 },
-                HomeCommunityId = documentEntryDto.HomeCommunityId,
+                DE_HomeCommunityId = documentEntryDto.HomeCommunityId,
                 Id = documentEntryDto.Id,
-                LanguageCode = documentEntryDto.LanguageCode,
-                LegalAuthenticator = new()
+                DE_LanguageCode = documentEntryDto.LanguageCode,
+                DE_LegalAuthenticator = new()
                 {
                     Id = documentEntryDto.LegalAuthenticator?.Id,
                     IdSystem = documentEntryDto.LegalAuthenticator?.IdSystem,
                     FirstName = documentEntryDto.LegalAuthenticator?.FirstName,
                     LastName = documentEntryDto.LegalAuthenticator?.LastName
                 },
-                MimeType = documentEntryDto.MimeType,
-                ObjectType = documentEntryDto.ObjectType,
-                PracticeSettingCode = new()
+                DE_MimeType = documentEntryDto.MimeType,
+                DE_ObjectType = documentEntryDto.ObjectType,
+                DE_PracticeSettingCode = new()
                 {
                     Code = documentEntryDto.PracticeSettingCode?.Code,
                     CodeSystem = documentEntryDto.PracticeSettingCode?.CodeSystem,
                     DisplayName = documentEntryDto.PracticeSettingCode?.DisplayName
                 },
-                RepositoryUniqueId = documentEntryDto.RepositoryUniqueId,
-                ServiceStartTime = documentEntryDto.ServiceStartTime,
-                ServiceStopTime = documentEntryDto.ServiceStopTime,
-                Size = documentEntryDto.Size,
-                SourcePatientInfo = new()
-                {
-                    PatientId = documentEntryDto.SourcePatientInfo?.PatientId?.Id,
-                    PatientSystem = documentEntryDto.SourcePatientInfo?.PatientId?.System,
-                    FirstName = documentEntryDto.SourcePatientInfo?.FirstName,
-                    LastName = documentEntryDto.SourcePatientInfo?.LastName,
-                    BirthTime = documentEntryDto.SourcePatientInfo?.BirthTime,
-                    Gender = documentEntryDto.SourcePatientInfo?.Gender,
-                },
-                Title = documentEntryDto.Title,
-                TypeCode = new()
+                DE_RepositoryUniqueId = documentEntryDto.RepositoryUniqueId,
+                DE_ServiceStartTime = documentEntryDto.ServiceStartTime,
+                DE_ServiceStopTime = documentEntryDto.ServiceStopTime,
+                DE_Size = documentEntryDto.Size,
+                DE_SourcePatientInfoPatientId = documentEntryDto.SourcePatientInfo.PatientId.Id,
+                DE_SourcePatientInfoPatientSystem = documentEntryDto.SourcePatientInfo.PatientId.System,
+                DE_SourcePatientInfoFirstName = documentEntryDto.SourcePatientInfo?.FirstName,
+                DE_SourcePatientInfoLastName = documentEntryDto.SourcePatientInfo?.LastName,
+                DE_SourcePatientInfoBirthTime = documentEntryDto.SourcePatientInfo?.BirthTime,
+                DE_SourcePatientInfoGender = documentEntryDto.SourcePatientInfo?.Gender,
+                DE_Title = documentEntryDto.Title,
+                DE_TypeCode = new()
                 {
                     Code = documentEntryDto.TypeCode?.Code,
                     CodeSystem = documentEntryDto.TypeCode?.CodeSystem,
                     DisplayName = documentEntryDto.TypeCode?.DisplayName,
                 },
-                UniqueId = documentEntryDto.UniqueId
+                DE_UniqueId = documentEntryDto.UniqueId
             };
         }
 
@@ -310,7 +316,7 @@ public static class DatabaseMapper
         {
             return new DbSubmissionSet()
             {
-                Author = submissionSetDto.Author?.Select(a => new DbAuthorInfo()
+                SS_Author = submissionSetDto.Author?.Select(a => new DbAuthorInfo()
                 {
                     DepartmentId = a.Department?.Id,
                     DepartmentAssigningAuthority = a.Department?.AssigningAuthority,
@@ -334,13 +340,13 @@ public static class DatabaseMapper
                     SpecialityDisplayName = a.Speciality?.DisplayName,
                 }).ToList() ?? [],
 
-                AvailabilityStatus = submissionSetDto.AvailabilityStatus,
-                HomeCommunityId = submissionSetDto.HomeCommunityId,
+                SS_AvailabilityStatus = submissionSetDto.AvailabilityStatus,
+                SS_HomeCommunityId = submissionSetDto.HomeCommunityId,
                 Id = submissionSetDto.Id,
-                Title = submissionSetDto.Title,
-                UniqueId = submissionSetDto.UniqueId,
-                SourceId = submissionSetDto.SourceId,
-                SubmissionTime = submissionSetDto.SubmissionTime
+                SS_Title = submissionSetDto.Title,
+                SS_UniqueId = submissionSetDto.UniqueId,
+                SS_SourceId = submissionSetDto.SourceId,
+                SS_SubmissionTime = submissionSetDto.SubmissionTime
             };
         }
 
@@ -349,10 +355,10 @@ public static class DatabaseMapper
             return new DbAssociation()
             {
                 Id = associationDto.Id,
-                AssociationType = associationDto.AssociationType,
-                SourceObjectId = associationDto.SourceObject,
-                TargetObjectId = associationDto.TargetObject,
-                SubmissionSetStatus = associationDto.SubmissionSetStatus
+                AS_AssociationType = associationDto.AssociationType,
+                AS_SourceObjectId = associationDto.SourceObject,
+                AS_TargetObjectId = associationDto.TargetObject,
+                AS_SubmissionSetStatus = associationDto.SubmissionSetStatus
             };
         }
 

@@ -1,0 +1,28 @@
+﻿using System.Net;
+using System.Text.Json;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.RestfulRegistry;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
+
+namespace XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
+
+public class JsonDenyResponseStrategy : IPepDenyResponseStrategy
+{
+    public bool CanHandle(string? contentType, PolicyInputResult input) => true;
+
+    public async Task WriteAsync(HttpContext context, PolicyInputResult input, ApplicationConfig appConfig, string? message)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+        context.Response.ContentType = Constants.MimeTypes.Json;
+
+        var resp = new RestfulApiResponse(false, message ?? "An error has occured");
+        await context.Response.WriteAsync(JsonSerializer.Serialize(resp, Constants.JsonDefaultOptions.DefaultSettings));
+    }
+
+    public string[] GetAcceptedContentTypes()
+    {
+        return [
+
+        ];
+    }
+}

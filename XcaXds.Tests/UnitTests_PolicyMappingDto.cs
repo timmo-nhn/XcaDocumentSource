@@ -24,7 +24,10 @@ public class UnitTests_PolicyMappingDto
 
         var requests = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "SoapRequests"));
         var registry = new FileBasedRegistry(new FakeLogger<FileBasedRegistry>());
-        XacmlContextRequest xacmlObject = PolicyRequestMapperSaml.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))!, Encoding.UTF8), Commons.Commons.XacmlVersion.Version20, Issuer.HelseId, registry.ReadRegistry())!;
+
+        var policyRequestMapper = new Mock<PolicyRequestMapperSamlService>();
+
+        XacmlContextRequest xacmlObject = policyRequestMapper.Object.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))!, Encoding.UTF8), Issuer.HelseId)!;
         var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml!);

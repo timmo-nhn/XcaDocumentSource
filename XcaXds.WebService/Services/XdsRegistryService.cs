@@ -34,7 +34,6 @@ public partial class XdsRegistryService
     {
         var registryResponse = new RegistryResponseType();
 
-        var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
         if (envelope == null)
         {
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "No SOAP envelope provided", "XDS Registry");
@@ -51,6 +50,7 @@ public partial class XdsRegistryService
 
         var deprecates = submissionRegistryObjects.OfType<AssociationType>().Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace).ToArray();
 
+        var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
         if (DuplicateUuidsExist(registryObjects, submissionRegistryObjects, out string[] duplicateIds))
         {
             _logger.LogError($"{envelope?.Header.MessageId} - Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}");
@@ -67,26 +67,33 @@ public partial class XdsRegistryService
             var documentId = replaceAssociation.TargetObject;
             if (string.IsNullOrWhiteSpace(documentId)) continue;
 
-            registryObjects.DeprecateDocumentEntry(documentId, out bool success);
-
-            if (success == false)
+            if (registryObjects.TryDeprecateDocumentEntry(documentId, out var deprecatedEntry) && deprecatedEntry != null)
+            {
+                // We will use Upsert-logic to update the registry later, which will
+                // overwrite the existing DbEntities with now deprecated entries from the out-variable.
+                // This is the safest option to avoid materialization issues with IEnumerable...
+                submissionRegistryObjects.Add(deprecatedEntry);
+            }
+            else
             {
                 _logger.LogWarning($"{envelope?.Header.MessageId} - Error deprecating document - id {documentId} not found");
                 continue;
             }
 
             _logger.LogInformation($"{envelope?.Header.MessageId} - Successfully deprecated document with id {documentId}");
+
+            var deprecatedEntriesSoFar = submissionRegistryObjects.OfType<ExtrinsicObjectType>().Where(ro => ro.Status == Constants.Xds.StatusValues.Deprecated).ToArray();
         }
 
         bool registryUpdateResult = false;
 
         if (validateOnly == false)
         {
-            var elementsToUpdate = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos([.. registryObjects, .. submissionRegistryObjects]);
+            var submissionElementsToUpdate = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(submissionRegistryObjects).ToList();
 
-            RegistryMetadataTransformer.TransformFhirConceptsToXdsConcepts(elementsToUpdate);
+            RegistryMetadataTransformer.TransformFhirConceptsToXdsConcepts(submissionElementsToUpdate);
 
-            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(elementsToUpdate.ToList());
+            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(submissionElementsToUpdate);
             if (registryUpdateResult)
             {
                 registryResponse.EvaluateStatusCode();
@@ -122,8 +129,8 @@ public partial class XdsRegistryService
             case Constants.Xds.StoredQueries.FindDocuments:
                 var findDocumentsSearchParameters = RegistryStoredQueryParameters.GetFindDocumentsParameters(adhocQueryRequest.AdhocQuery);
 
-                var patientIdentifier = Hl7Object.Parse<CX>(findDocumentsSearchParameters.XdsDocumentEntryPatientId) 
-                    is { } patId 
+                var patientIdentifier = Hl7Object.Parse<CX>(findDocumentsSearchParameters.XdsDocumentEntryPatientId)
+                    is { } patId
                     ? new PatientId(patId.IdNumber, patId.AssigningAuthority?.UniversalId)
                     : null;
 
@@ -187,14 +194,14 @@ public partial class XdsRegistryService
 
                 // Materialize the query results before doing more granular filtering
                 enumeratedEntriesResult = [.. registryElements ?? []];
-                
+
                 var count = enumeratedEntriesResult.Count;
-                
+
                 // Apply business-logic filtering
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {count}");
 
                 var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-                
+
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
 
                 enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)];
@@ -489,13 +496,13 @@ public partial class XdsRegistryService
             var assocRegistryPackage = registryPackages!.FirstOrDefault(eo => eo.Id?.NoUrn() == association.SourceObject?.NoUrn());
             var assocDocument = documents?.FirstOrDefault(doc => doc.Id?.NoUrn() == assocExtrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value?.NoUrn());
 
-            if (assocExtrinsicObject is null && assocDocument is not null && assocRegistryPackage is null)
+            if (assocExtrinsicObject == null && assocDocument != null && assocRegistryPackage == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSMissingDocumentMetadata, $"Missing document metadata for document with ID {assocDocument?.Id}", "XDS Registry");
                 continue;
             }
 
-            if (assocExtrinsicObject is null || assocDocument is null || assocRegistryPackage is null)
+            if (assocExtrinsicObject == null || assocDocument == null || assocRegistryPackage == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSMissingDocument, $"Missing document/sourceobject/targetobject for association {association.Id}", "XDS Registry");
                 continue;
