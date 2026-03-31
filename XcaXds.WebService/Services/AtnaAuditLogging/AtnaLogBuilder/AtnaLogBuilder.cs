@@ -2,12 +2,13 @@
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 
-public class AtnaLogBuilderService
+public class AtnaLogBuilder
 {
-    private readonly ILogger<AtnaLogBuilderService> _logger;
+    private readonly ILogger<AtnaLogBuilder> _logger;
     private readonly IEnumerable<IAtnaLogStrategy> _strategies;
     private readonly ApplicationConfig _appConfig;
-    public AtnaLogBuilderService(ILogger<AtnaLogBuilderService> logger, IEnumerable<IAtnaLogStrategy> strategies, ApplicationConfig appConfig)
+
+    public AtnaLogBuilder(ILogger<AtnaLogBuilder> logger, IEnumerable<IAtnaLogStrategy> strategies, ApplicationConfig appConfig)
     {
         _appConfig = appConfig;
         _logger = logger;
@@ -22,10 +23,7 @@ public class AtnaLogBuilderService
         }
 
         var contentType = context.Request.ContentType?.Split(";").FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(contentType))
-        {
-            throw new InvalidOperationException("Missing Content-Type");
-        }
+
         var method = context.Request.Method;
 
         var strategy = _strategies.FirstOrDefault(s => s.CanHandle(contentType, method));

@@ -134,8 +134,11 @@ public class Program
         builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
 
-        builder.Services.AddScoped<AtnaLogBuilderService>();
+        builder.Services.AddScoped<AtnaLogBuilder>();
         builder.Services.AddScoped<IAtnaLogStrategy, SoapEnvelopeStrategy>();
+        builder.Services.AddScoped<IAtnaLogStrategy, FhirPatchDocumentStrategy>();
+        builder.Services.AddScoped<IAtnaLogStrategy, FhirDeleteDocumentsStrategy>();
+        builder.Services.AddScoped<IAtnaLogStrategy, FhirProvideBundleStrategy>();
 
         builder.Services.AddSingleton<AtnaLogEnricherService>();
         builder.Services.AddSingleton<PolicyRequestMapperSamlService>();

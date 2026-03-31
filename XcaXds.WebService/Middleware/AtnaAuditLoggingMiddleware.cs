@@ -7,22 +7,20 @@ internal class AtnaAuditLoggingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<AtnaAuditLoggingMiddleware> _logger;
-    private readonly AtnaLogBuilderService _atnaLogBuilder;
 
-    public AtnaAuditLoggingMiddleware(RequestDelegate next, ILogger<AtnaAuditLoggingMiddleware> logger, AtnaLogBuilderService atnaLogBuilder)
+    public AtnaAuditLoggingMiddleware(RequestDelegate next, ILogger<AtnaAuditLoggingMiddleware> logger)
     {
         _next = next;
         _logger = logger;
-        _atnaLogBuilder = atnaLogBuilder;
     }
 
-    public async Task InvokeAsync(HttpContext httpContext)
+    public async Task InvokeAsync(HttpContext httpContext, AtnaLogBuilder atnaLogBuilder)
     {
         await _next(httpContext);
         if (IsMiddlewareEnabledForRequestEndpoint(httpContext))
         {
             _logger.LogInformation("ATNA audit logging is enabled for this endpoint. Logging request.");
-            await _atnaLogBuilder.BuildAsync(httpContext);
+            await atnaLogBuilder.BuildAsync(httpContext);
         }
         else
         {

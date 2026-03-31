@@ -172,6 +172,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         {
             Content = new StringContent(patchBody, Encoding.UTF8, Constants.MimeTypes.FhirJson)
         };
+
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
         var response = await _client.SendAsync(httpRequest);
