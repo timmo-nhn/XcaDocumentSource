@@ -228,7 +228,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id, out var deletedEntry);
 
-        HttpContext.Items.Add("deltedEntry", deletedEntry);
+        HttpContext.Items.Add("deletedEntry", deletedEntry);
 
         if (deleteResponse.Success)
         {
@@ -253,17 +253,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             }
         }
 
-        // Atna log generation
-        XacmlContextRequest? xacmlRequest = null;
-
-        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
-        {
-            xacmlRequest = xacmlContextRequest;
-        }
-        var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var ok);
-
-        _atnaLoggingService.CreateAuditLogForFhirDeleteDocumentsRequest(new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier), deletedEntry, operationOutcome, token);
-
         if (operationOutcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error))
         {
             return BadRequestOperationOutcome.Create(operationOutcome);
@@ -272,6 +261,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return OkOperationOutcome.Create(operationOutcome);
     }
 
+    [ExportsAtnaAuditLog]
     //[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
@@ -318,20 +308,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
         }
 
-        // Atna log generation
-        var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
-
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded: {fhirBundle.Entry.Count} XDSEntries");
-
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request...");
-
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
-            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwt(
-                new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
-                jwtToken,
-                fhirBundle,
-                provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
-            provideBundleResult.RegistryResponse);
+        // ATNA Audit Log generation
+        HttpContext.Items.Add("uploadedEntries", provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList);
+        HttpContext.Items.Add("uploadedEntriesRegistryResponse", provideBundleResult.RegistryResponse);
 
         var anyProvideErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
 
@@ -341,7 +320,11 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         }
 
         var transactionBundle = CreateFhirTransactionResponseBundle(fhirBundle);
-        transactionBundle.Entry.Add(new() { Resource = provideBundleResult.Outcome });
+
+        if (provideBundleResult.Outcome?.Issue?.Count > 0)
+        {
+            transactionBundle.Entry.Add(new() { Resource = provideBundleResult.Outcome });
+        }
 
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
         var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
@@ -349,6 +332,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
 
+    [ExportsAtnaAuditLog]
     // Validate Endpoint
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
@@ -379,15 +363,11 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         operationOutcome.Issue.AddRange(validationResult.Issue);
 
         // Atna log generation
-        var jwtToken = Request.Headers["Authorization"].FirstOrDefault();
-
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Uploaded {fhirBundle.Entry.Count} Entries");
-
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for ITI-65 request");
+        var jwtToken = Request.Headers.Authorization.FirstOrDefault();
 
         _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
-            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwt(
-                new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
+            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
+                new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier, HttpContext.Request.Path.Value),
                 jwtToken,
                 fhirBundle,
                 provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
@@ -474,6 +454,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return responseBundle;
     }
 
+    [ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPatch("DocumentReference/{id}")]
@@ -497,10 +478,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(parseError ?? "Invalid securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
         }
 
-        var documentEntry = _registryWrapper
-            .GetDocumentRegistryContentAsDtos()
-            .OfType<DocumentEntryDto>()
-            .FirstOrDefault(de => string.Equals(de.Id, id, StringComparison.OrdinalIgnoreCase));
+        var documentEntry = _registryWrapper.GetSingleRegistryObjectAsDto(id) as DocumentEntryDto;
 
         if (documentEntry == null)
         {
@@ -516,20 +494,13 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 DisplayName = c.DisplayName
             }).ToList();
         
-        HttpContext.Items.Add("oldSecurityLabel", oldSecurityLabel);
 
         documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
         _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
 
         // Atna log generation
-        var token = JwtExtractor.ExtractJwt(HttpContext.Request.Headers, out var _);
-
-        _atnaLoggingService.CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-            new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier),
-            id,
-            oldSecurityLabel,
-            documentEntry,
-            token);
+        HttpContext.Items.Add("oldSecurityLabel", oldSecurityLabel);
+        HttpContext.Items.Add("patchedDocumentEntry", documentEntry);
 
         // Return the updated DocumentReference
         var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();

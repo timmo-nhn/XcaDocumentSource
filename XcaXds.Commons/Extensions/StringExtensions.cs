@@ -90,7 +90,7 @@ public static class StringExtensions
         };
     }
 
-    public static bool IsAnyOf(this string value, params string[] options)
+    public static bool IsAnyOf(this string? value, params string[] options)
     {
         if (string.IsNullOrWhiteSpace(value) || options == null) return false;
 

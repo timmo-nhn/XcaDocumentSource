@@ -25,7 +25,6 @@ public class XdsRespondingGatewayController : ControllerBase
     private readonly XdsRepositoryService _xdsRepositoryService;
     private readonly IVariantFeatureManager _featureManager;
     private readonly MonitoringStatusService _monitoringService;
-    private readonly AtnaLogGeneratorService _atnaLoggingService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads");
     private static readonly Meter Meter = new("nhn.Xcads.RespondingGateway", "1.0.0");
@@ -43,8 +42,7 @@ public class XdsRespondingGatewayController : ControllerBase
         XdsRepositoryService xdsRepositoryService,
         IVariantFeatureManager featureManager,
         IHttpClientFactory httpClientFactory,
-        MonitoringStatusService monitoringService,
-        AtnaLogGeneratorService atnaLoggingService
+        MonitoringStatusService monitoringService
         )
     {
         _logger = logger;
@@ -54,12 +52,12 @@ public class XdsRespondingGatewayController : ControllerBase
         _xdsRegistryService = xdsRegistryService;
         _httpClientFactory = httpClientFactory;
         _monitoringService = monitoringService;
-        _atnaLoggingService = atnaLoggingService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related", "application/xop+xml")]
     [Produces("application/soap+xml", "application/xop+xml", "application/octet-stream", "multipart/related")]
     [HttpPost("RespondingGatewayService")]
+    [ExportsAtnaAuditLog]
     [UsePolicyEnforcementPoint]
     public async Task<IActionResult> HandleRespondingGatewayRequests([FromBody] SoapEnvelope soapEnvelope)
     {
@@ -165,7 +163,6 @@ public class XdsRespondingGatewayController : ControllerBase
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for {action} request");
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 

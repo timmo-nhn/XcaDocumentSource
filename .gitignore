@@ -10,6 +10,10 @@
 *.userosscache
 *.sln.docstates
 XcaXds.Source/Registry/Registry.db
+XcaXds.Source/Repository/*
+!XcaXds.Source/Repository/.gitkeep
+XcaXds.Source/PolicyRepository/*
+!XcaXds.Source/PolicyRepository/.gitkeep
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

@@ -65,18 +65,18 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var excpectedRegistryObjects = BusinessLogicFilters.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()).ToArray();
 
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Fetched {count} entries");
 
-        // Cleanup
-        await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
     }
 
     [Fact]
@@ -113,18 +113,17 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var excpectedRegistryObjects = BusinessLogicFilters.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
 
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Fetched {count} entries");
-
-        // Cleanup
-        await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
+        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
     [Fact]
@@ -171,8 +170,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
@@ -239,8 +237,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
@@ -303,8 +300,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(0, retrieveDocumentSetResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
@@ -364,9 +360,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
-
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        
+        await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
@@ -482,8 +477,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
@@ -593,10 +587,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {_registry.ReadRegistry().Count()}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
 
@@ -744,7 +737,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {_registry.ReadRegistry().Count()}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
     [Fact]
@@ -870,16 +863,17 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var iti86RequestResponseContent = await iti86RequestResponse.Content.ReadAsStringAsync();
 
         var iti86ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti86RequestResponseContent);
-
-        Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
-        Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
-        //Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, _repository.DocumentRepository.Count);
-
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {_registry.ReadRegistry().Count()}");
+        
+        var registryCount = _registry.ReadRegistry().Count();
 
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
+
+        Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
+        Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
+
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {registryCount}");
     }
 
 
@@ -972,18 +966,6 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         return metadata;
     }
 
-    private async Task NukeRegistryRepository()
-    {
-        var getNukeKey = await _client.GetAsync("api/get-nuke-key");
-
-        var nukeResponse = JsonDocument.Parse(await getNukeKey.Content.ReadAsStringAsync());
-        var nukeKey = nukeResponse.RootElement.GetProperty("nukeKey").GetString();
-
-        var nuked = await _client.DeleteAsync($"/api/nuke?nukeKey={nukeKey}");
-        var registry = _registry.ReadRegistry();
-        Assert.Empty(registry.ToList());
-    }
-
     private XmlDocument? GetSoapEnvelopeWithKjernejournalForskriftenSamlToken(string soapEnvelope)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
@@ -998,7 +980,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         XNamespace saml = "urn:oasis:names:tc:SAML:2.0:assertion";
 
         var attribute = doc.Descendants(saml + "Attribute")
-            .FirstOrDefault(a => (string)a.Attribute("Name") == Constants.Saml.Attribute.EhelseScope);
+            .FirstOrDefault(a => (string?)a.Attribute("Name") == Constants.Saml.Attribute.EhelseScope);
 
         if (attribute != null)
         {
@@ -1059,39 +1041,6 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         }
 
         return soapEnvelopeDocument;
-    }
-    internal async Task SetupRegistryRepositoryAndPolicy()
-    {
-        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
-
-        var patients = _restfulRegistryService.GetPatientIdentifiersInRegistry();
-
-        // Ensure the registry has stuff to work with
-        if (patients?.Count == 0)
-        {
-            var testData = new StringContent(
-                File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("TestDataRegistryObjects.json"))),
-                Encoding.UTF8,
-                Constants.MimeTypes.Json
-                );
-
-            var testDataGenerationResponse = await _client.PostAsync("/api/generate-test-data", testData);
-        }
-
-        var tempPolicyName = "IT_CrossGateway";
-
-        _policyRepositoryService.AddPolicy(new PolicyDto()
-        {
-            Id = tempPolicyName,
-            Rules =
-            [[
-                new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:code", Value = "LE;SP;PS" },
-                new() { AttributeId = "urn:oasis:names:tc:xspa:1.0:subject:role:codeSystem", Value = "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060" }
-            ]],
-            Actions = ["ReadDocuments", "ReadDocumentList"],
-            Effect = "Permit",
-        });
     }
 }
 

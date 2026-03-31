@@ -28,18 +28,27 @@ public class AtnaLogEnricherService
         _policyRequestMapperJwtService = policyRequestMapperJwtService;
     }
 
-    public SoapEnvelope GetMockSoapEnvelopeFromJwt(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, IdentifiableType?[]? registryObjects)
+    public SoapEnvelope GetMockSoapEnvelopeFromJwtAndBundle(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, IdentifiableType?[]? registryObjects)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
         }
 
-        var requestType = additionalParameters.HttpMethod switch
+        // HAYO! RequestTypeInSamlToken - This is maybe a bit "jank", but in SOAP-context this is a good and pragmatic way to transport arbitrary stuff
+        var requestType = (additionalParameters.HttpMethod, additionalParameters.UrlPath) switch
         {
-            "POST" => "is_provide_bundle",
-            "DELETE" => "is_delete_bundle",
-            _ => "is_query_bundle"
+            ("POST", var path) when path != null && path.StartsWith("/R4/fhir") && path.EndsWith("/$validate")
+                => "is_validate_resource",
+
+            ("POST", _)
+                => "is_provide_bundle",
+
+            ("DELETE", _)
+                => "is_delete_bundle",
+
+            _ 
+                => "is_query_bundle"
         };
 
         XmlElement? samlAssertionElement = GetEnrichedSamlTokenFromTokenAndBundle(jwtToken, fhirBundle, requestType);

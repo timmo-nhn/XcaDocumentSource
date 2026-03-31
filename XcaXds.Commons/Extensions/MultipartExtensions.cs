@@ -26,16 +26,32 @@ public static class MultipartExtensions
         if (!MediaTypeHeaderValue.TryParse(contentType, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
-            var boundary = GetMultipartBoundary(mediaTypeHeaderValue.Boundary.Value, 512);
+            var boundary = GetMultipartBoundary(mediaTypeHeaderValue.Boundary.Value);
 
             var multipartReader = new MultipartReader(boundary, body);
             while (await multipartReader.ReadNextSectionAsync() is { } section)
             {
-                using (var sr = new StreamReader(section.Body))
-                {
-                    sb.Append(await sr.ReadToEndAsync());
-                }
+                using var sr = new StreamReader(section.Body);
+                sb.Append(await sr.ReadToEndAsync());
             }
+        }
+
+        body.Position = 0;
+        return sb.ToString();
+    }
+    public static async Task<string> ReadFirstMultipartSectionFromStream(Stream body, string contentType)
+    {
+        var sb = new StringBuilder();
+
+        if (!MediaTypeHeaderValue.TryParse(contentType, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
+            !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+        {
+            var boundary = GetMultipartBoundary(mediaTypeHeaderValue.Boundary.Value);
+
+            var multipartReader = new MultipartReader(boundary, body);
+            var section = await multipartReader.ReadNextSectionAsync();
+            using var sr = new StreamReader(section.Body);
+            sb.Append(await sr.ReadToEndAsync());
         }
 
         body.Position = 0;
@@ -43,16 +59,13 @@ public static class MultipartExtensions
     }
 
 
-    public static string GetMultipartBoundary(string? boundary, int lengthLimit)
+
+    public static string GetMultipartBoundary(string? boundary)
     {
         boundary = HeaderUtilities.RemoveQuotes(boundary).Value;
         if (string.IsNullOrEmpty(boundary))
         {
             throw new InvalidDataException("Missing content-type boundary.");
-        }
-        if (boundary.Length > lengthLimit)
-        {
-            throw new InvalidDataException($"Multipart boundary length limit {lengthLimit} exceeded.");
         }
         return boundary.ToString();
     }
@@ -65,25 +78,23 @@ public static class MultipartExtensions
         if (!MediaTypeHeaderValue.TryParse(contentTypeHeader, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(messageString);
+            writer.Flush();
+            stream.Position = 0;
+
+            var multipartReader = new MultipartReader(mediaTypeHeaderValue.Boundary.Value?.Trim('"'), stream);
+
+            var structuredSoapEnvelopeMultiparts = await GetSoapEnvelopeMultipartSections(multipartReader);
+
+            foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body.RetrieveDocumentSetResponse?.DocumentResponse ?? [])
             {
-                var writer = new StreamWriter(stream);
-                writer.Write(messageString);
-                writer.Flush();
-                stream.Position = 0;
-
-                var multipartReader = new MultipartReader(mediaTypeHeaderValue.Boundary.Value?.Trim('"'), stream);
-
-                var structuredSoapEnvelopeMultiparts = await GetSoapEnvelopeMultipartSections(multipartReader);
-
-                foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body.RetrieveDocumentSetResponse?.DocumentResponse ?? [])
-                {
-                    var xopInclude = documentResponse.GetXmlDocumentAsXopInclude();
-                    documentResponse.SetInlineDocument(structuredSoapEnvelopeMultiparts.MultiPartSections.FirstOrDefault(section => section.ContentId == xopInclude.href)?.Section ?? []);
-                }
-
-                soapMultipartMessage = structuredSoapEnvelopeMultiparts.SoapEnvelope;
+                var xopInclude = documentResponse.GetXmlDocumentAsXopInclude();
+                documentResponse.SetInlineDocument(structuredSoapEnvelopeMultiparts.MultiPartSections.FirstOrDefault(section => section.ContentId == xopInclude.href)?.Section ?? []);
             }
+
+            soapMultipartMessage = structuredSoapEnvelopeMultiparts.SoapEnvelope;
         }
 
         return soapMultipartMessage;
@@ -143,7 +154,6 @@ public static class MultipartExtensions
     public static MultipartContent ConvertRetrieveDocumentSetResponseToMultipartResponse(SoapEnvelope soapEnvelope, out string boundary)
     {
         var documentResponses = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
-        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline);
 
         var documentContents = new List<HttpContent>();
 
@@ -153,7 +163,7 @@ public static class MultipartExtensions
             {
                 if (string.IsNullOrWhiteSpace(documentResponse.Document?.InnerText)) continue;
 
-                var documentBytes = new byte[0];
+                var documentBytes = Array.Empty<byte>();
 
                 if (Base64.IsValid(documentResponse.Document.InnerText) && documentResponse.MimeType == Constants.MimeTypes.Hl7v3Xml)
                 {

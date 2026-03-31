@@ -19,13 +19,13 @@ public static class BusinessLogicFilters
 
     public static readonly Dictionary<string, string> Hl7ConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Hl7.ConfidentialityCode));
     public static readonly string? Hl7ConfCodeOid = Hl7ConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
-    public static readonly CodedValue[]? Hl7ConfCodeValues = Hl7ConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = Hl7ConfCodeOid }).ToArray();
+    public static readonly CodedValue[]? Hl7ConfCodeValues = [.. Hl7ConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = Hl7ConfCodeOid })];
 
     public static readonly Dictionary<string, string> VolvenConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603));
     public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
-    public static readonly CodedValue[]? VolvenConfCodeValues = VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid }).ToArray();
+    public static readonly CodedValue[]? VolvenConfCodeValues = [.. VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid })];
 
-    public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!)).ToHashSet();
+    public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = [.. Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!))];
 
     private static readonly HashSet<(string Code, string CodeSystem)> CitizenObfuscationCodes =
     [
@@ -38,8 +38,8 @@ public static class BusinessLogicFilters
         (NORS, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
     ];
 
-    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => CitizenObfuscationCodes.Contains(v)).ToList();
-    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = AllConfidentialityCodes.Where(v => HealthcarePersonellObfuscationCodes.Contains(v)).ToList();
+    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
+    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
 
     /// <summary>
     /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
@@ -399,8 +399,7 @@ public static class BusinessLogicFilters
         }
     }
 
-    private static IEnumerable<IdentifiableType> DenyAll() =>
-        Enumerable.Empty<IdentifiableType>();
+    private static IEnumerable<IdentifiableType> DenyAll() { return []; }
 
     public static bool InRange(this int input, int lower, int upper)
     {

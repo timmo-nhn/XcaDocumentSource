@@ -17,6 +17,7 @@ namespace XcaXds.WebService.Controllers;
 [ApiController]
 [Route("Repository/services")]
 [UsePolicyEnforcementPoint]
+[ExportsAtnaAuditLog]
 public class XdsRepositoryController : ControllerBase
 {
     private readonly ILogger<XdsRepositoryController> _logger;
@@ -24,15 +25,13 @@ public class XdsRepositoryController : ControllerBase
     private readonly XdsRegistryService _registryService;
     private readonly ApplicationConfig _xdsConfig;
     private readonly IVariantFeatureManager _featureManager;
-    private readonly AtnaLogGeneratorService _auditLoggingService;
 
     public XdsRepositoryController(
         ILogger<XdsRepositoryController> logger,
         XdsRepositoryService repositoryService,
         XdsRegistryService registryService,
         ApplicationConfig xdsConfig,
-        IVariantFeatureManager featureManager,
-        AtnaLogGeneratorService auditLoggingService
+        IVariantFeatureManager featureManager
         )
     {
         _logger = logger;
@@ -40,7 +39,6 @@ public class XdsRepositoryController : ControllerBase
         _registryService = registryService;
         _xdsConfig = xdsConfig;
         _featureManager = featureManager;
-        _auditLoggingService = auditLoggingService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related")]
@@ -203,12 +201,10 @@ public class XdsRepositoryController : ControllerBase
         }
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for {action} request");
-        _auditLoggingService.CreateAuditLogForSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         requestTimer.Stop();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
         return Ok(responseEnvelope);
     }
-
 }

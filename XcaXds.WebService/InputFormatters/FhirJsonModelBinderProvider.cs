@@ -3,7 +3,7 @@ using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using XcaXds.Commons.Commons;
-
+using XcaXds.Commons.Extensions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.WebService.InputFormatters;

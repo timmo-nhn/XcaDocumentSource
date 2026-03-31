@@ -380,44 +380,5 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         await WaitForAtnaLogToBeExported();
         _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
     }
-
-    private async Task WaitForAtnaLogToBeExported()
-    {
-        // Audit is generated via background service; allow a brief window for the queue to be drained.
-        var timeoutAt = DateTime.UtcNow.AddSeconds(4);
-        while (!_atnaLogExportedChecker.AtnaLogExported && DateTime.UtcNow < timeoutAt)
-        {
-            await Task.Delay(50);
-        }
-
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
-    }
-
-    private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
-    {
-        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtos().ToList());
-
-        var documents = metadata.Select(dto => dto.Document);
-
-        foreach (var document in documents)
-        {
-            _repository.Write(document.DocumentId, document.Data, patientIdentifier);
-        }
-
-        return metadata;
-    }
-
-    private async Task NukeRegistryRepository()
-    {
-        var getNukeKey = await _client.GetAsync("api/get-nuke-key");
-
-        var nukeResponse = JsonDocument.Parse(await getNukeKey.Content.ReadAsStringAsync());
-        var nukeKey = nukeResponse.RootElement.GetProperty("nukeKey").GetString();
-
-        var nuked = await _client.DeleteAsync($"/api/nuke?nukeKey={nukeKey}");
-
-        Assert.Empty(_registry.ReadRegistry());
-    }
 }
 #pragma warning restore CS8604, CS8602 // Possible null reference argument.

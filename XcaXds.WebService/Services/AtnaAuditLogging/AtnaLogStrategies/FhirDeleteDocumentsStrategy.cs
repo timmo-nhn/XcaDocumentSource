@@ -17,15 +17,16 @@ public class FhirDeleteDocumentsStrategy : IAtnaLogStrategy
 
     public FhirDeleteDocumentsStrategy(AtnaLogGeneratorService atnaLogGeneratorService, ILogger<FhirDeleteDocumentsStrategy> logger)
     {
-        _atnaLogGeneratorService = atnaLogGeneratorService;        _logger = logger;
+        _atnaLogGeneratorService = atnaLogGeneratorService;
+        _logger = logger;
     }
 
-    public bool CanHandle(string contentType, string method)
+    public bool CanHandle(string path, string? contentType, string method)
     {
-        return method.IsAnyOf(Constants.MimeTypes.FhirJson) && method == "DELETE";
+        return path.StartsWith("/R4/fhir/DocumentReference") && method == "DELETE";
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
     {
         var fhirParser = new FhirJsonDeserializer();
 
@@ -38,7 +39,6 @@ public class FhirDeleteDocumentsStrategy : IAtnaLogStrategy
         {
             return AtnaLogBuilderResult.Fail($"{context.TraceIdentifier} - JWT extraction failed! AtnaLog cannot be created for this request");
         }
-
 
         var operationOutcome = fhirParser.DeserializeResource(await HttpRequestResponseExtensions.GetStreamAsStringAsync(response.Body)) as OperationOutcome;
 

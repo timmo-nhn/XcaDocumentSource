@@ -339,22 +339,23 @@ public class RestfulRegistryRepositoryService
         var submissionSetToPatch = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ro => ro.Id == value.SubmissionSet?.Id);
         var associationToPatch = documentRegistry.OfType<AssociationDto>().FirstOrDefault(ro => ro.Id == value.Association?.Id);
 
+        var logSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
 
         if (documentEntryToPatch != null)
         {
-            _logger.LogInformation($"Updating documentEntry {documentEntryToPatch.Id} with values:\n {JsonSerializer.Serialize(value.DocumentEntry, new JsonSerializerOptions() { WriteIndented = true })}");
+            _logger.LogInformation($"Updating documentEntry {documentEntryToPatch.Id} with values:\n {JsonSerializer.Serialize(value.DocumentEntry, logSerializerOptions)}");
             ObjectMerger.MergeObjects(documentEntryToPatch, value.DocumentEntry);
         }
 
         if (submissionSetToPatch != null)
         {
-            _logger.LogInformation($"Updating submissionSet {submissionSetToPatch.Id} with values:\n {JsonSerializer.Serialize(value.SubmissionSet, new JsonSerializerOptions() { WriteIndented = true })}");
+            _logger.LogInformation($"Updating submissionSet {submissionSetToPatch.Id} with values:\n {JsonSerializer.Serialize(value.SubmissionSet, logSerializerOptions)}");
             ObjectMerger.MergeObjects(submissionSetToPatch, value.SubmissionSet);
         }
 
         if (associationToPatch != null)
         {
-            _logger.LogInformation($"Updating association {associationToPatch.Id} with values:\n {JsonSerializer.Serialize(value.Association, new JsonSerializerOptions() { WriteIndented = true })}");
+            _logger.LogInformation($"Updating association {associationToPatch.Id} with values:\n {JsonSerializer.Serialize(value.Association, logSerializerOptions)}");
             ObjectMerger.MergeObjects(associationToPatch, value.Association);
         }
 

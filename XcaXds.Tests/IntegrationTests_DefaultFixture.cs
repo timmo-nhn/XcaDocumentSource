@@ -4,17 +4,22 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Tests.FakesAndDoubles;
+using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 
+
 namespace XcaXds.Tests;
 
+#pragma warning disable CS8602, CS8604 // Dereference of a possibly null reference.
 public class IntegrationTests_DefaultFixture
 {
     internal readonly HttpClient _client;
@@ -95,4 +100,44 @@ public class IntegrationTests_DefaultFixture
         _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
         _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
     }
+
+    internal async Task WaitForAtnaLogToBeExported()
+    {
+        // Audit is generated via background service; allow a brief window for the queue to be drained.
+        var timeoutAt = DateTime.UtcNow.AddSeconds(4);
+        while (!_atnaLogExportedChecker.AtnaLogExported && DateTime.UtcNow < timeoutAt)
+        {
+            await Task.Delay(50);
+        }
+
+        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+    }
+
+    internal List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
+    {
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtos().ToList());
+
+        var documents = metadata.Select(dto => dto.Document);
+
+        foreach (var document in documents)
+        {
+            _repository.Write(document.DocumentId, document.Data, patientIdentifier);
+        }
+
+        return metadata;
+    }
+
+    internal async Task NukeRegistryRepository()
+    {
+        var getNukeKey = await _client.GetAsync("api/get-nuke-key");
+        var stringContent = await getNukeKey.Content.ReadAsStringAsync();
+        var nukeResponse = JsonDocument.Parse(stringContent);
+        var nukeKey = nukeResponse.RootElement.GetProperty("nukeKey").GetString();
+
+        var nuked = await _client.DeleteAsync($"/api/nuke?nukeKey={nukeKey}");
+
+        Assert.Empty(_registry.ReadRegistry());
+    }
 }
+#pragma warning restore CS8602, CS8604 // Dereference of a possibly null reference.

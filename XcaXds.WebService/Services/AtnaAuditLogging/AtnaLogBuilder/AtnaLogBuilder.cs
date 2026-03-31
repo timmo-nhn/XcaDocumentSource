@@ -15,25 +15,30 @@ public class AtnaLogBuilder
         _strategies = strategies;
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
     {
         if (!_strategies.Any())
         {
             throw new InvalidOperationException("Missing strategies");
         }
 
+        var path = context.Request.Path.Value ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Path cannot be null!");
         var contentType = context.Request.ContentType?.Split(";").FirstOrDefault();
-
         var method = context.Request.Method;
 
-        var strategy = _strategies.FirstOrDefault(s => s.CanHandle(contentType, method));
+        var combination = $"Path: {path}, Content-Type: {contentType}, Method: {method}";
+        _logger.LogInformation(combination);
+
+        var strategy = _strategies.FirstOrDefault(s => s.CanHandle(path, contentType, method));
+
+
         if (strategy == null)
         {
-            _logger.LogError($"Unknown content type: {contentType}");
-            return AtnaLogBuilderResult.Fail($"Unknown content type: {contentType}");
+            var message = $"No compatible AtnaLogStrategy for combination of {combination}";
+            _logger.LogError(message);
+            return AtnaLogBuilderResult.Fail(message);
         }
 
-        _logger.LogInformation($"Content type: {contentType}");
-        return await strategy.BuildAsync(context);
+        return await strategy.BuildAsync(context, requestBody);
     }
 }

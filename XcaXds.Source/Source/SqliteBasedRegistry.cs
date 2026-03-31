@@ -233,7 +233,22 @@ public class SqliteBasedRegistry : IRegistry
         var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
         db.RegistryObjects.RemoveRange(db.RegistryObjects);
         db.RegistryObjects.AddRange(dbEntities);
-        db.SaveChanges();
+        try
+        {
+            db.SaveChanges();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Ignore — row already gone
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
+        {
+            _logger.LogError(ex,
+            "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
+            sqlEx.SqliteErrorCode,
+            sqlEx.SqliteExtendedErrorCode);
+            throw;
+        }
         return true;
     }
 

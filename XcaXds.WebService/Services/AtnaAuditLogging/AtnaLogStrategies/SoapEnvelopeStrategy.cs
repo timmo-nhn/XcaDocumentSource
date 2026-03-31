@@ -14,34 +14,34 @@ public class SoapEnvelopeStrategy : IAtnaLogStrategy
         _atnaLogGeneratorService = atnaLogGeneratorService;
     }
 
-    public bool CanHandle(string contentType, string method)
+    public bool CanHandle(string path, string? contentType, string method)
     {
         return contentType.IsAnyOf(Constants.MimeTypes.SoapXml, Constants.MimeTypes.MultipartRelated) && method == "POST";
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
     {
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var request = context.Request;
         var response = context.Response;
 
-        var requestBody = await HttpRequestResponseExtensions.GetStreamAsStringAsync(request.Body);
+        var requestBodyString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(requestBody);
 
         if (request.ContentType != null && request.ContentType.Contains(Constants.MimeTypes.MultipartRelated))
         {
-            requestBody = await MultipartExtensions.ReadMultipartContentFromStream(request.Body, request.ContentType);
+            requestBodyString = await MultipartExtensions.ReadMultipartContentFromStream(requestBody, request.ContentType);
         }
 
-        var responseBody = await HttpRequestResponseExtensions.GetStreamAsStringAsync(response.Body);
+        var responseBodyString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(response.Body);
 
         if (response.ContentType != null && response.ContentType.Contains(Constants.MimeTypes.MultipartRelated))
         {
-            responseBody = await MultipartExtensions.ReadMultipartContentFromStream(response.Body, response.ContentType);
+            responseBodyString = await MultipartExtensions.ReadFirstMultipartSectionFromStream(response.Body, response.ContentType);
         }
 
-        var requestSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody);
-        var responseSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(responseBody);
+        var requestSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(requestBodyString);
+        var responseSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(responseBodyString);
 
         if (requestSoapEnvelope == null || responseSoapEnvelope == null)
         {

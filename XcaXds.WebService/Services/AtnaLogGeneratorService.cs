@@ -24,6 +24,7 @@ public class AtnaLogGeneratorService
     private readonly IAtnaLogQueue _queue;
     private readonly RegistryWrapper _registryWrapper;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
+
     public AtnaLogGeneratorService(ILogger<AtnaLogGeneratorService> logger, ApplicationConfig appConfig, IAtnaLogQueue queue, RegistryWrapper registryWrapper, AtnaLogEnricherService atnaLogEnricherService)
     {
         _logger = logger;
@@ -35,73 +36,28 @@ public class AtnaLogGeneratorService
 
     public void CreateAuditLogForSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
     {
-        try
-        {
-            _queue.Enqueue(() => GetAuditEventFromSoapRequestResponse(requestEnvelope, responseEnvelope));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating auditlog");
-        }
+        _queue.Enqueue(() => GetAuditEventFromSoapRequestResponse(requestEnvelope, responseEnvelope));
     }
 
     public void CreateAuditLogForFhirRequestResponse(Resource request, Resource response)
     {
-        try
-        {
-            _queue.Enqueue(() => GetAuditEventFromFhirRequestResponse(request, response));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating auditlog");
-        }
+        _queue.Enqueue(() => GetAuditEventFromFhirRequestResponse(request, response));
     }
 
     public void CreateAuditLogForFhirDeleteDocumentsRequest(AdditionalParameters additionalParameters, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
-        try
-        {
-            _queue.Enqueue(() => GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(additionalParameters, deletedEntry, operationOutcome, token));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating auditlog");
-        }
+        _queue.Enqueue(() => GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(additionalParameters, deletedEntry, operationOutcome, token));
     }
 
-    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(AdditionalParameters additionalParameters, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
+    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(AdditionalParameters httpContext, List<CodedValue>? oldSecurityLabel, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
     {
-        try
-        {
-            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(additionalParameters, updatedEntry, token, null, null, null));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating auditlog");
-        }
-    }
+        var newSecurityLabel = updatedEntry?.ConfidentialityCode;
+        // Clone to avoid mutation after we enqueue (controller updates the same DTO instance).
+        var oldCopy = CloneCodedValues(oldSecurityLabel);
+        var newCopy = CloneCodedValues(newSecurityLabel);
+        var updatedCopy = CloneDocumentEntryDto(updatedEntry);
 
-    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-        AdditionalParameters httpContext,
-        string documentReferenceId,
-        List<CodedValue>? oldSecurityLabel,
-        DocumentEntryDto? updatedEntry,
-        JwtSecurityToken? token)
-    {
-        try
-        {
-            var newSecurityLabel = updatedEntry?.ConfidentialityCode;
-            // Clone to avoid mutation after we enqueue (controller updates the same DTO instance).
-            var oldCopy = CloneCodedValues(oldSecurityLabel);
-            var newCopy = CloneCodedValues(newSecurityLabel);
-            var updatedCopy = CloneDocumentEntryDto(updatedEntry);
-
-            _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedCopy, token, documentReferenceId, oldCopy, newCopy));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating auditlog");
-        }
+        _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedCopy, token, updatedEntry?.Id, oldCopy, newCopy));
     }
 
     private AuditEvent GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(AdditionalParameters additionalParameters, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
@@ -116,7 +72,7 @@ public class AtnaLogGeneratorService
 
         var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
 
-        var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, [extrinsicObject]);
+        var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(additionalParameters, token?.RawData, null, [extrinsicObject]);
 
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
         soapEnvelope.Header.MessageId = additionalParameters.TraceIdentifier;
@@ -169,7 +125,7 @@ public class AtnaLogGeneratorService
             ? [association]
             : [extrinsicObject, association];
 
-        var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwt(additionalParameters, token?.RawData, null, registryObjects);
+        var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(additionalParameters, token?.RawData, null, registryObjects);
 
         // ITI-42 is used here to represent an update/amend of registry metadata.
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
@@ -327,11 +283,9 @@ public class AtnaLogGeneratorService
 
             var providerIdentifierCoded = SamlExtensions.GetSamlAttributeValueAsCodedValue(providerIdentifierValue);
 
-
             // is_provide_bundle, patient_given and patient_family are custom attributes added only by FhirMobileAccessToHealthDocumentsController.ProvideBundle method
             var isProvideBundle = statements?
-                .FirstOrDefault(s => s.Name == "is_provide_bundle")
-                ?.Values
+                .FirstOrDefault(s => s.Name == "is_provide_bundle")?.Values
                 .FirstOrDefault() == "true";
 
             string? patientGiven = null;
@@ -865,6 +819,9 @@ public class AtnaLogGeneratorService
 
     private AuditEvent.AuditEventAction? GetActionFromSoapEnvelope(SoapEnvelope? requestEnvelope)
     {
+        // Override for $validate-endpoint on FHIR, 
+        if (RequestIsExecute(requestEnvelope)) return AuditEvent.AuditEventAction.E;
+
         switch (requestEnvelope?.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
@@ -884,6 +841,27 @@ public class AtnaLogGeneratorService
             default:
                 return AuditEvent.AuditEventAction.R;
         }
+    }
+
+    private bool RequestIsExecute(SoapEnvelope? requestEnvelope)
+    {
+        List<Saml2Attribute>? statements = new();
+        Saml2SecurityToken? samlToken = null;
+
+        var samlTokenRaw = requestEnvelope?.Header.Security?.Assertion?.OuterXml;
+
+        if (!string.IsNullOrWhiteSpace(samlTokenRaw))
+        {
+            samlToken = SamlExtensions.ReadSamlToken(samlTokenRaw);
+
+            statements = samlToken?.Assertion.Statements
+            .OfType<Saml2AttributeStatement>()
+            .SelectMany(statement => statement.Attributes)
+            .ToList();
+        }
+
+        return statements?.FirstOrDefault(s => s.Name == "is_validate_resource")?.Values
+            .FirstOrDefault() == "true";
     }
 
     private AuditEvent.AuditEventAction? GetCreateOrUpdateFromRequest(SoapEnvelope requestEnvelope)
@@ -922,6 +900,13 @@ public class AtnaLogGeneratorService
     {
         var action = requestEnvelope?.Header.Action;
 
+        if (RequestIsExecute(requestEnvelope)) return new Coding()
+        {
+            Code = "verify",
+            System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+            Display = "Verify Record Lifecycle Event"
+        };
+
         switch (action)
         {
             case Constants.Xds.OperationContract.Iti18Action:
@@ -939,44 +924,43 @@ public class AtnaLogGeneratorService
             case Constants.Xds.OperationContract.Iti42Action:
                 var associations = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.OfType<AssociationType>();
 
-                var isOriginate = associations?.Any(assoc => assoc.AssociationTypeData?.IsAnyOf(HasMember, Addendum) == true) ?? false;
-                var isTransform = associations?.Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Transformation, ReplaceWithTransformation) == true) ?? false;
-                var isAmend = associations?.Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Replace) == true) ?? false;
+                var type = associations switch
+                {
+                    var ass when ass != null && ass.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Transformation, ReplaceWithTransformation))
+                        => "transform",
 
-                if (isAmend)
+                    var ass when ass != null && ass.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace))
+                        => "amend",
+
+                    _
+                        => "originate"
+                };
+
+
+                return type switch
                 {
-                    return new Coding()
-                    {
-                        Code = "amend",
-                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
-                        Display = "Amend (Update) Record Lifecycle Event"
-                    };
-                }
-                if (isTransform)
-                {
-                    return new Coding()
+                    "transform" => new Coding()
                     {
                         Code = "transform",
                         System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                         Display = "Transform/Translate Record Lifecycle Event"
-                    };
-                }
-                if (isOriginate)
-                {
-                    return new Coding()
+                    },
+
+                    "amend" => new Coding()
+                    {
+                        Code = "amend",
+                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                        Display = "Amend (Update) Record Lifecycle Event"
+                    },
+
+                    // Default: Assume Hasmember/addition
+                    _ => new Coding()
                     {
                         Code = "originate",
                         System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                         Display = "Originate/Retain Record Lifecycle Event"
-                    };
-                }
+                    }
 
-                // Default: Assume Hasmember/addition
-                return new Coding()
-                {
-                    Code = "originate",
-                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
-                    Display = "Originate/Retain Record Lifecycle Event"
                 };
 
             case Constants.Xds.OperationContract.Iti86Action:
