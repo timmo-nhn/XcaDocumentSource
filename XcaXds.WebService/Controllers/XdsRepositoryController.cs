@@ -68,12 +68,12 @@ public class XdsRepositoryController : ControllerBase
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
 
                 var iti43Response = _repositoryService.RetrieveDocumentSet(soapEnvelope, xacmlRequest);
-                if (iti43Response.IsSuccess is false)
+                if (iti43Response.IsSuccess == false)
                 {
                     break;
                 }
 
-                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true && Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated)
+                if (_xdsConfig.MultipartResponseForIti43AndIti39 == true && Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated)
                 {
                     var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(iti43Response.Value, out var boundary);
 
@@ -122,7 +122,7 @@ public class XdsRepositoryController : ControllerBase
 
                 var submittedDocumentsTooLarge = _repositoryService.CheckIfDocumentsAreTooLarge(soapEnvelope);
 
-                if (submittedDocumentsTooLarge.IsSuccess is false)
+                if (submittedDocumentsTooLarge.IsSuccess == false)
                 {
                     responseEnvelope = submittedDocumentsTooLarge.Value;
                     break;
@@ -130,7 +130,7 @@ public class XdsRepositoryController : ControllerBase
 
                 var iti42Message = _registryService.CopyIti41ToIti42Message(soapEnvelope);
 
-                if (iti42Message.IsSuccess is false)
+                if (iti42Message.IsSuccess == false)
                 {
                     responseEnvelope.Body ??= new();
                     responseEnvelope.Body.RegistryResponse = iti42Message.Value?.Body.RegistryResponse;
@@ -140,7 +140,7 @@ public class XdsRepositoryController : ControllerBase
 
                 var repositoryDocumentExists = _repositoryService.CheckIfDocumentExistsInRepository(soapEnvelope);
 
-                if (repositoryDocumentExists.IsSuccess is false)
+                if (repositoryDocumentExists.IsSuccess == false)
                 {
                     var registryError = repositoryDocumentExists.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.FirstOrDefault();
                     if (registryError != null)
@@ -153,7 +153,7 @@ public class XdsRepositoryController : ControllerBase
 
                 var registerDocumentSetResponse = _registryService.AppendToRegistry(iti42Message.Value);
 
-                if (registerDocumentSetResponse.IsSuccess is false)
+                if (registerDocumentSetResponse.IsSuccess == false)
                 {
                     responseEnvelope = registerDocumentSetResponse.Value;
                     break;
@@ -161,7 +161,7 @@ public class XdsRepositoryController : ControllerBase
 
                 var documentUploadResponse = _repositoryService.UploadContentToRepository(soapEnvelope);
 
-                if (documentUploadResponse.IsSuccess is false)
+                if (documentUploadResponse.IsSuccess == false)
                 {
                     responseEnvelope = documentUploadResponse.Value;
                     break;

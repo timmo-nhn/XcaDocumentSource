@@ -1,1 +1,5 @@
-{}
+{
+    "csharp-dev-tools.roslyn.projectOrSolutionFiles": [
+        "c:\\Users\\timmo\\source\\repos\\XcaDocumentSource\\XcaDocumentSource.sln"
+    ]
+}

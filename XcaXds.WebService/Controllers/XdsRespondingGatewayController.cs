@@ -114,13 +114,13 @@ public class XdsRespondingGatewayController : ControllerBase
 
 
 
-                if (iti39Response.IsSuccess is false)
+                if (iti39Response.IsSuccess == false)
                 {
                     responseEnvelope = iti39Response.Value;
                     break;
                 }
 
-                if (_xdsConfig.MultipartResponseForIti43AndIti39 is true && Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated && iti39Response.Value != null)
+                if (_xdsConfig.MultipartResponseForIti43AndIti39 == true && Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated && iti39Response.Value != null)
                 {
                     var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetResponseToMultipartResponse(iti39Response.Value, out var boundary);
 

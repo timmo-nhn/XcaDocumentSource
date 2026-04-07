@@ -748,7 +748,7 @@ public static partial class CdaTransformer
         return new()
         {
             Root = documentEntry.RepositoryUniqueId ?? string.Empty,
-            Extension = documentEntry.Id ?? Guid.NewGuid().ToString()
+            Extension = documentEntry.UniqueId ?? Guid.NewGuid().ToString()
         };
     }
 }
