@@ -20,7 +20,7 @@ namespace XcaXds.Commons.DataManipulators
 
             foreach (var claim in payload)
             {
-                if (claim.Value is null)
+                if (claim.Value == null)
                 {
                     continue;
                 }
