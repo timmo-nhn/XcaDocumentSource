@@ -1,4 +1,6 @@
 ﻿using Abc.Xacml.Context;
+using System.Net;
+using System.Text.RegularExpressions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Commons.Extensions;
@@ -45,7 +47,7 @@ public static class XacmlExtensions
     public static CodedValue? GetXacmlAttributeValuesAsCodedValue(this List<XacmlContextAttribute>? xacmlAttributes, string attributeValue)
     {
         var filteredAttributes = xacmlAttributes.GetXacmlContextAttributesById(attributeValue)?.Distinct()?
-            .ToDictionary(k => k.AttributeId.AbsoluteUri, v => v.AttributeValues.FirstOrDefault()?.Value);
+            .ToDictionary(k => k.AttributeId.AbsoluteUri, v => v.AttributeValues.FirstOrDefault()?.Value != null ? WebUtility.HtmlDecode(Regex.Unescape(v.AttributeValues.First().Value)) : null);
 
         if (filteredAttributes == null || filteredAttributes.Count == 0) return null;
 

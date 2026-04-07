@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens.Saml2;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons.Commons;
@@ -29,9 +30,18 @@ public class SamlExtensions
     public static Saml2SecurityToken? ReadSamlToken(string? inputSamlToken)
     {
         if (inputSamlToken == null) return null;
+        
+		inputSamlToken = Regex.Unescape(inputSamlToken);
 
-        var handler = new Saml2SecurityTokenHandler();
-        return handler.ReadSaml2Token(inputSamlToken);
+		try
+        {
+            var handler = new Saml2SecurityTokenHandler();
+            return handler.ReadSaml2Token(inputSamlToken);
+        }
+        catch (Exception ex)
+        {
+            return null; 
+        }
     }
 
     public static CodedValue? GetSamlAttributeValueAsCodedValue(string? attributeValue)

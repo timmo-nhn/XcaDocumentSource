@@ -266,19 +266,33 @@ public static class BusinessLogicFilters
     public static BusinessRule<IdentifiableType> HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences { get; set; } = new()
     {
         Name = nameof(HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences),
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.SubjectOrganization != null &&
-
-            logic.Subject.Code == null ||
-            logic.Resource!.Code == null ||
-            logic.SubjectOrganization!.Code == null ||
-            !logic.Purpose!.Code!.IsAnyOf(TREAT, ETREAT, COC, BTG, PATRQT, FAMRQT, PWATRNY, ClinicalCare_1, EmergencyCare_2, Management_5, SubjectOfCare_13),
+        Condition = logic => HealthcarePersonellHasMissingAttributes(logic),
 
         Filter = _ => DenyAll()
     };
+
+    private static bool HealthcarePersonellHasMissingAttributes(BusinessLogicParameters logic)
+    {
+        var hasRequiredObjects =
+            logic.Subject != null &&
+            logic.Resource != null &&
+            logic.Purpose != null &&
+            logic.SubjectOrganization != null;
+
+        if (!hasRequiredObjects)
+            return false;
+
+        var subjectCodeMissing = logic.Subject!.Code == null;
+        var resourceCodeMissing = logic.Resource!.Code == null;
+        var subjectOrgCodeMissing = logic.SubjectOrganization!.Code == null;
+        var purposeMissingOrInvalid =
+            logic.Purpose!.Code == null ||
+            !logic.Purpose.Code.IsAnyOf(
+                TREAT, ETREAT, COC, BTG, PATRQT, FAMRQT, PWATRNY,
+                ClinicalCare_1, EmergencyCare_2, Management_5, SubjectOfCare_13);
+
+        return subjectCodeMissing || resourceCodeMissing || subjectOrgCodeMissing || purposeMissingOrInvalid;
+    }
 
     /// <summary>
     /// Filter according to Kjernejournalforskriften <para/>

@@ -62,7 +62,7 @@ public partial class SlotType
             {
                 firstValue = firstValue.Split("','").FirstOrDefault();
 
-                return firstValue?.Trim().Trim(['(', ')']).Trim('\'');
+                return firstValue?.Trim().Trim(['(', ')']).Trim('\'').Replace("\\u0027", ""); 
             }
             return firstValue;
         }
