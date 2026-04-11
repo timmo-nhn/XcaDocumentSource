@@ -1,5 +1,6 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.FhirPath.Sprache;
+using Microsoft.IdentityModel.Tokens.Experimental;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Buffers.Text;
@@ -76,6 +77,21 @@ public class XdsRepositoryService
 
             var patientIdPart = patientId?.Substring(0, patientId.IndexOf("^^^"));
             var documentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
+
+            var mimeType = StringExtensions.GetMimetypeFromMagicNumber(assocDocument?.Value);
+            var documentEntryMimetype = assocExtrinsicObject?.MimeType;
+
+            if (mimeType != documentEntryMimetype)
+            {
+                _logger.LogWarning("Warning! MimeType in DocumentEntry does not match actual document mime type. Document ID: {DocumentId}, DocumentEntry MimeType: {DocumentEntryMimeType}, Actual MimeType: {ActualMimeType}", assocDocument?.Id, documentEntryMimetype, mimeType);
+            }
+
+            if (mimeType == null)
+            {
+                _logger.LogWarning("Warning! MimeType in DocumentEntry does not match actual document mime type. Document ID: {DocumentId}, DocumentEntry MimeType: {DocumentEntryMimeType}, Actual MimeType: {ActualMimeType}", assocDocument?.Id, documentEntryMimetype, mimeType);
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Could not determine mime type of document", $"Document ID: {assocDocument?.Id}");
+            }
+
 
             if (documentEntryUniqueId == null)
             {

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq.Expressions;
+using System.Text;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -74,7 +75,7 @@ public static class StringExtensions
                      (input[3] == 0x38 && (input[4] == 0x37 || input[4] == 0x39) && input[5] == 0x61))
                     ? "image/gif" : null,
 
-            // TIFF: Starts with "II" (0x49 0x49) or "MM" (0x4D 0x4D)
+            // TIFF: Starts with "II" (0x49 0x49) (little endian) or "MM" (0x4D 0x4D) (big endian)
             0x49 => (input[1] == 0x49 || input[1] == 0x4D)
                     ? "image/tiff" : null,
 
@@ -82,8 +83,12 @@ public static class StringExtensions
             0x7B => (input[1] == 0x5C && input[2] == 0x72 && input[3] == 0x74 && input[4] == 0x66)
                     ? "application/rtf" : null,
 
+            // EXE: Starts with "0x4D 0x5A"
+            0x4D => (input[1] == 0x5A)
+                    ? "application/rtf" : null,
+
             // ClinicalDocument: Starts with "<ClinicalDocument"
-            0x3C => IsClinicalDocument(input) ? "application/hl7-v3+xml" : null,
+            0x3C => IsClinicalDocument(input) ? "application/hl7-v3+xml" : "application/xml",
 
             // Check for TXT: All characters in range of printable ASCII
             _ => input.All(b => b >= 32 && b <= 126) ? "text/plain" : null,
