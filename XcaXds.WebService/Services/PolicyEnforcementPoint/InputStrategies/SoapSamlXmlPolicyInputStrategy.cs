@@ -44,13 +44,13 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 
         // If BypassPolicyEnforcementPoint is true and ValidateSamlTokenIntegrity is true, we should still skip validating the SAML-token,
         // as SAML-token validation can be seen as a subset of the policy enforcement process
-        var shouldBypassTokenValidation = appConfig.ValidateSamlTokenIntegrity;
+        var shouldBypassTokenValidation = !appConfig.ValidateSamlTokenIntegrity;
         if (appConfig.BypassPolicyEnforcementPoint == true)
         {
             shouldBypassTokenValidation = true;
         }
 
-        if (shouldBypassTokenValidation)
+        if (!shouldBypassTokenValidation)
         {
             _logger.LogInformation($"{context.TraceIdentifier} - {nameof(appConfig.ValidateSamlTokenIntegrity)} Is true, validating SAML-token");
             var validations = new Saml2SecurityTokenHandler();

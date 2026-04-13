@@ -41,9 +41,11 @@ public class Saml2Validator
         validationMessage = string.Empty;
         var token = _saml2Handler.ReadSaml2Token(samlXml);
         try
-        {
-            var principal = _saml2Handler.ValidateToken(samlXml, _validationParameters, out var validatedToken);
-            var results = new List<bool>();
+        {            
+			var unescapedSamlToken = System.Text.RegularExpressions.Regex.Unescape(samlXml);			
+			var principal = _saml2Handler.ValidateToken(samlXml, _validationParameters, out var validatedToken);
+			//var principal = _saml2Handler.ValidateToken(unescapedSamlToken, _validationParameters, out var validatedToken); // Must use this for tokens from Kjernejournal portal? Tim: vi må diskutere dette nærmere
+			var results = new List<bool>();
 
             foreach (var signingKey in _validationParameters.IssuerSigningKeys)
             {
