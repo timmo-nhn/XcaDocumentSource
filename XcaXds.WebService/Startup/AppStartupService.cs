@@ -109,6 +109,7 @@ public class AppStartupService : IHostedService
             _logger.LogWarning($"Registry contains a dud (No Registry metadata associated with it): {dud}");
         }
     }
+
     private void AddDefaultAccessControlPolicies()
     {
         var cz_deny_adhocquery_resourceid = new PolicyDto()
@@ -195,7 +196,7 @@ public class AppStartupService : IHostedService
         var machine_create_update_documents = new PolicyDto()
         {
             Id = "DEFAULT_machine_create_update_documents",
-            AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
+            AppliesTo = [Issuer.HelseId],
             Rules =
             [[
                 new(Constants.Saml.Attribute.EhelseScope, "nhn:phr-document-repository/mhd/create-documents-with-reference"),
@@ -207,7 +208,7 @@ public class AppStartupService : IHostedService
 		var machine_delete_documents = new PolicyDto()
 		{
 			Id = "DEFAULT_machine_delete_documents",
-			AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
+			AppliesTo = [Issuer.HelseId],
 			Rules =
 			[			[
 				new(Constants.Saml.Attribute.EhelseScope, "nhn:phr-document-repository/delete-documents-and-reference"),
