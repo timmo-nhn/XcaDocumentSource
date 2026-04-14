@@ -1557,25 +1557,25 @@ public static class Constants
 
         }
     }
+
     public static class MimeTypes
     {
-        public const string FhirJson = "application/fhir+json";
-        public const string Hl7v3Xml = "application/hl7-v3+xml";
-        public const string Json = "application/json";
-        public const string SoapXml = "application/soap+xml";
-        public const string MultipartRelated = "multipart/related";
-        public const string XopXml = "application/xop+xml";
-        public const string SevenZip = "application/x-7z-compressed";
         public const string Acc = "audio/aac";
         public const string Avi = "video/x-msvideo";
+        public const string Binary = "application/octet-stream";
         public const string Doc = "application/msword";
         public const string Docm = "application/vnd.ms-word.document.macroEnabled.12";
         public const string Docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        public const string Exe = "application/vnd.microsoft.portable-executable";
+        public const string FhirJson = "application/fhir+json";
         public const string Gif = "image/gif";
+        public const string Hl7v3Xml = "application/hl7-v3+xml";
         public const string Html = "text/html";
         public const string Jpeg = "image/jpeg";
+        public const string Json = "application/json";
         public const string Mp4 = "video/mp4";
         public const string Mpeg = "video/mpeg";
+        public const string MultipartRelated = "multipart/related";
         public const string Odp = "application/vnd.oasis.opendocument.presentation";
         public const string Ods = "application/vnd.oasis.opendocument.spreadsheet";
         public const string Odt = "application/vnd.oasis.opendocument.text";
@@ -1589,9 +1589,10 @@ public static class Constants
         public const string Pptm = "application/vnd.ms-powerpoint.presentation.macroEnabled.12";
         public const string Pptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
         public const string Rtf = "application/rtf";
+        public const string SevenZip = "application/x-7z-compressed";
+        public const string SoapXml = "application/soap+xml";
         public const string Text = "text/plain";
         public const string Tiff = "image/tiff";
-        public const string Binary = "application/octet-stream";
         public const string Vsd = "application/vnd.visio";
         public const string Wav = "audio/x-wav";
         public const string Weba = "audio/webm";
@@ -1604,6 +1605,7 @@ public static class Constants
         public const string Xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         public const string Xml = "application/xml";
         public const string XmlReadable = "text/xml";
+        public const string XopXml = "application/xop+xml";
         public const string Zip = "application/zip";
     }
 

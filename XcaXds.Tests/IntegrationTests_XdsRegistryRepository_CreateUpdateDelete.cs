@@ -592,6 +592,79 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
+    [Fact]
+    [Trait("Upload", "Modify Registry/Repository")]
+    public async Task PNR_UploadDocuments_RandomMimeType_ContainsInvalids_RandomAmount()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_CrossGatewayQuery",
+            attributeId: Constants.Saml.Attribute.Role,
+            codeValue: "LE;SP;PS",
+            codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
+            action: "Create");
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+
+        var testdataDocuments = JsonSerializer.Deserialize<FileDude[]>(File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("Documents"))));
+
+        await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
+        var registryObjects = metadata.AsRegistryObjectDtos();
+        var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
+
+        int unsupportedMimeTypeCount = 0;
+
+        // Replace documents with TestDataDocuments
+        foreach (var document in documents)
+        {
+            var randomFile = testdataDocuments.PickRandom();
+
+            document.Value = randomFile.data;
+            registryObjects.OfType<DocumentEntryDto>()?.FirstOrDefault(ro => ro.UniqueId == document.Id)?.MimeType = randomFile.mimeType;
+            if (randomFile.mimeType.IsAnyOf(BusinessLogicFilters.AllowedMimetypes) == false)
+            {
+                unsupportedMimeTypeCount++;
+            }
+        }
+
+        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
+
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryObjects)];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
+
+        var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
+        
+        var expectedCountAfterPnR = RegistryItemCount; // Nothing should be updated
+
+        var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
+        var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+
+        Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(unsupportedMimeTypeCount, firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+
+        Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
+
+        await WaitForAtnaLogToBeExported();
+
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+    }
 
     [Fact]
     [Trait("Update", "Modify Registry/Repository")]
@@ -950,22 +1023,6 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         _policyRepositoryService.DeleteAllPolicies();
     }
 
-
-    private async Task<List<DocumentReferenceDto>> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
-    {
-        await NukeRegistryRepository();
-
-        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtos().ToList());
-
-        foreach (var document in metadata.Select(dto => dto.Document))
-        {
-            _repository.Write(document.DocumentId, document.Data);
-        }
-
-        return metadata;
-    }
-
     private XmlDocument? GetSoapEnvelopeWithKjernejournalForskriftenSamlToken(string soapEnvelope)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
@@ -1042,6 +1099,12 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         return soapEnvelopeDocument;
     }
+}
+
+internal class FileDude
+{
+    public string? mimeType { get; set; }
+    public byte[]? data { get; set; }
 }
 
 internal class Dude

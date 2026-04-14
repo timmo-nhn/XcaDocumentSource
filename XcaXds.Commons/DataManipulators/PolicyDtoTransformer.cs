@@ -210,7 +210,7 @@ public static class PolicyDtoTransformer
                         secondStringOneAndOnly.Parameters.Add(new XacmlResourceAttributeDesignator(valueAsUri, new Uri(Constants.Xacml.DataType.String)) { MustBePresent = true });
                         stringEqual.Parameters.Add(secondStringOneAndOnly);
 
-                        if (rule.CompareRule == CompareRule.NotEquals)
+                        if (rule.CompareRule == AttributeCompareRule.NotEquals)
                         {
                             var notApply = new XacmlApply(new Uri(Constants.Xacml.Functions.Not));
                             notApply.Parameters.Add(stringEqual);

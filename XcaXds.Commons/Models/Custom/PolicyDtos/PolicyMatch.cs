@@ -5,7 +5,7 @@ namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
 public class PolicyMatch
 {
-    public PolicyMatch(string attributeId, CompareRule compareRule, string value)
+    public PolicyMatch(string attributeId, AttributeCompareRule compareRule, string value)
     {
         AttributeId = attributeId;
         CompareAttributes = true;
@@ -25,6 +25,6 @@ public class PolicyMatch
     public string? AttributeId { get; set; }
     public bool? CompareAttributes { get; set; }
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public CompareRule CompareRule { get; set; }
+    public AttributeCompareRule CompareRule { get; set; }
     public string? Value { get; set; }
 }

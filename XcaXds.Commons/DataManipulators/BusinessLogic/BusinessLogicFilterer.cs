@@ -71,7 +71,7 @@ public static class BusinessLogicFilterer
         }
 
         results = resultCounts;
-        return current;
+        return current ?? [];
     }
 
     public static BusinessLogicResult<T> ExecuteRule<T>(BusinessRule<T> rule, IEnumerable<T> objects, BusinessLogicParameters logic)

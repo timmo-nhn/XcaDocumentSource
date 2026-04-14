@@ -58,6 +58,11 @@ public abstract class Hl7Object
         return output;
     }
 
+    public bool Equals(Hl7Object? hl7Object)
+    {
+        return this.Serialize() == hl7Object?.Serialize();
+    }
+
     private static PropertyAndAttribute[] GetHl7Properties(Hl7Object instance)
     {
         var output =

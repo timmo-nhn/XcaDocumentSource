@@ -118,8 +118,8 @@ public class AppStartupService : IHostedService
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
             [[
-                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Saml.Attribute.XuaAcp, CompareRule.Equals, Constants.Oid.Saml.Acp.NullValue)
+                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
             ]],
             Actions = ["ReadDocumentList"],
             Effect = "Deny"
@@ -132,14 +132,14 @@ public class AppStartupService : IHostedService
             Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
             Rules =
             [[
-                new(Constants.Saml.Attribute.ProviderIdentifier + ":code",CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Saml.Attribute.ProviderIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                new(Constants.Saml.Attribute.ProviderIdentifier + ":code",AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Saml.Attribute.ProviderIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", CompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
                 new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
             ]],
@@ -198,7 +198,7 @@ public class AppStartupService : IHostedService
             AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
             Rules =
             [[
-                new(Constants.Saml.Attribute.EhelseScope, "nhn:phr/mhd/create-documents-with-reference"),
+                new(Constants.Saml.Attribute.EhelseScope, "nhn:phr-document-repository/mhd/create-documents-with-reference"),
             ]],
             Actions = ["Delete"],
             Effect = "Permit"

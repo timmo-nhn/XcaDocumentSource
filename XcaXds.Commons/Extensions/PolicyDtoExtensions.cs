@@ -31,7 +31,7 @@ public static class PolicyDtoExtensions
         return policyDto;
     }
 
-    public static PolicyDto AddRule(this PolicyDto policyDto, string attributeId, CompareRule compareRule, string value)
+    public static PolicyDto AddRule(this PolicyDto policyDto, string attributeId, AttributeCompareRule compareRule, string value)
     {
         policyDto.Rules ??= [[]];
         policyDto.Rules.Add([new(attributeId, compareRule, value)]);

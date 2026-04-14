@@ -41,14 +41,24 @@ public partial class XdsRegistryService
         }
 
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
+        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(BusinessLogicFilters.AllowedMimetypes) == false).ToArray();
+       
+        if (invalidMimetypes?.Length > 0)
+        {
+            _logger.LogError($"{envelope?.Header.MessageId} - Invalid MimeType detected in RegistryObjectList");
+            foreach (var extObjt in invalidMimetypes)
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Invalid MimeType: {extObjt.MimeType} for DocumentEntry with Id: {extObjt.Id}, Document Id: {extObjt.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value}", "XDS Registry");
+            }
+            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+        }
+
         if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
         {
             _logger.LogError($"{envelope?.Header.MessageId} - Empty or invalid Registry objects in RegistryObjectList");
             registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Empty or invalid Registry objects in RegistryObjectList", "XDS Registry");
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
-
-        var deprecates = submissionRegistryObjects.OfType<AssociationType>().Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace).ToArray();
 
         var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
         if (DuplicateUuidsExist(registryObjects, submissionRegistryObjects, out string[] duplicateIds))
@@ -63,7 +73,7 @@ public partial class XdsRegistryService
             .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace).ToList();
 
         foreach (var replaceAssociation in documentReplaceAssociations)
-        {
+         {
             var documentId = replaceAssociation.TargetObject;
             if (string.IsNullOrWhiteSpace(documentId)) continue;
 
@@ -87,6 +97,7 @@ public partial class XdsRegistryService
 
         bool registryUpdateResult = false;
 
+        registryResponse.EvaluateStatusCode();
         if (validateOnly == false)
         {
             var submissionElementsToUpdate = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(submissionRegistryObjects).ToList();
@@ -96,7 +107,6 @@ public partial class XdsRegistryService
             registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(submissionElementsToUpdate);
             if (registryUpdateResult)
             {
-                registryResponse.EvaluateStatusCode();
                 return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
             }
         }

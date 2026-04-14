@@ -35,7 +35,7 @@ public class AtnaLogEnricherService
             jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
         }
 
-        // HAYO! RequestTypeInSamlToken - This is maybe a bit "jank", but in SOAP-context this is a good and pragmatic way to transport arbitrary stuff
+        // HAYO! RequestTypeInSamlToken - This is maybe a bit "jank", but in SOAP-context this is a OK and pragmatic way to transport arbitrary stuff
         var requestType = (additionalParameters.HttpMethod, additionalParameters.UrlPath) switch
         {
             ("POST", var path) when path != null && path.StartsWith("/R4/fhir") && path.EndsWith("/$validate")

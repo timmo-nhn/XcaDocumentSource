@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace XcaXds.Commons.Commons;
 
-public enum CompareRule
+public enum AttributeCompareRule
 {
     Equals,
     NotEquals

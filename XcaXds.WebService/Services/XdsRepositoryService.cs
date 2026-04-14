@@ -1,6 +1,6 @@
 ﻿using Abc.Xacml.Context;
+using Hl7.Fhir.Model;
 using Hl7.FhirPath.Sprache;
-using Microsoft.IdentityModel.Tokens.Experimental;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Buffers.Text;
@@ -9,9 +9,11 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.WebService.Services;
@@ -53,6 +55,8 @@ public class XdsRepositoryService
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var documents = provideAndRegisterDocumentSetRequest?.Document;
 
+        var documentsToUpload = new List<(DocumentType,string?)>();
+
         // Only process HasMember associations (SubmissionSet pointing to a document) for document storage (others such as RPLC, XFRM etc. are not handled here)
         foreach (var association in associations.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember))
         {
@@ -64,6 +68,7 @@ public class XdsRepositoryService
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "ExtrinsicObject Missing", "SubmitObjectsRequest");
             }
+
             if (assocDocument == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Document missing", "SubmitObjectsRequest");
@@ -75,38 +80,52 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Patient ID missing", "ExtrinsicObject");
             }
 
-            var patientIdPart = patientId?.Substring(0, patientId.IndexOf("^^^"));
+            var patientIdPart = Hl7Object.Parse<CX>(patientId)?.IdNumber;
             var documentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
-            var mimeType = StringExtensions.GetMimetypeFromMagicNumber(assocDocument?.Value);
+            var mimeType = StringExtensions.GetMimeTypeFromMagicByte(assocDocument?.Value);
             var documentEntryMimetype = assocExtrinsicObject?.MimeType;
 
-            if (mimeType != documentEntryMimetype)
+            if (!documentEntryMimetype.IsAnyOf(BusinessLogicFilters.AllowedMimetypes) ||
+                !mimeType.IsAnyOf(BusinessLogicFilters.AllowedMimetypes))
             {
-                _logger.LogWarning("Warning! MimeType in DocumentEntry does not match actual document mime type. Document ID: {DocumentId}, DocumentEntry MimeType: {DocumentEntryMimeType}, Actual MimeType: {ActualMimeType}", assocDocument?.Id, documentEntryMimetype, mimeType);
+                var message = $"Unsupported MimeType {mimeType}";
+
+                _logger.LogWarning(message);
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, "XDS Repository");
             }
 
-            if (mimeType == null)
+            if (mimeType != documentEntryMimetype || mimeType == null)
             {
-                _logger.LogWarning("Warning! MimeType in DocumentEntry does not match actual document mime type. Document ID: {DocumentId}, DocumentEntry MimeType: {DocumentEntryMimeType}, Actual MimeType: {ActualMimeType}", assocDocument?.Id, documentEntryMimetype, mimeType);
-                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Could not determine mime type of document", $"Document ID: {assocDocument?.Id}");
-            }
+                var message = $"MimeType in DocumentEntry is missing or does not match actual document mime type. Document ID: {assocDocument?.Id}, DocumentEntry MimeType: {documentEntryMimetype}, Actual MimeType: {mimeType}";
 
+                _logger.LogWarning(message);
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, "XDS Repository");
+            }
 
             if (documentEntryUniqueId == null)
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Document unique ID missing", "ExtrinsicObject");
             }
-            else
-            {
-                if (documentEntryUniqueId.NoUrn() != assocDocument?.Id?.NoUrn())
-                {
-                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Unique ID in DocumentEntry does not match Document unique ID. DocumentEntry UniqueID: {documentEntryUniqueId}, Document ID: {assocDocument?.Id}", $"XDS Repository");
-                }
 
-                if (assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
+            if (documentEntryUniqueId?.NoUrn() != assocDocument?.Id?.NoUrn())
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Unique ID in DocumentEntry does not match Document unique ID. DocumentEntry UniqueID: {documentEntryUniqueId}, Document ID: {assocDocument?.Id}", $"XDS Repository");
+            }
+
+            if (assocDocument != null)
+            {
+                documentsToUpload.Add((assocDocument, patientId));
+            }
+        }
+        // We should not break the loop if any errors are found, but also never store any documents to maintain submission atomicity
+        if (registryResponse.RegistryErrorList?.RegistryError.Length == 0)
+        {
+            foreach ((DocumentType assocDocument, string? patientIdPart) in documentsToUpload)
+            {
+                if (assocDocument.Id != null && assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
                 {
-                    var repositoryUpdateOk = _repositoryWrapper.StoreDocument(documentEntryUniqueId, assocDocument.Value, patientIdPart, validateOnly, out var message);
+                    var repositoryUpdateOk = _repositoryWrapper.StoreDocument(assocDocument.Id, assocDocument.Value, patientIdPart, validateOnly, out var message);
 
                     if (!repositoryUpdateOk && !string.IsNullOrWhiteSpace(message))
                     {
@@ -232,7 +251,7 @@ public class XdsRepositoryService
                     file = base64Document;
                 }
 
-                var mimeType = StringExtensions.GetMimetypeFromMagicNumber(file);
+                var mimeType = StringExtensions.GetMimeTypeFromMagicByte(file);
                 if (mimeType == "application/pdf")
                 {
                     try

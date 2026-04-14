@@ -143,15 +143,20 @@ public class XdsRepositoryController : ControllerBase
                 if (repositoryDocumentExists.IsSuccess == false)
                 {
                     var registryError = repositoryDocumentExists.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.FirstOrDefault();
+                    
                     if (registryError != null)
                     {
                         _logger.LogError($"Error while updating Registry:\n\tError: {registryError.ErrorCode}\n\tCodeContext: {registryError.CodeContext}\n\tLocation: {registryError.Location}");
                     }
+
                     responseEnvelope = repositoryDocumentExists.Value;
                     break;
                 }
 
-                var registerDocumentSetResponse = _registryService.AppendToRegistry(iti42Message.Value);
+                // Only validate first...
+                // This is needed to avoid a scenario where registry is updated but repository upload
+                // fails which would lead to broken references in the registry.
+                var registerDocumentSetResponse = _registryService.AppendToRegistry(iti42Message.Value, validateOnly: true);
 
                 if (registerDocumentSetResponse.IsSuccess == false)
                 {
@@ -166,6 +171,9 @@ public class XdsRepositoryController : ControllerBase
                     responseEnvelope = documentUploadResponse.Value;
                     break;
                 }
+                
+                // Perform upload
+                registerDocumentSetResponse = _registryService.AppendToRegistry(iti42Message.Value);
 
                 responseEnvelope.Header = new()
                 {
@@ -173,8 +181,8 @@ public class XdsRepositoryController : ControllerBase
                     Security = null,
                     RelatesTo = soapEnvelope.Header.MessageId
                 };
-                responseEnvelope.Body = documentUploadResponse.Value?.Body ?? new();
 
+                responseEnvelope.Body = documentUploadResponse.Value?.Body ?? new();
                 break;
 
             case Constants.Xds.OperationContract.Iti86Action:
@@ -191,6 +199,7 @@ public class XdsRepositoryController : ControllerBase
                 {
                     responseEnvelope = removeDocumentsResponse.Value;
                 }
+
                 break;
 
             default:
@@ -199,8 +208,6 @@ public class XdsRepositoryController : ControllerBase
                 _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
-
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for {action} request");
 
         requestTimer.Stop();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");

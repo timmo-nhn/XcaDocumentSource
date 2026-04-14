@@ -13,7 +13,7 @@ using static XcaXds.Commons.Commons.Constants.CodeSystems.Volven.Confidentiality
 
 namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
-public static class BusinessLogicFilters
+public static partial class BusinessLogicFilters
 {
     public static readonly ComprehensiveCodeSystem VolvenDocumentTypes = typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem();
 
@@ -37,9 +37,25 @@ public static class BusinessLogicFilters
     [
         (NORS, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
     ];
+}
 
-    public static readonly List<(string, string)> CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
-    public static readonly List<(string, string)> HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
+public static partial class BusinessLogicFilters
+{
+    public static readonly (string, string)[] CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
+    public static readonly (string, string)[] HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
+
+    public static readonly string[] AllowedMimetypes = 
+    [
+        Constants.MimeTypes.Pdf,
+        Constants.MimeTypes.Jpeg,
+        Constants.MimeTypes.Png,
+        Constants.MimeTypes.Tiff,
+        Constants.MimeTypes.Gif,
+        Constants.MimeTypes.Xml,
+        Constants.MimeTypes.Hl7v3Xml,
+        Constants.MimeTypes.Text,
+        Constants.MimeTypes.Rtf,
+    ];
 
     /// <summary>
     /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
@@ -132,7 +148,7 @@ public static class BusinessLogicFilters
             logic.Subject.Code != logic.Resource.Code &&
             logic.Purpose.Code.IsAnyOf(FAMRQT, SubjectOfCare_13) &&
             logic.Acp == Constants.Oid.Saml.Acp.RepresentCitizenUnder12 &&
-            logic.SubjectAge < 12,
+            logic.SubjectAge <= 12,
 
         Filter = robjs =>
             FilterByConfidentiality(

@@ -113,16 +113,16 @@ public class IntegrationTests_DefaultFixture
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
     }
 
-    internal List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
+    internal async Task<List<DocumentReferenceDto>> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
     {
+        await NukeRegistryRepository();
+
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtos().ToList());
 
-        var documents = metadata.Select(dto => dto.Document);
-
-        foreach (var document in documents)
+        foreach (var document in metadata.Select(dto => dto.Document))
         {
-            _repository.Write(document.DocumentId, document.Data, patientIdentifier);
+            _repository.Write(document.DocumentId, document.Data);
         }
 
         return metadata;

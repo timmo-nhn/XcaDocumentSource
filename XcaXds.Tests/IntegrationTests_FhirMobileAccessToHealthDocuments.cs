@@ -35,7 +35,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
             action: "Delete",
             noCode: true);
 
@@ -45,7 +45,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var registryObjects = RegistryContent.AsRegistryObjectDtos();
 
@@ -88,7 +88,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
             action: "Delete",
             noCode: true);
 
@@ -98,7 +98,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var registryObjects = RegistryContent.AsRegistryObjectDtos();
 
@@ -141,7 +141,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_patchdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
             action: "Update",
             noCode: true);
 
@@ -149,7 +149,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
 
-        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
         var randomDocumentEntry = RegistryContent.PickRandom().DocumentEntry;
 
         var patchBody = """
@@ -197,7 +197,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
             action: "Create",
             noCode: true);
 
@@ -206,7 +206,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01_WrongValues")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
@@ -233,7 +233,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Upload", "Provide Bundle")]
-    public async Task ProvideBundle_ExportsAtnaLog()
+
+,    public async Task ProvideBundle_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
 
@@ -245,7 +246,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
             action: "Create",
             noCode: true);
 
@@ -254,7 +255,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        RegistryContent = EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
@@ -297,7 +298,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
             action: "Create",
             noCode: true);
 
@@ -306,7 +307,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03_virus.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
@@ -347,7 +348,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
             action: "Create",
             noCode: true);
 
@@ -356,7 +357,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
 
-        EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));

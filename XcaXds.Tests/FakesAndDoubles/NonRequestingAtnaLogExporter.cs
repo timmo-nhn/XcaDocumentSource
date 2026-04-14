@@ -1,4 +1,5 @@
-﻿using Hl7.Fhir.Serialization;
+﻿using Castle.Core.Logging;
+using Hl7.Fhir.Serialization;
 using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Models.Custom;
 using Task = System.Threading.Tasks.Task;
@@ -33,9 +34,9 @@ public class NonRequestingAtnaLogExporter : BackgroundService
                 _atnaLogExportedChecker.AtnaLogExported = true;
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            Console.WriteLine(ex);
             throw;
         }
     }

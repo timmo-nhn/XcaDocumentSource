@@ -236,19 +236,19 @@ public class BusinessRulesDescriptor : ExpressionVisitor
             sb.AppendLine();
         }
 
-        BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.ForEach(c =>
+        foreach (var code in BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate)
         {
             sb.AppendLine("========= Citizen Confidentiality Codes To Obfuscate ==========");
-            sb.AppendLine($"Class: {c.Item1}, Code: {c.Item2}");
+            sb.AppendLine($"Class: {code.Item1}, Code: {code.Item2}");
             sb.AppendLine("==============================================================");
-        });
+        }
 
-        BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.ForEach(c =>
+        foreach (var code in BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate)
         {
             sb.AppendLine("========= Healthcare Personell Confidentiality Codes To Obfuscate ==========");
-            sb.AppendLine($"Class: {c.Item1}, Code: {c.Item2}");
+            sb.AppendLine($"Class: {code.Item1}, Code: {code.Item2}");
             sb.AppendLine("============================================================================");
-        });
+        }
 
         return sb.ToString();
     }

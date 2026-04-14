@@ -90,4 +90,13 @@ public class SamlExtensions
             DisplayName = displayName
         };
     }
+
+    public static CX? GetSamlAttributeValueAsCx(string? subjectId)
+    {
+        var codedValue = GetSamlAttributeValueAsCodedValue(subjectId);
+        
+        if (codedValue == null) return null;
+
+        return new(codedValue.Code, codedValue.CodeSystem);
+    }
 }

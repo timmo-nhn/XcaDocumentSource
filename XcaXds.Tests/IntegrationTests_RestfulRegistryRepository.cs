@@ -24,7 +24,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
     {
         var days = Random.Shared.Next(30, 365);
 
-        var documentEntries = EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber).AsRegistryObjectDtos().OfType<DocumentEntryDto>().ToArray();
+        var documentEntries = (await EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber)).AsRegistryObjectDtos().OfType<DocumentEntryDto>().ToArray();
 
         var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.Now.AddDays(-days)).ToArray();
 
@@ -172,21 +172,5 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         };
 
         _registryWrapper.SetDocumentRegistryContentWithDtos(documentEntries);
-    }
-
-    private List<DocumentReferenceDto> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
-    {
-        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.SetDocumentRegistryContentWithDtos([.. metadata.AsRegistryObjectDtos()]);
-
-        foreach (var document in metadata.Select(dto => dto.Document))
-        {
-            if (document != null && document?.DocumentId != null && document.Data?.Length > 0)
-            {
-                _repository.Write(document.DocumentId, document.Data);
-            }
-        }
-
-        return metadata;
     }
 }

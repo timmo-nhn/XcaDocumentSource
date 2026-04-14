@@ -33,7 +33,7 @@ public class PolicyRequestMapperJsonWebTokenService
 
         // Resource
         var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();
-
+            
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
         var actionAttribute = new XacmlContextAttribute(
