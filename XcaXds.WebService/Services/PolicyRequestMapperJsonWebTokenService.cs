@@ -36,7 +36,7 @@ public class PolicyRequestMapperJsonWebTokenService
             
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
 
-        var actionAttribute = new XacmlContextAttribute(
+		var actionAttribute = new XacmlContextAttribute(
             new Uri(Constants.Xacml.Attribute.ActionId),
             new Uri(Constants.Xacml.DataType.String),
             new XacmlContextAttributeValue() { Value = action });
