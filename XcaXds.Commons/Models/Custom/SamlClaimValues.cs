@@ -32,8 +32,9 @@ public class SamlClaimValues
     public string? PurposeOfUseDetailsCodeSystem { get; set; } = default!;
     public string? ResourceId { get; set; }
     public string? SecurityLevel { get; set; }
-    public string? Scope { get; set; }
-    public string? ClientId { get; set; }
+    //public string? Scope { get; set; }
+	public List<string>? Scope { get; set; } // JWT can have multiple scopes, while SAML only has one. To ensure compatibility, we use a list of strings for scope.
+	public string? ClientId { get; set; }
     public string? AuthenticationMethod { get; set; }
     public bool IsFastlege { get; set; }
     public string? PatientChildOrganization { get; set; }

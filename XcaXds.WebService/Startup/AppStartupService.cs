@@ -120,7 +120,7 @@ public class AppStartupService : IHostedService
             Rules =
             [[
                 new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
+                new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
             ]],
             Actions = ["ReadDocumentList"],
             Effect = "Deny"
@@ -163,7 +163,7 @@ public class AppStartupService : IHostedService
             Effect = "Permit"
         };
 
-        var gp_deny_certain_roles = new PolicyDto()
+        /*var gp_deny_certain_roles = new PolicyDto()
         {
             Id = "DEFAULT_gp-deny2",
             AppliesTo = [Issuer.HelseId],
@@ -173,7 +173,7 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060")
             ]],
             Effect = "Deny"
-        };
+        };*/
 
         var gp_readdocumentlist_readdocument_create = new PolicyDto()
         {
@@ -189,8 +189,9 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT"),
                 new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448")
             ]],
-            Actions = ["Create", "ReadDocumentList", "ReadDocuments", "Update", "Delete"],
-            Effect = "Permit"
+            //Actions = ["Create", "ReadDocumentList", "ReadDocuments", "Update", "Delete"],
+			Actions = ["ReadDocumentList", "ReadDocuments"],
+			Effect = "Permit"
         };
 
         var machine_create_update_documents = new PolicyDto()
@@ -220,7 +221,7 @@ public class AppStartupService : IHostedService
 		_policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid);
         //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
         _policyRepositoryWrapper.AddPolicy(cz_readdocumentlist_documents);
-        _policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
+        //_policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
         _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument_create);
         _policyRepositoryWrapper.AddPolicy(machine_create_update_documents);
 		_policyRepositoryWrapper.AddPolicy(machine_delete_documents);

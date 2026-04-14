@@ -6,16 +6,16 @@ namespace XcaXds.Commons.Extensions;
 
 public static class SamlTrustFrameworkClaimsMapper
 {
-    public static SamlClaimValues GetClaimValues(Dictionary<string, string> claims)
+    public static SamlClaimValues GetClaimValues(Dictionary<string, string> claims, IEnumerable<string> scopes)
     {
         // https://github.com/NorskHelsenett/Tillitsrammeverk/blob/main/specs/informasjons_og_datamodell.md#631-attributter-koblet-mot-ihe-xds-og-xua-saml-profil-for-kjernejournal
 
         SamlClaimValues? samlClaimValues = null;
 
         if (claims.TryGetValue(Constants.JwtSaml.TillitsrammeverkClaimType, out var tfClaimsValue))
-        {
-            var tillitsrammeverkClaim = TillitsrammeverkParser.ParseFromClaim(tfClaimsValue);
-            if (tillitsrammeverkClaim != null)
+        {            
+			var tillitsrammeverkClaim = TillitsrammeverkParser.ParseFromClaim(tfClaimsValue);			
+			if (tillitsrammeverkClaim != null)
             {
                 samlClaimValues = new SamlClaimValues
                 {
@@ -78,7 +78,15 @@ public static class SamlTrustFrameworkClaimsMapper
         // Other claims
         samlClaimValues.ResourceId = claims.GetValueOrDefault("resource:resource-id");
         samlClaimValues.HomeCommunityId = claims.GetValueOrDefault("homeCommunityId");
-        samlClaimValues.Scope = claims.GetValueOrDefault("scope") ?? "journaldokumenter_helsepersonell";
+        //samlClaimValues.Scope = claims.GetValueOrDefault("scope") ?? "journaldokumenter_helsepersonell";
+        if (scopes.Count() > 0)
+        {
+			samlClaimValues.Scope = scopes.ToList();
+		}
+        else
+        {			
+			samlClaimValues.Scope = new List<string> { "journaldokumenter_helsepersonell" };
+		}
         samlClaimValues.SecurityLevel = claims.GetValueOrDefault(Constants.JwtSaml.SecurityLevelClaimType);
         samlClaimValues.ClientId = claims.GetValueOrDefault("client_id");
         samlClaimValues.OrgnrParent = claims.GetValueOrDefault("helseid://claims/client/claims/orgnr_parent");

@@ -83,21 +83,21 @@ public class XdsRepositoryService
             var patientIdPart = Hl7Object.Parse<CX>(patientId)?.IdNumber;
             var documentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
-            var mimeType = StringExtensions.GetMimeTypeFromMagicByte(assocDocument?.Value);
+            var mimeTypeFromMagicByte = StringExtensions.GetMimeTypeFromMagicByte(assocDocument?.Value);
             var documentEntryMimetype = assocExtrinsicObject?.MimeType;
 
             if (!documentEntryMimetype.IsAnyOf(BusinessLogicFilters.AllowedMimetypes) ||
-                !mimeType.IsAnyOf(BusinessLogicFilters.AllowedMimetypes))
+                !mimeTypeFromMagicByte.IsAnyOf(BusinessLogicFilters.AllowedMimetypes))
             {
-                var message = $"Unsupported MimeType {mimeType}";
+                var message = $"Unsupported MimeType {mimeTypeFromMagicByte}";
 
                 _logger.LogWarning(message);
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, "XDS Repository");
             }
-
-            if (mimeType != documentEntryMimetype || mimeType == null)
+            
+            if (!BusinessLogicFilters.IsMatchingMimeType(mimeTypeFromMagicByte, documentEntryMimetype))
             {
-                var message = $"MimeType in DocumentEntry is missing or does not match actual document mime type. Document ID: {assocDocument?.Id}, DocumentEntry MimeType: {documentEntryMimetype}, Actual MimeType: {mimeType}";
+                var message = $"MimeType in DocumentEntry is missing or does not match actual document mime type. Document ID: {assocDocument?.Id}, DocumentEntry MimeType: {documentEntryMimetype}, Actual MimeType: {mimeTypeFromMagicByte}";
 
                 _logger.LogWarning(message);
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, "XDS Repository");
