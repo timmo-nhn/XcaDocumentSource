@@ -38,6 +38,12 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
     private readonly FhirResourceValidatorService _fhirValidator;
 
+    public class Scopes
+	{
+        public const string ScopeCreateDocuments = "nhn:phr-document-repository/mhd/create-documents-with-reference";
+        public const string ScopeDeleteDocument = "nhn:phr-document-repository/delete-documents-and-reference";
+	}
+
     public FhirMobileAccessToHealthDocumentsController(
         ILogger<FhirMobileAccessToHealthDocumentsController> logger,
         XdsRegistryService xdsRegistryService,

@@ -10,15 +10,16 @@ namespace XcaXds.Commons.DataManipulators
 {
     public static class JwtToSamlTransformer
     {
-        public static Saml2SecurityToken MapJsonWebTokenToSamlToken(JwtSecurityToken jwtToken)
+        public static Saml2SecurityToken MapJsonWebTokenToSamlToken(JwtSecurityToken jwtToken, string? scopeToUse = null)
         {
             var subjectAttributes = new List<XacmlContextAttribute>();
 
             var payload = jwtToken.Payload;
 
             var claims = new Dictionary<string, string>();
+            var scopes = new List<string>(); // Treat scopes as a special case since they can contain multiple values (from JWT token) or be a single value (from SAML token)
 
-            foreach (var claim in payload)
+			foreach (var claim in payload)
             {
                 if (claim.Value == null)
                 {
@@ -36,16 +37,24 @@ namespace XcaXds.Commons.DataManipulators
                     _ => [claim.Value.ToString() ?? ""]
                 };
 
+
                 foreach (var singleClaim in claimsEnumerated)
                 {
                     if (!string.IsNullOrWhiteSpace(singleClaim))
                     {
-                        claims[claim.Key] = singleClaim;
+                        if (claim.Key == "scope")
+                        {
+                            scopes.Add(singleClaim);
+                        }
+                        else
+                        {
+                            claims[claim.Key] = singleClaim;
+                        }
                     }
                 }
             }
 
-            var samlTrustFrameworkClaims = SamlTrustFrameworkClaimsMapper.GetClaimValues(claims);
+            var samlTrustFrameworkClaims = SamlTrustFrameworkClaimsMapper.GetClaimValues(claims, scopes);
 
             var issuer = claims.GetValueOrDefault("iss");
 
@@ -67,7 +76,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 token.Assertion.Subject.NameId = new Saml2NameIdentifier(samlTrustFrameworkClaims.NameId);
             }
-            var samlStatements = MapJwtClaimsToSamlTokenStatements(samlTrustFrameworkClaims);
+            var samlStatements = MapJwtClaimsToSamlTokenStatements(samlTrustFrameworkClaims, scopeToUse);
 
             foreach (var statement in samlStatements)
             {
@@ -101,7 +110,7 @@ namespace XcaXds.Commons.DataManipulators
                 .TruncateMilliseconds();
         }
 
-        private static List<Saml2Statement> MapJwtClaimsToSamlTokenStatements(SamlClaimValues samlClaims)
+        private static List<Saml2Statement> MapJwtClaimsToSamlTokenStatements(SamlClaimValues samlClaims, string? scopeToUse = null)
         {
             var statements = new List<Saml2Statement>();
             if (!string.IsNullOrWhiteSpace(samlClaims.NameId))
@@ -265,11 +274,31 @@ namespace XcaXds.Commons.DataManipulators
                     samlClaims.SecurityLevel)));
             }
 
-            if (!string.IsNullOrWhiteSpace(samlClaims.Scope))
+            if (samlClaims.Scope?.Count > 0)
+            {
+                string? scope = string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(scopeToUse)) // Select a specific scope from the JWT token if provided, otherwise use the last scope in the list (which is a common convention for the most specific scope)
+				{
+                    scope = samlClaims.Scope.FirstOrDefault(scope => scope == scopeToUse);
+                }
+                else
+                {
+                    scope = samlClaims.Scope.LastOrDefault(); 
+				}
+
+                if (scope != null)
+                {
+                    statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
+                        Constants.Saml.Attribute.EhelseScope, scope)));
+                }                                
+			}
+
+            /*if (!string.IsNullOrWhiteSpace(samlClaims.Scope))
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     Constants.Saml.Attribute.EhelseScope, samlClaims.Scope)));
-            }
+            }*/
 
             if (!string.IsNullOrWhiteSpace(samlClaims.ClientId))
             {

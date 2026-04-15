@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
-using XcaXds.Commons.Extensions;
+using XcaXds.WebService.Controllers;
 
 namespace XcaXds.WebService.Services;
 
@@ -16,7 +16,13 @@ public class PolicyRequestMapperJsonWebTokenService
 {
     public XacmlContextRequest? GetXacml20RequestFromJsonWebToken(JwtSecurityToken jwtToken, Resource? fhirBundle, string urlPath, string path)
     {
-        var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(jwtToken);
+		var (action, scopeToUse) = MapXacmlActionAndScopeToUseFromUrlPath(urlPath, path);
+
+		// The scopeToUse is used to pick a specific scope (based on the endpoint path) for the JWT to SAML transformation. 
+		// This is because the XCAML validation does not work if we add multiple attribute values to the Scope attribute, or add multiple Scope attributes
+		// This may possibly be a bug or limitation in the Abc.Xcaml library, but for now this is a workaround to ensure the correct scope is included in the SAML token for the XACML policies to work as intended.
+
+		var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(jwtToken, scopeToUse);
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
         var samltokenAuthorizationAttributes = statements.Where(att =>
@@ -26,7 +32,7 @@ public class PolicyRequestMapperJsonWebTokenService
             att.Name.Contains("Scope") ||
             att.Name.Contains("urn:ihe:iti") ||
             att.Name.Contains("acp") ||
-            att.Name.Contains("provider-identifier"));
+            att.Name.Contains("provider-identifier"));        
 
         var action = MapXacmlActionFromUrlPath(urlPath, path);
 
@@ -66,29 +72,29 @@ public class PolicyRequestMapperJsonWebTokenService
         return contextRequest;
     }
 
-    private static string MapXacmlActionFromUrlPath(string? urlPath, string method)
+    private static (string action, string? scopeToUse) MapXacmlActionAndScopeToUseFromUrlPath(string? urlPath, string method)
     {
         if (urlPath?.Equals("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return Constants.Xacml.Actions.Create;
+            return (Constants.Xacml.Actions.Create, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments);
 
         if (urlPath?.StartsWith("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
-            return Constants.Xacml.Actions.Update;
+            return (Constants.Xacml.Actions.Update, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments);
 
         if (urlPath?.Equals("/R4/fhir/mhd/document", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return Constants.Xacml.Actions.ReadDocuments;
+            return (Constants.Xacml.Actions.ReadDocuments, null);
 
         if (urlPath?.Equals("/R4/fhir/DocumentReference/_search", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return Constants.Xacml.Actions.ReadDocumentList;
+            return (Constants.Xacml.Actions.ReadDocumentList, null);
 
         if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "GET")
-            return Constants.Xacml.Actions.ReadDocumentList;
+            return (Constants.Xacml.Actions.ReadDocumentList, null);
 
         if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
-            return Constants.Xacml.Actions.Update;
+            return (Constants.Xacml.Actions.Update, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments);
 
         if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "DELETE")
-            return Constants.Xacml.Actions.Delete;
+            return (Constants.Xacml.Actions.Delete, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeDeleteDocument);
 
-        return Constants.Xacml.Actions.Create;
+        return (Constants.Xacml.Actions.Create, null);
     }
 }

@@ -57,6 +57,21 @@ public static partial class BusinessLogicFilters
         Constants.MimeTypes.Rtf,
     ];
 
+    public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimetype)
+    {
+		// Special handling for XML mimetypes, as there can be many valid XML mimetypes that are not explicitly listed in the allowed mimetypes,
+        // but should still be considered valid if the document entry mimetype indicates it's an XML type and the actual magic byte mimetype also indicates it's an XML type.
+		if (documentEntryMimetype?.Contains("/xml") == true || documentEntryMimetype?.Contains("+xml") == true)
+        {
+            if (mimeTypeFromMagicByte?.Contains("/xml") == true || mimeTypeFromMagicByte?.Contains("+xml") == true)
+            {
+                return true; 
+            }
+		}
+
+        return mimeTypeFromMagicByte == documentEntryMimetype; 
+    }
+
     /// <summary>
     /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
     /// </summary>
