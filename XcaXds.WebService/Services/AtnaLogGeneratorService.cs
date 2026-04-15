@@ -223,7 +223,7 @@ public class AtnaLogGeneratorService
         var samlAssertionXml = requestEnvelope?.Header.Security?.Assertion?.OuterXml;
         Saml2SecurityToken? samlToken = null;
         List<Saml2Attribute>? statements = new();
-        Issuer? issuer = null;
+        AppliesTo? issuer = null;
 
         if (!string.IsNullOrWhiteSpace(samlAssertionXml))
         {
@@ -233,7 +233,7 @@ public class AtnaLogGeneratorService
                 .SelectMany(statement => statement.Attributes)
                 .ToList();
 
-            issuer = SamlExtensions.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Issuer);
+            issuer = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
         }
 
         auditEvent.Meta = new Meta()
@@ -366,7 +366,7 @@ public class AtnaLogGeneratorService
             }
 
 
-            if (issuer == Issuer.HelseId && hasSubject)
+            if (issuer == AppliesTo.HelseId && hasSubject)
             {
                 HumanName? healthcarePersonHumanName = null;
                 var subjectNameParts = subjectDisplayName?.Split().ToList();
@@ -626,7 +626,7 @@ public class AtnaLogGeneratorService
         return auditEvent;
     }
 
-    private Resource? GetSubjectResource(SoapEnvelope? requestEnvelope, List<Saml2Attribute>? statements, string? subjectDisplayName, CodedValue? providerIdentifierCoded, Issuer? issuer, bool hasSubject)
+    private Resource? GetSubjectResource(SoapEnvelope? requestEnvelope, List<Saml2Attribute>? statements, string? subjectDisplayName, CodedValue? providerIdentifierCoded, AppliesTo? issuer, bool hasSubject)
     {
         // is_provide_bundle, patient_given and patient_family are custom attributes added only by
         // FhirMobileAccessToHealthDocumentsController.ProvideBundle method
@@ -721,7 +721,7 @@ public class AtnaLogGeneratorService
                 patientResource.Name = [patientHumanName];
             }
         }
-        else if (issuer == Issuer.Helsenorge && hasSubject && requestIsForAnotherPerson == false)
+        else if (issuer == AppliesTo.Helsenorge && hasSubject && requestIsForAnotherPerson == false)
         {
             var patientHumanName = new HumanName
             {

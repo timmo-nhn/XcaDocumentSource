@@ -2541,11 +2541,12 @@ public enum AnonymizeUser
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum Issuer
+public enum AppliesTo
 {
     Unknown,
     Helsenorge,
     HelseId,
+    Machine, // Machine-to-machine communication, where the user is not a person but a system or application
 }
 
 public enum MessageType

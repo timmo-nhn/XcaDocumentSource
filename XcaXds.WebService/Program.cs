@@ -144,6 +144,8 @@ public class Program
         builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
         builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
 
+        builder.Services.AddSingleton<XdsSubmitObjectsValidator>();
+
         builder.Services.AddSingleton<IClamAvFileScanner, ClamAvFileScanner>();
         builder.Services.AddSingleton<ApplicationMetaService>();
         builder.Services.AddSingleton<PolicyRepositoryService>();

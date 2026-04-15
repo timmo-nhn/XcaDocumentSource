@@ -115,7 +115,7 @@ public class AppStartupService : IHostedService
         var cz_deny_adhocquery_resourceid = new PolicyDto()
         {
             Id = "DEFAULT_cz-deny-adhocquery-resourceid",
-            AppliesTo = [Issuer.Helsenorge],
+            AppliesTo = [AppliesTo.Helsenorge],
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
             [[
@@ -129,7 +129,7 @@ public class AppStartupService : IHostedService
         var cz_gp_deny_if_different_resourceid = new PolicyDto()
         {
             Id = "DEFAULT_cz-gp-deny-if-different-resourceid",
-            AppliesTo = [Issuer.Helsenorge, Issuer.HelseId],
+            AppliesTo = [AppliesTo.Helsenorge, AppliesTo.HelseId],
             Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
             Rules =
             [[
@@ -151,7 +151,7 @@ public class AppStartupService : IHostedService
         var cz_readdocumentlist_documents = new PolicyDto()
         {
             Id = "DEFAULT_cz-readdocumentlist-documents",
-            AppliesTo = [Issuer.Helsenorge],
+            AppliesTo = [AppliesTo.Helsenorge],
             Rules =
             [[
                 new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
@@ -166,7 +166,7 @@ public class AppStartupService : IHostedService
         var gp_deny_certain_roles = new PolicyDto()
         {
             Id = "DEFAULT_gp-deny2",
-            AppliesTo = [Issuer.HelseId],
+            AppliesTo = [AppliesTo.HelseId],
             Rules =
             [[
                 new(Constants.Saml.Attribute.Role + ":code", "XX;VE;FB"),
@@ -178,7 +178,7 @@ public class AppStartupService : IHostedService
         var gp_readdocumentlist_readdocument_create = new PolicyDto()
         {
             Id = "DEFAULT_gp-CRUD",
-            AppliesTo = [Issuer.HelseId],
+            AppliesTo = [AppliesTo.HelseId],
             Rules =
             [[
                 new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
@@ -196,7 +196,7 @@ public class AppStartupService : IHostedService
         var machine_create_update_documents = new PolicyDto()
         {
             Id = "DEFAULT_machine_create_update_documents",
-            AppliesTo = [Issuer.HelseId],
+            AppliesTo = [AppliesTo.Machine],
             Rules =
             [[
                 new(Constants.Saml.Attribute.EhelseScope, "nhn:phr-document-repository/mhd/create-documents-with-reference"),
@@ -208,7 +208,7 @@ public class AppStartupService : IHostedService
 		var machine_delete_documents = new PolicyDto()
 		{
 			Id = "DEFAULT_machine_delete_documents",
-			AppliesTo = [Issuer.HelseId],
+			AppliesTo = [AppliesTo.Machine],
 			Rules =
 			[			[
 				new(Constants.Saml.Attribute.EhelseScope, "nhn:phr-document-repository/delete-documents-and-reference"),

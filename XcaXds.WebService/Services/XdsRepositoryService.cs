@@ -312,7 +312,7 @@ public class XdsRepositoryService
 
     private bool DocumentIsRestrictedForUser(DocumentRequestType document, XacmlContextRequest? xacmlRequest)
     {
-        var requestAppliesTo = Enum.Parse<Issuer>(xacmlRequest?.GetAllXacmlContextAttributes()
+        var requestAppliesTo = Enum.Parse<AppliesTo>(xacmlRequest?.GetAllXacmlContextAttributes()
             .GetXacmlAttributeValuesAsString(Constants.Urn.Custom.AppliesTo)?
             .FirstOrDefault()
             ?? "Unknown");
@@ -325,8 +325,8 @@ public class XdsRepositoryService
 
         bool restricted = requestAppliesTo switch
         {
-            Issuer.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
-            Issuer.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             _ => false
         };
 

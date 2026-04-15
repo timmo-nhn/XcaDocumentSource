@@ -1,7 +1,6 @@
 ﻿using Abc.Xacml.Context;
 using Abc.Xacml.Runtime;
 using System.Xml;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
@@ -25,8 +24,7 @@ public class PolicyRepositoryWrapper
         }
     }
 
-    internal EvaluationEngine _evaluationEnginePractitioner = null!;
-    internal EvaluationEngine _evaluationEngineCitizen = null!;
+    internal EvaluationEngine _evaluationEngine = null!;
 
     private readonly IPolicyRepository _policyRepository;
     private readonly ILogger<PolicyRepositoryWrapper> _logger;
@@ -54,18 +52,11 @@ public class PolicyRepositoryWrapper
     {
         lock (_lock)
         {
-            _evaluationEnginePractitioner = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
+            _evaluationEngine = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
             {
                 CombiningAlgorithm = policySet.CombiningAlgorithm,
                 SetId = policySet.SetId,
-                Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.HelseId) ?? false).ToList()
-            }));
-
-            _evaluationEngineCitizen = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
-            {
-                CombiningAlgorithm = policySet.CombiningAlgorithm,
-                SetId = policySet.SetId,
-                Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.Helsenorge) ?? false).ToList()
+                Policies = policySet.Policies
             }));
         }
     }
@@ -74,34 +65,6 @@ public class PolicyRepositoryWrapper
     {
         return policySet;
     }
-
-    public PolicySetDto GetPoliciesAsPolicySet(Issuer issuer)
-    {
-        return issuer switch
-        {
-            Issuer.HelseId => new PolicySetDto()
-            {
-                CombiningAlgorithm = policySet.CombiningAlgorithm,
-                SetId = policySet.SetId,
-                Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.HelseId) ?? false).ToList()
-            },
-
-            Issuer.Helsenorge => new PolicySetDto()
-            {
-                CombiningAlgorithm = policySet.CombiningAlgorithm,
-                SetId = policySet.SetId,
-                Policies = policySet.Policies?.Where(pol => pol.AppliesTo?.Contains(Issuer.Helsenorge) ?? false).ToList()
-            },
-
-            _ => new PolicySetDto()
-            {
-                CombiningAlgorithm = policySet.CombiningAlgorithm,
-                SetId = policySet.SetId,
-                Policies = policySet.Policies
-            }
-        };
-    }
-
 
     public PolicyDto? GetPolicy(string? id)
     {
@@ -174,24 +137,14 @@ public class PolicyRepositoryWrapper
         return true;
     }
 
-    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest, Issuer appliesTo)
+    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest)
     {
         if (_policySetPractitioner.Policies?.Count == 0)
         {
             _logger.LogWarning("No policies are set up. Will deny all requests!");
         }
 
-        switch (appliesTo)
-        {
-            case Issuer.Helsenorge:
-                return _evaluationEngineCitizen.Evaluate(xacmlContextRequest, new XmlDocument());
-
-            case Issuer.HelseId:
-                return _evaluationEnginePractitioner.Evaluate(xacmlContextRequest, new XmlDocument());
-
-            default:
-                return _evaluationEnginePractitioner.Evaluate(xacmlContextRequest, new XmlDocument());
-        }
+        return _evaluationEngine.Evaluate(xacmlContextRequest, new XmlDocument());
     }
 
     public bool DeleteAllPolicies()

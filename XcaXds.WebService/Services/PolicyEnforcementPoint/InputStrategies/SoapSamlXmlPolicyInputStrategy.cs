@@ -81,13 +81,7 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
             return PolicyInputResult.Fail($"No SAML-token in request!");
         }
 
-        var samlToken = SamlExtensions.ReadSamlToken(soapEnvelope.Header.Security.Assertion.OuterXml);
-
-        var appliesTo = SamlExtensions.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Assertion.Issuer.Value);
-
-        _logger.LogInformation($"{context.TraceIdentifier} - Issuer: {samlToken?.Assertion.Issuer.Value} Policy AppliesTo: {appliesTo}");
-
-        var xacmlRequest = _policyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, samlToken, appliesTo);
+        var xacmlRequest = _policyRequestMapperSamlService.GetXacmlRequest(soapEnvelope);
 
         _logger.LogDebug($"{context.TraceIdentifier} - Generated XACML Request - JSON representation: {JsonSerializer.Serialize(xacmlRequest)}");
 
@@ -96,7 +90,7 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
             return PolicyInputResult.Fail($"Error generating XACML request from SOAP Envelope");
         }
 
-        return PolicyInputResult.Success(xacmlRequest, appliesTo, this);
+        return PolicyInputResult.Success(xacmlRequest, this);
     }
 
     public bool CanHandle(string? contentType)

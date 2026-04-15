@@ -647,7 +647,7 @@ public static class Commons
 
         if (identifiableTypes == null) return [];
 
-        var requestAppliesTo = businessLogic?.Issuer ?? Issuer.Unknown;
+        var requestAppliesTo = businessLogic?.AppliesTo ?? AppliesTo.Unknown;
 
         foreach (var identifiableType in identifiableTypes)
         {
@@ -662,8 +662,8 @@ public static class Commons
 
                 bool obfuscate = requestAppliesTo switch
                 {
-                    Issuer.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
-                    Issuer.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
                     _ => false
                 };
 
@@ -673,7 +673,7 @@ public static class Commons
                     obfuscate = false;
                 }
 
-                if (!obfuscate && requestAppliesTo != Issuer.Unknown) continue;
+                if (!obfuscate && requestAppliesTo != AppliesTo.Unknown) continue;
 
                 // HAYO! GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
                 // WARNING: This might cause a risk of exposing metadata that can be used to retrieve the document through other means,
@@ -720,7 +720,7 @@ public static class Commons
         return ObfuscateRestrictedDocumentEntries(identifiableTypes, businessLogic, out obfuscatedEntriesCount);
     }
 
-    private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier, Issuer issuer = Issuer.Unknown)
+    private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier, AppliesTo issuer = AppliesTo.Unknown)
     {
         if (externalIdentifier == null || string.IsNullOrWhiteSpace(externalIdentifier.IdentificationScheme)) return;
 

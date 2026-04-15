@@ -32,6 +32,6 @@ public class FhirJsonPolicyInputStrategy : IPolicyInputStrategy
         var xacml = _policyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method) ??
             throw new InvalidOperationException("Failed to create XACML request from JWT.");
 
-        return PolicyInputResult.Success(xacml, Issuer.HelseId, this);
+        return PolicyInputResult.Success(xacml, this);
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.Extensions;
 
 namespace XcaXds.WebService.Services;
 
@@ -29,7 +30,10 @@ public class PolicyRequestMapperJsonWebTokenService
 
         var action = MapXacmlActionFromUrlPath(urlPath, path);
 
+        var appliesTo = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
+
         var samlAttributes = PolicyRequestMapperSamlService.MapSamlAttributesToXacml20Properties(statements, action);
+        var appliesToAttribute = PolicyRequestMapperSamlService.MapAppliesToToXacml20Properties(appliesTo);
 
         // Resource
         var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();
@@ -49,6 +53,8 @@ public class PolicyRequestMapperJsonWebTokenService
                 !string.IsNullOrWhiteSpace(av.Value)) &&
                 (sa.AttributeId.OriginalString.Contains("subject") ||
                 sa.AttributeId.OriginalString.Contains("acp"))).ToList();
+
+        subjectAttributes.AddRange(appliesToAttribute);
 
         var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 

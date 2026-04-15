@@ -23,6 +23,14 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
     [Fact]
     [Trait("Delete", "Delete DocumentReference")]
+    public async Task DeleteDocumentsAndMetadata_ExportsAtnaLog_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await DeleteDocumentsAndMetadata_ExportsAtnaLog();
+    }
+
+    [Fact]
+    [Trait("Delete", "Delete DocumentReference")]
     public async Task DeleteDocumentsAndMetadata_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
@@ -30,7 +38,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
@@ -67,11 +74,22 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var expectedCount = registryContentCount - 3;
 
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
         Assert.Equal(expectedCount, currentCount);
 
         await WaitForAtnaLogToBeExported();
 
         _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    [Fact]
+    [Trait("Delete", "Delete DocumentReference")]
+    public async Task DeleteDocumentsAndMetadata_DocumentDoesNotExist_ExportsAtnaLog_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await DeleteDocumentsAndMetadata_DocumentDoesNotExist_ExportsAtnaLog();
     }
 
     [Fact]
@@ -83,7 +101,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
@@ -120,11 +137,22 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var expectedCount = registryContentCount;
 
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
         Assert.Equal(expectedCount, currentCount);
 
         await WaitForAtnaLogToBeExported();
 
         _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    [Fact]
+    [Trait("Patch", "Patch DocumentReference securityLabel  (Isolated Access Control)")]
+    public async Task ProvideBundle_PatchDocumentSecurityLabel_ExportsAtnaLog_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await ProvideBundle_PatchDocumentSecurityLabel_ExportsAtnaLog();
     }
 
     [Fact]
@@ -136,14 +164,13 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        //_policyRepositoryService.DeleteAllPolicies();
-        //TestHelpers.AddAccessControlPolicyForIntegrationTest(
-        //    _policyRepositoryService,
-        //    policyName: "DEFAULT_machine_patchdocumentreference",
-        //    attributeId: Constants.Saml.Attribute.EhelseScope,
-        //    codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
-        //    action: "Update",
-        //    noCode: true);
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_patchdocumentreference",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            action: "Update",
+            noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
@@ -177,10 +204,21 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var response = await _client.SendAsync(httpRequest);
 
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         await WaitForAtnaLogToBeExported();
         _output.WriteLine("PatchDocumentSecurityLabel_ExportsAtnaLog: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    [Fact]
+    [Trait("Upload", "Provide Bundle (Isolated Access Control)")]
+    public async Task ProvideBundle_WrongValues_ExportsAtnaLog_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await ProvideBundle_WrongValues_ExportsAtnaLog();
     }
 
     [Fact]
@@ -192,7 +230,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        _policyRepositoryService.DeleteAllPolicies();
+        //_policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
@@ -225,6 +263,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var operationOutcome = fhirparser.Deserialize<OperationOutcome>(responseContent);
 
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
         Assert.NotEmpty(operationOutcome.Issue);
         await WaitForAtnaLogToBeExported();
 
@@ -232,8 +273,15 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     }
 
     [Fact]
-    [Trait("Upload", "Provide Bundle")]
+    [Trait("Upload", "Provide Bundle (Isolated Access Control)")]
+    public async Task ProvideBundle_ExportsAtnaLog_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await ProvideBundle_ExportsAtnaLog();
+    }
 
+    [Fact]
+    [Trait("Upload", "Provide Bundle")]
     public async Task ProvideBundle_ExportsAtnaLog()
     {
         await NukeRegistryRepository();
@@ -242,19 +290,19 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaMessageString = null;
 
         //_policyRepositoryService.DeleteAllPolicies();
-        //TestHelpers.AddAccessControlPolicyForIntegrationTest(
-        //    _policyRepositoryService,
-        //    policyName: "DEFAULT_machine_providebundle",
-        //    attributeId: Constants.Saml.Attribute.EhelseScope,
-        //    codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
-        //    action: "Create",
-        //    noCode: true);
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_providebundle",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            action: "Create",
+            noCode: true);
 
-        _policyRepositoryService.DeletePolicy("DEFAULT_cz-deny-adhocquery-resourceid");
-        _policyRepositoryService.DeletePolicy("DEFAULT_cz-gp-deny-if-different-resourceid");
-        _policyRepositoryService.DeletePolicy("DEFAULT_cz-readdocumentlist-documents");
+        //_policyRepositoryService.DeletePolicy("DEFAULT_cz-deny-adhocquery-resourceid");
+        //_policyRepositoryService.DeletePolicy("DEFAULT_cz-gp-deny-if-different-resourceid");
+        //_policyRepositoryService.DeletePolicy("DEFAULT_cz-readdocumentlist-documents");
         //_policyRepositoryService.DeletePolicy("DEFAULT_gp-deny2");
-        _policyRepositoryService.DeletePolicy("DEFAULT_gp-CRUD");
+        //_policyRepositoryService.DeletePolicy("DEFAULT_gp-CRUD");
         //_policyRepositoryService.DeletePolicy("DEFAULT_machine_create_documents");
         //_policyRepositoryService.DeletePolicy("DEFAULT_machine_delete_documents");
 
@@ -282,6 +330,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var actualCount = _registry.ReadRegistry().OfType<DocumentEntryDto>()?.Count() ?? 0;
 
+        _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
@@ -290,6 +339,16 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         await WaitForAtnaLogToBeExported();
 
         _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+
+
+    [Fact]
+    [Trait("Upload", "Provide Bundle (virus) (Isolated Access Control)")]
+    public async Task ProvideBundle_Virus_ExportsAtnaLog_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await ProvideBundle_Virus_ExportsAtnaLog();
     }
 
     [Fact]
@@ -301,7 +360,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        _policyRepositoryService.DeleteAllPolicies();
+        //_policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
@@ -329,6 +388,10 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var firstResponse = await _client.SendAsync(httpRequest);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
         Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
         var fhirparser = new FhirJsonDeserializer();
@@ -343,6 +406,14 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     }
 
     [Fact]
+    [Trait("Upload", "Validate Bundle (Isolated Access Control)")]
+    public async Task ProvideBundle_Validate_ExportsAtnaLog_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await ProvideBundle_Validate_ExportsAtnaLog();
+    }   
+
+    [Fact]
     [Trait("Upload", "Validate Bundle")]
     public async Task ProvideBundle_Validate_ExportsAtnaLog()
     {
@@ -351,7 +422,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        _policyRepositoryService.DeleteAllPolicies();
+        //_policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
@@ -383,6 +454,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var fhirparser = new FhirJsonDeserializer();
 
         var operationOutcome = fhirparser.Deserialize<OperationOutcome>(responseContent);
+
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
 
         Assert.NotEmpty(operationOutcome.Issue);
 

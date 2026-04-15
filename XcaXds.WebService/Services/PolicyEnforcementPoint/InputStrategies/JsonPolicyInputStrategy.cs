@@ -33,6 +33,6 @@ public class JsonPolicyInputStrategy : IPolicyInputStrategy
             throw new InvalidOperationException("Failed to create XACML request from JWT.");
 
 
-        return PolicyInputResult.Success(xacml, Issuer.HelseId, this);
+        return PolicyInputResult.Success(xacml, this);
     }
 }

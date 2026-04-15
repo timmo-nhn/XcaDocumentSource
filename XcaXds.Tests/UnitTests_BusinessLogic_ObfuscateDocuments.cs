@@ -21,7 +21,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Issuer = Issuer.HelseId,
+            AppliesTo = AppliesTo.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "TREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
@@ -39,7 +39,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Issuer = Issuer.HelseId,
+            AppliesTo = AppliesTo.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "ETREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
@@ -57,7 +57,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Issuer = Issuer.Helsenorge,
+            AppliesTo = AppliesTo.Helsenorge,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
@@ -76,7 +76,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Issuer = Issuer.Unknown,
+            AppliesTo = AppliesTo.Unknown,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "invalid code", CodeSystem = "invalid system" },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }

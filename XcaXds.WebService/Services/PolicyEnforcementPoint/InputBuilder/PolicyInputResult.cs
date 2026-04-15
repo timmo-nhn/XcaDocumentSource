@@ -13,18 +13,16 @@ public class PolicyInputResult
         ErrorMessage = success.HasValue && success.Value ? string.Empty : message;
     }
 
-    public PolicyInputResult(XacmlContextRequest request, Issuer appliesTo)
+    public PolicyInputResult(XacmlContextRequest request)
     {
         IsSuccess = true;
         XacmlRequest = request;
-        AppliesTo = appliesTo;
     }
 
-    public PolicyInputResult(XacmlContextRequest request, Issuer appliesTo, IPolicyInputStrategy policyInputStrategy)
+    public PolicyInputResult(XacmlContextRequest request, IPolicyInputStrategy policyInputStrategy)
     {
         IsSuccess = true;
         XacmlRequest = request;
-        AppliesTo = appliesTo;
         Strategy = policyInputStrategy;
     }
 
@@ -32,7 +30,6 @@ public class PolicyInputResult
     public string? ErrorMessage { get; init; }
 
     public XacmlContextRequest? XacmlRequest { get; init; }
-    public Issuer AppliesTo { get; init; } = Issuer.Unknown;
     public IPolicyInputStrategy? Strategy { get; init; }
 
 
@@ -41,8 +38,8 @@ public class PolicyInputResult
         return new PolicyInputResult(message, false);
     }
 
-    public static PolicyInputResult Success(XacmlContextRequest xacmlRequest, Issuer appliesTo, IPolicyInputStrategy policyInputStrategy)
+    public static PolicyInputResult Success(XacmlContextRequest xacmlRequest, IPolicyInputStrategy policyInputStrategy)
     {
-        return new PolicyInputResult(xacmlRequest, appliesTo, policyInputStrategy);
+        return new PolicyInputResult(xacmlRequest, policyInputStrategy);
     }
 }

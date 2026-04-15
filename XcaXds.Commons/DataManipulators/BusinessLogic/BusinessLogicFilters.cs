@@ -330,7 +330,7 @@ public static partial class BusinessLogicFilters
             logic.Scope != null &&
             logic.Scope.Length > 0 &&
 
-            logic.Issuer == Issuer.HelseId &&
+            logic.AppliesTo == AppliesTo.HelseId &&
         // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
         // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
             logic.Scope.Contains("kjernejournalforskriften"),

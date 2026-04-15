@@ -12,7 +12,7 @@ public static class PolicyDtoExtensions
         return policyDto;
     }
 
-    public static PolicyDto AppliesTo(this PolicyDto policyDto, Issuer issuer)
+    public static PolicyDto AppliesTo(this PolicyDto policyDto, AppliesTo issuer)
     {
         policyDto.AppliesTo ??= new();
         if (policyDto.AppliesTo.Contains(issuer) == false)

@@ -72,7 +72,7 @@ public static class TestHelpers
 
         policyRepositoryService.AddPolicy(new PolicyDto()
         {
-            AppliesTo = [Issuer.HelseId, Issuer.Helsenorge],
+            AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
             Id = policyName,
             Rules = [rules],
             Actions = [action],

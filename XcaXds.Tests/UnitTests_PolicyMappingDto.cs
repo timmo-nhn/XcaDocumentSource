@@ -27,12 +27,12 @@ public class UnitTests_PolicyMappingDto
 
         var policyRequestMapper = new Mock<PolicyRequestMapperSamlService>();
 
-        XacmlContextRequest xacmlObject = policyRequestMapper.Object.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))!, Encoding.UTF8), Issuer.HelseId)!;
-        var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        XacmlContextRequest xacmlRequest = policyRequestMapper.Object.GetXacmlRequest(File.ReadAllText(requests.FirstOrDefault(f => f.Contains("iti18"))!, Encoding.UTF8))!;
+        var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml!);
 
-        var evaluateResponse = policyWrapper.EvaluateRequest_V20(xacmlObject, Issuer.HelseId);
+        var evaluateResponse = policyWrapper.EvaluateRequest_V20(xacmlRequest);
     }
 
     [Fact]

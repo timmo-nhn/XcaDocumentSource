@@ -42,12 +42,6 @@ public class PolicyRepositoryService
         return PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
     }
 
-    public XacmlPolicySet? GetPoliciesAsXacmlPolicySet(Issuer issuer)
-    {
-        var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet(issuer);
-        return PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
-    }
-
     public bool UpdatePolicy(PolicyDto policyDto, string? id)
     {
         if (string.IsNullOrWhiteSpace(id)) return false;

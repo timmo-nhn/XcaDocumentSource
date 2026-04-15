@@ -937,7 +937,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var iti86ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti86RequestResponseContent);
         
-        var registryCount = _registry.ReadRegistry().Count();
+        var registryCount = _registry.ReadRegistry().OfType<DocumentEntryDto>().Count();
 
         // Cleanup
         await NukeRegistryRepository();

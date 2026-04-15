@@ -18,7 +18,7 @@ public static class BusinessLogicMapper
 
         var xacmlAttributes = xacmlRequest.GetAllXacmlContextAttributes();
 
-        businessLogic.Issuer = Enum.Parse<Issuer>(xacmlAttributes.GetXacmlAttributeValuesAsString(Constants.Urn.Custom.AppliesTo)?.FirstOrDefault() ?? Issuer.Unknown.ToString());
+        businessLogic.AppliesTo = Enum.Parse<AppliesTo>(xacmlAttributes.GetXacmlAttributeValuesAsString(Constants.Urn.Custom.AppliesTo)?.FirstOrDefault() ?? AppliesTo.Unknown.ToString());
         businessLogic.QueriedSubject = xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Urn.Custom.AdhocQueryPatientIdentifier);
         businessLogic.QueriedSubjectAge = GetAgeFromPatientId(businessLogic.QueriedSubject?.Code);
         businessLogic.Purpose = xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.PurposeOfUse) ?? xacmlAttributes.GetXacmlAttributeValuesAsCodedValue(Constants.Saml.Attribute.PurposeOfUse_Helsenorge);

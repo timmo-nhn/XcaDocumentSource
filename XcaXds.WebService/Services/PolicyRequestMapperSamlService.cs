@@ -23,28 +23,29 @@ public class PolicyRequestMapperSamlService
         _registryWrapper = registryWrapper;
     }
 
-    public XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Issuer appliesTo)
+    public XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope)
     {
         var samlToken = SamlExtensions.ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
-        return GetXacmlRequest(soapEnvelope, samlToken, appliesTo);
+        return GetXacmlRequest(soapEnvelope, samlToken);
     }
 
-    public XacmlContextRequest? GetXacmlRequest(string soapEnvelope, Issuer appliesTo)
+    public XacmlContextRequest? GetXacmlRequest(string soapEnvelope)
     {
         var sxmls = new SoapXmlSerializer();
         var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(soapEnvelope);
 
         var samlToken = SamlExtensions.ReadSamlToken(soapEnvelopeObject.Header.Security?.Assertion?.OuterXml);
-        return GetXacmlRequest(soapEnvelopeObject, samlToken, appliesTo);
+        return GetXacmlRequest(soapEnvelopeObject, samlToken);
     }
 
-    public XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken? samlToken, Issuer appliesTo)
+    public XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken? samlToken)
     {
         var action = MapXacmlActionFromSoapEnvelope(soapEnvelope);
+        var appliesTo = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
 
         var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
 
-        if (appliesTo == Issuer.Unknown)
+        if (appliesTo == AppliesTo.Unknown)
         {
             return null;
         }
@@ -66,12 +67,10 @@ public class PolicyRequestMapperSamlService
 
         var requestAttributes = MapRequestAttributesToXacml20Properties(soapEnvelope);
         var samlAttributes = MapSamlAttributesToXacml20Properties(samltokenAuthorizationAttributes, xacmlActionString);
-        var appliesToAttribute = MapAppliesToToXacml20Properties(appliesTo);
 
         // Resource
         var xacmlResourceAttribute = samlAttributes.Where(sa => sa.AttributeId.OriginalString.Contains("resource-id")).ToList();
 
-        xacmlResourceAttribute.AddRange(appliesToAttribute);
         xacmlResourceAttribute.AddRange(requestAttributes);
 
         var xacmlResource = new XacmlContextResource(xacmlResourceAttribute);
@@ -82,6 +81,8 @@ public class PolicyRequestMapperSamlService
         var xacmlAction = new XacmlContextAction(actionAttribute);
 
         // Subject
+        var appliesToAttribute = MapAppliesToToXacml20Properties(appliesTo);
+        
         var subjectAttributes = samlAttributes
             .Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) &&
                         (sa.AttributeId.OriginalString.Contains("subject") ||
@@ -89,6 +90,8 @@ public class PolicyRequestMapperSamlService
             .ToList();
 
         subjectAttributes.AddRange(requestAttributes);
+        subjectAttributes.AddRange(appliesToAttribute);
+
         var xacmlSubject = new XacmlContextSubject(subjectAttributes);
 
         // Environment
@@ -99,29 +102,16 @@ public class PolicyRequestMapperSamlService
         return request;
     }
 
-
-    private static List<XacmlContextAttribute> MapAppliesToToXacml20Properties(Issuer appliesTo)
+    public static List<XacmlContextAttribute> MapAppliesToToXacml20Properties(AppliesTo appliesTo)
     {
-        var xacmlAttributes = new List<XacmlContextAttribute>();
-        switch (appliesTo)
+        var xacmlAttributes = new List<XacmlContextAttribute>
         {
-            case Issuer.Helsenorge:
-                xacmlAttributes.Add(
-                    new XacmlContextAttribute(
-                        new Uri(Constants.Urn.Custom.AppliesTo),
-                        new Uri(Constants.Xacml.DataType.String),
-                        new XacmlContextAttributeValue() { Value = appliesTo.ToString() }));
-                break;
-            case Issuer.HelseId:
-                xacmlAttributes.Add(
-                    new XacmlContextAttribute(
-                        new Uri(Constants.Urn.Custom.AppliesTo),
-                        new Uri(Constants.Xacml.DataType.String),
-                        new XacmlContextAttributeValue() { Value = appliesTo.ToString() }));
-                break;
-            default:
-                break;
-        }
+            new XacmlContextAttribute(
+                new Uri(Constants.Urn.Custom.AppliesTo),
+                new Uri(Constants.Xacml.DataType.String),
+                new XacmlContextAttributeValue() { Value = appliesTo.ToString() })
+        };
+
         return xacmlAttributes;
     }
 

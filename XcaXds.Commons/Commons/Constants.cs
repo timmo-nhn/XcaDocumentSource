@@ -1776,6 +1776,7 @@ public static class Constants
         public const string FastlegeClaimType = "fastlege";
 
     }
+
     public static class Urn
     {
         public static class Custom
@@ -1791,7 +1792,6 @@ public static class Constants
             public const string UnknownAttribute = BaseUrn + "xacml:unknownattribute";
             public const string UnknownPatientIdentifier = BaseUrn + "unknown-patient-identifier";
         }
-
     }
 }
 

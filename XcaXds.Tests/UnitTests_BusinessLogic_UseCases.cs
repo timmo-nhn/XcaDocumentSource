@@ -236,7 +236,7 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Issuer = Issuer.HelseId,
+            AppliesTo = AppliesTo.HelseId,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
@@ -261,7 +261,7 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Issuer = Issuer.Helsenorge,
+            AppliesTo = AppliesTo.Helsenorge,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },

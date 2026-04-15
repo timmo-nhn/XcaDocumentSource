@@ -17,5 +17,5 @@ public class BusinessLogicParameters
     public string? Acp { get; set; }
     public string? Bppc { get; set; }
     public string[]? Scope { get; set; }
-    public Issuer? Issuer { get; set; }
+    public AppliesTo? AppliesTo { get; set; }
 }

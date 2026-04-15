@@ -1,5 +1,4 @@
 ﻿using Microsoft.IdentityModel.Tokens.Saml2;
-using System.Net;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons.Commons;
@@ -11,36 +10,73 @@ namespace XcaXds.Commons.Extensions;
 
 public class SamlExtensions
 {
-    public static Issuer GetIssuerEnumFromSamlTokenIssuer(string? value)
+    public static AppliesTo GetIssuerEnumFromSamlToken(Saml2SecurityToken? samlToken)
     {
-        if (!string.IsNullOrWhiteSpace(value))
+        var issuer = samlToken?.Issuer;
+
+        if (!string.IsNullOrWhiteSpace(issuer))
         {
-            if (value.Contains("helseid"))
+            if (issuer.Contains("helseid-xdssaml"))
             {
-                return Issuer.HelseId;
+                return AppliesTo.HelseId;
             }
-            if (value.Contains("helsenorge"))
+            if (issuer.Contains("helsenorge"))
             {
-                return Issuer.Helsenorge;
+                return AppliesTo.Helsenorge;
+            }
+            if (IsMachineToMachineToken(samlToken))
+            {
+                return AppliesTo.Machine;
             }
         }
-        return Issuer.Unknown;
+        return AppliesTo.Unknown;
+    }
+
+    private static bool IsMachineToMachineToken(Saml2SecurityToken? samlToken)
+    {
+        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+
+        var samltokenAuthorizationAttributes = statements?
+            .Where(att =>
+                 att.Name.Contains("xacml") ||
+                 att.Name.Contains("xspa") ||
+                 att.Name.Contains("provider-identifier") ||
+                 att.Name.Contains("trust-framework"))
+            .ToList();
+
+        return samltokenAuthorizationAttributes?.Count == 0;
+    }
+
+    public static AppliesTo GetIssuerEnumFromSamlToken(string issuer)
+    {
+        if (!string.IsNullOrWhiteSpace(issuer))
+        {
+            if (issuer.Contains("helseid"))
+            {
+                return AppliesTo.HelseId;
+            }
+            if (issuer.Contains("helsenorge"))
+            {
+                return AppliesTo.Helsenorge;
+            }
+        }
+        return AppliesTo.Unknown;
     }
 
     public static Saml2SecurityToken? ReadSamlToken(string? inputSamlToken)
     {
         if (inputSamlToken == null) return null;
-        
-		inputSamlToken = Regex.Unescape(inputSamlToken);
 
-		try
+        inputSamlToken = Regex.Unescape(inputSamlToken);
+
+        try
         {
             var handler = new Saml2SecurityTokenHandler();
             return handler.ReadSaml2Token(inputSamlToken);
         }
         catch (Exception ex)
         {
-            return null; 
+            return null;
         }
     }
 
@@ -94,7 +130,7 @@ public class SamlExtensions
     public static CX? GetSamlAttributeValueAsCx(string? subjectId)
     {
         var codedValue = GetSamlAttributeValueAsCodedValue(subjectId);
-        
+
         if (codedValue == null) return null;
 
         return new(codedValue.Code, codedValue.CodeSystem);

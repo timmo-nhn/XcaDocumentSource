@@ -91,7 +91,7 @@ public class PolicyEnforcementPointMiddleware
         {
             LogJwt(httpContext);
 
-            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(_policyRepositoryService.GetPoliciesAsXacmlPolicySet(policyInput.AppliesTo), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }
@@ -127,7 +127,7 @@ public class PolicyEnforcementPointMiddleware
 
         _logger.LogDebug($"XACML Request:{XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings)}");
 
-        var decision = policyEvaluator.Evaluate(policyInput.XacmlRequest, policyInput.AppliesTo);
+        var decision = policyEvaluator.Evaluate(policyInput.XacmlRequest);
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Response?.Results.FirstOrDefault()?.Decision.ToString()}");
 

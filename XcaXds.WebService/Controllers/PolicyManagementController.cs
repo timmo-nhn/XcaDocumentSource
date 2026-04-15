@@ -197,12 +197,10 @@ public class PolicyManagementController : ControllerBase
     public async Task<IActionResult> GetXacmlRequest([FromBody] SoapEnvelope soapEnvelope)
     {
         var response = new RestfulApiResponse();
-        var samlToken = SamlExtensions.ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
-        var issuer = SamlExtensions.GetIssuerEnumFromSamlTokenIssuer(samlToken?.Assertion.Issuer.Value);
 
-        var xacmlRequest = _policyRequestMapperSamlService.GetXacmlRequest(soapEnvelope, issuer);
+        var xacmlRequest = _policyRequestMapperSamlService.GetXacmlRequest(soapEnvelope);
 
-        var evaluationResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest, issuer);
+        var evaluationResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest);
 
         var result = evaluationResponse.Results.Select(res => res.Decision).FirstOrDefault().ToString();
 

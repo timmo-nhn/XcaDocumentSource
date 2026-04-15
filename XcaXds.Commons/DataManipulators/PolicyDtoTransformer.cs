@@ -1,4 +1,5 @@
-﻿using Abc.Xacml.Policy;
+﻿using Abc.Xacml.Context;
+using Abc.Xacml.Policy;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 
@@ -87,15 +88,29 @@ public static class PolicyDtoTransformer
 
 
         SetXacmlPolicyRules(policyDto, xacmlEffect, xacmlPolicy);
-
         SetXacmlPolicyAction(policyDto, xacmlPolicy);
-
         SetXacmlPolicySubjects(policyDto, xacmlPolicy);
-
         SetXacmlPolicyResource(policyDto, xacmlPolicy);
+        SetXacmlPolicyTarget(policyDto, xacmlPolicy);
+
 
 
         return xacmlPolicy;
+    }
+
+    private static void SetXacmlPolicyTarget(PolicyDto policyDto, XacmlPolicy xacmlPolicy)
+    {
+        var target = policyDto.AppliesTo;
+        if (target == null || target.Count == 0) return;
+
+        foreach (var appliesTo in target)
+        {
+            var xacmlAttributeValue = new XacmlAttributeValue(new Uri(Constants.Xacml.DataType.String), appliesTo.ToString());
+            var xacmlAttributeDesignator = new XacmlSubjectAttributeDesignator(new Uri(Constants.Urn.Custom.AppliesTo), new Uri(Constants.Xacml.DataType.String));
+            var xacmlSubjectMatch = new XacmlSubjectMatch(new Uri(Constants.Xacml.Functions.StringEqual), xacmlAttributeValue, xacmlAttributeDesignator);
+            var xacmlSubject = new XacmlSubject([xacmlSubjectMatch]);
+            xacmlPolicy.Target.Subjects.Add(xacmlSubject);
+        }
     }
 
     private static void SetXacmlPolicyResource(PolicyDto policyDto, XacmlPolicy xacmlPolicy)

@@ -19,7 +19,7 @@ public class PolicyDecisionPointService
         _registryWrapper = registryWrapper;
     }
 
-    public XacmlContextResponse EvaluateSoapRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, Issuer requestAppliesTo, List<RegistryObjectDto> documentRegistry)
+    public XacmlContextResponse EvaluateSoapRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken samlToken, AppliesTo requestAppliesTo, List<RegistryObjectDto> documentRegistry)
     {
         var result = XacmlContextDecision.NotApplicable;
         var contextResult = new XacmlContextResult(result);
@@ -56,7 +56,7 @@ public class PolicyDecisionPointService
         switch (acp)
         {
             case Constants.Oid.Saml.Acp.NullValue:
-                if (requestAppliesTo == Issuer.HelseId)
+                if (requestAppliesTo == AppliesTo.HelseId)
                 {
                     if (soapAction == Constants.Xds.OperationContract.Iti18Action || soapAction == Constants.Xds.OperationContract.Iti38Action)
                     {
@@ -89,7 +89,7 @@ public class PolicyDecisionPointService
                         }
                     }
                 }
-                if (requestAppliesTo == Issuer.Helsenorge)
+                if (requestAppliesTo == AppliesTo.Helsenorge)
                 {
 
                 }
@@ -118,8 +118,8 @@ public class PolicyDecisionPointService
         return new XacmlContextResponse(contextResult);
     }
 
-    public XacmlContextResponse EvaluateXacmlRequest(XacmlContextRequest? xacmlRequest, Issuer xacmlRequestAppliesTo)
+    public XacmlContextResponse EvaluateXacmlRequest(XacmlContextRequest? xacmlRequest)
     {
-        return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest, xacmlRequestAppliesTo);
+        return _policyRepositoryWrapper.EvaluateRequest_V20(xacmlRequest);
     }
 }

@@ -28,12 +28,12 @@ public class UnitTests_PolicyAuthorization
 
         var policyrequestmappermock = new Mock<PolicyRequestMapperSamlService>();
 
-        XacmlContextRequest xacmlObject = policyrequestmappermock.Object.GetXacmlRequest(soapEnvelope, Issuer.HelseId)!;
-        var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlObject, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        XacmlContextRequest xacmlRequest = policyrequestmappermock.Object.GetXacmlRequest(soapEnvelope)!;
+        var requestXml = XacmlSerializer.SerializeXacmlToXml(xacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var requestDoc = new XmlDocument();
         requestDoc.LoadXml(requestXml!);
 
-        var evalResult = policyWrapper.EvaluateRequest_V20(xacmlObject, Issuer.HelseId);
+        var evalResult = policyWrapper.EvaluateRequest_V20(xacmlRequest);
 
         Assert.Equal(XacmlContextDecision.Permit, evalResult.Results.FirstOrDefault()?.Decision);
     }
