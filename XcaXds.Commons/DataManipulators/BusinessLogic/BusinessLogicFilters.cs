@@ -82,15 +82,11 @@ public static partial class BusinessLogicFilters
         Condition = logic =>
             logic.Resource != null &&
             logic.Subject != null &&
-            logic.QueriedSubject != null &&
             logic.Purpose != null &&
             logic.Purpose.Code != null &&
 
             logic.Resource.Code == logic.Subject.Code &&
             logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
-            logic.QueriedSubject.Code == logic.Subject.Code &&
-            logic.QueriedSubject.CodeSystem == logic.Subject.CodeSystem &&
-
             logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
             logic.Acp == Constants.Oid.Saml.Acp.NullValue &&
             logic.SubjectAge >= 18,
@@ -163,7 +159,7 @@ public static partial class BusinessLogicFilters
             logic.Subject.Code != logic.Resource.Code &&
             logic.Purpose.Code.IsAnyOf(FAMRQT, SubjectOfCare_13) &&
             logic.Acp == Constants.Oid.Saml.Acp.RepresentCitizenUnder12 &&
-            logic.SubjectAge <= 12,
+            logic.ResourceAge <= 12,
 
         Filter = robjs =>
             FilterByConfidentiality(
@@ -217,6 +213,28 @@ public static partial class BusinessLogicFilters
             logic.Subject.Code != logic.Resource.Code &&
             logic.Acp == Constants.Oid.Saml.Acp.NullValue &&
             logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13),
+
+        Filter = _ => DenyAll()
+    };
+
+    /// <summary>
+    /// Jeg som innbygger skal IKKE se dokumentreferanser/dokumenter til mitt barn som er 13 år eller eldre
+    /// </summary>
+    public static BusinessRule<IdentifiableType> CitizenShouldNotAccessDocumentsForPatientOver12 { get; set; } = new()
+    {
+        Name = nameof(CitizenShouldNotAccessDocumentsForPatientOver12),
+
+        Condition = logic =>
+            logic.Subject != null &&
+            logic.Resource != null &&
+            logic.Purpose != null &&
+            logic.Purpose.Code != null &&
+
+            logic.Subject.Code != logic.Resource.Code &&
+            logic.Acp == Constants.Oid.Saml.Acp.RepresentCitizenUnder12 &&
+            logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13) &&
+            logic.ResourceAge > 12,
+            
 
         Filter = _ => DenyAll()
     };

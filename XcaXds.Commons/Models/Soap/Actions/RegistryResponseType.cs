@@ -33,6 +33,7 @@ public partial class RegistryResponseType
             Location = location ?? string.Empty
         };
         RegistryErrorList.RegistryError = [.. RegistryErrorList.RegistryError!, error];
+        EvaluateStatusCode();
     }
 
     public void AddWarning(XdsErrorCodes errorCode, string codeContext, string? location = null)
@@ -47,12 +48,14 @@ public partial class RegistryResponseType
             Location = location ?? string.Empty
         };
         RegistryErrorList.RegistryError = [.. RegistryErrorList.RegistryError!, error];
+        EvaluateStatusCode();
     }
 
     public void AddPartialSuccess(string codeContext)
     {
         Status = Constants.Xds.ResponseStatusTypes.PartialSuccess;
         ResponseSlotList = [new SlotType() { ValueList = new() { Value = [codeContext] } }];
+        EvaluateStatusCode();
     }
 
     public void EvaluateStatusCode()

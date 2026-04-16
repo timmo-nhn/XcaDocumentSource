@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.Extensions;
 using XcaXds.WebService.Controllers;
 
 namespace XcaXds.WebService.Services;
@@ -19,8 +20,8 @@ public class PolicyRequestMapperJsonWebTokenService
 		var (action, scopeToUse) = MapXacmlActionAndScopeToUseFromUrlPath(urlPath, path);
 
 		// The scopeToUse is used to pick a specific scope (based on the endpoint path) for the JWT to SAML transformation. 
-		// This is because the XCAML validation does not work if we add multiple attribute values to the Scope attribute, or add multiple Scope attributes
-		// This may possibly be a bug or limitation in the Abc.Xcaml library, but for now this is a workaround to ensure the correct scope is included in the SAML token for the XACML policies to work as intended.
+		// This is because the XACML validation does not work if we add multiple attribute values to the Scope attribute, or add multiple Scope attributes
+		// This may possibly be a bug or limitation in the Abc.Xacml library, but for now this is a workaround to ensure the correct scope is included in the SAML token for the XACML policies to work as intended.
 
 		var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(jwtToken, scopeToUse);
         var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
@@ -33,8 +34,6 @@ public class PolicyRequestMapperJsonWebTokenService
             att.Name.Contains("urn:ihe:iti") ||
             att.Name.Contains("acp") ||
             att.Name.Contains("provider-identifier"));        
-
-        var action = MapXacmlActionFromUrlPath(urlPath, path);
 
         var appliesTo = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
 

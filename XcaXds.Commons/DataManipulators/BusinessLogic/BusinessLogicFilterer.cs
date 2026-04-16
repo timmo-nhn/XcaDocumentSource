@@ -19,6 +19,7 @@ public static class BusinessLogicFilterer
         BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
         BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
         BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
+        BusinessLogicFilters.CitizenShouldNotAccessDocumentsForPatientOver12,
 
         BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
         BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
@@ -68,6 +69,13 @@ public static class BusinessLogicFilterer
                 current = result.RegistryObjects;
                 resultCounts.Add(result.Name ?? "Unknown", (current != null && current.TryGetNonEnumeratedCount(out var count)) ? count : current?.Count() ?? 0);
             }
+        }
+
+        // The Business logic rules should cover every normal scenario...
+        // If no rules were applicable, we've hit an edge case, so filter out everything!
+        if (rulesApplied.Count == 0)
+        {
+            current = [];
         }
 
         results = resultCounts;

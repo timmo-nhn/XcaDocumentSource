@@ -42,7 +42,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/delete-documents-and-reference",
             action: "Delete",
             noCode: true);
 
@@ -68,6 +68,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
         var firstResponse = await _client.SendAsync(httpRequest);
+        
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
         var currentRegistry = _registry.ReadRegistry();
         var currentCount = currentRegistry.Count();
@@ -105,7 +107,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            codeValue: "nhn:phr-document-repository/delete-documents-and-reference",
             action: "Delete",
             noCode: true);
 
@@ -131,6 +133,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
         var firstResponse = await _client.SendAsync(httpRequest);
+
+        Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
         var currentRegistry = _registry.ReadRegistry();
         var currentCount = currentRegistry.Count();
@@ -411,7 +415,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     {
         _policyRepositoryService.DeleteAllPolicies();
         await ProvideBundle_Validate_ExportsAtnaLog();
-    }   
+    }
 
     [Fact]
     [Trait("Upload", "Validate Bundle")]

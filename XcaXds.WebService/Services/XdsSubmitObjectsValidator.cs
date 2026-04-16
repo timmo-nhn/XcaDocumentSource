@@ -17,45 +17,106 @@ public partial class XdsSubmitObjectsValidator
         _logger = logger;
     }
 
-    public XdsValidationResponse[] ValidateSubmitObjectsRequest(SubmitObjectsRequest request)
+    public XdsValidationResponse[] ValidateSubmitObjectsRequest(SubmitObjectsRequest? request)
+    {
+        return ValidateSubmitObjectsRequest(request?.RegistryObjectList);
+    }
+
+    public XdsValidationResponse[] ValidateSubmitObjectsRequest(IdentifiableType[]? request)
     {
         var validationResults = new List<XdsValidationResponse>();
 
-        var extrinsicObjects = request.RegistryObjectList?.OfType<ExtrinsicObjectType>().ToArray() ?? [];
-        var registryPackages = request.RegistryObjectList?.OfType<RegistryPackageType>().ToArray() ?? [];
+        var extrinsicObjects = request?.OfType<ExtrinsicObjectType>().ToArray() ?? [];
+        var registryPackages = request?.OfType<RegistryPackageType>().ToArray() ?? [];
 
         foreach (var documentEntry in extrinsicObjects)
         {
-            validationResults.AddRange(ValidateTitle(validationResults, documentEntry.Name?.LocalizedString));
+            ValidateTitle(validationResults, documentEntry.Name?.LocalizedString, $"DocumentEntry ({documentEntry.Id}).Name.LocalizedStringType");
+            ValidateClassifications(validationResults, documentEntry.Classification, $"DocumentEntry ({documentEntry.Id}).Classification");
+            ValidateExternalIdentifiers(validationResults, documentEntry.ExternalIdentifier, $"DocumentEntry ({documentEntry.Id}).ExternalIdentifier");
         }
 
-        foreach (var submissionset in registryPackages)
+        foreach (var submissionSet in registryPackages)
         {
-            var titles = submissionset.Name?.LocalizedString ?? [];
+            ValidateTitle(validationResults, submissionSet.Name?.LocalizedString, $"SubmissionSet ({submissionSet.Id})");
+            ValidateClassifications(validationResults, submissionSet.Classification, $"DocumentEntry ({submissionSet.Id}).Classification");
+            ValidateExternalIdentifiers(validationResults, submissionSet.ExternalIdentifier, $"DocumentEntry ({submissionSet.Id}).ExternalIdentifier");
         }
 
-        return validationResults.ToArray();
+        return [.. validationResults];
     }
 
-    private static List<XdsValidationResponse> ValidateTitle(List<XdsValidationResponse> validationResults, LocalizedStringType[]? titles)
+    private void ValidateExternalIdentifiers(List<XdsValidationResponse> validationResults, ExternalIdentifierType[] externalIdentifier, string location)
     {
-        var response = new List<XdsValidationResponse>();
-
-        foreach (var title in titles ?? [])
+        foreach (var classification in externalIdentifier)
         {
-            var titleValue = title.Value;
-            if (string.IsNullOrWhiteSpace(titleValue)) continue;
+            MatchString(validationResults, classification.Value, location);
+            ValidateSlots(validationResults, classification.Slot);
+        }
+    }
 
-            var match = RegexTitle().Matches(titleValue);
-            if (match.Count > 0)
+    private void ValidateClassifications(List<XdsValidationResponse> validationResults, ClassificationType[] classifications, string location)
+    {
+        foreach (var classification in classifications)
+        {
+            MatchString(validationResults, classification.NodeRepresentation, location);
+            ValidateSlots(validationResults, classification.Slot);
+        }
+    }
+
+    private void MatchString(List<XdsValidationResponse> validationResults, string? stringToValidate, string? location)
+    {
+        if (RegexAllowedCharacters().Count(stringToValidate ?? "") == 0)
+        {
+            var response = new XdsValidationResponse($"Value must match regex: {RegexAllowedCharacters()}");
+            var illegalCharacters = GetIllegalCharactersFromString(stringToValidate);
+
+            if (!string.IsNullOrWhiteSpace(location))
             {
-                response.Add(new($"Tile must match regex: {RegexTitle().ToString()}"));
+                response.Message += "\n Location: " + location + "\n Value: " + stringToValidate + "\n Illegal characters: " + illegalCharacters;
+            }
+
+            validationResults.Add(response);
+
+        }
+    }
+
+    private void ValidateSlots(List<XdsValidationResponse> validationResults, SlotType[]? slots)
+    {
+        for (int i = 0; i < slots?.Length; i++)
+        {
+            SlotType? slot = slots[i];
+            foreach (var value in slot.ValueList?.Value ?? [])
+            {
+                MatchString(validationResults, value, $"({slot.Name}).Value[{i}] ");
             }
         }
-
-        return response;
     }
 
-    [GeneratedRegex(@"^[a-zA-Z0-9\s\.,'\-_]+$")]
-    private static partial Regex RegexTitle();
+    private void ValidateTitle(List<XdsValidationResponse> validationResults, LocalizedStringType[]? titles, string? location)
+    {
+        foreach (var title in titles ?? [])
+        {
+            MatchString(validationResults, title.Value, location);
+        }
+    }
+
+    private static string? GetIllegalCharactersFromString(string? titleValue)
+    {
+        if (string.IsNullOrWhiteSpace(titleValue)) return null;
+
+        var illegalChars = string.Empty;
+        foreach (var letter in titleValue)
+        {
+            if (RegexAllowedCharacters().Count(letter.ToString()) > 0)
+            {
+                continue;
+            }
+            illegalChars += letter;
+        }
+        return illegalChars;
+    }
+
+    [GeneratedRegex(@"^[a-zA-Z0-9æøåÆØÅáÁéÉíÍóÓúÚýÝ\s.,:;()\-–——_÷*'""/+%&@£$€{\[\]}§|!?\^]*$")]
+    private static partial Regex RegexAllowedCharacters();
 }

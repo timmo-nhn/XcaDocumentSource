@@ -24,11 +24,13 @@ public class XdsRepositoryService
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly ILogger<XdsRepositoryService> _logger;
     private readonly RegistryWrapper _registry;
+    private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
 
-    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, RegistryWrapper registry, ILogger<XdsRepositoryService> logger)
+    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, RegistryWrapper registry, ILogger<XdsRepositoryService> logger, XdsSubmitObjectsValidator submitObjectsValidator)
     {
-        _xdsConfig = xdsConfig;
+        _submitObjectsValidator = submitObjectsValidator;
         _repositoryWrapper = repositoryWrapper;
+        _xdsConfig = xdsConfig;
         _registry = registry;
         _logger = logger;
     }
@@ -44,9 +46,21 @@ public class XdsRepositoryService
 
         var registryObjectList = provideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
+
         if (registryObjectList == null)
         {
             registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, "Missing RegistryObjectlist", _xdsConfig.HomeCommunityId);
+            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+        }
+
+        var validationIssues = _submitObjectsValidator.ValidateSubmitObjectsRequest(registryObjectList);
+
+        if (validationIssues.Length > 0)
+        {
+            foreach (var error in validationIssues)
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Validation Errors: " + error.Message, _xdsConfig.HomeCommunityId);
+            }
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
@@ -56,6 +70,11 @@ public class XdsRepositoryService
         var documents = provideAndRegisterDocumentSetRequest?.Document;
 
         var documentsToUpload = new List<(DocumentType,string?)>();
+
+        if (associations.Length == 0)
+        {
+            registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "No Associations in SubmitObjectsRequest, unable to determine RegistryObject relationships", "XDS Registry");
+        }
 
         // Only process HasMember associations (SubmissionSet pointing to a document) for document storage (others such as RPLC, XFRM etc. are not handled here)
         foreach (var association in associations.Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember))
@@ -118,6 +137,7 @@ public class XdsRepositoryService
                 documentsToUpload.Add((assocDocument, patientId));
             }
         }
+
         // We should not break the loop if any errors are found, but also never store any documents to maintain submission atomicity
         if (registryResponse.RegistryErrorList?.RegistryError.Length == 0)
         {

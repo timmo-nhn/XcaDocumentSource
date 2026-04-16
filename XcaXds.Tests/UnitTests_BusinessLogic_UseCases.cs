@@ -1,16 +1,26 @@
+using Microsoft.VisualStudio.TestPlatform.Utilities;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using Xunit.Abstractions;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
+using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 
 namespace XcaXds.Tests;
 
 public class UnitTests_BusinessLogic_UseCases
 {
     private List<IdentifiableType> DocumentReferences = new();
+    internal readonly ITestOutputHelper _output;
+
+    public UnitTests_BusinessLogic_UseCases(ITestOutputHelper output)
+    {
+        _output = output;
+    }
 
 
     [Fact]
@@ -18,12 +28,12 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var patientId = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var patientId = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId),
             Resource = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
@@ -31,16 +41,18 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
 
-        Assert.Equal(3, DocumentReferences?.Count);
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
+
+        Assert.Equal(2, DocumentReferences?.Count);
     }
 
     [Fact]
     public async Task Citizen_2_12To16_ShouldGetEmptyDocumentList()
     {
         SetupTests();
-        var patientId12To16Years = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-13).ToString("yy")}79740";
+        var patientId12To16Years = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-13):yy}79740";
 
         var yearPart = DateTime.Now.AddYears(-13).Year.ToString().Substring(2, 2);
 
@@ -55,7 +67,9 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Empty(DocumentReferences ?? []);
     }
@@ -65,7 +79,7 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var patientId16To18Years = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-17).ToString("yy")}79740";
+        var patientId16To18Years = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-17):yy}79740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -78,7 +92,9 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Equal(2, DocumentReferences?.Count);
     }
@@ -88,13 +104,13 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var resourceBelow12Years = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-6).ToString("yy")}79740";
-        var subject = $"{DateTime.Now.AddDays(-1).ToString("dd")}{DateTime.Now.ToString("MM")}{DateTime.Now.AddYears(-30).ToString("yy")}39740";
+        var resourceBelow12Years = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-6):yy}79740";
+        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
             Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
-            Purpose = new() { Code = FAMRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resourceBelow12Years, CodeSystem = Constants.Oid.Fnr },
@@ -102,9 +118,11 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
 
-        Assert.Equal(3, DocumentReferences?.Count);
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
+
+        Assert.Equal(2, DocumentReferences?.Count);
     }
 
     [Fact]
@@ -112,8 +130,8 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var resource = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -126,7 +144,9 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Equal(2, DocumentReferences?.Count);
     }
@@ -136,8 +156,8 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var resource = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -150,7 +170,35 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
+
+        Assert.Empty(DocumentReferences ?? []);
+    }
+
+    [Fact]
+    public async Task Citizen_7_ShouldNotAccessDocumentsForPatientOver12()
+    {
+        SetupTests();
+
+        var resource = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-13):yy}39740";
+        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-42):yy}39740";
+
+        var businessLogic = new BusinessLogicParameters()
+        {
+            Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            SubjectOrganization = new() { Code = "Norsk Helsenett" }
+        };
+
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Empty(DocumentReferences ?? []);
     }
@@ -160,7 +208,7 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -173,7 +221,9 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Equal(2, DocumentReferences?.Count);
     }
@@ -183,8 +233,8 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -194,10 +244,13 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
             ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            Scope = ["journaldokumenter_helsepersonell"],
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out _).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Equal(3, DocumentReferences?.Count);
     }
@@ -207,8 +260,8 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -223,6 +276,8 @@ public class UnitTests_BusinessLogic_UseCases
 
         DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
 
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
+
         Assert.Equal(3, DocumentReferences?.Count);
     }
 
@@ -231,8 +286,8 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -246,7 +301,9 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Empty(DocumentReferences ?? []);
     }
@@ -256,8 +313,8 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-70).Year.ToString().Substring(2, 2)}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now.Month}{DateTime.Now.AddYears(-30).Year.ToString().Substring(2, 2)}39740";
+        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -271,7 +328,9 @@ public class UnitTests_BusinessLogic_UseCases
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result).ToList();
+        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+
+        _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
         Assert.Empty(DocumentReferences ?? []);
     }
