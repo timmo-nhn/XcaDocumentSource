@@ -21,7 +21,7 @@ public interface IRegistry
     /// <summary>
     /// Read everything from the registry
     /// </summary>
-    IEnumerable<RegistryObjectDto> ReadRegistry();
+    IAsyncEnumerable<RegistryObjectDto> ReadRegistry();
 
     /// <summary>
     /// Write a list of entities to the registry

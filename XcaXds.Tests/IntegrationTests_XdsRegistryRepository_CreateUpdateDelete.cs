@@ -8,7 +8,6 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -360,7 +359,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
-        
+
         await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
@@ -593,6 +592,69 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     }
 
     [Fact]
+    [Trait("Upload", "Modify Registry/Repository (Concurrent read/writes)")]
+    public async Task PNR_RDS_ConcurrentReadWrites()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_CrossGatewayQuery",
+            attributeId: Constants.Saml.Attribute.Role,
+            codeValue: "LE;SP;PS",
+            codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
+            action: "Create");
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_DeleteDocuments",
+            attributeId: Constants.Saml.Attribute.Role,
+            codeValue: "LE;SP;PS",
+            codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
+            action: "Delete");
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+
+        var randomAmountOfSoapMessages = GenerateRandomSoapEnvelopesThatModifyRegistryRepository(20, out var generatedDeletedEntries);
+
+        var tasks = new List<Task<HttpResponseMessage>>();
+
+        var expectedCountAfterPnR = generatedDeletedEntries.generatedEntries.Count + RegistryContent.AsRegistryObjectDtos().Count() - generatedDeletedEntries.deletedEntries.Count;
+
+        foreach ((XmlDocument message, string path) in randomAmountOfSoapMessages)
+        {
+            tasks.Add(_client.PostAsync(path, new StringContent(message.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml)));
+        }
+
+        var result = await Task.WhenAll(tasks);
+
+        foreach (var response in result)
+        {
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await response.Content.ReadAsStringAsync());
+            Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(0, firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        }
+
+        //var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
+        var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().Count();
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+
+
+        Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
+
+        await WaitForAtnaLogToBeExported();
+
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {generatedDeletedEntries.generatedEntries.Count} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+    }
+
+    [Fact]
     [Trait("Upload", "Modify Registry/Repository")]
     public async Task PNR_UploadDocuments_InvalidValidation()
     {
@@ -618,12 +680,12 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom();
 
         var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
-        
+
         metadata.DocumentEntry.Title = "<script>alert('bø!');</script>";
         metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "<script>Hibbb! </script>";
 
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
-        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [new() {Id = metadata.Document.DocumentId, Value = metadata.Document.Data }];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [new() { Id = metadata.Document.DocumentId, Value = metadata.Document.Data }];
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
         var expectedCountAfterPnR = RegistryItemCount; // No change should happen due to invalid content
@@ -640,7 +702,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         _policyRepositoryService.DeleteAllPolicies();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.True(0 < (firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0) );
+        Assert.True(0 < (firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0));
 
         Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
 
@@ -699,7 +761,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
-        
+
         var expectedCountAfterPnR = RegistryItemCount; // Nothing should be updated
 
         var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
@@ -993,7 +1055,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var iti86RequestResponseContent = await iti86RequestResponse.Content.ReadAsStringAsync();
 
         var iti86ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti86RequestResponseContent);
-        
+
         var registryCount = _registry.ReadRegistry().OfType<DocumentEntryDto>().Count();
 
         // Cleanup
@@ -1155,6 +1217,56 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         }
 
         return soapEnvelopeDocument;
+    }
+
+    private (XmlDocument, string)[] GenerateRandomSoapEnvelopesThatModifyRegistryRepository(int amount, out (List<IdentifiableType> generatedEntries, List<string> deletedEntries) generatedDeletedEntries)
+    {
+        generatedDeletedEntries = ([],[]);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+        var sxmls = new SoapXmlSerializer();
+
+        var xmlDocuments = new List<(XmlDocument, string)>();
+
+        var idsMarkedForDelete = new List<string>();
+
+        for (int i = 0; i < amount; i++)
+        {
+            // Even, provide and register, odd, delete
+            if (DateTime.Now.Ticks % 2 == 0)
+            {
+                var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, ((RegistryItemCount + 1) / 10 + 1))).ToArray();
+                var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
+                var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
+
+                var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
+
+                generatedDeletedEntries.generatedEntries.AddRange(registryObjects);
+
+                iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. registryObjects];
+                iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
+
+                var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
+
+                xmlDocuments.Add((iti41RequestXmlDoc!, "/Repository/services/RepositoryService"));
+            }
+            else
+            {
+                var randomEntry = RegistryContent.PickRandom();
+
+                var iti62SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti62-request.xml"))));
+
+                iti62SoapRequestObject.Body.RemoveObjectsRequest.ObjectRefList.ObjectRef = [new() { Id = randomEntry.DocumentEntry.Id }];
+
+                var iti62RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti62SoapRequestObject).Content);
+                xmlDocuments.Add((iti62RequestXmlDoc!, "/Registry/services/RegistryService"));
+
+                generatedDeletedEntries.deletedEntries.Add(randomEntry.DocumentEntry.Id);
+            }
+        }
+        return xmlDocuments.ToArray();
     }
 }
 

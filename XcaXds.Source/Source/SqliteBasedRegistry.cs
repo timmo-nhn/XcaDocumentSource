@@ -25,11 +25,11 @@ public class SqliteBasedRegistry : IRegistry
         _connectionString = $"Data Source=\"{_databaseFile}\"";
 
         _logger.LogDebug($"Database connection string: {_connectionString}");
+        using var db = _contextFactory.CreateDbContext();
 
         using var context = _contextFactory.CreateDbContext();
+        context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         context.Database.EnsureCreated();
-
-        //context.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
     }
 
     public string GetDatabaseFile()
@@ -37,16 +37,18 @@ public class SqliteBasedRegistry : IRegistry
         return _databaseFile;
     }
 
-    public IEnumerable<RegistryObjectDto> ReadRegistry()
+    public async IAsyncEnumerable<RegistryObjectDto> ReadRegistry()
     {
-        using var db = _contextFactory.CreateDbContext();
+        await using var db = _contextFactory.CreateDbContext();
 
-        foreach (var entity in db.RegistryObjects.AsNoTracking())
+        await foreach (var entity in db.RegistryObjects
+            .AsNoTracking()
+            .AsAsyncEnumerable())
         {
-            var entityDto = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
-            if (entityDto != null)
+            var dto = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
+            if (dto != null)
             {
-                yield return entityDto;
+                yield return dto;
             }
         }
     }
@@ -73,74 +75,87 @@ public class SqliteBasedRegistry : IRegistry
 
     public IEnumerable<RegistryObjectDto>? GetRegistryItemsAndRelated(string identifier)
     {
-        using var db = _contextFactory.CreateDbContext();
+        IEnumerable<RegistryObjectDto>? itemsToReturn = null;
 
-        var singleItem = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
+        ExecuteWithRetry(() =>
+        {
+            using var db = _contextFactory.CreateDbContext();
 
-        if (singleItem == null) return null;
+            var singleItem = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
 
-        var association = db.Associations.AsNoTracking().FirstOrDefault(ro => ro.AS_TargetObjectId == singleItem.Id);
+            if (singleItem != null)
+            {
+                var association = db.Associations.AsNoTracking().FirstOrDefault(ro => ro.AS_TargetObjectId == singleItem.Id);
 
-        var submissionSet = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == (association ?? new()).AS_SourceObjectId);
+                var submissionSet = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == (association ?? new()).AS_SourceObjectId);
 
-        var resultList = new[] { singleItem, association, submissionSet }.OfType<DbRegistryObject>();
-        if (resultList == null) return null;
+                var resultList = new[] { singleItem, association, submissionSet }.OfType<DbRegistryObject>();
 
-        return DatabaseMapper.MapFromDatabaseEntityToDto(resultList);
+                if (resultList != null)
+                {
+                    itemsToReturn = DatabaseMapper.MapFromDatabaseEntityToDto(resultList);
+                }
+            }
+        });
+
+        return itemsToReturn;
     }
 
     public RegistryObjectDto? GetSingleRegistryItem(string identifier)
     {
-        using var db = _contextFactory.CreateDbContext();
+        RegistryObjectDto? registryObjectToReturn = null;
 
-        var entity = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
-
-        if (entity == null)
+        ExecuteWithRetry(() =>
         {
-            return null;
-        }
+            using var db = _contextFactory.CreateDbContext();
 
-        return DatabaseMapper.MapFromDatabaseEntityToDto(entity);
+            var entity = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
+
+            if (entity != null)
+            {
+                registryObjectToReturn = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
+            }
+        });
+
+        return registryObjectToReturn;
     }
 
 
     public bool UpdateRegistry(List<RegistryObjectDto> dtos)
     {
-        using var db = _contextFactory.CreateDbContext();
-
-        // Map once
-        var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
-
-        // Ensure IDs exist (your logic)
-        foreach (var e in dbEntities)
+        ExecuteWithRetry(() =>
         {
-            if (string.IsNullOrWhiteSpace(e.Id))
-                e.Id = Guid.NewGuid().ToString();
-        }
+            using var db = _contextFactory.CreateDbContext();
 
-        // Split
-        var documentEntries = dbEntities.OfType<DbDocumentEntry>().ToList();
-        var submissionSets = dbEntities.OfType<DbSubmissionSet>().ToList();
-        var associations = dbEntities.OfType<DbAssociation>().ToList();
+            // Map once
+            var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
 
+            // Ensure IDs exist (your logic)
+            foreach (var e in dbEntities)
+            {
+                if (string.IsNullOrWhiteSpace(e.Id))
+                    e.Id = Guid.NewGuid().ToString();
+            }
 
-        // Perf knobs
-        db.ChangeTracker.AutoDetectChangesEnabled = false;
-        db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking; // mostly for queries, harmless here
-
-        // SQLite-specific: reduces fsync overhead a lot for bulk-ish writes.
-        db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
-        //db.Database.ExecuteSqlRaw("PRAGMA journal_mode=DELETE;");
-        //db.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
-
-        using var transaction = db.Database.BeginTransaction();
+            // Split
+            var documentEntries = dbEntities.OfType<DbDocumentEntry>().ToList();
+            var submissionSets = dbEntities.OfType<DbSubmissionSet>().ToList();
+            var associations = dbEntities.OfType<DbAssociation>().ToList();
 
 
-        InsertInBatches(db, documentEntries);
-        InsertInBatches(db, submissionSets);
-        InsertInBatches(db, associations);
+            // Perf knobs
+            db.ChangeTracker.AutoDetectChangesEnabled = false;
+            db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking; // mostly for queries, harmless here
 
-        transaction.Commit();
+            using var transaction = db.Database.BeginTransaction();
+
+            InsertInBatches(db, documentEntries);
+            InsertInBatches(db, submissionSets);
+            InsertInBatches(db, associations);
+
+            transaction.Commit();
+        });
+
         return true;
     }
 
@@ -155,23 +170,26 @@ public class SqliteBasedRegistry : IRegistry
 
     public bool InsertOrUpdateRegistry(List<RegistryObjectDto> dtos)
     {
-        using var db = _contextFactory.CreateDbContext();
-        var incomingDbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos).ToList();
+        ExecuteWithRetry(() =>
+        {
+            using var db = _contextFactory.CreateDbContext();
+            var incomingDbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos).ToList();
 
-        foreach (var e in incomingDbEntities)
-            if (string.IsNullOrWhiteSpace(e.Id))
-                e.Id = Guid.NewGuid().ToString();
+            foreach (var e in incomingDbEntities)
+                if (string.IsNullOrWhiteSpace(e.Id))
+                    e.Id = Guid.NewGuid().ToString();
 
-        var documentEntriesToUpload = incomingDbEntities.OfType<DbDocumentEntry>().ToList();
-        var submissionSetsToUpload = incomingDbEntities.OfType<DbSubmissionSet>().ToList();
-        var associationsToUpload = incomingDbEntities.OfType<DbAssociation>().ToList();
+            var documentEntriesToUpload = incomingDbEntities.OfType<DbDocumentEntry>().ToList();
+            var submissionSetsToUpload = incomingDbEntities.OfType<DbSubmissionSet>().ToList();
+            var associationsToUpload = incomingDbEntities.OfType<DbAssociation>().ToList();
 
-        db.ChangeTracker.AutoDetectChangesEnabled = false;
+            db.ChangeTracker.AutoDetectChangesEnabled = false;
 
+            DeleteThenInsert(db, db.DocumentEntries, documentEntriesToUpload);
+            DeleteThenInsert(db, db.SubmissionSets, submissionSetsToUpload);
+            DeleteThenInsert(db, db.Associations, associationsToUpload);
+        });
 
-        DeleteThenInsert(db, db.DocumentEntries, documentEntriesToUpload);
-        DeleteThenInsert(db, db.SubmissionSets, submissionSetsToUpload);
-        DeleteThenInsert(db, db.Associations, associationsToUpload);
         return true;
     }
 
@@ -229,38 +247,85 @@ public class SqliteBasedRegistry : IRegistry
 
     public bool WriteRegistry(List<RegistryObjectDto> dtos)
     {
-        using var db = _contextFactory.CreateDbContext();
-        var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
-        db.RegistryObjects.RemoveRange(db.RegistryObjects);
-        db.RegistryObjects.AddRange(dbEntities);
-        try
+        var result = false;
+
+        ExecuteWithRetry(() =>
         {
-            db.SaveChanges();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            // Ignore — row already gone
-        }
-        catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
-        {
-            _logger.LogError(ex,
-            "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
-            sqlEx.SqliteErrorCode,
-            sqlEx.SqliteExtendedErrorCode);
-            throw;
-        }
-        return true;
+            using var db = _contextFactory.CreateDbContext();
+            var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
+            db.RegistryObjects.RemoveRange(db.RegistryObjects);
+            db.RegistryObjects.AddRange(dbEntities);
+            try
+            {
+                db.SaveChanges();
+                result = true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Ignore — row already gone
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
+            {
+                _logger.LogError(ex,
+                "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
+                sqlEx.SqliteErrorCode,
+                sqlEx.SqliteExtendedErrorCode);
+                throw;
+            }
+        });
+        return result;
     }
 
     public bool DeleteRegistryItem(string id)
     {
-        using var db = _contextFactory.CreateDbContext();
-        var registryObjectToDelete = db.RegistryObjects.FirstOrDefault(ro => ro.Id == id);
+        var result = false;
+        ExecuteWithRetry(() =>
+        {
+            using var db = _contextFactory.CreateDbContext();
+            var registryObjectToDelete = db.RegistryObjects.FirstOrDefault(ro => ro.Id == id);
 
-        if (registryObjectToDelete == null) return false;
+            if (registryObjectToDelete != null)
+            {
+                db.RegistryObjects.Remove(registryObjectToDelete);
+                db.SaveChanges();
+                result = true;
+            }
+        });
 
-        db.RegistryObjects.Remove(registryObjectToDelete);
-        db.SaveChanges();
-        return true;
+        return result;
+    }
+
+    public void ExecuteWithRetry(Action action, int maxRetries = 3)
+    {
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                action();
+                return;
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx && IsTransient(sqlEx))
+            {
+                if (attempt == maxRetries)
+                    throw;
+
+                // Jitter delay
+                var random = Random.Shared.Next(0, 50);
+                var delay = TimeSpan.FromMilliseconds(50 * Math.Pow(2, attempt) + random);
+
+                _logger.LogWarning(ex,
+                    "SQLite transient failure (attempt {Attempt}/{Max}). Retrying in {Delay}ms. Code={Code}, Extended={Extended}",
+                    attempt, maxRetries, delay.TotalMilliseconds,
+                    sqlEx.SqliteErrorCode,
+                    sqlEx.SqliteExtendedErrorCode);
+
+                Thread.Sleep(delay);
+            }
+        }
+    }
+
+    private static bool IsTransient(SqliteException ex)
+    {
+        return ex.SqliteErrorCode is 5 or 6 or 10;
     }
 }
