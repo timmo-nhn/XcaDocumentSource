@@ -44,7 +44,7 @@ public class UnitTests_Fhir
         var mockRegistry = new InMemoryRegistry();
         mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectDtos().ToList());
 
-        var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(mockRegistry.ReadRegistry().ToList()!);
+        var registryObjects = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects((await mockRegistry.ReadRegistry().ToListAsync())!);
 
         var rng = new Random();
 
@@ -53,7 +53,7 @@ public class UnitTests_Fhir
         var registryPackages = randomAssociation.Select(ra => registryObjects.GetById(ra?.SourceObject ?? "")).OfType<RegistryPackageType>().ToList();
         var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject ?? "")).OfType<ExtrinsicObjectType>().ToList();
 
-        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry());
+        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry().ToBlockingEnumerable());
         var fhirJsonSerializer = new FhirJsonSerializer();
         if (bundle != null)
         {

@@ -556,7 +556,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
@@ -616,7 +616,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
         var randomAmountOfSoapMessages = GenerateRandomSoapEnvelopesThatModifyRegistryRepository(20, out var generatedDeletedEntries);
 
@@ -675,7 +675,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom();
 
@@ -734,7 +734,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.AsRegistryObjectDtos();
@@ -843,7 +843,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
             .Where(robj => docEntIds.Any(id => id == robj.TargetObject)).ToArray();
 
         var registryContentBeforePnR = _registry.ReadRegistry();
-        var actualRegistryCountBeforePnR = registryContentBeforePnR.Count();
+        var actualRegistryCountBeforePnR = await registryContentBeforePnR.CountAsync();
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Length;
         var expectedCountAfterPnrUpdate = actualRegistryCountBeforePnR + itemsToUploadCount;
@@ -855,10 +855,10 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
 
-        var deprecatedDocuments = _registry.ReadRegistry().OfType<DocumentEntryDto>().ToArray().Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
+        var deprecatedDocuments =  (await _registry.ReadRegistry().OfType<DocumentEntryDto>().ToArrayAsync()).Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
 
         var registryContentAfterPnR = _registry.ReadRegistry();
-        var actualRegistryCountAfterPnR = registryContentAfterPnR.Count();
+        var actualRegistryCountAfterPnR = await registryContentAfterPnR.CountAsync();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -916,8 +916,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var registryContent = _registry.ReadRegistry();
-        var registryCount = registryContent.OfType<DocumentEntryDto>()?.Count() ?? 0;
-
+        var registryCount = await registryContent.OfType<DocumentEntryDto>().CountAsync();
+        
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -978,7 +978,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var documentEntryToRemove = RegistryContent.PickRandom(amountOfItemsToReplace).Select(rc => rc.DocumentEntry).ToArray();
 
         // Step 0: Check if Registry and Repository content is present
-        Assert.Equal(RegistryItemCount, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
         // Step 1: Get the unique id for the DocumentEntry in the Registry...
         var iti18RmdRequest = new SoapEnvelope();
@@ -1031,7 +1031,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var iti62ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti62ResponseContent);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
-        Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, _registry.ReadRegistry().OfType<DocumentEntryDto>().Count());
+        Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
 
         // Step 3: Use the DocumentUniqueId in the DocumentEntry to remove the Document
@@ -1056,7 +1056,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var iti86ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti86RequestResponseContent);
 
-        var registryCount = _registry.ReadRegistry().OfType<DocumentEntryDto>().Count();
+        var registryCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -1221,7 +1221,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
     private (XmlDocument, string)[] GenerateRandomSoapEnvelopesThatModifyRegistryRepository(int amount, out (List<IdentifiableType> generatedEntries, List<string> deletedEntries) generatedDeletedEntries)
     {
-        generatedDeletedEntries = ([],[]);
+        generatedDeletedEntries = ([], []);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);

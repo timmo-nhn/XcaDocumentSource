@@ -65,7 +65,7 @@ public class RegistryWrapper
 
         try
         {
-            _registryObjectList = _registry.ReadRegistry();
+            _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
         }
         catch (Exception ex)
         {
@@ -81,7 +81,7 @@ public class RegistryWrapper
         if (registryObjectDtos == null) return false;
 
         _registry.WriteRegistry(registryObjectDtos);
-        _registryObjectList = _registry.ReadRegistry();
+        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
         return true;
     }
 
@@ -95,7 +95,7 @@ public class RegistryWrapper
         if (registryObjectDto == null) return false;
 
         var deleteResponse = _registry.DeleteRegistryItem(registryObjectDto.Id);
-        _registryObjectList = _registry.ReadRegistry();
+        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
 
 
         return deleteResponse;
@@ -107,7 +107,7 @@ public class RegistryWrapper
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
         _registry.UpdateRegistry(registryObjectDtos);
-        _registryObjectList = _registry.ReadRegistry();
+        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable() ;
 
         return true;
     }
@@ -118,7 +118,7 @@ public class RegistryWrapper
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
         _registry.InsertOrUpdateRegistry(registryObjectDtos);
-        _registryObjectList = _registry.ReadRegistry();
+        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
 
         return true;
     }

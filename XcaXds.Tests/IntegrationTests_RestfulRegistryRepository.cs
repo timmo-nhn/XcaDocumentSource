@@ -31,7 +31,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days);
         var firstResponse = await _client.DeleteAsync(url);
 
-        Assert.Equal(_registry.ReadRegistry().OfType<DocumentEntryDto>().Count(), documentEntries.Length - oldDocumentEntries.Length);
+        Assert.Equal(await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(), documentEntries.Length - oldDocumentEntries.Length);
     }
 
     [Fact]

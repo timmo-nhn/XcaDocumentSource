@@ -21,12 +21,12 @@ public class InMemoryRegistry : IRegistry
 
     public RegistryObjectDto? GetRegistryItemsAndRelated(string? identifier)
     {
-        return ReadRegistry().FirstOrDefault(ro => ro.Id == identifier);
+        return ReadRegistry().ToBlockingEnumerable().FirstOrDefault(ro => ro.Id == identifier);
     }
 
-    public IEnumerable<RegistryObjectDto> ReadRegistry()
+    public IAsyncEnumerable<RegistryObjectDto> ReadRegistry()
     {
-        return GetRegistryItemsForPatient(new PatientId());
+        return GetRegistryItemsForPatient(new PatientId()).ToAsyncEnumerable();
     }
 
     public bool UpdateRegistry(List<RegistryObjectDto> dtos)

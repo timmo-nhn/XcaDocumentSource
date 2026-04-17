@@ -72,7 +72,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
         var currentRegistry = _registry.ReadRegistry();
-        var currentCount = currentRegistry.Count();
+        var currentCount = await currentRegistry.CountAsync();
 
         var expectedCount = registryContentCount - 3;
 
@@ -137,7 +137,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
         var currentRegistry = _registry.ReadRegistry();
-        var currentCount = currentRegistry.Count();
+        var currentCount = await currentRegistry.CountAsync();
 
         var expectedCount = registryContentCount;
 
@@ -332,7 +332,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
-        var actualCount = _registry.ReadRegistry().OfType<DocumentEntryDto>()?.Count() ?? 0;
+        var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
 
         _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();

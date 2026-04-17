@@ -23,7 +23,7 @@ public class IntegrationTests_Benchmark_ReadWriteRegistry : IntegrationTests_Def
     public async Task RegistryBenchmark()
     {
         var statistics = "registryObjects;documentList;read;write\n";
-        var registry = new FileBasedRegistry(new FakeLogger<FileBasedRegistry>());
+
         var testDataFiles = Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", "SoapRequests"));
 
         var iti38Request = File.ReadAllText(testDataFiles.First(f => f.Contains("iti38-iti40-request-kj.xml")));

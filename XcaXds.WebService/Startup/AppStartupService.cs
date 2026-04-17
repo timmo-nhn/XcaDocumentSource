@@ -9,7 +9,6 @@ namespace XcaXds.WebService.Startup;
 public class AppStartupService : IHostedService
 {
     private readonly ILogger<AppStartupService> _logger;
-    private readonly ILogger<FileBasedRegistry> _logger2;
     private readonly IHostEnvironment _env;
     private readonly IConfiguration _config;
     private readonly MonitoringStatusService _monitoringService;
@@ -20,7 +19,6 @@ public class AppStartupService : IHostedService
 
     public AppStartupService(
         ILogger<AppStartupService> logger,
-        ILogger<FileBasedRegistry> logger2,
         IHostEnvironment env,
         IConfiguration config,
         ApplicationConfig appConfig,
@@ -31,7 +29,6 @@ public class AppStartupService : IHostedService
         )
     {
         _logger = logger;
-        _logger2 = logger2;
         _env = env;
         _config = config;
         _appConfig = appConfig;
@@ -79,7 +76,7 @@ public class AppStartupService : IHostedService
 
         //FindDudsInRepository();
 
-        MigrateFromJsonRegistryToDatabase();
+        //MigrateFromJsonRegistryToDatabase();
 
         if (_env.IsProduction() == false)
         {
@@ -280,23 +277,21 @@ public class AppStartupService : IHostedService
         }
     }
 
-    private void MigrateFromJsonRegistryToDatabase()
-    {
-        var fileBasedRegistry = new FileBasedRegistry(_logger2);
+    //private void MigrateFromJsonRegistryToDatabase()
+    //{
+    //    // If registry doesnt exist yet, no need to migrate
+    //    if (fileBasedRegistry.RegistryExists() == false) return;
 
-        // If registry doesnt exist yet, no need to migrate
-        if (fileBasedRegistry.RegistryExists() == false) return;
+    //    // If already migrated, no need to migrate again :P
+    //    if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
 
-        // If already migrated, no need to migrate again :P
-        if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
+    //    _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
 
-        _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
+    //    var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
 
-        var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
+    //    _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
 
-        _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
-
-        _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
-        fileBasedRegistry.MarkFileRegistryAsMigrated();
-    }
+    //    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
+    //    fileBasedRegistry.MarkFileRegistryAsMigrated();
+    //}
 }
