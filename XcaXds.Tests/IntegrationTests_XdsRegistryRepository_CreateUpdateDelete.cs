@@ -50,7 +50,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
 
         var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalForskriftenSamlToken(iti38SoapEnvelope);
 
@@ -98,7 +98,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
 
         var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalSamlToken(iti38SoapEnvelope);
 
@@ -148,7 +148,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
             // ,patientIdentifier: PatientIdentifier.IdNumber
             );
 
-        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
 
         var crossGatewayQuery = GetSoapEnvelopeWithHelsenorgeSamlToken(iti38SoapEnvelope);
 
@@ -213,7 +213,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti38-request.xml")));
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
         var iti38SoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti38SoapEnvelope);
         //iti38SoapObject.Body.AdhocQueryRequest.AdhocQuery.Slot
         //    .FirstOrDefault(s => s.Name == "$XDSDocumentEntryPatientId")?.ValueList?.Value = [$"{patientId}^^{patientSystem}"];
@@ -262,7 +262,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml")));
+        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-39_request.xml")));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
@@ -325,7 +325,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml")));
+        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-39_request.xml")));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
@@ -386,7 +386,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var registryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml")));
+        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-39_request.xml")));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
@@ -443,7 +443,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var registryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml")));
+        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-39_request.xml")));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
@@ -502,7 +502,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var registryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti39-request.xml")));
+        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-39_request.xml")));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
@@ -562,7 +562,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
-        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
+        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
 
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. registryObjects];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
@@ -596,9 +596,18 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     public async Task PNR_RDS_ConcurrentReadWrites()
     {
         _policyRepositoryService.DeleteAllPolicies();
+
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
+            attributeId: Constants.Saml.Attribute.Role,
+            codeValue: "LE;SP;PS",
+            codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
+            action: "ReadDocumentList");
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_UploadDocuments",
             attributeId: Constants.Saml.Attribute.Role,
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
@@ -616,9 +625,11 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
+
         Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
-        var randomAmountOfSoapMessages = GenerateRandomSoapEnvelopesThatModifyRegistryRepository(20, out var generatedDeletedEntries);
+        var randomAmountOfSoapMessages = GenerateRandomSoapEnvelopesThatInteractWithRegistryRepository(10, out var generatedDeletedEntries);
 
         var tasks = new List<Task<HttpResponseMessage>>();
 
@@ -651,7 +662,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {generatedDeletedEntries.generatedEntries.Count} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {generatedDeletedEntries.generatedEntries.Count} entries.\nDeleted: {generatedDeletedEntries.deletedEntries.Count}\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
     [Fact]
@@ -673,13 +684,14 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var testDataFiles = Directory.GetFiles(testDataPath);
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-        await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
         Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom();
 
-        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
+        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
 
         metadata.DocumentEntry.Title = "<script>alert('bø!');</script>";
         metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "<script>Hibbb! </script>";
@@ -708,7 +720,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
     [Fact]
@@ -732,7 +744,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var testdataDocuments = JsonSerializer.Deserialize<FileDude[]>(File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains("Documents"))));
 
-        await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
         Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
 
@@ -755,7 +768,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
             }
         }
 
-        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
+        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
 
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryObjects)];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
@@ -782,7 +795,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
     [Fact]
@@ -805,11 +818,12 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-        var registryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
         var amountOfItemsToReplace = Random.Shared.Next(1, RegistryItemCount);
 
-        var randomDocumentEntriesToDeprecate = registryContent.PickRandom(amountOfItemsToReplace).ToArray();
+        var randomDocumentEntriesToDeprecate = RegistryContent.PickRandom(amountOfItemsToReplace).ToArray();
         var newDocumentEntries = TestHelpers.GenerateComprehensiveRegistryMetadata(amountOfItemsToReplace, PatientIdentifier.IdNumber, true);
 
         var assocDtos = newDocumentEntries
@@ -833,7 +847,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var documentUpdate = newDocumentEntries.Select(nde => new DocumentType { Id = nde.Document.DocumentId, Value = nde.Document.Data }).ToArray();
 
-        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
+        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
 
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. submitObjectsUpdate];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [.. documentUpdate];
@@ -855,7 +869,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
 
-        var deprecatedDocuments =  (await _registry.ReadRegistry().OfType<DocumentEntryDto>().ToArrayAsync()).Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
+        var deprecatedDocuments = (await _registry.ReadRegistry().OfType<DocumentEntryDto>().ToArrayAsync()).Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
 
         var registryContentAfterPnR = _registry.ReadRegistry();
         var actualRegistryCountAfterPnR = await registryContentAfterPnR.CountAsync();
@@ -872,7 +886,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUpdated: {itemsToUploadCount} entries.\nRegistry count: {actualRegistryCountAfterPnR}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUpdated: {itemsToUploadCount} entries.\nRegistry count: {actualRegistryCountAfterPnR}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
     [Fact]
@@ -895,14 +909,15 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-        await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
 
-        var iti42SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti42-request.xml"))));
+        var iti42SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-42_request.xml"))));
 
         iti42SoapRequestObject.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. registryObjects];
 
@@ -917,7 +932,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var registryContent = _registry.ReadRegistry();
         var registryCount = await registryContent.OfType<DocumentEntryDto>().CountAsync();
-        
+
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -929,7 +944,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
     }
 
     [Fact]
@@ -962,15 +977,16 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
             action: "ReadDocuments");
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-        var iti18AdhocQuery = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti18-request.xml"))));
-        var iti43RetrieveDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti43-request.xml"))));
-        var iti62DeleteObjectsRequest = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti62-request.xml"))));
-        var iti86DeleteDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti86-request.xml"))));
+        var iti18AdhocQuery = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-18_request.xml"))));
+        var iti43RetrieveDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-43_request.xml"))));
+        var iti62DeleteObjectsRequest = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-62_request.xml"))));
+        var iti86DeleteDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-86_request.xml"))));
 
         var amountOfItemsToReplace = Random.Shared.Next(1, RegistryItemCount);
 
@@ -1065,7 +1081,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {registryCount}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {registryCount}");
     }
 
 
@@ -1099,15 +1115,16 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
             action: "ReadDocuments");
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
-        var iti18AdhocQuery = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti18-request.xml"))));
-        var iti43RetrieveDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti43-request.xml"))));
-        var iti62DeleteObjects = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti62-request.xml"))));
-        var iti86DeleteDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti86-request.xml"))));
+        var iti18AdhocQuery = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-18_request.xml"))));
+        var iti43RetrieveDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-43_request.xml"))));
+        var iti62DeleteObjects = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-62_request.xml"))));
+        var iti86DeleteDocumentSet = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-86_request.xml"))));
 
         iti18AdhocQuery.Body.RetrieveDocumentSetRequest = iti43RetrieveDocumentSet.Body.RetrieveDocumentSetRequest;
         iti43RetrieveDocumentSet.Body.AdhocQueryRequest = iti18AdhocQuery.Body.AdhocQueryRequest;
@@ -1173,6 +1190,12 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
     }
 
+    private XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(SoapEnvelope soapEnvelope)
+    {
+        var sxmls = new SoapXmlSerializer();
+        return GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content);
+    }
+
     private XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(string soapEnvelope)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
@@ -1188,7 +1211,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
     }
 
-    private XmlDocument? GetSoapEnvelopeWithHelsenorgeSamlToken(string iti39SoapEnvelope)
+    private XmlDocument? GetSoapEnvelopeWithHelsenorgeSamlToken(string soapEnvelope)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
@@ -1196,7 +1219,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
         var kjSamlToken = TestHelpers.LoadNewXmlDocument(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_HN01"))));
-        var soapEnvelopeDocument = TestHelpers.LoadNewXmlDocument(iti39SoapEnvelope);
+        var soapEnvelopeDocument = TestHelpers.LoadNewXmlDocument(soapEnvelope);
 
         return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
     }
@@ -1219,56 +1242,99 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         return soapEnvelopeDocument;
     }
 
-    private (XmlDocument, string)[] GenerateRandomSoapEnvelopesThatModifyRegistryRepository(int amount, out (List<IdentifiableType> generatedEntries, List<string> deletedEntries) generatedDeletedEntries)
+    private (XmlDocument, string)[] GenerateRandomSoapEnvelopesThatInteractWithRegistryRepository(int amount, out (List<IdentifiableType> generatedEntries, List<string> deletedEntries) generatedDeletedEntries)
     {
         generatedDeletedEntries = ([], []);
 
+        var sxmls = new SoapXmlSerializer();
+        var xmlDocuments = new List<(XmlDocument, string)>();
+        var idsMarkedForDelete = new List<string>();
+
+        for (int i = 0; i < amount; i++)
+        {
+            switch (Random.Shared.Next(1, 4))
+            {
+                case 1:
+                    var iti41Request = GetRandomIti41Message(out var generatedEntries);
+                    generatedDeletedEntries.generatedEntries.AddRange(generatedEntries);
+                    var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(iti41Request);
+                    xmlDocuments.Add((iti41RequestXmlDoc!, "/Repository/services/RepositoryService"));
+                    break;
+
+                case 2:
+                    var iti62Request = GetRandomIti62Message(out var deletedEntries);
+                    generatedDeletedEntries.deletedEntries.AddRange(deletedEntries);
+                    var iti62RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(iti62Request);
+                    xmlDocuments.Add((iti62RequestXmlDoc!, "/Registry/services/RegistryService"));
+
+                    break;
+
+                case 3:
+                    var iti38Request = GetRandomIti38Request();
+                    var iti38RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(iti38Request);
+                    xmlDocuments.Add((iti38RequestXmlDoc!, "/XCA/services/RespondingGatewayService"));
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return [.. xmlDocuments];
+    }
+
+    private SoapEnvelope? GetRandomIti38Request()
+    {
+        var randomEntries = RegistryContent.PickRandom(Random.Shared.Next(1, 10));
+        var iti38SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("iti-38");
+        return iti38SoapRequestObject;
+    }
+
+    private SoapEnvelope GetRandomIti62Message(out List<string> deletedEntries)
+    {
+        deletedEntries = [];
+
+        var sxmls = new SoapXmlSerializer();
+        var randomEntries = RegistryContent.PickRandom(Random.Shared.Next(1, 10));
+
+        var iti62SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("iti-62");
+        var entriesToDelete = randomEntries.Select(re => new ObjectRefType() { Id = re.DocumentEntry.Id }).ToArray();
+        deletedEntries.AddRange(entriesToDelete.Select(or => or.Id).OfType<string>().ToArray());
+        iti62SoapRequestObject.Body.RemoveObjectsRequest.ObjectRefList.ObjectRef = entriesToDelete;
+
+        return iti62SoapRequestObject;
+    }
+
+    private SoapEnvelope GetRandomIti41Message(out List<IdentifiableType> generatedEntries)
+    {
+        var sxmls = new SoapXmlSerializer();
+
+        generatedEntries = [];
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, ((RegistryItemCount + 1) / 10 + 1))).ToArray();
+        var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
+        var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
+
+        var iti41SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("iti-41");
+        generatedEntries.AddRange(registryObjects);
+
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. registryObjects];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
+
+        return iti41SoapRequestObject;
+    }
+
+    private static SoapEnvelope? GetSoapEnvelopeFromIntegrationTestFiles(string actionName)
+    {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
         var sxmls = new SoapXmlSerializer();
 
-        var xmlDocuments = new List<(XmlDocument, string)>();
-
-        var idsMarkedForDelete = new List<string>();
-
-        for (int i = 0; i < amount; i++)
-        {
-            // Even, provide and register, odd, delete
-            if (DateTime.Now.Ticks % 2 == 0)
-            {
-                var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, ((RegistryItemCount + 1) / 10 + 1))).ToArray();
-                var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
-                var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
-
-                var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti41-request.xml"))));
-
-                generatedDeletedEntries.generatedEntries.AddRange(registryObjects);
-
-                iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. registryObjects];
-                iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
-
-                var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
-
-                xmlDocuments.Add((iti41RequestXmlDoc!, "/Repository/services/RepositoryService"));
-            }
-            else
-            {
-                var randomEntry = RegistryContent.PickRandom();
-
-                var iti62SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti62-request.xml"))));
-
-                iti62SoapRequestObject.Body.RemoveObjectsRequest.ObjectRefList.ObjectRef = [new() { Id = randomEntry.DocumentEntry.Id }];
-
-                var iti62RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti62SoapRequestObject).Content);
-                xmlDocuments.Add((iti62RequestXmlDoc!, "/Registry/services/RegistryService"));
-
-                generatedDeletedEntries.deletedEntries.Add(randomEntry.DocumentEntry.Id);
-            }
-        }
-        return xmlDocuments.ToArray();
+        var soapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains(actionName))));
+        return soapRequestObject;
     }
 }
+
+
 
 internal class FileDude
 {

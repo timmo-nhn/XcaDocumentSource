@@ -25,11 +25,12 @@ public class SqliteBasedRegistry : IRegistry
         _connectionString = $"Data Source=\"{_databaseFile}\"";
 
         _logger.LogDebug($"Database connection string: {_connectionString}");
-        using var db = _contextFactory.CreateDbContext();
-
         using var context = _contextFactory.CreateDbContext();
-        context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+
         context.Database.EnsureCreated();
+        
+        context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+        context.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
     }
 
     public string GetDatabaseFile()

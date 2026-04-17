@@ -215,7 +215,7 @@ public class AppStartupService : IHostedService
 			Effect = "Permit"
 		};
 
-		_policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid);
+		//_policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid); // Remove because of incompatability with PIX
         //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
         _policyRepositoryWrapper.AddPolicy(cz_readdocumentlist_documents);
         _policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
