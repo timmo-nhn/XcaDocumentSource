@@ -72,10 +72,6 @@ public static class StringExtensions
         if (input?.Length > 4 && input[0] == 0x25 && input[1] == 0x50 && input[2] == 0x44 && input[3] == 0x46)
             return Constants.MimeTypes.Pdf;
 
-        // Plain text: All bytes are in the range of 32 (space) to 126 (~)
-        if (input?.Length > 4 && input.All(b => b >= 32 && b <= 126))
-            return Constants.MimeTypes.Text;
-
         // RTF: Starts with "{\\rtf"
         if (input?.Length > 4 && input[0] == 0x7B && input[1] == 0x5C && input[2] == 0x72 && input[3] == 0x74 && input[4] == 0x66)
             return Constants.MimeTypes.Rtf;
@@ -96,6 +92,11 @@ public static class StringExtensions
 
         if (IsJson(input))
             return Constants.MimeTypes.Json;
+
+        // Plain text: All bytes are in the range of 32 (space) to 126 (~)
+        // Note! Do this last, to ensure other text-like mimetypes are covered (e.g., XML, JSON)
+        if (input?.Length > 4 && input.All(b => b >= 32 && b <= 126))
+            return Constants.MimeTypes.Text;
 
         return null;
     }
