@@ -344,7 +344,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
+       var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
 
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
 

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
 using System.Buffers.Text;
 using System.Text;
@@ -39,10 +38,12 @@ public static class MultipartExtensions
         body.Position = 0;
         return sb.ToString();
     }
+
     public static async Task<string> ReadFirstMultipartSectionFromStream(Stream body, string contentType)
     {
         var sb = new StringBuilder();
 
+        body.Position = 0;
         if (!MediaTypeHeaderValue.TryParse(contentType, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
@@ -165,6 +166,8 @@ public static class MultipartExtensions
 
                 var documentBytes = Array.Empty<byte>();
 
+
+
                 if (Base64.IsValid(documentResponse.Document.InnerText) && documentResponse.MimeType == Constants.MimeTypes.Hl7v3Xml)
                 {
                     var documentContent = Convert.FromBase64String(documentResponse.Document.InnerText);
@@ -174,10 +177,14 @@ public static class MultipartExtensions
                 else
                 {
                     var documentContent = Encoding.UTF8.GetBytes(documentResponse.Document.InnerText);
-                    documentBytes = new byte[documentContent.Length];
-                    documentBytes = documentContent;
+                    documentBytes = [.. documentContent];
                 }
 
+                documentResponse.MimeType = string.IsNullOrWhiteSpace(documentResponse.MimeType)
+                    ? StringExtensions.TryGetMimeTypeFromDocumentBytes(documentBytes, out var mimeType) 
+                        ? mimeType 
+                        : documentResponse.MimeType
+                    : documentResponse.MimeType;
 
                 var documentByteArrayContent = new ByteArrayContent(documentBytes);
 

@@ -177,7 +177,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
