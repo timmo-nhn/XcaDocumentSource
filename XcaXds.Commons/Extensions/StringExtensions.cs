@@ -118,7 +118,7 @@ public static class StringExtensions
     {
         var sxmls = new SoapXmlSerializer();
         var cdaDocument = sxmls.DeserializeXmlString<ClinicalDocument>(new MemoryStream(input ?? Array.Empty<byte>()));
-        return cdaDocument.Component.NonXmlBody?.Text.Data?.GetAsUtf8Bytes();
+        return Convert.FromBase64String(cdaDocument.Component.NonXmlBody?.Text.Data ?? "");
     }
 
     private static bool IsXmlLike(byte[]? input, out DocumentSniffer.DocumentKind kind)
