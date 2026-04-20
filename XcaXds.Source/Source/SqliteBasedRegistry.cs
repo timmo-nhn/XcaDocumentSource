@@ -36,10 +36,13 @@ public class SqliteBasedRegistry : IRegistry
         context.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
         GlobalExtensions.TryThis(() =>
         {
-            context.Database.ExecuteSql($"PRAGMA temp_store_directory = '{tempPath}';");
+            context.Database.ExecuteSql($"PRAGMA temp_store = MEMORY;");
         }, out var ex);
 
-        _logger.LogWarning("Error setting temp_store_directory for SQLite Database\n" + ex?.ToString());
+        if (ex != null)
+        {
+            _logger.LogWarning("Error setting temp_store_directory for SQLite Database\n" + ex?.ToString());
+        }
     }
 
     public string GetDatabaseFile()
