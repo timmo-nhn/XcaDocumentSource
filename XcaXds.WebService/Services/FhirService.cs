@@ -24,7 +24,7 @@ public class FhirService
         _repository = repository;
     }
 
-    public ProvideBundleResult ProvideBundle(Bundle fhirBundle, string sessionId, bool validateOnly = false)
+    public async Task<ProvideBundleResult> ProvideBundle(Bundle fhirBundle, string sessionId, bool validateOnly = false)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -155,7 +155,7 @@ public class FhirService
             submittedDocumentsTooLarge.IsSuccess == false ||
             validateOnly;
 
-        documentUploadResponse = _repository.UploadContentToRepository(provideAndRegisterRequest, effectiveValidateOnly);
+        documentUploadResponse = await _repository.UploadContentToRepository(provideAndRegisterRequest, effectiveValidateOnly);
 
         effectiveValidateOnly = documentUploadResponse.IsSuccess == false;
 

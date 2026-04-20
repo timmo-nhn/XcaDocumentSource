@@ -93,31 +93,10 @@ public partial class RepositoryWrapper
         return Encoding.UTF8.GetBytes(cdaXml);
     }
 
-    public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart, bool validateOnly, out string? errorMessage)
+    public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart)
     {
-        var storeResult = StoreDocumentAsync(documentId, documentContent, patientIdPart, validateOnly).GetAwaiter().GetResult();
-        errorMessage = storeResult.Message;
-        return storeResult.Success;
-    }
-
-    public async Task<StoreDocumentResult> StoreDocumentAsync(string documentId, byte[] documentContent, string patientIdPart, bool validateOnly)
-    {
-        bool result = false;
-
-        var scanResult = await _fileScanner.ScanFile(documentContent);
-
-        if (scanResult?.Result != ClamScanResults.VirusDetected && validateOnly == false)
-        {
-            result = _repository.Write(documentId, documentContent, patientIdPart);
-        }
-
-        var errorMessage = scanResult?.Result == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult.RawResult}" : null;
-
-        return new()
-        {
-            Success = result && scanResult?.Result != ClamScanResults.VirusDetected,
-            Message = errorMessage
-        };
+        var result = _repository.Write(documentId, documentContent, patientIdPart);
+        return result;
     }
 
     public bool DeleteSingleDocument(string? documentUniqueId)

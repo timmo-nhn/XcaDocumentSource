@@ -1,6 +1,7 @@
 ﻿using Abc.Xacml.Context;
 using Hl7.Fhir.Model;
 using Hl7.FhirPath.Sprache;
+using nClam;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Buffers.Text;
@@ -25,22 +26,24 @@ public class XdsRepositoryService
     private readonly ILogger<XdsRepositoryService> _logger;
     private readonly RegistryWrapper _registry;
     private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
+    private readonly IClamAvFileScanner _fileScanner;
 
-    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, RegistryWrapper registry, ILogger<XdsRepositoryService> logger, XdsSubmitObjectsValidator submitObjectsValidator)
+    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, RegistryWrapper registry, ILogger<XdsRepositoryService> logger, XdsSubmitObjectsValidator submitObjectsValidator, IClamAvFileScanner fileScanner)
     {
         _submitObjectsValidator = submitObjectsValidator;
         _repositoryWrapper = repositoryWrapper;
         _xdsConfig = xdsConfig;
         _registry = registry;
         _logger = logger;
+        _fileScanner = fileScanner;
     }
 
-    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(SoapEnvelope iti41Envelope, bool validateOnly = false)
+    public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope, bool validateOnly = false)
     {
-        return UploadContentToRepository(iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest, validateOnly);
+        return await UploadContentToRepository(iti41Envelope.Body.ProvideAndRegisterDocumentSetRequest, validateOnly);
     }
 
-    public SoapRequestResult<SoapEnvelope> UploadContentToRepository(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterDocumentSetRequest, bool validateOnly = false)
+    public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(ProvideAndRegisterDocumentSetRequestType? provideAndRegisterDocumentSetRequest, bool validateOnly = false)
     {
         var registryResponse = new RegistryResponseType();
 
@@ -71,7 +74,7 @@ public class XdsRepositoryService
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
         var documents = provideAndRegisterDocumentSetRequest?.Document;
 
-        var documentsToUpload = new List<(DocumentType,string?)>();
+        var documentsToUpload = new List<(DocumentType, string?)>();
 
         if (associations.Length == 0)
         {
@@ -101,6 +104,14 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Patient ID missing", "ExtrinsicObject");
             }
 
+            var scanResult = await _fileScanner.ScanFile(assocDocument?.Value ?? []);
+
+            if (scanResult?.Result != ClamScanResults.Clean && validateOnly == false)
+            {
+                var errorMessage = scanResult?.Result == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult.RawResult}" : "Error while scanning for virus";
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, errorMessage, "ExtrinsicObject");
+            }
+
             var patientIdPart = Hl7Object.Parse<CX>(patientId)?.IdNumber;
             var documentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
@@ -115,7 +126,7 @@ public class XdsRepositoryService
                 _logger.LogWarning(message);
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, "XDS Repository");
             }
-            
+
             if (!BusinessLogicFilters.IsMatchingMimeType(mimeTypeFromMagicByte, documentEntryMimetype))
             {
                 var message = $"MimeType in DocumentEntry is missing or does not match actual document mime type. Document ID: {assocDocument?.Id}, DocumentEntry MimeType: {documentEntryMimetype}, Actual MimeType: {mimeTypeFromMagicByte}";
@@ -148,20 +159,19 @@ public class XdsRepositoryService
         {
             foreach ((DocumentType assocDocument, string? patientIdPart) in documentsToUpload)
             {
-                if (assocDocument.Id == null || assocDocument == null || (assocDocument?.Value) == null || string.IsNullOrWhiteSpace(patientIdPart))
+                if (assocDocument == null || assocDocument.Id == null || assocDocument?.Value == null || string.IsNullOrWhiteSpace(patientIdPart))
                 {
                     continue;
                 }
 
-                var repositoryUpdateOk = _repositoryWrapper.StoreDocument(assocDocument.Id, assocDocument.Value, patientIdPart, validateOnly, out var message);
+                if (!validateOnly)
+                {
+                    var storeDocumentsResult = _repositoryWrapper.StoreDocument(assocDocument.Id, assocDocument.Value, patientIdPart);
 
-                if (!repositoryUpdateOk && !string.IsNullOrWhiteSpace(message))
-                {
-                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Potentially malicious file detected!\n {message}", $"XDS Repository");
-                }
-                else if (!repositoryUpdateOk)
-                {
-                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                    if (!storeDocumentsResult)
+                    {
+                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                    }
                 }
             }
         }

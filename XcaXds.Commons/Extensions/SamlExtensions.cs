@@ -74,7 +74,7 @@ public class SamlExtensions
             var handler = new Saml2SecurityTokenHandler();
             return handler.ReadSaml2Token(inputSamlToken);
         }
-        catch (Exception ex)
+        catch
         {
             return null;
         }

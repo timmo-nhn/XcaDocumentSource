@@ -299,20 +299,18 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
         var anyValidationErrors = validationResult.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error) == true;
 
+        bool effectiveValidate = false;
+
+        // Add ProvideBundle validation aswell to avoid the user thinking that the only errors are the validation results
+        // Preventing them from fighting "waves" of errors :P 
         if (anyValidationErrors)
         {
-            // Add ProvideBundle validation aswell to avoid the user thinking that the only errors are the validation results
-            // Preventing them from fighting "waves" of errors :P 
-            var provideBundleValidationResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, true);
-            validationResult.Issue.AddRange(provideBundleValidationResult.Outcome.Issue);
-            provideBundleResult.Outcome = validationResult;
+            effectiveValidate = true;
         }
-        else
-        {
-            // Then provide
-            provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, false);
-            provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
-        }
+
+        // Then provide
+        provideBundleResult = await _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, effectiveValidate);
+        provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
 
         // ATNA Audit Log generation
         HttpContext.Items.Add("uploadedEntries", provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList);
@@ -364,7 +362,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         }
 
         // Validate bundle
-        var provideBundleResult = _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, validateOnly: true);
+        var provideBundleResult = await _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, validateOnly: true);
         var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle, useFirelyValidator: true);
 
         operationOutcome.Issue.AddRange(provideBundleResult.Outcome.Issue);

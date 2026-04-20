@@ -164,7 +164,7 @@ public class XdsRepositoryController : ControllerBase
                     break;
                 }
 
-                var documentUploadResponse = _repositoryService.UploadContentToRepository(soapEnvelope);
+                var documentUploadResponse = await _repositoryService.UploadContentToRepository(soapEnvelope);
 
                 if (documentUploadResponse.IsSuccess == false)
                 {
