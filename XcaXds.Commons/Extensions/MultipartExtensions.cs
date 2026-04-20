@@ -121,7 +121,7 @@ public static class MultipartExtensions
 
             var sectionString = Encoding.UTF8.GetString(content);
 
-            if (GlobalExtensions.TryThis(() => sxmls.DeserializeXmlString<SoapEnvelope>(sectionString)))
+            if (GlobalExtensions.TryThis(() => sxmls.DeserializeXmlString<SoapEnvelope>(sectionString), out _))
             {
                 soapEnvelopeMultipart.SoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(sectionString);
             }

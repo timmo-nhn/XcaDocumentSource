@@ -59,8 +59,17 @@ public static partial class BusinessLogicFilters
 
     public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimeType)
     {
+        // HAYO! If the Mime Type is Hl7v3Xml it can be a document wrapped in CDA, the magic byte check will say its CDA,
+        // but the actual document inside will be the Mime Type from the DocumentEntry...
+        // Maybe do something to detect it in the future?
+        if (mimeTypeFromMagicByte == Constants.MimeTypes.Hl7v3Xml)
+        {
+            return true;
+        }
+
 		// Special handling for XML mimetypes, as there can be many valid XML mimetypes that are not explicitly listed in the allowed mimetypes,
-        // but should still be considered valid if the document entry mimetype indicates it's an XML type and the actual magic byte mimetype also indicates it's an XML type.
+        // but should still be considered valid if the document entry mimetype indicates it's an XML type
+        // and the actual magic byte mimetype also indicates it's an XML type.
 		if (documentEntryMimeType?.Contains("/xml") == true || documentEntryMimeType?.Contains("+xml") == true)
         {
             if (mimeTypeFromMagicByte?.Contains("/xml") == true || mimeTypeFromMagicByte?.Contains("+xml") == true)

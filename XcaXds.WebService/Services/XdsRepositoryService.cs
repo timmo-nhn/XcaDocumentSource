@@ -115,7 +115,7 @@ public class XdsRepositoryService
             var patientIdPart = Hl7Object.Parse<CX>(patientId)?.IdNumber;
             var documentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
-            var mimeTypeFromMagicByte = StringExtensions.TryGetMimeTypeFromMagicByte(assocDocument?.Value, out var mime) ? mime : null;
+            var mimeTypeFromMagicByte = StringExtensions.TryGetMimeTypeFromDocumentBytes(assocDocument?.Value, out var mime) ? mime : null;
             var documentEntryMimetype = assocExtrinsicObject?.MimeType;
 
             if (!documentEntryMimetype.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) ||
@@ -288,7 +288,7 @@ public class XdsRepositoryService
                     file = base64Document;
                 }
 
-                var mimeType = StringExtensions.TryGetMimeTypeFromMagicByte(file, out var mime) ? mime : null;
+                var mimeType = StringExtensions.TryGetMimeTypeFromDocumentBytes(file, out var mime) ? mime : null;
                 if (mimeType == "application/pdf")
                 {
                     try

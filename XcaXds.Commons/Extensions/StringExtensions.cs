@@ -4,6 +4,8 @@ using System.Text;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Helpers;
+using XcaXds.Commons.Models.ClinicalDocument;
+using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -53,7 +55,7 @@ public static class StringExtensions
         return Encoding.UTF8.GetBytes(input);
     }
 
-    public static bool TryGetMimeTypeFromMagicByte(byte[]? input, out string? mimeType)
+    public static bool TryGetMimeTypeFromDocumentBytes(byte[]? input, out string? mimeType)
     {
         mimeType = null;
 
@@ -90,7 +92,16 @@ public static class StringExtensions
             mimeType = Constants.MimeTypes.Zip;
 
         else if (IsXmlLike(input, out var kind))
-            mimeType = kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml ? Constants.MimeTypes.Hl7v3Xml : Constants.MimeTypes.Xml;
+        {
+            if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml)
+            {
+                return TryGetMimeTypeFromDocumentBytes(GetClinicalDocumentDocument(input), out mimeType);
+            }
+            else
+            {
+                mimeType = Constants.MimeTypes.Xml;
+            }
+        }
 
         else if (IsJson(input))
             mimeType = Constants.MimeTypes.Json;
@@ -101,6 +112,13 @@ public static class StringExtensions
             mimeType = Constants.MimeTypes.Text;
 
         return string.IsNullOrWhiteSpace(mimeType) == false;
+    }
+
+    private static byte[]? GetClinicalDocumentDocument(byte[]? input)
+    {
+        var sxmls = new SoapXmlSerializer();
+        var cdaDocument = sxmls.DeserializeXmlString<ClinicalDocument>(new MemoryStream(input ?? Array.Empty<byte>()));
+        return cdaDocument.Component.NonXmlBody?.Text.Data?.GetAsUtf8Bytes();
     }
 
     private static bool IsXmlLike(byte[]? input, out DocumentSniffer.DocumentKind kind)

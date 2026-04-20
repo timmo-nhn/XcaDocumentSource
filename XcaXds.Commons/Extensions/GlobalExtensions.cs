@@ -2,15 +2,17 @@
 
 public static class GlobalExtensions
 {
-    public static bool TryThis(Action action)
+    public static bool TryThis(Action action, out Exception? exception)
     {
+        exception = null;
         try
         {
             action();
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            exception = ex;
             return false;
         }
     }
@@ -19,5 +21,4 @@ public static class GlobalExtensions
     {
         return value == null || value == 0;
     }
-
 }
