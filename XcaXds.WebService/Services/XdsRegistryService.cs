@@ -41,7 +41,7 @@ public partial class XdsRegistryService
         }
 
         var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
-        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(BusinessLogicFilters.AllowedMimetypes) == false).ToArray();
+        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) == false).ToArray();
        
         if (invalidMimetypes?.Length > 0)
         {

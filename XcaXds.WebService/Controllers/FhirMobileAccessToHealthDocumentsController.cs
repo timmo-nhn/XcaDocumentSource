@@ -1,5 +1,4 @@
-﻿using Abc.Xacml.Context;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -8,7 +7,6 @@ using System.Web;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.DomainResults;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -39,10 +37,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly FhirResourceValidatorService _fhirValidator;
 
     public class Scopes
-	{
+    {
         public const string ScopeCreateDocuments = "nhn:phr-document-repository/mhd/create-documents-with-reference";
         public const string ScopeDeleteDocument = "nhn:phr-document-repository/delete-documents-and-reference";
-	}
+    }
 
     public FhirMobileAccessToHealthDocumentsController(
         ILogger<FhirMobileAccessToHealthDocumentsController> logger,
@@ -274,6 +272,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpPost("Bundle")]
     public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
     {
+        var requestTimer = Stopwatch.StartNew();
+
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: ITI-65 ProvideBundle from {Request.HttpContext.Connection.RemoteIpAddress}");
 
         var fhirJsonDeserializer = new FhirJsonDeserializer();
@@ -334,12 +334,14 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
         var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
+        requestTimer.Stop();
+
+        _logger.LogInformation($"Completed action: ITI-65 ProvideBundle in {requestTimer.ElapsedMilliseconds} ms with {provideBundleResult.Outcome?.Issue?.Count ?? 0} issues");
 
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
 
     [ExportsAtnaAuditLog]
-    // Validate Endpoint
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPost("{resource}/$validate")]
@@ -410,10 +412,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             Type = Bundle.BundleType.TransactionResponse,
             Meta = new Meta
             {
-                Profile = new[]
-                {
-                    "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.ProvideDocumentBundleResponse"
-                }
+                Profile = ["https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.ProvideDocumentBundleResponse"]
             },
             Link = new List<Bundle.LinkComponent>
             {
@@ -499,7 +498,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 CodeSystem = c.CodeSystem,
                 DisplayName = c.DisplayName
             }).ToList();
-        
+
 
         documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
         _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);

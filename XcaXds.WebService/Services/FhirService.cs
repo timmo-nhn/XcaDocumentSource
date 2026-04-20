@@ -155,15 +155,11 @@ public class FhirService
             submittedDocumentsTooLarge.IsSuccess == false ||
             validateOnly;
 
-        documentUploadResponse = _repository.UploadContentToRepository(
-            provideAndRegisterRequest,
-            effectiveValidateOnly);
+        documentUploadResponse = _repository.UploadContentToRepository(provideAndRegisterRequest, effectiveValidateOnly);
 
         effectiveValidateOnly = documentUploadResponse.IsSuccess == false;
 
-        registerDocumentSetResponse = _registry.AppendToRegistry(
-            iti42SoapEnvelope.Value,
-            effectiveValidateOnly);
+        registerDocumentSetResponse = _registry.AppendToRegistry(iti42SoapEnvelope.Value, effectiveValidateOnly);
 
 
         var errors = new List<RegistryErrorType>();

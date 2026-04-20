@@ -44,7 +44,7 @@ public static partial class BusinessLogicFilters
     public static readonly (string, string)[] CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
     public static readonly (string, string)[] HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
 
-    public static readonly string[] AllowedMimetypes = 
+    public static readonly string[] AllowedMimeTypes = 
     [
         Constants.MimeTypes.Pdf,
         Constants.MimeTypes.Jpeg,
@@ -57,11 +57,11 @@ public static partial class BusinessLogicFilters
         Constants.MimeTypes.Rtf,
     ];
 
-    public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimetype)
+    public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimeType)
     {
 		// Special handling for XML mimetypes, as there can be many valid XML mimetypes that are not explicitly listed in the allowed mimetypes,
         // but should still be considered valid if the document entry mimetype indicates it's an XML type and the actual magic byte mimetype also indicates it's an XML type.
-		if (documentEntryMimetype?.Contains("/xml") == true || documentEntryMimetype?.Contains("+xml") == true)
+		if (documentEntryMimeType?.Contains("/xml") == true || documentEntryMimeType?.Contains("+xml") == true)
         {
             if (mimeTypeFromMagicByte?.Contains("/xml") == true || mimeTypeFromMagicByte?.Contains("+xml") == true)
             {
@@ -69,7 +69,7 @@ public static partial class BusinessLogicFilters
             }
 		}
 
-        return mimeTypeFromMagicByte == documentEntryMimetype; 
+        return mimeTypeFromMagicByte == documentEntryMimeType; 
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ public static partial class BusinessLogicFilters
             logic.Subject.Code != logic.Resource.Code &&
             logic.Acp == Constants.Oid.Saml.Acp.RepresentCitizenUnder12 &&
             logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13) &&
-            logic.ResourceAge > 12,
+            logic.ResourceAge >= 13,
             
 
         Filter = _ => DenyAll()

@@ -693,6 +693,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
 
+        metadata.DocumentEntry.MimeType = null;
         metadata.DocumentEntry.Title = "<script>alert('bø!');</script>";
         metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "<script>Hibbb! </script>";
 
@@ -762,7 +763,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
             document.Value = randomFile.data;
             registryObjects.OfType<DocumentEntryDto>()?.FirstOrDefault(ro => ro.UniqueId == document.Id)?.MimeType = randomFile.mimeType;
-            if (randomFile.mimeType.IsAnyOf(BusinessLogicFilters.AllowedMimetypes) == false)
+            if (randomFile.mimeType.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) == false)
             {
                 unsupportedMimeTypeCount++;
             }

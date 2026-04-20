@@ -13,7 +13,6 @@ public partial class ExtrinsicObjectType : RegistryObjectType
 {
     public ExtrinsicObjectType()
     {
-        MimeType = Constants.MimeTypes.Binary;
         IsOpaque = false;
     }
 
@@ -21,8 +20,7 @@ public partial class ExtrinsicObjectType : RegistryObjectType
     public byte[]? Document { get; set; }
 
     [XmlAttribute(AttributeName = "mimeType")]
-    [DefaultValue(Constants.MimeTypes.Binary)]
-    public string MimeType { get; set; }
+    public string? MimeType { get; set; }
 
     [XmlAttribute(AttributeName = "isOpaque")]
     [DefaultValue(false)]

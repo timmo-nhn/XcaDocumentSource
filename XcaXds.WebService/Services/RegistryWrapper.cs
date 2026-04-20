@@ -70,7 +70,7 @@ public class RegistryWrapper
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error reading registry content: {Message}", ex.Message);
-            _registryObjectList = Enumerable.Empty<RegistryObjectDto>();
+            _registryObjectList = [];
         }
 
         return _registryObjectList;

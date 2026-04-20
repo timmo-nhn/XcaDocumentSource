@@ -55,6 +55,8 @@ public class XdsRepositoryService
 
         var validationIssues = _submitObjectsValidator.ValidateSubmitObjectsRequest(registryObjectList);
 
+        _logger.LogInformation($"Validation of SubmitObjectsRequest completed with {validationIssues.Length} issue(s)");
+
         if (validationIssues.Length > 0)
         {
             foreach (var error in validationIssues)
@@ -105,8 +107,8 @@ public class XdsRepositoryService
             var mimeTypeFromMagicByte = StringExtensions.GetMimeTypeFromMagicByte(assocDocument?.Value);
             var documentEntryMimetype = assocExtrinsicObject?.MimeType;
 
-            if (!documentEntryMimetype.IsAnyOf(BusinessLogicFilters.AllowedMimetypes) ||
-                !mimeTypeFromMagicByte.IsAnyOf(BusinessLogicFilters.AllowedMimetypes))
+            if (!documentEntryMimetype.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) ||
+                !mimeTypeFromMagicByte.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes))
             {
                 var message = $"Unsupported MimeType {mimeTypeFromMagicByte}";
 
@@ -138,23 +140,28 @@ public class XdsRepositoryService
             }
         }
 
+        _logger.LogInformation($"Document validation completed for {documentsToUpload.Count} document(s) ready for upload to repository");
+        _logger.LogInformation($"RegistryErrorList contains {registryResponse.RegistryErrorList?.RegistryError.Length} entries");
+
         // We should not break the loop if any errors are found, but also never store any documents to maintain submission atomicity
         if (registryResponse.RegistryErrorList?.RegistryError.Length == 0)
         {
             foreach ((DocumentType assocDocument, string? patientIdPart) in documentsToUpload)
             {
-                if (assocDocument.Id != null && assocDocument != null && assocDocument?.Value != null && !string.IsNullOrWhiteSpace(patientIdPart))
+                if (assocDocument.Id == null || assocDocument == null || (assocDocument?.Value) == null || string.IsNullOrWhiteSpace(patientIdPart))
                 {
-                    var repositoryUpdateOk = _repositoryWrapper.StoreDocument(assocDocument.Id, assocDocument.Value, patientIdPart, validateOnly, out var message);
+                    continue;
+                }
 
-                    if (!repositoryUpdateOk && !string.IsNullOrWhiteSpace(message))
-                    {
-                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Potentially malicious file detected!\n {message}", $"XDS Repository");
-                    }
-                    else if (!repositoryUpdateOk)
-                    {
-                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
-                    }
+                var repositoryUpdateOk = _repositoryWrapper.StoreDocument(assocDocument.Id, assocDocument.Value, patientIdPart, validateOnly, out var message);
+
+                if (!repositoryUpdateOk && !string.IsNullOrWhiteSpace(message))
+                {
+                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Potentially malicious file detected!\n {message}", $"XDS Repository");
+                }
+                else if (!repositoryUpdateOk)
+                {
+                    registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
                 }
             }
         }
@@ -292,8 +299,6 @@ public class XdsRepositoryService
                     {
                         _logger.LogError($"{iti43envelope.Header.MessageId} \n" + ex.ToString());
                     }
-
-                    // Get the modified file bytes and replace the original file variable
                 }
                 retrieveResponse.AddDocument(file, homeCommunityId, repositoryUniqueId, documentUniqueId, mimeType);
             }

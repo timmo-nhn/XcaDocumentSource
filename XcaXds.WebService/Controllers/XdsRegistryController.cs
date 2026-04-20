@@ -37,12 +37,12 @@ public class XdsRegistryController : ControllerBase
     [Consumes("application/soap+xml", "application/xml", "multipart/related")]
     [Produces("application/soap+xml", "application/xml")]
     [HttpPost("RegistryService")]
-    public async Task<IActionResult> RegistryService([FromBody] SoapEnvelope soapEnvelope)
+    public async Task<IActionResult> RegistryService([FromBody] SoapEnvelope requestEnvelope)
     {
         var registryResponse = new RegistryResponseType();
 
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-        var action = soapEnvelope.Header.Action;
+        var action = requestEnvelope.Header.Action;
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
@@ -60,20 +60,20 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti18Action:
                 if (!await _featureManager.IsEnabledAsync("Iti18RegistryStoredQuery")) return NotFound();
 
-                if (soapEnvelope.Body.AdhocQueryRequest == null)
+                if (requestEnvelope.Body.AdhocQueryRequest == null)
                 {
                     responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-18 Request does not contain a valid AdhocQuery Request").Value;
                     break;
                 }
 
-                var registryQueryResponse = _registryService.RegistryStoredQuery(soapEnvelope, xacmlRequest);
+                var registryQueryResponse = _registryService.RegistryStoredQuery(requestEnvelope, xacmlRequest);
 
                 responseEnvelope = registryQueryResponse.Value;
                 responseEnvelope.Header = new()
                 {
-                    Action = soapEnvelope.GetCorrespondingResponseAction(),
+                    Action = requestEnvelope.GetCorrespondingResponseAction(),
                     Security = null,
-                    RelatesTo = soapEnvelope.Header.MessageId
+                    RelatesTo = requestEnvelope.Header.MessageId
                 };
 
                 break;
@@ -81,13 +81,13 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti42Action:
                 if (!await _featureManager.IsEnabledAsync("Iti42RegisterDocumentSet")) return NotFound();
 
-                if (soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList == null || soapEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList.Length == 0)
+                if (requestEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList == null || requestEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList.Length == 0)
                 {
                     responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-42 Request does not contain any RegistryObjects to upload").Value;
                     break;
                 }
 
-                var registryUploadResponse = _registryService.AppendToRegistry(soapEnvelope);
+                var registryUploadResponse = _registryService.AppendToRegistry(requestEnvelope);
 
                 if (registryUploadResponse.IsSuccess)
                 {
@@ -95,9 +95,9 @@ public class XdsRegistryController : ControllerBase
 
                     responseEnvelope.Header = new()
                     {
-                        Action = soapEnvelope.GetCorrespondingResponseAction(),
+                        Action = requestEnvelope.GetCorrespondingResponseAction(),
                         Security = null,
-                        RelatesTo = soapEnvelope.Header.MessageId
+                        RelatesTo = requestEnvelope.Header.MessageId
                     };
                     responseEnvelope.Body = new()
                     {
@@ -120,20 +120,20 @@ public class XdsRegistryController : ControllerBase
             case Constants.Xds.OperationContract.Iti62Action:
                 if (!await _featureManager.IsEnabledAsync("Iti62DeleteDocumentSet")) return NotFound();
 
-                if (soapEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef == null || soapEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef.Length == 0)
+                if (requestEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef == null || requestEnvelope.Body.RemoveObjectsRequest?.ObjectRefList?.ObjectRef.Length == 0)
                 {
                     responseEnvelope = SoapExtensions.CreateSoapFault("soapenv:Client", "ITI-62 Request does not specify any objects to delete").Value;
                     break;
                 }
 
-                var deleteDocumentSetResponse = _registryService.DeleteDocumentSet(soapEnvelope, out var deletedObjects);
+                var deleteDocumentSetResponse = _registryService.DeleteDocumentSet(requestEnvelope, out var deletedObjects);
                 if (deleteDocumentSetResponse.IsSuccess)
                 {
-                    responseEnvelope.Header.Action = soapEnvelope.GetCorrespondingResponseAction();
+                    responseEnvelope.Header.Action = requestEnvelope.GetCorrespondingResponseAction();
                     responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body ?? new();
 
                     // HAYO! DeleteDocuments_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
-                    soapEnvelope.Body.RegisterDocumentSetRequest = new()
+                    requestEnvelope.Body.RegisterDocumentSetRequest = new()
                     {
                         SubmitObjectsRequest = new()
                         {
