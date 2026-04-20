@@ -203,7 +203,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         requestTimer.Stop();
 
-        var mimetype = StringExtensions.GetMimeTypeFromMagicByte(document);
+        var mimetype = StringExtensions.TryGetMimeTypeFromMagicByte(document, out var mime) ? mime : null;
 
         if (document == null)
         {
