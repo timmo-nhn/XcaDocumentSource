@@ -320,6 +320,15 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
         var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
 
+        var fhirParser = new FhirJsonDeserializer();
+        var fhirBundle = fhirParser.DeserializeResource(fhirProvideBundle);
+
+        var provideBundleDocumentUniqueId = fhirBundle is Bundle bundle ? bundle.Entry
+            .Select(e => e.Resource)
+            .OfType<Binary>()
+            .FirstOrDefault().Id
+            : null;
+
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle");
@@ -333,9 +342,12 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
         var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
+        var documentFromProvideBundle = _repository.Read(provideBundleDocumentUniqueId);
 
         _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();
+
+        Assert.NotNull(documentFromProvideBundle);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(expectedCount, actualCount);

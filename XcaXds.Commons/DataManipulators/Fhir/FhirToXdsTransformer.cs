@@ -70,7 +70,7 @@ public static class FhirToXdsTransformer
                 binaries: fhirBinaries,
                 operationOutcome: operationOutcome);
 
-            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid);
+            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid, fhirBinary);
             if (!extrinsicResult.Success)
             {
                 operationOutcome.AddIssue(extrinsicResult.OperationOutcome?.Issue);
@@ -83,7 +83,7 @@ public static class FhirToXdsTransformer
             // Only add Document element if Binary exists (metadata-only should be allowed)
             if (fhirBinary != null)
             {
-                var documentResult = ConvertBinaryToDocument(fhirBinary, extrinsicResult.Value);
+                var documentResult = ConvertBinaryToDocument(fhirBinary);
                 if (!documentResult.Success)
                 {
                     operationOutcome.AddIssue(documentResult.OperationOutcome?.Issue);
@@ -136,7 +136,7 @@ public static class FhirToXdsTransformer
                 RegistryObjectList = combinedRegistryObjects.ToArray()
             },
             // Document list can be empty for metadata-only submissions
-            Document = documents.Count > 0 ? [.. documents] : []
+            Document = [.. documents]
         };
 
         // We're now sending both:
@@ -500,7 +500,7 @@ public static class FhirToXdsTransformer
         }
     }
 
-    private static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Identifier? patientId, string? GpiOid)
+    private static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Identifier? patientId, string? GpiOid, Binary? fhirBinary)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -1142,7 +1142,7 @@ public static class FhirToXdsTransformer
         }
 
         /* XDSDocumentEntry.uniqueId */
-        if (!string.IsNullOrWhiteSpace(documentReference.Id))
+        if (!string.IsNullOrWhiteSpace(documentReference.Id) || !string.IsNullOrWhiteSpace(fhirBinary?.Id))
         {
             extrinsicObject.AddExternalIdentifier(new ExternalIdentifierType()
             {
@@ -1151,7 +1151,7 @@ public static class FhirToXdsTransformer
                 RegistryObject = documentReference.Id,
                 IdentificationScheme = Constants.Xds.Uuids.DocumentEntry.UniqueId,
                 Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.DocumentEntryUniqueId),
-                Value = documentReference.Id.Replace("urn:uuid:", ""),
+                Value = fhirBinary?.Id?.NoUrn() ?? documentReference.Id,
             });
         }
         else
@@ -1507,15 +1507,15 @@ public static class FhirToXdsTransformer
         };
     }
 
-    private static ServiceResultDto<DocumentType> ConvertBinaryToDocument(Binary? fhirBinary, ExtrinsicObjectType? extrinsicObject)
+    private static ServiceResultDto<DocumentType> ConvertBinaryToDocument(Binary? fhirBinary)
     {
         var operationOutcome = new OperationOutcome();
         var document = new DocumentType();
 
-        if (fhirBinary?.Data != null && extrinsicObject?.Id != null)
+        if (fhirBinary?.Data != null)
         {
             document.Value = fhirBinary.Data;
-            document.Id = extrinsicObject.Id;
+            document.Id = fhirBinary.Id;
         }
         else
         {
