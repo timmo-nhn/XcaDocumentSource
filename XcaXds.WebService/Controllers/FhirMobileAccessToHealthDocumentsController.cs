@@ -240,7 +240,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             {
                 Severity = OperationOutcome.IssueSeverity.Information,
                 Code = OperationOutcome.IssueType.Success,
-                Diagnostics = $"Document was successfully deleted from the Document Repository"
+                Diagnostics = $"Document and associated metadata was successfully deleted from the Document Repository"
             });
         }
         else
