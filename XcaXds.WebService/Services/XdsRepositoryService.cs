@@ -9,6 +9,7 @@ using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
@@ -115,7 +116,7 @@ public class XdsRepositoryService
             var patientIdPart = Hl7Object.Parse<CX>(patientId)?.IdNumber;
             var documentEntryUniqueId = assocExtrinsicObject?.ExternalIdentifier?.FirstOrDefault(ei => ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
 
-            var mimeTypeFromMagicByte = StringExtensions.TryGetMimeTypeFromDocumentBytes(assocDocument?.Value, out var mime) ? mime : null;
+            var mimeTypeFromMagicByte = MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(assocDocument?.Value, out var mime) ? mime : null;
             var documentEntryMimetype = assocExtrinsicObject?.MimeType;
 
             if (!documentEntryMimetype.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) ||
@@ -275,7 +276,7 @@ public class XdsRepositoryService
                 continue;
             }
 
-            var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, iti43envelope.Header.MessageId);
+            var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, out var documentKind, iti43envelope.Header.MessageId);
 
             if (file?.Length > 0)
             {
@@ -288,8 +289,10 @@ public class XdsRepositoryService
                     file = base64Document;
                 }
 
-                var mimeType = StringExtensions.TryGetMimeTypeFromDocumentBytes(file, out var mime) ? mime : null;
-                if (mimeType == "application/pdf")
+                var mimeType = MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(file, out var mime) ? mime : null;
+
+                // If documentKind is unknown and the detected MimeType is pdf, then we actually have a proper PDF (Not CDA Wrapped) here.
+                if (documentKind == DocumentSniffer.DocumentKind.Unknown && mimeType == "application/pdf")
                 {
                     try
                     {

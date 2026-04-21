@@ -199,11 +199,11 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         if (registryObjectForDocument?.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated)
             return StatusCode(StatusCodes.Status410Gone);
 
-        var document = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId);
+        var document = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, out _);
 
         requestTimer.Stop();
 
-        var mimetype = StringExtensions.TryGetMimeTypeFromDocumentBytes(document, out var mime) ? mime : null;
+        var mimetype = MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(document, out var mime) ? mime : null;
 
         if (document == null)
         {
@@ -211,7 +211,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             return NotFound();
         }
 
-        _logger.LogInformation($"Returned document. Mimetype {mimetype ?? registryObjectForDocument?.MimeType ?? "unknown"}");
+        _logger.LogInformation($"Returned document. MimeType {mimetype ?? registryObjectForDocument?.MimeType ?? "unknown"}");
         _logger.LogInformation($"Completed action: ITI-68 in {requestTimer.ElapsedMilliseconds} ms with 0 errors");
 
 

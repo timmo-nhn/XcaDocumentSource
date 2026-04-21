@@ -28,8 +28,10 @@ public partial class RepositoryWrapper
         _fileScanner = fileScanner;
     }
 
-    public byte[]? GetDocumentFromRepository(string? homeCommunityId, string? repositoryUniqueId, string? documentUniqueId, string? messageId = null)
+    public byte[]? GetDocumentFromRepository(string? homeCommunityId, string? repositoryUniqueId, string? documentUniqueId, out DocumentSniffer.DocumentKind documentKind, string? messageId = null)
     {
+        documentKind = DocumentSniffer.DocumentKind.Unknown;
+
         homeCommunityId = homeCommunityId?.NoUrn();
         repositoryUniqueId = repositoryUniqueId?.NoUrn();
 
@@ -70,11 +72,11 @@ public partial class RepositoryWrapper
 
         var cdaXml = string.Empty;
 
-        var kind = DocumentSniffer.DetectKind(documentDto.Data);
+        documentKind = DocumentSniffer.DetectKind(documentDto.Data);
 
-        _logger.LogInformation($"{messageId} - Document kind {kind.ToString()}");
+        _logger.LogInformation($"{messageId} - Document kind {documentKind.ToString()}");
 
-        if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml)
+        if (documentKind == DocumentSniffer.DocumentKind.ClinicalDocumentXml)
         {
             _logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format".TrimStart([' ', '-']));
             cdaXml = Encoding.UTF8.GetString(documentDto.Data ?? []);
@@ -88,7 +90,10 @@ public partial class RepositoryWrapper
 
             cdaXml = sxmls.SerializeSoapMessageToXmlString(clinicalDocument, Constants.XmlDefaultOptions.DefaultXmlWriterSettingsInline).Content ??
                 throw new InvalidOperationException("ClinicalDocument transformation resulted in empty ClinicalDocument");
+
+            documentKind = DocumentSniffer.DocumentKind.ClinicalDocumentXml;
         }
+        
 
         return Encoding.UTF8.GetBytes(cdaXml);
     }

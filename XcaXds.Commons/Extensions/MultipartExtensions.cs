@@ -181,7 +181,7 @@ public static class MultipartExtensions
                 }
 
                 documentResponse.MimeType = string.IsNullOrWhiteSpace(documentResponse.MimeType)
-                    ? StringExtensions.TryGetMimeTypeFromDocumentBytes(documentBytes, out var mimeType) 
+                    ? MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(documentBytes, out var mimeType) 
                         ? mimeType 
                         : documentResponse.MimeType
                     : documentResponse.MimeType;

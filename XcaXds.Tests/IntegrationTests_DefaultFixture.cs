@@ -61,13 +61,13 @@ public class IntegrationTests_DefaultFixture
                 services.RemoveAll<AppStartupService>();
 
                 //// Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
+                services.RemoveAll<IRepository>();
                 //services.RemoveAll<IPolicyRepository>();
                 //services.RemoveAll<IRegistry>();
-                //services.RemoveAll<IRepository>();
                 //// ...so replace with the mock implementations
+                services.AddSingleton<IRepository>(new InMemoryRepository());
                 //services.AddSingleton<IPolicyRepository>(new InMemoryPolicyRepository());
                 //services.AddSingleton<IRegistry>(new InMemoryRegistry());
-                //services.AddSingleton<IRepository>(new InMemoryRepository());
 
                 services.RemoveAll<AtnaLogExporterService>();
                 services.RemoveAll<IHostedService>();

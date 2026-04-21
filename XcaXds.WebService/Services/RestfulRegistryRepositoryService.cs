@@ -126,7 +126,7 @@ public class RestfulRegistryRepositoryService
             return documentResponse;
         }
 
-        var documentBytes = _repositoryWrapper.GetDocumentFromRepository(home, repository, document);
+        var documentBytes = _repositoryWrapper.GetDocumentFromRepository(home, repository, document, out _);
 
         if (documentBytes?.Length > 0)
         {
@@ -174,7 +174,7 @@ public class RestfulRegistryRepositoryService
             documentStatusResponse.Document.SavedToRegistry = true;
         }
 
-        var documentBytes = _repositoryWrapper.GetDocumentFromRepository(home, repository, document);
+        var documentBytes = _repositoryWrapper.GetDocumentFromRepository(home, repository, document, out _);
 
         if (documentBytes?.Length > 0)
         {

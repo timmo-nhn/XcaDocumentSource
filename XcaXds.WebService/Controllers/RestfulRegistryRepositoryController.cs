@@ -236,7 +236,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
             SubmissionSet = submissionSet,
             Document = new()
             {
-                Data = _repositoryWrapper.GetDocumentFromRepository(documentEntry?.HomeCommunityId, documentEntry?.RepositoryUniqueId, documentEntry?.UniqueId),
+                Data = _repositoryWrapper.GetDocumentFromRepository(documentEntry?.HomeCommunityId, documentEntry?.RepositoryUniqueId, documentEntry?.UniqueId, out _),
                 DocumentId = documentEntry?.UniqueId
             }
         };
