@@ -36,7 +36,7 @@ public class SqliteBasedRegistry : IRegistry
         GlobalExtensions.TryThis(() =>
         {
             var tempPath = Path.GetTempPath();
-            Environment.SetEnvironmentVariable("SQLITE_TMPDIR", "tempPath");
+            Environment.SetEnvironmentVariable("SQLITE_TMPDIR", tempPath);
             context.Database.ExecuteSql($"PRAGMA temp_store = FILE;");
             context.Database.ExecuteSql($"PRAGMA temp_store_directory = {tempPath};");
         }, out var ex);
