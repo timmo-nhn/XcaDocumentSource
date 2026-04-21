@@ -74,7 +74,7 @@ public class AppStartupService : IHostedService
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
-        //FindDudsInRepository();
+        FindDudsInRepository();
 
         //MigrateFromJsonRegistryToDatabase();
 

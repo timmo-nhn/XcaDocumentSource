@@ -33,18 +33,6 @@ public class SqliteBasedRegistry : IRegistry
         context.Database.EnsureCreated();
         context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         context.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
-        GlobalExtensions.TryThis(() =>
-        {
-            var tempPath = Path.GetTempPath();
-            Environment.SetEnvironmentVariable("SQLITE_TMPDIR", tempPath);
-            context.Database.ExecuteSql($"PRAGMA temp_store = FILE;");
-            context.Database.ExecuteSql($"PRAGMA temp_store_directory = {tempPath};");
-        }, out var ex);
-
-        if (ex != null)
-        {
-            _logger.LogWarning("Error setting tmp_dir-related variables for SQLite Database\n" + ex?.ToString());
-        }
     }
 
     public string GetDatabaseFile()
@@ -86,7 +74,6 @@ public class SqliteBasedRegistry : IRegistry
             }
         }
     }
-
 
     public IEnumerable<RegistryObjectDto>? GetRegistryItemsAndRelated(string identifier)
     {
