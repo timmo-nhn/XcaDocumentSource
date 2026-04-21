@@ -156,7 +156,7 @@ public class XdsRepositoryService
         _logger.LogInformation($"RegistryErrorList contains {registryResponse.RegistryErrorList?.RegistryError.Length} entries");
 
         // We should not break the loop if any errors are found, but also never store any documents to maintain submission atomicity
-        if (registryResponse.RegistryErrorList?.RegistryError.Length == 0)
+        if ((registryResponse.RegistryErrorList?.RegistryError.Length > 0) == false)
         {
             foreach ((DocumentType assocDocument, string? patientIdPart) in documentsToUpload)
             {

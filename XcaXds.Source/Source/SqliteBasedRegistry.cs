@@ -28,15 +28,13 @@ public class SqliteBasedRegistry : IRegistry
         _logger.LogDebug($"Database connection string: {_connectionString}");
         using var context = _contextFactory.CreateDbContext();
 
-        var tempPath = Path.GetTempPath();
-
         context.Database.EnsureCreated();
-
         context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         context.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
         GlobalExtensions.TryThis(() =>
         {
-            context.Database.ExecuteSql($"PRAGMA temp_store = MEMORY;");
+            Environment.SetEnvironmentVariable("SQLITE_TMPDIR", "/mnt/data/tmp");
+            context.Database.ExecuteSql($"PRAGMA temp_store = '/mnt/data/tmp';");
         }, out var ex);
 
         if (ex != null)

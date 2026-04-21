@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
@@ -577,6 +578,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
         var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
+
+
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -585,6 +588,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(0, firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
+
+        Assert.NotNull(_repository.Read(documents.PickRandom().Id));
 
         await WaitForAtnaLogToBeExported();
 
@@ -870,6 +875,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
 
+
         var deprecatedDocuments = (await _registry.ReadRegistry().OfType<DocumentEntryDto>().ToArrayAsync()).Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
 
         var registryContentAfterPnR = _registry.ReadRegistry();
@@ -879,10 +885,13 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
 
+        
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(expectedCountAfterPnrUpdate, actualRegistryCountAfterPnR);
-        //Assert.Equal(expectedCountAfterPnrUpdate, _repository.().Count);
+
         Assert.Equal(randomDocumentEntriesToDeprecate.Length, deprecatedDocuments.Length);
+
+        Assert.NotNull(_repository.Read(documentUpdate.PickRandom().Id));
 
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);

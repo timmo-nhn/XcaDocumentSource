@@ -74,7 +74,7 @@ public class AppStartupService : IHostedService
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
-        //FindDudsInRepository();
+        FindDudsInRepository();
 
         //MigrateFromJsonRegistryToDatabase();
 
@@ -103,8 +103,15 @@ public class AppStartupService : IHostedService
 
         foreach (var dud in duds)
         {
-            _logger.LogWarning($"Registry contains a dud (No Registry metadata associated with it): {dud}");
+            _logger.LogWarning($"Registry contains stale entry (No Repository metadata associated with it): {dud}. Removing...");
+            var registryObjectsForDud = _registryWrapper.GetRegistryItemAndRelated(dud)?.ToArray() ?? [];
+
+            foreach (var registryObjectDud in registryObjectsForDud)
+            {
+                _registryWrapper.DeleteDocumentEntryFromRegistry(registryObjectDud);
+            }
         }
+        _logger.LogInformation($"Removed {duds.Count} stale entries from Registry");
     }
 
     private void AddDefaultAccessControlPolicies()
