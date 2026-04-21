@@ -579,7 +579,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
         var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
 
-
+        var randomDocument = _repository.Read(documents.PickRandom().Id);
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -589,7 +589,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
 
-        Assert.NotNull(_repository.Read(documents.PickRandom().Id));
+        Assert.NotNull(randomDocument);
 
         await WaitForAtnaLogToBeExported();
 
@@ -881,6 +881,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var registryContentAfterPnR = _registry.ReadRegistry();
         var actualRegistryCountAfterPnR = await registryContentAfterPnR.CountAsync();
 
+        var randomDocument = _repository.Read(documentUpdate.PickRandom().Id);
+
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -891,7 +893,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         Assert.Equal(randomDocumentEntriesToDeprecate.Length, deprecatedDocuments.Length);
 
-        Assert.NotNull(_repository.Read(documentUpdate.PickRandom().Id));
+        Assert.NotNull(randomDocument);
 
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);

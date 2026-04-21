@@ -1,6 +1,8 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -325,10 +327,13 @@ public class SqliteBasedRegistry : IRegistry
                 var delay = TimeSpan.FromMilliseconds(50 * Math.Pow(2, attempt) + random);
 
                 _logger.LogWarning(ex,
-                    "SQLite transient failure (attempt {Attempt}/{Max}). Retrying in {Delay}ms. Code={Code}, Extended={Extended}",
+                    "SQLite transient failure (attempt {Attempt}/{Max}). Retrying in {Delay}ms. Code={Code}, Extended={Extended}, HRESULT={Hresult}",
                     attempt, maxRetries, delay.TotalMilliseconds,
                     sqlEx.SqliteErrorCode,
-                    sqlEx.SqliteExtendedErrorCode);
+                    sqlEx.SqliteExtendedErrorCode,
+                    sqlEx.ErrorCode);
+
+                _logger.LogWarning("Exception JSON representation\n{ex}", JsonSerializer.Serialize(sqlEx));
 
                 Thread.Sleep(delay);
             }
