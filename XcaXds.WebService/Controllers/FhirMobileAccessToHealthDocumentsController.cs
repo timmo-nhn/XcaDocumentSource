@@ -38,8 +38,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
     public class Scopes
     {
-        public const string ScopeCreateDocuments = "nhn:phr-document-repository/mhd/create-documents-with-reference";
-        public const string ScopeDeleteDocument = "nhn:phr-document-repository/delete-documents-and-reference";
+        // These scopes must match scopes in Norsk helsenett dokumentlager in Selvbetjening
+        public const string ScopeCreateDocuments = "nhn:phr-repo/mhd/create";
+        public const string ScopeDeleteDocument = "nhn:phr-repo/delete-docs-and-refs";
     }
 
     public FhirMobileAccessToHealthDocumentsController(
