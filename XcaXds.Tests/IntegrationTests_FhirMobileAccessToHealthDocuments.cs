@@ -9,6 +9,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
+using XcaXds.WebService.Controllers;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
@@ -172,8 +173,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_patchdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
-            action: "Update",
+            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,            
+			action: "Update",
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
@@ -239,7 +240,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
 
@@ -298,7 +299,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
 
@@ -381,7 +382,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
 
@@ -443,7 +444,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/mhd/create-documents-with-reference",
+            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
 
