@@ -2,6 +2,7 @@
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Source;
+using XcaXds.WebService.Controllers;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Startup;
@@ -204,7 +205,7 @@ public class AppStartupService : IHostedService
             AppliesTo = [AppliesTo.Machine],
             Rules =
             [[
-                new(Constants.Saml.Attribute.EhelseScope, "nhn:phr-document-repository/mhd/create-documents-with-reference"),
+                new(Constants.Saml.Attribute.EhelseScope, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments),
             ]],			
 			Actions = ["Create", "Update"],			
 			Effect = "Permit"
@@ -216,7 +217,7 @@ public class AppStartupService : IHostedService
 			AppliesTo = [AppliesTo.Machine],
 			Rules =
 			[			[
-				new(Constants.Saml.Attribute.EhelseScope, "nhn:phr-document-repository/delete-documents-and-reference"),
+				new(Constants.Saml.Attribute.EhelseScope, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeDeleteDocument),
 			]],
 			Actions = ["Delete"],
 			Effect = "Permit"
