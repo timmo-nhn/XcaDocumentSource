@@ -232,7 +232,7 @@ public class XdsRepositoryService
 
         if (iti43envelopeBody == null)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing iti43envelopeBody in RetrieveDocumentSetRequest", _xdsConfig.HomeCommunityId);
+            registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing RetrieveDocumentSetRequest", _xdsConfig.HomeCommunityId);
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 

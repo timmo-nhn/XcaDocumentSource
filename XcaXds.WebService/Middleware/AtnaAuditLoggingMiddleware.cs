@@ -18,8 +18,8 @@ internal class AtnaAuditLoggingMiddleware
     {
         var originalResponseBodyStream = httpContext.Response.Body;
 
-        // The request body is disposed after the middleware has run, so we
-        // need to keep it here
+        // The request body is disposed after the middleware has run,
+        // so we need to keep it here
         await using var requestBody = new MemoryStream();
         httpContext.Request.Body.CopyTo(requestBody);
         httpContext.Request.Body.Seek(0, SeekOrigin.Begin);

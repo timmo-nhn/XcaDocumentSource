@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -30,6 +33,7 @@ public class IntegrationTests_DefaultFixture
     internal readonly IRepository _repository;
     internal readonly AtnaLogExportedChecker _atnaLogExportedChecker;
     internal readonly ITestOutputHelper _output;
+    public Uri BaseAddress { get; private set; } = default!;
 
     internal List<DocumentReferenceDto> RegistryContent { get; set; } = new();
 
@@ -45,9 +49,7 @@ public class IntegrationTests_DefaultFixture
         }
     };
 
-    public IntegrationTests_DefaultFixture(
-        WebApplicationFactory<WebService.Program> factory,
-        ITestOutputHelper output)
+    public IntegrationTests_DefaultFixture(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output)
     {
         _output = output;
 
@@ -56,6 +58,10 @@ public class IntegrationTests_DefaultFixture
         // Custom factory with fake services
         var customFactory = factory.WithWebHostBuilder(builder =>
         {
+            builder.UseSetting("UseTestServer", "false");
+            builder.UseKestrel();
+            builder.UseUrls("https://localhost:0");
+
             builder.ConfigureServices(services =>
             {
                 services.RemoveAll<AppStartupService>();
@@ -89,7 +95,9 @@ public class IntegrationTests_DefaultFixture
             });
         });
 
-        _client = customFactory.CreateClient();
+        // Force app to start
+        _client = customFactory.CreateDefaultClient();
+
         using var customScope = customFactory.Services.CreateScope();
 
         _registry = customScope.ServiceProvider.GetRequiredService<IRegistry>();
@@ -138,6 +146,18 @@ public class IntegrationTests_DefaultFixture
         var nuked = await _client.DeleteAsync($"/api/nuke?nukeKey={nukeKey}");
 
         Assert.Empty(_registry.ReadRegistry());
+    }
+
+    internal string GetTestDataFile(string v)
+    {
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataDirectories = Directory.GetDirectories(testDataPath);
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var allFiles = testDataDirectories.SelectMany(Directory.GetFiles).ToList().Concat(testDataFiles);
+
+        var file = File.ReadAllText(allFiles.FirstOrDefault(f => f.Contains(v))!);
+        return file;
     }
 }
 #pragma warning restore CS8602, CS8604 // Dereference of a possibly null reference.

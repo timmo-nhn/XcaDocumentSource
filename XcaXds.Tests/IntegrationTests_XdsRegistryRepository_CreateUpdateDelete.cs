@@ -790,6 +790,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
         var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
+
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();

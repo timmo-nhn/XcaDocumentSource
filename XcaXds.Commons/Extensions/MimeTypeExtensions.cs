@@ -68,7 +68,7 @@ public static class MimeTypeExtensions
             mimeType = Constants.MimeTypes.Json;
 
         // Plain text: All bytes are in the range of 32 (space) to 126 (~)
-        // Note! Do this last, to ensure other text-like mimetypes are covered (e.g., XML, JSON)
+        // Note! Do this check last, to ensure other text-like mimetypes are covered (e.g., XML, JSON)
         else if (input?.Length > 4 && input.All(b => b >= 32 && b <= 126))
             mimeType = Constants.MimeTypes.Text;
 

@@ -18,7 +18,6 @@ public static class ErrorResponseFactory
 
         switch (contentType)
         {
-
             case Constants.MimeTypes.SoapXml:
                 return CreateSoapErrorResponse(context);
 
@@ -27,7 +26,7 @@ public static class ErrorResponseFactory
         }
     }
 
-    private static IActionResult CreateJsonErrorResponse(ActionContext context)
+    private static BadRequestObjectResult CreateJsonErrorResponse(ActionContext context)
     {
         var errors = context.ModelState
             .Where(e => e.Value?.Errors?.Count > 0)
@@ -46,7 +45,7 @@ public static class ErrorResponseFactory
         return new BadRequestObjectResult(problemDetails);
     }
 
-    private static IActionResult CreateSoapErrorResponse(ActionContext context)
+    private static ContentResult CreateSoapErrorResponse(ActionContext context)
     {
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 

@@ -2549,6 +2549,13 @@ public enum AppliesTo
     Machine, // Machine-to-machine communication, where the user is not a person but a system or application
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum UserType
+{
+    Helsenorge,
+    HelseId,
+}
+
 public enum MessageType
 {
     NotApplicable,

@@ -235,6 +235,5 @@ public static class MultipartExtensions
 
         return stringContent;
     }
-
 }
 

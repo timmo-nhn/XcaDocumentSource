@@ -235,6 +235,4 @@ public class PolicyEnforcementPointMiddleware
 
         _logger.LogInformation("JWT Content:\n{JwtJson}", json);
     }
-
 }
-
