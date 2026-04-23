@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Threading.Channels;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Statistics;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.WebService.Middleware;
@@ -29,6 +30,6 @@ public class StatisticsProcessorService : BackgroundService
     private void ExportStatistics(UserAccessEntry userAccessEntry)
     {
         _logger.LogInformation("User Access Entry:");
-        _logger.LogInformation(JsonSerializer.Serialize(userAccessEntry));
+        _logger.LogInformation(JsonSerializer.Serialize(userAccessEntry, Constants.JsonDefaultOptions.DefaultSettings));
     }
 }
