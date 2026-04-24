@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using XcaXds.Commons.Models.Custom;
 
 
 namespace XcaXds.Tests;
@@ -25,28 +26,27 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
         {
             options.ConfigureHttpsDefaults(httpsOptions =>
             {
-                httpsOptions.ClientCertificateMode = ClientCertificateMode.AllowCertificate;
-
-                httpsOptions.ClientCertificateValidation = (cert, chain, errors) =>
-                {
-                    return true; 
-                };
+                httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
             });
         });
 
         builder.WebHost.UseUrls("https://127.0.0.1:0");
 
-        builder.Services.AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
+        builder.Services
+            .AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
             .AddCertificate(options =>
             {
-                options.AllowedCertificateTypes = CertificateTypes.All;
+                options.AllowedCertificateTypes = CertificateTypes.Chained;
+                options.ValidateCertificateUse = true;
+                options.ValidateValidityPeriod = true;
+                options.RevocationMode = X509RevocationMode.Online;
+                options.RevocationFlag = X509RevocationFlag.ExcludeRoot;
 
                 options.Events = new CertificateAuthenticationEvents
                 {
                     OnCertificateValidated = context =>
                     {
-                        context.Success();
-                        return Task.CompletedTask;
+                        return CertificateValidator.ValidateCertificate(context);
                     }
                 };
             });
@@ -62,7 +62,7 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
 
         _app.UseAuthentication();
         _app.UseAuthorization();
-        
+
         _app.MapControllers();
 
         await _app.StartAsync();
@@ -92,37 +92,16 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
 
     private X509Certificate2 CreateX509Certificate()
     {
-        using var rsa = RSA.Create(2048);
-
-        var req = new CertificateRequest(
-            "CN=trusted-client",
-            rsa,
-            HashAlgorithmName.SHA256,
-            RSASignaturePadding.Pkcs1);
-
-        // IMPORTANT: mark as client auth
-        req.CertificateExtensions.Add(
-            new X509EnhancedKeyUsageExtension(
-                new OidCollection
-                {
-                new("1.3.6.1.5.5.7.3.2") // Client Authentication
-                },
-                false));
-
-        var cert = req.CreateSelfSigned(
-            DateTimeOffset.UtcNow.AddDays(-1),
-            DateTimeOffset.UtcNow.AddDays(1));
-
-        // IMPORTANT: persist key properly for TLS stack
-        return new X509Certificate2(cert.Export(X509ContentType.Pkcs12));
+        GetTestDataFile("client.pfx", out var path);
+        return new X509Certificate2(path, "");
     }
 
-    private string GetTestDataFile(string v)
+    private string GetTestDataFile(string v, out string? path)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var allFiles = Directory.GetFiles(testDataPath, "*", SearchOption.AllDirectories);
-
-        return File.ReadAllText(allFiles.First(f => f.Contains(v)));
+        path = allFiles.FirstOrDefault(f => f.Contains(v));
+        return File.ReadAllText(path);
     }
 }
 #pragma warning restore CS8602, CS8604 // Dereference of a possibly null reference.

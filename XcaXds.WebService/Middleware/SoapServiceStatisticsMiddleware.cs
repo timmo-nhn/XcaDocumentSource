@@ -34,6 +34,7 @@ public class SoapServiceStatisticsMiddleware
         // because the context will dispose the request stream before
         // finishing the request.
         var requestBody = new StreamReader(context.Request.Body).ReadToEnd();
+        context.Request.Body.Position = 0;
 
         await _next(context);
 

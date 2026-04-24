@@ -51,7 +51,6 @@
 	
   <ItemGroup>
     <Folder Include="TestData\Documents\" />
-    <Folder Include="TestData\Certificates\" />
   </ItemGroup>
 	
   <ItemGroup Condition="$(VisualStudioVersion) == '17.0'">

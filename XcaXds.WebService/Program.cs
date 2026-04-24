@@ -290,18 +290,7 @@ public class Program
             {
                 OnCertificateValidated = context =>
                 {
-                    var cert = context.ClientCertificate;
-
-                    if (cert.Subject.Contains("CN=trusted-client"))
-                    {
-                        context.Success();
-                    }
-                    else
-                    {
-                        context.Fail("Invalid certificate");
-                    }
-
-                    return Task.CompletedTask;
+                   return CertificateValidator.ValidateCertificate(context);
                 }
             };
         });
