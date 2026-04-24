@@ -191,7 +191,7 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.Role + ":code", "LE;SP;PS"),
                 new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"),
 
-                new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT;1"),
+                new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT;1;ETREAT;COC;BTG"),
                 new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448;1.0.14265.1;urn:oid:1.0.14265.1")
             ]],
             //Actions = ["Create", "ReadDocumentList", "ReadDocuments", "Update", "Delete"],
