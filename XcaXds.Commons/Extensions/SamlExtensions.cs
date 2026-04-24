@@ -122,7 +122,7 @@ public class SamlExtensions
         return new()
         {
             Code = code,
-            CodeSystem = codeSystem,
+            CodeSystem = codeSystem?.Replace("&ISO", "").Replace("&amp;ISO", "").Replace("&amp;amp;ISO",""),
             DisplayName = displayName
         };
     }

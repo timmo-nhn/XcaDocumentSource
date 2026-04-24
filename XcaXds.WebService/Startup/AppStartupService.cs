@@ -180,9 +180,9 @@ public class AppStartupService : IHostedService
             Effect = "Deny"
         };
 
-        var gp_readdocumentlist_readdocument_create = new PolicyDto()
+        var gp_readdocumentlist_readdocument = new PolicyDto()
         {
-            Id = "DEFAULT_gp-CRUD",
+            Id = "DEFAULT_gp-readdocumentlist_readdocument",
             AppliesTo = [AppliesTo.HelseId],
             Rules =
             [[
@@ -191,8 +191,8 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.Role + ":code", "LE;SP;PS"),
                 new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"),
 
-                new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT"),
-                new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448")
+                new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT;1"),
+                new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448;1.0.14265.1;urn:oid:1.0.14265.1")
             ]],
             //Actions = ["Create", "ReadDocumentList", "ReadDocuments", "Update", "Delete"],
 			Actions = ["ReadDocumentList", "ReadDocuments"],
@@ -227,7 +227,7 @@ public class AppStartupService : IHostedService
         //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
         _policyRepositoryWrapper.AddPolicy(cz_readdocumentlist_documents);
         _policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
-        _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument_create);
+        _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument);
         _policyRepositoryWrapper.AddPolicy(machine_create_update_documents);
 		_policyRepositoryWrapper.AddPolicy(machine_delete_documents);
 	}
