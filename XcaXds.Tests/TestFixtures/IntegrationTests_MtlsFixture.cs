@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.DependencyInjection;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using XcaXds.Commons.Models.Custom;
 
@@ -44,9 +43,9 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
 
                 options.Events = new CertificateAuthenticationEvents
                 {
-                    OnCertificateValidated = context =>
+                    OnCertificateValidated = async context =>
                     {
-                        return CertificateValidator.ValidateCertificate(context);
+                        await CertificateValidator.ValidateCertificate(context);
                     }
                 };
             });
@@ -93,7 +92,8 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
     private X509Certificate2 CreateX509Certificate()
     {
         GetTestDataFile("client.pfx", out var path);
-        return new X509Certificate2(path, "");
+        return new X509Certificate2(path, "", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable
+);
     }
 
     private string GetTestDataFile(string v, out string? path)

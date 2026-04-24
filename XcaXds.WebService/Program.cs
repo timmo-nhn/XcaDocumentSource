@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using NHN.OpenTelemetryExtensions;
 using System.Collections;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Interfaces;
@@ -270,39 +271,34 @@ public class Program
 
     private static void ConfigureKestrelCertificateAuthenticationAuthorization(WebApplicationBuilder builder)
     {
+        builder.WebHost.UseKestrel();
         builder.WebHost.ConfigureKestrel(options =>
         {
             options.ConfigureHttpsDefaults(httpsOptions =>
             {
-                httpsOptions.ClientCertificateMode = ClientCertificateMode.AllowCertificate;
+                httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
             });
         });
 
         builder.Services
-        .AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = CertificateAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = CertificateAuthenticationDefaults.AuthenticationScheme;
-        })
-        .AddCertificate(options =>
-        {
-            options.Events = new CertificateAuthenticationEvents
+            .AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
+            .AddCertificate(options =>
             {
-                OnCertificateValidated = context =>
+                options.AllowedCertificateTypes = CertificateTypes.Chained;
+                options.ValidateCertificateUse = true;
+                options.ValidateValidityPeriod = true;
+                options.RevocationMode = X509RevocationMode.Online;
+                options.RevocationFlag = X509RevocationFlag.ExcludeRoot;
+
+                options.Events = new CertificateAuthenticationEvents
                 {
-                   return CertificateValidator.ValidateCertificate(context);
-                }
-            };
-        });
-
-        builder.Services.AddAuthorization(options =>
-        {
-            options.AddPolicy("ClientCertificatePolicy", policy =>
-            {
-                policy.AddAuthenticationSchemes(CertificateAuthenticationDefaults.AuthenticationScheme);
-
-                policy.RequireAuthenticatedUser();
+                    OnCertificateValidated = async context =>
+                    {
+                        await CertificateValidator.ValidateCertificate(context);
+                    }
+                };
             });
-        });
+
+        builder.Services.AddAuthorization();
     }
 }

@@ -5,43 +5,40 @@ namespace XcaXds.Commons.Models.Custom;
 
 public static class CertificateValidator
 {
-    public static Task ValidateCertificate(CertificateValidatedContext context)
+    public static async Task ValidateCertificate(CertificateValidatedContext context)
     {
         var cert = context.ClientCertificate;
 
         if (cert is null)
         {
             context.Fail("No client certificate.");
-            return Task.CompletedTask;
+            return;
         }
 
-        // Example 1: check exact issuer
-        const string expectedIssuer = "CN=NHN Internal CA - TEST, O=Norsk Helsenett SF, C=NO";
+        var expectedIssuer = "CN=NHN Internal CA - TEST, O=Norsk Helsenett SF, C=NO";
         if (!string.Equals(cert.Issuer, expectedIssuer, StringComparison.OrdinalIgnoreCase))
         {
             context.Fail("Invalid issuer.");
-            return Task.CompletedTask;
+            return;
         }
 
-        // Example 2: optional thumbprint allow-list
+        var now = DateTime.UtcNow;
+
+        if (now < cert.NotBefore || now > cert.NotAfter)
+        {
+            context.Fail("Certificate expired or not yet valid");
+            return;
+        }
+
         var allowedThumbprints = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            // Put known/allowed client cert thumbprints here
-            // "ABC123..."
+            "67140A9E628C81D22F12E5F687C6B695E9E7095E",
         };
 
-        if (allowedThumbprints.Count > 0 && !allowedThumbprints.Contains(cert.Thumbprint))
+        if (!allowedThumbprints.Contains(cert.Thumbprint))
         {
-            context.Fail("Certificate not allowed.");
-            return Task.CompletedTask;
-        }
-
-        // Example 3: optional subject / CN check
-        // Your posted cert subject is CN=api.pjd.test.nhn.no
-        if (!cert.Subject.Contains("CN=api.pjd.test.nhn.no", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Fail("Unexpected subject.");
-            return Task.CompletedTask;
+            context.Fail("Unknown client certificate");
+            return;
         }
 
         var claims = new[]
@@ -57,7 +54,6 @@ public static class CertificateValidator
             new ClaimsIdentity(claims, context.Scheme.Name));
 
         context.Success();
-        return Task.CompletedTask;
-
+        return;
     }
 }
