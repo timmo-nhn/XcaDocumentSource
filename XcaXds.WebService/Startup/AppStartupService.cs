@@ -225,6 +225,12 @@ public class AppStartupService : IHostedService
 
 		//_policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid); // Remove because of incompatability with PIX
         //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
+        _policyRepositoryWrapper.DeletePolicy(cz_readdocumentlist_documents.Id);
+        _policyRepositoryWrapper.DeletePolicy(gp_deny_certain_roles.Id);
+        _policyRepositoryWrapper.DeletePolicy(gp_readdocumentlist_readdocument.Id);
+        _policyRepositoryWrapper.DeletePolicy(machine_create_update_documents.Id);
+		_policyRepositoryWrapper.DeletePolicy(machine_delete_documents.Id);
+
         _policyRepositoryWrapper.AddPolicy(cz_readdocumentlist_documents);
         _policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
         _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument);
