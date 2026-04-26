@@ -30,6 +30,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_KjernejournalForskriften()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -83,6 +84,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Kjernejournal()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -130,6 +132,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Helsenorge()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -182,6 +185,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         // Override default with many more entries to simulate a very mature registry/repository.
         RegistryItemCount = 10000;
 
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -247,6 +251,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Kjernejournal()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -310,6 +315,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -371,6 +377,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge_ShouldNotGetAccess()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -428,6 +435,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Helsenorge()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -487,6 +495,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Helsenorge_ShouldNotGetAccess()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -540,6 +549,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Upload", "Modify Registry/Repository")]
     public async Task PNR_UploadDocuments_RandomAmount()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -600,6 +610,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Upload", "Modify Registry/Repository (Concurrent read/writes)")]
     public async Task PNR_RDS_ConcurrentReadWrites()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
@@ -674,6 +685,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Upload", "Modify Registry/Repository")]
     public async Task PNR_UploadDocuments_InvalidValidation()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -700,7 +712,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         metadata.DocumentEntry.MimeType = null;
         metadata.DocumentEntry.Title = "<script>alert('bø!');</script>";
-        metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "<script>Hibbb! </script>";
+        metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "Lang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåø";
 
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [new() { Id = metadata.Document.DocumentId, Value = metadata.Document.Data }];
@@ -733,6 +745,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Upload", "Modify Registry/Repository")]
     public async Task PNR_UploadDocuments_RandomMimeType_ContainsInvalids_RandomAmount()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -809,6 +822,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Update", "Modify Registry/Repository")]
     public async Task PNR_UpdateRegistryRepository_Deprecate_RandomAmount()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -906,6 +920,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Upload", "Add to Registry")]
     public async Task RDS_UploadRegistry_AddMetadata()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -964,6 +979,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Delete", "Modify Registry")]
     public async Task RMD_RemoveDocumentsAndMetadata_RandomAmount()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
@@ -1102,6 +1118,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
     [Trait("Read", "Read Registry/Repository")]
     public async Task ALL_PutWrongRequestsForActions()
     {
+        await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,

@@ -390,10 +390,10 @@ public static partial class BusinessLogicFilters
 
         var sourceAsList = source.OfType<ExtrinsicObjectType>().ToList();
 
-        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, XcaDokumentKategoriKoder.ProvesvarVevOgVaesker);
-        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, XcaDokumentKategoriKoder.Organfunksjon);
-        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, XcaDokumentKategoriKoder.BildediagnostikkOgAndreMedisinskeBilder);
-        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, XcaDokumentKategoriKoder.Korrespondanse);
+        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.ProvesvarVevOgVaesker);
+        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.Organfunksjon);
+        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.BildediagnostikkOgAndreMedisinskeBilder);
+        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.Korrespondanse);
 
         var removeProvesvar = provesvarDocuments.Where(document => document.GetServiceStartTime() < oneYearAgo).ToList();
         var removeOrgan = organDocuments.Where(document => document.GetServiceStartTime() < fiveYearsAgo).ToList();
@@ -428,19 +428,6 @@ public static partial class BusinessLogicFilters
             .ToList();
 
         return categories;
-    }
-
-    public static class XcaDokumentKategoriKoder
-    {
-        public const string EpikriserOgSammenfatninger = "A00-1";
-        public const string KontinuerligLopendeJournal = "B00-1";
-        public const string ProvesvarVevOgVaesker = "C00-1";
-        public const string Organfunksjon = "D00-1";
-        public const string BildediagnostikkOgAndreMedisinskeBilder = "E00-1";
-        public const string KurveObservasjonOgBehandling = "F00-1";
-        public const string Korrespondanse = "I00-1";
-        public const string AttesterMeldingOgErklaeringer = "J00-1";
-        public const string TestOgScoring = "S00-1";
     }
 
     public static IEnumerable<IdentifiableType> FilterByConfidentiality(IEnumerable<IdentifiableType> source, string[] allowedLevels, string[]? disallowedLevels = null)

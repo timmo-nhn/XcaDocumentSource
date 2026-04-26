@@ -205,7 +205,7 @@ public class AppStartupService : IHostedService
             AppliesTo = [AppliesTo.Machine],
             Rules =
             [[
-                new(Constants.Saml.Attribute.EhelseScope, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments),
+                new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments),
             ]],			
 			Actions = ["Create", "Update"],			
 			Effect = "Permit"
@@ -217,7 +217,7 @@ public class AppStartupService : IHostedService
 			AppliesTo = [AppliesTo.Machine],
 			Rules =
 			[			[
-				new(Constants.Saml.Attribute.EhelseScope, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeDeleteDocument),
+				new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument),
 			]],
 			Actions = ["Delete"],
 			Effect = "Permit"

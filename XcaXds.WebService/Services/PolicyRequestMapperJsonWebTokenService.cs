@@ -74,10 +74,10 @@ public class PolicyRequestMapperJsonWebTokenService
     private static (string action, string? scopeToUse) MapXacmlActionAndScopeToUseFromUrlPath(string? urlPath, string method)
     {
         if (urlPath?.Equals("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return (Constants.Xacml.Actions.Create, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments);
+            return (Constants.Xacml.Actions.Create, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
 
         if (urlPath?.StartsWith("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
-            return (Constants.Xacml.Actions.Update, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments);
+            return (Constants.Xacml.Actions.Update, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
 
         if (urlPath?.Equals("/R4/fhir/mhd/document", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
             return (Constants.Xacml.Actions.ReadDocuments, null);
@@ -89,10 +89,13 @@ public class PolicyRequestMapperJsonWebTokenService
             return (Constants.Xacml.Actions.ReadDocumentList, null);
 
         if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
-            return (Constants.Xacml.Actions.Update, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments);
+            return (Constants.Xacml.Actions.Update, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
 
         if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "DELETE")
-            return (Constants.Xacml.Actions.Delete, FhirMobileAccessToHealthDocumentsController.Scopes.ScopeDeleteDocument);
+            return (Constants.Xacml.Actions.Delete, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument);
+
+        if (urlPath?.StartsWith("/R4/fhir/", StringComparison.InvariantCultureIgnoreCase) == true && urlPath?.EndsWith("$validate", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
+            return (Constants.Xacml.Actions.Execute, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
 
         return (Constants.Xacml.Actions.Create, null);
     }

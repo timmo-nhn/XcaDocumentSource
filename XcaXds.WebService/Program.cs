@@ -7,6 +7,7 @@ using NHN.OpenTelemetryExtensions;
 using System.Collections;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
@@ -27,11 +28,6 @@ namespace XcaXds.WebService;
 
 public class Program
 {
-    public const long OneMb = 1L * 1024 * 1024;
-    public const long FiftyMb = 50L * 1024 * 1024;
-    public const long OneHundredMb = 100L * 1024 * 1024;
-    public const long OneGb = 1L * 1024 * 1024 * 1024;
-
     private static readonly bool RunningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? bool.FalseString);
 
     public static void Main(string[] args)
@@ -42,7 +38,7 @@ public class Program
         {
             // Upload of multiple huge documents should be done if separate requests and not in the same bundle
             // In addition to Kestrel limits, we also set limit per document in appsettings.XdsConfiguration.DocumentUploadSizeLimitKb
-            options.Limits.MaxRequestBodySize = OneHundredMb;
+            options.Limits.MaxRequestBodySize = Constants.FileSizes.OneHundredMb;
         });
 
         ConfigureLoggingOptions(builder);

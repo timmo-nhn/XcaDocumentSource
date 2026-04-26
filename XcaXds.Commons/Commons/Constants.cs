@@ -9,6 +9,28 @@ namespace XcaXds.Commons.Commons;
 
 public static class Constants
 {
+    public static class FileSizes
+    {
+        public const long OneMb = 1L * 1024 * 1024;
+        public const long FiftyMb = 50L * 1024 * 1024;
+        public const long OneHundredMb = 100L * 1024 * 1024;
+        public const long OneGb = 1L * 1024 * 1024 * 1024;
+    }
+
+    public static class Scopes
+    {
+        public static class FhirMobileAccessToHealthDocuments
+        {
+            // These scopes must match scopes in Norsk helsenett dokumentlager in Selvbetjening
+            public const string ScopeCreateDocuments = "nhn:phr-repo/mhd/create";
+            public const string ScopeDeleteDocument = "nhn:phr-repo/delete-docs-and-refs";
+
+            // Old values
+            //public const string ScopeCreateDocuments = "nhn:phr-document-repository/mhd/create-documents-with-reference";
+            //public const string ScopeCreateDocuments = "nhn:phr-document-repository/delete-documents-and-reference";
+        }
+    }
+
     public static class XmlDefaultOptions
     {
         public static readonly XmlWriterSettings DefaultXmlWriterSettings = new()
@@ -402,7 +424,21 @@ public static class Constants
 
             public const string XdsRepresentationBelowMinimumAgeError = "XDSRepresentationBelowMinimumAgeError";
         }
+
+        public static class KjForskriftCategoryCodes
+        {
+            public const string EpikriserOgSammenfatninger = "A00-1";
+            public const string KontinuerligLopendeJournal = "B00-1";
+            public const string ProvesvarVevOgVaesker = "C00-1";
+            public const string Organfunksjon = "D00-1";
+            public const string BildediagnostikkOgAndreMedisinskeBilder = "E00-1";
+            public const string KurveObservasjonOgBehandling = "F00-1";
+            public const string Korrespondanse = "I00-1";
+            public const string AttesterMeldingOgErklaeringer = "J00-1";
+            public const string TestOgScoring = "S00-1";
+        }
     }
+
     public static class Hl7
     {
         public static class Profile
@@ -1618,6 +1654,7 @@ public static class Constants
             public const string ReadDocuments = "ReadDocuments";
             public const string Update = "Update";
             public const string Delete = "Delete";
+            public const string Execute = "Execute";
             public const string Unknown = "Unknown";
         }
 

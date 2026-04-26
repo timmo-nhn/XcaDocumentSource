@@ -39,7 +39,6 @@ public class SamlExtensions
         var samltokenAuthorizationAttributes = statements?
             .Where(att =>
                  att.Name.Contains("xacml") ||
-                 att.Name.Contains("xspa") ||
                  att.Name.Contains("provider-identifier") ||
                  att.Name.Contains("trust-framework"))
             .ToList();

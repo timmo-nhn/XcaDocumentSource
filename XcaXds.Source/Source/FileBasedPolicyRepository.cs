@@ -50,11 +50,11 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         lock (_lock)
         {
-            var policyFiles = Directory.GetFiles(_policyRepositoryPath);
-
-            foreach (var policyFilePath in policyFiles)
+            ExecuteWithRetry(() =>
             {
-                try
+                var policyFiles = Directory.GetFiles(_policyRepositoryPath);
+
+                foreach (var policyFilePath in policyFiles)
                 {
                     if (IsTemporaryFile(policyFilePath) || Path.GetFileName(policyFilePath).StartsWith(".")) continue;
 
@@ -69,13 +69,9 @@ public class FileBasedPolicyRepository : IPolicyRepository
                         policySetDto.Policies ??= new();
                         policySetDto.Policies.Add(policyDto);
                     }
+
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning($"Error while deserializing Policy with ID: {policyFilePath.Split("/").Last()}");
-                    _logger.LogWarning(ex.ToString());
-                }
-            }
+            });
         }
         _logger.LogInformation($"Successfully read {policySetDto.Policies?.Count ?? 0} policies from policy repository");
         return policySetDto;
@@ -89,7 +85,10 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         lock (_lock)
         {
-            File.WriteAllText(Path.Combine(_policyRepositoryPath, policyDto.Id), jsonPolicyDto);
+            ExecuteWithRetry(() =>
+            {
+                File.WriteAllText(Path.Combine(_policyRepositoryPath, policyDto.Id), jsonPolicyDto);
+            });
         }
 
         return true;
@@ -106,7 +105,10 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         lock (_lock)
         {
-            File.Delete(filePath);
+            ExecuteWithRetry(() =>
+            {
+                File.Delete(filePath);
+            });
         }
 
         return true;
@@ -118,12 +120,15 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         lock (_lock)
         {
-            foreach (var file in policyFiles)
+            ExecuteWithRetry(() =>
             {
-                if (Path.GetFileName(file).StartsWith('.')) continue;
+                foreach (var file in policyFiles)
+                {
+                    if (Path.GetFileName(file).StartsWith('.')) continue;
 
-                File.Delete(file);
-            }
+                    File.Delete(file);
+                }
+            });
         }
 
         return true;
@@ -147,5 +152,28 @@ public class FileBasedPolicyRepository : IPolicyRepository
     private bool IsTemporaryFile(string fileName)
     {
         return fileName.EndsWith("~") || fileName.EndsWith(".tmp", StringComparison.CurrentCultureIgnoreCase) || Path.GetFileName(fileName).StartsWith("~$");
+    }
+
+    private void ExecuteWithRetry(Action action, int retries = 3)
+    {
+        for (int i = 1; i <= retries; i++)
+        {
+            try
+            {
+                _logger.LogInformation("Attempt {att}/{max}", i, retries);
+                action();
+                return;
+            }
+            catch (IOException ioEx)
+            {
+                _logger.LogError(ioEx.ToString());
+                continue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                throw;
+            }
+        }
     }
 }

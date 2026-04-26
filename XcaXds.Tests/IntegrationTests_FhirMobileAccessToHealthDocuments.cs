@@ -43,7 +43,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/delete-documents-and-reference",
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument,
             action: "Delete",
             noCode: true);
 
@@ -60,7 +60,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var registryContentCount = registryObjects.Count();
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
-        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
 
         var randomDocumentEntry = RegistryContent.PickRandom().DocumentEntry;
 
@@ -108,7 +108,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: "nhn:phr-document-repository/delete-documents-and-reference",
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument,
             action: "Delete",
             noCode: true);
 
@@ -125,7 +125,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var registryContentCount = registryObjects.Count();
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01.json")));
-        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
 
         var documentEntryThatDoesntExist = Guid.NewGuid().ToString();
 
@@ -173,13 +173,13 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_patchdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,            
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,            
 			action: "Update",
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
-        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
         var randomDocumentEntry = RegistryContent.PickRandom().DocumentEntry;
@@ -208,6 +208,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
         var response = await _client.SendAsync(httpRequest);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();
@@ -240,7 +242,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
 
@@ -252,7 +254,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle01_WrongValues")));
-        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
 
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
 
@@ -299,7 +301,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
 
@@ -319,7 +321,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
-        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
 
         var fhirParser = new FhirJsonDeserializer();
         var fhirBundle = fhirParser.DeserializeResource(fhirProvideBundle);
@@ -339,6 +341,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var expectedCount = RegistryContent.Count + 1;
 
         var firstResponse = await _client.SendAsync(httpRequest);
+        
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
@@ -382,7 +386,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
 
@@ -394,7 +398,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03_virus.json")));
-        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
 
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
 
@@ -404,12 +408,12 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var firstResponse = await _client.SendAsync(httpRequest);
 
+        Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
+
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
 
         _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();
-
-        Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
         var fhirparser = new FhirJsonDeserializer();
 
@@ -442,10 +446,10 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         //_policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_providebundle",
+            policyName: "IT_machine_validatebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: FhirMobileAccessToHealthDocumentsController.Scopes.ScopeCreateDocuments,
-            action: "Create",
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "Execute",
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
@@ -456,7 +460,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
         var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle03.json")));
-        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken03_MachineToMachine")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
 
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
 

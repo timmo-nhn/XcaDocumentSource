@@ -7,5 +7,6 @@ namespace XcaXds.Source.Models.DatabaseDtos;
 public class DbRegistryObject
 {
     [Key]
+    [StringLength(255)]
     public string? Id { get; set; } = Guid.NewGuid().ToString();
 }
