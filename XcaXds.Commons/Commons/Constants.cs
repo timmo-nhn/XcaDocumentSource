@@ -1625,6 +1625,7 @@ public static class Constants
         public const string Pptm = "application/vnd.ms-powerpoint.presentation.macroEnabled.12";
         public const string Pptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
         public const string Rtf = "application/rtf";
+        public const string TextRtf = "text/rtf";
         public const string SevenZip = "application/x-7z-compressed";
         public const string SoapXml = "application/soap+xml";
         public const string Text = "text/plain";

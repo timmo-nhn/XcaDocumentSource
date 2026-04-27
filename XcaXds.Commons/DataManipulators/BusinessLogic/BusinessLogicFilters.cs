@@ -55,6 +55,7 @@ public static partial class BusinessLogicFilters
         Constants.MimeTypes.Hl7v3Xml,
         Constants.MimeTypes.Text,
         Constants.MimeTypes.Rtf,
+        Constants.MimeTypes.TextRtf,
     ];
 
     public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimeType)
