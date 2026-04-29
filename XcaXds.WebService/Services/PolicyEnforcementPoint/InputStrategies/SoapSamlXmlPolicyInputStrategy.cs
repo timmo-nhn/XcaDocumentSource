@@ -12,11 +12,12 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 {
     private readonly PolicyRequestMapperSamlService _policyRequestMapperSamlService;
     private readonly ILogger<SoapSamlXmlPolicyInputStrategy> _logger;
-
-    public SoapSamlXmlPolicyInputStrategy(ILogger<SoapSamlXmlPolicyInputStrategy> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService)
+    private readonly Saml2Validator _samlValidator;
+    public SoapSamlXmlPolicyInputStrategy(ILogger<SoapSamlXmlPolicyInputStrategy> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService, Saml2Validator samlValidator)
     {
         _logger = logger;
         _policyRequestMapperSamlService = policyRequestMapperSamlService;
+        _samlValidator = samlValidator;
     }
 
     public string[] GetAcceptedContentTypes()
@@ -54,7 +55,6 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
         {
             _logger.LogInformation($"{context.TraceIdentifier} - {nameof(appConfig.ValidateSamlTokenIntegrity)} Is true, validating SAML-token");
             var validations = new Saml2SecurityTokenHandler();
-            var validator = new Saml2Validator([appConfig.HelseidCert, appConfig.HelsenorgeCert]);
 
             var samlTokenString = _policyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody);
 
@@ -62,7 +62,9 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
             {
                 return PolicyInputResult.Fail($"{context.TraceIdentifier} - Fail! No SAML-token in request!");
             }
-            var tokenIsValid = validator.ValidateSamlToken(samlTokenString, out var message);
+
+            await _samlValidator.InitValidatorIfNotInited();
+            var tokenIsValid = _samlValidator.ValidateSamlToken(samlTokenString, out var message);
 
             if (tokenIsValid == false)
             {

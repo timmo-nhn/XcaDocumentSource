@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 
@@ -9,50 +11,54 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlInclude(typeof(AssociationType))]
 [XmlInclude(typeof(ExternalIdentifierType))]
 [XmlInclude(typeof(ClassificationType))]
-
 [Serializable]
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public class RegistryObjectType : IdentifiableType
 {
-    [XmlElement(Order = 0)]
-    public InternationalStringType? Name;
+    [XmlElement]
+    public InternationalStringType? Name { get; set; }
 
-    [XmlElement(Order = 1)]
-    public InternationalStringType? Description;
+    [XmlElement]
+    public InternationalStringType? Description { get; set; }
 
-    [XmlElement("Classification", Order = 2)]
-    public ClassificationType[] Classification = [];
+    [MaxLength(Constants.Properties.MaxArrayLength)]
+    [XmlElement("Classification")]
+    public ClassificationType[]? Classification { get; set; }
 
-    [XmlElement("ExternalIdentifier", Order = 3)]
-    public ExternalIdentifierType[] ExternalIdentifier = [];
+    [MaxLength(Constants.Properties.MaxArrayLength)]
+    [XmlElement("ExternalIdentifier")]
+    public ExternalIdentifierType[]? ExternalIdentifier { get; set; }
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     [XmlAttribute(AttributeName = "lid", DataType = "anyURI")]
-    public string? Lid;
+    public string? Lid { get; set; }
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     [XmlAttribute(AttributeName = "objectType", DataType = "anyURI")]
-    public string? ObjectType;
+    public string? ObjectType { get; set; }
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     [XmlAttribute(AttributeName = "status", DataType = "anyURI")]
-    public string? Status;
+    public string? Status { get; set; }
 
     public ClassificationType[] GetClassifications(string classificationScheme)
     {
-        return Classification.Where(cl => cl?.ClassificationScheme == classificationScheme).ToArray();
+        return Classification?.Where(cl => cl?.ClassificationScheme == classificationScheme).ToArray() ?? [];
     }
 
     public ClassificationType? GetFirstClassification(string classificationScheme)
     {
-        return Classification.FirstOrDefault(cl => cl?.ClassificationScheme == classificationScheme);
+        return Classification?.FirstOrDefault(cl => cl?.ClassificationScheme == classificationScheme);
     }
 
     public ExternalIdentifierType[] GetExternalIdentifiers(string identificationScheme)
     {
-        return ExternalIdentifier.Where(cl => cl?.IdentificationScheme == identificationScheme).ToArray();
+        return ExternalIdentifier?.Where(cl => cl?.IdentificationScheme == identificationScheme).ToArray() ?? [];
     }
 
     public ExternalIdentifierType? GetFirstExternalIdentifier(string identificationScheme)
     {
-        return ExternalIdentifier.FirstOrDefault(cl => cl?.IdentificationScheme == identificationScheme);
+        return ExternalIdentifier?.FirstOrDefault(cl => cl?.IdentificationScheme == identificationScheme);
     }
 
 }

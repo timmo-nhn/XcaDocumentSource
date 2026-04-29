@@ -8,6 +8,6 @@ namespace XcaXds.Commons.Models.Soap.Actions;
 [XmlType(Namespace = Constants.Xds.Namespaces.Xdsb)]
 public class RegisterDocumentSetRequestType
 {
-    [XmlElement(Namespace = Constants.Xds.Namespaces.Lcm, Order = 0)]
+    [XmlElement(Namespace = Constants.Xds.Namespaces.Lcm)]
     public SubmitObjectsRequest? SubmitObjectsRequest { get; set; }
 }

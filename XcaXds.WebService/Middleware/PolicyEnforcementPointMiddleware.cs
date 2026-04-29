@@ -6,6 +6,7 @@ using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text.Json;
+using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
 using XcaXds.WebService.Attributes;

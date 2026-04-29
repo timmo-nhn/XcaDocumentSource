@@ -8,10 +8,10 @@ namespace XcaXds.Commons.Models.Soap.Actions;
 [XmlType(Namespace = Constants.Xds.Namespaces.Xdsb)]
 public partial class RetrieveDocumentSetResponseType
 {
-    [XmlElement(Namespace = Constants.Xds.Namespaces.Rs, Order = 0)]
+    [XmlElement(Namespace = Constants.Xds.Namespaces.Rs)]
     public RegistryResponseType? RegistryResponse { get; set; }
 
-    [XmlElement("DocumentResponse", Order = 1)]
+    [XmlElement("DocumentResponse")]
     public DocumentResponseType[]? DocumentResponse { get; set; }
 
     public void AddDocument(byte[] document, string home, string repoId, string docId, string? mimeType = null)

@@ -1,4 +1,5 @@
 ﻿using Abc.Xacml.Context;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
@@ -19,15 +20,44 @@ public partial class XdsRegistryService
 {
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
+    private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
     private readonly ILogger<XdsRegistryService> _logger;
 
     private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));
 
-    public XdsRegistryService(ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger)
+    public XdsRegistryService(ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, XdsSubmitObjectsValidator submitObjectsValidator)
     {
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
         _logger = logger;
+        _submitObjectsValidator = submitObjectsValidator;
+    }
+
+    public static void ValidateRecursive(object? obj, List<ValidationResult> results)
+    {
+        if (obj == null) return;
+
+        var context = new ValidationContext(obj);
+        Validator.TryValidateObject(obj, context, results, true);
+
+        var properties = obj.GetType().GetProperties().Where(prop => prop.PropertyType != typeof(string) && prop.PropertyType != typeof(System.Char));
+
+        foreach (var prop in properties)
+        {
+            var value = prop.GetValue(obj);
+
+            if (value == null) continue;
+
+            if (value is IEnumerable<object> collection)
+            {
+                foreach (var item in collection)
+                    ValidateRecursive(item, results);
+            }
+            else
+            {
+                ValidateRecursive(value, results);
+            }
+        }
     }
 
     public SoapRequestResult<SoapEnvelope> AppendToRegistry(SoapEnvelope? envelope, bool validateOnly = false)
@@ -36,13 +66,47 @@ public partial class XdsRegistryService
 
         if (envelope == null)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "No SOAP envelope provided", "XDS Registry");
+            return registryResponse
+                .AddError(XdsErrorCodes.XDSRegistryError, "No SOAP envelope provided", "XDS Registry")
+                .CreateSoapResult();
+        }
+
+        var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToArray();
+        if (submissionRegistryObjects?.Length.IsNullOrZero() == true)
+        {
+            return registryResponse
+                .AddError(XdsErrorCodes.XDSRegistryError, "Missing SubmitObjectsRequest", "XDS Registry")
+                .CreateSoapResult();
+        }
+
+        var validationIssues = _submitObjectsValidator.ValidateSubmitObjectsRequest(submissionRegistryObjects);
+
+        var results = new List<ValidationResult>();
+        ValidateRecursive(submissionRegistryObjects, results);
+
+        if (results.Count > 0)
+        {
+            foreach (var e in results)
+            {
+                _logger.LogError(e.ErrorMessage + " Members: " + string.Join(' ', e.MemberNames));
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Validation Errors: " + e.ErrorMessage + " Members: " + string.Join(' ', e.MemberNames), _xdsConfig.HomeCommunityId);
+            }
+            return registryResponse.CreateSoapResult();
+        }
+
+        _logger.LogInformation($"Validation of SubmitObjectsRequest completed with {validationIssues.Length} issue(s)");
+
+        if (validationIssues.Length > 0)
+        {
+            foreach (var error in validationIssues)
+            {
+                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Validation Errors: " + error.Message, _xdsConfig.HomeCommunityId);
+            }
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        var submissionRegistryObjects = envelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.ToList();
         var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) == false).ToArray();
-       
+
         if (invalidMimetypes?.Length > 0)
         {
             _logger.LogError($"{envelope?.Header.MessageId} - Invalid MimeType detected in RegistryObjectList");
@@ -53,19 +117,23 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        if (submissionRegistryObjects == null || submissionRegistryObjects.Count == 0)
+        if (submissionRegistryObjects == null || submissionRegistryObjects.Length == 0)
         {
             _logger.LogError($"{envelope?.Header.MessageId} - Empty or invalid Registry objects in RegistryObjectList");
-            registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Empty or invalid Registry objects in RegistryObjectList", "XDS Registry");
-            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+
+            return registryResponse
+                .AddError(XdsErrorCodes.XDSRegistryError, $"Empty or invalid Registry objects in RegistryObjectList", "XDS Registry")
+                .CreateSoapResult();
         }
 
         var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
         if (DuplicateUuidsExist(registryObjects, submissionRegistryObjects, out string[] duplicateIds))
         {
             _logger.LogError($"{envelope?.Header.MessageId} - Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}");
-            registryResponse.AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}", "XDS Registry");
-            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+
+            return registryResponse
+                .AddError(XdsErrorCodes.XDSDuplicateUniqueIdInRegistry, $"Duplicate UUIDs in request and/or registry {string.Join(", ", duplicateIds)}", "XDS Registry")
+                .CreateSoapResult();
         }
 
         // RPLC option, replacing and deprecating document entries
@@ -73,7 +141,7 @@ public partial class XdsRegistryService
             .Where(assoc => assoc.AssociationTypeData == Constants.Xds.AssociationType.Replace).ToList();
 
         foreach (var replaceAssociation in documentReplaceAssociations)
-         {
+        {
             var documentId = replaceAssociation.TargetObject;
             if (string.IsNullOrWhiteSpace(documentId)) continue;
 
@@ -82,7 +150,7 @@ public partial class XdsRegistryService
                 // We will use Upsert-logic to update the registry later, which will
                 // overwrite the existing DbEntities with now deprecated entries from the out-variable.
                 // This is the safest option to avoid materialization issues with IEnumerable...
-                submissionRegistryObjects.Add(deprecatedEntry);
+                submissionRegistryObjects = [.. submissionRegistryObjects, deprecatedEntry];
             }
             else
             {
@@ -107,17 +175,17 @@ public partial class XdsRegistryService
             registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(submissionElementsToUpdate);
             if (registryUpdateResult)
             {
-                return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+                return registryResponse.CreateSoapResult();
             }
         }
         else
         {
-            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+            return registryResponse.CreateSoapResult();
         }
 
-
-        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry", _xdsConfig.HomeCommunityId);
-        return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
+        return registryResponse
+            .AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry", _xdsConfig.HomeCommunityId)
+            .CreateSoapResult();
     }
 
     public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope, XacmlContextRequest? xacmlRequest = null)
@@ -548,7 +616,7 @@ public partial class XdsRegistryService
             assocExtrinsicObject.AddSlot(Constants.Xds.SlotNames.Size, [documentSize.ToString()]);
 
             // Document LegalAuthenticator slot
-            var authorPersonSlot = assocExtrinsicObject.Classification
+            var authorPersonSlot = assocExtrinsicObject.Classification?
                 .FirstOrDefault(cl => cl.ClassificationScheme == Constants.Xds.Uuids.SubmissionSet.Author)?.Slot?
                 .FirstOrDefault(sl => sl.Name == Constants.Xds.SlotNames.AuthorPerson);
 
@@ -559,7 +627,7 @@ public partial class XdsRegistryService
 
 
             // Switch from SubmissionSet UUIDs to XdsDocumentEntry UUIDs
-            foreach (var classification in assocExtrinsicObject.Classification)
+            foreach (var classification in assocExtrinsicObject.Classification ?? [])
             {
                 classification.ClassificationScheme = classification.ClassificationScheme switch
                 {
@@ -590,7 +658,7 @@ public partial class XdsRegistryService
         }
     }
 
-    private bool DuplicateUuidsExist(IEnumerable<IdentifiableType> registryObjectList, List<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
+    private bool DuplicateUuidsExist(IEnumerable<IdentifiableType> registryObjectList, IEnumerable<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
     {
         var allObjects = registryObjectList.Concat(submissionRegistryObjects);
 

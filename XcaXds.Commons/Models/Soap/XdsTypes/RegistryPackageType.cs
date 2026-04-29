@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public class RegistryPackageType : RegistryObjectType
 {
-    [XmlArray(Order = 0)]
+    [XmlArray]
     [XmlArrayItem("Identifiable", IsNullable = false)]
     [XmlArrayItem("RegistryObject", typeof(RegistryObjectType), IsNullable = false)]
     [XmlArrayItem("AdhocQuery", typeof(AdhocQueryType), IsNullable = false)]

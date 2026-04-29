@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using XcaXds.Commons.Commons;
 
 namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
@@ -13,5 +15,6 @@ public class RegistryObjectDto
         Id = Guid.NewGuid().ToString();
     }
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     public string Id { get; set; }
 }

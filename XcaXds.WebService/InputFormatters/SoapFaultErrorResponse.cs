@@ -16,8 +16,9 @@ public static class ErrorResponseFactory
     {
         var contentType = context.HttpContext.Request.ContentType;
 
-        switch (contentType)
+        switch (contentType?.Split(";").FirstOrDefault())
         {
+            case Constants.MimeTypes.MultipartRelated:
             case Constants.MimeTypes.SoapXml:
                 return CreateSoapErrorResponse(context);
 
@@ -28,14 +29,6 @@ public static class ErrorResponseFactory
 
     private static BadRequestObjectResult CreateJsonErrorResponse(ActionContext context)
     {
-        var errors = context.ModelState
-            .Where(e => e.Value?.Errors?.Count > 0)
-            .Select(e => new
-            {
-                Field = e.Key,
-                Errors = e.Value?.Errors?.Select(err => err.ErrorMessage)
-            });
-
         var problemDetails = new ValidationProblemDetails(context.ModelState)
         {
             Status = StatusCodes.Status400BadRequest,

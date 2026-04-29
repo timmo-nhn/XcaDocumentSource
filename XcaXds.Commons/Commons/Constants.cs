@@ -9,6 +9,12 @@ namespace XcaXds.Commons.Commons;
 
 public static class Constants
 {
+    public static class Properties
+    {
+        public const int MaxStringLength = 255;
+        public const int MaxArrayLength = 255;
+    }
+
     public static class FileSizes
     {
         public const long OneMb = 1L * 1024 * 1024;
@@ -1504,6 +1510,7 @@ public static class Constants
             }
         }
     }
+    
     public static class Oid
     {
         // The correct "system"-value for OID

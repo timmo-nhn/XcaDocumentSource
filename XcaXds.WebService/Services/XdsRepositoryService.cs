@@ -50,23 +50,9 @@ public class XdsRepositoryService
 
         var registryObjectList = provideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
-
         if (registryObjectList == null)
         {
-            registryResponse.AddError(XdsErrorCodes.XDSStoredQueryMissingParam, "Missing RegistryObjectlist", _xdsConfig.HomeCommunityId);
-            return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
-        }
-
-        var validationIssues = _submitObjectsValidator.ValidateSubmitObjectsRequest(registryObjectList);
-
-        _logger.LogInformation($"Validation of SubmitObjectsRequest completed with {validationIssues.Length} issue(s)");
-
-        if (validationIssues.Length > 0)
-        {
-            foreach (var error in validationIssues)
-            {
-                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Validation Errors: " + error.Message, _xdsConfig.HomeCommunityId);
-            }
+            registryResponse.AddError(XdsErrorCodes.XDSMissingDocumentMetadata, "Missing RegistryObjectlist", _xdsConfig.HomeCommunityId);
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 

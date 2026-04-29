@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
@@ -43,14 +44,16 @@ public partial class SlotType
     {
     }
 
-    [XmlElement(Order = 0)]
-    public ValueListType? ValueList;
+    [XmlElement]
+    public ValueListType? ValueList { get; set; }
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     [XmlAttribute(AttributeName = "name")]
-    public string? Name;
+    public string? Name { get; set; }
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     [XmlAttribute(AttributeName = "slotType", DataType = "anyURI")]
-    public string? SlotTypeData;
+    public string? SlotTypeData { get; set; }
 
     public string? GetFirstValue(bool trim = true)
     {

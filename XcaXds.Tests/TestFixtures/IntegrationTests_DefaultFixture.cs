@@ -53,8 +53,6 @@ public class IntegrationTests_DefaultFixture
     {
         _output = output;
 
-        using var scope = factory.Services.CreateScope();
-
         // Custom factory with fake services
         var customFactory = factory.WithWebHostBuilder(builder =>
         {

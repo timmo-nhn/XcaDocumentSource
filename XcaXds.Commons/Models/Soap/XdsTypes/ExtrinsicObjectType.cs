@@ -16,7 +16,7 @@ public partial class ExtrinsicObjectType : RegistryObjectType
         IsOpaque = false;
     }
 
-    [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb, DataType = "base64Binary", Order = 1)]
+    [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb, DataType = "base64Binary")]
     public byte[]? Document { get; set; }
 
     [XmlAttribute(AttributeName = "mimeType")]
@@ -31,7 +31,7 @@ public partial class ExtrinsicObjectType : RegistryObjectType
         var patientPid = new PID();
         patientPid.PatientIdentifier ??= new();
 
-        var patientId = ExternalIdentifier.FirstOrDefault(x => x.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId)?.Value;
+        var patientId = ExternalIdentifier?.FirstOrDefault(x => x.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId)?.Value;
 
         var sourcePatientInfo = this.Slot?
         .FirstOrDefault(s => s.Name == Constants.Xds.SlotNames.SourcePatientInfo)?.ValueList?.Value?

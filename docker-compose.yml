@@ -12,6 +12,7 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otlp-collector.opentelemetry:4317
       - DEPLOYMENT_ENVIRONMENT=Development
       - SERVICE_NAME=XcaDS
+
     ports:
       - "5000:5000"
     volumes:

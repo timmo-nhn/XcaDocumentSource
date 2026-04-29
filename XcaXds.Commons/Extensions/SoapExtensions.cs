@@ -44,6 +44,11 @@ public static class SoapExtensions
         return resultEnvelope;
     }
 
+    public static SoapRequestResult<SoapEnvelope> CreateSoapResult(this RegistryResponseType message)
+    {
+        return CreateSoapResultRegistryResponse(message);
+    }
+
     public static SoapRequestResult<SoapEnvelope> CreateSoapResultRegistryResponse(RegistryResponseType message)
     {
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()

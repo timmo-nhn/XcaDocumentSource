@@ -8,11 +8,11 @@ namespace XcaXds.Commons.Models.Soap.Actions;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rs)]
 public partial class RegistryResponseType
 {
-    [XmlArray(Order = 0)]
+    [XmlArray]
     [XmlArrayItem("Slot", Namespace = Constants.Xds.Namespaces.Rim, IsNullable = false)]
     public SlotType[]? ResponseSlotList { get; set; }
 
-    [XmlElement(Order = 1)]
+    [XmlElement]
     public RegistryErrorList? RegistryErrorList { get; set; }
 
     [XmlAttribute(AttributeName = "status", DataType = "anyURI")]
@@ -21,7 +21,7 @@ public partial class RegistryResponseType
     [XmlAttribute(AttributeName = "requestId", DataType = "anyURI")]
     public string? RequestId { get; set; }
 
-    public void AddError(XdsErrorCodes errorCode, string codeContext, string? location = null)
+    public RegistryResponseType AddError(XdsErrorCodes errorCode, string codeContext, string? location = null)
     {
         RegistryErrorList ??= new() { RegistryError = [] };
 
@@ -34,6 +34,8 @@ public partial class RegistryResponseType
         };
         RegistryErrorList.RegistryError = [.. RegistryErrorList.RegistryError!, error];
         EvaluateStatusCode();
+
+        return this;
     }
 
     public void AddWarning(XdsErrorCodes errorCode, string codeContext, string? location = null)

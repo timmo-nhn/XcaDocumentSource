@@ -9,19 +9,19 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(AnonymousType = true, Namespace = Constants.Xds.Namespaces.Xdsb)]
 public partial class DocumentResponseType
 {
-    [XmlElement(Order = 0)]
+    [XmlElement]
     public string? HomeCommunityId { get; set; }
 
-    [XmlElement(Order = 1)]
+    [XmlElement]
     public string? RepositoryUniqueId { get; set; }
 
-    [XmlElement(Order = 2)]
+    [XmlElement]
     public string? DocumentUniqueId { get; set; }
 
-    [XmlElement(ElementName = "mimeType", Order = 3)]
+    [XmlElement(ElementName = "mimeType")]
     public string? MimeType { get; set; }
 
-    [XmlAnyElement("Document", Order = 4)]
+    [XmlAnyElement("Document")]
     public XmlElement? Document { get; set; }
 
     /// <summary>

@@ -11,7 +11,7 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(AnonymousType = true, Namespace = Constants.Xds.Namespaces.Lcm)]
 public class SubmitObjectsRequest : RegistryRequestType
 {
-    [XmlArray(Namespace = Constants.Xds.Namespaces.Rim, Order = 0)]
+    [XmlArray(Namespace = Constants.Xds.Namespaces.Rim)]
     [XmlArrayItem("Identifiable", IsNullable = false)]
     [XmlArrayItem("RegistryObject", typeof(RegistryObjectType), IsNullable = false)]
     [XmlArrayItem("AdhocQuery", typeof(AdhocQueryType), IsNullable = false)]

@@ -1,4 +1,7 @@
-﻿namespace XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using System.ComponentModel.DataAnnotations;
+using XcaXds.Commons.Commons;
+
+namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
 public class PatientId
 {
@@ -10,6 +13,9 @@ public class PatientId
 
     public PatientId() { }
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     public string? Id { get; set; }
+
+    [MaxLength(Constants.Properties.MaxStringLength)]
     public string? System { get; set; }
 }

@@ -1,9 +1,11 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Web;
+using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
@@ -13,7 +15,6 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 
@@ -494,6 +495,14 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
 
         documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
+
+        var results = ValidateIncomingPatchBundleCodings(codings);
+
+        if (results.Count > 0)
+        {
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Validation Errors: {string.Join(' ', results.Select(res => res.ErrorMessage))}", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Error));
+        }
+
         _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
 
         // Atna log generation
@@ -536,6 +545,17 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var serializer = new FhirJsonSerializer();
         return new CustomContentResult(serializer.SerializeToString(updatedDocRef), StatusCodes.Status200OK, Constants.MimeTypes.FhirJson);
+    }
+
+    private List<ValidationResult> ValidateIncomingPatchBundleCodings(List<CodedValue> codings)
+    {
+        var results = new List<ValidationResult>();
+        foreach (var coding in codings)
+        {
+            var context = new ValidationContext(coding);
+            Validator.TryValidateObject(coding, context, results, true);
+        }
+        return results;
     }
 
     private static bool TryExtractSecurityLabelElement(JsonElement json, out JsonElement securityLabelElement, out string? errorMessage)

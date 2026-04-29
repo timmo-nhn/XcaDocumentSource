@@ -778,6 +778,7 @@ public static class RegistryMetadataTransformer
         if (externalIdentifier != null)
         {
             externalIdentifier.RegistryObject = extrinsicObject.Id ?? "Unknown";
+            extrinsicObject.ExternalIdentifier ??= [];
             extrinsicObject.ExternalIdentifier = [.. extrinsicObject.ExternalIdentifier, externalIdentifier];
         }
     }
@@ -787,6 +788,7 @@ public static class RegistryMetadataTransformer
         var typeCodeClass = MapCodedValueToClassification(Constants.Xds.Uuids.DocumentEntry.TypeCode, documentEntryMetadata.TypeCode);
         if (typeCodeClass != null)
         {
+            extrinsicObject.Classification ??= [];
             extrinsicObject.Classification = [.. extrinsicObject.Classification, typeCodeClass];
         }
     }
@@ -796,6 +798,7 @@ public static class RegistryMetadataTransformer
         var practiceSettingCode = MapCodedValueToClassification(Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode, documentEntryMetadata.PracticeSettingCode);
         if (practiceSettingCode != null)
         {
+            extrinsicObject.Classification ??= [];
             extrinsicObject.Classification = [.. extrinsicObject.Classification, practiceSettingCode];
         }
     }
@@ -996,6 +999,7 @@ public static class RegistryMetadataTransformer
 
         if (eventCodeClassification != null)
         {
+            extrinsicObject.Classification ??= [];
             extrinsicObject.Classification = [.. extrinsicObject.Classification, eventCodeClassification];
         }
     }
@@ -1240,6 +1244,7 @@ public static class RegistryMetadataTransformer
         if (externalIdentifier != null)
         {
             externalIdentifier.RegistryObject = registryPackage.Id ?? "Unknown";
+            registryPackage.ExternalIdentifier ??= [];
             registryPackage.ExternalIdentifier = [.. registryPackage.ExternalIdentifier, externalIdentifier];
         }
     }
@@ -1259,6 +1264,7 @@ public static class RegistryMetadataTransformer
         if (externalIdentifier != null)
         {
             externalIdentifier.RegistryObject = registryPackage.Id ?? "Unknown";
+            registryPackage.ExternalIdentifier ??= [];
             registryPackage.ExternalIdentifier = [.. registryPackage.ExternalIdentifier, externalIdentifier];
         }
     }
@@ -1302,6 +1308,7 @@ public static class RegistryMetadataTransformer
             GetAuthorRoleSlotFromAuthor(authorClassification, author);
             GetAuthorSpecialitySlotFromAuthor(authorClassification, author);
 
+            registryPackage.Classification ??= [];
             registryPackage.Classification = [.. registryPackage.Classification, authorClassification];
         }
     }

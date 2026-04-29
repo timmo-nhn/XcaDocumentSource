@@ -12,7 +12,7 @@ public partial class RegistryErrorList
         RegistryError = [];
     }
 
-    [XmlElement("RegistryError", Order = 0)]
+    [XmlElement("RegistryError")]
     public RegistryErrorType[] RegistryError { get; set; }
 
     [XmlAttribute(AttributeName = "highestSeverity", DataType = "anyURI")]

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 
@@ -20,16 +21,19 @@ public partial class IdentifiableType
         Id ??= Guid.NewGuid().ToString();
     }
 
-    [XmlElement("Slot", Order = 0)]
-    public SlotType[]? Slot;
+    [MaxLength(Constants.Properties.MaxArrayLength)]
+    [XmlElement("Slot")]
+    public SlotType[]? Slot { get; set; }
 
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     [XmlAttribute(AttributeName = "id", DataType = "anyURI")]
-    public string? Id;
+    public string? Id { get; set; }
 
 
+    [MaxLength(Constants.Properties.MaxStringLength)]
     [XmlAttribute(AttributeName = "home", DataType = "anyURI")]
-    public string? Home;
+    public string? Home { get; set; }
 
     public void AddSlot(SlotType slotType)
     {

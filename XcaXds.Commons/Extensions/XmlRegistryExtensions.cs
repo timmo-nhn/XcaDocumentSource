@@ -53,7 +53,7 @@ public static class FindDocuments
         // Heavy usage, use deferred execution but avoid LINQ for better performance
         foreach (var extrinsicObject in source)
         {
-            foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier)
+            foreach (var externalIdentifier in extrinsicObject.ExternalIdentifier ?? [])
             {
                 if (externalIdentifier.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
                     externalIdentifier.Value == patientId)
@@ -71,7 +71,7 @@ public static class FindDocuments
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? classCodes)
     {
         if (classCodes == null || classCodes.Count == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo => eo.Classification
+        return source.Where(eo => eo.Classification != null && eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
             .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(co => classCodes.Any(cc => cc.Contains(co))));
@@ -84,7 +84,7 @@ public static class FindDocuments
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? typeCodes)
     {
         if (typeCodes == null || typeCodes.Count == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo => eo.Classification
+        return source.Where(eo => eo.Classification != null && eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.TypeCode)
             .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(co => typeCodes.Any(cc => cc.Contains(co))));
@@ -97,7 +97,7 @@ public static class FindDocuments
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? practiceSettingCodes)
     {
         if (practiceSettingCodes == null || practiceSettingCodes.Count == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo => eo.Classification
+        return source.Where(eo => eo.Classification != null && eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
             .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(co => practiceSettingCodes.Any(cc => cc.Contains(co))));
@@ -201,7 +201,7 @@ public static class FindDocuments
         this IEnumerable<ExtrinsicObjectType> source, List<string[]>? healthcareFacilityTypeCodes)
     {
         if (healthcareFacilityTypeCodes == null || healthcareFacilityTypeCodes.Count == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo => eo.Classification
+        return source.Where(eo => eo.Classification != null && eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.ClassCode)
             .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .All(hcfTypeCode => healthcareFacilityTypeCodes.Any(hcfTypeCodes => hcfTypeCodes.Contains(hcfTypeCode))));
@@ -218,7 +218,7 @@ public static class FindDocuments
         return source.Where(eo =>
         {
             // Get all the confidentiality codes for the current ExtrinsicObject (eo)
-            var eventCodesForExtrinsicObject = eo.Classification
+            var eventCodesForExtrinsicObject = eo.Classification?
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.EventCodeList)
                 .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
                 .ToArray();
@@ -268,14 +268,15 @@ public static class FindDocuments
         return source.Where(eo =>
         {
             // Get all the author persons for the current ExtrinsicObject (eo)
-            var authorsFromExtrinsicObject = eo.Classification
+            var authorsFromExtrinsicObject = eo.Classification?
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.Author)
                 .SelectMany(cf => cf.GetSlots(Constants.Xds.SlotNames.AuthorPerson)
                     .Select(s => s.GetFirstValue()))
                 .ToArray();
 
             return authorPersons.All(authorPersonGroup =>
-                authorPersonGroup.Any(authorPersonListFromInput =>
+                authorPersonGroup.Any(authorPersonListFromInput => 
+                    authorsFromExtrinsicObject != null &&
                     authorsFromExtrinsicObject.Any(author =>
                     {
                         var authorRegexPattern = Regex.Escape(authorPersonListFromInput)
@@ -299,12 +300,12 @@ public static class FindDocuments
         if (formatCodes == null || formatCodes.Count == 0) return source; // Optional field, return everything if not specified
         return source.Where(rp =>
         {
-            var formatCodesFromRegistryPackage = rp.Classification
+            var formatCodesFromRegistryPackage = rp.Classification?
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.DocumentEntry.FormatCode);
 
             return formatCodes.Any(formatCodeGroup =>
                 formatCodeGroup.Any(formatCode =>
-                    formatCodesFromRegistryPackage.Any(ct => formatCode == ct.NodeRepresentation)
+                    formatCodesFromRegistryPackage?.Any(ct => formatCode == ct.NodeRepresentation) == true
                 )
             );
         });
@@ -359,7 +360,7 @@ public static class FindSubmissionSets
     {
         if (sourceIdLists == null || sourceIdLists.Count == 0) return source;
 
-        return source.Where(rp => rp.ExternalIdentifier
+        return source.Where(rp => rp.ExternalIdentifier != null && rp.ExternalIdentifier
             .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.SubmissionSet.SourceId)
             .Any(extId => sourceIdLists.Any(sourceIdArray => sourceIdArray.Contains(extId.Value))));
     }
@@ -407,20 +408,20 @@ public static class FindSubmissionSets
         return source.Where(eo =>
         {
             // Get all the author persons for the current ExtrinsicObject (eo)
-            var authorsFromExtrinsicObject = eo.Classification
+            var authorsFromExtrinsicObject = eo.Classification?
                 .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.SubmissionSet.Author)
                 .SelectMany(cf => cf.GetSlots(Constants.Xds.SlotNames.AuthorPerson)
                     .Select(s => s.GetFirstValue()))
                 .ToArray();
 
-            return authorsFromExtrinsicObject.Any(author =>
+            return authorsFromExtrinsicObject?.Any(author =>
             {
                 var authorRegexPattern = Regex.Escape(authorPerson)
                     .Replace("%", ".*") // [%]: Matches any string (.*)
                     .Replace("_", "."); // [_]: Matches any single chararcter (.)
 
                 return Regex.IsMatch(author ?? string.Empty, $"^{authorRegexPattern}$");
-            });
+            }) == true;
         });
     }
 
@@ -431,7 +432,7 @@ public static class FindSubmissionSets
         this IEnumerable<RegistryPackageType> source, List<string[]>? healthcareFacilityTypeCodes)
     {
         if (healthcareFacilityTypeCodes == null || healthcareFacilityTypeCodes.Count == 0) return source; // Optional field, return everything if not specified
-        return source.Where(eo => eo.Classification
+        return source.Where(eo => eo.Classification != null && eo.Classification
             .Where(cf => cf.ClassificationScheme == Constants.Xds.Uuids.SubmissionSet.ContentTypeCode)
             .Select(cf => cf.NodeRepresentation + "^^" + cf.GetSlots(Constants.Xds.SlotNames.CodingScheme).FirstOrDefault()?.GetFirstValue())
             .Any(hcfTypeCode => healthcareFacilityTypeCodes.Any(hcfTypeCodes => hcfTypeCodes.Contains(hcfTypeCode))));
@@ -448,9 +449,9 @@ public static class FindFolders
     {
         if (string.IsNullOrWhiteSpace(patientId)) return Enumerable.Empty<RegistryPackageType>();  // Required field, return nothing if not specified
 
-        return source.Where(eo => eo.ExternalIdentifier.Any(ei =>
+        return source.Where(eo => eo.ExternalIdentifier?.Any(ei =>
             ei.IdentificationScheme == Constants.Xds.Uuids.DocumentEntry.PatientId &&
-            ei.Value != null && ei.Value.Contains(patientId)));
+            ei.Value != null && ei.Value.Contains(patientId)) == true);
     }
 
 }
@@ -500,7 +501,7 @@ public static class GetFolders
     this IEnumerable<RegistryPackageType> source, List<string[]>? uniqueIdList)
     {
         if (uniqueIdList == null || uniqueIdList.Count == 0) return source;
-        return source.Where(eo => eo.ExternalIdentifier
+        return source.Where(eo => eo.ExternalIdentifier != null && eo.ExternalIdentifier
             .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.Folder.UniqueId)
             .Any(extId => uniqueIdList.Any(sourceIdArray => sourceIdArray.Contains(extId.Value))));
     }
@@ -530,9 +531,10 @@ public static class GetFolderAndContents
         this IEnumerable<IdentifiableType> source, string? uniqueId)
     {
         if (uniqueId == null) return source;
-        return source.OfType<RegistryPackageType>().Where(eo => eo.ExternalIdentifier
-            .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.Folder.UniqueId)
-            .Any(extId => uniqueId == extId.Value));
+        return source.OfType<RegistryPackageType>()
+            .Where(eo => eo.ExternalIdentifier != null && eo.ExternalIdentifier
+                .Where(ei => ei.IdentificationScheme == Constants.Xds.Uuids.Folder.UniqueId)
+                .Any(extId => uniqueId == extId.Value));
     }
 
     /// | Parameter Name (ITI-18)     | Attribute                   | Opt | Mult |
@@ -608,7 +610,8 @@ public static class Commons
     public static IEnumerable<IdentifiableType> GetFolder(this IEnumerable<IdentifiableType> source, string entryUuid)
     {
         return source.OfType<RegistryPackageType>().Where(rp =>
-            rp.Classification.Any(cl => cl.ClassificationNode == Constants.Xds.Uuids.Folder.FolderClassificationNode && rp.Id == entryUuid));
+            rp.Classification?
+            .Any(cl => cl.ClassificationNode == Constants.Xds.Uuids.Folder.FolderClassificationNode && rp.Id == entryUuid) == true);
     }
 
     public static string[] GetValues(this SlotType[] slotTypes, bool codeMultipleValues = true)

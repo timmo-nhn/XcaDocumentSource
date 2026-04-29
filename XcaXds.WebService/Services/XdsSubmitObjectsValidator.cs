@@ -46,18 +46,18 @@ public partial class XdsSubmitObjectsValidator
         return [.. validationResults];
     }
 
-    private void ValidateExternalIdentifiers(List<XdsValidationResponse> validationResults, ExternalIdentifierType[] externalIdentifier, string location)
+    private void ValidateExternalIdentifiers(List<XdsValidationResponse> validationResults, ExternalIdentifierType[]? externalIdentifier, string location)
     {
-        foreach (var classification in externalIdentifier)
+        foreach (var classification in externalIdentifier ?? [])
         {
             MatchString(validationResults, classification.Value, location);
             ValidateSlots(validationResults, classification.Slot);
         }
     }
 
-    private void ValidateClassifications(List<XdsValidationResponse> validationResults, ClassificationType[] classifications, string location)
+    private void ValidateClassifications(List<XdsValidationResponse> validationResults, ClassificationType[]? classifications, string location)
     {
-        foreach (var classification in classifications)
+        foreach (var classification in classifications ?? [])
         {
             MatchString(validationResults, classification.NodeRepresentation, location);
             ValidateSlots(validationResults, classification.Slot);

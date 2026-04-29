@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 
@@ -16,7 +17,8 @@ public class InternationalStringType
         LocalizedString = [new() { Value = input }];
     }
 
-    [XmlElement("LocalizedString", Order = 0)]
+    [MaxLength(Constants.Properties.MaxArrayLength)]
+    [XmlElement("LocalizedString")]
     public LocalizedStringType[]? LocalizedString;
     public string? GetFirstValue()
     {

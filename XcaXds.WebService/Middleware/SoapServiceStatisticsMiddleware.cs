@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Channels;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -43,7 +42,7 @@ public class SoapServiceStatisticsMiddleware
         var soapEnvelope = await RequestHasSoapEnvelope(context, requestBody);
         if (soapEnvelope == null) return;
 
-        
+
         var elapsedMs = sw.ElapsedMilliseconds;
 
         var path = context.Request.Path;
@@ -66,7 +65,7 @@ public class SoapServiceStatisticsMiddleware
     private async Task<SoapEnvelope?> RequestHasSoapEnvelope(HttpContext context, string? requestBody)
     {
         var contentType = context.Request.ContentType?.Split(";").FirstOrDefault();
-        if (!contentType.IsAnyOf(Constants.MimeTypes.SoapXml, Constants.MimeTypes.MultipartRelated))
+        if (contentType.IsAnyOf(Constants.MimeTypes.SoapXml, Constants.MimeTypes.MultipartRelated) == false || string.IsNullOrWhiteSpace(requestBody))
         {
             return null;
         }

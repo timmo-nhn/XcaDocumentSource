@@ -221,6 +221,64 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     }
 
     [Fact]
+    [Trait("Patch", "Patch DocumentReference securityLabel")]
+    public async Task ProvideBundle_PatchDocumentSecurityLabel_TooLongFields_ExportsAtnaLog()
+    {
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_patchdocumentreference",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,            
+			action: "Update",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var randomDocumentEntry = RegistryContent.PickRandom().DocumentEntry;
+
+        var patchBody = """
+        {
+          "securityLabel": [
+            {
+              "coding": [
+                {
+                  "system": "http://example.org/security",
+                  "code": "N",
+                  "display": "Lang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøåLang tekst sahfjlksahlkasjhflkjhwquihæøåøæøåøæøå"
+                }
+              ]
+            }
+          ]
+        }
+        """;
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Patch, $"/R4/fhir/DocumentReference/{randomDocumentEntry?.Id}")
+        {
+            Content = new StringContent(patchBody, Encoding.UTF8, Constants.MimeTypes.FhirJson)
+        };
+
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+
+        var response = await _client.SendAsync(httpRequest);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
+        await WaitForAtnaLogToBeExported();
+        _output.WriteLine("PatchDocumentSecurityLabel_ExportsAtnaLog: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+    }
+
+    [Fact]
     [Trait("Upload", "Provide Bundle (Isolated Access Control)")]
     public async Task ProvideBundle_WrongValues_ExportsAtnaLog_IAC()
     {

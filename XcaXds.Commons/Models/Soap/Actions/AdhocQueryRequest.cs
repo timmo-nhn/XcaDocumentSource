@@ -22,10 +22,10 @@ public partial class AdhocQueryRequest : RegistryRequestType
         MaxResults = "-1";
     }
 
-    [XmlElement(Order = 0)]
+    [XmlElement]
     public ResponseOptionType? ResponseOption { get; set; }
 
-    [XmlElement(Namespace = Constants.Xds.Namespaces.Rim, Order = 1)]
+    [XmlElement(Namespace = Constants.Xds.Namespaces.Rim)]
     public AdhocQueryType AdhocQuery { get; set; } = new();
 
     [XmlAttribute(AttributeName = "federated")]

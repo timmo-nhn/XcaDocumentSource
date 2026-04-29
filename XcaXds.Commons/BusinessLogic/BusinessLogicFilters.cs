@@ -41,6 +41,68 @@ public static partial class BusinessLogicFilters
 
 public static partial class BusinessLogicFilters
 {
+    public static readonly List<ComprehensiveCodeSystem> AllowedOrganizationOids =
+    [
+        new (Constants.Oid.Brreg),
+        new (Constants.Oid.ReshId)
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedPractitionerOids =
+    [
+        new(Constants.Oid.Fnr),
+        new(Constants.Oid.Hpr),
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedPatientOids =
+    [
+        new(Constants.Oid.Fnr),
+        new(Constants.Oid.Dnr),
+        new(Constants.Oid.Hnr)
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedFacilityTypes =
+    [
+        typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Volven.FacilityType_1305).GetAsComprehensiveCodesystem()
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedPracticeSettings =
+    [
+        typeof(Constants.CodeSystems.Volven.PracticeSetting_8651).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Volven.PracticeSetting_8653).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Volven.PracticeSetting_8654).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Volven.PracticeSetting_8655).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Volven.PracticeSetting_8663).GetAsComprehensiveCodesystem()
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedTypeCodes =
+    [
+        typeof(Constants.CodeSystems.Volven.TypeCode_9602).GetAsComprehensiveCodesystem()
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedCategoryCodes =
+    [
+        typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem()
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedConfidentialityCodes =
+    [
+        typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603).GetAsComprehensiveCodesystem(),
+        typeof(Constants.CodeSystems.Hl7.ConfidentialityCode).GetAsComprehensiveCodesystem(),
+        new("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedFormatCodes =
+    [
+        new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
+        new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
+        new("formatCodes")
+    ];
+
+    public static readonly List<ComprehensiveCodeSystem> AllowedAttachments =
+    [
+    ];
+
     public static readonly (string, string)[] CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
     public static readonly (string, string)[] HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
 

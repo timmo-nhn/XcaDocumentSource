@@ -21,4 +21,9 @@ public static class GlobalExtensions
     {
         return value == null || value == 0;
     }
+
+    public static bool IsNullOrZero(this int value)
+    {
+        return value == 0;
+    }
 }

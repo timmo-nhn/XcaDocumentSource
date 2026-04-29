@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
@@ -683,6 +684,64 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
     [Fact]
     [Trait("Upload", "Modify Registry/Repository")]
+    public async Task PNR_UploadDocuments_TooLongFields()
+    {
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_UploadDocuments",
+            attributeId: Constants.Saml.Attribute.Role,
+            codeValue: "LE;SP;PS",
+            codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
+            action: "Create");
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
+
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+
+        var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom();
+
+        var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
+
+        metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "Lang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåø";
+
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [new() { Id = metadata.Document.DocumentId, Value = metadata.Document.Data }];
+
+        var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
+        var expectedCountAfterPnR = RegistryItemCount; // No change should happen due to invalid content
+
+        var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
+        var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.True(0 < (firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0));
+
+        Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
+
+        await WaitForAtnaLogToBeExported();
+
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+    }
+
+    [Fact]
+    [Trait("Upload", "Modify Registry/Repository")]
     public async Task PNR_UploadDocuments_InvalidValidation()
     {
         await NukeRegistryRepository();
@@ -712,7 +771,6 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         metadata.DocumentEntry.MimeType = null;
         metadata.DocumentEntry.Title = "<script>alert('bø!');</script>";
-        metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "Lang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåø";
 
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [new() { Id = metadata.Document.DocumentId, Value = metadata.Document.Data }];
@@ -1041,9 +1099,10 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var iti18RmdRequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(iti18RmdRequestSoapString);
 
         var iti18RmdRequestResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti18RmdRequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
-        Assert.Equal(System.Net.HttpStatusCode.OK, iti18RmdRequestResponse.StatusCode);
 
         var iti18RmdRequestResponseContent = await iti18RmdRequestResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, iti18RmdRequestResponse.StatusCode);
 
         var iti18RmdResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti18RmdRequestResponseContent);
 

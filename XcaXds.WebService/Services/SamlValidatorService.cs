@@ -6,22 +6,33 @@ namespace XcaXds.WebService.Services;
 
 public class Saml2Validator
 {
-    private readonly Saml2SecurityTokenHandler _saml2Handler;
-    private readonly TokenValidationParameters _validationParameters;
+    private readonly ILogger<Saml2Validator> _logger;
+    private readonly Saml2SecurityTokenHandler _saml2Handler = new Saml2SecurityTokenHandler();
+    private readonly ApplicationConfig _appConfig;
+    private readonly SigningCertificateService _signingCertificateService;
 
-    public Saml2Validator(string[] signingCertificates)
+    private string[]? SigningCertificates;
+    private TokenValidationParameters ValidationParameters = default!;
+
+    public Saml2Validator(ILogger<Saml2Validator> logger, ApplicationConfig applicationConfig, SigningCertificateService signingCertificateService)
     {
-        _saml2Handler = new Saml2SecurityTokenHandler();
+        _logger = logger;
+        _appConfig = applicationConfig;
+        _signingCertificateService = signingCertificateService;
+    }
 
-        if (signingCertificates == null)
-        {
-            throw new Exception("Signing certificate missing! SAML-token cannot be validated!");
-        }
+    public async Task<bool> InitValidatorIfNotInited()
+    {
+        if (ValidationParameters != null) return false;
 
-        var idpCert = signingCertificates.Select(cs => X509CertificateLoader.LoadCertificate(Convert.FromBase64String(cs)));
+        await _signingCertificateService.OverrideSigningCertificatesFromExternalApis();
+
+        SigningCertificates = [_appConfig.HelseidCert, _appConfig.HelsenorgeCert];
+
+        var idpCert = SigningCertificates.Select(cs => X509CertificateLoader.LoadCertificate(Convert.FromBase64String(cs)));
         var signingKeys = idpCert.Select(idpC => new X509SecurityKey(idpC));
 
-        _validationParameters = new TokenValidationParameters
+        ValidationParameters = new TokenValidationParameters
         {
             ClockSkew = TimeSpan.FromMinutes(5),
             ValidAudiences = ["https://ptr1xds-reg.prod.drift.nhn.no/", "https://xds-web.test.nhn.no/", "nhn:dokumentdeling-saml"],
@@ -34,6 +45,8 @@ public class Saml2Validator
             ValidateLifetime = true,
             RequireSignedTokens = true,
         };
+
+        return true;
     }
 
     public bool ValidateSamlToken(string samlXml, out string? validationMessage)
@@ -41,13 +54,13 @@ public class Saml2Validator
         validationMessage = string.Empty;
         var token = _saml2Handler.ReadSaml2Token(samlXml);
         try
-        {            
-			var unescapedSamlToken = System.Text.RegularExpressions.Regex.Unescape(samlXml);			
-			var principal = _saml2Handler.ValidateToken(samlXml, _validationParameters, out var validatedToken);
-			//var principal = _saml2Handler.ValidateToken(unescapedSamlToken, _validationParameters, out var validatedToken); // Must use this for tokens from Kjernejournal portal? Tim: vi må diskutere dette nærmere
-			var results = new List<bool>();
+        {
+            var unescapedSamlToken = System.Text.RegularExpressions.Regex.Unescape(samlXml);
+            var principal = _saml2Handler.ValidateToken(samlXml, ValidationParameters, out var validatedToken);
+            //var principal = _saml2Handler.ValidateToken(unescapedSamlToken, _validationParameters, out var validatedToken); // Must use this for tokens from Kjernejournal portal? Tim: vi må diskutere dette nærmere
+            var results = new List<bool>();
 
-            foreach (var signingKey in _validationParameters.IssuerSigningKeys)
+            foreach (var signingKey in ValidationParameters.IssuerSigningKeys)
             {
                 var x509Key = (X509SecurityKey)signingKey;
                 var chain = new X509Chain();

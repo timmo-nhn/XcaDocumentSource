@@ -16,4 +16,6 @@ public class ApplicationConfig
     public string IpAddress { get; set; } = string.Empty;
     public string AtnaLogExporterEndpoint { get; set; } = string.Empty;
     public string ClamAvEndpoint { get; set; } = string.Empty;
+    public string HelseIdSigningCertUrl { get; set;  } = string.Empty; 
+    public string HelsenorgeSigningCertUrl {  get; set; } = string.Empty;
 }

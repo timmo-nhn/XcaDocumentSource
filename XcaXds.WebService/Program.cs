@@ -180,21 +180,24 @@ public class Program
         builder.Services.AddSingleton<AtnaLogEnricherService>();
         builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
         builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
+        builder.Services.AddSingleton<PolicyRepositoryService>();
+        builder.Services.AddSingleton<PolicyDecisionPointService>();
+        builder.Services.AddSingleton<PolicyRepositoryWrapper>();
+
+        builder.Services.AddSingleton<Saml2Validator>();
+        builder.Services.AddSingleton<SigningCertificateService>();
+
+        builder.Services.AddSingleton<ApplicationMetaService>();
+        builder.Services.AddSingleton<MonitoringStatusService>();
 
         builder.Services.AddSingleton<XdsSubmitObjectsValidator>();
-
-        builder.Services.AddSingleton<IClamAvFileScanner, ClamAvFileScanner>();
-        builder.Services.AddSingleton<ApplicationMetaService>();
-        builder.Services.AddSingleton<PolicyRepositoryService>();
-        builder.Services.AddSingleton<MonitoringStatusService>();
-        builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddSingleton<RegistryWrapper>();
         builder.Services.AddSingleton<RepositoryWrapper>();
-        builder.Services.AddSingleton<PolicyRepositoryWrapper>();
         builder.Services.AddSingleton<RequestThrottlingService>();
         builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
+        builder.Services.AddSingleton<IClamAvFileScanner, ClamAvFileScanner>();
         builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
 
         // Custom REST services

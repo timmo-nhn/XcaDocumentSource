@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rs)]
 public class RegistryRequestType
 {
-    [XmlArray(Order = 0)]
+    [XmlArray]
     [XmlArrayItem("Slot", Namespace = Constants.Xds.Namespaces.Rim, IsNullable = false)]
     public SlotType[]? RequestSlotList { get; set; }
 

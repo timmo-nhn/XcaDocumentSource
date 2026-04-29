@@ -7,7 +7,7 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public class ObjectRefList
 {
-    [XmlElement(Order = 0)]
+    [XmlElement]
     public IdentifiableType[]? ObjectRef;
 }
 

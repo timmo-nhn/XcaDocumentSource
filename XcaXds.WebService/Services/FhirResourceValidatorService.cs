@@ -10,6 +10,7 @@ using Hl7.Fhir.Specification.Terminology;
 using Hl7.Fhir.Support;
 using Hl7.FhirPath;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 
@@ -29,8 +30,8 @@ public class FhirResourceValidatorService
 
         _validator = InitValidator();
 
-        AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
-        AllowedAttachments.Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [_appConfig.HomeCommunityId]));
+        BusinessLogicFilters.AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
+        BusinessLogicFilters.AllowedAttachments.Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [_appConfig.HomeCommunityId]));
     }
 
     public OperationOutcome ValidateFhirResource(Resource inputResource, bool useFirelyValidator = false)
@@ -79,31 +80,31 @@ public class FhirResourceValidatorService
     {
         var codeableConcepts = FindDescendantResources(bundle, "CodeableConcept", "Coding", "Attachment").ToArray();
 
-        ValidateIdentifiers(outcome, codeableConcepts, "facilityType", AllowedFacilityTypes);
-        ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", AllowedPracticeSettings);
-        ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", AllowedConfidentialityCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "type", AllowedTypeCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "category", AllowedCategoryCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "format", AllowedFormatCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "attachment", AllowedAttachments);
+        ValidateIdentifiers(outcome, codeableConcepts, "facilityType", BusinessLogicFilters.AllowedFacilityTypes);
+        ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", BusinessLogicFilters.AllowedPracticeSettings);
+        ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", BusinessLogicFilters.AllowedConfidentialityCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "type", BusinessLogicFilters.AllowedTypeCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "category", BusinessLogicFilters.AllowedCategoryCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "format", BusinessLogicFilters.AllowedFormatCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "attachment", BusinessLogicFilters.AllowedAttachments);
     }
 
     private void ValidatePractitioners(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Practitioner");
-        ValidateIdentifiers(outcome, orgs, "Practitioner", AllowedPractitionerOids);
+        ValidateIdentifiers(outcome, orgs, "Practitioner", BusinessLogicFilters.AllowedPractitionerOids);
     }
 
     private static void ValidateOrganizations(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Organization");
-        ValidateIdentifiers(outcome, orgs, "Organization", AllowedOrganizationOids);
+        ValidateIdentifiers(outcome, orgs, "Organization", BusinessLogicFilters.AllowedOrganizationOids);
     }
 
     private static void ValidatePatients(OperationOutcome outcome, Bundle bundle)
     {
         var patients = FindDescendantResources(bundle, "Patient");
-        ValidateIdentifiers(outcome, patients, "Patient", AllowedPatientOids);
+        ValidateIdentifiers(outcome, patients, "Patient", BusinessLogicFilters.AllowedPatientOids);
     }
 
     private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, ComprehensiveCodeSystem allowedSystems)
@@ -216,66 +217,4 @@ public class FhirResourceValidatorService
 
         return new Validator(resolver, terminologyService);
     }
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedOrganizationOids =
-    [
-        new (Constants.Oid.Brreg),
-        new (Constants.Oid.ReshId)
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedPractitionerOids =
-    [
-        new(Constants.Oid.Fnr),
-        new(Constants.Oid.Hpr),
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedPatientOids =
-    [
-        new(Constants.Oid.Fnr),
-        new(Constants.Oid.Dnr),
-        new(Constants.Oid.Hnr)
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedFacilityTypes =
-    [
-        typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.FacilityType_1305).GetAsComprehensiveCodesystem()
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedPracticeSettings =
-    [
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8651).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8653).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8654).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8655).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8663).GetAsComprehensiveCodesystem()
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedTypeCodes =
-    [
-        typeof(Constants.CodeSystems.Volven.TypeCode_9602).GetAsComprehensiveCodesystem()
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedCategoryCodes =
-    [
-        typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem()
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedConfidentialityCodes =
-    [
-        typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Hl7.ConfidentialityCode).GetAsComprehensiveCodesystem(),
-        new("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedFormatCodes =
-    [
-        new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
-        new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
-        new("formatCodes")
-    ];
-
-    private static readonly List<ComprehensiveCodeSystem> AllowedAttachments =
-    [
-    ];
 }

@@ -8,7 +8,7 @@ namespace XcaXds.Commons.Models.Soap.Actions;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public class RemoveObjectsRequestType
 {
-    [XmlElement("ObjectRefList", Order = 0)]
+    [XmlElement("ObjectRefList")]
     public ObjectRefList? ObjectRefList { get; set; }
 }
 

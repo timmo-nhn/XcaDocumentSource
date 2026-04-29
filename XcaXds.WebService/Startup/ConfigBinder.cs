@@ -18,6 +18,8 @@ public static class ConfigBinder
             HelsenorgeCert = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelsenorgeCert").Value,
             AtnaLogExporterEndpoint = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__AtnaLogExporterEndpoint").Value,
             ClamAvEndpoint = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__ClamavEndpoint").Value,
+            HelseIdSigningCertUrl = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelseIdSigningCertUrl").Value,
+            HelsenorgeSigningCertUrl = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelsenorgeSigningCertUrl").Value,
             //HostName = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "HOSTNAME").Value,
             //IpAddress = xdsConfigEnvVars.FirstOrDefault(f => f.Key.EndsWith("HOSTNAME")).Value
         };

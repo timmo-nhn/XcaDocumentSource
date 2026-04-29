@@ -30,7 +30,7 @@ public static class RegistryStoredQueryParameters
             XdsDocumentEntryAuthorPerson = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.AuthorPerson).GetValuesGrouped(),
             XdsDocumentEntryFormatCode = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.FormatCode).GetValuesGrouped(),
             XdsDocumentEntryType = adhocQuery.GetSlots(Constants.Xds.QueryParameters.FindDocuments.Type).GetValuesGrouped(),
-        }.Unescape(); 
+        }.Unescape();
     }
 
     public static FindSubmissionSets GetFindSubmissionSetsParameters(AdhocQueryType adhocQuery)
@@ -167,11 +167,14 @@ public class FindDocuments
 
     public FindDocuments Unescape()
     {
-		//XdsDocumentEntryPatientId = System.Web.HttpUtility.UrlDecode(XdsDocumentEntryPatientId);
-		XdsDocumentEntryPatientId = Regex.Unescape(XdsDocumentEntryPatientId);
-		XdsDocumentEntryPatientId = System.Web.HttpUtility.HtmlDecode(XdsDocumentEntryPatientId);
-		// Possibly other parameters need to be URL decoded as well, but patient id is the one that most likely contains special characters that need to be decoded.
-		return this; 
+        if (XdsDocumentEntryPatientId != null)
+        {
+            XdsDocumentEntryPatientId = Regex.Unescape(XdsDocumentEntryPatientId);
+		    XdsDocumentEntryPatientId = System.Web.HttpUtility.HtmlDecode(XdsDocumentEntryPatientId);
+            // Possibly other parameters need to be URL decoded as well, but patient id is the one that most likely contains special characters that need to be decoded.
+            //XdsDocumentEntryPatientId = System.Web.HttpUtility.UrlDecode(XdsDocumentEntryPatientId);
+        }
+        return this;
     }
 }
 
