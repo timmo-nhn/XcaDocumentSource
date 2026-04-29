@@ -83,7 +83,7 @@ public static class Hl7FhirExtensions
         // Check if its a synthetic test-data Nin
         if (int.Parse(month) - 65 is > 0 and <= 12 || int.Parse(month) - 80 is > 0 and <= 12)
         {
-            if (int.Parse(day) - 50 is > 0 and <= 31)
+            if (int.Parse(day) - 40 is > 0 and <= 31)
             {
                 oid.UniversalId = Constants.Oid.Dnr;
             }
