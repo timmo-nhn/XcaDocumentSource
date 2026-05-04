@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
@@ -10,6 +11,7 @@ using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
+[RequiresApiKey]
 [ApiController]
 [Route("api/policy")]
 public class PolicyManagementController : ControllerBase

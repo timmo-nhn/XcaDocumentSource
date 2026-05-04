@@ -1,8 +1,6 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Source.Source;
-using XcaXds.WebService.Controllers;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Startup;
@@ -195,8 +193,8 @@ public class AppStartupService : IHostedService
                 new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448;1.0.14265.1;urn:oid:1.0.14265.1")
             ]],
             //Actions = ["Create", "ReadDocumentList", "ReadDocuments", "Update", "Delete"],
-			Actions = ["ReadDocumentList", "ReadDocuments"],
-			Effect = "Permit"
+            Actions = ["ReadDocumentList", "ReadDocuments"],
+            Effect = "Permit"
         };
 
         var machine_create_update_documents = new PolicyDto()
@@ -206,37 +204,37 @@ public class AppStartupService : IHostedService
             Rules =
             [[
                 new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments),
-            ]],			
-			Actions = ["Create", "Update"],			
-			Effect = "Permit"
+            ]],
+            Actions = ["Create", "Update"],
+            Effect = "Permit"
         };
 
-		var machine_delete_documents = new PolicyDto()
-		{
-			Id = "DEFAULT_machine_delete_documents",
-			AppliesTo = [AppliesTo.Machine],
-			Rules =
-			[			[
-				new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument),
-			]],
-			Actions = ["Delete"],
-			Effect = "Permit"
-		};
+        var machine_delete_documents = new PolicyDto()
+        {
+            Id = "DEFAULT_machine_delete_documents",
+            AppliesTo = [AppliesTo.Machine],
+            Rules =
+            [           [
+                new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument),
+            ]],
+            Actions = ["Delete"],
+            Effect = "Permit"
+        };
 
-		//_policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid); // Remove because of incompatability with PIX
+        //_policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid); // Remove because of incompatability with PIX
         //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
         _policyRepositoryWrapper.DeletePolicy(cz_readdocumentlist_documents.Id);
         _policyRepositoryWrapper.DeletePolicy(gp_deny_certain_roles.Id);
         _policyRepositoryWrapper.DeletePolicy(gp_readdocumentlist_readdocument.Id);
         _policyRepositoryWrapper.DeletePolicy(machine_create_update_documents.Id);
-		_policyRepositoryWrapper.DeletePolicy(machine_delete_documents.Id);
+        _policyRepositoryWrapper.DeletePolicy(machine_delete_documents.Id);
 
         _policyRepositoryWrapper.AddPolicy(cz_readdocumentlist_documents);
         _policyRepositoryWrapper.AddPolicy(gp_deny_certain_roles);
         _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument);
         _policyRepositoryWrapper.AddPolicy(machine_create_update_documents);
-		_policyRepositoryWrapper.AddPolicy(machine_delete_documents);
-	}
+        _policyRepositoryWrapper.AddPolicy(machine_delete_documents);
+    }
 
     /// <summary>
     /// Normalize the metadata and repository ID with the configuration from appsettings.json

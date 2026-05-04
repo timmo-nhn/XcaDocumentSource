@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.Certificate;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using XcaXds.Commons.Attributes;
 
 namespace XcaXds.WebService.Controllers;
 
-[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
 [ApiController]
+[RequiresApiKey]
 [Route("/secure")]
 public class SecureController : ControllerBase
 {
     [HttpGet]
-    public IActionResult Get() => Ok("Client cert required here");
+    public IActionResult Get() => Ok("API Key required here");
 }

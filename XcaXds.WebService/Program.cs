@@ -1,20 +1,22 @@
-using Microsoft.AspNetCore.Authentication.Certificate;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using NHN.OpenTelemetryExtensions;
 using System.Collections;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
+using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
@@ -48,7 +50,7 @@ public class Program
 
         AddControllersAndModelBindings(builder);
 
-        ConfigureKestrelCertificateAuthenticationAuthorization(builder);
+        ConfigureKestrelAuthenticationAuthorization(builder);
 
         AddModelValidationHandling(builder);
 
@@ -216,6 +218,7 @@ public class Program
             sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
         var xdsConfig = new ApplicationConfig();
+        var apiKey = new ApiKeyHolder();
 
         // If we are running in a container, override appsettings.json and environment variables for configuration
         if (RunningInContainer)
@@ -225,6 +228,7 @@ public class Program
                 .Select(e => new KeyValuePair<string, string>((string)e.Key, (string)e.Value!))
                 .ToList();
 
+            apiKey = ApiKeyBinder.BindApiKeyEnvironmentVariablesToApiKey(envVars);
             xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(envVars);
 
             builder.Configuration.Bind(xdsConfig);
@@ -237,10 +241,11 @@ public class Program
         else
         {
             builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
+            builder.Configuration.GetSection("XdsConfiguration").Bind(apiKey);
         }
 
         builder.Services.AddSingleton(xdsConfig);
-
+        builder.Services.AddSingleton(apiKey);
     }
 
     private static void ConfigureLoggingOptions(WebApplicationBuilder builder)
@@ -268,7 +273,7 @@ public class Program
         builder.Logging.SetMinimumLevel(LogLevel.Debug);
     }
 
-    private static void ConfigureKestrelCertificateAuthenticationAuthorization(WebApplicationBuilder builder)
+    public static void ConfigureKestrelAuthenticationAuthorization(WebApplicationBuilder builder)
     {
         builder.WebHost.UseKestrel();
         builder.WebHost.ConfigureKestrel(options =>
@@ -280,23 +285,8 @@ public class Program
         });
 
         builder.Services
-            .AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
-            .AddCertificate(options =>
-            {
-                options.AllowedCertificateTypes = CertificateTypes.Chained;
-                options.ValidateCertificateUse = true;
-                options.ValidateValidityPeriod = true;
-                options.RevocationMode = X509RevocationMode.Online;
-                options.RevocationFlag = X509RevocationFlag.ExcludeRoot;
-
-                options.Events = new CertificateAuthenticationEvents
-                {
-                    OnCertificateValidated = async context =>
-                    {
-                        await CertificateValidator.ValidateCertificate(context);
-                    }
-                };
-            });
+            .AddAuthentication("ApiKey")
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", null);
 
         builder.Services.AddAuthorization();
     }

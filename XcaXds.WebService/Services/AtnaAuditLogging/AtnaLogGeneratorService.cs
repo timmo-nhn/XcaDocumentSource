@@ -16,7 +16,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.WebService.Services.AtnaAuditLogging;
 
 public class AtnaLogGeneratorService
 {

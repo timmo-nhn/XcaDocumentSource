@@ -3,7 +3,7 @@ using Hl7.Fhir.Serialization;
 using XcaXds.Commons.Models.Custom;
 using Task = System.Threading.Tasks.Task;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.WebService.Services.AtnaAuditLogging;
 
 public class AtnaLogExporterService : BackgroundService
 {

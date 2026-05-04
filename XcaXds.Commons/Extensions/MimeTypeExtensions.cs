@@ -46,23 +46,7 @@ public static class MimeTypeExtensions
             mimeType = Constants.MimeTypes.Zip;
 
         else if (IsXmlLike(input, out var kind))
-        {
-            if (kind == DocumentSniffer.DocumentKind.ClinicalDocumentXml)
-            {
-                if (fromCdaNonXmlBody)
-                {
-                    return TryGetMimeTypeFromDocumentBytes(GetClinicalDocumentDocument(input), out mimeType, false);
-                }
-                else
-                {
-                    mimeType = Constants.MimeTypes.Hl7v3Xml;
-                }
-            }
-            else
-            {
-                mimeType = Constants.MimeTypes.Xml;
-            }
-        }
+            mimeType = Constants.MimeTypes.Xml;
 
         else if (IsJson(input))
             mimeType = Constants.MimeTypes.Json;

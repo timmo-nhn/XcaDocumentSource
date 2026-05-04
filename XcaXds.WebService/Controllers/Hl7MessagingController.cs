@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
+using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Models.Hl7.V2;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
+[RequiresApiKey]
 [Tags("HL7 Endpoints")]
 [ApiController]
 [Route("hl7")]

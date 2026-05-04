@@ -996,7 +996,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
-        var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
+        var registryContent = _registry.ReadRegistry();
+        var countFirst = await registryContent.CountAsync();
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
@@ -1007,8 +1008,8 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         iti42SoapRequestObject.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. registryObjects];
 
-        var itemsToUploadCount = iti42SoapRequestObject.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
-        var expectedCountAfterRds = RegistryItemCount + itemsToUploadCount;
+        var itemsToUploadCount = iti42SoapRequestObject.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Count();
+        var expectedCountAfterRds = countFirst + itemsToUploadCount;
 
         var iti42RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti42SoapRequestObject).Content);
         var firstResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti42RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
@@ -1016,8 +1017,9 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
-        var registryContent = _registry.ReadRegistry();
-        var registryCount = await registryContent.OfType<DocumentEntryDto>().CountAsync();
+        
+        registryContent = _registry.ReadRegistry();
+        var registryCount = await registryContent.CountAsync();
 
         // Cleanup
         await NukeRegistryRepository();

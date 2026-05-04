@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.Certificate;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Cryptography.X509Certificates;
-using XcaXds.Commons.Models.Custom;
+using XcaXds.WebService;
 
 
 namespace XcaXds.Tests;
@@ -20,35 +18,9 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
     {
         var builder = WebApplication.CreateBuilder();
 
-        builder.WebHost.UseKestrel();
-        builder.WebHost.ConfigureKestrel(options =>
-        {
-            options.ConfigureHttpsDefaults(httpsOptions =>
-            {
-                httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-            });
-        });
+        Program.ConfigureKestrelAuthenticationAuthorization(builder);
 
         builder.WebHost.UseUrls("https://127.0.0.1:0");
-
-        builder.Services
-            .AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
-            .AddCertificate(options =>
-            {
-                options.AllowedCertificateTypes = CertificateTypes.Chained;
-                options.ValidateCertificateUse = true;
-                options.ValidateValidityPeriod = true;
-                options.RevocationMode = X509RevocationMode.Online;
-                options.RevocationFlag = X509RevocationFlag.ExcludeRoot;
-
-                options.Events = new CertificateAuthenticationEvents
-                {
-                    OnCertificateValidated = async context =>
-                    {
-                        await CertificateValidator.ValidateCertificate(context);
-                    }
-                };
-            });
 
         builder.Services.AddAuthorization();
 

@@ -26,7 +26,7 @@ public static partial class CdaTransformer
             HomeCommunityId = homeCommunityId,
             LanguageCode = GetLanguageCodeFromClinicalDocument(clinicalDocument),
             LegalAuthenticator = GetLegalAuthenticatorFromClinicalDocument(clinicalDocument),
-            MimeType = Constants.MimeTypes.Hl7v3Xml,
+            MimeType = Constants.MimeTypes.XmlReadable,
             ObjectType = Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries,
             RepositoryUniqueId = GetRepositoryUniqueIdFromClinicalDocument(clinicalDocument) ?? repositoryUniqueId,
             ServiceStartTime = GetEffectiveTimeFromClinicalDocument(clinicalDocument),

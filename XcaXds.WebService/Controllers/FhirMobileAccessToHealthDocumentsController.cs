@@ -1,6 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.Json;
@@ -17,6 +18,7 @@ using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.AtnaAuditLogging;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -36,6 +38,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly AtnaLogGeneratorService _atnaLoggingService;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
     private readonly FhirResourceValidatorService _fhirValidator;
+    private readonly IVariantFeatureManager _featureManager;
 
 
     public FhirMobileAccessToHealthDocumentsController(
@@ -49,8 +52,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         AtnaLogGeneratorService atnaLoggingService,
         AtnaLogEnricherService atnaLogEnricherService,
         FhirService fhirService,
-        FhirResourceValidatorService fhirValidator
-        )
+        FhirResourceValidatorService fhirValidator,
+        IVariantFeatureManager featureManager)
     {
         _xdsRegistryService = xdsRegistryService;
         _logger = logger;
@@ -61,6 +64,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _restfulRegistryService = restfulRegistryService;
         _fhirService = fhirService;
         _fhirValidator = fhirValidator;
+        _featureManager = featureManager;
     }
 
     [Consumes("application/fhir+json")]
@@ -83,6 +87,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         [FromQuery(Name = "format")] string? format
         )
     {
+        if (!await _featureManager.IsEnabledAsync("Fhir_DocumentReference")) return NotFound();
+
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"Received request for action: ITI-67 from {Request.HttpContext.Connection.RemoteIpAddress}");
 
@@ -187,6 +193,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         [FromQuery] string documentUniqueId
         )
     {
+        if (!await _featureManager.IsEnabledAsync("Fhir_ReadDocument")) return NotFound();
+
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request for action: ITI-68 from {Request.HttpContext.Connection.RemoteIpAddress}");
 
@@ -221,8 +229,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpDelete("DocumentReference/{id}")]
-    public IActionResult DeleteDocument(string id)
+    public async Task<IActionResult> DeleteDocument(string id)
     {
+        if (!await _featureManager.IsEnabledAsync("Fhir_DeleteDocuments")) return NotFound();
+
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
 
@@ -268,6 +278,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpPost("Bundle")]
     public async Task<IActionResult> ProvideBundle([FromBody] JsonElement json)
     {
+        if (!await _featureManager.IsEnabledAsync("Fhir_ProvideBundle")) return NotFound();
+
         var requestTimer = Stopwatch.StartNew();
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: ITI-65 ProvideBundle from {Request.HttpContext.Connection.RemoteIpAddress}");
@@ -341,6 +353,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpPost("{resource}/$validate")]
     public async Task<IActionResult> ValidateResource([FromRoute] string? resource, [FromBody] JsonElement json)
     {
+        if (!await _featureManager.IsEnabledAsync("Fhir_ValidateResource")) return NotFound();
+
         var operationOutcome = new OperationOutcome();
 
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received $validate request for ResourceType {resource} from {Request.HttpContext.Connection.RemoteIpAddress}");
@@ -457,8 +471,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPatch("DocumentReference/{id}")]
-    public IActionResult PatchDocument(string id, [FromBody] JsonElement json)
+    public async Task<IActionResult> PatchDocument(string id, [FromBody] JsonElement json)
     {
+        if (!await _featureManager.IsEnabledAsync("Fhir_PatchBundle")) return NotFound();
+
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to patch DocumentReference.securityLabel for id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
         if (string.IsNullOrWhiteSpace(id))

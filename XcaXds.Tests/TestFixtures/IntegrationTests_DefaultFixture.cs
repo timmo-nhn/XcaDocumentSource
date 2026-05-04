@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Services;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 
@@ -25,6 +24,7 @@ namespace XcaXds.Tests;
 #pragma warning disable CS8602, CS8604 // Dereference of a possibly null reference.
 public class IntegrationTests_DefaultFixture
 {
+    internal readonly ApiKeyHolder _apiKeyHolder;
     internal readonly HttpClient _client;
     internal readonly RestfulRegistryRepositoryService _restfulRegistryService;
     internal readonly PolicyRepositoryService _policyRepositoryService;
@@ -105,6 +105,7 @@ public class IntegrationTests_DefaultFixture
         _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
         _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
         _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
+        _apiKeyHolder = customScope.ServiceProvider.GetRequiredService<ApiKeyHolder>();
     }
 
     internal async Task WaitForAtnaLogToBeExported()

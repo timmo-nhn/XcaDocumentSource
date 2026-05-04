@@ -166,9 +166,7 @@ public static class MultipartExtensions
 
                 var documentBytes = Array.Empty<byte>();
 
-
-
-                if (Base64.IsValid(documentResponse.Document.InnerText) && documentResponse.MimeType == Constants.MimeTypes.Hl7v3Xml)
+                if (Base64.IsValid(documentResponse.Document.InnerText) && documentResponse.MimeType == Constants.MimeTypes.XmlReadable)
                 {
                     var documentContent = Convert.FromBase64String(documentResponse.Document.InnerText);
                     documentBytes = new byte[documentContent.Length];

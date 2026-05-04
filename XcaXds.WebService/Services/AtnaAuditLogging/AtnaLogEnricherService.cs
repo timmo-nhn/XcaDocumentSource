@@ -11,7 +11,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.WebService.Services.AtnaAuditLogging;
 
 /// <summary>
 /// Convert requests and responses into formats which are compatible with the existing AtnaLogGeneratorService (SOAP-envelope request and response)

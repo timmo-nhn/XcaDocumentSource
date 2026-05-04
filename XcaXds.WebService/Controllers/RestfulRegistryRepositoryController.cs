@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
+using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -8,6 +9,7 @@ using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
 
+[RequiresApiKey]
 [Tags("RESTful Registry/Repository (CRUD)")]
 [ApiController]
 [Route("api/rest")]

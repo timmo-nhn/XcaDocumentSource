@@ -114,7 +114,7 @@ public static partial class BusinessLogicFilters
         Constants.MimeTypes.Tiff,
         Constants.MimeTypes.Gif,
         Constants.MimeTypes.Xml,
-        Constants.MimeTypes.Hl7v3Xml,
+        Constants.MimeTypes.XmlReadable,
         Constants.MimeTypes.Text,
         Constants.MimeTypes.Rtf,
         Constants.MimeTypes.TextRtf,
@@ -122,10 +122,10 @@ public static partial class BusinessLogicFilters
 
     public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimeType)
     {
-        // HAYO! If the Mime Type is Hl7v3Xml it can be a document wrapped in CDA, the magic byte check will say its CDA,
+        // HAYO! If the Mime Type is XmlReadable it can be a document wrapped in CDA, the magic byte check will say its CDA,
         // but the actual document inside will be the Mime Type from the DocumentEntry...
         // Maybe do something to detect it in the future?
-        if (mimeTypeFromMagicByte == Constants.MimeTypes.Hl7v3Xml)
+        if (mimeTypeFromMagicByte == Constants.MimeTypes.XmlReadable)
         {
             return true;
         }
