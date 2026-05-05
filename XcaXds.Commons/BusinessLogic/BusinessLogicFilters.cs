@@ -116,7 +116,6 @@ public static partial class BusinessLogicFilters
         Constants.MimeTypes.Xml,
         Constants.MimeTypes.XmlReadable,
         Constants.MimeTypes.Text,
-        Constants.MimeTypes.Rtf,
         Constants.MimeTypes.TextRtf,
     ];
 

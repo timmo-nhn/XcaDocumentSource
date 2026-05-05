@@ -35,7 +35,7 @@ public static class MimeTypeExtensions
 
         // RTF: Starts with "{\\rtf"
         else if (input?.Length > 4 && input[0] == 0x7B && input[1] == 0x5C && input[2] == 0x72 && input[3] == 0x74 && input[4] == 0x66)
-            mimeType = Constants.MimeTypes.Rtf;
+            mimeType = Constants.MimeTypes.TextRtf;
 
         // EXE: Starts with "0x4D 0x5A"
         else if (input?.Length > 4 && input[0] == 0x4D && input[1] == 0x5A)
