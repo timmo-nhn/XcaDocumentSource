@@ -41,8 +41,7 @@ internal class AtnaAuditLoggingMiddleware
             }
 
             await atnaLogBuilder.BuildAsync(httpContext, requestBody);
-            var responseString = await new StreamReader(responseBody).ReadToEndAsync();
-            _logger.LogDebug(responseString);
+
             responseBody.Seek(0, SeekOrigin.Begin);
         }
 

@@ -16,9 +16,6 @@ public partial class ExtrinsicObjectType : RegistryObjectType
         IsOpaque = false;
     }
 
-    [XmlElement(Namespace = Constants.Xds.Namespaces.Xdsb, DataType = "base64Binary")]
-    public byte[]? Document { get; set; }
-
     [XmlAttribute(AttributeName = "mimeType")]
     public string? MimeType { get; set; }
 
