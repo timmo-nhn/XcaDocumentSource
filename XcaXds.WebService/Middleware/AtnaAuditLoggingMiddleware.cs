@@ -34,14 +34,15 @@ internal class AtnaAuditLoggingMiddleware
 
         if (IsMiddlewareEnabledForRequestEndpoint(httpContext))
         {
-            _logger.LogInformation("ATNA Audit Logging is enabled for this endpoint. Logging request.");
+            _logger.LogInformation("ATNA Audit Logging is enabled for this endpoint.");
             if (httpContext.Request.Body.CanSeek)
             {
                 httpContext.Request.Body.Seek(0, SeekOrigin.Begin);
             }
 
             await atnaLogBuilder.BuildAsync(httpContext, requestBody);
-
+            var responseString = await new StreamReader(responseBody).ReadToEndAsync();
+            _logger.LogDebug(responseString);
             responseBody.Seek(0, SeekOrigin.Begin);
         }
 

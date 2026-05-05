@@ -83,7 +83,6 @@ public class SoapServiceStatisticsMiddleware
             requestEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(requestBody);
         }
 
-
         return requestEnvelope;
     }
 }
