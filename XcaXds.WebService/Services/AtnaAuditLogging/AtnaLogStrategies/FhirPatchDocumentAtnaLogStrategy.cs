@@ -7,10 +7,10 @@ using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
-public class FhirPatchDocumentStrategy : IAtnaLogStrategy
+public class FhirPatchDocumentAtnaLogStrategy : IAtnaLogStrategy
 {
     private readonly AtnaLogGeneratorService _atnaLogGeneratorService;
-    public FhirPatchDocumentStrategy(AtnaLogGeneratorService atnaLogGeneratorService)
+    public FhirPatchDocumentAtnaLogStrategy(AtnaLogGeneratorService atnaLogGeneratorService)
     {
         _atnaLogGeneratorService = atnaLogGeneratorService;
     }

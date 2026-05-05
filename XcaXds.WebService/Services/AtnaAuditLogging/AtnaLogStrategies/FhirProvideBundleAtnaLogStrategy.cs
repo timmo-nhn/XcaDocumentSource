@@ -9,18 +9,19 @@ using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
-public class FhirValidateResourceStrategy : IAtnaLogStrategy
+public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
 {
     private readonly AtnaLogGeneratorService _atnaLogGeneratorService;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
-    public FhirValidateResourceStrategy(AtnaLogGeneratorService atnaLogGeneratorService, AtnaLogEnricherService atnaLogEnricherService)
+    public FhirProvideBundleAtnaLogStrategy(AtnaLogGeneratorService atnaLogGeneratorService, AtnaLogEnricherService atnaLogEnricherService)
     {
         _atnaLogGeneratorService = atnaLogGeneratorService;
         _atnaLogEnricherService = atnaLogEnricherService;
     }
+
     public bool CanHandle(string path, string? contentType, string method)
     {
-        return path.StartsWith("R4/fhir/") && path.EndsWith("/$validate") && contentType.IsAnyOf(Constants.MimeTypes.FhirJson) && method == "POST";
+        return (path.StartsWith("/R4/fhir/") && path.EndsWith("/$validate")) == false && contentType.IsAnyOf(Constants.MimeTypes.FhirJson) && method == "POST";
     }
 
     public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)

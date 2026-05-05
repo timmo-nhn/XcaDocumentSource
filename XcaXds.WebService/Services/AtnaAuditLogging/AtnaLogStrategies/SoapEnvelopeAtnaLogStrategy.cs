@@ -6,10 +6,10 @@ using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
-public class SoapEnvelopeStrategy : IAtnaLogStrategy
+public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
 {
     private readonly AtnaLogGeneratorService _atnaLogGeneratorService;
-    public SoapEnvelopeStrategy(AtnaLogGeneratorService atnaLogGeneratorService)
+    public SoapEnvelopeAtnaLogStrategy(AtnaLogGeneratorService atnaLogGeneratorService)
     {
         _atnaLogGeneratorService = atnaLogGeneratorService;
     }

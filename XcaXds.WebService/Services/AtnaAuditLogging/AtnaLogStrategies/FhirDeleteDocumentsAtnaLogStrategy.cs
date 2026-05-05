@@ -10,12 +10,12 @@ using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
-public class FhirDeleteDocumentsStrategy : IAtnaLogStrategy
+public class FhirDeleteDocumentsAtnaLogStrategy : IAtnaLogStrategy
 {
-    private readonly ILogger<FhirDeleteDocumentsStrategy> _logger;
+    private readonly ILogger<FhirDeleteDocumentsAtnaLogStrategy> _logger;
     private readonly AtnaLogGeneratorService _atnaLogGeneratorService;
 
-    public FhirDeleteDocumentsStrategy(AtnaLogGeneratorService atnaLogGeneratorService, ILogger<FhirDeleteDocumentsStrategy> logger)
+    public FhirDeleteDocumentsAtnaLogStrategy(AtnaLogGeneratorService atnaLogGeneratorService, ILogger<FhirDeleteDocumentsAtnaLogStrategy> logger)
     {
         _atnaLogGeneratorService = atnaLogGeneratorService;
         _logger = logger;
