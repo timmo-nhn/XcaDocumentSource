@@ -96,12 +96,11 @@ public static partial class BusinessLogicFilters
     [
         new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
         new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
-        new("formatCodes")
+        new("formatCodes"),
+        new("FormatCodes"),
     ];
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedAttachments =
-    [
-    ];
+    public static readonly List<ComprehensiveCodeSystem> AllowedAttachments = [ ];
 
     public static readonly (string, string)[] CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
     public static readonly (string, string)[] HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
