@@ -20,7 +20,8 @@ public static class ConfigBinder
             ClamAvEndpoint = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__ClamavEndpoint").Value,
             HelseIdSigningCertUrl = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelseIdSigningCertUrl").Value,
             HelsenorgeSigningCertUrl = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelsenorgeSigningCertUrl").Value,
-            //HostName = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "HOSTNAME").Value,
+            HostName = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "HOSTNAME").Value,
+            //FriendlyName = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__HelsenorgeSigningCertUrl").Value,
             //IpAddress = xdsConfigEnvVars.FirstOrDefault(f => f.Key.EndsWith("HOSTNAME")).Value
         };
     }

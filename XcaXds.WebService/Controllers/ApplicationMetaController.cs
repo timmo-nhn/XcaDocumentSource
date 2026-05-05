@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics;
 using System.Text.Json;
+using XcaInteropService.Commons.Models.Custom;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -18,7 +19,7 @@ namespace XcaXds.WebService.Controllers;
 public class ApplicationMetaController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
-    private readonly ApplicationConfig _xdsConfig;
+    private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly HealthCheckService _healthCheckService;
@@ -40,7 +41,7 @@ public class ApplicationMetaController : ControllerBase
         )
     {
         _logger = logger;
-        _xdsConfig = xdsConfig;
+        _appConfig = xdsConfig;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _healthCheckService = healthCheckService;
@@ -124,12 +125,31 @@ public class ApplicationMetaController : ControllerBase
         return Ok(new { documentEntries, submissionSets, associations });
     }
 
+    [Produces("application/json")]
+    [HttpGet("about/domain-config")]
+    public async Task<IActionResult> GetDomainConfig()
+    {
+        var config = new DomainConfig()
+        {
+            Enabled = true,
+            Async = false,
+            FriendlyName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
+            HomeCommunityId = _appConfig.HomeCommunityId,
+            PatientResolverType = XcaInteropService.Commons.Enums.PatientResolverType.IDENTITY,
+            Return = XcaInteropService.Commons.Enums.DomainReturn.DocumentList,
+            PatientAssigningAuthority = Constants.Oid.Fnr,
+            QueryUrl = "XCA/services/RespondingGatewayService",
+        };
+
+        return Ok(config);
+    }
+
 
     [Produces("application/json")]
     [HttpGet("about/config")]
     public async Task<IActionResult> GetXdsConfig()
     {
-        return Ok(_xdsConfig);
+        return Ok(_appConfig);
     }
 
 
@@ -139,7 +159,7 @@ public class ApplicationMetaController : ControllerBase
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(resourceJson.GetRawText());
         if (jsonTestData == null) return BadRequest("No content provided");
 
-        var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_xdsConfig.HomeCommunityId, _xdsConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
+        var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_appConfig.HomeCommunityId, _appConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
 
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos().ToList());
 

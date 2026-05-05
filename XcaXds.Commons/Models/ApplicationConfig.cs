@@ -18,4 +18,5 @@ public class ApplicationConfig
     public string ClamAvEndpoint { get; set; } = string.Empty;
     public string HelseIdSigningCertUrl { get; set;  } = string.Empty; 
     public string HelsenorgeSigningCertUrl {  get; set; } = string.Empty;
+    public string FriendlyName { get; set; }
 }
