@@ -168,7 +168,10 @@ public class ApplicationMetaController : ControllerBase
         if (jsonTestData == null) return BadRequest("No content provided");
 
         var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_appConfig.HomeCommunityId, _appConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
-
+        
+        _logger.LogInformation("Generated {count} registry objects", generatedRegistryObjects.Count());
+        _logger.LogInformation("Updating registry with generated objects...");
+        
         _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos().ToList());
 
         return Ok("Metadata generated");

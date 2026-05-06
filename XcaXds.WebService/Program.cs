@@ -276,13 +276,6 @@ public class Program
     public static void ConfigureKestrelAuthenticationAuthorization(WebApplicationBuilder builder)
     {
         builder.WebHost.UseKestrel();
-        builder.WebHost.ConfigureKestrel(options =>
-        {
-            options.ConfigureHttpsDefaults(httpsOptions =>
-            {
-                httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-            });
-        });
 
         builder.Services
             .AddAuthentication("ApiKey")

@@ -71,7 +71,7 @@ public class PolicyEnforcementPointMiddleware
 
         var requestUrl = httpContext.Request.GetDisplayUrl();
         var requestMethod = httpContext.Request.Method;
-        _logger.LogInformation($"{requestMethod} Request to endpoint: {requestUrl}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - {requestMethod} Request to endpoint: {requestUrl}");
 
         if (!IsPolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
         {
@@ -83,10 +83,10 @@ public class PolicyEnforcementPointMiddleware
 
         using var activity = StartPepActivity(httpContext);
 
-        _logger.LogInformation($"Beginning policy input builder...");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Beginning policy input builder...");
         var policyInput = await policyInputBuilder.BuildAsync(httpContext, _xdsConfig);
 
-        _logger.LogInformation($"Policy input builder complete. Success: {policyInput.IsSuccess}, Message: {policyInput.ErrorMessage}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy input builder complete. Success: {policyInput.IsSuccess}, Message: {policyInput.ErrorMessage}");
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {
