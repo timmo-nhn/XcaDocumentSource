@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using XcaInteropService.Commons.Models.Custom;
 using XcaXds.Commons.Commons;
@@ -138,12 +140,18 @@ public class ApplicationMetaController : ControllerBase
             PatientResolverType = XcaInteropService.Commons.Enums.PatientResolverType.IDENTITY,
             Return = XcaInteropService.Commons.Enums.DomainReturn.DocumentList,
             PatientAssigningAuthority = Constants.Oid.Fnr,
-            QueryUrl = "XCA/services/RespondingGatewayService",
+            QueryUrl = GetFullQueryUrl(),
         };
 
         return Ok(config);
     }
 
+    private string GetFullQueryUrl()
+    {
+        
+        var url = Request.GetDisplayUrl().Split(Request.Path.Value).FirstOrDefault();
+        return url + "/XCA/services/RespondingGatewayService";
+    }
 
     [Produces("application/json")]
     [HttpGet("about/config")]
