@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using Microsoft.IdentityModel.Tokens.Saml2;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Commons.Models.Custom.Statistics;
 
@@ -25,4 +26,6 @@ public class UserAccessEntry
     public long ElapsedTimeMillis { get; set; }
     public int ResponseStatusCode { get; set; }
     public string? DocumentSourceOid { get; set; }
+    public string? SessionId { get; internal set; }
+    public string? Issuer { get; internal set; }
 }

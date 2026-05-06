@@ -24,6 +24,8 @@ public static class StatisticsTransformer
 
         var userAccessEntry = new UserAccessEntry
         {
+            SessionId = soapEnvelope.Header?.MessageId,
+            Issuer = samlToken?.Assertion.Issuer.Value,
             SubjectIdHash = GetSamlAttributeAsHashedString(statements, Constants.Saml.Attribute.ProviderIdentifier),
             ResourceIdHash = GetSamlAttributeAsHashedString(statements, Constants.Saml.Attribute.ResourceId10, Constants.Saml.Attribute.ResourceId20),
 
@@ -32,7 +34,7 @@ public static class StatisticsTransformer
 
             SubjectChildOrganization = GetSamlAttributeAsCodedValue(statements, Constants.Saml.Attribute.ChildOrganization),
             SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
-            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp),
+            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? Constants.Oid.Saml.Acp.NullValue,
 
             DocumentSourceOid = GetDocumentSourceOidFromSoapEnvelope(soapEnvelope),
 
@@ -53,7 +55,7 @@ public static class StatisticsTransformer
 
     private static string? GetSamlAttributeAsString(List<Saml2Attribute>? statements, params string[] attributeNames)
     {
-        return GetSamlAttributeAsCodedValue(statements, attributeNames)?.Code ?? Constants.Oid.Saml.Acp.NullValue;
+        return GetSamlAttributeAsCodedValue(statements, attributeNames)?.Code;
     }
 
     private static CodedValue? GetSamlAttributeAsCodedValue(List<Saml2Attribute>? statements, params string[] attributeNames)
