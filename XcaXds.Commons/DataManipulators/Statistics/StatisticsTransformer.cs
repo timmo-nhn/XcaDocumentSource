@@ -11,7 +11,7 @@ namespace XcaXds.Commons.DataManipulators.Statistics;
 
 public static class StatisticsTransformer
 {
-    public static UserAccessEntry TransformToUserAccessEntry(SoapEnvelopeAndFields inputFields)
+    public static UserAccessEntry TransformToUserAccessEntry(SoapEnvelopeAndFields inputFields, ApplicationConfig appConfig)
     {
         var soapEnvelope = inputFields.SoapEnvelope;
 
@@ -37,7 +37,8 @@ public static class StatisticsTransformer
             AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? Constants.Oid.Saml.Acp.NullValue,
 
             DocumentSourceOid = GetDocumentSourceOidFromSoapEnvelope(soapEnvelope),
-
+            ConfidentialityCodes = inputFields.ConfidentialityCodes,
+            HostName = appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
             Endpoint = inputFields.Path,
             Action = soapEnvelope.Header?.Action,
             ResponseStatusCode = inputFields.StatusCode,

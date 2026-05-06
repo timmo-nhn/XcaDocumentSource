@@ -11,17 +11,19 @@ namespace XcaXds.WebService.Services;
 public class StatisticsProcessorService : BackgroundService
 {
     private readonly ILogger<StatisticsProcessorService> _logger;
+    private readonly ApplicationConfig _appConfig;
 
-    public StatisticsProcessorService(ILogger<StatisticsProcessorService> logger)
+    public StatisticsProcessorService(ILogger<StatisticsProcessorService> logger, ApplicationConfig appConfig)
     {
         _logger = logger;
+        _appConfig = appConfig;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await foreach (var soapEnvelopeAndFields in SoapServiceStatisticsMiddleware.RawStatisticsOutputChannel.Reader.ReadAllAsync(CancellationToken.None))
         {
-            var userAccessEntry = StatisticsTransformer.TransformToUserAccessEntry(soapEnvelopeAndFields);
+            var userAccessEntry = StatisticsTransformer.TransformToUserAccessEntry(soapEnvelopeAndFields, _appConfig);
 
             ExportStatistics(userAccessEntry);
         }

@@ -2,9 +2,11 @@
 using System.Threading.Channels;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
+using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Middleware;
 
@@ -12,12 +14,14 @@ public class SoapServiceStatisticsMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<SoapServiceStatisticsMiddleware> _logger;
+    private readonly RegistryWrapper _registryWrapper;
     public static Channel<SoapEnvelopeAndFields> RawStatisticsOutputChannel = Channel.CreateUnbounded<SoapEnvelopeAndFields>();
 
-    public SoapServiceStatisticsMiddleware(RequestDelegate next, ILogger<SoapServiceStatisticsMiddleware> logger)
+    public SoapServiceStatisticsMiddleware(RequestDelegate next, ILogger<SoapServiceStatisticsMiddleware> logger, RegistryWrapper registryWrapper)
     {
         _next = next;
         _logger = logger;
+        _registryWrapper = registryWrapper;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -49,6 +53,8 @@ public class SoapServiceStatisticsMiddleware
         var method = context.Request.Method;
         var statusCode = context.Response.StatusCode;
 
+        var confidentialityCode = GetConfidentialityCodeFromRetrievedDocument(soapEnvelope);
+
         var soapEnvelopeAndFields = new SoapEnvelopeAndFields
         {
             AccessTime = DateTime.UtcNow,
@@ -56,10 +62,24 @@ public class SoapServiceStatisticsMiddleware
             ElapsedMilliseconds = elapsedMs,
             Path = path,
             Method = method,
-            StatusCode = statusCode
+            StatusCode = statusCode,
+            ConfidentialityCodes = GetConfidentialityCodeFromRetrievedDocument(soapEnvelope)
         };
 
         RawStatisticsOutputChannel.Writer.TryWrite(soapEnvelopeAndFields);
+    }
+
+    private CodedValue[]? GetConfidentialityCodeFromRetrievedDocument(SoapEnvelope soapEnvelope)
+    {
+        var documentRequest = soapEnvelope.Body.RetrieveDocumentSetRequest?.DocumentRequest?.FirstOrDefault();
+
+        if (documentRequest == null)
+        {
+            return null;
+        }
+
+        var registryObject = _registryWrapper.GetSingleRegistryObjectAsDto(documentRequest.DocumentUniqueId);
+        return (registryObject as DocumentEntryDto)?.ConfidentialityCode?.ToArray();
     }
 
     private async Task<SoapEnvelope?> RequestHasSoapEnvelope(HttpContext context, string? requestBody)

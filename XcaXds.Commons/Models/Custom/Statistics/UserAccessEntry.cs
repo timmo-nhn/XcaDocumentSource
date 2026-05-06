@@ -28,4 +28,6 @@ public class UserAccessEntry
     public string? DocumentSourceOid { get; set; }
     public string? SessionId { get; internal set; }
     public string? Issuer { get; internal set; }
+    public CodedValue[]? ConfidentialityCodes { get; set; }
+    public string? HostName { get; internal set; }
 }
