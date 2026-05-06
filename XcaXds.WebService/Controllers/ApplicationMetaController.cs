@@ -148,8 +148,8 @@ public class ApplicationMetaController : ControllerBase
 
     private string GetFullQueryUrl()
     {
-        
         var url = Request.GetDisplayUrl().Split(Request.Path.Value).FirstOrDefault();
+        _logger.LogInformation("Base URL for query endpoint: {url}", url);
         return url + "/XCA/services/RespondingGatewayService";
     }
 
