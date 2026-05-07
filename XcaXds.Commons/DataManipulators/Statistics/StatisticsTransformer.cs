@@ -36,9 +36,11 @@ public static class StatisticsTransformer
             SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
             AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? Constants.Oid.Saml.Acp.NullValue,
 
-            DocumentSourceOid = GetDocumentSourceOidFromSoapEnvelope(soapEnvelope),
-            ConfidentialityCodes = inputFields.ConfidentialityCodes,
-            HostName = appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
+            SourceHomeCommunityId = appConfig.HomeCommunityId,
+            SourceRepositoryUniqueId = appConfig.RepositoryUniqueId,
+            SourceHostName = appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
+
+            DocumentConfidentialityCodes = inputFields.ConfidentialityCodes,
             Endpoint = inputFields.Path,
             Action = soapEnvelope.Header?.Action,
             ResponseStatusCode = inputFields.StatusCode,
