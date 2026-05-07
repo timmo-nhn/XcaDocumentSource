@@ -91,12 +91,15 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Patient ID missing", "ExtrinsicObject");
             }
 
-            var scanResult = await _fileScanner.ScanFile(assocDocument?.Value ?? []);
-
-            if (scanResult?.Result != ClamScanResults.Clean)
+            if (_xdsConfig.ClamAvEnabled)
             {
-                var errorMessage = scanResult?.Result == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult.RawResult}" : "Error while scanning for virus";
-                registryResponse.AddError(XdsErrorCodes.XDSRegistryError, errorMessage, "ExtrinsicObject");
+                var scanResult = await _fileScanner.ScanFile(assocDocument?.Value ?? []);
+
+                if (scanResult?.Result != ClamScanResults.Clean)
+                {
+                    var errorMessage = scanResult?.Result == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult.RawResult}" : "Error while scanning for virus";
+                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError, errorMessage, "ExtrinsicObject");
+                }
             }
 
             var patientIdPart = Hl7Object.Parse<CX>(patientId)?.IdNumber;

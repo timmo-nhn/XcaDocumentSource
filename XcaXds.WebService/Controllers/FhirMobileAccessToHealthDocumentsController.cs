@@ -225,7 +225,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return fileResponse;
     }
 
-    [ExportsAtnaAuditLog]
+	[RequiresApiKey]
+	[ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpDelete("DocumentReference/{id}")]
@@ -271,7 +272,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return OkOperationOutcome.Create(operationOutcome);
     }
 
-    [ExportsAtnaAuditLog]
+	[RequiresApiKey]
+	[ExportsAtnaAuditLog]
     //[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
@@ -467,7 +469,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return responseBundle;
     }
 
-    [ExportsAtnaAuditLog]
+	[RequiresApiKey]
+	[ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPatch("DocumentReference/{id}")]
