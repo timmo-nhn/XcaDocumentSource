@@ -8,7 +8,6 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services;
 
@@ -40,7 +39,7 @@ public class PolicyRequestMapperSamlService
 
     public XacmlContextRequest? GetXacmlRequest(SoapEnvelope soapEnvelope, Saml2SecurityToken? samlToken)
     {
-        var action = MapXacmlActionFromSoapEnvelope(soapEnvelope);
+        var action = XacmlExtensions.MapXacmlActionFromSoapEnvelope(soapEnvelope);
         var appliesTo = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
 
         var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
@@ -82,7 +81,7 @@ public class PolicyRequestMapperSamlService
 
         // Subject
         var appliesToAttribute = MapAppliesToToXacml20Properties(appliesTo);
-        
+
         var subjectAttributes = samlAttributes
             .Where(sa => sa.AttributeValues.All(av => !string.IsNullOrWhiteSpace(av.Value)) &&
                         (sa.AttributeId.OriginalString.Contains("subject") ||
@@ -395,38 +394,5 @@ public class PolicyRequestMapperSamlService
         }
 
         return assertion[0]?.OuterXml;
-    }
-
-    public static string MapXacmlActionFromSoapEnvelope(SoapEnvelope soapEnvelope)
-    {
-        switch (soapEnvelope?.Header.Action)
-        {
-            case Constants.Xds.OperationContract.Iti18Action:
-            case Constants.Xds.OperationContract.Iti38Action:
-                return Constants.Xacml.Actions.ReadDocumentList;
-
-            case Constants.Xds.OperationContract.Iti43Action:
-            case Constants.Xds.OperationContract.Iti39Action:
-                return Constants.Xacml.Actions.ReadDocuments;
-
-            case Constants.Xds.OperationContract.Iti41Action:
-            case Constants.Xds.OperationContract.Iti42Action:
-                return GetCreateOrUpdateFromRequest(soapEnvelope);
-
-            case Constants.Xds.OperationContract.Iti62Action:
-            case Constants.Xds.OperationContract.Iti86Action:
-                return Constants.Xacml.Actions.Delete;
-
-            default:
-                return Constants.Xacml.Actions.Unknown;
-        }
-    }
-
-    private static string GetCreateOrUpdateFromRequest(SoapEnvelope soapEnvelope)
-    {
-        var registryObjects = soapEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
-
-        var isReplaceUpdate = registryObjects?.OfType<AssociationType>().Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation) == true) ?? false;
-        return isReplaceUpdate ? Constants.Xacml.Actions.Update : Constants.Xacml.Actions.Create;
     }
 }

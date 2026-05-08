@@ -13,8 +13,11 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Services;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
+using XcaXds.WebService;
+using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
+using XcaXds.WebService.Services.Statistics;
 using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 
@@ -73,15 +76,14 @@ public class IntegrationTests_DefaultFixture
                 //services.AddSingleton<IPolicyRepository>(new InMemoryPolicyRepository());
                 //services.AddSingleton<IRegistry>(new InMemoryRegistry());
 
-                services.RemoveAll<AtnaLogExporterService>();
                 services.RemoveAll<IHostedService>();
-                services.RemoveAll<IClamAvFileScanner>();
-
-                services.AddSingleton<IClamAvFileScanner, FakeClamAvFileScanner>();
-                services.AddSingleton<AtnaLogExportedChecker>();
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
                 services.AddHostedService<IntegrationTestCleanupService>();
+                services.AddHostedService<MockStatisticsProcessorService>();
 
+                services.RemoveAll<IClamAvFileScanner>();
+                services.AddSingleton<IClamAvFileScanner, FakeClamAvFileScanner>();
+                services.AddSingleton<AtnaLogExportedChecker>();
                 builder.Configure(app =>
                 {
                     app.UseRouting();
@@ -110,14 +112,15 @@ public class IntegrationTests_DefaultFixture
 
     internal async Task WaitForAtnaLogToBeExported()
     {
-        // Audit is generated via background service; allow a brief window for the queue to be drained.
-        var timeoutAt = DateTime.UtcNow.AddSeconds(4);
-        while (!_atnaLogExportedChecker.AtnaLogExported && DateTime.UtcNow < timeoutAt)
+        // Audit log is generated via background service; allow a brief window for the queue to be processed.
+        var timeoutAt = DateTime.UtcNow.AddSeconds(10);
+        while ((!_atnaLogExportedChecker.AtnaLogExported && string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson)) && DateTime.UtcNow < timeoutAt)
         {
             await Task.Delay(50);
         }
 
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
+        Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
     }
 
     internal async Task<List<DocumentReferenceDto>> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)

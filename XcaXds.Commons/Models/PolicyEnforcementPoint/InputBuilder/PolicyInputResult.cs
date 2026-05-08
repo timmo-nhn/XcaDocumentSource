@@ -1,8 +1,7 @@
 ﻿using Abc.Xacml.Context;
-using XcaXds.Commons.Commons;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
+using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 
-namespace XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
+namespace XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
 
 public class PolicyInputResult
 {

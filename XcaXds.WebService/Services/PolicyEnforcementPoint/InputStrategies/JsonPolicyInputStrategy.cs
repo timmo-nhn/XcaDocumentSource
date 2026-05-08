@@ -1,6 +1,7 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Helpers;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
+using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
+using XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
 

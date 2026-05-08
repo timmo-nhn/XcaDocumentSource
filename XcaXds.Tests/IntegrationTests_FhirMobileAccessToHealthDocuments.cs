@@ -9,7 +9,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
-using XcaXds.WebService.Controllers;
+using XcaXds.WebService.Services.Statistics;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
@@ -69,7 +69,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
         var firstResponse = await _client.SendAsync(httpRequest);
-        
+
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
         var currentRegistry = _registry.ReadRegistry();
@@ -84,7 +84,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
 
     [Fact]
@@ -149,7 +149,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("DeleteDocumentsAndMetadata: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
 
     [Fact]
@@ -173,8 +173,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_patchdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,            
-			action: "Update",
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "Update",
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
@@ -217,7 +217,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         await WaitForAtnaLogToBeExported();
-        _output.WriteLine("PatchDocumentSecurityLabel_ExportsAtnaLog: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("PatchDocumentSecurityLabel_ExportsAtnaLog: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
 
     [Fact]
@@ -233,8 +233,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             _policyRepositoryService,
             policyName: "DEFAULT_machine_patchdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
-            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,            
-			action: "Update",
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "Update",
             noCode: true);
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
@@ -275,7 +275,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         await NukeRegistryRepository();
 
         await WaitForAtnaLogToBeExported();
-        _output.WriteLine("PatchDocumentSecurityLabel_ExportsAtnaLog: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("PatchDocumentSecurityLabel_ExportsAtnaLog: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
 
     [Fact]
@@ -334,7 +334,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.NotEmpty(operationOutcome.Issue);
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
 
     [Fact]
@@ -399,10 +399,10 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var expectedCount = RegistryContent.Count + 1;
 
         var firstResponse = await _client.SendAsync(httpRequest);
-        
-        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
         var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
         var documentFromProvideBundle = _repository.Read(provideBundleDocumentUniqueId);
@@ -417,10 +417,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
-
-
 
     [Fact]
     [Trait("Upload", "Provide Bundle (virus) (Isolated Access Control)")]
@@ -481,7 +479,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
 
     [Fact]
@@ -540,7 +538,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.NotEmpty(operationOutcome.Issue);
 
         await WaitForAtnaLogToBeExported();
-        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString);
+        _output.WriteLine("ProvideBundle_RandomAmount: ATNA log exported: " + _atnaLogExportedChecker.AtnaMessageString + "\nUser Access Entry: " + MockStatisticsProcessorService.UserAccessEntryJson);
     }
 }
 #pragma warning restore CS8604, CS8602 // Possible null reference argument.

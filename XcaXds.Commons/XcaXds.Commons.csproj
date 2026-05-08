@@ -15,6 +15,8 @@
 	<PackageReference Include="Hl7.Fhir.R4" Version="6.1.1" />
 	<PackageReference Include="Hl7.Fhir.Specification.Data.R4" Version="6.1.1" />
 	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+	<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+	<PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.3.9" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.3.9" />
 	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
 	<PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.17.0" />

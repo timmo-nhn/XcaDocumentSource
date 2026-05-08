@@ -90,6 +90,7 @@ public static class SamlTrustFrameworkClaimsMapper
         samlClaimValues.SecurityLevel = claims.GetValueOrDefault(Constants.JwtSaml.SecurityLevelClaimType);
         samlClaimValues.ClientId = claims.GetValueOrDefault("client_id");
         samlClaimValues.OrgnrParent = claims.GetValueOrDefault("helseid://claims/client/claims/orgnr_parent");
+        samlClaimValues.ChildOrganization = claims.GetValueOrDefault("helseid://claims/client/claims/orgnr_child");
         samlClaimValues.ClientName = claims.GetValueOrDefault("helseid://claims/client/client_name");
         samlClaimValues.Pid = claims.GetValueOrDefault("helseid://claims/identity/pid");
         samlClaimValues.HprNumber = claims.GetValueOrDefault("helseid://claims/hpr/hpr_number");

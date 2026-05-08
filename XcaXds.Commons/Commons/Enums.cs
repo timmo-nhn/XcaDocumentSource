@@ -1,6 +1,13 @@
 using System.Text.Json.Serialization;
 
 namespace XcaXds.Commons.Commons;
+public enum RequestAndFieldRequestType
+{
+    SoapEnvelope,
+    FhirProvideBundle,
+    FhirUrlBasedRequest,
+    Unknown
+}
 
 public enum AttributeCompareRule
 {

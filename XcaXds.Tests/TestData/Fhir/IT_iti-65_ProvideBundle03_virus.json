@@ -294,7 +294,7 @@
                   "valueUri": "urn:oid:2.16.578.1.12.4.5.100.1.1"
                 }
               ],
-              "contentType": "application/hl7-v3+xml",
+              "contentType": "text/xml",
               "url": "urn:uuid:02d87f4f-db20-463b-b5dd-b0b2e8ab3d42",
               "size": 80601,
               "hash": "F5dDeNy9RIgzduXMgbxLo13cLk4=",

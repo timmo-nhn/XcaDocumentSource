@@ -1,6 +1,7 @@
-﻿using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
+﻿using Microsoft.AspNetCore.Http;
+using XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
 
-namespace XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
+namespace XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 
 public interface IPolicyInputStrategy
 {

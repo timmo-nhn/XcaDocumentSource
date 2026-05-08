@@ -15,6 +15,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Tests.Helpers;
+using XcaXds.WebService.Services.Statistics;
 using Xunit.Abstractions;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
 using Task = System.Threading.Tasks.Task;
@@ -77,8 +78,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Fetched {count} entries");
-
+        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -244,7 +244,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
 
@@ -308,7 +308,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
 
@@ -370,7 +370,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
 
@@ -488,7 +488,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
 
@@ -604,7 +604,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -679,7 +679,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {generatedDeletedEntries.generatedEntries.Count} entries.\nDeleted: {generatedDeletedEntries.deletedEntries.Count}\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {generatedDeletedEntries.generatedEntries.Count} entries.\nDeleted: {generatedDeletedEntries.deletedEntries.Count}\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -737,7 +737,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -796,7 +796,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -873,7 +873,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
 
         await WaitForAtnaLogToBeExported();
 
-        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -971,7 +971,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Registry count before test run: {countFirst}\nUpdated: {itemsToUploadCount} entries.\nRegistry count: {actualRegistryCountAfterPnR}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUpdated: {itemsToUploadCount} entries.\nRegistry count: {actualRegistryCountAfterPnR}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -1032,7 +1032,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
 
-        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
     [Fact]
@@ -1171,7 +1171,7 @@ public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : Integratio
         Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
-        _output.WriteLine($"Registry count before test run: {countFirst}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {registryCount}");
+        _output.WriteLine($"Registry count before test run: {countFirst}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
 

@@ -447,11 +447,12 @@ public static class Constants
 
     public static class Hl7
     {
-        public static class Profile
+        public static class StructureDefinition
         {
             public const string MinimalProvideBundle = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Minimal.ProvideBundle";
             public const string UncontainedComprehensiveProvideBundle = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle";
             public const string ComprehensiveProvideBundle = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.ProvideBundle";
+            public const string IheHomeCommunityId = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
         }
 
         public static class Dtm

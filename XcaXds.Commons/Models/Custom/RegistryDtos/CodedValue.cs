@@ -15,6 +15,13 @@ public class CodedValue
         CodeSystem = codeSystem;
     }
 
+    public CodedValue(string? code, string? codeSystem, string? displayName)
+    {
+        Code = code;
+        CodeSystem = codeSystem;
+        DisplayName = displayName;
+    }
+
     [MaxLength(Constants.Properties.MaxStringLength)]
     public string? Code { get; set; }
     [MaxLength(Constants.Properties.MaxStringLength)]

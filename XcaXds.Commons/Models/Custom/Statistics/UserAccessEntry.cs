@@ -24,10 +24,11 @@ public class UserAccessEntry
     public string? AccessBasis { get; set; }
     public long ElapsedTimeMillis { get; set; }
     public int ResponseStatusCode { get; set; }
-    public string? SessionId { get; internal set; }
-    public string? Issuer { get; internal set; }
+    public string? SessionId { get; set; }
+    public string? Issuer { get; set; }
     public CodedValue[]? DocumentConfidentialityCodes { get; set; }
-    public string? SourceHostName { get; internal set; }
-    public string? SourceHomeCommunityId { get; internal set; }
-    public string? SourceRepositoryUniqueId { get; internal set; }
+    public string? SourceHostName { get; set; }
+    public string? SourceHomeCommunityId { get; set; }
+    public string? SourceRepositoryUniqueId { get; set; }
+    public string[]? Issues { get; set; }
 }

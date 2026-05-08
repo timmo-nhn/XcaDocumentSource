@@ -26,6 +26,7 @@ namespace XcaXds.WebService.Controllers;
 [Route("R4/fhir")]
 [Tags("FHIR Endpoints")]
 [UsePolicyEnforcementPoint]
+[ExportsStatistics]
 public class FhirMobileAccessToHealthDocumentsController : Controller
 {
     private readonly ILogger<FhirMobileAccessToHealthDocumentsController> _logger;

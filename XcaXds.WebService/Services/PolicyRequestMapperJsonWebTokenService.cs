@@ -17,7 +17,7 @@ public class PolicyRequestMapperJsonWebTokenService
 {
     public XacmlContextRequest? GetXacml20RequestFromJsonWebToken(JwtSecurityToken jwtToken, Resource? fhirBundle, string urlPath, string path)
     {
-		var (action, scopeToUse) = MapXacmlActionAndScopeToUseFromUrlPath(urlPath, path);
+		var (action, scopeToUse) = XacmlExtensions.MapXacmlActionAndScopeToUseFromUrlPath(urlPath, path);
 
 		// The scopeToUse is used to pick a specific scope (based on the endpoint path) for the JWT to SAML transformation. 
 		// This is because the XACML validation does not work if we add multiple attribute values to the Scope attribute, or add multiple Scope attributes
@@ -69,34 +69,5 @@ public class PolicyRequestMapperJsonWebTokenService
         var contextRequest = new XacmlContextRequest(xacmlResource, xacmlAction, xacmlSubject, xacmlEnvironment);
 
         return contextRequest;
-    }
-
-    private static (string action, string? scopeToUse) MapXacmlActionAndScopeToUseFromUrlPath(string? urlPath, string method)
-    {
-        if (urlPath?.Equals("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return (Constants.Xacml.Actions.Create, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
-
-        if (urlPath?.StartsWith("/R4/fhir/Bundle", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
-            return (Constants.Xacml.Actions.Update, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
-
-        if (urlPath?.Equals("/R4/fhir/mhd/document", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return (Constants.Xacml.Actions.ReadDocuments, null);
-
-        if (urlPath?.Equals("/R4/fhir/DocumentReference/_search", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return (Constants.Xacml.Actions.ReadDocumentList, null);
-
-        if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "GET")
-            return (Constants.Xacml.Actions.ReadDocumentList, null);
-
-        if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "PATCH")
-            return (Constants.Xacml.Actions.Update, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
-
-        if (urlPath?.StartsWith("/R4/fhir/DocumentReference", StringComparison.InvariantCultureIgnoreCase) == true && method == "DELETE")
-            return (Constants.Xacml.Actions.Delete, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument);
-
-        if (urlPath?.StartsWith("/R4/fhir/", StringComparison.InvariantCultureIgnoreCase) == true && urlPath?.EndsWith("$validate", StringComparison.InvariantCultureIgnoreCase) == true && method == "POST")
-            return (Constants.Xacml.Actions.Execute, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments);
-
-        return (Constants.Xacml.Actions.Create, null);
     }
 }

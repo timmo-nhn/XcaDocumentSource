@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace XcaXds.Commons.Helpers;
 
 public static class JwtExtractor
 {
-    public static JwtSecurityToken? ExtractJwt(IHeaderDictionary headers, out bool success)
+    public static JwtSecurityToken? ExtractJwt(string? jwtToken, out bool success)
     {
         var handler = new JwtSecurityTokenHandler();
-
-        var jwtToken = headers["Authorization"].FirstOrDefault();
         var canRead = handler.CanReadToken(jwtToken);
 
         if (canRead == false)
@@ -20,5 +19,12 @@ public static class JwtExtractor
 
         success = true;
         return handler.ReadJwtToken(jwtToken);
+    }
+
+    public static JwtSecurityToken? ExtractJwt(IHeaderDictionary headers, out bool success)
+    {
+        var jwtToken = headers["Authorization"].FirstOrDefault();
+     
+        return ExtractJwt(jwtToken, out success);
     }
 }

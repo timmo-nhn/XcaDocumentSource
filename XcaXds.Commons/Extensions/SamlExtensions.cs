@@ -118,10 +118,12 @@ public class SamlExtensions
             codeSystem ??= hl7ObjectValue.AssigningAuthority.UniversalId;
         }
 
+        codeSystem = codeSystem?.Replace("&ISO", "").Replace("&amp;ISO", "").Replace("&amp;amp;ISO", "");
+
         return new()
         {
             Code = code,
-            CodeSystem = codeSystem?.Replace("&ISO", "").Replace("&amp;ISO", "").Replace("&amp;amp;ISO",""),
+            CodeSystem = string.IsNullOrWhiteSpace(codeSystem) ? null : codeSystem,
             DisplayName = displayName
         };
     }

@@ -3,47 +3,19 @@ using Hl7.Fhir.Support;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using static XcaXds.Commons.Commons.Constants;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
 /// <summary>
 /// Transforms between FHIR resources (specifically DocumentReference and related resources) and 
 /// XDS registry objects (ExtrinsicObject, RegistryPackage, Association) 
-/// For now it supports only one-directional transformation (FHIR -> XDS)
+/// For now it mainly supports only one-directional transformation (FHIR -> XDS)
 /// </summary>
 public static class FhirToXdsTransformer
 {
-    public static List<RegistryObjectDto> TransformFhirResourceToRegistryObjectDto(Bundle.EntryComponent bundleEntry)
-    {
-        var fhirDocumentReference = (DocumentReference?)bundleEntry.Resource;
-
-        var registryObjectList = new List<RegistryObjectDto>();
-
-        var documentEntry = new DocumentEntryDto();
-
-        documentEntry.Id = bundleEntry.Resource?.Id ?? Guid.NewGuid().ToString();
-        documentEntry.Author = GetDocumentEntryAuthorsFromFhirDocumentReference(fhirDocumentReference);
-
-        var submissionSet = new SubmissionSetDto();
-
-
-        return registryObjectList;
-    }
-
-    private static List<AuthorInfo>? GetDocumentEntryAuthorsFromFhirDocumentReference(DocumentReference? documentReference)
-    {
-        if (documentReference == null) return null;
-
-        var author = new List<AuthorInfo>();
-
-        return author;
-    }
-
     public static ServiceResultDto<ProvideAndRegisterDocumentSetRequestType> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, Identifier? patientIdentifier, string? GpiOid, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
@@ -500,7 +472,7 @@ public static class FhirToXdsTransformer
         }
     }
 
-    private static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Identifier? patientId, string? GpiOid, Binary? fhirBinary)
+    public static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Identifier? patientId, string? GpiOid, Binary? fhirBinary)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -1249,7 +1221,7 @@ public static class FhirToXdsTransformer
         }
 
         /* XDSDocumentEntry.EventCodes */
-        var eventCodeList = documentReference.Context?.Event.ToCodings(); //?
+        var eventCodeList = documentReference.Context?.Event.ToCodings();
 
         if (eventCodeList != null)
         {
@@ -1883,16 +1855,16 @@ public static class FhirToXdsTransformer
             var associationType = rel.Code.Value switch
             {
                 DocumentRelationshipType.Replaces =>
-                    Xds.AssociationType.Replace,
+                    Constants.Xds.AssociationType.Replace,
 
                 DocumentRelationshipType.Transforms =>
-                    Xds.AssociationType.Transformation,
+                    Constants.Xds.AssociationType.Transformation,
 
                 DocumentRelationshipType.Appends =>
-                    Xds.AssociationType.Addendum,
+                    Constants.Xds.AssociationType.Addendum,
 
                 DocumentRelationshipType.Signs =>
-                    Xds.AssociationType.DigitalSignature,
+                    Constants.Xds.AssociationType.DigitalSignature,
 
                 //DocumentRelationshipType.IsSnapshotOf =>
                 //	Xds.Constants.Xds.AssociationType.SnapshotOfOnDemandDocumentEntry,
@@ -1904,7 +1876,7 @@ public static class FhirToXdsTransformer
             result.Add(new AssociationType
             {
                 Id = Guid.NewGuid().ToString(),
-                ObjectType = Xds.ObjectTypes.Association,
+                ObjectType = Constants.Xds.ObjectTypes.Association,
                 AssociationTypeData = associationType,
                 SourceObject = sourceExtrinsicId,
                 TargetObject = targetExtrinsicId

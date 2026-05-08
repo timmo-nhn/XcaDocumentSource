@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 using NHN.OpenTelemetryExtensions;
@@ -9,7 +8,11 @@ using System.Text.Json.Serialization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
+using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.Statistics;
+using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.AuthenticationHandler;
@@ -24,6 +27,7 @@ using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
+using XcaXds.WebService.Services.Statistics;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
@@ -101,9 +105,9 @@ public class Program
 
     private static void RegisterHostedServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddHostedService<AtnaLogExporterService>();
-        builder.Services.AddHostedService<AppStartupService>();
-        builder.Services.AddHostedService<StatisticsProcessorService>();
+       builder.Services.AddHostedService<AtnaLogExporterService>();
+       builder.Services.AddHostedService<AppStartupService>();
+       builder.Services.AddHostedService<StatisticsProcessorService>();
     }
 
     private static void DebuggingBeforeAppLaunch(WebApplicationBuilder builder)
@@ -147,7 +151,7 @@ public class Program
     private static void RegisterMiddlewareForApplication(WebApplication app)
     {
         app.UseMiddleware<SessionIdTraceMiddleware>();
-        app.UseMiddleware<SoapServiceStatisticsMiddleware>();
+        app.UseMiddleware<RequestStatisticsMiddleware>();
 
         // Middleware below will only enabled for endpoints with attributes
         app.UseMiddleware<PolicyEnforcementPointMiddleware>();
@@ -156,11 +160,13 @@ public class Program
 
     private static void RegisterDependencyInjectionServices(WebApplicationBuilder builder)
     {
+        // Scoped services
         builder.Services.AddScoped<XdsRegistryService>();
         builder.Services.AddScoped<XdsRepositoryService>();
         builder.Services.AddScoped<Hl7RegistryService>();
         builder.Services.AddScoped<AtnaLogGeneratorService>();
 
+        // Policy input builder and strategies
         builder.Services.AddScoped<PolicyEvaluator>();
         builder.Services.AddScoped<PolicyInputBuilder>();
         builder.Services.AddScoped<IPolicyInputStrategy, FhirJsonPolicyInputStrategy>();
@@ -168,39 +174,49 @@ public class Program
         builder.Services.AddScoped<IPolicyInputStrategy, JsonPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy, GenericPolicyInputStrategy>();
 
+        // Policy deny response builder and strategies
         builder.Services.AddScoped<PolicyDenyResponseBuilder>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, SoapDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
         builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
 
+        // Atna log builder and strategies
         builder.Services.AddScoped<AtnaLogBuilder>();
         builder.Services.AddScoped<IAtnaLogStrategy, SoapEnvelopeAtnaLogStrategy>();
         builder.Services.AddScoped<IAtnaLogStrategy, FhirPatchDocumentAtnaLogStrategy>();
         builder.Services.AddScoped<IAtnaLogStrategy, FhirDeleteDocumentsAtnaLogStrategy>();
         builder.Services.AddScoped<IAtnaLogStrategy, FhirProvideBundleAtnaLogStrategy>();
 
+        // Singleton services
         builder.Services.AddSingleton<AtnaLogEnricherService>();
         builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
         builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
-        builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
+        builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
+        builder.Services.AddSingleton<RepositoryWrapper>();
+        builder.Services.AddSingleton<RegistryWrapper>();
 
+        // Validation and certificate services
         builder.Services.AddSingleton<Saml2Validator>();
         builder.Services.AddSingleton<SigningCertificateService>();
 
+        // "Meta" and status related services
         builder.Services.AddSingleton<ApplicationMetaService>();
         builder.Services.AddSingleton<MonitoringStatusService>();
 
+        // "Meta" and status related services
+        builder.Services.AddSingleton<StatisticsTransformerService>();
         builder.Services.AddSingleton<XdsSubmitObjectsValidator>();
-        builder.Services.AddSingleton<RegistryWrapper>();
-        builder.Services.AddSingleton<RepositoryWrapper>();
         builder.Services.AddSingleton<RequestThrottlingService>();
         builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<IClamAvFileScanner, ClamAvFileScanner>();
+
+        // Queues
         builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
+        builder.Services.AddSingleton<IStatisticsQueue, StatisticsQueue>();
 
         // Custom REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();

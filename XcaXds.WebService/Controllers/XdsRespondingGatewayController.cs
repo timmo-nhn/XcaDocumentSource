@@ -17,6 +17,7 @@ namespace XcaXds.WebService.Controllers;
 [Tags("SOAP Endpoints (IHE XDS/XCA)")]
 [ApiController]
 [Route("XCA/services")]
+[ExportsStatistics]
 public class XdsRespondingGatewayController : ControllerBase
 {
     private readonly ILogger<XdsRespondingGatewayController> _logger;
