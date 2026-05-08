@@ -1,4 +1,6 @@
-﻿using XcaXds.Commons.Interfaces.Statistics;
+﻿using System.Text.Json;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.Statistics;
 
 namespace XcaXds.WebService.Services.Statistics;
@@ -40,8 +42,7 @@ public class StatisticsProcessorService : BackgroundService
     }
     private void ExportStatistics(UserAccessEntry userAccessEntry)
     {
-        _logger.LogInformation("User Access Entry");
-        _logger.LogInformation("{@UserAccessEntry}", userAccessEntry);
+        var jsonAccessEntry = JsonSerializer.Serialize(userAccessEntry, Constants.JsonDefaultOptions.DefaultSettings);
+        _logger.LogInformation("User Access Entry:\n" + jsonAccessEntry);
     }
-
 }
