@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using System.Diagnostics;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
-using System.Text.Json;
+using Microsoft.FeatureManagement;
+using XcaInteropService.Commons.Enums;
 using XcaInteropService.Commons.Models.Custom;
+using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -28,6 +30,7 @@ public class ApplicationMetaController : ControllerBase
     private readonly MonitoringStatusService _monitoringService;
     private readonly RequestThrottlingService _requestThrottlingService;
     private readonly ApplicationMetaService _applicationMetaService;
+    private readonly IVariantFeatureManager _featureManager;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
 
@@ -39,8 +42,9 @@ public class ApplicationMetaController : ControllerBase
         HealthCheckService healthCheckService,
         MonitoringStatusService monitoringService,
         RequestThrottlingService requestThrottlingService,
-        ApplicationMetaService applicationMetaService
-        )
+        ApplicationMetaService applicationMetaService,
+        IVariantFeatureManager featureManager
+    )
     {
         _logger = logger;
         _appConfig = xdsConfig;
@@ -50,6 +54,7 @@ public class ApplicationMetaController : ControllerBase
         _monitoringService = monitoringService;
         _requestThrottlingService = requestThrottlingService;
         _applicationMetaService = applicationMetaService;
+        _featureManager = featureManager;
     }
 
     [HttpGet("health-check")]
@@ -88,9 +93,12 @@ public class ApplicationMetaController : ControllerBase
         return Content(healthCheckJson);
     }
 
+    [RequiresApiKey]
     [HttpGet("set-get-throttle-time")]
-    public IActionResult SetOrGetThrottleTime(int? throttleTimeMillis = null, int? throttleDurationSeconds = 0)
+    public async Task<IActionResult> SetOrGetThrottleTime(int? throttleTimeMillis = null, int? throttleDurationSeconds = 0)
     {
+        if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
+
         var response = new RestfulApiResponse();
 
         if (throttleTimeMillis == null)
@@ -137,8 +145,8 @@ public class ApplicationMetaController : ControllerBase
             Async = false,
             FriendlyName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
             HomeCommunityId = _appConfig.HomeCommunityId,
-            PatientResolverType = XcaInteropService.Commons.Enums.PatientResolverType.IDENTITY,
-            Return = XcaInteropService.Commons.Enums.DomainReturn.DocumentList,
+            PatientResolverType = PatientResolverType.IDENTITY,
+            Return = DomainReturn.DocumentList,
             PatientAssigningAuthority = Constants.Oid.Fnr,
             QueryUrl = GetFullQueryUrl(),
         };
@@ -148,7 +156,7 @@ public class ApplicationMetaController : ControllerBase
 
     private string GetFullQueryUrl()
     {
-        var url = Request.GetDisplayUrl().Split(Request.Path.Value).FirstOrDefault()?.Replace("http://","https://");
+        var url = Request.GetDisplayUrl().Split(Request.Path.Value).FirstOrDefault()?.Replace("http://", "https://");
         _logger.LogInformation("Base URL for query endpoint: {url}", url);
         return url + "/XCA/services/RespondingGatewayService";
     }
@@ -160,43 +168,58 @@ public class ApplicationMetaController : ControllerBase
         return Ok(_appConfig);
     }
 
-
+    [RequiresApiKey]
     [HttpPost("generate-test-data")]
-    public async Task<IActionResult> GenerateTestData([FromBody] JsonElement resourceJson, [FromQuery] int entriesToGenerate, [FromQuery] string? patientIdentifier)
+    public async Task<IActionResult> GenerateTestData([FromBody] JsonElement resourceJson,
+        [FromQuery] int entriesToGenerate, [FromQuery] string? patientIdentifier)
     {
+        if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
+
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(resourceJson.GetRawText());
         if (jsonTestData == null) return BadRequest("No content provided");
 
-        var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_appConfig.HomeCommunityId, _appConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
-        
+        var generatedRegistryObjects = RegistryMetadataGenerator.GenerateRandomizedTestData(_appConfig.HomeCommunityId,
+            _appConfig.RepositoryUniqueId, jsonTestData, entriesToGenerate, patientIdentifier);
+
         _logger.LogInformation("Generated {count} registry objects", generatedRegistryObjects.Count());
         _logger.LogInformation("Updating registry with generated objects...");
-        
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos().ToList());
+
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos()
+            .ToList());
 
         return Ok("Metadata generated");
     }
 
+    [RequiresApiKey]
     [HttpGet("debug-patient-identifiers")]
     public async Task<IActionResult> PatientIdentifiers()
     {
-        var patientIdentifiers = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Select(de => de.SourcePatientInfo).DistinctBy(pid => new { pid?.PatientId?.Id, pid?.PatientId?.System }).ToList();
+        if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
+
+        var patientIdentifiers = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>()
+            .Select(de => de.SourcePatientInfo).DistinctBy(pid => new { pid?.PatientId?.Id, pid?.PatientId?.System })
+            .ToList();
         return Ok(patientIdentifiers);
     }
 
-
+    [RequiresApiKey]
     [Tags("_Purge registry and repository! ⚠️")]
     [HttpGet("get-nuke-key")]
     public async Task<IActionResult> GetNukeKey()
     {
+        if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
+
         var dateTime = _applicationMetaService.GetNukeKeyForRegistryRepository();
         return Ok(new { nukeKey = dateTime, superSecret = true });
     }
 
+    [RequiresApiKey]
     [Tags("_Purge registry and repository! ⚠️")]
     [HttpDelete("nuke")]
     public async Task<IActionResult> NukeRegistryRepository(string nukeKey)
     {
+        if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
+
         var apiResponse = _applicationMetaService.NukeRegistryRepository(nukeKey);
         return Ok(apiResponse);
     }
@@ -212,7 +235,8 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("business-logic")]
     public async Task<IActionResult> GetBusinessLogicRules(bool plainText)
     {
-        return Ok(plainText ? BusinessRulesDescriptor.BusinessRulesPlainText : BusinessRulesDescriptor.BusinessRulesJson);
+        return Ok(
+            plainText ? BusinessRulesDescriptor.BusinessRulesPlainText : BusinessRulesDescriptor.BusinessRulesJson);
     }
 
     [Produces("text/plain")]

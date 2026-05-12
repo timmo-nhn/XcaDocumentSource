@@ -34,7 +34,8 @@ namespace XcaXds.WebService;
 
 public class Program
 {
-    private static readonly bool RunningInContainer = bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? bool.FalseString);
+    private static readonly bool RunningInContainer =
+        bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? bool.FalseString);
 
     public static void Main(string[] args)
     {
@@ -59,6 +60,8 @@ public class Program
         AddModelValidationHandling(builder);
 
         RegisterDependencyInjectionServices(builder);
+
+        AddDatabaseConfiguration(builder);
 
         RegisterHostedServices(builder);
 
@@ -103,11 +106,18 @@ public class Program
         app.Run();
     }
 
+    private static void AddDatabaseConfiguration(WebApplicationBuilder builder)
+    {
+        builder.Services.AddDbContextFactory<SqliteRegistryDbContext>(options =>
+            options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\"",
+                sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+    }
+
     private static void RegisterHostedServices(WebApplicationBuilder builder)
     {
-       builder.Services.AddHostedService<AtnaLogExporterService>();
-       builder.Services.AddHostedService<AppStartupService>();
-       builder.Services.AddHostedService<StatisticsProcessorService>();
+        builder.Services.AddHostedService<AtnaLogExporterService>();
+        builder.Services.AddHostedService<AppStartupService>();
+        builder.Services.AddHostedService<StatisticsProcessorService>();
     }
 
     private static void DebuggingBeforeAppLaunch(WebApplicationBuilder builder)
@@ -129,23 +139,20 @@ public class Program
     {
         builder.Services.Configure<ApiBehaviorOptions>(options =>
         {
-            options.InvalidModelStateResponseFactory = actionContext =>
-            {
-                return ErrorResponseFactory.CreateErrorResponse(actionContext);
-            };
+            options.InvalidModelStateResponseFactory = ErrorResponseFactory.CreateErrorResponse;
         });
     }
 
     private static void AddControllersAndModelBindings(WebApplicationBuilder builder)
     {
         builder.Services.AddControllers(options =>
-        {
-            options.ModelBinderProviders.Insert(0, new DocumentEntryDtoModelBinderProvider());
-            options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
-            options.InputFormatters.Insert(0, new Hl7InputFormatter());
-        })
-        .AddXmlSerializerFormatters()
-        .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+            {
+                options.ModelBinderProviders.Insert(0, new DocumentEntryDtoModelBinderProvider());
+                options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
+                options.InputFormatters.Insert(0, new Hl7InputFormatter());
+            })
+            .AddXmlSerializerFormatters()
+            .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     }
 
     private static void RegisterMiddlewareForApplication(WebApplication app)
@@ -228,11 +235,6 @@ public class Program
         // Health check
         builder.Services.AddHealthChecks();
 
-        // Database context
-        builder.Services.AddDbContextFactory<SqliteRegistryDbContext>(options =>
-            options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\"",
-            sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
-
         var xdsConfig = new ApplicationConfig();
         var apiKey = new ApiKeyHolder();
 
@@ -279,10 +281,7 @@ public class Program
             }
             else
             {
-                logging.AddSimpleConsole(options =>
-                {
-                    options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
-                });
+                logging.AddSimpleConsole(options => { options.TimestampFormat = "yyyy-MM-dd HH:mm:ss "; });
             }
         });
 

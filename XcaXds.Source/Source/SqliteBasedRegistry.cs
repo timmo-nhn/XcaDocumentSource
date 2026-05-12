@@ -18,7 +18,8 @@ public class SqliteBasedRegistry : IRegistry
     private readonly string _connectionString;
     private readonly string _databaseFile;
 
-    public SqliteBasedRegistry(ILogger<SqliteBasedRegistry> logger, IDbContextFactory<SqliteRegistryDbContext> contextFactory)
+    public SqliteBasedRegistry(ILogger<SqliteBasedRegistry> logger,
+        IDbContextFactory<SqliteRegistryDbContext> contextFactory)
     {
         _logger = logger;
         _contextFactory = contextFactory;
@@ -40,19 +41,14 @@ public class SqliteBasedRegistry : IRegistry
         return _databaseFile;
     }
 
+
     public async IAsyncEnumerable<RegistryObjectDto> ReadRegistry()
     {
-        await using var db = _contextFactory.CreateDbContext();
+        var db = await _contextFactory.CreateDbContextAsync();
 
-        await foreach (var entity in db.RegistryObjects
-            .AsNoTracking()
-            .AsAsyncEnumerable())
+        await foreach (var entity in db.RegistryObjects.AsNoTracking().AsAsyncEnumerable())
         {
-            var dto = DatabaseMapper.MapFromDatabaseEntityToDto(entity);
-            if (dto != null)
-            {
-                yield return dto;
-            }
+            yield return DatabaseMapper.MapFromDatabaseEntityToDto(entity);
         }
     }
 
@@ -83,13 +79,16 @@ public class SqliteBasedRegistry : IRegistry
         {
             using var db = _contextFactory.CreateDbContext();
 
-            var singleItem = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
+            var singleItem = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ??
+                             db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
 
             if (singleItem != null)
             {
-                var association = db.Associations.AsNoTracking().FirstOrDefault(ro => ro.AS_TargetObjectId == singleItem.Id);
+                var association = db.Associations.AsNoTracking()
+                    .FirstOrDefault(ro => ro.AS_TargetObjectId == singleItem.Id);
 
-                var submissionSet = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == (association ?? new()).AS_SourceObjectId);
+                var submissionSet = db.RegistryObjects.AsNoTracking()
+                    .FirstOrDefault(ro => ro.Id == (association ?? new()).AS_SourceObjectId);
 
                 var resultList = new[] { singleItem, association, submissionSet }.OfType<DbRegistryObject>();
 
@@ -111,7 +110,8 @@ public class SqliteBasedRegistry : IRegistry
         {
             using var db = _contextFactory.CreateDbContext();
 
-            var entity = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ?? db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
+            var entity = db.RegistryObjects.AsNoTracking().FirstOrDefault(ro => ro.Id == identifier) ??
+                         db.DocumentEntries.AsNoTracking().FirstOrDefault(ro => ro.DE_UniqueId == identifier);
 
             if (entity != null)
             {
@@ -147,7 +147,8 @@ public class SqliteBasedRegistry : IRegistry
 
             // Perf knobs
             db.ChangeTracker.AutoDetectChangesEnabled = false;
-            db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking; // mostly for queries, harmless here
+            db.ChangeTracker.QueryTrackingBehavior =
+                QueryTrackingBehavior.NoTracking; // mostly for queries, harmless here
 
             using var transaction = db.Database.BeginTransaction();
 
@@ -195,7 +196,8 @@ public class SqliteBasedRegistry : IRegistry
         return true;
     }
 
-    private void DeleteThenInsert<TEntity>(DbContext db, DbSet<TEntity> existingDbSet, List<TEntity> toUpload) where TEntity : DbRegistryObject
+    private void DeleteThenInsert<TEntity>(DbContext db, DbSet<TEntity> existingDbSet, List<TEntity> toUpload)
+        where TEntity : DbRegistryObject
     {
         if (toUpload.Count == 0) return;
 
@@ -215,7 +217,8 @@ public class SqliteBasedRegistry : IRegistry
 
         if (existing.Count > 0)
         {
-            _logger.LogWarning($"Replace: Trying to delete existing {existing.GetType().Name}, count = {existing.Count}");
+            _logger.LogWarning(
+                $"Replace: Trying to delete existing {existing.GetType().Name}, count = {existing.Count}");
 
             existingDbSet.RemoveRange(existing);
             db.SaveChanges();
@@ -238,9 +241,9 @@ public class SqliteBasedRegistry : IRegistry
         catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
         {
             _logger.LogError(ex,
-            "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
-            sqlEx.SqliteErrorCode,
-            sqlEx.SqliteExtendedErrorCode);
+                "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
+                sqlEx.SqliteErrorCode,
+                sqlEx.SqliteExtendedErrorCode);
             throw;
         }
 
@@ -269,9 +272,9 @@ public class SqliteBasedRegistry : IRegistry
             catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
             {
                 _logger.LogError(ex,
-                "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
-                sqlEx.SqliteErrorCode,
-                sqlEx.SqliteExtendedErrorCode);
+                    "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
+                    sqlEx.SqliteErrorCode,
+                    sqlEx.SqliteExtendedErrorCode);
                 throw;
             }
         });

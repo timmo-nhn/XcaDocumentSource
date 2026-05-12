@@ -302,7 +302,7 @@ public static class PolicyDtoTransformer
             PolicySetId = new Uri($"urn:uuid:{policySetDto.SetId}", UriKind.Absolute)
         };
 
-        if (policySetDto.Policies?.Count > 0) return xacmlPolicySet;
+        if (!(policySetDto.Policies?.Count > 0)) return xacmlPolicySet;
         
         foreach (var policyDto in policySetDto.Policies ?? [])
         {

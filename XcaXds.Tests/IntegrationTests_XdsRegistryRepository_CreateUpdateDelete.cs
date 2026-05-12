@@ -24,7 +24,7 @@ namespace XcaXds.Tests;
 
 #pragma warning disable CS8604, CS8601, CS8602 // Possible null reference argument.
 
-public partial class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
+public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     public IntegrationTests_XcaXdsRegistryRepository_CRUD(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output) { }
 

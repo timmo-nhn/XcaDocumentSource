@@ -51,7 +51,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
-        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
@@ -106,7 +106,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_deletedocuments",
+            policyName: "IT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument,
             action: "Delete",
@@ -116,7 +116,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var testDataFiles = Directory.GetFiles(testDataPath);
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
-        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
@@ -307,7 +307,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
-        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
@@ -374,7 +374,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
-        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
@@ -449,7 +449,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
-        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
@@ -511,7 +511,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
-        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "JWt"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 

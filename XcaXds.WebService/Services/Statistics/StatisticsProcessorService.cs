@@ -30,7 +30,7 @@ public class StatisticsProcessorService : BackgroundService
             {
                 _logger.LogInformation("Received statistics item");
 
-                var userAccessEntry = _statisticsTransformerService.TransformToUserAccessEntry(requestAndFields);
+                var userAccessEntry = await _statisticsTransformerService.TransformToUserAccessEntry(requestAndFields);
                 ExportStatistics(userAccessEntry);
             }
         }

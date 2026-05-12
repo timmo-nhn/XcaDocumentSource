@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using System.Globalization;
+using Hl7.Fhir.Serialization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -8,6 +9,19 @@ namespace XcaXds.Commons.Extensions;
 
 public static class Hl7FhirExtensions
 {
+    public static Resource? GetResourceFromStream(Stream? requestBody)
+    {
+        var fhirparser = new FhirJsonDeserializer();
+        
+
+        if (requestBody == null) return null;
+        
+        using var reader = new StreamReader(requestBody, leaveOpen: true);
+        var json = reader.ReadToEnd();
+
+        return fhirparser.TryDeserializeResource(json, out var instance, out _) ? instance : null;
+    }
+
     public static DateRange GetDateTimeRangeFromDateParameters(string timingAndDate)
     {
         timingAndDate = timingAndDate.Replace("%3A", ":");

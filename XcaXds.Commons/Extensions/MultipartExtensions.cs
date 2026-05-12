@@ -59,59 +59,58 @@ public static class MultipartExtensions
         return sb.ToString();
     }
 
-
-
-    public static string GetMultipartBoundary(string? boundary)
+    private static string GetMultipartBoundary(string? boundary)
     {
         boundary = HeaderUtilities.RemoveQuotes(boundary).Value;
         if (string.IsNullOrEmpty(boundary))
         {
             throw new InvalidDataException("Missing content-type boundary.");
         }
+
         return boundary.ToString();
     }
 
-
-    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(string contentTypeHeader, string messageString)
+    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(string contentTypeHeader, Stream stream)
     {
-        SoapEnvelope? soapMultipartMessage = new();
-
-        if (!MediaTypeHeaderValue.TryParse(contentTypeHeader, out MediaTypeHeaderValue? mediaTypeHeaderValue) ||
+        if (MediaTypeHeaderValue.TryParse(contentTypeHeader, out var mediaTypeHeaderValue) ||
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
-            using var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(messageString);
-            writer.Flush();
-            stream.Position = 0;
-
             var multipartReader = new MultipartReader(mediaTypeHeaderValue.Boundary.Value?.Trim('"'), stream);
 
             var structuredSoapEnvelopeMultiparts = await GetSoapEnvelopeMultipartSections(multipartReader);
 
-            foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body.RetrieveDocumentSetResponse?.DocumentResponse ?? [])
+            foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body
+                         .RetrieveDocumentSetResponse?.DocumentResponse ?? [])
             {
                 var xopInclude = documentResponse.GetXmlDocumentAsXopInclude();
-                documentResponse.SetInlineDocument(structuredSoapEnvelopeMultiparts.MultiPartSections.FirstOrDefault(section => section.ContentId == xopInclude.href)?.Section ?? []);
+                documentResponse.SetInlineDocument(structuredSoapEnvelopeMultiparts.MultiPartSections
+                    .FirstOrDefault(section => section.ContentId == xopInclude.href)?.Section ?? []);
             }
-
-            soapMultipartMessage = structuredSoapEnvelopeMultiparts.SoapEnvelope;
+            return structuredSoapEnvelopeMultiparts.SoapEnvelope;
         }
+        return null;
+    }
 
-        return soapMultipartMessage;
+    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(string contentTypeHeader, string messageString)
+    {
+        var bytes = Encoding.UTF8.GetBytes(messageString);
+        using var stream = new MemoryStream(bytes);
+
+        return await ReadMultipartSoapMessage(contentTypeHeader, stream);
     }
 
 
-    private static async Task<SoapEnvelopeMultipartResponse> GetSoapEnvelopeMultipartSections(MultipartReader multipartReader)
+    private static async Task<SoapEnvelopeMultipartResponse> GetSoapEnvelopeMultipartSections(
+        MultipartReader multipartReader)
     {
-        var envelope = new SoapEnvelope();
         var sxmls = new SoapXmlSerializer();
 
         var soapEnvelopeMultipart = new SoapEnvelopeMultipartResponse();
 
         while (await multipartReader.ReadNextSectionAsync() is { } section)
         {
-            var contentId = $"cid:{section.Headers.GetValueOrDefault("Content-ID").ToString().TrimStart('<').TrimEnd('>')}";
+            var contentId =
+                $"cid:{section.Headers.GetValueOrDefault("Content-ID").ToString().TrimStart('<').TrimEnd('>')}";
 
             byte[] content;
 
@@ -136,7 +135,8 @@ public static class MultipartExtensions
     }
 
 
-    public static MultipartContent ConvertRetrieveDocumentSetRequestToMultipartRequest(SoapEnvelope soapEnvelope, out string boundary)
+    public static MultipartContent ConvertRetrieveDocumentSetRequestToMultipartRequest(SoapEnvelope soapEnvelope,
+        out string boundary)
     {
         boundary = $"MIMEBoundary_{Guid.NewGuid().ToString().Replace("-", "")}";
         var multipart = new MultipartContent("related", boundary);
@@ -152,7 +152,8 @@ public static class MultipartExtensions
     }
 
 
-    public static MultipartContent ConvertRetrieveDocumentSetResponseToMultipartResponse(SoapEnvelope soapEnvelope, out string boundary)
+    public static MultipartContent ConvertRetrieveDocumentSetResponseToMultipartResponse(SoapEnvelope soapEnvelope,
+        out string boundary)
     {
         var documentResponses = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
 
@@ -179,8 +180,8 @@ public static class MultipartExtensions
                 }
 
                 documentResponse.MimeType = string.IsNullOrWhiteSpace(documentResponse.MimeType)
-                    ? MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(documentBytes, out var mimeType) 
-                        ? mimeType 
+                    ? MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(documentBytes, out var mimeType)
+                        ? mimeType
                         : documentResponse.MimeType
                     : documentResponse.MimeType;
 
@@ -213,7 +214,9 @@ public static class MultipartExtensions
         foreach (var docContent in documentContents)
             multipart.Add(docContent);
 
-        multipart.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated, Encoding.UTF8.BodyName);
+        multipart.Headers.ContentType =
+            new System.Net.Http.Headers.MediaTypeHeaderValue(Constants.MimeTypes.MultipartRelated,
+                Encoding.UTF8.BodyName);
 
         return multipart;
     }
@@ -227,11 +230,12 @@ public static class MultipartExtensions
         if (string.IsNullOrWhiteSpace(soapString.Content)) return null;
 
         var stringContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.XopXml);
-        stringContent.Headers.Add("Content-ID", [$"<{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com>"]);
-        stringContent.Headers.ContentType?.Parameters.Add(new System.Net.Http.Headers.NameValueHeaderValue("type", $"\"{Constants.MimeTypes.SoapXml}\""));
+        stringContent.Headers.Add("Content-ID",
+            [$"<{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com>"]);
+        stringContent.Headers.ContentType?.Parameters.Add(
+            new System.Net.Http.Headers.NameValueHeaderValue("type", $"\"{Constants.MimeTypes.SoapXml}\""));
         stringContent.Headers.Add("Content-Transfer-Encoding", "binary");
 
         return stringContent;
     }
 }
-
