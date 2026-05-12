@@ -16,6 +16,7 @@ using XcaXds.Commons.Serializers;
 
 namespace XcaXds.WebService.Services.Statistics;
 
+
 public class StatisticsTransformerService
 {
     private readonly ILogger<StatisticsTransformerService> _logger;
