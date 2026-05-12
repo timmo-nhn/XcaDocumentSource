@@ -585,7 +585,8 @@ public class AtnaLogGeneratorService
         var docRequest = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest;
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
-
+        var soapAction = requestEnvelope?.Header.Action;
+        
         var xdsDocEntry = (DocumentEntryDto?)RegistryMetadataTransformer
             .TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
         var xdsSubmissionSet = (SubmissionSetDto?)RegistryMetadataTransformer
@@ -596,6 +597,14 @@ public class AtnaLogGeneratorService
             auditEvent.Entity.Add(new AuditEvent.EntityComponent
             {
                 What = new ResourceReference(adhocQueryType, "adhocQueryType")
+            });
+        }
+
+        if (!string.IsNullOrWhiteSpace(soapAction))
+        {
+            auditEvent.Entity.Add(new AuditEvent.EntityComponent
+            {
+                What = new ResourceReference(soapAction, "soapAction")
             });
         }
 
@@ -878,16 +887,14 @@ public class AtnaLogGeneratorService
         {
             var docEntryUniqueId = retrieveDocumentRequest.DocumentRequest;
 
-            if (docEntryUniqueId?.Length < 0)
-            {
-                var ids = new HashSet<string>(docEntryUniqueId.Select(x => x.DocumentUniqueId ?? string.Empty));
+            if (!(docEntryUniqueId?.Length > 0)) return [];
+            
+            var ids = new HashSet<string>(docEntryUniqueId.Select(x => x.DocumentUniqueId).OfType<string>());
 
-                var registryObjects = ids.Select(_registryWrapper.GetSingleRegistryObjectAsDto)
-                    .OfType<RegistryObjectDto>().ToArray();
-
-
-                return PatientIdPidFromDocumentEntries(registryObjects) ?? [];
-            }
+            var registryObjects = ids.Select(_registryWrapper.GetSingleRegistryObjectAsDto)
+                .OfType<RegistryObjectDto>().ToArray();
+            
+            return PatientIdPidFromDocumentEntries(registryObjects) ?? [];
         }
 
         return [];
@@ -912,12 +919,12 @@ public class AtnaLogGeneratorService
 
                 if (!string.IsNullOrWhiteSpace(pid.FirstName) || !string.IsNullOrWhiteSpace(pid.LastName))
                 {
-                    patientId.PatientName = new(pid.FirstName, pid.LastName);
+                    patientId.PatientName = new XPN(pid.FirstName, pid.LastName);
                 }
 
                 if (!string.IsNullOrWhiteSpace(pid.PatientId?.Id) || !string.IsNullOrWhiteSpace(pid.PatientId?.System))
                 {
-                    patientId.PatientIdentifier = new(pid.PatientId?.Id, pid.PatientId?.System);
+                    patientId.PatientIdentifier = new CX(pid.PatientId?.Id, pid.PatientId?.System);
                 }
 
                 pids.Add(patientId);

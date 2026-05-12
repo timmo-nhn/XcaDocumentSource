@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
@@ -41,7 +40,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly ITestOutputHelper _output;
     internal readonly ApplicationMetaService _applicationMetaService;
     internal readonly IServiceScope _scope;
-    
+
     public Uri BaseAddress { get; private set; } = default!;
 
     internal List<DocumentReferenceDto> RegistryContent { get; set; } = new();
@@ -194,6 +193,6 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
 
         var file = File.ReadAllText(allFiles.FirstOrDefault(f => f.Contains(v))!);
         return file;
-    }	
+    }
 }
 #pragma warning restore CS8602, CS8604 // Dereference of a possibly null reference.

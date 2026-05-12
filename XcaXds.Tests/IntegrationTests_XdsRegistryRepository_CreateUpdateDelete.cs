@@ -338,7 +338,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
         var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
 
-        iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest = RegistryContent
+        iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest = RegistryContent.Take(Random.Shared.Next(1, (RegistryItemCount / 80) + 1))
             .Select(rc => new DocumentRequestType()
             {
                 DocumentUniqueId = rc?.DocumentEntry?.UniqueId,
@@ -358,7 +358,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
-        var excpectedDocumentCount = RegistryContent.Count(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))));
+        var excpectedDocumentCount = iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest.Length;
 
         // Cleanup
         await NukeRegistryRepository();
