@@ -28,7 +28,7 @@ public class UnitTests_BusinessLogic_UseCases
     {
         SetupTests();
 
-        var patientId = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var patientId = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {

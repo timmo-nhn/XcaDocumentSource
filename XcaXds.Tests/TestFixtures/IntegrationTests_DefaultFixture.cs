@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
@@ -14,13 +13,10 @@ using XcaXds.Commons.Services;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
-using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
-using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.Statistics;
 using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
-
 
 namespace XcaXds.Tests;
 
@@ -36,6 +32,9 @@ public class IntegrationTests_DefaultFixture
     internal readonly IRepository _repository;
     internal readonly AtnaLogExportedChecker _atnaLogExportedChecker;
     internal readonly ITestOutputHelper _output;
+    internal readonly ApplicationMetaService _applicationMetaService;
+    internal readonly IServiceScope _scope;
+    
     public Uri BaseAddress { get; private set; } = default!;
 
     internal List<DocumentReferenceDto> RegistryContent { get; set; } = new();
@@ -52,7 +51,7 @@ public class IntegrationTests_DefaultFixture
         }
     };
 
-    public IntegrationTests_DefaultFixture(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output)
+    public IntegrationTests_DefaultFixture(WebApplicationFactory<Program> factory, ITestOutputHelper output)
     {
         _output = output;
 
@@ -87,10 +86,7 @@ public class IntegrationTests_DefaultFixture
                 builder.Configure(app =>
                 {
                     app.UseRouting();
-                    app.UseEndpoints(endpoints =>
-                    {
-                        endpoints.MapControllers();
-                    });
+                    app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
                 });
             });
         });
@@ -98,23 +94,29 @@ public class IntegrationTests_DefaultFixture
         // Force app to start
         _client = customFactory.CreateDefaultClient();
 
-        using var customScope = customFactory.Services.CreateScope();
+        _scope = customFactory.Services.CreateScope();
 
-        _registry = customScope.ServiceProvider.GetRequiredService<IRegistry>();
-        _repository = customScope.ServiceProvider.GetRequiredService<IRepository>();
+        _registry = _scope.ServiceProvider.GetRequiredService<IRegistry>();
+        _repository = _scope.ServiceProvider.GetRequiredService<IRepository>();
 
-        _atnaLogExportedChecker = customScope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
-        _restfulRegistryService = customScope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
-        _policyRepositoryService = customScope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
-        _registryWrapper = customScope.ServiceProvider.GetRequiredService<RegistryWrapper>();
-        _apiKeyHolder = customScope.ServiceProvider.GetRequiredService<ApiKeyHolder>();
+        _atnaLogExportedChecker = _scope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
+        _atnaLogExportedChecker = _scope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
+        _restfulRegistryService = _scope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
+        _policyRepositoryService = _scope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
+        _registryWrapper = _scope.ServiceProvider.GetRequiredService<RegistryWrapper>();
+        _apiKeyHolder = _scope.ServiceProvider.GetRequiredService<ApiKeyHolder>();
+        _applicationMetaService = _scope.ServiceProvider.GetRequiredService<ApplicationMetaService>();
+
+        _client.DefaultRequestHeaders.Add("X-API-Key", _apiKeyHolder.ApiKey);
     }
 
     internal async Task WaitForAtnaLogToBeExported()
     {
         // Audit log is generated via background service; allow a brief window for the queue to be processed.
         var timeoutAt = DateTime.UtcNow.AddSeconds(10);
-        while ((!_atnaLogExportedChecker.AtnaLogExported && string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson)) && DateTime.UtcNow < timeoutAt)
+        while ((!_atnaLogExportedChecker.AtnaLogExported ||
+                string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson)) &&
+               DateTime.UtcNow < timeoutAt)
         {
             await Task.Delay(50);
         }
@@ -123,7 +125,8 @@ public class IntegrationTests_DefaultFixture
         Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
     }
 
-    internal async Task<List<DocumentReferenceDto>> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10, string? patientIdentifier = null)
+    internal async Task<List<DocumentReferenceDto>> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10,
+        string? patientIdentifier = null)
     {
         await NukeRegistryRepository();
 
@@ -140,14 +143,15 @@ public class IntegrationTests_DefaultFixture
 
     internal async Task NukeRegistryRepository()
     {
-        var getNukeKey = await _client.GetAsync("api/get-nuke-key");
-        var stringContent = await getNukeKey.Content.ReadAsStringAsync();
-        var nukeResponse = JsonDocument.Parse(stringContent);
-        var nukeKey = nukeResponse.RootElement.GetProperty("nukeKey").GetString();
+        var applicationMetaService = _scope.ServiceProvider.GetRequiredService<ApplicationMetaService>();
 
-        var nuked = await _client.DeleteAsync($"/api/nuke?nukeKey={nukeKey}");
+        var registry = _scope.ServiceProvider.GetRequiredService<IRegistry>();
 
-        Assert.Empty(_registry.ReadRegistry());
+        var nukeKey = applicationMetaService.GetNukeKeyForRegistryRepository();
+
+        applicationMetaService.NukeRegistryRepository(nukeKey);
+
+        Assert.Empty(await registry.ReadRegistry().ToListAsync());
     }
 
     internal string GetTestDataFile(string v)

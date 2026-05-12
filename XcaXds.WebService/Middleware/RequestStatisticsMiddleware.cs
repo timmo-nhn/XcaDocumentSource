@@ -3,6 +3,7 @@ using Hl7.Fhir.Serialization;
 using System.Diagnostics;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.Statistics;
@@ -29,7 +30,7 @@ public class RequestStatisticsMiddleware
 
         var originalResponseBody = httpContext.Response.Body;
 
-        var requestBody = await ReadRequestBodyAsync(httpContext);
+        var requestBody = await CopyStreamAsync(httpContext.Request.Body);
 
         await using var responseBuffer = new MemoryStream();
         httpContext.Response.Body = responseBuffer;
@@ -46,7 +47,7 @@ public class RequestStatisticsMiddleware
         sw.Stop();
 
 
-        var responseBody = await ReadResponseBodyAsync(responseBuffer);
+        var responseBody = await CopyStreamAsync(responseBuffer);
         await CopyResponseToOriginalStreamAsync(responseBuffer, originalResponseBody);
 
         if (!IsMiddlewareEnabledForRequestEndpoint(httpContext)) return;
@@ -57,36 +58,16 @@ public class RequestStatisticsMiddleware
             throw new InvalidOperationException("statistics was not exported");
     }
 
-    private static async Task<string> ReadRequestBodyAsync(HttpContext context)
-    {
-        context.Request.EnableBuffering();
-
-        context.Request.Body.Seek(0, SeekOrigin.Begin);
-
-        using var reader = new StreamReader(
-            context.Request.Body,
-            leaveOpen: true);
-
-        var body = await reader.ReadToEndAsync();
-
-        context.Request.Body.Seek(0, SeekOrigin.Begin);
-
-        return body;
-    }
-
-    private static async Task<string> ReadResponseBodyAsync(Stream responseStream)
+    private static async Task<Stream> CopyStreamAsync(Stream responseStream)
     {
         responseStream.Seek(0, SeekOrigin.Begin);
-
-        using var reader = new StreamReader(
-            responseStream,
-            leaveOpen: true);
-
-        var body = await reader.ReadToEndAsync();
-
+    
+        var streamCopy = new MemoryStream(); 
+        await responseStream.CopyToAsync(streamCopy);
+        
         responseStream.Seek(0, SeekOrigin.Begin);
 
-        return body;
+        return streamCopy;
     }
 
     private static async Task CopyResponseToOriginalStreamAsync(Stream responseBuffer, Stream originalResponseStream)
@@ -95,14 +76,16 @@ public class RequestStatisticsMiddleware
         await responseBuffer.CopyToAsync(originalResponseStream);
     }
 
-    private StatisticsRequestAndFields GetRequestAndFieldsFromRequestResponse(Stopwatch sw, HttpContext context, string? requestBody, string? responseBody, string? jwt)
+    private StatisticsRequestAndFields GetRequestAndFieldsFromRequestResponse(Stopwatch sw, HttpContext context, Stream? requestBody, Stream? responseBody, string? jwt)
     {
         var elapsedMs = sw.ElapsedMilliseconds;
         var sessionId = context.TraceIdentifier;
         var path = context.Request.Path;
         var method = context.Request.Method;
         var statusCode = context.Response.StatusCode;
-
+        var contentType = context.Request.ContentType;
+        
+        
         var requestType = GetRequestTypeFromContext(path, method);
 
         return new StatisticsRequestAndFields()
@@ -115,9 +98,10 @@ public class RequestStatisticsMiddleware
             JwtToken = jwt,
             ElapsedMilliseconds = elapsedMs,
             Path = path,
+            ContentType = contentType,
             Method = method,
             StatusCode = statusCode,
-            RelatedDocumentEntries = GetDocumentEntriesRelatedToRequest(context, requestType == RequestAndFieldRequestType.FhirProvideBundle ? new FhirJsonParser().Parse<Bundle>(requestBody) : null)
+            RelatedDocumentEntries = GetDocumentEntriesRelatedToRequest(context, requestType == RequestAndFieldRequestType.FhirProvideBundle ? Hl7FhirExtensions.GetResourceFromStream(requestBody) as Bundle : null)
         };
     }
 

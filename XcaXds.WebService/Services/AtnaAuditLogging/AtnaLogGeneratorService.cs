@@ -26,7 +26,8 @@ public class AtnaLogGeneratorService
     private readonly RegistryWrapper _registryWrapper;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
 
-    public AtnaLogGeneratorService(ILogger<AtnaLogGeneratorService> logger, ApplicationConfig appConfig, IAtnaLogQueue queue, RegistryWrapper registryWrapper, AtnaLogEnricherService atnaLogEnricherService)
+    public AtnaLogGeneratorService(ILogger<AtnaLogGeneratorService> logger, ApplicationConfig appConfig,
+        IAtnaLogQueue queue, RegistryWrapper registryWrapper, AtnaLogEnricherService atnaLogEnricherService)
     {
         _logger = logger;
         _appConfig = appConfig;
@@ -40,12 +41,16 @@ public class AtnaLogGeneratorService
         _queue.Enqueue(() => GetAuditEventFromSoapRequestResponse(requestEnvelope, responseEnvelope));
     }
 
-    public void CreateAuditLogForFhirDeleteDocumentsRequest(AdditionalParameters additionalParameters, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
+    public void CreateAuditLogForFhirDeleteDocumentsRequest(AdditionalParameters additionalParameters,
+        DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
-        _queue.Enqueue(() => GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(additionalParameters, deletedEntry, operationOutcome, token));
+        _queue.Enqueue(() =>
+            GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(additionalParameters, deletedEntry, operationOutcome,
+                token));
     }
 
-    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(AdditionalParameters httpContext, List<CodedValue>? oldSecurityLabel, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
+    public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(AdditionalParameters httpContext,
+        List<CodedValue>? oldSecurityLabel, DocumentEntryDto? updatedEntry, JwtSecurityToken? token)
     {
         var newSecurityLabel = updatedEntry?.ConfidentialityCode;
         // Clone to avoid mutation after we enqueue (controller updates the same DTO instance).
@@ -53,10 +58,13 @@ public class AtnaLogGeneratorService
         var newCopy = CloneCodedValues(newSecurityLabel);
         var updatedCopy = CloneDocumentEntryDto(updatedEntry);
 
-        _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedCopy, token, updatedEntry?.Id, oldCopy, newCopy));
+        _queue.Enqueue(() =>
+            GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedCopy, token, updatedEntry?.Id, oldCopy,
+                newCopy));
     }
 
-    private AuditEvent GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(AdditionalParameters additionalParameters, DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
+    private AuditEvent GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(AdditionalParameters additionalParameters,
+        DocumentEntryDto? deletedEntry, OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
         var documentId = operationOutcome.Issue.FirstOrDefault()?.Location.FirstOrDefault();
 
@@ -66,9 +74,12 @@ public class AtnaLogGeneratorService
             deletedEntry = new DocumentEntryDto() { Id = documentId };
         }
 
-        var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
+        var extrinsicObject = RegistryMetadataTransformer
+            .TransformDocumentReferenceDtoListToRegistryObjects([deletedEntry]).FirstOrDefault();
 
-        var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(additionalParameters, token?.RawData, null, [extrinsicObject]);
+        var soapEnvelope =
+            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(additionalParameters, token?.RawData, null,
+                [extrinsicObject]);
 
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti62Action);
         soapEnvelope.Header.MessageId = additionalParameters.TraceIdentifier;
@@ -79,7 +90,8 @@ public class AtnaLogGeneratorService
             {
                 RegistryResponse = new()
                 {
-                    RegistryErrorList = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(operationOutcome),
+                    RegistryErrorList =
+                        XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(operationOutcome),
                 }
             }
         };
@@ -99,16 +111,17 @@ public class AtnaLogGeneratorService
         List<CodedValue>? oldSecurityLabel,
         List<CodedValue>? newSecurityLabel)
     {
-        var extrinsicObject = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([updatedEntry])
+        var extrinsicObject = RegistryMetadataTransformer
+            .TransformDocumentReferenceDtoListToRegistryObjects([updatedEntry])
             .OfType<ExtrinsicObjectType>()
             .FirstOrDefault();
 
         // For Patch (metadata update) we want the audit event to be categorized as Amend (Update).
         // The existing BALP mapping derives Update/Amend from an XDS Replace (RPLC) association.
         var targetObject = extrinsicObject?.Id
-            ?? updatedEntry?.Id?.WithUrnUuid()
-            ?? updatedEntry?.UniqueId
-            ?? "urn:uuid:unknown";
+                           ?? updatedEntry?.Id?.WithUrnUuid()
+                           ?? updatedEntry?.UniqueId
+                           ?? "urn:uuid:unknown";
 
         var association = new AssociationType
         {
@@ -121,7 +134,9 @@ public class AtnaLogGeneratorService
             ? [association]
             : [extrinsicObject, association];
 
-        var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(additionalParameters, token?.RawData, null, registryObjects);
+        var soapEnvelope =
+            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(additionalParameters, token?.RawData, null,
+                registryObjects);
 
         // ITI-42 is used here to represent an update/amend of registry metadata.
         soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti42Action);
@@ -141,7 +156,8 @@ public class AtnaLogGeneratorService
         var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
 
         // Add explicit patch details (document id + old/new securityLabel) as AuditEvent.entity.detail.
-        if (!string.IsNullOrWhiteSpace(documentReferenceId) || (oldSecurityLabel?.Count > 0) || (newSecurityLabel?.Count > 0))
+        if (!string.IsNullOrWhiteSpace(documentReferenceId) || (oldSecurityLabel?.Count > 0) ||
+            (newSecurityLabel?.Count > 0))
         {
             var detail = new List<AuditEvent.DetailComponent>();
             AddDetail(detail, "documentReference.id", documentReferenceId);
@@ -215,7 +231,8 @@ public class AtnaLogGeneratorService
         };
     }
 
-    private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
+    private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope,
+        SoapEnvelope? responseEnvelope)
     {
         var auditEvent = new AuditEvent();
         auditEvent.Id = Guid.NewGuid().ToString();
@@ -238,7 +255,10 @@ public class AtnaLogGeneratorService
 
         auditEvent.Meta = new Meta()
         {
-            Profile = ["https://profiles.ihe.net/ITI/BALP/StructureDefinition/IHE.BasicAudit.SAMLaccessTokenUse.Minimal"],
+            Profile =
+            [
+                "https://profiles.ihe.net/ITI/BALP/StructureDefinition/IHE.BasicAudit.SAMLaccessTokenUse.Minimal"
+            ],
             Security = new List<Coding>()
             {
                 new Coding()
@@ -271,10 +291,11 @@ public class AtnaLogGeneratorService
             var providerIdentifierCoded = SamlExtensions.GetSamlAttributeValueAsCodedValue(providerIdentifierValue);
 
             var hasSubject = !string.IsNullOrWhiteSpace(subjectDisplayName) ||
-                !string.IsNullOrWhiteSpace(providerIdentifierCoded?.Code) ||
-                !string.IsNullOrWhiteSpace(providerIdentifierCoded?.CodeSystem);
+                             !string.IsNullOrWhiteSpace(providerIdentifierCoded?.Code) ||
+                             !string.IsNullOrWhiteSpace(providerIdentifierCoded?.CodeSystem);
 
-            var subjectResource = GetSubjectResource(requestEnvelope, statements, subjectDisplayName, providerIdentifierCoded, issuer, hasSubject);
+            var subjectResource = GetSubjectResource(requestEnvelope, statements, subjectDisplayName,
+                providerIdentifierCoded, issuer, hasSubject);
 
             if (subjectResource != null)
             {
@@ -284,10 +305,12 @@ public class AtnaLogGeneratorService
 
             auditEvent.Entity.Add(new AuditEvent.EntityComponent()
             {
-                What = subjectResource == null ? null : new ResourceReference($"#{subjectResource.Id}")
-                {
-                    Display = "patient"
-                },
+                What = subjectResource == null
+                    ? null
+                    : new ResourceReference($"#{subjectResource.Id}")
+                    {
+                        Display = "patient"
+                    },
                 Type = new Coding
                 {
                     System = "http://terminology.hl7.org/CodeSystem/audit-entity-type",
@@ -313,20 +336,26 @@ public class AtnaLogGeneratorService
                 ?.Values
                 .FirstOrDefault();
 
-            if (!string.IsNullOrWhiteSpace(orgnrParent) || !string.IsNullOrWhiteSpace(clientName) || !string.IsNullOrWhiteSpace(clientId))
+            if (!string.IsNullOrWhiteSpace(orgnrParent) || !string.IsNullOrWhiteSpace(clientName) ||
+                !string.IsNullOrWhiteSpace(clientId))
             {
                 var clientDetail = new List<AuditEvent.DetailComponent>();
                 if (!string.IsNullOrWhiteSpace(orgnrParent))
                 {
-                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "orgnr_parent", Value = new FhirString(orgnrParent) });
+                    clientDetail.Add(new AuditEvent.DetailComponent
+                        { Type = "orgnr_parent", Value = new FhirString(orgnrParent) });
                 }
+
                 if (!string.IsNullOrWhiteSpace(clientId))
                 {
-                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "client_id", Value = new FhirString(clientId) });
+                    clientDetail.Add(new AuditEvent.DetailComponent
+                        { Type = "client_id", Value = new FhirString(clientId) });
                 }
+
                 if (!string.IsNullOrWhiteSpace(clientName))
                 {
-                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "client_name", Value = new FhirString(clientName) });
+                    clientDetail.Add(new AuditEvent.DetailComponent
+                        { Type = "client_name", Value = new FhirString(clientName) });
                 }
 
                 auditEvent.Entity.Add(new AuditEvent.EntityComponent
@@ -344,9 +373,13 @@ public class AtnaLogGeneratorService
                 });
             }
 
-            var purposeOfUseValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name.IsAnyOf(Constants.Saml.Attribute.PurposeOfUse, Constants.Saml.Attribute.PurposeOfUse_Helsenorge))?.Values.FirstOrDefault());
+            var purposeOfUseValue = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements
+                ?.FirstOrDefault(s => s.Name.IsAnyOf(Constants.Saml.Attribute.PurposeOfUse,
+                    Constants.Saml.Attribute.PurposeOfUse_Helsenorge))?.Values.FirstOrDefault());
 
-            if (purposeOfUseValue != null && (!string.IsNullOrWhiteSpace(purposeOfUseValue.Code) || !string.IsNullOrWhiteSpace(purposeOfUseValue.CodeSystem) || !string.IsNullOrWhiteSpace(purposeOfUseValue.DisplayName)))
+            if (purposeOfUseValue != null && (!string.IsNullOrWhiteSpace(purposeOfUseValue.Code) ||
+                                              !string.IsNullOrWhiteSpace(purposeOfUseValue.CodeSystem) ||
+                                              !string.IsNullOrWhiteSpace(purposeOfUseValue.DisplayName)))
             {
                 auditEvent.PurposeOfEvent = new List<CodeableConcept>()
                 {
@@ -356,9 +389,15 @@ public class AtnaLogGeneratorService
                         {
                             new Coding()
                             {
-                                Code = string.IsNullOrWhiteSpace(purposeOfUseValue.Code) ? null : purposeOfUseValue.Code,
-                                System = string.IsNullOrWhiteSpace(purposeOfUseValue.CodeSystem) ? null : purposeOfUseValue.CodeSystem.WithUrnOid(),
-                                Display = string.IsNullOrWhiteSpace(purposeOfUseValue.DisplayName) ? null : purposeOfUseValue.DisplayName
+                                Code = string.IsNullOrWhiteSpace(purposeOfUseValue.Code)
+                                    ? null
+                                    : purposeOfUseValue.Code,
+                                System = string.IsNullOrWhiteSpace(purposeOfUseValue.CodeSystem)
+                                    ? null
+                                    : purposeOfUseValue.CodeSystem.WithUrnOid(),
+                                Display = string.IsNullOrWhiteSpace(purposeOfUseValue.DisplayName)
+                                    ? null
+                                    : purposeOfUseValue.DisplayName
                             }
                         }
                     }
@@ -370,7 +409,7 @@ public class AtnaLogGeneratorService
             {
                 HumanName? healthcarePersonHumanName = null;
                 var subjectNameParts = subjectDisplayName?.Split().ToList();
-                if (subjectNameParts != null && subjectNameParts.Count > 0)
+                if (subjectNameParts is { Count: > 0 })
                 {
                     healthcarePersonHumanName = new HumanName
                     {
@@ -386,13 +425,19 @@ public class AtnaLogGeneratorService
                 var subjectUser = new Practitioner
                 {
                     Id = "practitioner-1",
-                    Identifier = (providerIdentifierCoded != null && (!string.IsNullOrWhiteSpace(providerIdentifierCoded.Code) || !string.IsNullOrWhiteSpace(providerIdentifierCoded.CodeSystem)))
+                    Identifier = (providerIdentifierCoded != null &&
+                                  (!string.IsNullOrWhiteSpace(providerIdentifierCoded.Code) ||
+                                   !string.IsNullOrWhiteSpace(providerIdentifierCoded.CodeSystem)))
                         ? new List<Identifier>
                         {
                             new Identifier
                             {
-                                Value = string.IsNullOrWhiteSpace(providerIdentifierCoded.Code) ? null : providerIdentifierCoded.Code,
-                                System = string.IsNullOrWhiteSpace(providerIdentifierCoded.CodeSystem) ? null : providerIdentifierCoded.CodeSystem.WithUrnOid()
+                                Value = string.IsNullOrWhiteSpace(providerIdentifierCoded.Code)
+                                    ? null
+                                    : providerIdentifierCoded.Code,
+                                System = string.IsNullOrWhiteSpace(providerIdentifierCoded.CodeSystem)
+                                    ? null
+                                    : providerIdentifierCoded.CodeSystem.WithUrnOid()
                             }
                         }
                         : null,
@@ -402,32 +447,47 @@ public class AtnaLogGeneratorService
                 var practitionerRole = new PractitionerRole
                 {
                     Id = "who-1",
-                    Identifier = (!string.IsNullOrWhiteSpace(samlToken.Assertion.Subject.NameId?.Value) || !string.IsNullOrWhiteSpace(samlToken.Assertion.Issuer.Value))
+                    Identifier = (!string.IsNullOrWhiteSpace(samlToken.Assertion.Subject.NameId?.Value) ||
+                                  !string.IsNullOrWhiteSpace(samlToken.Assertion.Issuer.Value))
                         ? new List<Identifier>
                         {
                             new Identifier
                             {
-                                Value = string.IsNullOrWhiteSpace(samlToken.Assertion.Subject.NameId?.Value) ? null : samlToken.Assertion.Subject.NameId.Value,
-                                System = string.IsNullOrWhiteSpace(samlToken.Assertion.Issuer.Value) ? null : samlToken.Assertion.Issuer.Value
+                                Value = string.IsNullOrWhiteSpace(samlToken.Assertion.Subject.NameId?.Value)
+                                    ? null
+                                    : samlToken.Assertion.Subject.NameId.Value,
+                                System = string.IsNullOrWhiteSpace(samlToken.Assertion.Issuer.Value)
+                                    ? null
+                                    : samlToken.Assertion.Issuer.Value
                             }
                         }
                         : null
                 };
                 auditEvent.Contained.Add(practitionerRole);
 
-                var pointOfCareStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ChildOrganization)?.Values.FirstOrDefault());
-                var pointOfCareName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.TrustChildOrgName)?.Values.FirstOrDefault());
+                var pointOfCareStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements
+                    ?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ChildOrganization)?.Values
+                    .FirstOrDefault());
+                var pointOfCareName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements
+                    ?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.TrustChildOrgName)?.Values
+                    .FirstOrDefault());
 
                 var pointOfCare = new Organization()
                 {
                     Id = "org-pointofcare-1",
-                    Identifier = (pointOfCareStatement != null && (!string.IsNullOrWhiteSpace(pointOfCareStatement.Code) || !string.IsNullOrWhiteSpace(pointOfCareStatement.CodeSystem)))
+                    Identifier = (pointOfCareStatement != null &&
+                                  (!string.IsNullOrWhiteSpace(pointOfCareStatement.Code) ||
+                                   !string.IsNullOrWhiteSpace(pointOfCareStatement.CodeSystem)))
                         ? new List<Identifier>()
                         {
                             new Identifier()
                             {
-                                Value = string.IsNullOrWhiteSpace(pointOfCareStatement.Code) ? null : pointOfCareStatement.Code,
-                                System = string.IsNullOrWhiteSpace(pointOfCareStatement.CodeSystem) ? null : pointOfCareStatement.CodeSystem.WithUrnOid()
+                                Value = string.IsNullOrWhiteSpace(pointOfCareStatement.Code)
+                                    ? null
+                                    : pointOfCareStatement.Code,
+                                System = string.IsNullOrWhiteSpace(pointOfCareStatement.CodeSystem)
+                                    ? null
+                                    : pointOfCareStatement.CodeSystem.WithUrnOid()
                             }
                         }
                         : null,
@@ -436,19 +496,27 @@ public class AtnaLogGeneratorService
                 auditEvent.Contained.Add(pointOfCare);
                 practitionerRole.Location = [new ResourceReference() { Reference = $"#{pointOfCare.Id}" }];
 
-                var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
-                var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
+                var legalEntityStatement = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements
+                    ?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.OrganizationId)?.Values.FirstOrDefault());
+                var legalEntityName = SamlExtensions.GetSamlAttributeValueAsCodedValue(statements
+                    ?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.Organization)?.Values.FirstOrDefault());
 
                 var legalEntity = new Organization()
                 {
                     Id = "org-legalentity-1",
-                    Identifier = (legalEntityStatement != null && (!string.IsNullOrWhiteSpace(legalEntityStatement.Code) || !string.IsNullOrWhiteSpace(legalEntityStatement.CodeSystem)))
+                    Identifier = (legalEntityStatement != null &&
+                                  (!string.IsNullOrWhiteSpace(legalEntityStatement.Code) ||
+                                   !string.IsNullOrWhiteSpace(legalEntityStatement.CodeSystem)))
                         ? new List<Identifier>()
                         {
                             new Identifier()
                             {
-                                Value = string.IsNullOrWhiteSpace(legalEntityStatement.Code) ? null : legalEntityStatement.Code,
-                                System = string.IsNullOrWhiteSpace(legalEntityStatement.CodeSystem) ? null : legalEntityStatement.CodeSystem.WithUrnOid()
+                                Value = string.IsNullOrWhiteSpace(legalEntityStatement.Code)
+                                    ? null
+                                    : legalEntityStatement.Code,
+                                System = string.IsNullOrWhiteSpace(legalEntityStatement.CodeSystem)
+                                    ? null
+                                    : legalEntityStatement.CodeSystem.WithUrnOid()
                             }
                         }
                         : null,
@@ -481,6 +549,7 @@ public class AtnaLogGeneratorService
                 {
                     agent.Policy = [samlToken.Id];
                 }
+
                 auditEvent.Agent.Add(agent);
             }
             else
@@ -489,17 +558,18 @@ public class AtnaLogGeneratorService
                 {
                     Requestor = true,
                     Network = string.IsNullOrWhiteSpace(_appConfig.IpAddress)
-                    ? null
-                    : new AuditEvent.NetworkComponent()
-                    {
-                        Address = _appConfig.IpAddress
-                    }
+                        ? null
+                        : new AuditEvent.NetworkComponent()
+                        {
+                            Address = _appConfig.IpAddress
+                        }
                 };
 
                 if (samlToken.Id.Length > 0)
                 {
                     agent.Policy = [samlToken.Id];
                 }
+
                 auditEvent.Agent.Add(agent);
             }
         }
@@ -516,8 +586,10 @@ public class AtnaLogGeneratorService
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
-        var xdsDocEntry = (DocumentEntryDto?)RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
-        var xdsSubmissionSet = (SubmissionSetDto?)RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
+        var xdsDocEntry = (DocumentEntryDto?)RegistryMetadataTransformer
+            .TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
+        var xdsSubmissionSet = (SubmissionSetDto?)RegistryMetadataTransformer
+            .TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
         if (!string.IsNullOrWhiteSpace(adhocQueryType))
         {
@@ -529,8 +601,11 @@ public class AtnaLogGeneratorService
 
         if (xdsDocEntry == null)
         {
-            var retrieveDocumentsRequest = requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest?.FirstOrDefault();
-            xdsDocEntry = _registryWrapper.GetSingleRegistryObjectAsDto(retrieveDocumentsRequest?.DocumentUniqueId) as DocumentEntryDto;
+            var retrieveDocumentsRequest =
+                requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest?.FirstOrDefault();
+            xdsDocEntry =
+                _registryWrapper.GetSingleRegistryObjectAsDto(retrieveDocumentsRequest?.DocumentUniqueId) as
+                    DocumentEntryDto;
         }
 
         if (xdsDocEntry != null)
@@ -555,7 +630,6 @@ public class AtnaLogGeneratorService
 
             var submissionSetId = xdsSubmissionSet?.Id;
             AddDetail(detail, "submissionSetId", submissionSetId);
-
         }
         else
         {
@@ -626,7 +700,8 @@ public class AtnaLogGeneratorService
         return auditEvent;
     }
 
-    private Resource? GetSubjectResource(SoapEnvelope? requestEnvelope, List<Saml2Attribute>? statements, string? subjectDisplayName, CodedValue? providerIdentifierCoded, AppliesTo? issuer, bool hasSubject)
+    private Resource? GetSubjectResource(SoapEnvelope? requestEnvelope, List<Saml2Attribute>? statements,
+        string? subjectDisplayName, CodedValue? providerIdentifierCoded, AppliesTo? issuer, bool hasSubject)
     {
         // is_provide_bundle, patient_given and patient_family are custom attributes added only by
         // FhirMobileAccessToHealthDocumentsController.ProvideBundle method
@@ -656,8 +731,10 @@ public class AtnaLogGeneratorService
 
         var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).ToList();
 
-        var patientResourceId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ResourceId20)?.Values.FirstOrDefault();
-        var subjectId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values.FirstOrDefault();
+        var patientResourceId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ResourceId20)?.Values
+            .FirstOrDefault();
+        var subjectId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values
+            .FirstOrDefault();
 
         var resourceIdCx = Hl7Object.Parse<CX>(patientResourceId);
         var subjectIdCx = SamlExtensions.GetSamlAttributeValueAsCx(subjectId);
@@ -669,20 +746,20 @@ public class AtnaLogGeneratorService
         }
 
         var allPatientIdentifiers = registryPatientIdentifiers
-            .DistinctBy(pid => new { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
-            .OfType<PID>()
+            .DistinctBy(pid => new
+                { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
             .ToList();
 
         // The SAML-token contains a subject identifier (providerIdentifier) and a resource identifier (resourceId)
-        // In a normal Helsenorge-scenario, the identifiers are similar, because the subject is opening documents on themself.
-        // However, when a person - in Helsenorge, with Power Of Attorney (representasjonsforhold) - opens documents on someones behalf,
+        // In a normal Helsenorge-scenario, the identifiers are similar, because the subject is opening documents on themselves.
+        // However, when a person - in Helsenorge, with Power Of Attorney (representasjonsforhold) - opens documents on someone's behalf,
         // the SAML token will only contain the identifier of the queried patient (resource-id), and not their name.
-        // Therfore we need to check this to avoid incorrectly resolving the subject name  to the resource Id.
-        var requestIsForAnotherPerson = subjectIdCx != null && subjectIdCx.Equals(resourceIdCx) == false;
+        // Therfore we need to check this to avoid incorrectly resolving the subject name  to the resource ID.
+        var requestIsForAnotherPerson = subjectIdCx != null && !subjectIdCx.Equals(resourceIdCx);
 
         Patient? patientResource = null;
 
-        if (allPatientIdentifiers.Count > 0 == false) return patientResource;
+        if (!(allPatientIdentifiers.Count > 0)) return patientResource;
 
         patientResource = new Patient
         {
@@ -693,10 +770,13 @@ public class AtnaLogGeneratorService
 
         foreach (var identifier in allPatientIdentifiers)
         {
-            if (identifier == null || string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.AssigningAuthority?.UniversalId) || string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.IdNumber)) continue;
+            if (string.IsNullOrWhiteSpace(identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId) ||
+                string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.IdNumber)) continue;
 
             _logger.LogDebug($"AtnaLogGenerator found Patient Identifier: {identifier?.Serialize()}");
-            patientResource.Identifier.Add(new Identifier(identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId.WithUrnOid(), identifier?.PatientIdentifier?.IdNumber));
+            patientResource.Identifier.Add(new Identifier(
+                identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId.WithUrnOid(),
+                identifier?.PatientIdentifier?.IdNumber));
         }
 
         if (isProvideBundle)
@@ -732,8 +812,25 @@ public class AtnaLogGeneratorService
 
             patientResource.Name = [patientHumanName];
         }
+        else if (issuer == AppliesTo.Machine && hasSubject && requestIsForAnotherPerson == false)
+        {
+            patientResource.Name = allPatientIdentifiers.Select(pid => GetNamesFromPid(pid)).OfType<HumanName>().ToList();
+        }
 
         return patientResource;
+    }
+
+    private static HumanName? GetNamesFromPid(PID pid)
+    {
+        var family = pid.PatientName?.FamilyName;
+        var given = pid.PatientName?.GivenName;
+
+        if (!string.IsNullOrWhiteSpace(family) && !string.IsNullOrWhiteSpace(given))
+        {
+            return new HumanName(family, [given]);
+        }
+
+        return null;
     }
 
     void AddDetail(List<AuditEvent.DetailComponent> detail, string type, string? value)
@@ -762,11 +859,14 @@ public class AtnaLogGeneratorService
 
         // ITI-41 or ITI-42
         // HAYO! DeleteDocuments_Jank! ITI-86 or ITI-62 DeleteDocumentSet
-        var provideAndRegister = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ?? requestEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
+        var provideAndRegister =
+            requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList ??
+            requestEnvelope.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
 
         if (provideAndRegister != null)
         {
-            var registryObjects = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister).ToArray();
+            var registryObjects = RegistryMetadataTransformer
+                .TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister).ToArray();
 
             return PatientIdPidFromDocumentEntries(registryObjects) ?? [];
         }
@@ -782,7 +882,8 @@ public class AtnaLogGeneratorService
             {
                 var ids = new HashSet<string>(docEntryUniqueId.Select(x => x.DocumentUniqueId ?? string.Empty));
 
-                var registryObjects = ids.Select(_registryWrapper.GetSingleRegistryObjectAsDto).OfType<RegistryObjectDto>().ToArray();
+                var registryObjects = ids.Select(_registryWrapper.GetSingleRegistryObjectAsDto)
+                    .OfType<RegistryObjectDto>().ToArray();
 
 
                 return PatientIdPidFromDocumentEntries(registryObjects) ?? [];
@@ -803,15 +904,23 @@ public class AtnaLogGeneratorService
             if (registryObject is DocumentEntryDto documentEntry && documentEntry.SourcePatientInfo is { } pid)
             {
                 var patientId = new PID();
-                if (string.IsNullOrWhiteSpace(pid.FirstName) || string.IsNullOrWhiteSpace(pid.LastName))
+
+                if (pid.BirthTime.HasValue)
+                {
+                    patientId.BirthDate = pid.BirthTime.Value.ToUniversalTime();
+                }
+
+                if (!string.IsNullOrWhiteSpace(pid.FirstName) || !string.IsNullOrWhiteSpace(pid.LastName))
                 {
                     patientId.PatientName = new(pid.FirstName, pid.LastName);
                 }
 
-                if (string.IsNullOrWhiteSpace(pid.PatientId?.Id) || string.IsNullOrWhiteSpace(pid.PatientId?.System))
+                if (!string.IsNullOrWhiteSpace(pid.PatientId?.Id) || !string.IsNullOrWhiteSpace(pid.PatientId?.System))
                 {
                     patientId.PatientIdentifier = new(pid.PatientId?.Id, pid.PatientId?.System);
                 }
+
+                pids.Add(patientId);
             }
         }
 
@@ -856,9 +965,9 @@ public class AtnaLogGeneratorService
             samlToken = SamlExtensions.ReadSamlToken(samlTokenRaw);
 
             statements = samlToken?.Assertion.Statements
-            .OfType<Saml2AttributeStatement>()
-            .SelectMany(statement => statement.Attributes)
-            .ToList();
+                .OfType<Saml2AttributeStatement>()
+                .SelectMany(statement => statement.Attributes)
+                .ToList();
         }
 
         return statements?.FirstOrDefault(s => s.Name == "is_validate_resource")?.Values
@@ -867,15 +976,19 @@ public class AtnaLogGeneratorService
 
     private AuditEvent.AuditEventAction? GetCreateOrUpdateFromRequest(SoapEnvelope requestEnvelope)
     {
-        var registryObjects = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList;
+        var registryObjects = requestEnvelope.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest
+            ?.RegistryObjectList;
 
         var isReplaceUpdate = registryObjects?.OfType<AssociationType>()
-            .Any(assoc => assoc.AssociationTypeData?.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation) == true) ?? false;
+            .Any(assoc =>
+                assoc.AssociationTypeData?.IsAnyOf(Replace, Transformation, Addendum, ReplaceWithTransformation) ==
+                true) ?? false;
 
         return isReplaceUpdate ? AuditEvent.AuditEventAction.U : AuditEvent.AuditEventAction.C;
     }
 
-    private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? requestEnvelope, SoapEnvelope? responseEnvelope)
+    private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? requestEnvelope,
+        SoapEnvelope? responseEnvelope)
     {
         var registryErrors = responseEnvelope?.Body.RegistryResponse?.RegistryErrorList?.RegistryError;
         var soapFault = responseEnvelope?.Body.Fault;
@@ -901,12 +1014,13 @@ public class AtnaLogGeneratorService
     {
         var action = requestEnvelope?.Header.Action;
 
-        if (RequestIsExecute(requestEnvelope)) return new Coding()
-        {
-            Code = "verify",
-            System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
-            Display = "Verify Record Lifecycle Event"
-        };
+        if (RequestIsExecute(requestEnvelope))
+            return new Coding()
+            {
+                Code = "verify",
+                System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                Display = "Verify Record Lifecycle Event"
+            };
 
         switch (action)
         {
@@ -923,11 +1037,13 @@ public class AtnaLogGeneratorService
 
             case Constants.Xds.OperationContract.Iti41Action:
             case Constants.Xds.OperationContract.Iti42Action:
-                var associations = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest?.RegistryObjectList?.OfType<AssociationType>();
+                var associations = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest
+                    ?.RegistryObjectList?.OfType<AssociationType>();
 
                 var type = associations switch
                 {
-                    var ass when ass != null && ass.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Transformation, ReplaceWithTransformation))
+                    var ass when ass != null && ass.Any(assoc =>
+                            assoc.AssociationTypeData.IsAnyOf(Transformation, ReplaceWithTransformation))
                         => "transform",
 
                     var ass when ass != null && ass.Any(assoc => assoc.AssociationTypeData.IsAnyOf(Replace))
@@ -961,7 +1077,6 @@ public class AtnaLogGeneratorService
                         System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
                         Display = "Originate/Retain Record Lifecycle Event"
                     }
-
                 };
 
             case Constants.Xds.OperationContract.Iti86Action:

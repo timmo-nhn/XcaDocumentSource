@@ -7,7 +7,7 @@ using XcaXds.Commons.Models.Custom.Statistics;
 
 namespace XcaXds.WebService.Services.Statistics;
 
-public class MockStatisticsProcessorService : BackgroundService
+public class  MockStatisticsProcessorService : BackgroundService
 {
     private readonly ILogger<MockStatisticsProcessorService> _logger;
     private readonly ApplicationConfig _appConfig;
@@ -35,7 +35,7 @@ public class MockStatisticsProcessorService : BackgroundService
             {
                 _logger.LogInformation("Received statistics item");
 
-                var userAccessEntry = _statisticsTransformerService.TransformToUserAccessEntry(requestAndFields);
+                var userAccessEntry = await _statisticsTransformerService.TransformToUserAccessEntry(requestAndFields);
                 ExportStatistics(userAccessEntry);
             }
         }

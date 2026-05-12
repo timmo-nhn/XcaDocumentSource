@@ -91,8 +91,8 @@ public class PolicyEnforcementPointMiddleware
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {
             LogJwt(httpContext);
-
-            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(_policyRepositoryService.GetPoliciesAsXacmlPolicySet(), Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+            var policies = _policyRepositoryService.GetPoliciesAsXacmlPolicySet();
+            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(policies, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
             _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
         }

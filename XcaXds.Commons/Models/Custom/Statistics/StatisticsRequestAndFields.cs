@@ -13,13 +13,14 @@ namespace XcaXds.Commons.Models.Custom.Statistics;
 public class StatisticsRequestAndFields
 {
     public DateTime AccessTime { get; init; } = DateTime.UtcNow;
-    public string? RequestBody { get; set; }
-    public string? ResponseBody { get; set; }
+    public Stream? RequestBody { get; set; }
+    public Stream? ResponseBody { get; set; }
     public string? JwtToken { get; set; }
     public long ElapsedMilliseconds { get; init; }
     public string? Path { get; init; }
     public string? Method { get; init; }
     public int StatusCode { get; init; }
+    public string? ContentType { get; init; }
     public RequestAndFieldRequestType RequestType { get; set; }
     public string? SessionId { get; set; }
     public DocumentEntryDto[]? RelatedDocumentEntries { get; set; }
