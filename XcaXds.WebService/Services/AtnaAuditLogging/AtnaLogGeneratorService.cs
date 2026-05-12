@@ -1,9 +1,7 @@
-﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Support;
-using Hl7.FhirPath.Sprache;
-using Microsoft.IdentityModel.Tokens.Saml2;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using Hl7.Fhir.Model;
+using Microsoft.IdentityModel.Tokens.Saml2;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -602,9 +600,10 @@ public class AtnaLogGeneratorService
 
         if (!string.IsNullOrWhiteSpace(soapAction))
         {
-            auditEvent.Entity.Add(new AuditEvent.EntityComponent
+            (string code, string display) = SoapExtensions.GetTransactionCodeFromSoapAction(soapAction);
+            auditEvent.Subtype.Add(new Coding(Constants.Xds.OperationContract.System, code)
             {
-                What = new ResourceReference(soapAction, "soapAction")
+                Display = display 
             });
         }
 

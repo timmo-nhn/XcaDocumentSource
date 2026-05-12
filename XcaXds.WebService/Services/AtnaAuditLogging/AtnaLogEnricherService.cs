@@ -65,7 +65,7 @@ public class AtnaLogEnricherService
             Header = new()
             {
                 MessageId = fhirBundle?.Id,
-                Action = Constants.Xds.OperationContract.Iti41Action,
+                Action = "ITI-65",
                 Security = new Security() { Assertion = samlAssertionElement }
             },
             Body = new()

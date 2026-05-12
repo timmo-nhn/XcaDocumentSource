@@ -128,7 +128,7 @@ public static class Constants
             /// <summary>
             /// Root OID for the ITI Domain (ITI-messages)
             /// </summary>
-            public const string System = "1.3.6.1.4.1.19376.1.2";
+            public const string System = "urn:ihe:event-type-code";
 
             public const string Iti18Action = "urn:ihe:iti:2007:RegistryStoredQuery";
             public const string Iti18ActionAsync = "urn:ihe:iti:2007:RegistryStoredQueryAsync";

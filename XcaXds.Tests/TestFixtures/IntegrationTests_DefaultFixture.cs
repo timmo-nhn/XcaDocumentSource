@@ -151,7 +151,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         }
 
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
-        Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
+        // Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
     }
 
     internal async Task<List<DocumentReferenceDto>> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10,

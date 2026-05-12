@@ -75,8 +75,16 @@ public static class MultipartExtensions
         if (MediaTypeHeaderValue.TryParse(contentTypeHeader, out var mediaTypeHeaderValue) ||
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
-            var multipartReader = new MultipartReader(mediaTypeHeaderValue.Boundary.Value?.Trim('"'), stream);
+            var boundary = mediaTypeHeaderValue.Boundary.Value?.Trim('"');
+            var multipartReader = new MultipartReader(boundary, stream);
 
+            using var multipartReaderThatWorks = new SoapEnvelopeMultipartReader(boundary, stream);
+
+            while(await multipartReaderThatWorks.ReadNextSectionAsync() is { } section)
+            {
+                var item = Encoding.Default.GetString(section.Section ?? []);
+            }
+            
             var structuredSoapEnvelopeMultiparts = await GetSoapEnvelopeMultipartSections(multipartReader);
 
             foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body
@@ -106,7 +114,6 @@ public static class MultipartExtensions
         var sxmls = new SoapXmlSerializer();
 
         var soapEnvelopeMultipart = new SoapEnvelopeMultipartResponse();
-
         while (await multipartReader.ReadNextSectionAsync() is { } section)
         {
             var contentId =

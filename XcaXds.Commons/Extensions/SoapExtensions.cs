@@ -181,4 +181,21 @@ public static class SoapExtensions
                 break;
         }
     }
+
+    public static (string code, string display) GetTransactionCodeFromSoapAction(string soapAction)
+    {
+        return soapAction switch
+        {
+            "ITI-65" => ("ITI-65", "Provide Bundle"),
+            Constants.Xds.OperationContract.Iti18Action => ("ITI-18", "Registry Stored Query"),
+            Constants.Xds.OperationContract.Iti38Action => ("ITI-38", "Cross Gateway Query"),
+            Constants.Xds.OperationContract.Iti39Action => ("ITI-39", "Cross Gateway Retrieve"),
+            Constants.Xds.OperationContract.Iti41Action => ("ITI-41", "Provide and Register Document Set"),
+            Constants.Xds.OperationContract.Iti42Action => ("ITI-42", "Register Document Set"),
+            Constants.Xds.OperationContract.Iti43Action => ("ITI-43", "Retrieve Document Set"),
+            Constants.Xds.OperationContract.Iti62Action => ("ITI-62", "Delete Document Set"),
+            Constants.Xds.OperationContract.Iti86Action => ("ITI-86", "Remove Documents"),
+            _ => ("ITI-18", "Registry Stored Query")
+        };
+    }
 }
