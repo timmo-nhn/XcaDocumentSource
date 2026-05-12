@@ -60,12 +60,17 @@ public class RequestStatisticsMiddleware
 
     private static async Task<Stream> CopyStreamAsync(Stream responseStream)
     {
-        responseStream.Seek(0, SeekOrigin.Begin);
-    
-        var streamCopy = new MemoryStream(); 
+        // Important: rewind returned stream, or readers will see empty content.
+        if (responseStream.CanSeek)
+            responseStream.Seek(0, SeekOrigin.Begin);
+
+        var streamCopy = new MemoryStream();
         await responseStream.CopyToAsync(streamCopy);
-        
-        responseStream.Seek(0, SeekOrigin.Begin);
+
+        streamCopy.Seek(0, SeekOrigin.Begin);
+
+        if (responseStream.CanSeek)
+            responseStream.Seek(0, SeekOrigin.Begin);
 
         return streamCopy;
     }

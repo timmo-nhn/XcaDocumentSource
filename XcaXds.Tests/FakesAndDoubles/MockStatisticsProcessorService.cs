@@ -29,20 +29,23 @@ public class  MockStatisticsProcessorService : BackgroundService
     {
         _logger.LogInformation("StatisticsProcessorService started");
 
-        try
+        await foreach (var requestAndFields in _statisticsQueue.Channel.Reader.ReadAllAsync(stoppingToken))
         {
-            await foreach (var requestAndFields in _statisticsQueue.Channel.Reader.ReadAllAsync(stoppingToken))
-            {
-                _logger.LogInformation("Received statistics item");
+            _logger.LogInformation("Received statistics item");
 
+            try
+            {
                 var userAccessEntry = await _statisticsTransformerService.TransformToUserAccessEntry(requestAndFields);
                 ExportStatistics(userAccessEntry);
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "StatisticsProcessorService crashed");
-            throw;
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break; // normal shutdown
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to transform/export statistics item");
+            }
         }
     }
 

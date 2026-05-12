@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
@@ -21,8 +22,14 @@ using Xunit.Abstractions;
 namespace XcaXds.Tests;
 
 #pragma warning disable CS8602, CS8604 // Dereference of a possibly null reference.
-public class IntegrationTests_DefaultFixture
+public class IntegrationTests_DefaultFixture : IAsyncDisposable
 {
+    // Keep a strong reference to the WebApplicationFactory created via WithWebHostBuilder.
+    // Without this, it can be GC-collected (it has a finalizer) and dispose its ServiceProvider
+    // while tests are still running, causing intermittent ObjectDisposedException (IServiceProvider)
+    // when EF Core tries to resolve services.
+    private readonly WebApplicationFactory<Program> _factory;
+
     internal readonly ApiKeyHolder _apiKeyHolder;
     internal readonly HttpClient _client;
     internal readonly RestfulRegistryRepositoryService _restfulRegistryService;
@@ -56,7 +63,7 @@ public class IntegrationTests_DefaultFixture
         _output = output;
 
         // Custom factory with fake services
-        var customFactory = factory.WithWebHostBuilder(builder =>
+        _factory = factory.WithWebHostBuilder(builder =>
         {
             builder.UseSetting("UseTestServer", "false");
             builder.UseKestrel();
@@ -64,6 +71,15 @@ public class IntegrationTests_DefaultFixture
 
             builder.ConfigureServices(services =>
             {
+                // Test stability: background services run concurrently with the test.
+                // If a BackgroundService throws, the default behavior is to stop the host,
+                // which disposes the root IServiceProvider and can surface later as
+                // ObjectDisposedException during EF Core queries.
+                services.Configure<HostOptions>(o =>
+                {
+                    o.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+                });
+
                 services.RemoveAll<AppStartupService>();
 
                 //// Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
@@ -92,9 +108,9 @@ public class IntegrationTests_DefaultFixture
         });
 
         // Force app to start
-        _client = customFactory.CreateDefaultClient();
+        _client = _factory.CreateDefaultClient();
 
-        _scope = customFactory.Services.CreateScope();
+        _scope = _factory.Services.CreateScope();
 
         _registry = _scope.ServiceProvider.GetRequiredService<IRegistry>();
         _repository = _scope.ServiceProvider.GetRequiredService<IRepository>();
@@ -108,6 +124,20 @@ public class IntegrationTests_DefaultFixture
         _applicationMetaService = _scope.ServiceProvider.GetRequiredService<ApplicationMetaService>();
 
         _client.DefaultRequestHeaders.Add("X-API-Key", _apiKeyHolder.ApiKey);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Ensure the scope is torn down before the factory, so any scoped disposables are cleaned up.
+        _scope?.Dispose();
+
+        _client?.Dispose();
+
+        // WebApplicationFactory implements IAsyncDisposable; dispose it deterministically.
+        if (_factory is IAsyncDisposable asyncDisposable)
+            await asyncDisposable.DisposeAsync();
+        else
+            _factory?.Dispose();
     }
 
     internal async Task WaitForAtnaLogToBeExported()
@@ -164,6 +194,6 @@ public class IntegrationTests_DefaultFixture
 
         var file = File.ReadAllText(allFiles.FirstOrDefault(f => f.Contains(v))!);
         return file;
-    }
+    }	
 }
 #pragma warning restore CS8602, CS8604 // Dereference of a possibly null reference.
