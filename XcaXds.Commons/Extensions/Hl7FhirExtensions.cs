@@ -12,13 +12,13 @@ public static class Hl7FhirExtensions
     public static Resource? GetResourceFromStream(Stream? requestBody)
     {
         var fhirparser = new FhirJsonDeserializer();
-        
+
 
         if (requestBody == null) return null;
-        
+
         using var reader = new StreamReader(requestBody, leaveOpen: true);
         var json = reader.ReadToEnd();
-
+        requestBody.Seek(0, SeekOrigin.Begin);
         return fhirparser.TryDeserializeResource(json, out var instance, out _) ? instance : null;
     }
 
@@ -162,16 +162,16 @@ public static class Hl7FhirExtensions
         var century = (int.Parse(control), int.Parse(year)) switch
         {
             // 1855–1899
-            ( >= 500 and <= 749, >= 55) => "18",
+            (>= 500 and <= 749, >= 55) => "18",
 
             // 1900–1999 (normal case)
-            ( >= 0 and <= 499, _) => "19",
+            (>= 0 and <= 499, _) => "19",
 
             // 1940–1999 (special rule)
-            ( >= 900 and <= 999, >= 40) => "19",
+            (>= 900 and <= 999, >= 40) => "19",
 
             // 2000–2039 (D-number, H-number, synthetic)
-            ( >= 500 and <= 999, <= 39) => "20",
+            (>= 500 and <= 999, <= 39) => "20",
 
             _ => "19"
         };

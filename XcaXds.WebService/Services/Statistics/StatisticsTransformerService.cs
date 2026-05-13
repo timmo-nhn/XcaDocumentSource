@@ -31,28 +31,13 @@ public class StatisticsTransformerService
 
     public async Task<UserAccessEntry> TransformToUserAccessEntry(StatisticsRequestAndFields inputFields)
     {
-        var userAccessEntry = new UserAccessEntry();
-
-        switch (inputFields.RequestType)
+        return inputFields.RequestType switch
         {
-            case RequestAndFieldRequestType.SoapEnvelope:
-                userAccessEntry = await GetUserAccessEntryFromSoapEnvelopeBasedRequest(inputFields);
-                break;
-
-            case RequestAndFieldRequestType.FhirProvideBundle:
-                userAccessEntry = await GetUserAccessEntryFromFhirProvideBundleBasedRequest(inputFields);
-                break;
-
-            case RequestAndFieldRequestType.FhirUrlBasedRequest:
-                userAccessEntry = await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields);
-                break;
-
-            case RequestAndFieldRequestType.Unknown:
-            default:
-                break;
-        }
-
-        return userAccessEntry;
+            RequestAndFieldRequestType.SoapEnvelope => await GetUserAccessEntryFromSoapEnvelopeBasedRequest(inputFields),
+            RequestAndFieldRequestType.FhirProvideBundle => await GetUserAccessEntryFromFhirProvideBundleBasedRequest(inputFields),
+            RequestAndFieldRequestType.FhirUrlBasedRequest => await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields),
+            _ => throw new ArgumentOutOfRangeException("Unknown RequestType")
+        };
     }
 
     private async Task<UserAccessEntry> GetUserAccessEntryFromFhirProvideBundleBasedRequest(StatisticsRequestAndFields inputFields)
@@ -67,7 +52,6 @@ public class StatisticsTransformerService
         if (jwt == null && fhirBundleRequest == null)
             throw new InvalidOperationException("JWT or Fhir Bundle cannot be null.");
 
-        var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(jwt);
         var userAccessEntry = await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields);
 
         userAccessEntry.Issues = GetIssuesFromFhirResponse(fhirBundleResponse);
@@ -130,7 +114,8 @@ public class StatisticsTransformerService
             SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
 
             DocumentConfidentialityCodes = inputFields.RelatedDocumentEntries
-                ?.SelectMany(d => d.ConfidentialityCode ?? []).OfType<CodedValue>()?.ToArray(),
+                ?.SelectMany(d => d.ConfidentialityCode ?? []).ToArray(),
+            Success = inputFields.StatusCode == 200,
             Endpoint = inputFields.Path,
             ResponseStatusCode = inputFields.StatusCode,
             AccessTime = inputFields.AccessTime,
@@ -153,8 +138,11 @@ public class StatisticsTransformerService
         }
         else
         {
-            soapEnvelopeRequest = sxmls.DeserializeXmlString<SoapEnvelope>(inputFields.RequestBody);
-            soapEnvelopeResponse = sxmls.DeserializeXmlString<SoapEnvelope>(inputFields.ResponseBody);
+            if(inputFields.RequestBody?.Length > 0)
+                soapEnvelopeRequest = sxmls.DeserializeXmlString<SoapEnvelope>(inputFields.RequestBody);
+            
+            if (inputFields.ResponseBody?.Length > 0)
+                soapEnvelopeResponse = sxmls.DeserializeXmlString<SoapEnvelope>(inputFields.ResponseBody);
         }
 
         if (soapEnvelopeRequest == null) throw new InvalidOperationException("Soap request envelope cannot be null");
@@ -185,7 +173,7 @@ public class StatisticsTransformerService
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
             SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
-
+            Success = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse).Length == 0,
             DocumentConfidentialityCodes = GetConfidentialityCodeFromRetrievedDocument(soapEnvelopeRequest),
             Endpoint = inputFields.Path,
             Action = soapEnvelopeRequest.Header?.Action,
@@ -196,16 +184,11 @@ public class StatisticsTransformerService
         };
     }
 
-    private string[]? GetIssuesFromSoapEnvelope(SoapEnvelope? soapEnvelope)
+    private static string[]? GetIssuesFromSoapEnvelope(SoapEnvelope? soapEnvelope)
     {
-        RegistryErrorType[] errors =
-        [
-            .. soapEnvelope?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError ?? [],
-            ..soapEnvelope?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError ?? [],
-            ..soapEnvelope?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? [],
-        ];
+        var issues = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelope);
 
-        return errors.Select(e => $"{e.ErrorCode}: {e.CodeContext}").OfType<string>().ToArray();
+        return issues.Select(e => $"{e.ErrorCode}: {e.CodeContext}").OfType<string>().ToArray();
     }
 
     private static string? GetSamlAttributeAsString(List<Saml2Attribute>? statements, params string[] attributeNames)

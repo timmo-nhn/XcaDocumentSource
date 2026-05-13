@@ -86,10 +86,6 @@ public class FhirService
             Diagnostics = $"Patient not found in DocumentReference"
         });
 
-        var identifier = patient?.Identifier.First();
-
-        var patientIdCodeSystem = identifier?.System?.NoUrn();
-
         var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
         var extResReference = sourceIdIdentifier!.Value as Identifier; // Changed from reference to identifier
         var sourceId = extResReference?.Value?.Replace("urn:oid:", "");
@@ -125,7 +121,7 @@ public class FhirService
         }
 
         _logger.LogInformation($"{sessionId} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = FhirToXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, identifier, patientIdCodeSystem?.NoUrn(), homeCommunityId?.NoUrn());
+        var provideAndRegisterResult = FhirToXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, homeCommunityId?.NoUrn());
 
         _logger.LogInformation($"{sessionId} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 

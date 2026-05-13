@@ -600,7 +600,7 @@ public class AtnaLogGeneratorService
 
         if (!string.IsNullOrWhiteSpace(soapAction))
         {
-            (string code, string display) = SoapExtensions.GetTransactionCodeFromSoapAction(soapAction);
+            var (code, display) = SoapExtensions.GetTransactionCodeFromSoapAction(soapAction);
             auditEvent.Subtype.Add(new Coding(Constants.Xds.OperationContract.System, code)
             {
                 Display = display 

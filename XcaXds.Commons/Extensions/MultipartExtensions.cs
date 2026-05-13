@@ -72,23 +72,36 @@ public static class MultipartExtensions
 
     public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(string contentTypeHeader, Stream stream)
     {
-        if (MediaTypeHeaderValue.TryParse(contentTypeHeader, out var mediaTypeHeaderValue) ||
+        if (MediaTypeHeaderValue.TryParse(contentTypeHeader, out var mediaTypeHeaderValue) &&
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             var boundary = mediaTypeHeaderValue.Boundary.Value?.Trim('"');
             var multipartReader = new MultipartReader(boundary, stream);
 
-            using var multipartReaderThatWorks = new SoapEnvelopeMultipartReader(boundary, stream);
-
-            while(await multipartReaderThatWorks.ReadNextSectionAsync() is { } section)
-            {
-                var item = Encoding.Default.GetString(section.Section ?? []);
-            }
+            // using var testing_MultipartReader = new SoapEnvelopeMultipartReader(boundary, stream);
+            //
+            // var soapEnvelopeMultipart = new SoapEnvelopeMultipartResponse();
+            // var sxmls = new SoapXmlSerializer();
+            //
+            // while(await testing_MultipartReader.ReadNextSectionAsync() is { } section)
+            // {
+            //     if (!(section.Section?.Length > 0)) continue;
+            //
+            //     var sectionString = Encoding.UTF8.GetString(section.Section);
+            //
+            //     if (GlobalExtensions.TryThis(() => sxmls.DeserializeXmlString<SoapEnvelope>(sectionString), out _))
+            //     {
+            //         soapEnvelopeMultipart.SoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(sectionString);
+            //     }
+            //     else
+            //     {
+            //         soapEnvelopeMultipart.MultiPartSections.Add(new() { ContentId = section.ContentId, Section = section.Section });
+            //     }
+            // }
             
             var structuredSoapEnvelopeMultiparts = await GetSoapEnvelopeMultipartSections(multipartReader);
 
-            foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body
-                         .RetrieveDocumentSetResponse?.DocumentResponse ?? [])
+            foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body.RetrieveDocumentSetResponse?.DocumentResponse ?? [])
             {
                 var xopInclude = documentResponse.GetXmlDocumentAsXopInclude();
                 documentResponse.SetInlineDocument(structuredSoapEnvelopeMultiparts.MultiPartSections

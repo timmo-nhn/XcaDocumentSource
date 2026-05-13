@@ -3,6 +3,8 @@ using Hl7.Fhir.Serialization;
 using System.Diagnostics;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -106,11 +108,11 @@ public class RequestStatisticsMiddleware
             ContentType = contentType,
             Method = method,
             StatusCode = statusCode,
-            RelatedDocumentEntries = GetDocumentEntriesRelatedToRequest(context, requestType == RequestAndFieldRequestType.FhirProvideBundle ? Hl7FhirExtensions.GetResourceFromStream(requestBody) as Bundle : null)
+            RelatedDocumentEntries = GetDocumentEntriesRelatedToRequest(context, requestBody, requestType)
         };
     }
 
-    private RequestAndFieldRequestType GetRequestTypeFromContext(PathString path, string method)
+    private static RequestAndFieldRequestType GetRequestTypeFromContext(PathString path, string method)
     {
         var isfhirRequest = path.ToString().StartsWith("/R4/fhir");
         var isSoapRequest = path.ToString().StartsWith("/XCA/services");
@@ -124,16 +126,45 @@ public class RequestStatisticsMiddleware
         };
     }
 
-    private DocumentEntryDto[]? GetDocumentEntriesRelatedToRequest(HttpContext context, Bundle? fhirBundleRequest)
+    private static DocumentEntryDto[]? GetDocumentEntriesRelatedToRequest(HttpContext context, Stream? requestBody, RequestAndFieldRequestType requestType)
     {
-        DocumentEntryDto?[]? deletedDocumentEntry = context.Items.TryGetValue("deletedEntry", out var entry) ? [entry as DocumentEntryDto] : [null];
+        var fhirBundle = requestType == RequestAndFieldRequestType.FhirProvideBundle ? Hl7FhirExtensions.GetResourceFromStream(requestBody) as Bundle : null;
+        var documentEntriesFromBundle = GetDocumentEntriesFromBundle(fhirBundle);
 
-        return deletedDocumentEntry.OfType<DocumentEntryDto>().ToArray();
+        List<DocumentEntryDto?>? deletedDocumentEntry = context.Items.TryGetValue("deletedEntry", out var entry) ? [entry as DocumentEntryDto] : [null];
+        deletedDocumentEntry.Add(documentEntriesFromBundle);
+        
+        return deletedDocumentEntry.Where(de => de != null).OfType<DocumentEntryDto>().ToArray();
     }
-    private bool IsMiddlewareEnabledForRequestEndpoint(HttpContext httpContext)
+
+    private static DocumentEntryDto? GetDocumentEntriesFromBundle(Bundle? fhirBundle)
+    {
+        if (fhirBundle == null) return null;
+
+        var patient = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<Patient>()
+            .FirstOrDefault();
+
+        var documentReferences = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<DocumentReference>()
+            .FirstOrDefault();
+
+        var fhirBinaries = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<Binary>()
+            .FirstOrDefault();
+
+        var extrinsicObject = FhirToXdsTransformer.ConvertDocumentReferenceToExtrinsicObject(patient, documentReferences, fhirBinaries);
+        var documentEntry = RegistryMetadataTransformer.TransformRegistryObjectToRegistryObjectDto(extrinsicObject.Value) as DocumentEntryDto;
+
+        return documentEntry;
+    }
+
+    private static bool IsMiddlewareEnabledForRequestEndpoint(HttpContext httpContext)
     {
         var enforceAttr = httpContext.GetEndpoint()?.Metadata.GetMetadata<ExportsAtnaAuditLogAttribute>();
         return enforceAttr?.Enabled == true;
     }
-
 }

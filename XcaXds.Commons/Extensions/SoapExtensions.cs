@@ -2,6 +2,7 @@
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -11,6 +12,18 @@ public static class SoapExtensions
     {
         throw new NotImplementedException();
     }
+
+
+    public static RegistryErrorType[] RegistryErrorsFromSoapEnvelope(SoapEnvelope? soapEnvelopeResponse)
+    {
+        var queryErrors = soapEnvelopeResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError;
+        var retrieveErrors = soapEnvelopeResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError;
+        var registerErrors = soapEnvelopeResponse?.Body.RegisterDocumentSetResponse?.RegistryErrorList?.RegistryError;
+        var provideErrors = soapEnvelopeResponse?.Body.ProvideAndRegisterDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError;
+
+        return [..queryErrors ?? [], ..retrieveErrors ?? [], ..registerErrors ?? [], ..provideErrors ?? []];
+    }
+
 
     public static SoapRequestResult<SoapEnvelope> CreateSoapFault(string faultCode, string? subCode = null, string? detail = null, string? faultReason = null)
     {
@@ -65,7 +78,7 @@ public static class SoapExtensions
         if (resultEnvelope.Value.Body.RegistryResponse != null)
         {
             var isSuccess = bool.Equals(false, (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList?.RegistryError?
-            .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error) ?? false));
+                .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error) ?? false));
             resultEnvelope.Value.Header.Action = isSuccess == true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
             resultEnvelope.IsSuccess = isSuccess;
         }
@@ -98,7 +111,7 @@ public static class SoapExtensions
         else
         {
             var isSuccess = bool.Equals(false, resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList.RegistryError?
-            .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
+                .Any(re => re.Severity == Constants.Xds.ErrorSeverity.Error));
             resultEnvelope.Value.Header?.Action = isSuccess == true ? Constants.Soap.Namespaces.Addressing : Constants.Soap.Namespaces.AddressingSoapFault;
             resultEnvelope.IsSuccess = isSuccess;
         }

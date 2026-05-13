@@ -11,7 +11,7 @@ public class SoapEnvelopeMultipartReader : IDisposable
     private string _currentSectionContentId;
 
     private int _currentSection;
-    
+
     public SoapEnvelopeMultipartReader(string boundary, Stream stream)
     {
         _boundary = boundary;
@@ -23,16 +23,16 @@ public class SoapEnvelopeMultipartReader : IDisposable
     {
         var line = await _reader.ReadLineAsync();
         if (line == null) return null;
-        
+
         var sanitizedLine = line.Trim('-');
 
         if (sanitizedLine.Equals(_boundary))
         {
             _currentSection++;
-            var wholeSection = ReadUntilBoundaryIsHit(_reader, _boundary, out var contentId);
+            var wholeSection = ReadUntilBoundaryHit(_reader, _boundary, out var contentId, out var isFinalBoundary);
             return new MultipartSection()
             {
-                ContentId =  contentId,
+                ContentId = contentId,
                 Section = Encoding.UTF8.GetBytes(wholeSection)
             };
         }
@@ -40,29 +40,43 @@ public class SoapEnvelopeMultipartReader : IDisposable
         return null;
     }
 
-    private string ReadUntilBoundaryIsHit(StreamReader reader, string boundary, out string? contentId)
+    private string ReadUntilBoundaryHit(StreamReader reader, string boundary, out string? contentId, out bool isFinalBoundary)
     {
         contentId = null;
-        bool inHeader = true;
-        bool foundCid = false;
-        
+        isFinalBoundary = false;
+
+        var inHeaders = true;
         var sb = new StringBuilder();
-        while (reader.ReadLine() is { } line && !line.Trim('-').Equals(boundary))
+
+        var boundaryLine = $"--{boundary}";
+        var finalBoundaryLine = $"--{boundary}--";
+
+        while (reader.ReadLine() is { } line)
         {
-            if (inHeader)
+            if (line == boundaryLine)
+                break;
+
+            if (line == finalBoundaryLine)
             {
-                if (line.StartsWith("Content-ID: "))
+                isFinalBoundary = true;
+                break;
+            }
+
+            if (inHeaders)
+            {
+                if (line.StartsWith("Content-ID:", StringComparison.OrdinalIgnoreCase))
                 {
-                    contentId = line["Content-ID: ".Length..].Trim('<').Trim('>');
-                    foundCid = true;
+                    contentId = line["Content-ID:".Length..]
+                        .Trim()
+                        .Trim('<', '>');
+                }
+
+                if (string.IsNullOrEmpty(line))
+                {
+                    inHeaders = false;
                 }
             }
 
-            if (line == "" && foundCid)
-            {
-                inHeader = false;
-            }
-            
             sb.AppendLine(line);
         }
 

@@ -1,4 +1,5 @@
-﻿using Hl7.Fhir.Model;
+﻿using System.Globalization;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Support;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -16,11 +17,11 @@ namespace XcaXds.Commons.DataManipulators.Fhir;
 /// </summary>
 public static class FhirToXdsTransformer
 {
-    public static ServiceResultDto<ProvideAndRegisterDocumentSetRequestType> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, Identifier? patientIdentifier, string? GpiOid, string? homeCommunityId)
+    public static ServiceResultDto<ProvideAndRegisterDocumentSetRequestType> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
-        var registryPackageResult = ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(bundlePatient, submissionSetList, patientIdentifier, GpiOid, homeCommunityId);
+        var registryPackageResult = ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(bundlePatient, submissionSetList, homeCommunityId);
         if (!registryPackageResult.Success)
         {
             operationOutcome.AddIssue(registryPackageResult.OperationOutcome?.Issue);
@@ -42,7 +43,7 @@ public static class FhirToXdsTransformer
                 binaries: fhirBinaries,
                 operationOutcome: operationOutcome);
 
-            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, patientIdentifier, GpiOid, fhirBinary);
+            var extrinsicResult = ConvertDocumentReferenceToExtrinsicObject(bundlePatient, documentReference, fhirBinary);
             if (!extrinsicResult.Success)
             {
                 operationOutcome.AddIssue(extrinsicResult.OperationOutcome?.Issue);
@@ -124,7 +125,7 @@ public static class FhirToXdsTransformer
         return creationResult;
     }
 
-    private static ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(Patient? bundlePatient, List? submissionSetList, Identifier? patientId, string? GpiOid, string? homeCommunityId)
+    private static ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(Patient? bundlePatient, List? submissionSetList, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -306,7 +307,7 @@ public static class FhirToXdsTransformer
 
             // XdsSubmissionset.ContentTypeCode (Document type)
             var submissionConfCode = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType");
-            if (submissionConfCode.Value is CodeableConcept valueCodeableConcept && valueCodeableConcept.Coding != null)
+            if (submissionConfCode.Value is CodeableConcept valueCodeableConcept)
             {
                 var submissionConcept = valueCodeableConcept.Coding.First();
 
@@ -435,6 +436,7 @@ public static class FhirToXdsTransformer
             // XDSSubmissionSet.patientId
             //var patientIdFromPix = GetPatient(patientId, GpiOid);
             //var patientIdFromPix = GetPatient(patientId, sourceId);
+            var patientId = bundlePatient?.Identifier.FirstOrDefault();
             var patientIdFromPix = GetPatient(patientId, homeCommunityId)?.Serialize();
 
             if (!string.IsNullOrWhiteSpace(submissionSetList.Id) && !string.IsNullOrWhiteSpace(patientIdFromPix))
@@ -472,7 +474,7 @@ public static class FhirToXdsTransformer
         }
     }
 
-    public static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Identifier? patientId, string? GpiOid, Binary? fhirBinary)
+    public static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Binary? fhirBinary)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -484,14 +486,15 @@ public static class FhirToXdsTransformer
         };
 
         var attachment = documentReference.Content.First().Attachment;
-        var documentCreationTime = DateTime.Parse(attachment.Creation ?? DateTime.MinValue.ToString()).ToUniversalTime();
-
+        var documentCreationTime = DateTime.Parse(attachment.Creation ?? DateTime.MinValue.ToString(CultureInfo.InvariantCulture)).ToUniversalTime();
+        var patientId =  bundlePatient?.Identifier.FirstOrDefault();
+        var gpiOid = patientId?.System?.NoUrn();
         var patient = new CX()
         {
             IdNumber = patientId?.Value ?? "Unknown",
             AssigningAuthority = new HD()
             {
-                UniversalId = GpiOid,
+                UniversalId = gpiOid,
                 UniversalIdType = Constants.Hl7.UniversalIdType.Iso
             },
         };
@@ -1139,8 +1142,8 @@ public static class FhirToXdsTransformer
         }
 
         /* XDSDocumentEntry.patientId */
-        var patientIdentifierFromDocRef = GetPatient(bundlePatient, documentReference, GpiOid);
-        var patientIdentifierFromPix = GetPatient(patientId, GpiOid);
+        var patientIdentifierFromDocRef = GetPatient(bundlePatient, documentReference, gpiOid);
+        var patientIdentifierFromPix = GetPatient(patientId, gpiOid);
         var pidFromPixString = patientIdentifierFromPix?.Serialize()?.Replace("&&", "");
 
         if (patientIdentifierFromDocRef?.PersonIdentifier != null && !string.IsNullOrWhiteSpace(pidFromPixString))

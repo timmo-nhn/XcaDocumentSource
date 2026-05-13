@@ -12,6 +12,7 @@ public class UserAccessEntry
     public string? SubjectIdHash { get; set; }
     public string? ResourceIdHash { get; set; }
 
+    public bool Success { get; set; }
     public CodedValue? SubjectOrganization { get; set; }
     public string? SubjectOrganizationName { get; set; }
 
