@@ -11,11 +11,10 @@ public static class Hl7FhirExtensions
 {
     public static Resource? GetResourceFromStream(Stream? requestBody)
     {
-        var fhirparser = new FhirJsonDeserializer();
-
-
         if (requestBody == null) return null;
 
+        var fhirparser = new FhirJsonDeserializer();
+        requestBody.Seek(0, SeekOrigin.Begin);
         using var reader = new StreamReader(requestBody, leaveOpen: true);
         var json = reader.ReadToEnd();
         requestBody.Seek(0, SeekOrigin.Begin);

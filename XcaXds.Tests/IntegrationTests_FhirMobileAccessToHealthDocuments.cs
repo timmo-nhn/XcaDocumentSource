@@ -437,7 +437,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        //_policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",

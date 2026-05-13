@@ -15,8 +15,7 @@ public class  MockStatisticsProcessorService : BackgroundService
     private readonly IStatisticsQueue _statisticsQueue;
 
     public static string? UserAccessEntryJson { get; private set; }
-
-
+    
     public MockStatisticsProcessorService(ILogger<MockStatisticsProcessorService> logger, ApplicationConfig appConfig, StatisticsTransformerService statisticsTransformerService, IStatisticsQueue statisticsQueue)
     {
         _logger = logger;

@@ -544,6 +544,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse.RegistryErrorList?.RegistryError?.Length ?? 0);
+        
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
+
     }
 
     [Fact]

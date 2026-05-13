@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.IdentityModel.Tokens.Saml2;
@@ -10,6 +11,7 @@ using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 
 namespace XcaXds.WebService.Services.Statistics;
@@ -35,26 +37,21 @@ public class StatisticsTransformerService
             RequestAndFieldRequestType.SoapEnvelope => await GetUserAccessEntryFromSoapEnvelopeBasedRequest(inputFields),
             RequestAndFieldRequestType.FhirProvideBundle => await GetUserAccessEntryFromFhirProvideBundleBasedRequest(inputFields),
             RequestAndFieldRequestType.FhirUrlBasedRequest => await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields),
-            _ => throw new ArgumentOutOfRangeException("Unknown RequestType")
+            _ => throw new ArgumentOutOfRangeException("Unknown RequestType for RequestandFields: " + JsonSerializer.Serialize(inputFields, Constants.JsonDefaultOptions.DefaultSettings)),
         };
     }
 
     private async Task<UserAccessEntry> GetUserAccessEntryFromFhirProvideBundleBasedRequest(StatisticsRequestAndFields inputFields)
     {
         var jwt = JwtExtractor.ExtractJwt(inputFields.JwtToken, out _);
-        var fhirparser = new FhirJsonDeserializer();
 
         var fhirBundleRequest = Hl7FhirExtensions.GetResourceFromStream(inputFields.RequestBody) as Bundle;
-        
-        var fhirBundleResponse = Hl7FhirExtensions.GetResourceFromStream(inputFields.RequestBody) as Bundle;
+        var fhirBundleResponse = Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody) as Bundle;
 
         if (jwt == null && fhirBundleRequest == null)
             throw new InvalidOperationException("JWT or Fhir Bundle cannot be null.");
 
-        var userAccessEntry = await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields);
-
-        userAccessEntry.Issues = GetIssuesFromFhirResponse(fhirBundleResponse);
-
+        var userAccessEntry = await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields, fhirBundleResponse);
         return userAccessEntry;
     }
 
@@ -68,11 +65,10 @@ public class StatisticsTransformerService
             .OfType<OperationOutcome>()
             .FirstOrDefault() ?? responseOperationOutcome;
 
-        return operationOutcome?.Issue.Select(i => $"{i.Severity}: {i.Code} - {i.Diagnostics}").OfType<string>()
-            .ToArray();
+        return operationOutcome?.Issue.Select(i => $"{i.Severity}: {i.Code} - {i.Diagnostics}").ToArray();
     }
 
-    private async Task<UserAccessEntry> GetUserAccessEntryFromFhirUrlBasedRequest(StatisticsRequestAndFields inputFields)
+    private async Task<UserAccessEntry> GetUserAccessEntryFromFhirUrlBasedRequest(StatisticsRequestAndFields inputFields, Resource? fhirBundleResponse = null)
     {
         var jwt = JwtExtractor.ExtractJwt(inputFields.JwtToken, out _);
 
@@ -80,15 +76,14 @@ public class StatisticsTransformerService
 
         var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(jwt);
 
-        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>()
-            .SelectMany(statement => statement.Attributes).ToList();
+        fhirBundleResponse ??= Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody);
 
-        var subjectOrganization =
-            GetSamlAttributeAsCodedValue(statements, "helseid://claims/client/claims/orgnr_parent");
+        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+
+        var subjectOrganization = GetSamlAttributeAsCodedValue(statements, "helseid://claims/client/claims/orgnr_parent");
         subjectOrganization?.CodeSystem ??= Constants.Oid.Brreg;
 
-        var subjectChildOrganization =
-            GetSamlAttributeAsCodedValue(statements, "urn:oasis:names:tc:xspa:1.0:subject:child-organization");
+        var subjectChildOrganization = GetSamlAttributeAsCodedValue(statements, "urn:oasis:names:tc:xspa:1.0:subject:child-organization");
         subjectChildOrganization?.CodeSystem ??= Constants.Oid.Brreg;
 
         return new UserAccessEntry()
@@ -102,26 +97,52 @@ public class StatisticsTransformerService
             SubjectOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.Organization),
 
             SubjectChildOrganization = subjectChildOrganization,
-            SubjectChildOrganizationName =
-                GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
+            SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
 
-            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ??
-                          Constants.Oid.Saml.Acp.NullValue,
+            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? Constants.Oid.Saml.Acp.NullValue,
 
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
             SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
 
-            DocumentConfidentialityCodes = inputFields.RelatedDocumentEntries
-                ?.SelectMany(d => d.ConfidentialityCode ?? []).ToArray(),
-            Success = inputFields.StatusCode == 200 ? SuccessType.Success : SuccessType.Failue,
+            DocumentConfidentialityCodes = inputFields.RelatedDocumentEntries?.SelectMany(d => d.ConfidentialityCode ?? []).ToArray(),
             Endpoint = inputFields.Path,
+            Success = GetSuccessTypeFromFhirResponse(fhirBundleResponse),
             ResponseStatusCode = inputFields.StatusCode,
             AccessTime = inputFields.AccessTime,
             ElapsedTimeMillis = inputFields.ElapsedMilliseconds,
+            Issues = GetIssuesFromFhirResponse(fhirBundleResponse)
         };
     }
 
+    private static SuccessType GetSuccessTypeFromFhirResponse(Resource? resourceResponse)
+    {
+        List<OperationOutcome>  bundleOutcomes = resourceResponse is Bundle bundle
+            ? bundle.Entry
+                .Select(ent => ent.Resource)
+                .OfType<OperationOutcome>()
+                .ToList()
+            : [];
+
+        List<OperationOutcome> directOutcome = resourceResponse is OperationOutcome opOutcome
+                ? [opOutcome]
+                : [];
+
+        var operationOutcomes = bundleOutcomes.Concat(directOutcome);
+
+        var enumerable = operationOutcomes as OperationOutcome[] ?? operationOutcomes.ToArray();
+        var outcomeTuple = (
+            HasErrorsOrFatals: enumerable?.Sum(oo => oo.Errors + oo.Fatals) > 0,
+            HasWarnings: enumerable?.Sum(oo => oo.Warnings) > 0
+        );
+
+        return outcomeTuple switch
+        {
+            (false, false) => SuccessType.Success,
+            (true, _)      => SuccessType.Failue,
+            (false, true)  => SuccessType.SuccessWithErrors
+        };
+    }
     private async Task<UserAccessEntry> GetUserAccessEntryFromSoapEnvelopeBasedRequest(StatisticsRequestAndFields inputFields)
     {
         var sxmls = new SoapXmlSerializer();
@@ -137,9 +158,9 @@ public class StatisticsTransformerService
         }
         else
         {
-            if(inputFields.RequestBody?.Length > 0)
+            if (inputFields.RequestBody?.Length > 0)
                 soapEnvelopeRequest = sxmls.DeserializeXmlString<SoapEnvelope>(inputFields.RequestBody);
-            
+
             if (inputFields.ResponseBody?.Length > 0)
                 soapEnvelopeResponse = sxmls.DeserializeXmlString<SoapEnvelope>(inputFields.ResponseBody);
         }
@@ -172,7 +193,7 @@ public class StatisticsTransformerService
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
             SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
-            Success = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse).RegistryError.Length == 0 ? SuccessType.Success : SuccessType.Failue,
+            Success = GetSuccessTypeFromRegistryError(SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse)),
             DocumentConfidentialityCodes = GetConfidentialityCodeFromRetrievedDocument(soapEnvelopeRequest),
             Endpoint = inputFields.Path,
             Action = soapEnvelopeRequest.Header?.Action,
@@ -180,6 +201,19 @@ public class StatisticsTransformerService
             AccessTime = inputFields.AccessTime,
             ElapsedTimeMillis = inputFields.ElapsedMilliseconds,
             Issues = GetFormattedIssuesFromSoapEnvelope(soapEnvelopeResponse),
+        };
+    }
+
+    private static SuccessType GetSuccessTypeFromRegistryError(RegistryErrorList registryErrorsFromSoapEnvelope)
+    {
+        var anyErrors = registryErrorsFromSoapEnvelope.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Error);
+        var anyWarnings = registryErrorsFromSoapEnvelope.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Warning);
+
+        return (anyErrors, anyWarnings) switch
+        {
+            (false, true) => SuccessType.SuccessWithErrors,
+            (true, _) => SuccessType.Failue,
+            (false, false) => SuccessType.Success
         };
     }
 
