@@ -12,8 +12,7 @@ public static class SoapExtensions
     {
         throw new NotImplementedException();
     }
-
-
+    
     public static RegistryErrorType[] RegistryErrorsFromSoapEnvelope(SoapEnvelope? soapEnvelopeResponse)
     {
         var queryErrors = soapEnvelopeResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError;
