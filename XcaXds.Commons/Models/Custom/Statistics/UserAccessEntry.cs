@@ -1,4 +1,5 @@
-﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Commons.Models.Custom.Statistics;
 
@@ -12,7 +13,7 @@ public class UserAccessEntry
     public string? SubjectIdHash { get; set; }
     public string? ResourceIdHash { get; set; }
 
-    public bool Success { get; set; }
+    public SuccessType Success { get; set; }
     public CodedValue? SubjectOrganization { get; set; }
     public string? SubjectOrganizationName { get; set; }
 

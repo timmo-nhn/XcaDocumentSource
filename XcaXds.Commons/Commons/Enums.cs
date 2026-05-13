@@ -1,12 +1,24 @@
 using System.Text.Json.Serialization;
 
 namespace XcaXds.Commons.Commons;
+public static class Enums
+{
+    
+}
+
 public enum RequestAndFieldRequestType
 {
     SoapEnvelope,
     FhirProvideBundle,
     FhirUrlBasedRequest,
     Unknown
+}
+
+public enum SuccessType
+{
+    Success,
+    Failue,
+    SuccessWithErrors
 }
 
 public enum AttributeCompareRule
@@ -930,10 +942,10 @@ public static class Hl7
         // ADT/ACK -  Bed status update	
         A20,
 
-        // ADT/ACK -  Patient goes on a “leave of absence”	
+        // ADT/ACK -  Patient goes on a ï¿½leave of absenceï¿½	
         A21,
 
-        // ADT/ACK -  Patient returns from a “leave of absence”	
+        // ADT/ACK -  Patient returns from a ï¿½leave of absenceï¿½	
         A22,
 
         // ADT/ACK -  Delete a patient record	
@@ -1623,7 +1635,7 @@ public static class Hl7
         // SIU/ACK - Notification of blocked schedule time slot(s)	
         S23,
 
-        // SIU/ACK - Notification of opened (“unblocked”) schedule time slot(s)	
+        // SIU/ACK - Notification of opened (ï¿½unblockedï¿½) schedule time slot(s)	
         S24,
 
         // SQM/SQR - Schedule query message and response	

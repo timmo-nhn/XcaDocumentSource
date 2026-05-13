@@ -13,14 +13,24 @@ public static class SoapExtensions
         throw new NotImplementedException();
     }
     
-    public static RegistryErrorType[] RegistryErrorsFromSoapEnvelope(SoapEnvelope? soapEnvelopeResponse)
+    public static RegistryErrorList RegistryErrorsFromSoapEnvelope(SoapEnvelope? soapEnvelopeResponse)
     {
-        var queryErrors = soapEnvelopeResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError;
-        var retrieveErrors = soapEnvelopeResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError;
-        var registerErrors = soapEnvelopeResponse?.Body.RegisterDocumentSetResponse?.RegistryErrorList?.RegistryError;
-        var provideErrors = soapEnvelopeResponse?.Body.ProvideAndRegisterDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError;
+        var registryErrors = soapEnvelopeResponse?.Body.RegistryResponse?.RegistryErrorList;
+        var queryErrors = soapEnvelopeResponse?.Body.AdhocQueryResponse?.RegistryErrorList;
+        var retrieveErrors = soapEnvelopeResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList;
+        var registerErrors = soapEnvelopeResponse?.Body.RegisterDocumentSetResponse?.RegistryErrorList;
+        var provideErrors = soapEnvelopeResponse?.Body.ProvideAndRegisterDocumentSetResponse?.RegistryResponse?.RegistryErrorList;
 
-        return [..queryErrors ?? [], ..retrieveErrors ?? [], ..registerErrors ?? [], ..provideErrors ?? []];
+        RegistryErrorType[] allErrors = [..queryErrors?.RegistryError ?? [], ..retrieveErrors?.RegistryError ?? [], ..registerErrors?.RegistryError ?? [], ..provideErrors?.RegistryError ?? []];
+
+        var highestSeverity = allErrors.MaxBy(err => err.GetSeverityLevel())?.Severity;
+
+
+        return new()
+        {
+           HighestSeverity = highestSeverity,
+           RegistryError = allErrors
+        };
     }
 
 
@@ -210,4 +220,11 @@ public static class SoapExtensions
             _ => ("ITI-18", "Registry Stored Query")
         };
     }
+
+    // public static SuccessType SoapEnvelopeIsSuccess(SoapEnvelope? soapEnvelope)
+    // {
+    //     var errors = RegistryErrorsFromSoapEnvelope(soapEnvelope);
+
+    //     var 
+    // }
 }

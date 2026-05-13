@@ -64,8 +64,7 @@ public partial class RegistryResponseType
     {
         if (RegistryErrorList?.RegistryError?.Length > 0)
         {
-            var highestSeverity = RegistryErrorList.RegistryError
-                .MaxBy(error => GetSeverityLevel(error.Severity));
+            var highestSeverity = RegistryErrorList.RegistryError.MaxBy(err => err.GetSeverityLevel());
 
             RegistryErrorList.HighestSeverity = highestSeverity?.Severity ?? Constants.Xds.ErrorSeverity.Error;
         }
@@ -81,17 +80,4 @@ public partial class RegistryResponseType
                 : Constants.Xds.ResponseStatusTypes.Success ?? Constants.Xds.ResponseStatusTypes.Success;
         }
     }
-    private int GetSeverityLevel(string? severity)
-    {
-        switch (severity)
-        {
-            case Constants.Xds.ErrorSeverity.Error:
-                return 3;
-            case Constants.Xds.ErrorSeverity.Warning:
-                return 2;
-            default:
-                return 0;
-        }
-    }
-
 }

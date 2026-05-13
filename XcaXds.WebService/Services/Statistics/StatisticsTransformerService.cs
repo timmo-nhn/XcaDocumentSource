@@ -10,7 +10,6 @@ using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 
 namespace XcaXds.WebService.Services.Statistics;
@@ -115,7 +114,7 @@ public class StatisticsTransformerService
 
             DocumentConfidentialityCodes = inputFields.RelatedDocumentEntries
                 ?.SelectMany(d => d.ConfidentialityCode ?? []).ToArray(),
-            Success = inputFields.StatusCode == 200,
+            Success = inputFields.StatusCode == 200 ? SuccessType.Success : SuccessType.Failue,
             Endpoint = inputFields.Path,
             ResponseStatusCode = inputFields.StatusCode,
             AccessTime = inputFields.AccessTime,
@@ -173,22 +172,22 @@ public class StatisticsTransformerService
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
             SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
-            Success = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse).Length == 0,
+            Success = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse).RegistryError.Length == 0 ? SuccessType.Success : SuccessType.Failue,
             DocumentConfidentialityCodes = GetConfidentialityCodeFromRetrievedDocument(soapEnvelopeRequest),
             Endpoint = inputFields.Path,
             Action = soapEnvelopeRequest.Header?.Action,
             ResponseStatusCode = inputFields.StatusCode,
             AccessTime = inputFields.AccessTime,
             ElapsedTimeMillis = inputFields.ElapsedMilliseconds,
-            Issues = GetIssuesFromSoapEnvelope(soapEnvelopeResponse),
+            Issues = GetFormattedIssuesFromSoapEnvelope(soapEnvelopeResponse),
         };
     }
 
-    private static string[]? GetIssuesFromSoapEnvelope(SoapEnvelope? soapEnvelope)
+    private static string[]? GetFormattedIssuesFromSoapEnvelope(SoapEnvelope? soapEnvelope)
     {
         var issues = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelope);
 
-        return issues.Select(e => $"{e.ErrorCode}: {e.CodeContext}").OfType<string>().ToArray();
+        return issues.RegistryError.Select(e => $"{e.ErrorCode}: {e.CodeContext}").OfType<string>().ToArray();
     }
 
     private static string? GetSamlAttributeAsString(List<Saml2Attribute>? statements, params string[] attributeNames)

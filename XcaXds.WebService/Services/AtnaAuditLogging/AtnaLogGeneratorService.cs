@@ -229,8 +229,7 @@ public class AtnaLogGeneratorService
         };
     }
 
-    private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope,
-        SoapEnvelope? responseEnvelope)
+    private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
     {
         var auditEvent = new AuditEvent();
         auditEvent.Id = Guid.NewGuid().ToString();
@@ -262,7 +261,7 @@ public class AtnaLogGeneratorService
                 new Coding()
                 {
                     Code = "HTEST",
-                    System = "http://terminology.hl7.org/CodeSystem/v3-ActReason"
+                    System = $"http://terminology.hl7.org/CodeSystem/v3-ActReason"
                 }
             }
         };
@@ -277,7 +276,7 @@ public class AtnaLogGeneratorService
             var subjectNameRaw = statements?
                 .FirstOrDefault(s => s.Name == Constants.Saml.Attribute.SubjectId)?.Values.FirstOrDefault();
 
-            // Fix unicode escape sequences
+            // Fix Unicode escape sequences
             subjectNameRaw = JsonSerializer.Deserialize<string>($"\"{subjectNameRaw}\"");
 
             var subjectNameCoded = SamlExtensions.GetSamlAttributeValueAsCodedValue(subjectNameRaw);
@@ -299,7 +298,6 @@ public class AtnaLogGeneratorService
             {
                 auditEvent.Contained.Add(subjectResource);
             }
-
 
             auditEvent.Entity.Add(new AuditEvent.EntityComponent()
             {
@@ -323,7 +321,6 @@ public class AtnaLogGeneratorService
                 }
             });
 
-
             var orgnrParent = statements?.FirstOrDefault(s => s.Name == "helseid://claims/client/claims/orgnr_parent")
                 ?.Values
                 .FirstOrDefault();
@@ -340,20 +337,17 @@ public class AtnaLogGeneratorService
                 var clientDetail = new List<AuditEvent.DetailComponent>();
                 if (!string.IsNullOrWhiteSpace(orgnrParent))
                 {
-                    clientDetail.Add(new AuditEvent.DetailComponent
-                        { Type = "orgnr_parent", Value = new FhirString(orgnrParent) });
+                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "orgnr_parent", Value = new FhirString(orgnrParent) });
                 }
 
                 if (!string.IsNullOrWhiteSpace(clientId))
                 {
-                    clientDetail.Add(new AuditEvent.DetailComponent
-                        { Type = "client_id", Value = new FhirString(clientId) });
+                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "client_id", Value = new FhirString(clientId) });
                 }
 
                 if (!string.IsNullOrWhiteSpace(clientName))
                 {
-                    clientDetail.Add(new AuditEvent.DetailComponent
-                        { Type = "client_name", Value = new FhirString(clientName) });
+                    clientDetail.Add(new AuditEvent.DetailComponent { Type = "client_name", Value = new FhirString(clientName) });
                 }
 
                 auditEvent.Entity.Add(new AuditEvent.EntityComponent
@@ -584,10 +578,10 @@ public class AtnaLogGeneratorService
         var xdsDoc = docRequest?.Document?.FirstOrDefault();
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList;
         var soapAction = requestEnvelope?.Header.Action;
-        
-        var xdsDocEntry = (DocumentEntryDto?)RegistryMetadataTransformer
+
+        var documentEntry = (DocumentEntryDto?)RegistryMetadataTransformer
             .TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
-        var xdsSubmissionSet = (SubmissionSetDto?)RegistryMetadataTransformer
+        var submissionSet = (SubmissionSetDto?)RegistryMetadataTransformer
             .TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
         if (!string.IsNullOrWhiteSpace(adhocQueryType))
@@ -603,41 +597,74 @@ public class AtnaLogGeneratorService
             var (code, display) = SoapExtensions.GetTransactionCodeFromSoapAction(soapAction);
             auditEvent.Subtype.Add(new Coding(Constants.Xds.OperationContract.System, code)
             {
-                Display = display 
+                Display = display
             });
         }
 
-        if (xdsDocEntry == null)
+        if (documentEntry == null)
         {
-            var retrieveDocumentsRequest =
-                requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest?.FirstOrDefault();
-            xdsDocEntry =
-                _registryWrapper.GetSingleRegistryObjectAsDto(retrieveDocumentsRequest?.DocumentUniqueId) as
-                    DocumentEntryDto;
+            var retrieveDocumentsRequest = requestEnvelope?.Body?.RetrieveDocumentSetRequest?.DocumentRequest?.FirstOrDefault();
+            documentEntry = _registryWrapper.GetSingleRegistryObjectAsDto(retrieveDocumentsRequest?.DocumentUniqueId) as DocumentEntryDto;
         }
 
-        if (xdsDocEntry != null)
+        if (documentEntry != null)
         {
-            var docUniqueId = xdsDoc?.Id ?? xdsDocEntry?.UniqueId;
-            var reference = !string.IsNullOrWhiteSpace(docUniqueId) ? $"DocumentReference/{docUniqueId}" : null;
+            var docUniqueId = documentEntry?.UniqueId;
+            var docId = documentEntry?.Id;
 
-            var title = xdsDocEntry?.Title;
+            var title = documentEntry?.Title;
             if (string.IsNullOrWhiteSpace(title))
             {
                 title = "Clinical document";
             }
 
-            var mimeType = xdsDocEntry?.MimeType;
-            var classCode = xdsDocEntry?.ObjectType;
+            var mimeType = documentEntry?.MimeType;
+            var classCode = documentEntry?.ObjectType;
+            var submissionSetId = submissionSet?.Id;
+            var sourceId = submissionSet?.SourceId;
 
             AddDetail(detail, "documentUniqueId", docUniqueId);
             AddDetail(detail, "mimeType", mimeType);
             AddDetail(detail, "classCode", classCode);
             AddDetail(detail, "title", title);
             AddDetail(detail, "homeCommunityId", _appConfig.HomeCommunityId);
-
-            var submissionSetId = xdsSubmissionSet?.Id;
             AddDetail(detail, "submissionSetId", submissionSetId);
+            AddDetail(detail, "sourceId", sourceId);
+
+            auditEvent.Entity.Add(new AuditEvent.EntityComponent
+            {
+                What = new ResourceReference("DocumentReference/" + docId, title),
+                Type = new Coding()
+                {
+                    Code = "2",
+                    System = "http://terminology.hl7.org/CodeSystem/audit-entity-type",
+                    Display = "System Object"
+                },
+                Role = new Coding()
+                {
+                    Code = "3",
+                    System = "http://terminology.hl7.org/CodeSystem/object-role",
+                    Display = "Report"
+                },
+                Detail = new List<AuditEvent.DetailComponent>()
+                {
+                    new AuditEvent.DetailComponent()
+                    {
+                        Type = "documentUniqueId",
+                        Value = new FhirString(docUniqueId)
+                    },
+                    new AuditEvent.DetailComponent()
+                    {
+                        Type = "documentReferenceId",
+                        Value = new FhirString(docId)
+                    },
+                    new AuditEvent.DetailComponent()
+                    {
+                        Type = "title",
+                        Value = new FhirString(title)
+                    },
+                }
+            });
         }
         else
         {
@@ -887,12 +914,12 @@ public class AtnaLogGeneratorService
             var docEntryUniqueId = retrieveDocumentRequest.DocumentRequest;
 
             if (!(docEntryUniqueId?.Length > 0)) return [];
-            
+
             var ids = new HashSet<string>(docEntryUniqueId.Select(x => x.DocumentUniqueId).OfType<string>());
 
             var registryObjects = ids.Select(_registryWrapper.GetSingleRegistryObjectAsDto)
                 .OfType<RegistryObjectDto>().ToArray();
-            
+
             return PatientIdPidFromDocumentEntries(registryObjects) ?? [];
         }
 

@@ -23,4 +23,17 @@ public partial class RegistryErrorType
 
     [XmlText]
     public string? Value;
+
+    public int GetSeverityLevel()
+    {
+        switch (Severity)
+        {
+            case Constants.Xds.ErrorSeverity.Error:
+                return 3;
+            case Constants.Xds.ErrorSeverity.Warning:
+                return 2;
+            default:
+                return 0;
+        }
+    }
 }
