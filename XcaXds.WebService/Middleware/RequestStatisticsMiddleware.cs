@@ -1,6 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyModel;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
@@ -48,7 +49,6 @@ public class RequestStatisticsMiddleware
 
         sw.Stop();
 
-
         var responseBody = await CopyStreamAsync(responseBuffer);
         await CopyResponseToOriginalStreamAsync(responseBuffer, originalResponseBody);
 
@@ -90,8 +90,8 @@ public class RequestStatisticsMiddleware
         var path = context.Request.Path;
         var method = context.Request.Method;
         var statusCode = context.Response.StatusCode;
-        var contentType = context.Request.ContentType;
-        
+        var requestContentType = context.Request.ContentType;
+        var responseContentType = context.Response.ContentType;
         
         var requestType = GetRequestTypeFromContext(path, method);
 
@@ -105,7 +105,8 @@ public class RequestStatisticsMiddleware
             JwtToken = jwt,
             ElapsedMilliseconds = elapsedMs,
             Path = path,
-            ContentType = contentType,
+            RequestContentType = requestContentType,
+            ResponseContentType = responseContentType,
             Method = method,
             StatusCode = statusCode,
             RelatedDocumentEntries = GetDocumentEntriesRelatedToRequest(context, requestBody, requestType)
@@ -115,7 +116,7 @@ public class RequestStatisticsMiddleware
     private static RequestAndFieldRequestType GetRequestTypeFromContext(PathString path, string method)
     {
         var isfhirRequest = path.ToString().StartsWith("/R4/fhir");
-        var isSoapRequest = path.ToString().StartsWith("/XCA/services");
+        var isSoapRequest = path.ToString() is { } item && (item.StartsWith("/XCA/services") || item.StartsWith("/Registry/services") || item.StartsWith("Repository/services"));
 
         return (isfhirRequest, isSoapRequest, method) switch
         {

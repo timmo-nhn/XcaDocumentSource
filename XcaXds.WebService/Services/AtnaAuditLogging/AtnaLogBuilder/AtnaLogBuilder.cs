@@ -15,7 +15,7 @@ public class AtnaLogBuilder
         _strategies = strategies;
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody, Stream responseBody)
     {
         if (!_strategies.Any())
         {
@@ -39,6 +39,6 @@ public class AtnaLogBuilder
             return AtnaLogBuilderResult.Fail(message);
         }
 
-        return await strategy.BuildAsync(context, requestBody);
+        return await strategy.BuildAsync(context, requestBody, responseBody);
     }
 }

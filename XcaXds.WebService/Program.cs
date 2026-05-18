@@ -160,7 +160,7 @@ public class Program
         app.UseMiddleware<SessionIdTraceMiddleware>();
         app.UseMiddleware<RequestStatisticsMiddleware>();
 
-        // Middleware below will only enabled for endpoints with attributes
+        // Middleware below will only be enabled for endpoints with attributes
         app.UseMiddleware<PolicyEnforcementPointMiddleware>();
         app.UseMiddleware<AtnaAuditLoggingMiddleware>();
     }

@@ -24,7 +24,7 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
         return (path.StartsWith("/R4/fhir/") && path.EndsWith("/$validate")) == false && contentType.IsAnyOf(Constants.MimeTypes.FhirJson) && method == "POST";
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody, Stream responseBody)
     {
         var jwtToken = context.Request.Headers.Authorization.FirstOrDefault();
 

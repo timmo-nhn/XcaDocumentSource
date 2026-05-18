@@ -17,7 +17,7 @@ public enum RequestAndFieldRequestType
 public enum SuccessType
 {
     Success,
-    Failue,
+    Failure,
     SuccessWithErrors
 }
 

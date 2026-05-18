@@ -32,7 +32,10 @@
         <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
         <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
     </ItemGroup>
-
-    <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
-
+    
+    <ItemGroup>
+        <None Update="xunit.runner.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>

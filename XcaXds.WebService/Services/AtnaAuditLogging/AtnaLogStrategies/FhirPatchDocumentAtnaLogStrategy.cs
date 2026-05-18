@@ -20,7 +20,7 @@ public class FhirPatchDocumentAtnaLogStrategy : IAtnaLogStrategy
         return contentType.IsAnyOf(Constants.MimeTypes.FhirJson) && method == "PATCH";
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody, Stream responseBody)
     {
         // Atna log generation
         var oldLabel = (context.Items.TryGetValue("oldSecurityLabel", out var label) ? label : null) as List<CodedValue>;

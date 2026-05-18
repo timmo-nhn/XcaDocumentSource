@@ -74,10 +74,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 // If a BackgroundService throws, the default behavior is to stop the host,
                 // which disposes the root IServiceProvider and can surface later as
                 // ObjectDisposedException during EF Core queries.
-                services.Configure<HostOptions>(o =>
-                {
-                    o.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
-                });
+                services.Configure<HostOptions>(o => { o.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore; });
 
                 services.RemoveAll<AppStartupService>();
 
@@ -139,6 +136,17 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
             _factory?.Dispose();
     }
 
+    internal async Task WaitForUserAccessEntryToBeExported()
+    {
+        var timeoutAt = DateTime.UtcNow.AddSeconds(10);
+        while (string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson) && DateTime.UtcNow < timeoutAt)
+        {
+            await Task.Delay(50);
+        }
+        
+        Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
+    }
+
     internal async Task WaitForAtnaLogToBeExported()
     {
         // Audit log is generated via background service; allow a brief window for the queue to be processed.
@@ -151,7 +159,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         }
 
         Assert.True(_atnaLogExportedChecker.AtnaLogExported);
-        // Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
+        Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
     }
 
     internal async Task<List<DocumentReferenceDto>> EnsureRegistryAndRepositoryHasContent(int registryObjectsCount = 10,

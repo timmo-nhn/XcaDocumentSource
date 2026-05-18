@@ -19,7 +19,7 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
         return contentType.IsAnyOf(Constants.MimeTypes.SoapXml, Constants.MimeTypes.MultipartRelated) && method == "POST";
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody, Stream responseBody)
     {
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
@@ -32,12 +32,12 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
         {
             requestBodyString = await MultipartExtensions.ReadMultipartContentFromStream(requestBody, request.ContentType);
         }
-
-        var responseBodyString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(response.Body);
+        
+        var responseBodyString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(responseBody);
 
         if (response.ContentType != null && response.ContentType.Contains(Constants.MimeTypes.MultipartRelated))
         {
-            responseBodyString = await MultipartExtensions.ReadFirstMultipartSectionFromStream(response.Body, response.ContentType);
+            responseBodyString = await MultipartExtensions.ReadFirstMultipartSectionFromStream(responseBody, response.ContentType);
         }
 
         var requestSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(requestBodyString);

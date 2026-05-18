@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace XcaXds.Commons.Models.Custom;
 
-public class SoapEnvelopeMultipartReader : IDisposable
+public class SoapEnvelopeMultipartReader
 {
     private string _boundary;
     private Stream _stream;
@@ -16,7 +16,7 @@ public class SoapEnvelopeMultipartReader : IDisposable
     {
         _boundary = boundary;
         _stream = stream;
-        _reader = new StreamReader(stream);
+        _reader = new StreamReader(stream, leaveOpen:true);
     }
 
     public async Task<MultipartSection?> ReadNextSectionAsync()
@@ -70,22 +70,19 @@ public class SoapEnvelopeMultipartReader : IDisposable
                         .Trim()
                         .Trim('<', '>');
                 }
-
+                
+                // MIME Headers and Body should be separated by an empty line  
                 if (string.IsNullOrEmpty(line))
                 {
                     inHeaders = false;
                 }
             }
-
-            sb.AppendLine(line);
+            else
+            { 
+                sb.AppendLine(line);
+            }
         }
 
         return sb.ToString();
-    }
-
-    public void Dispose()
-    {
-        _stream.Dispose();
-        _reader.Dispose();
-    }
+    } 
 }

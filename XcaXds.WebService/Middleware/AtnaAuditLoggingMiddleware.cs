@@ -40,7 +40,7 @@ internal class AtnaAuditLoggingMiddleware
                 httpContext.Request.Body.Seek(0, SeekOrigin.Begin);
             }
 
-            await atnaLogBuilder.BuildAsync(httpContext, requestBody);
+            await atnaLogBuilder.BuildAsync(httpContext, requestBody, responseBody);
 
             responseBody.Seek(0, SeekOrigin.Begin);
         }

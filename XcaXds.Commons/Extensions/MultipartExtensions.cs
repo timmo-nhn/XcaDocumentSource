@@ -39,6 +39,12 @@ public static class MultipartExtensions
         return sb.ToString();
     }
 
+    public static async Task<SoapEnvelope> ReadFirstMultipartSectionSoapEnvelope(Stream body, string contentType)
+    {
+        var sxmls = new SoapXmlSerializer();
+        return sxmls.DeserializeXmlString<SoapEnvelope>(await ReadFirstMultipartSectionFromStream(body, contentType));
+    }
+
     public static async Task<string> ReadFirstMultipartSectionFromStream(Stream body, string contentType)
     {
         var sb = new StringBuilder();
@@ -48,11 +54,13 @@ public static class MultipartExtensions
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             var boundary = GetMultipartBoundary(mediaTypeHeaderValue.Boundary.Value);
-
-            var multipartReader = new MultipartReader(boundary, body);
-            var section = await multipartReader.ReadNextSectionAsync();
-            using var sr = new StreamReader(section.Body);
-            sb.Append(await sr.ReadToEndAsync());
+            var multipartReaderTest = new SoapEnvelopeMultipartReader(boundary, body);
+            
+            var section = await multipartReaderTest.ReadNextSectionAsync();
+            if (!(section?.Section?.Length > 0)) throw new InvalidOperationException("Response body is null");
+            
+            // FIXME! 
+            sb.Append(Encoding.Default.GetString(section.Section));
         }
 
         body.Position = 0;
@@ -70,20 +78,23 @@ public static class MultipartExtensions
         return boundary.ToString();
     }
 
-    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(string contentTypeHeader, Stream stream)
+    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(Stream stream, string contentTypeHeader)
     {
         if (MediaTypeHeaderValue.TryParse(contentTypeHeader, out var mediaTypeHeaderValue) &&
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             var boundary = mediaTypeHeaderValue.Boundary.Value?.Trim('"');
+            
+            if (boundary == null) return null;
+            
             var multipartReader = new MultipartReader(boundary, stream);
 
-            // using var testing_MultipartReader = new SoapEnvelopeMultipartReader(boundary, stream);
+            // using var multipartReader = new SoapEnvelopeMultipartReader(boundary, stream);
             //
             // var soapEnvelopeMultipart = new SoapEnvelopeMultipartResponse();
             // var sxmls = new SoapXmlSerializer();
             //
-            // while(await testing_MultipartReader.ReadNextSectionAsync() is { } section)
+            // while(await multipartReader.ReadNextSectionAsync() is { } section)
             // {
             //     if (!(section.Section?.Length > 0)) continue;
             //
@@ -98,7 +109,7 @@ public static class MultipartExtensions
             //         soapEnvelopeMultipart.MultiPartSections.Add(new() { ContentId = section.ContentId, Section = section.Section });
             //     }
             // }
-            
+
             var structuredSoapEnvelopeMultiparts = await GetSoapEnvelopeMultipartSections(multipartReader);
 
             foreach (var documentResponse in structuredSoapEnvelopeMultiparts.SoapEnvelope?.Body.RetrieveDocumentSetResponse?.DocumentResponse ?? [])
@@ -107,8 +118,10 @@ public static class MultipartExtensions
                 documentResponse.SetInlineDocument(structuredSoapEnvelopeMultiparts.MultiPartSections
                     .FirstOrDefault(section => section.ContentId == xopInclude.href)?.Section ?? []);
             }
+
             return structuredSoapEnvelopeMultiparts.SoapEnvelope;
         }
+
         return null;
     }
 
@@ -117,20 +130,18 @@ public static class MultipartExtensions
         var bytes = Encoding.UTF8.GetBytes(messageString);
         using var stream = new MemoryStream(bytes);
 
-        return await ReadMultipartSoapMessage(contentTypeHeader, stream);
+        return await ReadMultipartSoapMessage(stream, contentTypeHeader);
     }
 
 
-    private static async Task<SoapEnvelopeMultipartResponse> GetSoapEnvelopeMultipartSections(
-        MultipartReader multipartReader)
+    private static async Task<SoapEnvelopeMultipartResponse> GetSoapEnvelopeMultipartSections(MultipartReader multipartReader)
     {
         var sxmls = new SoapXmlSerializer();
 
         var soapEnvelopeMultipart = new SoapEnvelopeMultipartResponse();
         while (await multipartReader.ReadNextSectionAsync() is { } section)
         {
-            var contentId =
-                $"cid:{section.Headers.GetValueOrDefault("Content-ID").ToString().TrimStart('<').TrimEnd('>')}";
+            var contentId = $"cid:{section.Headers.GetValueOrDefault("Content-ID").ToString().TrimStart('<').TrimEnd('>')}";
 
             byte[] content;
 

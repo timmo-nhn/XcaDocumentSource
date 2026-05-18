@@ -12,7 +12,6 @@ public class SoapXmlSerializerResult
     public bool IsSuccess { get; set; }
 }
 
-
 /// <summary>
 /// Works as a generic XML Serializer, but returns a SOAP-envelope as a serialization result
 /// </summary>
@@ -27,63 +26,48 @@ public class SoapXmlSerializer
 
     public SoapXmlSerializer()
     {
-
     }
 
     public T DeserializeXmlString<T>(string? xmlString)
     {
-        var byteArray = Encoding.UTF8.GetBytes(xmlString?.Trim() ?? "");
-        var memStream = new MemoryStream(byteArray);
-        return DeserializeXmlString<T>(memStream);
+        var serializer = new XmlSerializer(typeof(T));
+
+        var xmlDoc = new XmlDocument();
+        xmlDoc.LoadXml(xmlString);
+
+        // Having a "type" attribute on the <Body> tag causes an exception when deserializing
+        // <s:Body p7:type="RegistryStoredQueryRequest" xmlns:p7="http://www.w3.org/2001/XMLSchema-instance">
+        // so strip it away before deserializing, as it's not used
+        var namespaceManager = new XmlNamespaceManager(xmlDoc.NameTable);
+        namespaceManager.AddNamespace("s", Constants.Soap.Namespaces.SoapEnvelope);
+        namespaceManager.AddNamespace("p7", Constants.Soap.Namespaces.Xsi);
+        namespaceManager.AddNamespace("lcm", Constants.Soap.Namespaces.Lcm);
+        namespaceManager.AddNamespace("rim", Constants.Soap.Namespaces.Rim);
+
+        var bodyElement = xmlDoc.SelectSingleNode("//s:Body", namespaceManager) ?? xmlDoc.SelectSingleNode("//Body");
+        
+        if (bodyElement?.Attributes?["type", "http://www.w3.org/2001/XMLSchema-instance"] != null)
+        {
+            bodyElement.Attributes.RemoveNamedItem("type", "http://www.w3.org/2001/XMLSchema-instance");
+        }
+
+        var modifiedXmlContent = xmlDoc.OuterXml;
+
+        if (string.IsNullOrWhiteSpace(modifiedXmlContent))
+            throw new ArgumentException("XML content cannot be null or whitespace.", nameof(modifiedXmlContent));
+
+
+        using var stringReader = new StringReader(modifiedXmlContent);
+        var result = serializer.Deserialize(stringReader);
+        return result is T typedResult
+            ? typedResult
+            : throw new InvalidOperationException($"Deserialized object is not of type {typeof(T).FullName}.");
     }
 
     public T DeserializeXmlString<T>(Stream xmlStream)
     {
-        var serializer = new XmlSerializer(typeof(T));
-
-        using (var streamReader = new StreamReader(xmlStream))
-        {
-            var xmlContent = streamReader.ReadToEnd();
-
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xmlContent);
-
-            // Having a "type" attribute on the <Body> tag causes an exception when deserializing
-            // <s:Body p7:type="RegistryStoredQueryRequest" xmlns:p7="http://www.w3.org/2001/XMLSchema-instance">
-            // so strip it away before deserializing, as its not used
-            var namespaceManager = new XmlNamespaceManager(xmlDoc.NameTable);
-            namespaceManager.AddNamespace("s", Constants.Soap.Namespaces.SoapEnvelope);
-            namespaceManager.AddNamespace("p7", Constants.Soap.Namespaces.Xsi);
-            namespaceManager.AddNamespace("lcm", Constants.Soap.Namespaces.Lcm);
-            namespaceManager.AddNamespace("rim", Constants.Soap.Namespaces.Rim);
-
-            var bodyElement = xmlDoc.SelectSingleNode("//s:Body", namespaceManager);
-
-
-            if (bodyElement == null)
-            {
-                bodyElement = xmlDoc.SelectSingleNode("//Body");
-            }
-
-            if (bodyElement != null && bodyElement.Attributes?["type", "http://www.w3.org/2001/XMLSchema-instance"] != null)
-            {
-                bodyElement.Attributes.RemoveNamedItem("type", "http://www.w3.org/2001/XMLSchema-instance");
-            }
-
-            var modifiedXmlContent = xmlDoc.OuterXml;
-
-            if (string.IsNullOrWhiteSpace(modifiedXmlContent))
-                throw new ArgumentException("XML content cannot be null or whitespace.", nameof(modifiedXmlContent));
-
-
-            using (var stringReader = new StringReader(modifiedXmlContent))
-            {
-                var result = serializer.Deserialize(stringReader);
-                return result is T typedResult
-                    ? typedResult
-                    : throw new InvalidOperationException($"Deserialized object is not of type {typeof(T).FullName}.");
-            }
-        }
+        using var sr = new StreamReader(xmlStream);
+        return DeserializeXmlString<T>(sr.ReadToEnd());
     }
 
     public SoapXmlSerializerResult SerializeSoapMessageToXmlString(object? soapElement, XmlWriterSettings? settings = null)

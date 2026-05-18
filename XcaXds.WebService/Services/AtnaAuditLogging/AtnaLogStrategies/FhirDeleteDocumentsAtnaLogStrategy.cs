@@ -26,7 +26,7 @@ public class FhirDeleteDocumentsAtnaLogStrategy : IAtnaLogStrategy
         return path.StartsWith("/R4/fhir/DocumentReference") && method == "DELETE";
     }
 
-    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody)
+    public async Task<AtnaLogBuilderResult> BuildAsync(HttpContext context, Stream requestBody, Stream responseBody)
     {
         var fhirParser = new FhirJsonDeserializer();
 

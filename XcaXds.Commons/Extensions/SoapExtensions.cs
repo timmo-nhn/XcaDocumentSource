@@ -12,7 +12,7 @@ public static class SoapExtensions
     {
         throw new NotImplementedException();
     }
-    
+
     public static RegistryErrorList RegistryErrorsFromSoapEnvelope(SoapEnvelope? soapEnvelopeResponse)
     {
         var registryErrors = soapEnvelopeResponse?.Body.RegistryResponse?.RegistryErrorList;
@@ -21,15 +21,15 @@ public static class SoapExtensions
         var registerErrors = soapEnvelopeResponse?.Body.RegisterDocumentSetResponse?.RegistryErrorList;
         var provideErrors = soapEnvelopeResponse?.Body.ProvideAndRegisterDocumentSetResponse?.RegistryResponse?.RegistryErrorList;
 
-        RegistryErrorType[] allErrors = [..queryErrors?.RegistryError ?? [], ..retrieveErrors?.RegistryError ?? [], ..registerErrors?.RegistryError ?? [], ..provideErrors?.RegistryError ?? []];
+        RegistryErrorType[] allErrors = [..registryErrors?.RegistryError ?? [], ..queryErrors?.RegistryError ?? [], ..retrieveErrors?.RegistryError ?? [], ..registerErrors?.RegistryError ?? [], ..provideErrors?.RegistryError ?? []];
 
         var highestSeverity = allErrors.MaxBy(err => err.GetSeverityLevel())?.Severity;
 
 
-        return new()
+        return new RegistryErrorList()
         {
-           HighestSeverity = highestSeverity,
-           RegistryError = allErrors
+            HighestSeverity = highestSeverity,
+            RegistryError = allErrors
         };
     }
 
@@ -40,20 +40,20 @@ public static class SoapExtensions
         {
             Value = new SoapEnvelope()
             {
-                Header = new()
+                Header = new SoapHeader()
                 {
                     Action = Constants.Soap.Namespaces.AddressingSoapFault,
                 },
-                Body = new()
+                Body = new SoapBody()
                 {
-                    Fault = new()
+                    Fault = new Fault()
                     {
-                        Code = new()
+                        Code = new Code()
                         {
                             Value = faultCode,
                             Subcode = string.IsNullOrWhiteSpace(subCode) ? null : new() { Value = subCode ?? string.Empty }
                         },
-                        Reason = new()
+                        Reason = new Reason()
                         {
                             Text = string.IsNullOrEmpty(faultReason) ? "soapenv:Reciever" : faultReason
                         },
@@ -77,13 +77,14 @@ public static class SoapExtensions
         {
             Value = new SoapEnvelope()
             {
-                Header = new(),
-                Body = new()
+                Header = new SoapHeader(),
+                Body = new SoapBody()
                 {
                     RegistryResponse = message
                 }
             }
         };
+
         if (resultEnvelope.Value.Body.RegistryResponse != null)
         {
             var isSuccess = bool.Equals(false, (resultEnvelope.Value.Body.RegistryResponse.RegistryErrorList?.RegistryError?
@@ -106,11 +107,8 @@ public static class SoapExtensions
             }
         };
 
-        if (resultEnvelope.Value.Header != null)
-        {
-            resultEnvelope.Value.Header.Action = message.Header.Action;
-            resultEnvelope.Value.Header.RelatesTo = message.Header.MessageId;
-        }
+        resultEnvelope.Value.Header.Action = message.Header.Action;
+        resultEnvelope.Value.Header.RelatesTo = message.Header.MessageId;
 
         // Base Success property on whether Value...RegistryErrorList has any errors
         if (resultEnvelope.Value.Body.RegistryResponse?.RegistryErrorList == null)

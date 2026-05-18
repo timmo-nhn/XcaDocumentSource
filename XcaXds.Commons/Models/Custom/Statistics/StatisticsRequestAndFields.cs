@@ -20,7 +20,8 @@ public class StatisticsRequestAndFields
     public string? Path { get; init; }
     public string? Method { get; init; }
     public int StatusCode { get; init; }
-    public string? ContentType { get; init; }
+    public string? RequestContentType { get; init; }
+    public string? ResponseContentType { get; init; }
     public RequestAndFieldRequestType RequestType { get; set; }
     public string? SessionId { get; set; }
     public DocumentEntryDto[]? RelatedDocumentEntries { get; set; }

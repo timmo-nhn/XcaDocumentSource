@@ -429,6 +429,10 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        
+        await WaitForUserAccessEntryToBeExported();
+        
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
 
@@ -534,9 +538,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
 
-        var retrieveDocumentSetResponse = new SoapEnvelope();
-
-        retrieveDocumentSetResponse = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
+        var retrieveDocumentSetResponse = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
 
         // Cleanup
         await NukeRegistryRepository();
@@ -544,9 +546,10 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse.RegistryErrorList?.RegistryError?.Length ?? 0);
+
+        await WaitForUserAccessEntryToBeExported();
         
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
-
     }
 
     [Fact]
@@ -1032,9 +1035,8 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         Assert.Equal(expectedCountAfterRds, registryCount);
         //Assert.Equal(RegistryItemCount, _repository.DocumentRepository.Count);
 
-        Thread.Sleep(1500); // Wait for the log to be exported, since it's done asynchronously after the response is sent
-        Assert.True(_atnaLogExportedChecker.AtnaLogExported);
-
+        await WaitForAtnaLogToBeExported();
+        
         _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
@@ -1170,10 +1172,12 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
-
+        
         Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
-
+        
+        await WaitForAtnaLogToBeExported();
+        
         _output.WriteLine($"Registry count before test run: {countFirst}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 

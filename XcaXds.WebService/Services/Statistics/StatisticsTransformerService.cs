@@ -139,7 +139,7 @@ public class StatisticsTransformerService
         return outcomeTuple switch
         {
             (false, false) => SuccessType.Success,
-            (true, _)      => SuccessType.Failue,
+            (true, _)      => SuccessType.Failure,
             (false, true)  => SuccessType.SuccessWithErrors
         };
     }
@@ -149,12 +149,13 @@ public class StatisticsTransformerService
         SoapEnvelope? soapEnvelopeRequest = null;
         SoapEnvelope? soapEnvelopeResponse = null;
 
-        if (inputFields.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated &&
-            inputFields.RequestBody?.Length > 0 &&
-            inputFields.ResponseBody?.Length > 0)
+        var requestIsMultipart = inputFields.RequestContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated && inputFields.RequestBody?.Length > 0;
+        var responseIsMultipart = inputFields.ResponseContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated && inputFields.ResponseBody?.Length > 0;
+        
+        if (requestIsMultipart)
         {
-            soapEnvelopeRequest = await MultipartExtensions.ReadMultipartSoapMessage(inputFields.ContentType, inputFields.RequestBody);
-            soapEnvelopeResponse = await MultipartExtensions.ReadMultipartSoapMessage(inputFields.ContentType, inputFields.ResponseBody);
+            soapEnvelopeRequest = await MultipartExtensions.ReadMultipartSoapMessage(inputFields.RequestBody, inputFields.RequestContentType);
+            soapEnvelopeResponse = await MultipartExtensions.ReadMultipartSoapMessage(inputFields.ResponseBody, inputFields.ResponseContentType);
         }
         else
         {
@@ -183,17 +184,15 @@ public class StatisticsTransformerService
             SubjectOrganization = GetSamlAttributeAsCodedValue(statements, Constants.Saml.Attribute.OrganizationId),
             SubjectOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.Organization),
 
-            SubjectChildOrganization =
-                GetSamlAttributeAsCodedValue(statements, Constants.Saml.Attribute.ChildOrganization),
-            SubjectChildOrganizationName =
-                GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
+            SubjectChildOrganization = GetSamlAttributeAsCodedValue(statements, Constants.Saml.Attribute.ChildOrganization),
+            SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
             AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ??
                           Constants.Oid.Saml.Acp.NullValue,
 
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
             SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
-            Success = GetSuccessTypeFromRegistryError(SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse)),
+            Success = GetSuccessTypeFromRegistryError(SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse), soapEnvelopeResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse),
             DocumentConfidentialityCodes = GetConfidentialityCodeFromRetrievedDocument(soapEnvelopeRequest),
             Endpoint = inputFields.Path,
             Action = soapEnvelopeRequest.Header?.Action,
@@ -204,16 +203,17 @@ public class StatisticsTransformerService
         };
     }
 
-    private static SuccessType GetSuccessTypeFromRegistryError(RegistryErrorList registryErrorsFromSoapEnvelope)
+    private static SuccessType GetSuccessTypeFromRegistryError(RegistryErrorList registryErrorsFromSoapEnvelope, DocumentResponseType[]? documentResponse)
     {
         var anyErrors = registryErrorsFromSoapEnvelope.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Error);
         var anyWarnings = registryErrorsFromSoapEnvelope.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Warning);
-
-        return (anyErrors, anyWarnings) switch
+        var anyDocuments = documentResponse?.Length > 0;
+        
+        return (anyErrors, anyWarnings, anyDocuments) switch
         {
-            (false, true) => SuccessType.SuccessWithErrors,
-            (true, _) => SuccessType.Failue,
-            (false, false) => SuccessType.Success
+            (false, true, true) => SuccessType.SuccessWithErrors,
+            (true, _, false) => SuccessType.Failure,
+            _  => SuccessType.Success
         };
     }
 
@@ -221,7 +221,7 @@ public class StatisticsTransformerService
     {
         var issues = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelope);
 
-        return issues.RegistryError.Select(e => $"{e.ErrorCode}: {e.CodeContext}").OfType<string>().ToArray();
+        return issues.RegistryError.Select(e => $"{e.ErrorCode}: {e.CodeContext}").ToArray();
     }
 
     private static string? GetSamlAttributeAsString(List<Saml2Attribute>? statements, params string[] attributeNames)
