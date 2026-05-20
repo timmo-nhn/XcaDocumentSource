@@ -161,8 +161,8 @@ public class Program
         app.UseMiddleware<RequestStatisticsMiddleware>();
 
         // Middleware below will only be enabled for endpoints with attributes
-        app.UseMiddleware<PolicyEnforcementPointMiddleware>();
         app.UseMiddleware<AtnaAuditLoggingMiddleware>();
+        app.UseMiddleware<PolicyEnforcementPointMiddleware>();
     }
 
     private static void RegisterDependencyInjectionServices(WebApplicationBuilder builder)

@@ -18,7 +18,7 @@ public static class MimeTypeExtensions
             mimeType = Constants.MimeTypes.Png;
 
         // JPEG: Starts with 0xFF 0xD8 and ends with 0xFF 0xD9
-        else if (input?.Length > 4 && input[0] == 0xFF && input[1] == 0xD8 && input[input.Length - 2] == 0xFF && input[input.Length - 1] == 0xD9)
+        else if (input?.Length > 4 && input[0] == 0xFF && input[1] == 0xD8 && input[^2] == 0xFF && input[^1] == 0xD9)
             mimeType = Constants.MimeTypes.Jpeg;
 
         // GIF: Starts with "GIF87a" or "GIF89a"

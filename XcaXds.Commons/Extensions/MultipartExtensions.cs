@@ -55,10 +55,10 @@ public static class MultipartExtensions
         {
             var boundary = GetMultipartBoundary(mediaTypeHeaderValue.Boundary.Value);
             var multipartReaderTest = new SoapEnvelopeMultipartReader(boundary, body);
-            
+
             var section = await multipartReaderTest.ReadNextSectionAsync();
             if (!(section?.Section?.Length > 0)) throw new InvalidOperationException("Response body is null");
-            
+
             // FIXME! 
             sb.Append(Encoding.Default.GetString(section.Section));
         }
@@ -84,9 +84,9 @@ public static class MultipartExtensions
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))
         {
             var boundary = mediaTypeHeaderValue.Boundary.Value?.Trim('"');
-            
+
             if (boundary == null) return null;
-            
+
             var multipartReader = new MultipartReader(boundary, stream);
 
             // using var multipartReader = new SoapEnvelopeMultipartReader(boundary, stream);
@@ -183,8 +183,7 @@ public static class MultipartExtensions
     }
 
 
-    public static MultipartContent ConvertRetrieveDocumentSetResponseToMultipartResponse(SoapEnvelope soapEnvelope,
-        out string boundary)
+    public static MultipartContent ConvertRetrieveDocumentSetResponseToMultipartResponse(SoapEnvelope soapEnvelope, out string boundary)
     {
         var documentResponses = soapEnvelope.Body.RetrieveDocumentSetResponse?.DocumentResponse;
 
@@ -262,7 +261,7 @@ public static class MultipartExtensions
 
         var stringContent = new StringContent(soapString.Content, Encoding.UTF8, Constants.MimeTypes.XopXml);
         stringContent.Headers.Add("Content-ID",
-            [$"<{Guid.NewGuid().ToString().Replace("-", "")}@xcadocumentsource.com>"]);
+            [$"<{Guid.NewGuid().ToString().Replace("-", "")}@nhn.no>"]);
         stringContent.Headers.ContentType?.Parameters.Add(
             new System.Net.Http.Headers.NameValueHeaderValue("type", $"\"{Constants.MimeTypes.SoapXml}\""));
         stringContent.Headers.Add("Content-Transfer-Encoding", "binary");

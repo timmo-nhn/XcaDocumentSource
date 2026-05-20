@@ -1,9 +1,4 @@
 ﻿using System.Text;
-using System.Text.Json;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Helpers;
-using XcaXds.Commons.Models.ClinicalDocument;
-using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Extensions;
 

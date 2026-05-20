@@ -1023,7 +1023,7 @@ public class AtnaLogGeneratorService
     private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? requestEnvelope,
         SoapEnvelope? responseEnvelope)
     {
-        var registryErrors = responseEnvelope?.Body.RegistryResponse?.RegistryErrorList?.RegistryError;
+        var registryErrors = SoapExtensions.RegistryErrorsFromSoapEnvelope(responseEnvelope).RegistryError;
         var soapFault = responseEnvelope?.Body.Fault;
 
         // If we don't even have a Soap request or response, or if there is a SOAP fault, consider it a major failure (N8)
