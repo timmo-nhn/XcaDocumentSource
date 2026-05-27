@@ -6,6 +6,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
@@ -13,6 +14,7 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
 {
     private readonly AtnaLogGeneratorService _atnaLogGeneratorService;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
+
     public FhirProvideBundleAtnaLogStrategy(AtnaLogGeneratorService atnaLogGeneratorService, AtnaLogEnricherService atnaLogEnricherService)
     {
         _atnaLogGeneratorService = atnaLogGeneratorService;
@@ -28,21 +30,28 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
     {
         var jwtToken = context.Request.Headers.Authorization.FirstOrDefault();
 
-        var requestString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(requestBody) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Request stream is null!"); ;
+        var requestString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(requestBody) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Request stream is null!");
+        ;
         var fhirParser = new FhirJsonDeserializer();
 
         var fhirBundle = fhirParser.Deserialize<Bundle>(requestString) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Input is not valid FHIR Bundle");
 
         var uploadedEntries = (context.Items.TryGetValue("uploadedEntries", out var entries) ? entries : null) as IdentifiableType[];
         var registryResponse = (context.Items.TryGetValue("uploadedEntriesRegistryResponse", out var regrep) ? regrep : null) as SoapEnvelope;
+        var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
+        
+        var additionalParameters = new AdditionalParameters(
+            context.Request.Method,
+            context.TraceIdentifier,
+            pdpDecision);
+        
+        var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
+            additionalParameters,
+            jwtToken,
+            fhirBundle,
+            uploadedEntries);
 
-        _atnaLogGeneratorService.CreateAuditLogForSoapRequestResponse(
-            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
-                new AdditionalParameters(context.Request.Method, context.TraceIdentifier),
-                jwtToken,
-                fhirBundle,
-                uploadedEntries),
-            registryResponse);
+        _atnaLogGeneratorService.CreateAuditLogForSoapRequestResponse(additionalParameters, mockSoapResponse, registryResponse);
         return AtnaLogBuilderResult.Success($"{context.TraceIdentifier} - Successfully enqueued AuditMessage for request {context.TraceIdentifier}");
     }
 }

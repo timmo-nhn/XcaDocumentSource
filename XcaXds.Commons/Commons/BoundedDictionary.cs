@@ -16,15 +16,32 @@ public class BoundedDictionary<TKey, TValue> where TKey : notnull
 
     public void Add(TKey key, TValue value)
     {
-        var node = new LinkedListNode<(TKey, TValue)>((key, value));
-        _order.AddLast(node);
-        _dict[key] = node;
+        using var mutex = new Mutex(false, "Global\\AddMutex");
 
-        if (_dict.Count > _maxSize)
+        try
         {
-            var oldest = _order.First!;
-            _order.RemoveFirst();
-            _dict.Remove(oldest.Value.Key);
+            if (mutex.WaitOne(TimeSpan.FromSeconds(5)))
+            {
+                var node = new LinkedListNode<(TKey, TValue)>((key, value));
+                _order.AddLast(node);
+                _dict[key] = node;
+
+                if (_dict.Count > _maxSize)
+                {
+                    var oldest = _order.First!;
+                    _order.RemoveFirst();
+                    _dict.Remove(oldest.Value.Key);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        finally
+        {
+            mutex.ReleaseMutex();
         }
     }
 
@@ -35,6 +52,7 @@ public class BoundedDictionary<TKey, TValue> where TKey : notnull
             value = node.Value.Value;
             return true;
         }
+
         value = default!;
         return false;
     }

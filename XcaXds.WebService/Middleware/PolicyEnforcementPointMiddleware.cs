@@ -1,15 +1,13 @@
-﻿using Abc.Xacml.Context;
-using Hl7.Fhir.Model;
-using Microsoft.AspNetCore.Http.Extensions;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.Http.Extensions;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Serializers;
-using XcaXds.WebService.Attributes;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
@@ -29,6 +27,8 @@ public class PolicyEnforcementPointMiddleware
     private readonly RegistryWrapper _registryWrapper;
     private readonly RequestThrottlingService _requestThrottlingService;
     private readonly PolicyRepositoryService _policyRepositoryService;
+    private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
+    private readonly PolicyDecisionPointService _policyDecisionPointService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads");
     private static readonly Meter Meter = new("nhn.xcads", "1.0.0");
@@ -42,7 +42,9 @@ public class PolicyEnforcementPointMiddleware
         MonitoringStatusService monitoringService,
         RegistryWrapper registryWrapper,
         RequestThrottlingService requestThrottlingService,
-        PolicyRepositoryService policyRepositoryService)
+        PolicyRepositoryService policyRepositoryService,
+        PolicyRepositoryWrapper policyRepositoryWrapper,
+        PolicyDecisionPointService policyDecisionPointService)
     {
         _next = next;
         _logger = logger;
@@ -52,12 +54,13 @@ public class PolicyEnforcementPointMiddleware
         _registryWrapper = registryWrapper;
         _requestThrottlingService = requestThrottlingService;
         _policyRepositoryService = policyRepositoryService;
+        _policyRepositoryWrapper = policyRepositoryWrapper;
+        _policyDecisionPointService = policyDecisionPointService;;
     }
 
     public async Task InvokeAsync(
         HttpContext httpContext,
         PolicyInputBuilder policyInputBuilder,
-        PolicyEvaluator policyEvaluator,
         PolicyDenyResponseBuilder policyDenyResponseBuilder)
     {
         var sw = Stopwatch.StartNew();
@@ -73,7 +76,7 @@ public class PolicyEnforcementPointMiddleware
         var requestMethod = httpContext.Request.Method;
         _logger.LogInformation($"{httpContext.TraceIdentifier} - {requestMethod} Request to endpoint: {requestUrl}");
 
-        if (!IsPolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
+        if (!PolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
         {
             sw.Stop();
             _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point not enabled for this endpoint");
@@ -91,13 +94,13 @@ public class PolicyEnforcementPointMiddleware
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {
             LogJwt(httpContext);
-            var policies = _policyRepositoryService.GetPoliciesAsXacmlPolicySet();
-            var xacmlPolicySet = XacmlSerializer.SerializeXacmlToXml(policies, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-            var xacmlRequestString = XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-            _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{xacmlRequestString}");
+            var policies = _policyRepositoryService.GetPoliciesAsPolicySetDto();
+            var policySet = JsonSerializer.Serialize(policies, Constants.JsonDefaultOptions.DefaultSettings);
+            var accessControlRequestString = JsonSerializer.Serialize(policyInput.AccessRequest, Constants.JsonDefaultOptions.DefaultSettings);
+            _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{accessControlRequestString}");
         }
 
-        AttachPepContext(httpContext, policyInput.XacmlRequest, sw.ElapsedMilliseconds);
+        AttachPepContext(httpContext, policyInput.AccessRequest, sw.ElapsedMilliseconds);
 
         if (ShouldBypassPolicyEnforcementPoint(httpContext, _xdsConfig, _env))
         {
@@ -125,12 +128,12 @@ public class PolicyEnforcementPointMiddleware
             await policyDenyResponseBuilder.WriteAsync(httpContext, policyInput, _xdsConfig, policyInput.ErrorMessage);
             return;
         }
+        
+        var decision = _policyDecisionPointService.Evaluate(policyInput.AccessRequest);
+        
+        AttachPepDecisionResponse(httpContext, decision);
 
-        _logger.LogDebug($"XACML Request:{XacmlSerializer.SerializeXacmlToXml(policyInput.XacmlRequest, Constants.XmlDefaultOptions.DefaultXmlWriterSettings)}");
-
-        var decision = policyEvaluator.Evaluate(policyInput.XacmlRequest);
-
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Response?.Results.FirstOrDefault()?.Decision.ToString()}");
+        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Decision.ToString()}");
 
         if (decision.Permit)
         {
@@ -153,15 +156,20 @@ public class PolicyEnforcementPointMiddleware
         activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
     }
 
-    private bool IsPolicyEnforcementPointEnabledForRequestEndpoint(HttpContext httpContext)
+    private void AttachPepDecisionResponse(HttpContext httpContext, AccessControlResponse decision)
+    {
+        httpContext.Items.Add("pdpDecision",decision);
+    }
+
+    private bool PolicyEnforcementPointEnabledForRequestEndpoint(HttpContext httpContext)
     {
         var enforceAttr = httpContext.GetEndpoint()?.Metadata.GetMetadata<UsePolicyEnforcementPointAttribute>();
         return enforceAttr?.Enabled == true;
     }
 
-    private void AttachPepContext(HttpContext httpContext, XacmlContextRequest? xacmlRequest, long elapsedMillis)
+    private void AttachPepContext(HttpContext httpContext, AbacRequest? accessRequest, long elapsedMillis)
     {
-        httpContext.Items.Add("xacmlRequest", xacmlRequest);
+        httpContext.Items.Add("accessRequest", accessRequest);
         httpContext.Items.Add("pepElapsedTime", elapsedMillis);
     }
 

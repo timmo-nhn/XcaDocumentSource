@@ -1,7 +1,4 @@
-﻿using Abc.Xacml.Policy;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators;
-using XcaXds.Commons.Models.Custom.PolicyDtos;
+﻿using XcaXds.Commons.Models.Custom.PolicyDtos;
 
 namespace XcaXds.WebService.Services;
 
@@ -16,17 +13,17 @@ public class PolicyRepositoryService
         _logger = logger;
     }
 
-    public PolicySetDto GetPoliciesAsPolicySetDto()
+    public PolicySet GetPoliciesAsPolicySetDto()
     {
         return _policyRepositoryWrapper.GetPoliciesAsPolicySet();
     }
 
-    public PolicyDto? GetSinglePolicy(string? id)
+    public AbacPolicy? GetSinglePolicy(string? id)
     {
         return _policyRepositoryWrapper.GetPolicy(id);
     }
 
-    public bool AddPolicy(PolicyDto? policyDto)
+    public bool AddPolicy(AbacPolicy? policyDto)
     {
         return _policyRepositoryWrapper.AddPolicy(policyDto);
     }
@@ -35,22 +32,16 @@ public class PolicyRepositoryService
     {
         return _policyRepositoryWrapper.DeletePolicy(id);
     }
-
-    public XacmlPolicySet? GetPoliciesAsXacmlPolicySet()
-    {
-        var policySetDto = _policyRepositoryWrapper.GetPoliciesAsPolicySet();
-        return PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(policySetDto);
-    }
-
-    public bool UpdatePolicy(PolicyDto policyDto, string? id)
+    
+    public bool UpdatePolicy(AbacPolicy abacPolicy, string? id)
     {
         if (string.IsNullOrWhiteSpace(id)) return false;
-        return _policyRepositoryWrapper.UpdatePolicy(policyDto, id);
+        return _policyRepositoryWrapper.UpdatePolicy(abacPolicy, id);
     }
 
-    public bool PartiallyUpdatePolicy(PolicyDto policyDto, string? id, bool append)
+    public bool PartiallyUpdatePolicy(AbacPolicy abacPolicy, string? id, bool append)
     {
-        return _policyRepositoryWrapper.PartiallyUpdatePolicy(policyDto, id, append);
+        return _policyRepositoryWrapper.PartiallyUpdatePolicy(abacPolicy, id, append);
     }
 
     public bool DeleteAllPolicies()

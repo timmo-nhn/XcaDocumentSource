@@ -19,6 +19,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -86,7 +87,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         [FromQuery(Name = "event")] string? eventCode,
         [FromQuery(Name = "security-label")] string? securityLabel,
         [FromQuery(Name = "format")] string? format
-        )
+    )
     {
         if (!await _featureManager.IsEnabledAsync("Fhir_DocumentReference")) return NotFound();
 
@@ -192,7 +193,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         [FromQuery] string homeCommunityId,
         [FromQuery] string repositoryUniqueId,
         [FromQuery] string documentUniqueId
-        )
+    )
     {
         if (!await _featureManager.IsEnabledAsync("Fhir_ReadDocument")) return NotFound();
 
@@ -226,8 +227,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return fileResponse;
     }
 
-	[RequiresApiKey]
-	[ExportsAtnaAuditLog]
+    [RequiresApiKey]
+    [ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpDelete("DocumentReference/{id}")]
@@ -273,8 +274,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return OkOperationOutcome.Create(operationOutcome);
     }
 
-	[RequiresApiKey]
-	[ExportsAtnaAuditLog]
+    [RequiresApiKey]
+    [ExportsAtnaAuditLog]
     //[RequestSizeLimit(Program.OneHundredMb)] // Can be used to override options.Limits.MaxRequestBodySize in Program.cs
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
@@ -383,14 +384,15 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Atna log generation
         var jwtToken = Request.Headers.Authorization.FirstOrDefault();
-
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(
-            _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
-                new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier, HttpContext.Request.Path.Value),
-                jwtToken,
-                fhirBundle,
-                provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList),
-            provideBundleResult.RegistryResponse);
+        var pdpDecision = HttpContext.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
+        var additionalParameters = new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier, pdpDecision, HttpContext.Request.Path.Value);
+        var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
+            additionalParameters,
+            jwtToken,
+            fhirBundle,
+            provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList);
+        
+        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(additionalParameters, mockSoapResponse, provideBundleResult.RegistryResponse);
 
         var fhirSerializer = new FhirJsonSerializer();
 
@@ -470,8 +472,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return responseBundle;
     }
 
-	[RequiresApiKey]
-	[ExportsAtnaAuditLog]
+    [RequiresApiKey]
+    [ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml", "application/json-patch+json")]
     [Produces("application/fhir+json", "application/fhir+xml")]
     [HttpPatch("DocumentReference/{id}")]
@@ -556,7 +558,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(related.ToArray(), _registryWrapper.GetDocumentRegistryContentAsDtos());
         var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
-            ?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
+                            ?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
 
         if (updatedDocRef == null)
         {
@@ -575,6 +577,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             var context = new ValidationContext(coding);
             Validator.TryValidateObject(coding, context, results, true);
         }
+
         return results;
     }
 
@@ -708,10 +711,12 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 {
                     code = codeEl.GetString();
                 }
+
                 if (TryGetPropertyCaseInsensitive(coding, "system", out var sysEl))
                 {
                     system = sysEl.GetString();
                 }
+
                 if (TryGetPropertyCaseInsensitive(coding, "display", out var dispEl))
                 {
                     display = dispEl.GetString();

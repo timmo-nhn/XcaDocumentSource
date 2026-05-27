@@ -7,6 +7,7 @@ using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
@@ -48,11 +49,13 @@ public class FhirDeleteDocumentsAtnaLogStrategy : IAtnaLogStrategy
         }
 
         var deletedEntry = context.Items.TryGetValue("deletedEntry", out var entry) ? entry as DocumentEntryDto : null;
+        var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
 
         _atnaLogGeneratorService.CreateAuditLogForFhirDeleteDocumentsRequest(
             new AdditionalParameters(
                 request.Method,
-                context.TraceIdentifier),
+                context.TraceIdentifier,
+                pdpDecision),
             deletedEntry,
             operationOutcome,
             jwt);

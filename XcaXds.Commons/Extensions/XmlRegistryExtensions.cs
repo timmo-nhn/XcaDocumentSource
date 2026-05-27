@@ -1,5 +1,4 @@
-﻿using Abc.Xacml.Context;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -644,6 +643,12 @@ public static class Commons
         return identifiableTypes.FirstOrDefault(ro => ro.Id == id);
     }
 
+    
+    /// <summary>
+    /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
+    /// Will not remove the entry from the result list! </para>
+    /// Metadata which does not explicitly reveal the document content will be preserved, so the DocumentEntry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
+    /// </summary>
     public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
@@ -707,20 +712,6 @@ public static class Commons
         }
 
         return identifiableTypes;
-    }
-
-    /// <summary>
-    /// Obfuscate document entries with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
-    /// Will not remove the entry from the result list! </para>
-    /// Metadata which does not explicitly reveal the document content will be preserved, so the DocumentEntry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
-    /// </summary>
-    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, XacmlContextRequest? xacmlRequest, out int obfuscatedEntriesCount)
-    {
-        obfuscatedEntriesCount = 0;
-
-        var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-
-        return ObfuscateRestrictedDocumentEntries(identifiableTypes, businessLogic, out obfuscatedEntriesCount);
     }
 
     private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier, AppliesTo issuer = AppliesTo.Unknown)

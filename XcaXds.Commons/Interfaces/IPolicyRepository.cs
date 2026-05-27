@@ -5,9 +5,9 @@ namespace XcaXds.Commons.Interfaces;
 public interface IPolicyRepository
 {
     public string GetPolicyRepositoryPath();
-    public PolicySetDto GetAllPolicies();
-    public bool AddPolicy(PolicyDto? policyDto);
+    public PolicySet GetAllPolicies();
+    public bool AddPolicy(AbacPolicy? policyDto);
     public bool DeletePolicy(string? id);
     public bool DeleteAllPolicies();
-    public bool UpdatePolicy(PolicyDto? policyDto, string? policyId = null);
+    public bool UpdatePolicy(AbacPolicy? policyDto, string? policyId = null);
 }

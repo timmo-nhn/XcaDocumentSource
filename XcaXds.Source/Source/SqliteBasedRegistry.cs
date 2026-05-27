@@ -302,11 +302,16 @@ public class SqliteBasedRegistry : IRegistry
 
     public void ExecuteWithRetry(Action action, int maxRetries = 3)
     {
+        using var mutex = new Mutex(false, "Global\\DatabaseWriteMutex");
         for (int attempt = 1; attempt <= maxRetries; attempt++)
         {
             try
             {
-                action();
+                if (mutex.WaitOne(TimeSpan.FromSeconds(5)))
+                {
+                    action();
+                }
+
                 return;
             }
             catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx && IsTransient(sqlEx))
@@ -328,6 +333,10 @@ public class SqliteBasedRegistry : IRegistry
                 _logger.LogWarning("Exception JSON representation\n{ex}", JsonSerializer.Serialize(sqlEx));
 
                 Thread.Sleep(delay);
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
             }
         }
     }

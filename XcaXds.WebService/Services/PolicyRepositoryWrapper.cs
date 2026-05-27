@@ -1,30 +1,18 @@
-﻿using Abc.Xacml.Context;
-using Abc.Xacml.Runtime;
-using System.Xml;
-using XcaXds.Commons.DataManipulators;
+﻿using System.Linq.Expressions;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
 namespace XcaXds.WebService.Services;
 
 public class PolicyRepositoryWrapper
 {
-    private PolicySetDto _policySetPractitioner = new();
-    private readonly object _lock = new();
     private readonly FileSystemWatcher _watcher;
     private readonly string _policyRepositoryPath;
 
-    internal PolicySetDto policySet
-    {
-        get => _policySetPractitioner;
-        set
-        {
-            _policySetPractitioner = value;
-            RefreshEvaluationEngine();
-        }
-    }
+    private PolicySet _policySet;
 
-    internal EvaluationEngine _evaluationEngine = null!;
 
     private readonly IPolicyRepository _policyRepository;
     private readonly ILogger<PolicyRepositoryWrapper> _logger;
@@ -33,7 +21,8 @@ public class PolicyRepositoryWrapper
     {
         _logger = logger;
         _policyRepository = policyRepository;
-        policySet = _policyRepository.GetAllPolicies();
+
+        _policySet = _policyRepository.GetAllPolicies();
 
         _policyRepositoryPath = _policyRepository.GetPolicyRepositoryPath();
 
@@ -45,33 +34,19 @@ public class PolicyRepositoryWrapper
         };
         _watcher.Changed += OnFileChanged;
         _watcher.EnableRaisingEvents = true;
-
     }
 
-    private void RefreshEvaluationEngine()
+    public PolicySet GetPoliciesAsPolicySet()
     {
-        lock (_lock)
-        {
-            _evaluationEngine = new EvaluationEngine(PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(new PolicySetDto()
-            {
-                CombiningAlgorithm = policySet.CombiningAlgorithm,
-                SetId = policySet.SetId,
-                Policies = policySet.Policies
-            }));
-        }
+        return _policySet;
     }
 
-    public PolicySetDto GetPoliciesAsPolicySet()
+    public AbacPolicy? GetPolicy(string? id)
     {
-        return policySet;
+        return _policySet.Policies?.FirstOrDefault(pol => pol.Id == id);
     }
 
-    public PolicyDto? GetPolicy(string? id)
-    {
-        return policySet.Policies?.FirstOrDefault(pol => pol.Id == id);
-    }
-
-    public bool AddPolicy(PolicyDto? policyDto)
+    public bool AddPolicy(AbacPolicy? policyDto)
     {
         if (GetPolicy(policyDto?.Id) != null || policyDto == null)
         {
@@ -82,47 +57,43 @@ public class PolicyRepositoryWrapper
 
         if (!addPolicy) return false;
 
-        policySet.Policies ??= new();
-        policySet.Policies.Add(policyDto);
+        _policySet = _policyRepository.GetAllPolicies();
 
-        RefreshEvaluationEngine();
         return true;
     }
 
-    public bool UpdatePolicy(PolicyDto policyDto, string id)
+    public bool UpdatePolicy(AbacPolicy abacPolicy, string id)
     {
-        if (policySet.Policies == null || string.IsNullOrWhiteSpace(policyDto.Id)) return false;
+        if (_policySet.Policies == null || string.IsNullOrWhiteSpace(abacPolicy.Id)) return false;
 
-        id ??= policyDto.Id;
+        id ??= abacPolicy.Id;
 
-        var idx = policySet.Policies.FindIndex(p => p.Id == policyDto.Id);
+        var idx = _policySet.Policies.FindIndex(p => p.Id == abacPolicy.Id);
         if (idx < 0) return false;
 
-        var updatePolicy = _policyRepository.UpdatePolicy(policyDto, id);
+        var updatePolicy = _policyRepository.UpdatePolicy(abacPolicy, id);
 
         if (!updatePolicy) return false;
 
-        policySet.Policies[idx] = policyDto;
-
-        RefreshEvaluationEngine();
+        _policySet.Policies[idx] = abacPolicy;
 
         return true;
     }
 
-    public bool PartiallyUpdatePolicy(PolicyDto patch, string? id, bool append)
+    public bool PartiallyUpdatePolicy(AbacPolicy patch, string? id, bool append)
     {
-        if (policySet.Policies == null) return false;
+        if (_policySet.Policies == null) return false;
 
-        var policy = policySet.Policies.FirstOrDefault(p => p.Id == (id ?? patch.Id));
+        var policy = _policySet.Policies.FirstOrDefault(p => p.Id == (id ?? patch.Id));
         if (policy == null) return false;
 
-        policy.MergeWith(patch, append);
+        // policy.MergeWith(patch, append);
 
         var patchPolicy = _policyRepository.UpdatePolicy(policy, policy.Id);
 
         if (!patchPolicy) return false;
 
-        RefreshEvaluationEngine();
+        _policySet = _policyRepository.GetAllPolicies();
 
         return true;
     }
@@ -132,26 +103,16 @@ public class PolicyRepositoryWrapper
         var deleteResult = _policyRepository.DeletePolicy(id);
         if (!deleteResult) return false;
 
-        policySet = _policyRepository.GetAllPolicies();
-        RefreshEvaluationEngine();
+        _policySet = _policyRepository.GetAllPolicies();
+
         return true;
-    }
-
-    public XacmlContextResponse EvaluateRequest_V20(XacmlContextRequest? xacmlContextRequest)
-    {
-        if (_policySetPractitioner.Policies?.Count == 0)
-        {
-            _logger.LogWarning("No policies are set up. Will deny all requests!");
-        }
-
-        return _evaluationEngine.Evaluate(xacmlContextRequest, new XmlDocument());
     }
 
     public bool DeleteAllPolicies()
     {
         var deleteAllResult = _policyRepository.DeleteAllPolicies();
-        policySet = _policyRepository.GetAllPolicies();
-        RefreshEvaluationEngine();
+        _policySet = _policyRepository.GetAllPolicies();
+
         return deleteAllResult;
     }
 
@@ -161,8 +122,7 @@ public class PolicyRepositoryWrapper
         {
             try
             {
-                policySet = _policyRepository.GetAllPolicies();
-                RefreshEvaluationEngine();
+                _policySet = _policyRepository.GetAllPolicies();
                 _logger.LogInformation($"{Path.GetFileName(_policyRepositoryPath)} reloaded successfully.");
             }
             catch (Exception ex)

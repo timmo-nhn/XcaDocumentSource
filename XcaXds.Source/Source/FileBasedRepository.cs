@@ -64,7 +64,7 @@ public class FileBasedRepository : IRepository
 
         if (!IsValidIdentifier(documentId) || !IsValidIdentifier(patientIdPart)) return false;
 
-        lock (_lock)
+        lock (_lock) 
         {
             var documentPath = Path.Combine(_repositoryPath, patientIdPart);
 
@@ -75,7 +75,8 @@ public class FileBasedRepository : IRepository
 
             string filePath = Path.Combine(documentPath, documentId.NoUrn());
             File.WriteAllBytes(filePath, documentContent);
-
+            Console.WriteLine(File.Exists(filePath));
+            Console.WriteLine(new FileInfo(filePath).Length);
             return true;
         }
     }

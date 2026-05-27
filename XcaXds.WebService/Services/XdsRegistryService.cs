@@ -1,5 +1,4 @@
-﻿using Abc.Xacml.Context;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
@@ -188,7 +187,7 @@ public partial class XdsRegistryService
             .CreateSoapResult();
     }
 
-    public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope, XacmlContextRequest? xacmlRequest = null)
+    public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope, AbacRequest? abacRequest = null)
     {
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
@@ -277,9 +276,7 @@ public partial class XdsRegistryService
 
                 // Apply business-logic filtering
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {count}");
-
-                var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-
+                var businessLogic = BusinessLogicExtensions.MapFromAbacRequestToBusinessLogic(abacRequest);
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
 
                 enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)];

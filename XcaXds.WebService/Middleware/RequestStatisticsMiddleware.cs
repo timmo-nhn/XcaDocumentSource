@@ -116,7 +116,7 @@ public class RequestStatisticsMiddleware
     private static RequestAndFieldRequestType GetRequestTypeFromContext(PathString path, string method)
     {
         var isfhirRequest = path.ToString().StartsWith("/R4/fhir");
-        var isSoapRequest = path.ToString() is { } item && (item.StartsWith("/XCA/services") || item.StartsWith("/Registry/services") || item.StartsWith("Repository/services"));
+        var isSoapRequest = path.ToString() is { } item && (item.StartsWith("/XCA/services") || item.StartsWith("/Registry/services") || item.StartsWith("/Repository/services"));
 
         return (isfhirRequest, isSoapRequest, method) switch
         {

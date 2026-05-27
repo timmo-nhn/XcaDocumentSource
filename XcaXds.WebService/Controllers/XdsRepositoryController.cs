@@ -1,15 +1,13 @@
-using Abc.Xacml.Context;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.FeatureManagement;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
@@ -56,19 +54,14 @@ public class XdsRepositoryController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
 
-        XacmlContextRequest? xacmlRequest = null;
-
-        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
-        {
-            xacmlRequest = xacmlContextRequest;
-        }
+        var abacRequest = HttpContext.Items.TryGetValue("accessRequest", out var accessRequest) ? accessRequest as AbacRequest: null;
 
         switch (soapEnvelope.Header.Action)
         {
             case Constants.Xds.OperationContract.Iti43Action:
                 if (!await _featureManager.IsEnabledAsync("Iti43RetrieveDocumentSet")) return NotFound();
 
-                var iti43Response = _repositoryService.RetrieveDocumentSet(soapEnvelope, xacmlRequest);
+                var iti43Response = _repositoryService.RetrieveDocumentSet(soapEnvelope, abacRequest);
                 if (iti43Response.IsSuccess == false)
                 {
                     break;

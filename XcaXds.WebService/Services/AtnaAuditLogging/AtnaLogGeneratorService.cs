@@ -12,6 +12,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;
@@ -34,9 +35,9 @@ public class AtnaLogGeneratorService
         _atnaLogEnricherService = atnaLogEnricherService;
     }
 
-    public void CreateAuditLogForSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
+    public void CreateAuditLogForSoapRequestResponse(AdditionalParameters additionalParameters, SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
     {
-        _queue.Enqueue(() => GetAuditEventFromSoapRequestResponse(requestEnvelope, responseEnvelope));
+        _queue.Enqueue(() => GetAuditEventFromSoapRequestResponse(additionalParameters, requestEnvelope, responseEnvelope));
     }
 
     public void CreateAuditLogForFhirDeleteDocumentsRequest(AdditionalParameters additionalParameters,
@@ -96,7 +97,7 @@ public class AtnaLogGeneratorService
 
         responseEnvelope.Body.RegistryResponse.EvaluateStatusCode();
 
-        var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
+        var auditEvent = GetAuditEventFromSoapRequestResponse(additionalParameters, soapEnvelope, responseEnvelope);
 
         return auditEvent;
     }
@@ -151,7 +152,7 @@ public class AtnaLogGeneratorService
             }
         };
 
-        var auditEvent = GetAuditEventFromSoapRequestResponse(soapEnvelope, responseEnvelope);
+        var auditEvent = GetAuditEventFromSoapRequestResponse(additionalParameters, soapEnvelope, responseEnvelope);
 
         // Add explicit patch details (document id + old/new securityLabel) as AuditEvent.entity.detail.
         if (!string.IsNullOrWhiteSpace(documentReferenceId) || (oldSecurityLabel?.Count > 0) ||
@@ -229,7 +230,7 @@ public class AtnaLogGeneratorService
         };
     }
 
-    private AuditEvent GetAuditEventFromSoapRequestResponse(SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
+    private AuditEvent GetAuditEventFromSoapRequestResponse(AdditionalParameters additionalParameters, SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
     {
         var auditEvent = new AuditEvent();
         auditEvent.Id = Guid.NewGuid().ToString();
@@ -569,6 +570,7 @@ public class AtnaLogGeneratorService
         auditEvent.Type = GetAuditEventTypeFromSoapEnvelope(requestEnvelope);
         auditEvent.Recorded = DateTimeOffset.Now;
         auditEvent.Outcome = GetEventOutcomeFromSoapRequestResponse(requestEnvelope, responseEnvelope);
+        auditEvent.OutcomeDesc = GetEventOutcomeDescriptionFromSoapRequestResponse(additionalParameters.AccessControlResponse);
         auditEvent.Action = GetActionFromSoapEnvelope(requestEnvelope);
 
         var detail = new List<AuditEvent.DetailComponent>();
@@ -733,6 +735,19 @@ public class AtnaLogGeneratorService
         };
 
         return auditEvent;
+    }
+
+    private string? GetEventOutcomeDescriptionFromSoapRequestResponse(AccessControlResponse accessControlresponse)
+    {
+        var failedConditions = accessControlresponse.Diagnostics
+            .SelectMany(d => d.FailedConditions)
+            .Select(d => "Invalid Parameter: " + d.AttributeId)
+            .ToArray();
+
+        if (failedConditions.Length > 0)
+            return string.Join(' ', failedConditions);
+
+        return null;
     }
 
     private Resource? GetSubjectResource(SoapEnvelope? requestEnvelope, List<Saml2Attribute>? statements,
@@ -1020,8 +1035,7 @@ public class AtnaLogGeneratorService
         return isReplaceUpdate ? AuditEvent.AuditEventAction.U : AuditEvent.AuditEventAction.C;
     }
 
-    private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? requestEnvelope,
-        SoapEnvelope? responseEnvelope)
+    private AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? requestEnvelope, SoapEnvelope? responseEnvelope)
     {
         var registryErrors = SoapExtensions.RegistryErrorsFromSoapEnvelope(responseEnvelope).RegistryError;
         var soapFault = responseEnvelope?.Body.Fault;
@@ -1032,7 +1046,7 @@ public class AtnaLogGeneratorService
             return AuditEvent.AuditEventOutcome.N8;
         }
 
-        if (registryErrors != null && registryErrors.Length > 0)
+        if (registryErrors is { Length: > 0 })
         {
             return AuditEvent.AuditEventOutcome.N4;
         }

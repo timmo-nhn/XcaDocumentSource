@@ -4,12 +4,14 @@ using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
 public class FhirPatchDocumentAtnaLogStrategy : IAtnaLogStrategy
 {
     private readonly AtnaLogGeneratorService _atnaLogGeneratorService;
+
     public FhirPatchDocumentAtnaLogStrategy(AtnaLogGeneratorService atnaLogGeneratorService)
     {
         _atnaLogGeneratorService = atnaLogGeneratorService;
@@ -25,10 +27,16 @@ public class FhirPatchDocumentAtnaLogStrategy : IAtnaLogStrategy
         // Atna log generation
         var oldLabel = (context.Items.TryGetValue("oldSecurityLabel", out var label) ? label : null) as List<CodedValue>;
         var pathedEntry = (context.Items.TryGetValue("patchedDocumentEntry", out var entry) ? entry : null) as DocumentEntryDto;
+        var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
+
         var token = JwtExtractor.ExtractJwt(context.Request.Headers, out var _);
 
         _atnaLogGeneratorService.CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-            new AdditionalParameters(context.Request.Method, context.TraceIdentifier, context.Request.Path.Value),
+            new AdditionalParameters(
+                context.Request.Method, 
+                context.TraceIdentifier, 
+                pdpDecision, 
+                context.Request.Path.Value),
             oldLabel,
             pathedEntry,
             token);

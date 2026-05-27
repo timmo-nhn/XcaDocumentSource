@@ -28,8 +28,13 @@ public partial class RepositoryWrapper
         _fileScanner = fileScanner;
     }
 
-    public byte[]? GetDocumentFromRepository(string? homeCommunityId, string? repositoryUniqueId, string? documentUniqueId, out DocumentSniffer.DocumentKind documentKind, string? messageId = null)
+    public byte[]? GetDocumentFromRepository(string? homeCommunityId, string? repositoryUniqueId, string? documentUniqueId, string? messageId = null)
     {
+        return GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, out _, messageId);
+    }
+
+    public byte[]? GetDocumentFromRepository(string? homeCommunityId, string? repositoryUniqueId, string? documentUniqueId, out DocumentSniffer.DocumentKind documentKind, string? messageId = null)
+        {
         documentKind = DocumentSniffer.DocumentKind.Unknown;
 
         homeCommunityId = homeCommunityId?.NoUrn();

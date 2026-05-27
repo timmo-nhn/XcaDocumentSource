@@ -26,14 +26,23 @@ namespace XcaXds.Tests;
 
 public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    public IntegrationTests_XcaXdsRegistryRepository_CRUD(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output) { }
+    public IntegrationTests_XcaXdsRegistryRepository_CRUD(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
+    {
+    }
+
+    [Fact]
+    [Trait("Read", "DocumentList (Isolated Access Control)")]
+    public async Task XGQ_CrossGatewayQuery_KjernejournalForskriften_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGQ_CrossGatewayQuery_KjernejournalForskriften();
+    }
 
     [Fact]
     [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_KjernejournalForskriften()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_kjforskriften_readdocumentlist",
@@ -61,7 +70,8 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
@@ -81,12 +91,20 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         _output.WriteLine($"Fetched {count} entries\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
+
+    [Fact]
+    [Trait("Read", "DocumentList (Isolated Access Control)")]
+    public async Task XGQ_CrossGatewayQuery_Kjernejournal_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGQ_CrossGatewayQuery_Kjernejournal();
+    }
+
     [Fact]
     [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Kjernejournal()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
@@ -130,11 +148,18 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
     }
 
     [Fact]
+    [Trait("Read", "DocumentList (Isolated Access Control)")]
+    public async Task XGQ_CrossGatewayQuery_Helsenorge_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGQ_CrossGatewayQuery_Helsenorge();
+    }
+
+    [Fact]
     [Trait("Read", "DocumentList")]
     public async Task XGQ_CrossGatewayQuery_Helsenorge()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
@@ -151,7 +176,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(
             registryObjectsCount: RegistryItemCount
             // ,patientIdentifier: PatientIdentifier.IdNumber
-            );
+        );
 
         var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
 
@@ -204,18 +229,20 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(
             registryObjectsCount: RegistryItemCount
             // ,patientIdentifier: PatientIdentifier.IdNumber
-            );
+        );
 
         var patientId = "UniqueId";
         var patientSystem = "1.2.3.4.5";
 
 
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos([new DocumentEntryDto()
-        {
-            AvailabilityStatus = Constants.Xds.StatusValues.Approved,
-            ConfidentialityCode = [new("N", "2.16.578.1.12.4.1.1.9603")],
-            SourcePatientInfo = new() { PatientId = new() { Id = patientId, System = patientSystem }},
-        }]);
+        _registryWrapper.UpdateDocumentRegistryContentWithDtos([
+            new DocumentEntryDto()
+            {
+                AvailabilityStatus = Constants.Xds.StatusValues.Approved,
+                ConfidentialityCode = [new("N", "2.16.578.1.12.4.1.1.9603")],
+                SourcePatientInfo = new() { PatientId = new() { Id = patientId, System = patientSystem } },
+            }
+        ]);
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
@@ -249,11 +276,18 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
 
     [Fact]
+    [Trait("Read", "Documents (Isolated Access Control)")]
+    public async Task XGR_CrossGatewayRetrieve_Multipart_Kjernejournal_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGR_CrossGatewayRetrieve_Multipart_Kjernejournal();
+    }
+
+    [Fact]
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Kjernejournal()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
@@ -303,7 +337,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         _policyRepositoryService.DeleteAllPolicies();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, retrieveDocumentSetResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, retrieveDocumentSetResponse?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
@@ -313,11 +347,18 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
 
     [Fact]
+    [Trait("Read", "Documents (Isolated Access Control)")]
+    public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGR_CrossGatewayRetrieve_Multipart_Helsenorge();
+    }
+
+    [Fact]
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
@@ -352,7 +393,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
 
-       var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
 
         var firstContent = await firstResponse.Content.ReadAsStringAsync();
 
@@ -365,7 +406,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         _policyRepositoryService.DeleteAllPolicies();
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(0, retrieveDocumentSetResponse?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(0, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
@@ -375,11 +416,18 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
 
     [Fact]
+    [Trait("Read", "Documents (Isolated Access Control)")]
+    public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge_ShouldNotGetAccess_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGR_CrossGatewayRetrieve_Multipart_Helsenorge_ShouldNotGetAccess();
+    }
+
+    [Fact]
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge_ShouldNotGetAccess()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
@@ -429,19 +477,26 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        
+
         await WaitForUserAccessEntryToBeExported();
-        
+
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
+
+    [Fact]
+    [Trait("Read", "Documents (Isolated Access Control)")]
+    public async Task XGR_CrossGatewayRetrieve_Helsenorge_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGQ_CrossGatewayQuery_Helsenorge();
+    }
 
     [Fact]
     [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Helsenorge()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
@@ -498,10 +553,17 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
     [Fact]
     [Trait("Read", "Documents")]
+    public async Task XGR_CrossGatewayRetrieve_Helsenorge_ShouldNotGetAccess_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await XGR_CrossGatewayRetrieve_Helsenorge_ShouldNotGetAccess();
+    }
+
+    [Fact]
+    [Trait("Read", "Documents")]
     public async Task XGR_CrossGatewayRetrieve_Helsenorge_ShouldNotGetAccess()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
@@ -548,8 +610,17 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
-        
+
         _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
+    }
+
+
+    [Fact]
+    [Trait("Upload", "Modify Registry/Repository")]
+    public async Task PNR_UploadDocuments_RandomAmount_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await PNR_UploadDocuments_RandomAmount();
     }
 
     [Fact]
@@ -557,7 +628,6 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
     public async Task PNR_UploadDocuments_RandomAmount()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
@@ -658,7 +728,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         var expectedCountAfterPnR = generatedDeletedEntries.generatedEntries.Count + RegistryContent.AsRegistryObjectDtos().Count() - generatedDeletedEntries.deletedEntries.Count;
 
-        foreach ((XmlDocument message, string path) in randomAmountOfSoapMessages)
+        foreach (var (message, path) in randomAmountOfSoapMessages)
         {
             tasks.Add(_client.PostAsync(path, new StringContent(message.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml)));
         }
@@ -669,7 +739,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         {
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await response.Content.ReadAsStringAsync());
+            var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
             Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(0, firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         }
@@ -884,10 +954,17 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
     [Fact]
     [Trait("Update", "Modify Registry/Repository")]
+    public async Task PNR_UpdateRegistryRepository_Deprecate_RandomAmount_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await PNR_UpdateRegistryRepository_Deprecate_RandomAmount();
+    }
+
+    [Fact]
+    [Trait("Update", "Modify Registry/Repository")]
     public async Task PNR_UpdateRegistryRepository_Deprecate_RandomAmount()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
@@ -966,7 +1043,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
 
-        
+
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(expectedCountAfterPnrUpdate, actualRegistryCountAfterPnR);
 
@@ -982,10 +1059,17 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
     [Fact]
     [Trait("Upload", "Add to Registry")]
+    public async Task RDS_UploadRegistry_AddMetadata_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await RDS_UploadRegistry_AddMetadata();
+    }
+
+    [Fact]
+    [Trait("Upload", "Add to Registry")]
     public async Task RDS_UploadRegistry_AddMetadata()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
@@ -1023,7 +1107,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
 
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
-        
+
         registryContent = _registry.ReadRegistry();
         var registryCount = await registryContent.CountAsync();
 
@@ -1036,8 +1120,17 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         //Assert.Equal(RegistryItemCount, _repository.DocumentRepository.Count);
 
         await WaitForAtnaLogToBeExported();
-        
+
         _output.WriteLine($"Registry count before test run: {countFirst}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
+    }
+
+
+    [Fact]
+    [Trait("Delete", "Modify Registry")]
+    public async Task RMD_RemoveDocumentsAndMetadata_RandomAmount_IAC()
+    {
+        _policyRepositoryService.DeleteAllPolicies();
+        await RMD_RemoveDocumentsAndMetadata_RandomAmount();
     }
 
     [Fact]
@@ -1045,7 +1138,6 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
     public async Task RMD_RemoveDocumentsAndMetadata_RandomAmount()
     {
         await NukeRegistryRepository();
-        _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_RemoveDocuments",
@@ -1094,11 +1186,14 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         var iti18RmdRequest = new SoapEnvelope();
         iti18RmdRequest = iti18AdhocQuery; // Reusing this variable saves 0,000000124805 µg of CO2
 
-        iti18RmdRequest.Body.AdhocQueryRequest?.AdhocQuery.Slot = [new SlotType()
-        {
-            Name = Constants.Xds.QueryParameters.Associations.Uuid,
-            ValueList = new() { Value = [.. documentEntryToRemove.Select(docent => docent?.Id)] }
-        }];
+        iti18RmdRequest.Body.AdhocQueryRequest?.AdhocQuery.Slot =
+        [
+            new SlotType()
+            {
+                Name = Constants.Xds.QueryParameters.Associations.Uuid,
+                ValueList = new() { Value = [.. documentEntryToRemove.Select(docent => docent?.Id)] }
+            }
+        ];
 
         iti18RmdRequest.Body.AdhocQueryRequest?.AdhocQuery.Id = Constants.Xds.StoredQueries.GetAssociations;
 
@@ -1146,15 +1241,15 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
 
         // Step 3: Use the DocumentUniqueId in the DocumentEntry to remove the Document
-        iti86DeleteDocumentSet.Body.RemoveDocumentsRequest?.DocumentRequest = documentEntryToRemove.SelectMany(docEnt => new[]{
-
+        iti86DeleteDocumentSet.Body.RemoveDocumentsRequest?.DocumentRequest = documentEntryToRemove.SelectMany(docEnt => new[]
+        {
             new DocumentRequestType()
             {
                 DocumentUniqueId = docEnt?.UniqueId,
                 HomeCommunityId = docEnt?.HomeCommunityId,
                 RepositoryUniqueId = docEnt?.RepositoryUniqueId
             }
-         }).ToArray();
+        }).ToArray();
 
         iti86DeleteDocumentSet.SetAction(Constants.Xds.OperationContract.Iti86Action);
 
@@ -1172,12 +1267,12 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
-        
+
         Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
-        
+
         await WaitForAtnaLogToBeExported();
-        
+
         _output.WriteLine($"Registry count before test run: {countFirst}\nRemoved: {documentEntriesToRemove.Count} entries.\nRegistry count: {registryCount}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
     }
 
@@ -1236,10 +1331,10 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         var requests = new List<Dude>
         {
-            new Dude { Request = iti18AdhocQuery, Endpoint = "/Registry/services/RegistryService"},
-            new Dude { Request = iti62DeleteObjects, Endpoint = "/Registry/services/RegistryService"},
-            new Dude { Request = iti86DeleteDocumentSet, Endpoint = "/Repository/services/RepositoryService"},
-            new Dude { Request = iti43RetrieveDocumentSet, Endpoint = "/Repository/services/RepositoryService"}
+            new Dude { Request = iti18AdhocQuery, Endpoint = "/Registry/services/RegistryService" },
+            new Dude { Request = iti62DeleteObjects, Endpoint = "/Registry/services/RegistryService" },
+            new Dude { Request = iti86DeleteDocumentSet, Endpoint = "/Repository/services/RepositoryService" },
+            new Dude { Request = iti43RetrieveDocumentSet, Endpoint = "/Repository/services/RepositoryService" }
         };
 
         foreach (var request in requests)
@@ -1282,6 +1377,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
                 valueElement.Value = "kjernejournalforskriften";
             }
         }
+
         var soapEnvelopeDocument = TestHelpers.LoadNewXmlDocument(soapEnvelope);
         var kjSamlToken = TestHelpers.LoadNewXmlDocument(doc.ToString());
 
@@ -1344,11 +1440,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
     {
         generatedDeletedEntries = ([], []);
 
-        var sxmls = new SoapXmlSerializer();
         var xmlDocuments = new List<(XmlDocument, string)>();
-        var idsMarkedForDelete = new List<string>();
 
-        for (int i = 0; i < amount; i++)
+        for (var i = 0; i < amount; i++)
         {
             switch (Random.Shared.Next(1, 4))
             {
@@ -1377,13 +1471,13 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
                     break;
             }
         }
+
         return [.. xmlDocuments];
     }
 
     private SoapEnvelope? GetRandomIti38Request()
     {
-        var randomEntries = RegistryContent.PickRandom(Random.Shared.Next(1, 10));
-        var iti38SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("iti-38");
+        var iti38SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("IT_iti-38_request.xml");
         return iti38SoapRequestObject;
     }
 
@@ -1391,7 +1485,6 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
     {
         deletedEntries = [];
 
-        var sxmls = new SoapXmlSerializer();
         var randomEntries = RegistryContent.PickRandom(Random.Shared.Next(1, 10));
 
         var iti62SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("iti-62");
@@ -1404,8 +1497,6 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
     private SoapEnvelope GetRandomIti41Message(out List<IdentifiableType> generatedEntries)
     {
-        var sxmls = new SoapXmlSerializer();
-
         generatedEntries = [];
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, ((RegistryItemCount + 1) / 10 + 1))).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
@@ -1423,7 +1514,6 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
     private static SoapEnvelope? GetSoapEnvelopeFromIntegrationTestFiles(string actionName)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
         var sxmls = new SoapXmlSerializer();
 
@@ -1431,8 +1521,6 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         return soapRequestObject;
     }
 }
-
-
 
 internal class FileDude
 {

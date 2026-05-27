@@ -6,25 +6,24 @@ namespace XcaXds.Tests.FakesAndDoubles;
 
 public sealed class InMemoryPolicyRepository : IPolicyRepository
 {
-    private readonly PolicySetDto _policySet = new()
+    private readonly PolicySet _policySet = new()
     {
-        CombiningAlgorithm = Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_DenyOverrides,
-        Policies = new List<PolicyDto>()
+        Policies = new List<AbacPolicy>()
     };
 
-    public PolicySetDto CurrentPolicySet => _policySet;
+    public PolicySet CurrentPolicySet => _policySet;
 
     public string GetPolicyRepositoryPath()
     {
         return string.Empty;
     }
 
-    public PolicySetDto GetAllPolicies()
+    public PolicySet GetAllPolicies()
     {
         return _policySet;
     }
 
-    public bool AddPolicy(PolicyDto? policyDto)
+    public bool AddPolicy(AbacPolicy? policyDto)
     {
         if (policyDto == null || string.IsNullOrWhiteSpace(policyDto.Id))
             return false;
@@ -37,7 +36,7 @@ public sealed class InMemoryPolicyRepository : IPolicyRepository
         return true;
     }
 
-    public bool UpdatePolicy(PolicyDto? policyDto, string? policyId = null)
+    public bool UpdatePolicy(AbacPolicy? policyDto, string? policyId = null)
     {
         if (policyDto == null)
             return false;

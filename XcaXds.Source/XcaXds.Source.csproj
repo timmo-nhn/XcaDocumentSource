@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-    <ItemGroup>
-    <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
+  <ItemGroup>
+    <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj"/>
   </ItemGroup>
 
   <ItemGroup>	 	  
@@ -24,10 +24,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.17.0" />
     <PackageReference Include="PDFsharp" Version="6.2.4" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.7" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="PolicyRepository\" />
   </ItemGroup>
 
 </Project>

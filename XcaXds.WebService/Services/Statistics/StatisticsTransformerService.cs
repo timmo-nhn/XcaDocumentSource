@@ -92,7 +92,7 @@ public class StatisticsTransformerService
             Issuer = samlToken?.Assertion.Issuer.Value,
             SubjectIdHash = GetSamlAttributeAsHashedString(statements, "helseid://claims/hpr/hpr_number"),
             ResourceIdHash = GetSamlAttributeAsHashedString(statements, "helseid://claims/identity/pid"),
-            Action = XacmlExtensions.MapXacmlActionAndFromUrlPath(inputFields.Path, inputFields.Method),
+            Action = AccessControlExtensions.MapXacmlActionFromUrlPath(inputFields.Path, inputFields.Method),
             SubjectOrganization = subjectOrganization,
             SubjectOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.Organization),
 

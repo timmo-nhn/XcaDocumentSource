@@ -41,11 +41,10 @@ public class FileBasedPolicyRepository : IPolicyRepository
         return _policyRepositoryPath;
     }
 
-    public PolicySetDto GetAllPolicies()
+    public PolicySet GetAllPolicies()
     {
-        var policySetDto = new PolicySetDto()
+        var policySetDto = new PolicySet()
         {
-            CombiningAlgorithm = Constants.Xacml.CombiningAlgorithms.V20_PolicyCombining_DenyOverrides,
         };
 
         lock (_lock)
@@ -59,13 +58,9 @@ public class FileBasedPolicyRepository : IPolicyRepository
                     if (IsTemporaryFile(policyFilePath) || Path.GetFileName(policyFilePath).StartsWith(".")) continue;
 
                     var policyFileContent = File.ReadAllText(policyFilePath);
-                    var policyDto = JsonSerializer.Deserialize<PolicyDto>(policyFileContent, Constants.JsonDefaultOptions.DefaultSettings);
+                    var policyDto = JsonSerializer.Deserialize<AbacPolicy>(policyFileContent, Constants.JsonDefaultOptions.DefaultSettings);
                     if (policyDto?.Id != null)
                     {
-                        // Normalize so OID values arent prefixed with "urn:oid:"
-                        policyDto.Subjects?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
-                        policyDto.Resources?.ForEach(sb => sb.Value = sb.Value?.NoUrn());
-
                         policySetDto.Policies ??= new();
                         policySetDto.Policies.Add(policyDto);
                     }
@@ -77,7 +72,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
         return policySetDto;
     }
 
-    public bool AddPolicy(PolicyDto? policyDto)
+    public bool AddPolicy(AbacPolicy? policyDto)
     {
         if (policyDto == null || string.IsNullOrWhiteSpace(policyDto.Id)) return false;
 
@@ -134,7 +129,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
         return true;
     }
 
-    public bool UpdatePolicy(PolicyDto? policyDto, string? policyId = null)
+    public bool UpdatePolicy(AbacPolicy? policyDto, string? policyId = null)
     {
         if (policyDto == null) return false;
         // FIXME add better update handling stuff?

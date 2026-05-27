@@ -1,15 +1,13 @@
-﻿using Abc.Xacml.Context;
-using Hl7.Fhir.Model;
-using Hl7.FhirPath.Sprache;
+﻿using System.Buffers.Text;
+using System.Text;
 using nClam;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
-using System.Buffers.Text;
-using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
@@ -213,19 +211,19 @@ public class XdsRepositoryService
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
     }
 
-    public SoapRequestResult<SoapEnvelope> RetrieveDocumentSet(SoapEnvelope iti43envelope, XacmlContextRequest? xacmlRequest = null)
+    public SoapRequestResult<SoapEnvelope> RetrieveDocumentSet(SoapEnvelope iti43Envelope, AbacRequest? abacRequest = null)
     {
         var registryResponse = new RegistryResponseType();
         var retrieveResponse = new RetrieveDocumentSetResponseType();
-        var iti43envelopeBody = iti43envelope.Body.RetrieveDocumentSetRequest;
+        var iti43EnvelopeBody = iti43Envelope.Body.RetrieveDocumentSetRequest;
 
-        if (iti43envelopeBody == null)
+        if (iti43EnvelopeBody == null)
         {
             registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing RetrieveDocumentSetRequest", _xdsConfig.HomeCommunityId);
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        var documentRequests = iti43envelopeBody.DocumentRequest;
+        var documentRequests = iti43EnvelopeBody.DocumentRequest;
         if (documentRequests == null || documentRequests.Length == 0)
         {
             registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, "Missing DocumentRequest in RetrieveDocumentSetRequest", _xdsConfig.HomeCommunityId);
@@ -238,7 +236,7 @@ public class XdsRepositoryService
             var repositoryUniqueId = document.RepositoryUniqueId?.NoUrn();
             var homeCommunityId = document.HomeCommunityId?.NoUrn();
 
-            if (DocumentIsRestrictedForUser(document, xacmlRequest))
+            if (DocumentIsRestrictedForUser(document, abacRequest))
             {
                 registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Access denied for document {document.DocumentUniqueId}".Trim(), _xdsConfig.HomeCommunityId);
                 continue;
@@ -265,7 +263,7 @@ public class XdsRepositoryService
                 continue;
             }
 
-            var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, out var documentKind, iti43envelope.Header.MessageId);
+            var file = _repositoryWrapper.GetDocumentFromRepository(homeCommunityId, repositoryUniqueId, documentUniqueId, out var documentKind, iti43Envelope.Header.MessageId);
 
             if (file?.Length > 0)
             {
@@ -299,7 +297,7 @@ public class XdsRepositoryService
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"{iti43envelope.Header.MessageId} \n" + ex.ToString());
+                        _logger.LogError($"{iti43Envelope.Header.MessageId} \n" + ex);
                     }
                 }
                 retrieveResponse.AddDocument(file, homeCommunityId, repositoryUniqueId, documentUniqueId, mimeType);
@@ -309,14 +307,14 @@ public class XdsRepositoryService
         registryResponse.EvaluateStatusCode();
         retrieveResponse.RegistryResponse = registryResponse;
 
-        _logger.LogInformation($"{iti43envelope.Header.MessageId} - Retrieved {retrieveResponse?.DocumentResponse?.Length ?? 0} document(s)");
+        _logger.LogInformation($"{iti43Envelope.Header.MessageId} - Retrieved {retrieveResponse?.DocumentResponse?.Length ?? 0} document(s)");
 
         for (int i = 0; i < retrieveResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length; i++)
         {
             var error = retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError[i];
             if (error == null) continue;
 
-            _logger.LogWarning($"{iti43envelope.Header.MessageId} - ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+            _logger.LogWarning($"{iti43Envelope.Header.MessageId} - ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
         }
 
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
@@ -324,7 +322,7 @@ public class XdsRepositoryService
             IsSuccess = true,
             Value = new SoapEnvelope()
             {
-                Header = SoapExtensions.GetResponseHeaderFromRequest(iti43envelope),
+                Header = SoapExtensions.GetResponseHeaderFromRequest(iti43Envelope),
                 Body = new()
                 {
                     RetrieveDocumentSetResponse = retrieveResponse
@@ -332,37 +330,34 @@ public class XdsRepositoryService
             }
         };
 
-        resultEnvelope.Value.Header.Action = iti43envelope.GetCorrespondingResponseAction();
+        resultEnvelope.Value.Header.Action = iti43Envelope.GetCorrespondingResponseAction();
 
         return resultEnvelope;
     }
 
-    private bool DocumentIsRestrictedForUser(DocumentRequestType document, XacmlContextRequest? xacmlRequest)
+    private bool DocumentIsRestrictedForUser(DocumentRequestType document, AbacRequest abacRequest)
     {
-        var requestAppliesTo = Enum.Parse<AppliesTo>(xacmlRequest?.GetAllXacmlContextAttributes()
-            .GetXacmlAttributeValuesAsString(Constants.Urn.Custom.AppliesTo)?
-            .FirstOrDefault()
-            ?? "Unknown");
+        var businessLogicParameters = BusinessLogicExtensions.MapFromAbacRequestToBusinessLogic(abacRequest);
 
-        var businessLogic = BusinessLogicMapper.MapXacmlRequestToBusinessLogicParameters(xacmlRequest);
-
+        var requestAppliesTo = businessLogicParameters.AppliesTo;
+        
         var extrinsicObject = _registry.GetSingleRegistryObjectAsDto(document.DocumentUniqueId) as DocumentEntryDto;
-
+        
         var confCodes = extrinsicObject?.ConfidentialityCode;
-
+        
         bool restricted = requestAppliesTo switch
         {
             AppliesTo.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             AppliesTo.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             _ => false
         };
-
+        
         // Dont obscure in emergency situations
-        if (restricted && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
+        if (restricted && !string.IsNullOrWhiteSpace(businessLogicParameters?.Purpose?.Code) && businessLogicParameters.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
         {
             restricted = false;
         }
-
+        
         return restricted;
     }
 

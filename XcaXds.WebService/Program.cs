@@ -174,7 +174,6 @@ public class Program
         builder.Services.AddScoped<AtnaLogGeneratorService>();
 
         // Policy input builder and strategies
-        builder.Services.AddScoped<PolicyEvaluator>();
         builder.Services.AddScoped<PolicyInputBuilder>();
         builder.Services.AddScoped<IPolicyInputStrategy, FhirJsonPolicyInputStrategy>();
         builder.Services.AddScoped<IPolicyInputStrategy, SoapSamlXmlPolicyInputStrategy>();
@@ -198,11 +197,15 @@ public class Program
         builder.Services.AddSingleton<AtnaLogEnricherService>();
         builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
         builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
-        builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
+        builder.Services.AddSingleton<PolicyDecisionPointService>();
         builder.Services.AddSingleton<RepositoryWrapper>();
+        builder.Services.AddSingleton<SourceHealthCheckService>();
         builder.Services.AddSingleton<RegistryWrapper>();
+        builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
+        builder.Services.AddSingleton<IRepository, FileBasedRepository>();
+        builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
 
         // Validation and certificate services
         builder.Services.AddSingleton<Saml2Validator>();
@@ -216,9 +219,6 @@ public class Program
         builder.Services.AddSingleton<StatisticsTransformerService>();
         builder.Services.AddSingleton<XdsSubmitObjectsValidator>();
         builder.Services.AddSingleton<RequestThrottlingService>();
-        builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
-        builder.Services.AddSingleton<IRepository, FileBasedRepository>();
-        builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
         builder.Services.AddSingleton<IClamAvFileScanner, ClamAvFileScanner>();
 
         // Queues

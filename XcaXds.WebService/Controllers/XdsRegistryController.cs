@@ -1,4 +1,3 @@
-using Abc.Xacml.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
@@ -49,12 +48,7 @@ public class XdsRegistryController : ControllerBase
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action}");
 
-        XacmlContextRequest? xacmlRequest = null;
-
-        if (HttpContext.Items.TryGetValue("xacmlRequest", out var xamlContextRequestObject) && xamlContextRequestObject is XacmlContextRequest xacmlContextRequest)
-        {
-            xacmlRequest = xacmlContextRequest;
-        }
+        var abacRequest = HttpContext.Items.TryGetValue("accessRequest", out var accessRequest) ? accessRequest as AbacRequest: null;
 
         switch (action)
         {
@@ -67,7 +61,7 @@ public class XdsRegistryController : ControllerBase
                     break;
                 }
 
-                var registryQueryResponse = _registryService.RegistryStoredQuery(requestEnvelope, xacmlRequest);
+                var registryQueryResponse = _registryService.RegistryStoredQuery(requestEnvelope, abacRequest);
 
                 responseEnvelope = registryQueryResponse.Value;
                 responseEnvelope.Header = new()

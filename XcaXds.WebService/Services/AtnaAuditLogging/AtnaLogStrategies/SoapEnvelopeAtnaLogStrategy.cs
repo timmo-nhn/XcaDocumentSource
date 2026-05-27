@@ -1,8 +1,10 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 
@@ -43,6 +45,8 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
         var requestSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(requestBodyString);
         var responseSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(responseBodyString);
 
+        var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
+        
         if (requestSoapEnvelope == null || responseSoapEnvelope == null)
         {
             var requestOrResponseOrBoth = (requestSoapEnvelope, responseSoapEnvelope) switch
@@ -56,7 +60,12 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
             return AtnaLogBuilderResult.Fail($"{context.TraceIdentifier} - Failed to deserialize SOAP {requestOrResponseOrBoth} body");
         }
 
-        _atnaLogGeneratorService.CreateAuditLogForSoapRequestResponse(requestSoapEnvelope, responseSoapEnvelope);
+        _atnaLogGeneratorService.CreateAuditLogForSoapRequestResponse(
+            new AdditionalParameters(
+                context.Request.Method, 
+                context.TraceIdentifier,
+                pdpDecision), 
+            requestSoapEnvelope, responseSoapEnvelope);
         return AtnaLogBuilderResult.Success($"{context.TraceIdentifier} - Successfully enqueued AuditMessage for request {context.TraceIdentifier}");
     }
 }

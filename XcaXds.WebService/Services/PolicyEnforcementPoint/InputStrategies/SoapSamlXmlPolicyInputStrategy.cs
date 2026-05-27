@@ -31,6 +31,9 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
         ];
     }
 
+    public bool CanHandle(string? contentType)
+        => GetAcceptedContentTypes().Contains(contentType);
+
     public async Task<PolicyInputResult> BuildAsync(HttpContext context, ApplicationConfig appConfig)
     {
         string requestBody;
@@ -83,19 +86,16 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
             _logger.LogInformation($"{context.TraceIdentifier} - Fail! No SAML-token in request!");
             return PolicyInputResult.Fail($"No SAML-token in request!");
         }
+        
+        var abacRequest = _policyRequestMapperSamlService.GetAbacRequestFromSoapEnvelope(soapEnvelope);
 
-        var xacmlRequest = _policyRequestMapperSamlService.GetXacmlRequest(soapEnvelope);
+        _logger.LogDebug($"{context.TraceIdentifier} - Generated ABAC Request - JSON representation: {JsonSerializer.Serialize(abacRequest)}");
 
-        _logger.LogDebug($"{context.TraceIdentifier} - Generated XACML Request - JSON representation: {JsonSerializer.Serialize(xacmlRequest)}");
-
-        if (xacmlRequest == null)
+        if (abacRequest == null)
         {
-            return PolicyInputResult.Fail($"Error generating XACML request from SOAP Envelope");
+            return PolicyInputResult.Fail($"Error generating ABAC request from SOAP Envelope");
         }
 
-        return PolicyInputResult.Success(xacmlRequest, this);
+        return PolicyInputResult.Success(abacRequest, this);
     }
-
-    public bool CanHandle(string? contentType)
-        => GetAcceptedContentTypes().Contains(contentType);
 }

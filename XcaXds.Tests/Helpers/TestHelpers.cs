@@ -60,17 +60,16 @@ public static class TestHelpers
 
     public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string attributeId, string codeValue, string action, string? codeSystemValue = null, bool noCode = false)
     {
-        var rules = new List<PolicyMatch>
-        {
-            new() { AttributeId = attributeId + $"{(noCode ? string.Empty : ":code")}", Value = codeValue }
-        };
+        var rules = new AbacRuleGroup();
+
+        rules.Conditions.Add(new(attributeId + $"{(noCode ? string.Empty : ":code")}", codeValue));
 
         if (codeSystemValue != null)
         {
-            rules.Add(new() { AttributeId = attributeId + ":codeSystem", Value = codeSystemValue });
+            rules.Conditions.Add(new(attributeId + ":codeSystem", codeSystemValue));
         }
 
-        policyRepositoryService.AddPolicy(new PolicyDto()
+        policyRepositoryService.AddPolicy(new AbacPolicy()
         {
             AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
             Id = policyName,

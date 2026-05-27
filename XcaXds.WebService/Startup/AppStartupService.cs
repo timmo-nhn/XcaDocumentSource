@@ -25,7 +25,7 @@ public class AppStartupService : IHostedService
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
         PolicyRepositoryWrapper policyRepositoryWrapper
-        )
+    )
     {
         _logger = logger;
         _env = env;
@@ -110,113 +110,128 @@ public class AppStartupService : IHostedService
                 _registryWrapper.DeleteDocumentEntryFromRegistry(registryObjectDud);
             }
         }
+
         _logger.LogInformation($"Removed {duds.Count} stale entries from Registry");
     }
 
     private void AddDefaultAccessControlPolicies()
     {
-        var cz_deny_adhocquery_resourceid = new PolicyDto()
+        var cz_deny_adhocquery_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-deny-adhocquery-resourceid",
             AppliesTo = [AppliesTo.Helsenorge],
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
-            [[
-                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
-            ]],
+            [
+                new(
+                    new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
+                )
+            ],
             Actions = ["ReadDocumentList"],
             Effect = "Deny"
         };
 
-        var cz_gp_deny_if_different_resourceid = new PolicyDto()
+        var cz_gp_deny_if_different_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-gp-deny-if-different-resourceid",
             AppliesTo = [AppliesTo.Helsenorge, AppliesTo.HelseId],
             Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
             Rules =
-            [[
-                new(Constants.Saml.Attribute.ProviderIdentifier + ":code",AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Saml.Attribute.ProviderIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+            [
+                new(
+                    new(Constants.Saml.Attribute.ProviderIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                    new(Constants.Saml.Attribute.ProviderIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                    new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                    new(Constants.Urn.Custom.DocumentEntryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
+                    new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
+                    new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
-            ]],
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
+                )
+            ],
             Actions = ["ReadDocumentList", "ReadDocuments"],
             Effect = "Deny"
         };
 
-        var cz_readdocumentlist_documents = new PolicyDto()
+        var cz_readdocumentlist_documents = new AbacPolicy()
         {
             Id = "DEFAULT_cz-readdocumentlist-documents",
             AppliesTo = [AppliesTo.Helsenorge],
             Rules =
-            [[
-                new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
+            [
+                new(
+                    new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
 
-                new(Constants.Saml.Attribute.PurposeOfUse_Helsenorge + ":code", "13"),
-                new(Constants.Saml.Attribute.PurposeOfUse_Helsenorge + ":codeSystem", "1.0.14265.1")
-            ]],
+                    new(Constants.Saml.Attribute.PurposeOfUse_Helsenorge + ":code", "13"),
+                    new(Constants.Saml.Attribute.PurposeOfUse_Helsenorge + ":codeSystem", "1.0.14265.1")
+                )
+            ],
             Actions = ["ReadDocumentList", "ReadDocuments"],
             Effect = "Permit"
         };
 
-        var gp_deny_certain_roles = new PolicyDto()
+        var gp_deny_certain_roles = new AbacPolicy()
         {
             Id = "DEFAULT_gp-deny2",
             AppliesTo = [AppliesTo.HelseId],
             Rules =
-            [[
-                new(Constants.Saml.Attribute.Role + ":code", "XX;VE;FB"),
-                new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060")
-            ]],
+            [
+                new(
+                    new(Constants.Saml.Attribute.Role + ":code", "XX;VE;FB"),
+                    new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060")
+                )
+            ],
             Effect = "Deny"
         };
 
-        var gp_readdocumentlist_readdocument = new PolicyDto()
+        var gp_readdocumentlist_readdocument = new AbacPolicy()
         {
             Id = "DEFAULT_gp-readdocumentlist_readdocument",
             AppliesTo = [AppliesTo.HelseId],
             Rules =
-            [[
-                new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
+            [
+                new(
+                    new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
 
-                new(Constants.Saml.Attribute.Role + ":code", "LE;SP;PS"),
-                new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"),
+                    new(Constants.Saml.Attribute.Role + ":code", "LE;SP;PS"),
+                    new(Constants.Saml.Attribute.Role + ":codeSystem", "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060"),
 
-                new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT;1;ETREAT;COC;BTG"),
-                new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448;1.0.14265.1;urn:oid:1.0.14265.1")
-            ]],
+                    new(Constants.Saml.Attribute.PurposeOfUse + ":code", "TREAT;1;ETREAT;COC;BTG"),
+                    new(Constants.Saml.Attribute.PurposeOfUse + ":codeSystem", "urn:oid:2.16.840.1.113883.1.11.20448;2.16.840.1.113883.1.11.20448;1.0.14265.1;urn:oid:1.0.14265.1")
+                )
+            ],
             //Actions = ["Create", "ReadDocumentList", "ReadDocuments", "Update", "Delete"],
             Actions = ["ReadDocumentList", "ReadDocuments"],
             Effect = "Permit"
         };
 
-        var machine_create_update_documents = new PolicyDto()
+        var machine_create_update_documents = new AbacPolicy()
         {
             Id = "DEFAULT_machine_create_update_documents",
             AppliesTo = [AppliesTo.Machine],
             Rules =
-            [[
-                new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments),
-            ]],
+            [
+                new(
+                    (AbacCondition)new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments)
+                )
+            ],
             Actions = ["Create", "Update"],
             Effect = "Permit"
         };
 
-        var machine_delete_documents = new PolicyDto()
+        var machine_delete_documents = new AbacPolicy()
         {
             Id = "DEFAULT_machine_delete_documents",
             AppliesTo = [AppliesTo.Machine],
             Rules =
-            [           [
-                new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument),
-            ]],
+            [
+                new(
+                    (AbacCondition)new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument)
+                )
+            ],
             Actions = ["Delete"],
             Effect = "Permit"
         };
@@ -279,6 +294,7 @@ public class AppStartupService : IHostedService
                     break;
             }
         }
+
         _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent.ToList());
 
         var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
@@ -289,21 +305,21 @@ public class AppStartupService : IHostedService
         }
     }
 
-    //private void MigrateFromJsonRegistryToDatabase()
-    //{
-    //    // If registry doesnt exist yet, no need to migrate
-    //    if (fileBasedRegistry.RegistryExists() == false) return;
+//private void MigrateFromJsonRegistryToDatabase()
+//{
+//    // If registry doesn't exist yet, no need to migrate
+//    if (fileBasedRegistry.RegistryExists() == false) return;
 
-    //    // If already migrated, no need to migrate again :P
-    //    if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
+//    // If already migrated, no need to migrate again :P
+//    if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
 
-    //    _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
+//    _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
 
-    //    var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
+//    var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
 
-    //    _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
+//    _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
 
-    //    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
-    //    fileBasedRegistry.MarkFileRegistryAsMigrated();
-    //}
+//    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
+//    fileBasedRegistry.MarkFileRegistryAsMigrated();
+//}
 }

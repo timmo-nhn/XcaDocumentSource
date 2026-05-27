@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
@@ -26,7 +27,7 @@ public class ApplicationMetaController : ControllerBase
     private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
-    private readonly HealthCheckService _healthCheckService;
+    private readonly SourceHealthCheckService _healthCheckService;
     private readonly MonitoringStatusService _monitoringService;
     private readonly RequestThrottlingService _requestThrottlingService;
     private readonly ApplicationMetaService _applicationMetaService;
@@ -39,7 +40,7 @@ public class ApplicationMetaController : ControllerBase
         ApplicationConfig xdsConfig,
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
-        HealthCheckService healthCheckService,
+        SourceHealthCheckService healthCheckService,
         MonitoringStatusService monitoringService,
         RequestThrottlingService requestThrottlingService,
         ApplicationMetaService applicationMetaService,
@@ -63,13 +64,11 @@ public class ApplicationMetaController : ControllerBase
         using var activity = ActivitySource.StartActivity("healthz");
 
         var healthReport = await _healthCheckService.CheckHealthAsync();
-
-        var entries = healthReport.Entries;
-        var status = healthReport.Status.ToString();
+        var regRepoReport = await _healthCheckService.GetRegistryRepositoryStatus();
 
         var uptimeInSeconds = double.Round((DateTimeOffset.Now - _monitoringService.StartupTime).TotalSeconds);
 
-        var stats = _monitoringService.ResponseTimes?.Items
+        var usageStatistics = _monitoringService.ResponseTimes?.Items
             .GroupBy(itm => itm.Key)
             .Select(g => new
             {
@@ -77,20 +76,26 @@ public class ApplicationMetaController : ControllerBase
                 Min = g.Min(x => x.Value),
                 Max = g.Max(x => x.Value),
                 Avg = g.Average(x => x.Value),
-                Amount = g.Count()
+                Amount = g.Count(),
             })
             .ToList();
 
         var healthCheck = new
         {
             HealthReport = healthReport,
-            stats,
+            usageStatistics,
             uptimeInSeconds,
-            _monitoringService.StartupTime
+            _monitoringService.StartupTime,
+            RegistryRepository = regRepoReport
         };
 
         var healthCheckJson = JsonSerializer.Serialize(healthCheck, Constants.JsonDefaultOptions.DefaultSettings);
-        return Content(healthCheckJson);
+        if (regRepoReport.RegistryOk || regRepoReport.RepositoryOk)
+        {
+            return StatusCode(500, healthCheckJson);
+        }
+        
+        return StatusCode(200, healthCheckJson);
     }
 
     [RequiresApiKey]

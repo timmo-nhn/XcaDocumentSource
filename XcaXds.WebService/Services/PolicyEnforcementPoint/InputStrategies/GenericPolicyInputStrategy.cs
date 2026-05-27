@@ -7,6 +7,7 @@ namespace XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
 public class GenericPolicyInputStrategy : IPolicyInputStrategy
 {
     private readonly PolicyRequestMapperJsonWebTokenService _policyRequestMapperJsonWebTokenService;
+
     public GenericPolicyInputStrategy(PolicyRequestMapperJsonWebTokenService policyRequestMapperJsonWebTokenService)
     {
         _policyRequestMapperJsonWebTokenService = policyRequestMapperJsonWebTokenService;
@@ -26,9 +27,14 @@ public class GenericPolicyInputStrategy : IPolicyInputStrategy
         if (!ok || token == null)
             return PolicyInputResult.Fail("Invalid or missing JWT");
 
-        var xacml = _policyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method) ??
-            throw new InvalidOperationException("Failed to create XACML request from JWT.");
+        var abacRequest = _policyRequestMapperJsonWebTokenService.GetAbacRequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method) ?? 
+            throw new InvalidOperationException("Failed to create ABAC request from JWT.");
 
-        return PolicyInputResult.Success(xacml, this);
+        if (abacRequest == null)
+        {
+            return PolicyInputResult.Fail($"Error generating ABAC request from SOAP Envelope");
+        }
+
+        return PolicyInputResult.Success(abacRequest, this);
     }
 }

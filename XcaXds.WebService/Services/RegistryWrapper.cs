@@ -5,7 +5,6 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.WebService.Services;
 
-
 public class RegistryWrapper
 {
     private readonly IRegistry _registry;
@@ -90,15 +89,19 @@ public class RegistryWrapper
         return InsertOrUpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
     }
 
+    public bool DeleteDocumentEntryFromRegistry(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return false;
+
+        var deleteResponse = _registry.DeleteRegistryItem(id);
+        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
+        
+        return deleteResponse;
+    }
+
     public bool DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
     {
-        if (registryObjectDto == null) return false;
-
-        var deleteResponse = _registry.DeleteRegistryItem(registryObjectDto.Id);
-        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
-
-
-        return deleteResponse;
+        return DeleteDocumentEntryFromRegistry(registryObjectDto.Id);
     }
 
     public bool UpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
@@ -107,7 +110,7 @@ public class RegistryWrapper
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
         _registry.UpdateRegistry(registryObjectDtos);
-        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable() ;
+        _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
 
         return true;
     }

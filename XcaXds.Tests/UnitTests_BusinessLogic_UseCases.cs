@@ -34,9 +34,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId),
             Resource = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(patientId),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -60,9 +60,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId12To16Years),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId12To16Years),
             Resource = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(patientId12To16Years),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId12To16Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -85,9 +85,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(patientId16To18Years),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId16To18Years),
             Resource = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(patientId16To18Years),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId16To18Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -111,9 +111,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resourceBelow12Years, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resourceBelow12Years),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resourceBelow12Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -137,9 +137,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.RepresentAnotherCitizen,
             Purpose = new() { Code = PWATRNY, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -163,9 +163,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -189,9 +189,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -214,9 +214,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = TREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -240,9 +240,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = TREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             Scope = ["journaldokumenter_helsepersonell"],
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
@@ -267,9 +267,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = ETREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -294,9 +294,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -321,9 +321,9 @@ public class UnitTests_BusinessLogic_UseCases
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
-            SubjectAge = BusinessLogicMapper.GetAgeFromPatientId(subject),
+            SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
-            ResourceAge = BusinessLogicMapper.GetAgeFromPatientId(resource),
+            ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 

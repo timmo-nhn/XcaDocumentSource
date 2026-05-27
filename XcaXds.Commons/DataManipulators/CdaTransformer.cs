@@ -722,11 +722,13 @@ public static partial class CdaTransformer
 
     private static TS SetClinicalDocumentEffectiveTime(DocumentEntryDto documentEntry)
     {
-        return new()
+        var time = new TS
         {
-            EffectiveTime = documentEntry.CreationTime.HasValue ? documentEntry.CreationTime.Value : DateTime.MinValue,
-            Value = documentEntry.CreationTime.HasValue ? documentEntry.CreationTime.Value.ToUniversalTime().ToString(Constants.Hl7.Dtm.DtmFormat) : string.Empty
+            EffectiveTime = documentEntry.CreationTime ?? DateTimeOffset.MinValue
         };
+        
+        time.Value = time.EffectiveTime.ToUniversalTime().ToString(Constants.Hl7.Dtm.DtmFormat);
+        return time;
     }
 
     private static CV? SetClinicalDocumentTypeCode(DocumentEntryDto documentEntry)

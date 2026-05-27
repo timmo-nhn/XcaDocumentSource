@@ -17,70 +17,44 @@ namespace XcaXds.WebService.Controllers;
 public class PolicyManagementController : ControllerBase
 {
     private readonly PolicyRepositoryService _policyRepositoryService;
-    private readonly PolicyDecisionPointService _policyDecisionPointService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly ILogger<PolicyManagementController> _logger;
     private readonly PolicyRequestMapperSamlService _policyRequestMapperSamlService;
-    public PolicyManagementController(PolicyRepositoryService policyRepositoryService, PolicyDecisionPointService policyDecisionPointService, RegistryWrapper registryWrapper, ILogger<PolicyManagementController> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService)
+    public PolicyManagementController(PolicyRepositoryService policyRepositoryService, RegistryWrapper registryWrapper, ILogger<PolicyManagementController> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService)
 
     {
         _policyRequestMapperSamlService = policyRequestMapperSamlService;
         _policyRepositoryService = policyRepositoryService;
-        _policyDecisionPointService = policyDecisionPointService;
         _registryWrapper = registryWrapper;
         _logger = logger;
     }
 
     [Produces("application/json", "application/xml")]
     [HttpGet("get-all")]
-    public IActionResult GetAllPolicies(bool xml = false)
+    public IActionResult GetAllPolicies()
     {
-        _logger.LogInformation($"Received request to get all policies. Returning in XML format: {xml}");
-
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
 
         _logger.LogInformation($"Returned PolicySet with {policySet.Policies?.Count ?? 0} Policies");
-
-        if (xml)
-        {
-            var xacmlPolicySet = PolicyDtoTransformer.TransformPolicySetDtoToXacmlVersion20PolicySet(policySet);
-
-            var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
-
-            if (string.IsNullOrWhiteSpace(xmlPolicySet)) return NotFound();
-
-            return Content(xmlPolicySet, Constants.MimeTypes.Xml);
-        }
-
+        
         return Ok(policySet);
     }
 
     [Produces("application/json", "application/xml")]
     [HttpGet("get-single")]
-    public IActionResult GetSinglePolicy(string id, bool xml = false)
+    public IActionResult GetSinglePolicy(string id)
     {
         var policySet = _policyRepositoryService.GetSinglePolicy(id);
-
-        if (xml)
-        {
-            var xacmlPolicySet = PolicyDtoTransformer.TransformPolicyDtoToXacmlVersion20Policy(policySet);
-
-            var xmlPolicySet = XacmlSerializer.SerializeXacmlToXml(xacmlPolicySet);
-            if (string.IsNullOrWhiteSpace(xmlPolicySet)) return NotFound();
-
-            return Content(xmlPolicySet, Constants.MimeTypes.Xml);
-        }
-
+        
         return Ok(policySet);
     }
 
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPost("upload")]
-    public IActionResult CreatePolicy([FromBody] PolicyDto policyDto)
+    public IActionResult CreatePolicy([FromBody] AbacPolicy abacPolicy)
     {
-        policyDto.SetDefaultValues();
-        var response = _policyRepositoryService.AddPolicy(policyDto);
+        var response = _policyRepositoryService.AddPolicy(abacPolicy);
 
         var apiResponse = new RestfulApiResponse()
         {
@@ -89,14 +63,14 @@ public class PolicyManagementController : ControllerBase
 
         if (apiResponse.Success)
         {
-            apiResponse.SetMessage($"Created Policy with id {policyDto.Id}");
+            apiResponse.SetMessage($"Created Policy with id {abacPolicy.Id}");
             return Ok(apiResponse);
         }
 
-        if (_policyRepositoryService.GetSinglePolicy(policyDto.Id) != null)
+        if (_policyRepositoryService.GetSinglePolicy(abacPolicy.Id) != null)
         {
             apiResponse.AddError("Conflict", "Resource already exists");
-            apiResponse.SetMessage($"Policy with id {policyDto.Id} already exists!");
+            apiResponse.SetMessage($"Policy with id {abacPolicy.Id} already exists!");
             return Conflict(apiResponse);
         }
 
@@ -106,24 +80,24 @@ public class PolicyManagementController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPut("update")]
-    public IActionResult UpdatePolicy([FromBody] PolicyDto policyDto, string? id)
+    public IActionResult UpdatePolicy([FromBody] AbacPolicy abacPolicy, string? id)
     {
         var apiResponse = new RestfulApiResponse();
 
-        var policyToUpdate = _policyRepositoryService.GetSinglePolicy(id ?? policyDto.Id);
+        var policyToUpdate = _policyRepositoryService.GetSinglePolicy(id ?? abacPolicy.Id);
 
         if (policyToUpdate == null)
         {
-            apiResponse.SetMessage($"Policy with id {id ?? policyDto.Id} not found.");
+            apiResponse.SetMessage($"Policy with id {id ?? abacPolicy.Id} not found.");
             return NotFound(apiResponse);
         }
 
-        var response = _policyRepositoryService.UpdatePolicy(policyDto, id);
+        var response = _policyRepositoryService.UpdatePolicy(abacPolicy, id);
 
         if (response)
         {
             apiResponse.Success = true;
-            apiResponse.SetMessage($"Updated Policy with id {policyDto.Id}");
+            apiResponse.SetMessage($"Updated Policy with id {abacPolicy.Id}");
             return Ok(apiResponse);
         }
 
@@ -133,7 +107,7 @@ public class PolicyManagementController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpPatch("patch")]
-    public IActionResult PatchPolicy([FromBody] PolicyDto policyDto, string? newId, bool? append)
+    public IActionResult PatchPolicy([FromBody] AbacPolicy abacPolicy, string? newId, bool? append)
     {
 
         var apiResponse = new RestfulApiResponse();
@@ -145,13 +119,13 @@ public class PolicyManagementController : ControllerBase
             return Conflict(apiResponse);
         }
 
-        var response = _policyRepositoryService.PartiallyUpdatePolicy(policyDto, newId, append ?? false);
+        var response = _policyRepositoryService.PartiallyUpdatePolicy(abacPolicy, newId, append ?? false);
 
         apiResponse.Success = response;
 
         if (apiResponse.Success)
         {
-            apiResponse.SetMessage($"Created Policy with id {policyDto.Id}");
+            apiResponse.SetMessage($"Created Policy with id {abacPolicy.Id}");
             return Ok(apiResponse);
         }
 
@@ -191,23 +165,5 @@ public class PolicyManagementController : ControllerBase
 
         apiResponse.SetMessage($"Succesfully deleted all policies");
         return Ok(apiResponse);
-    }
-
-    [Consumes("application/soap+xml")]
-    [Produces("application/json")]
-    [HttpPost("evaluate-soap-request")]
-    public async Task<IActionResult> GetXacmlRequest([FromBody] SoapEnvelope soapEnvelope)
-    {
-        var response = new RestfulApiResponse();
-
-        var xacmlRequest = _policyRequestMapperSamlService.GetXacmlRequest(soapEnvelope);
-
-        var evaluationResponse = _policyDecisionPointService.EvaluateXacmlRequest(xacmlRequest);
-
-        var result = evaluationResponse.Results.Select(res => res.Decision).FirstOrDefault().ToString();
-
-        response.SetMessage($"Result from policy evaluation: {result}");
-
-        return Ok(response);
     }
 }

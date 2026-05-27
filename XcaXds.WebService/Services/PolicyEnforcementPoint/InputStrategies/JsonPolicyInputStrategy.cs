@@ -30,10 +30,14 @@ public class JsonPolicyInputStrategy : IPolicyInputStrategy
         if (!ok || token == null)
             return PolicyInputResult.Fail("Invalid or missing JWT");
 
-        var xacml = _policyRequestMapperJsonWebTokenService.GetXacml20RequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method) ??
-            throw new InvalidOperationException("Failed to create XACML request from JWT.");
+        var abacRequest = _policyRequestMapperJsonWebTokenService.GetAbacRequestFromJsonWebToken(token, null, context.Request.Path, context.Request.Method) ?? 
+                          throw new InvalidOperationException("Failed to create ABAC request from JWT");
+        
+        if (abacRequest == null)
+        {
+            return PolicyInputResult.Fail($"Error generating ABAC request from SOAP Envelope");
+        }
 
-
-        return PolicyInputResult.Success(xacml, this);
+        return PolicyInputResult.Success(abacRequest, this);
     }
 }
