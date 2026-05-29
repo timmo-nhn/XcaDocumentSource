@@ -231,32 +231,32 @@ public class CompiledPolicy
 
     private static Func<Dictionary<string, List<string>>, ConditionResult> CompileCondition(AbacCondition condition)
     {
-        return attributes =>
+        return attributes => EvaluateCondition(condition, attributes);
+    }
+
+    private static ConditionResult EvaluateCondition(AbacCondition condition, Dictionary<string, List<string>> attributes)
+    {
+        if (!attributes.TryGetValue(condition.AttributeId, out var values))
         {
-            if (!attributes.TryGetValue(condition.AttributeId, out var values))
-            {
-                return new(condition.AttributeId, false);
-            }
+            return new(condition.AttributeId, false);
+        }
             
-            var valuesParts = condition.Value?.Split(";");
+        var valuesParts = condition.Value?.Split(";");
 
-            if (condition.CompareAttributes == true)
-            {
-                var otherAttributeValue = valuesParts?.SelectMany(att => attributes.TryGetValue(att ?? "", out var value) ? value : null);
-                
-                return new(condition.AttributeId, otherAttributeValue?.Any(oa => values.Contains(oa)) == true);
-            }
+        if (condition.CompareAttributes == true)
+        {
+            valuesParts = valuesParts?.SelectMany(att => attributes.TryGetValue(att ?? "", out var value) ? value : null).ToArray();
+        }
 
-            return condition.CompareRule switch
-            {
-                AttributeCompareRule.Equals =>
-                    new(condition.AttributeId, valuesParts?.Any(val => values.Contains(val)) == true),
+        return condition.CompareRule switch
+        {
+            AttributeCompareRule.Equals =>
+                new(condition.AttributeId, valuesParts?.Any(val => values.Contains(val)) == true),
 
-                AttributeCompareRule.NotEquals =>
-                    new(condition.AttributeId, valuesParts?.Any(val => !values.Contains(val)) == false),
+            AttributeCompareRule.NotEquals =>
+                new(condition.AttributeId, valuesParts?.Any(val => !values.Contains(val)) == false),
 
-                _ => throw new NotSupportedException(condition.CompareRule.ToString())
-            };
+            _ => throw new NotSupportedException(condition.CompareRule.ToString())
         };
     }
 }

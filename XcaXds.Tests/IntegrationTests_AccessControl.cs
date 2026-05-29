@@ -148,7 +148,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
             new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Helsenorge)),
             new("attribute01", "123123"),
             new("attribute02", "456456"),
-            new("attribute03", "123123")
+            new("attribute03", "789789")
         );
 
         var response = _policyDecisionPointService.Evaluate(abacRequest);
