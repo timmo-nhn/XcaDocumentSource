@@ -80,6 +80,18 @@ public static class TestHelpers
         });
     }
 
+    public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string action, List<AbacCondition> rules)
+    {
+        policyRepositoryService.AddPolicy(new AbacPolicy()
+        {
+            AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
+            Id = policyName,
+            Rules = [new() { Conditions = rules }],
+            Actions = [action],
+            Effect = "Permit",
+        });
+    }
+
     public static void AddRandomAccessControlPolicies(PolicyRepositoryService policyRepositoryService, int amount = 5)
     {
         var samlAttributes = typeof(Constants.Saml.Attribute).GetAsKeyValuePair();

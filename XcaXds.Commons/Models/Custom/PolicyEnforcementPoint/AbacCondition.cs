@@ -12,6 +12,14 @@ public class AbacCondition
         CompareRule = compareRule;
         Value = value;
     }
+    
+    public AbacCondition(string attributeId, AttributeCompareRule compareRule, string value, bool compare)
+    {
+        AttributeId = attributeId;
+        CompareAttributes = compare;
+        CompareRule = compareRule;
+        Value = value;
+    }
 
     public AbacCondition(string attributeId, string value)
     {

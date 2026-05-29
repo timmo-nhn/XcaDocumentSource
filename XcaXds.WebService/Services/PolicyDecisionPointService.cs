@@ -237,12 +237,15 @@ public class CompiledPolicy
             {
                 return new(condition.AttributeId, false);
             }
+            
+            var valuesParts = condition.Value?.Split(";");
 
             if (condition.CompareAttributes == true)
             {
+                var otherAttributeValue = valuesParts?.SelectMany(att => attributes.TryGetValue(att ?? "", out var value) ? value : null);
+                
+                return new(condition.AttributeId, otherAttributeValue?.All(oa => values.Contains(oa)) == true);
             }
-
-            var valuesParts = condition.Value?.Split(";");
 
             return condition.CompareRule switch
             {

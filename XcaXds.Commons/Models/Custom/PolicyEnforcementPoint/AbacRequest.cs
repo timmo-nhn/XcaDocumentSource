@@ -5,13 +5,13 @@ public class AbacRequest
         Attributes ??= [];
     }
 
-    public AbacRequest(params KeyValuePair<string,string>[] attributes)
+    public AbacRequest(params (string k, string v)[] attributes)
     {
         Attributes ??= [];
         
         foreach (var attribute in attributes)
         {
-            Attributes.Add(attribute.Key, [attribute.Value]);
+            Attributes.Add(attribute.k, [attribute.v]);
         }
     }
 
