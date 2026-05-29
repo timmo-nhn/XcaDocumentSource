@@ -244,7 +244,7 @@ public class CompiledPolicy
             {
                 var otherAttributeValue = valuesParts?.SelectMany(att => attributes.TryGetValue(att ?? "", out var value) ? value : null);
                 
-                return new(condition.AttributeId, otherAttributeValue?.All(oa => values.Contains(oa)) == true);
+                return new(condition.AttributeId, otherAttributeValue?.Any(oa => values.Contains(oa)) == true);
             }
 
             return condition.CompareRule switch
