@@ -130,6 +130,7 @@ public class PolicyEnforcementPointMiddleware
         }
         
         var decision = _policyDecisionPointService.Evaluate(policyInput.AccessRequest);
+        _logger.LogInformation(JsonSerializer.Serialize(decision, Constants.JsonDefaultOptions.DefaultSettings));
         
         AttachPepDecisionResponse(httpContext, decision);
 
