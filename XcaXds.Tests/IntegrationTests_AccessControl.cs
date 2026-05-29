@@ -14,10 +14,8 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
     }
 
     [Fact]
-    public async Task AC_Healthcarepersonell_Role_Valid_Should_GetAccess()
+    public async Task Healthcarepersonell_Role_Valid_Should_GetAccess()
     {
-        _policyRepositoryService.DeleteAllPolicies();
-
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "Healthcarepersonell_ROLE",
@@ -25,8 +23,6 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
             action: "ReadDocumentList");
-        
-
         
         var abacRequest = new AbacRequest(
             new(Constants.Saml.Attribute.Role + ":code", "SP"),
@@ -41,7 +37,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
             , Constants.JsonDefaultOptions.DefaultSettings);
         
         var response = _policyDecisionPointService.Evaluate(abacRequest);
-
+        
         // Cleanup
         _policyRepositoryService.DeleteAllPolicies();
 
@@ -49,7 +45,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
     }
 
     [Fact]
-    public async Task AC_Healthcarepersonell_Role_Invalid_Should_NotGetAccess()
+    public async Task Healthcarepersonell_Role_Invalid_Should_NotGetAccess()
     {
         _policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddRandomAccessControlPolicies(_policyRepositoryService, 100);
@@ -79,7 +75,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
     }
 
     [Fact]
-    public async Task AC_Healthcarepersonell_Role_NotApplicable_Should_NotGetAccess()
+    public async Task Healthcarepersonell_Role_NotApplicable_Should_NotGetAccess()
     {
         _policyRepositoryService.DeleteAllPolicies();
 

@@ -77,8 +77,6 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 // ObjectDisposedException during EF Core queries.
                 services.Configure<HostOptions>(o => { o.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore; });
 
-                services.RemoveAll<AppStartupService>();
-
                 //// Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
                 //services.RemoveAll<IRepository>();
                 //services.RemoveAll<IPolicyRepository>();
@@ -92,6 +90,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
                 services.AddHostedService<IntegrationTestCleanupService>();
                 services.AddHostedService<MockStatisticsProcessorService>();
+                services.AddHostedService<AppStartupService>();
 
                 services.RemoveAll<IClamAvFileScanner>();
                 services.AddSingleton<IClamAvFileScanner, FakeClamAvFileScanner>();

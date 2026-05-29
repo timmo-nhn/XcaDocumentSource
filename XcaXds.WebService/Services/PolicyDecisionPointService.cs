@@ -1,3 +1,4 @@
+using Hl7.Fhir.Model;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
@@ -166,7 +167,7 @@ public class CompiledPolicy
             
             result.Conditions.AddRange(groupResult.Diagnostics);
 
-            // Track partial applicability
+            // Partial applicability
             if (groupResult.Diagnostics.Any(d => d.Matches))
             {
                 anyConditionMatched = true;
@@ -186,14 +187,16 @@ public class CompiledPolicy
             }
         }
 
-        // Policy was applicable but failed conditions
-        if (anyConditionMatched)
+        // Partial group match for Permit (Excplicit Deny-policies should only deny if the whole group result matches
+        if (anyConditionMatched && policy.Effect == "Permit")
         {
             result.Decision = Decision.Deny;
             result.Reason = "Policy was applicable but one or more conditions failed.";
 
             return result;
         }
+        
+        
 
         // Policy never applied
         result.Decision = Decision.NotApplicable;
