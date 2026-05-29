@@ -11,6 +11,7 @@ public class ConditionResult
     public ConditionResult()
     {
     }
-    public string AttributeId { get; set; }
     public bool Matches { get; set; }
+    public string AttributeId { get; set; }
+    public string RelatedPolicyId { get; set; }
 }

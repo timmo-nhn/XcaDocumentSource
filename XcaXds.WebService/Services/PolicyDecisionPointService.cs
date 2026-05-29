@@ -162,7 +162,8 @@ public class CompiledPolicy
         foreach (var ruleGroup in compiledRuleGroups ?? [])
         {
             var groupResult = ruleGroup(attributes);
-
+            groupResult.Diagnostics.ForEach(gr => gr.RelatedPolicyId = policy.Id);
+            
             result.Conditions.AddRange(groupResult.Diagnostics);
 
             // Track partial applicability
@@ -205,10 +206,10 @@ public class CompiledPolicy
     {
         var compiled = group.Conditions.Select(CompileCondition).ToList();
 
-        return attributes => EvaluateCondition(compiled, group, attributes);
+        return attributes => EvaluateCondition(compiled, attributes);
     }
 
-    private static EvaluatedCondition EvaluateCondition(List<Func<Dictionary<string, List<string>>, ConditionResult>> compiled, AbacRuleGroup group, Dictionary<string, List<string>> attributes)
+    private static EvaluatedCondition EvaluateCondition(List<Func<Dictionary<string, List<string>>, ConditionResult>> compiled, Dictionary<string, List<string>> attributes)
     {
         var results = new List<ConditionResult>();
         bool allMatch = true;
