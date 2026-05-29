@@ -2,6 +2,7 @@
 using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
@@ -77,5 +78,28 @@ public static class TestHelpers
             Actions = [action],
             Effect = "Permit",
         });
+    }
+
+    public static void AddRandomAccessControlPolicies(PolicyRepositoryService policyRepositoryService, int amount = 5)
+    {
+        var samlAttributes = typeof(Constants.Saml.Attribute).GetAsKeyValuePair();
+        var actions = typeof(Constants.Xacml.Actions).GetAsKeyValuePair();
+
+        while (amount >= 0)
+        {
+            var randomAttributes = samlAttributes.PickRandom(Random.Shared.Next(1, samlAttributes.Count));
+
+            var rules = randomAttributes.Select(att => new AbacRuleGroup() { Conditions = [new(att.Value, att.Key)] }).ToList();
+            policyRepositoryService.AddPolicy(new AbacPolicy()
+            {
+                AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
+                Id = Guid.NewGuid().ToString(),
+                Rules = rules,
+                Actions = [actions.PickRandom().Value],
+                Effect = amount.IsEven() ? "Permit" : "Deny",
+            });
+
+            amount--;
+        }
     }
 }

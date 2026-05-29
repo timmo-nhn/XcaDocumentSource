@@ -75,8 +75,6 @@ public class FileBasedRepository : IRepository
 
             string filePath = Path.Combine(documentPath, documentId.NoUrn());
             File.WriteAllBytes(filePath, documentContent);
-            Console.WriteLine(File.Exists(filePath));
-            Console.WriteLine(new FileInfo(filePath).Length);
             return true;
         }
     }

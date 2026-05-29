@@ -745,7 +745,7 @@ public class AtnaLogGeneratorService
             .ToArray();
 
         if (failedConditions.Length > 0)
-            return string.Join(' ', failedConditions);
+            return string.Join(",\n", failedConditions);
 
         return null;
     }

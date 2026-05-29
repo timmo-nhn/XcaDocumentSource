@@ -1667,93 +1667,12 @@ public static class Constants
             public const string Unknown = "Unknown";
         }
 
-        public static class Functions
-        {
-            public const string StringEqual = "urn:oasis:names:tc:xacml:1.0:function:string-equal";
-            public const string StringIsIn = "urn:oasis:names:tc:xacml:1.0:function:string-is-in";
-            public const string StringAtLeastOneMemberOf = "urn:oasis:names:tc:xacml:1.0:function:string-at-least-one-member-of";
-            public const string StringBag = "urn:oasis:names:tc:xacml:1.0:function:string-bag";
-            public const string And = "urn:oasis:names:tc:xacml:1.0:function:and";
-            public const string Or = "urn:oasis:names:tc:xacml:1.0:function:or";
-            public const string StringOneAndOnly = "urn:oasis:names:tc:xacml:1.0:function:string-one-and-only";
-            public const string Not = "urn:oasis:names:tc:xacml:1.0:function:not";
-        }
-        public static class CombiningAlgorithms
-        {
-            // XACML 1.0 / 1.1 Rule Combining Algorithms
-            public const string V20_RuleCombining_DenyOverrides = "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides";
-            public const string V20_RuleCombining_PermitOverrides = "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides";
-            public const string V20_RuleCombining_FirstApplicable = "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable";
-            public const string V20_RuleCombining_OrderedDenyOverrides = "urn:oasis:names:tc:xacml:1.1:rule-combining-algorithm:ordered-denyoverrides";
-            public const string V20_RuleCombining_OrderedPermitOverrides = "urn:oasis:names:tc:xacml:1.1:rule-combining-algorithm:ordered-permitoverrides";
-
-            // XACML 1.0 / 1.1 Policy Combining Algorithms
-            public const string V20_PolicyCombining_DenyOverrides = "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides";
-            public const string V20_PolicyCombining_PermitOverrides = "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:permit-overrides";
-            public const string V20_PolicyCombining_FirstApplicable = "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable";
-            public const string V20_PolicyCombining_OnlyOneApplicable = "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:only-one-applicable";
-            public const string V20_PolicyCombining_OrderedDenyOverrides = "urn:oasis:names:tc:xacml:1.1:policy-combining-algorithm:ordered-denyoverrides";
-            public const string V20_PolicyCombining_OrderedPermitOverrides = "urn:oasis:names:tc:xacml:1.1:policy-combining-algorithm:ordered-permitoverrides";
-
-            // XACML 3.0 Rule Combining Algorithms
-            public const string V30_RuleCombining_DenyOverrides = "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides";
-            public const string V30_RuleCombining_PermitOverrides = "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides";
-            public const string V30_RuleCombining_FirstApplicable = "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:first-applicable";
-            public const string V30_RuleCombining_DenyUnlessPermit = "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit";
-            public const string V30_RuleCombining_PermitUnlessDeny = "urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny";
-
-            // XACML 3.0 Policy Combining Algorithms
-            public const string V30_PolicyCombining_DenyOverrides = "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides";
-            public const string V30_PolicyCombining_PermitOverrides = "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-overrides";
-            public const string V30_PolicyCombining_FirstApplicable = "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:first-applicable";
-            public const string V30_PolicyCombining_DenyUnlessPermit = "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-unless-permit";
-            public const string V30_PolicyCombining_PermitUnlessDeny = "urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-unless-deny";
-        }
-
         public static class Attribute
         {
             public const string ActionId = "urn:oasis:names:tc:xacml:1.0:action:action-id";
             public const string SubjectId = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
             public const string ResourceId = "urn:oasis:names:tc:xacml:2.0:resource:resource-id";
             public const string Role = "urn:oasis:names:tc:xspa:1.0:subject:role";
-        }
-
-        public static class Category
-        {
-            public const string V30_Subject = "urn:oasis:names:tc:xacml:3.0:attribute-category:access-subject";
-            public const string V30_Resource = "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
-            public const string V30_Action = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
-            public const string V30_Environment = "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
-
-            public const string V20_Subject = "urn:oasis:names:tc:xacml:2.0:attribute-category:access-subject";
-            public const string V20_Resource = "urn:oasis:names:tc:xacml:2.0:attribute-category:resource";
-            public const string V20_Action = "urn:oasis:names:tc:xacml:2.0:attribute-category:action";
-            public const string V20_Environment = "urn:oasis:names:tc:xacml:2.0:attribute-category:environment";
-        }
-
-        public static class DataType
-        {
-            public const string String = "http://www.w3.org/2001/XMLSchema#string";
-            public const string Name = "urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name";
-            public const string Uri = "http://www.w3.org/2001/XMLSchema#anyURI";
-            public const string XPath = "urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression";
-            public const string Date = "http://www.w3.org/2001/XMLSchema#date";
-            public const string DateTime = "http://www.w3.org/2001/XMLSchema#dateTime";
-        }
-
-        public static class Namespace
-        {
-            public const string WD17 = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
-            public const string Policy_OS = "urn:oasis:names:tc:xacml:2.0:policy:schema:os";
-            public const string Context_OS = "urn:oasis:names:tc:xacml:2.0:context:schema:os";
-        }
-
-        public static class StatusCodes
-        {
-            public const string MissingAttribute = "urn:oasis:names:tc:xacml:1.0:status:missing-attribute";
-            public const string Ok = "urn:oasis:names:tc:xacml:1.0:status:ok";
-            public const string ProcessingError = "urn:oasis:names:tc:xacml:1.0:status:processing-error";
-            public const string SyntaxError = "urn:oasis:names:tc:xacml:1.0:status:syntax-error ";
         }
     }
 

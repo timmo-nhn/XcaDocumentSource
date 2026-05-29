@@ -54,7 +54,7 @@ public class Program
         builder.Configuration.AddEnvironmentVariables();
 
         AddControllersAndModelBindings(builder);
-
+        
         ConfigureKestrelAuthenticationAuthorization(builder);
 
         AddModelValidationHandling(builder);
@@ -137,10 +137,7 @@ public class Program
 
     private static void AddModelValidationHandling(WebApplicationBuilder builder)
     {
-        builder.Services.Configure<ApiBehaviorOptions>(options =>
-        {
-            options.InvalidModelStateResponseFactory = ErrorResponseFactory.CreateErrorResponse;
-        });
+        builder.Services.Configure<ApiBehaviorOptions>(options => { options.InvalidModelStateResponseFactory = ErrorResponseFactory.CreateErrorResponse; });
     }
 
     private static void AddControllersAndModelBindings(WebApplicationBuilder builder)

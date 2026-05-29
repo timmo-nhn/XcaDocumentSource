@@ -19,11 +19,16 @@ public static class GlobalExtensions
 
     public static bool IsNullOrZero(this int? value)
     {
-        return value == null || value == 0;
+        return !value.HasValue || value.Value == 0;
     }
 
     public static bool IsNullOrZero(this int value)
     {
         return value == 0;
+    }
+
+    public static bool IsEven(this int value)
+    {
+        return value % 2 == 0;
     }
 }

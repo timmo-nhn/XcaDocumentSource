@@ -33,6 +33,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly HttpClient _client;
     internal readonly RestfulRegistryRepositoryService _restfulRegistryService;
     internal readonly PolicyRepositoryService _policyRepositoryService;
+    internal readonly PolicyDecisionPointService _policyDecisionPointService;
     internal readonly RegistryWrapper _registryWrapper;
     internal readonly IRegistry _registry;
     internal readonly IRepository _repository;
@@ -115,6 +116,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _atnaLogExportedChecker = _scope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _restfulRegistryService = _scope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
         _policyRepositoryService = _scope.ServiceProvider.GetRequiredService<PolicyRepositoryService>();
+        _policyDecisionPointService = _scope.ServiceProvider.GetRequiredService<PolicyDecisionPointService>();
         _registryWrapper = _scope.ServiceProvider.GetRequiredService<RegistryWrapper>();
         _apiKeyHolder = _scope.ServiceProvider.GetRequiredService<ApiKeyHolder>();
         _applicationMetaService = _scope.ServiceProvider.GetRequiredService<ApplicationMetaService>();

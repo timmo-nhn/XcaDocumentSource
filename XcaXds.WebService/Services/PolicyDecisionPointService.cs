@@ -42,7 +42,7 @@ public class PolicyDecisionPointService
         attributes.TryGetValue(Constants.Urn.Custom.AppliesTo, out var appliesToValues);
         attributes.TryGetValue(Constants.Xacml.Attribute.ActionId, out var actionValues);
 
-        var diagnostics = new List<AccessControlResponse>();
+        var diagnostics = new List<PolicyEvaluationDiagnostics>();
         var anyApplicable = false;
 
         foreach (var policy in _compiledPolicies.Values)
@@ -54,11 +54,17 @@ public class PolicyDecisionPointService
 
             var result = policy.Evaluate(attributes);
 
-            diagnostics.Add(result);
+            diagnostics.Add(new PolicyEvaluationDiagnostics()
+            {
+                Id = result.PolicyId,
+                Decision = result.Decision,
+                FailedConditions  = result.Conditions.Where(p => !p.Matches).ToList(),
+                MatchedConditions =  result.Conditions.Where(p => p.Matches).ToList(),
+            });
 
             if (result.Decision == Decision.Deny)
             {
-                return new AccessControlResponse
+                return new AccessControlResponse()
                 {
                     PolicyId = result.PolicyId,
                     Decision = Decision.Deny,
@@ -68,6 +74,12 @@ public class PolicyDecisionPointService
             }
         }
 
+        if (appliesToValues?.Count > 0)
+        {
+            // diagnostics.Add();
+        }
+        
+        
         var permitPolicy = diagnostics.FirstOrDefault(d =>
             d.Decision == Decision.Permit);
 
@@ -75,9 +87,9 @@ public class PolicyDecisionPointService
         {
             return new AccessControlResponse
             {
-                PolicyId = permitPolicy.PolicyId,
+                PolicyId = permitPolicy.Id,
                 Decision = Decision.Permit,
-                Reason = $"Permitted by policy '{permitPolicy.PolicyId}'",
+                Reason = $"Permitted by policy '{permitPolicy.Id}'",
                 Diagnostics = diagnostics
             };
         }
@@ -118,7 +130,7 @@ public class CompiledPolicy
     public string Effect { get; init; }
     public List<AppliesTo> AppliesTo { get; init; } = [];
     public List<string> Actions { get; init; } = [];
-    public Func<Dictionary<string, List<string>>, AccessControlResponse> Evaluate { get; init; }
+    public Func<Dictionary<string, List<string>>, EvaluatedPolicy> Evaluate { get; init; }
 
     public static CompiledPolicy CompilePolicy(AbacPolicy policy)
     {
@@ -135,12 +147,12 @@ public class CompiledPolicy
         };
     }
 
-    private static AccessControlResponse EvaluatePolicy(
+    private static EvaluatedPolicy EvaluatePolicy(
         List<Func<Dictionary<string, List<string>>, EvaluatedCondition>>? compiledRuleGroups,
         AbacPolicy policy,
         Dictionary<string, List<string>> attributes)
     {
-        var result = new AccessControlResponse
+        var result = new EvaluatedPolicy
         {
             PolicyId = policy.Id
         };
@@ -151,9 +163,7 @@ public class CompiledPolicy
         {
             var groupResult = ruleGroup(attributes);
 
-            result.MatchedConditions.AddRange(groupResult.Diagnostics.Where(d => d.Matches));
-
-            result.FailedConditions.AddRange(groupResult.Diagnostics.Where(d => !d.Matches));
+            result.Conditions.AddRange(groupResult.Diagnostics);
 
             // Track partial applicability
             if (groupResult.Diagnostics.Any(d => d.Matches))
