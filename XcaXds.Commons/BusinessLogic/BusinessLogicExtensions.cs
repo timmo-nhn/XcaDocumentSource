@@ -6,7 +6,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
 /// <summary>
-/// Filters a document list based on more granular and business-oriented parameters than what PEP performs (XACML). Allows for partial (non-atomic) filtering of the document list
+/// Filters a document list based on more granular and business-oriented parameters than what PEP performs. Allows for partial (non-atomic) filtering of the document list
 /// </summary>
 public static class BusinessLogicExtensions
 {

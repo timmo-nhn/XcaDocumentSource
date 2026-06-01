@@ -3,11 +3,9 @@ using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Http.Extensions;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
@@ -97,7 +95,7 @@ public class PolicyEnforcementPointMiddleware
             var policies = _policyRepositoryService.GetPoliciesAsPolicySetDto();
             var policySet = JsonSerializer.Serialize(policies, Constants.JsonDefaultOptions.DefaultSettings);
             var accessControlRequestString = JsonSerializer.Serialize(policyInput.AccessRequest, Constants.JsonDefaultOptions.DefaultSettings);
-            _logger.LogDebug($"{httpContext.TraceIdentifier} - XACML request:\n{accessControlRequestString}");
+            _logger.LogDebug($"{httpContext.TraceIdentifier} - ABAC request:\n{accessControlRequestString}");
         }
 
         AttachPepContext(httpContext, policyInput.AccessRequest, sw.ElapsedMilliseconds);

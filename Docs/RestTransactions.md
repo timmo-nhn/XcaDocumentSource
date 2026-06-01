@@ -1,6 +1,6 @@
 # REST-endpoints (CRUD) - RestfulRegistryService
 
-This page describes the RESTful API-endpoints in **PJD.XcaDocumentSource**. They can be used to externally perform CRUD-operations on the document registry and repository implementation, if nescesarry.
+This page describes the RESTful API-endpoints in **XcaDocumentSource**. They can be used to externally perform CRUD-operations on the document registry and repository implementation, if nescesarry.
 
 ### Create Documents and References
 Uploads a Document reference and/or document to the registry. The input type is one `DocumentReference` which can hold one `DocumentEntryDto`, `SubmissionSetDto`, `AssociationDto` and `DocumentDto`. A partial document upload can be done by only uploading a `DocumentEntryDto` and a `SubmissionSetDto`. An **Association** will be created **if it is not present in the request**.

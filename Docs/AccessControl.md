@@ -1,5 +1,5 @@
 # Authorization and Access Control
-To effectively control who gets access to resources, **PJD.XcaDocumentSource** implements the P*P pattern for access control and authorization (PEP, PDP, PR) using custom Attribute-Based Access Control (ABAC), inspired from XACML 2.0.
+To effectively control who gets access to resources, **XcaDocumentSource** implements the P*P pattern for access control and authorization (PEP, PDP, PR) using custom Attribute-Based Access Control (ABAC), inspired from XACML 2.0.
 ## Authorization flow
 
 ```mermaid
@@ -27,7 +27,7 @@ pep --6.2\.--> in
 ```
 
 ### Explanation
-&emsp;1.&nbsp;*A request is sent to one of **PJD.XcaDocumentSource's** endpoints which uses **Policy Enforcement Point (PEP)*** 
+&emsp;1.&nbsp;*A request is sent to one of **XcaDocumentSource's** endpoints which uses **Policy Enforcement Point (PEP)*** 
 
 &emsp;2.&nbsp;*The **PEP** Extracts a ABAC-request from the requests authorization details (ie. SAML-token in a SOAP-envelope or JWT in HTTP headers)*
 
@@ -124,7 +124,7 @@ permitdeny --Permit-->repep
 
 ## Policy Decision PointXAC
 ### Business logic
-**PJD.XcaDocumentSource** has specific business rules that go out of the scope of the **ABAC**-policy evaluation, and describes more domain-specific rules for access control.  
+**XcaDocumentSource** has specific business rules that go out of the scope of the **ABAC**-policy evaluation, and describes more domain-specific rules for access control.  
 
 The more granular business logic is defined as [Expression Trees](https://learn.microsoft.com/en-us/dotnet/csharp/advanced-topics/expression-trees/) in `BusinessLogicFilters.cs`
 
@@ -443,4 +443,4 @@ For FHIR-requests, the URL and HTTP Method is used.
 *Example of a policy where LE and SP (healthcare personell with role **Lege** and **Sykepleier**) are allowed to read a document list (**ReadDocumentList**). Due to the nature of the `deny-overrides` combining algorithm, only values defined in the policy are permitted*
 
 ## Endpoints for managing Access control
-API-endpoints for performing CRUD-operations on policies are available. These serve as easy-to-use CRUD interfaces for configuring access control for **PJD.XcaDocumentSource**
+API-endpoints for performing CRUD-operations on policies are available. These serve as easy-to-use CRUD interfaces for configuring access control for **XcaDocumentSource**

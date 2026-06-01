@@ -140,11 +140,6 @@ repw-->regrepdb
 ```
 *Modified solution to target existing document storage solution*
 
-## Access Control (Policy Enforcement Point)
-**XcaDocumentSource** features a setup for a  **PEP** **(Policy Enforcement Point)**, which is used to allow PAP/PDP system to access control a specific endpoint in **XcaDocumentSource**. It is based around [eXtensible Access Control Markup Language (XACML) Version 3.0 - docs.oasis-open.org ↗](https://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-cd-04-en.html) using the **abc.xacml**-library for .NET.  
-[ABC.XACML - github ↗](https://github.com/abc-software/abc.xacml)  
->For more information, [See Access Control](AccessControl.md)
-
 ## Appsettings.json-file
 The **XcaXds.WebService**-solution has an **appsettings.json**-file (found in `<solution>/XcaXds.WebService/appsettings.json`). The section `XdsConfiguration` defines parameters which are used by the XcaDocumentSource solution as a whole. This also hosts global parameters and settings such as Document size limit and whether to include multipart response when retreiving document.
 The **OIDs** for the **HomecommunityId** and **RepositoryId** is also defined there and can be changed if nescesarry.

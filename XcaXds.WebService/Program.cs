@@ -86,7 +86,7 @@ public class Program
         var app = builder.Build();
         app.UseExceptionHandler("/error");
         app.MapHealthChecks("/healthz");
-
+        
         app.UseRouting();
 
         app.UseAuthentication();

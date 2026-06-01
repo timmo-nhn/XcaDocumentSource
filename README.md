@@ -1,18 +1,22 @@
-# PJD.XcaDocumentSource – Open Source XCA Responding Gateway Framework
+# XcaDocumentSource – Open Source XCA Responding Gateway Framework
 
-## Preface: The vision of PJD.XcaDocumentSource
-> ⚠ **Important Note!** <br>**PJD.XcaDocumentSource** is provided as an open-source reference for the implementer to extend or customize its interfaces to align with the requirements of their existing Electronic Patient Record (EPR) systems.  
+## Preface: The vision of XcaDocumentSource
+> ⚠ **Important Note!** <br>**XcaDocumentSource** is provided as an open-source reference for the implementer to extend or customize its interfaces to align with the requirements of their existing Electronic Patient Record (EPR) systems.  
 The solution is **not** a substitute for an EPR system nor a full EPR storage solution; it acts as a translating framework between SOAP messages from NHN's XCA and the implementers **existing** EPR-system.<br><br></span>
-**Norsk helsenett (NHN) does not assume responsibility for the integrity, availability, or confidentiality of patient data handled through deployments based on PJD.XcaDocumentSource. Use of PJD.XcaDocumentSource is at the implementer's own risk, and any integration between PJD.XcaDocumentSource and live Electronic Patient Record (EPR) systems must be thoroughly tested and validated within the implementer’s own governance and compliance frameworks.**
+**Norsk helsenett (NHN) does not assume responsibility for the integrity, availability, or confidentiality of patient data handled through deployments based on XcaDocumentSource. Use of XcaDocumentSource is at the implementer's own risk, and any integration between XcaDocumentSource and live Electronic Patient Record (EPR) systems must be thoroughly tested and validated within the implementer’s own governance and compliance frameworks.**
 
-**PJD.XcaDocumentSource** allows healthcare providers to expose their internal, document storage solution as an **XDS-compliant Registry** and **Repository** interface.  
-The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML**, and **ebRIM** formatted messages behind a simplified **API layer**. This significantly reduces integration friction with an actor's existing storage solution, by translating complex **ITI messages** into implementation-defined, simplified internal representations.
+**XcaDocumentSource** allows healthcare providers to expose their internal, document storage solution as an **XDS-compliant Registry** and **Repository** interface.  
+The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML**, and **ebRIM** formatted messages behind a simplified **API layer**.
 
-* Implements IHE XCA profile for cross-community access
-* Provides an XDS.b-compatible registry and repository layer backed by customizable storage adapters
-* Supports integration with Norsk Helsenett’s XCA Initiating Gateway
+## Concerns covered by XcaDocumentSource
+* **Profiles:** Implements IHE XCA profile for cross-community access
+* **Storage:** Provides an XDS.b-compatible registry and repository layer backed by customizable storage adapters
+* **National integration** Supports integration with Norsk Helsenett’s XCA Initiating Gateway
+* **Access control** Implements Policy Enforcement point, transforming SAML and JWT security attributes (Based on Norwegian standards) to Attribute-Based Access Control (ABAC), allowing for fine grained access control
+* **Access control** Implements programmable business-logic for partial or full obfuscation of patient data based on security attributes
 
-**PJD.XcaDocumentSource provides basic document registry and repository.** However, the recommended option is for implementers to connect their own storage infrastructure to **PJD.XcaDocumentSource** - whether proprietary, legacy, or standards-based - by implementing custom translation logic between document storage metadata and the simpler, internal data-structures of **PJD.XcaDocumentSource**.
+
+**XcaDocumentSource provides basic document registry and repository.** However, the recommended option is for implementers to connect their own storage infrastructure to **XcaDocumentSource** - whether proprietary, legacy, or standards-based - by implementing custom translation logic between document storage metadata and the simpler, internal data-structures of **XcaDocumentSource**.
 ```mermaid
 %%{init: {'theme':'dark'}}%%
 flowchart
@@ -36,7 +40,7 @@ nhnxca--"ITI-38/-ITI39"-->xcads--"Custom Adapter Interface (Written by the imple
 
 It aims to accelerate prototyping and integration with NHN, without requiring full knowledge of **IHE profiles** and **ebXML RegRep** specifications up-front; the solution handles the complexities of SOAP and XML, essentially "doing the plumbing work". This allows the end user to focus on their domain-specific implementations needs, like shaping business logic and handling access control.
 
-Architecturally, **PJD.XcaDocumentSource** acts as a translation gateway that sits between an external XCA Initiating Gateway (e.g., NHN) and an organization’s internal EPR system, mapping IHE protocols to local API formats.
+Architecturally, **XcaDocumentSource** acts as a translation gateway that sits between an external XCA Initiating Gateway (e.g., NHN) and an organization’s internal EPR system, mapping IHE protocols to local API formats.
 
 
 ## Introduction/Getting started
@@ -47,13 +51,13 @@ In the healthcare industry, hospitals, clinics, and municipalities use a variety
 
 This lack of interoperability results in documents having to be shared via manual routines, such as fax-machines, sent as letters via taxi or calling the hospitals a patient has previously visited. This results in fragmented care, increased administrative burden, and risk to patient safety.
 
-**PJD.XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as hospitals and municipalities to share patient health records across organizational and technical boundaries by handling the SOAP-implementation, and allowing the implementer to easily modify the solution to for integrating between **PJD.XcaDocumentSource** and their own systems.  
-The implementation is based around the IHE integration profiles based on **XDS** and **XCA** provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context, aswell as **HL7** and **XACML**:
+**XcaDocumentSource** is a component which acts as a middleware-system between healthcare provider system and Norsk helsenett's XCA-gateway infrastructure. This will allow actors such as hospitals and municipalities to share patient health records across organizational and technical boundaries by handling the SOAP-implementation, and allowing the implementer to easily modify the solution to for integrating between **XcaDocumentSource** and their own systems.  
+The implementation is based around the IHE integration profiles based on **XDS** and **XCA** provided in Volumes 1 through 3 of the [IHE IT Infrastructure Technical Framework - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/index.html) in a national context, aswell as **HL7**:
 
 * XDS.b (Cross-Enterprise Document Sharing) – for registering and retrieving clinical documents
 * XCA (Cross-Community Access) Responding Gateway – for querying and retrieving documents from NHN's XCA  
 * HL7 (Health Level 7) version 2 - for some queries related to patient identity
-* PEP (Policy Enforcement Point) - for access control (XACML-implementation)
+* PEP (Policy Enforcement Point) - for access control (ABAC-implementation)
 
 ### Technical overview
 ```mermaid
@@ -98,11 +102,11 @@ document <--> docstore
 ### [🌐 Document Sharing overiew - Actors and Components](/Docs/Overview.md)
 Describes the high-level principles of document sharing, and the components involved in the process.
 
-### [📝 Use case scenarios - PJD.XcaDocumentSource](/Docs/UseCases.md)
-Scenarios of PJD.XcaDocumentSource in a source system.
+### [📝 Use case scenarios - XcaDocumentSource](/Docs/UseCases.md)
+Scenarios of XcaDocumentSource in a source system.
 
 ### [⚙️ Solution Overview/Technical implementation details](/Docs/TechnicalImplementation.md)
-How **PJD.XcaDocumentSource** solution is structured, and how it can be implemented in a source system, taking in account existing document registries/repositories, and PAP/PDP/PR systems.
+How **XcaDocumentSource** solution is structured, and how it can be implemented in a source system, taking in account existing document registries/repositories, and PAP/PDP/PR systems.
 
 ### [📜 Custom Registry Format](/Docs/RegistryDto.md)
 Describes the custom Registry format which is used to store document entries.
@@ -191,7 +195,7 @@ When there's something that should be paid extra attention to, or is important t
 > **⚠️ Alert x** <br> Example text
 
 ### Implementation Quotes  
-Used to describe an implementation which is notable or specific to **PJD.XcaDocumentSource**  
+Used to describe an implementation which is notable or specific to **XcaDocumentSource**  
 **Example:**
 >**🔶 Implementation Note x** <br> Example text
 

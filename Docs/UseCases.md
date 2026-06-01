@@ -1,4 +1,4 @@
-# Use case Scenarios for PJD.XcaDocumentSource
+# Use case Scenarios for XcaDocumentSource
 
 ## Use cases
 
@@ -9,7 +9,7 @@ A municipality’s health department wants to publish lab test results (e.g., CO
 
 #### Use Case Flow:
 * The municipality pushes documents into a local repository or document registry.
-* The municipality adapts PJD.XcaDocumentSource to talk to their local registry or repository. 
+* The municipality adapts XcaDocumentSource to talk to their local registry or repository. 
 * GPs can search and retrieve these documents via the national XCA gateway.
 
 #### Benefits:
@@ -23,7 +23,7 @@ nhnxca[NHN<br>Initiating Gateway]
 
 subgraph "System 1"
     subgraph "EPR Systems/platform"
-        xcads[PJD.XcaDocumentSource]
+        xcads[XcaDocumentSource]
         regrep[(Document/<br>Document Metadata)]
     end
 end
@@ -40,8 +40,8 @@ A hospital wants to share documents using XcaDocumentSource, but their storage s
 
 #### Use Case Flow:
 * After discharge, the hospital’s EPR system sends a CDA discharge summary.
-* The EPR system is connected both to its existing storage solution, but also **PJD.XcaDocumentSource**
-* This allows their existing document storage solution to stay unchanged, while a copy of all the data in the "internal" repository is forwarded to **PJD.XcaDocumentSource**
+* The EPR system is connected both to its existing storage solution, but also **XcaDocumentSource**
+* This allows their existing document storage solution to stay unchanged, while a copy of all the data in the "internal" repository is forwarded to **XcaDocumentSource**
 
 #### Benefits:
 Ensures continuity of care and interoperability without migrating storage solutions.

@@ -90,7 +90,7 @@ More about Associations [4.1.2 Association Types - profiles.ihe.net ↗](https:/
 More about Documententry [4.1.1.3 DocumentEntry - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume3/ch-4.1.html#4.1.1.3)
 
 #### Folder
->**🚩 National Extension**<br> Folders are not required, nor widely used in Document Sharing in Norway. For conformancy reasons, **PJD.XcaDocumentSource** has support for storing and retrieving folders.
+>**🚩 National Extension**<br> Folders are not required, nor widely used in Document Sharing in Norway. For conformancy reasons, **XcaDocumentSource** has support for storing and retrieving folders.
 
 A folder is a collection of DocumentEntry-objects that are related in some way, creating an arbitrary grouping relationship. Folder may be used to collect the DocumentEntry objects for the patient’s documents that relate to an exam event, such as the exam request and prior results as well as the eventual exam results.
 
@@ -580,7 +580,7 @@ SOAP faults are error reporting mechanism for errors related to the structure or
 
 
 ## Stable vs. On-Demand Documents  
->**🚩 National Extension**<br> **PJD.XcaDocumentSource** aswell as all document sources in Norway only support **Stable**-documents. This is described for informative purposes.  
+>**🚩 National Extension**<br> **XcaDocumentSource** aswell as all document sources in Norway only support **Stable**-documents. This is described for informative purposes.  
 The usage of On-demand Documents in document sharing in Norway is not supported.
 
 * **Stable Document** Entries represent documents which are unchanged over time. **Stable is the default value.**  

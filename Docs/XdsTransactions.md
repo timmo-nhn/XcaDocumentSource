@@ -1,5 +1,5 @@
 # SOAP-transactions In IHE XDS/XCA  
-Below are the transactions supported by default by **PJD.XcaDocumentSource**. Each transaction section contains a table defining the properties of the transaction.  
+Below are the transactions supported by default by **XcaDocumentSource**. Each transaction section contains a table defining the properties of the transaction.  
 > It is reccomended to read [Xds And Soap](/Docs/XdsAndSoap.md) first, as it gives an introduction to SOAP/ITI messages and the components 
 
 ## ITI-Transactions
@@ -64,7 +64,7 @@ An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata
 *Cardinality of AdhocQueryRequest*
 
 
-> **🔶 Implementation Note x:** <br> While there are many StoredQueries, **PJD.XcaDocumentSource only supports the ones in the table below**, out of the box  
+> **🔶 Implementation Note x:** <br> While there are many StoredQueries, **XcaDocumentSource only supports the ones in the table below**, out of the box  
  
 | StoredQuery | Guid |
 |---|---|
@@ -75,7 +75,7 @@ An `<AdhocQueryRequest>` contains `<Slot>`s to specify which parameters/metadata
 | GetAssociations | urn:uuid:a7ae438b-4bc2-4642-93e9-be891f7bb155 |
 | GetAll | urn:uuid:10b545ea-725c-446d-9b95-8aeb444eddf3 |
 
-*Possible Stored Queries in PJD.XcaDocumentSource*
+*Possible Stored Queries in XcaDocumentSource*
 
 
 #### AdhocQuery Response  
@@ -290,7 +290,7 @@ The Document Consumer must use the following attributes received from `<AdhocQue
 
 *ITI-43 request*
 
->**🚩 National Extension**<br> [IHE ITI-TF Vol.3 4.2.3.2.26 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume3/ch-4.2.html#4.2.3.2.26) specifies constraints for a document unique ID. **PJD.XcaDocumentSource, aswell as other document sources in norway, does not enforce these constraints by default** - this falls onto the producing application
+>**🚩 National Extension**<br> [IHE ITI-TF Vol.3 4.2.3.2.26 - profiles.ihe.net ↗](https://profiles.ihe.net/ITI/TF/Volume3/ch-4.2.html#4.2.3.2.26) specifies constraints for a document unique ID. **XcaDocumentSource, aswell as other document sources in norway, does not enforce these constraints by default** - this falls onto the producing application
 
 
 #### Example  
