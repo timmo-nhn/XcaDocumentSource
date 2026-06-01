@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -46,12 +47,20 @@ public partial class XdsSubmitObjectsValidator
         return [.. validationResults];
     }
 
-    private void ValidateExternalIdentifiers(List<XdsValidationResponse> validationResults, ExternalIdentifierType[]? externalIdentifier, string location)
+    private void ValidateExternalIdentifiers(List<XdsValidationResponse> validationResults, ExternalIdentifierType[]? externalIdentifiers, string location)
     {
-        foreach (var classification in externalIdentifier ?? [])
+        foreach (var externalIdentifier in externalIdentifiers ?? [])
         {
-            MatchString(validationResults, classification.Value, location);
-            ValidateSlots(validationResults, classification.Slot);
+            if (externalIdentifier.IdentificationScheme == Constants.Xds.Uuids.SubmissionSet.SourceId)
+            {
+                MatchOid(validationResults, externalIdentifier.Value, location);
+            }
+            else
+            {
+                MatchString(validationResults, externalIdentifier.Value, location);
+            }
+            
+            ValidateSlots(validationResults, externalIdentifier.Slot);
         }
     }
 
@@ -64,12 +73,29 @@ public partial class XdsSubmitObjectsValidator
         }
     }
 
+    private void MatchOid(List<XdsValidationResponse> validationResults, string value, string location)
+    {
+        if (RegexOid().Count(value ?? "") == 0)
+        {
+            var response = new XdsValidationResponse($"Value must match regex: {RegexOid()}");
+            var illegalCharacters = GetIllegalCharactersFromString(value, RegexOid());
+
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                response.Message += "\n Location: " + location + "\n Value: " + value + "\n Illegal characters: " + illegalCharacters;
+            }
+
+            validationResults.Add(response);
+
+        }
+    }
+
     private void MatchString(List<XdsValidationResponse> validationResults, string? stringToValidate, string? location)
     {
         if (RegexAllowedCharacters().Count(stringToValidate ?? "") == 0)
         {
             var response = new XdsValidationResponse($"Value must match regex: {RegexAllowedCharacters()}");
-            var illegalCharacters = GetIllegalCharactersFromString(stringToValidate);
+            var illegalCharacters = GetIllegalCharactersFromString(stringToValidate, RegexAllowedCharacters());
 
             if (!string.IsNullOrWhiteSpace(location))
             {
@@ -101,14 +127,14 @@ public partial class XdsSubmitObjectsValidator
         }
     }
 
-    private static string? GetIllegalCharactersFromString(string? titleValue)
+    private static string? GetIllegalCharactersFromString(string? titleValue, Regex regex)
     {
         if (string.IsNullOrWhiteSpace(titleValue)) return null;
 
         var illegalChars = string.Empty;
         foreach (var letter in titleValue)
         {
-            if (RegexAllowedCharacters().Count(letter.ToString()) > 0)
+            if (regex.Count(letter.ToString()) > 0)
             {
                 continue;
             }
@@ -119,4 +145,7 @@ public partial class XdsSubmitObjectsValidator
 
     [GeneratedRegex(@"^[a-zA-Z0-9æøåÆØÅáÁéÉíÍóÓúÚýÝ\s.,:;()\-–——_÷*'""/+%&@£$€{\[\]}§|!?\^]*$")]
     private static partial Regex RegexAllowedCharacters();
+
+    [GeneratedRegex(@"^[\d\.]+$")]
+    private static partial Regex RegexOid();
 }
