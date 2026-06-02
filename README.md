@@ -6,7 +6,6 @@ The solution is **not** a substitute for an EPR system nor a full EPR storage so
 **Norsk helsenett (NHN) does not assume responsibility for the integrity, availability, or confidentiality of patient data handled through deployments based on XcaDocumentSource. Use of XcaDocumentSource is at the implementer's own risk, and any integration between XcaDocumentSource and live Electronic Patient Record (EPR) systems must be thoroughly tested and validated within the implementer’s own governance and compliance frameworks.**
 
 **XcaDocumentSource** allows healthcare providers to expose their internal, document storage solution as an **XDS-compliant Registry** and **Repository** interface.  
-The solution serves as a protocol adapter layer that abstracts **SOAP**, **ebXML**, and **ebRIM** formatted messages behind a simplified **API layer**.
 
 ## Concerns covered by XcaDocumentSource
 * **Profiles:** Implements IHE XCA profile for cross-community access
