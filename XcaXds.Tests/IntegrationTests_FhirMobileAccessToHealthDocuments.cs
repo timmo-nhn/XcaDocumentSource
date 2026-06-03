@@ -23,6 +23,55 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     }
 
     [Fact]
+    [Trait("Fetch", "Get DocumentReference")]
+    public async Task DocumentReference_GetDocumentReference()
+    {
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "DEFAULT_machine_getdocumentreference",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "ReadDocumentList",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var registryObjects = RegistryContent.AsRegistryObjectDtos();
+
+        var registryContentCount = registryObjects.Count();
+
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
+
+        var randomDocumentEntry = RegistryContent.PickRandom().DocumentEntry;
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/R4/fhir/DocumentReference/{randomDocumentEntry?.Id}");
+
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+
+        var firstResponse = await _client.SendAsync(httpRequest);
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        var content = await firstResponse.Content.ReadAsStringAsync();
+
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
+        _output.WriteLine("DocumentReference: " + content);
+    }
+
+    [Fact]
     [Trait("Delete", "Delete DocumentReference")]
     public async Task DeleteDocumentsAndMetadata_ExportsAtnaLog_IAC()
     {

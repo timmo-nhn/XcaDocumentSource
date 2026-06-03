@@ -9,6 +9,7 @@ using System.Web;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.DomainResults;
@@ -225,6 +226,22 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         fileResponse.FileDownloadName = $"{documentUniqueId}.{mimetype?.Split('/')[1] ?? registryObjectForDocument?.MimeType?.Split('/')[1]}";
 
         return fileResponse;
+    }
+
+    [RequiresApiKey]
+    [HttpGet("DocumentReference/{id}")]
+    public async Task<IActionResult> GetDocumentReference(string id)
+    {
+        if (!await _featureManager.IsEnabledAsync("Fhir_GetDocumentReference")) return NotFound();
+
+        var registryItems = _registryWrapper.GetRegistryItemAndRelated(id);
+        var registryObjects = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryItems).ToArray();
+
+        var documentReference = XdsOnFhirTransformer.GetFhirDocumentReferencesFromRegistryObjects(registryObjects).FirstOrDefault();
+        var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
+        var jsonResult = JsonSerializer.Serialize(documentReference, options);
+
+        return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
 
     [RequiresApiKey]

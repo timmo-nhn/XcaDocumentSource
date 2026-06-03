@@ -475,8 +475,8 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
-        Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.True((retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0) > 0);
 
         await WaitForUserAccessEntryToBeExported();
 

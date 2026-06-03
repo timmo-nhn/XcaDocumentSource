@@ -236,6 +236,20 @@ public class AppStartupService : IHostedService
             Effect = "Permit"
         };
 
+        var machine_read_document_status = new AbacPolicy()
+        {
+            Id = "DEFAULT_machine_read_document_status",
+            AppliesTo = [AppliesTo.Machine],
+            Rules =
+            [
+                new(
+                    (AbacCondition)new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments)
+                )
+            ],
+            Actions = ["ReadDocumentList"],
+            Effect = "Permit"
+        };
+
         //_policyRepositoryWrapper.AddPolicy(cz_deny_adhocquery_resourceid); // Remove because of incompatability with PIX
         //_policyRepositoryWrapper.AddPolicy(cz_gp_deny_if_different_resourceid); // Remove because of incompatability with PIX
         _policyRepositoryWrapper.DeletePolicy(cz_readdocumentlist_documents.Id);
@@ -249,6 +263,7 @@ public class AppStartupService : IHostedService
         _policyRepositoryWrapper.AddPolicy(gp_readdocumentlist_readdocument);
         _policyRepositoryWrapper.AddPolicy(machine_create_update_documents);
         _policyRepositoryWrapper.AddPolicy(machine_delete_documents);
+        _policyRepositoryWrapper.AddPolicy(machine_read_document_status);
     }
 
     /// <summary>

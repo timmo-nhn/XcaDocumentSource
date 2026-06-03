@@ -159,7 +159,7 @@ public static class XdsOnFhirTransformer
             var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
             var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Pull BOTH membership + lifecycle associations
+            // Get BOTH membership + lifecycle associations
             var relatedAssociations = registryContent
                 .OfType<AssociationType>()
                 .Where(a => (a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && eoIds.Contains(a.TargetObject?.NoUrn())) ||
@@ -167,7 +167,7 @@ public static class XdsOnFhirTransformer
                 )
                 .ToArray();
 
-            // Pull submission sets (registry packages) referenced by HasMember.SourceObject
+            // Get submission sets (registry packages) referenced by HasMember.SourceObject
             var relatedRegistryPackages = relatedAssociations
                 .Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember)
                 .Select(a => registryContent.GetById(a.SourceObject))
@@ -190,7 +190,7 @@ public static class XdsOnFhirTransformer
         return bundle;
     }
 
-    private static IEnumerable<DocumentReference> GetFhirDocumentReferencesFromRegistryObjects(IdentifiableType[] registryObjectList)
+    public static IEnumerable<DocumentReference> GetFhirDocumentReferencesFromRegistryObjects(IdentifiableType[] registryObjectList)
     {
         // Mapping table used to generate DocumentReference:
         // https://profiles.ihe.net/ITI/MHD/StructureDefinition-IHE.MHD.Minimal.DocumentReference-mappings.html#mappings-for-xds-and-mhd-mapping-xds
