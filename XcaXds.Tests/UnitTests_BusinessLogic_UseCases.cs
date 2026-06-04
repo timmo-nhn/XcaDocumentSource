@@ -1,8 +1,8 @@
 using System.Text.Json;
+using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using Xunit.Abstractions;

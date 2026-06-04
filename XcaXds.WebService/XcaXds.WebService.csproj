@@ -28,6 +28,7 @@
     </ItemGroup>
 
 	<ItemGroup>
+        <ProjectReference Include="..\XcaXds.BusinessLogic\XcaXds.BusinessLogic.csproj" />
         <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
         <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
     </ItemGroup>

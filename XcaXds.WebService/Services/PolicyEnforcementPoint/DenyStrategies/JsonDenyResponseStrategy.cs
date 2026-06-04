@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
-using XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
 

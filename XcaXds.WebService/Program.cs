@@ -11,9 +11,9 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
-using XcaXds.Commons.Services;
 using XcaXds.Source.Source;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
@@ -22,7 +22,6 @@ using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
-using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
@@ -54,7 +53,7 @@ public class Program
         builder.Configuration.AddEnvironmentVariables();
 
         AddControllersAndModelBindings(builder);
-        
+
         ConfigureKestrelAuthenticationAuthorization(builder);
 
         AddModelValidationHandling(builder);
@@ -86,7 +85,7 @@ public class Program
         var app = builder.Build();
         app.UseExceptionHandler("/error");
         app.MapHealthChecks("/healthz");
-        
+
         app.UseRouting();
 
         app.UseAuthentication();

@@ -1,9 +1,10 @@
 ﻿using Hl7.Fhir.Model;
+using XcaXds.BusinessLogic.Models.Custom;
+using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
@@ -11,7 +12,7 @@ using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Volven.ConfidentialityCode_9603;
 
-namespace XcaXds.Commons.DataManipulators.BusinessLogic;
+namespace XcaXds.BusinessLogic.BusinessLogic;
 
 public static partial class BusinessLogicFilters
 {
@@ -43,8 +44,8 @@ public static partial class BusinessLogicFilters
 {
     public static readonly List<ComprehensiveCodeSystem> AllowedOrganizationOids =
     [
-        new (Constants.Oid.Brreg),
-        new (Constants.Oid.ReshId)
+        new(Constants.Oid.Brreg),
+        new(Constants.Oid.ReshId)
     ];
 
     public static readonly List<ComprehensiveCodeSystem> AllowedPractitionerOids =
@@ -100,12 +101,12 @@ public static partial class BusinessLogicFilters
         new("FormatCodes"),
     ];
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedAttachments = [ ];
+    public static readonly List<ComprehensiveCodeSystem> AllowedAttachments = [];
 
     public static readonly (string, string)[] CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
     public static readonly (string, string)[] HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
 
-    public static readonly string[] AllowedMimeTypes = 
+    public static readonly string[] AllowedMimeTypes =
     [
         Constants.MimeTypes.Pdf,
         Constants.MimeTypes.Jpeg,
@@ -128,18 +129,18 @@ public static partial class BusinessLogicFilters
             return true;
         }
 
-		// Special handling for XML mimetypes, as there can be many valid XML mimetypes that are not explicitly listed in the allowed mimetypes,
+        // Special handling for XML mimetypes, as there can be many valid XML mimetypes that are not explicitly listed in the allowed mimetypes,
         // but should still be considered valid if the document entry mimetype indicates it's an XML type
         // and the actual magic byte mimetype also indicates it's an XML type.
-		if (documentEntryMimeType?.Contains("/xml") == true || documentEntryMimeType?.Contains("+xml") == true)
+        if (documentEntryMimeType?.Contains("/xml") == true || documentEntryMimeType?.Contains("+xml") == true)
         {
             if (mimeTypeFromMagicByte?.Contains("/xml") == true || mimeTypeFromMagicByte?.Contains("+xml") == true)
             {
-                return true; 
+                return true;
             }
-		}
+        }
 
-        return mimeTypeFromMagicByte == documentEntryMimeType; 
+        return mimeTypeFromMagicByte == documentEntryMimeType;
     }
 
     /// <summary>
@@ -304,7 +305,7 @@ public static partial class BusinessLogicFilters
             logic.Acp == Constants.Oid.Saml.Acp.RepresentCitizenUnder12 &&
             logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13) &&
             logic.ResourceAge >= 13,
-            
+
 
         Filter = _ => DenyAll()
     };

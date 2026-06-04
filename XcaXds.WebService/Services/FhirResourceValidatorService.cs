@@ -9,8 +9,7 @@ using Hl7.Fhir.Specification.Source;
 using Hl7.Fhir.Specification.Terminology;
 using Hl7.Fhir.Support;
 using Hl7.FhirPath;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators.BusinessLogic;
+using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 
