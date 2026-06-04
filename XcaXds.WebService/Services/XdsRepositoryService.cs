@@ -1,12 +1,13 @@
-﻿using nClam;
+﻿using System.Buffers.Text;
+using System.Text;
+using nClam;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
-using System.Buffers.Text;
-using System.Text;
-using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
@@ -339,24 +340,24 @@ public class XdsRepositoryService
         var businessLogicParameters = BusinessLogicExtensions.MapFromAbacRequestToBusinessLogic(abacRequest);
 
         var requestAppliesTo = businessLogicParameters.AppliesTo;
-
+        
         var extrinsicObject = _registry.GetSingleRegistryObjectAsDto(document.DocumentUniqueId) as DocumentEntryDto;
-
+        
         var confCodes = extrinsicObject?.ConfidentialityCode;
-
+        
         bool restricted = requestAppliesTo switch
         {
             AppliesTo.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             AppliesTo.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             _ => false
         };
-
+        
         // Dont obscure in emergency situations
         if (restricted && !string.IsNullOrWhiteSpace(businessLogicParameters?.Purpose?.Code) && businessLogicParameters.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
         {
             restricted = false;
         }
-
+        
         return restricted;
     }
 

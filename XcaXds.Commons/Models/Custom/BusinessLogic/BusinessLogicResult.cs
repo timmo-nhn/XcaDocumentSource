@@ -1,4 +1,4 @@
-﻿namespace XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
+﻿namespace XcaXds.Commons.Models.Custom.BusinessLogic;
 
 public sealed class BusinessLogicResult<T>
 {

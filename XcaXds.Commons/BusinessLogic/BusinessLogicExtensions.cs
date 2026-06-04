@@ -1,9 +1,9 @@
-﻿using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.Commons.Commons;
+﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
-namespace XcaXds.BusinessLogic.BusinessLogic;
+namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs. Allows for partial (non-atomic) filtering of the document list

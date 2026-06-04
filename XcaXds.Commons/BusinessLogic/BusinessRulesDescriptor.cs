@@ -1,11 +1,11 @@
 ﻿using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
-using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
-namespace XcaXds.BusinessLogic.BusinessLogic;
+namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
 public class BusinessRulesDescriptor : ExpressionVisitor
 {

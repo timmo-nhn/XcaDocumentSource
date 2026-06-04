@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.FeatureManagement;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.FeatureManagement;
 using XcaInteropService.Commons.Enums;
 using XcaInteropService.Commons.Models.Custom;
-using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -92,7 +94,7 @@ public class ApplicationMetaController : ControllerBase
         {
             return StatusCode(500, healthCheckJson);
         }
-
+        
         return StatusCode(200, healthCheckJson);
     }
 

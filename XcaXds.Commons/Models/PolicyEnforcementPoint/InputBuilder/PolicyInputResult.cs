@@ -1,6 +1,8 @@
 ﻿using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
+using XcaXds.Commons.Models.Custom;
+using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
-namespace XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
+namespace XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
 
 public class PolicyInputResult
 {
@@ -29,7 +31,7 @@ public class PolicyInputResult
 
     public AbacRequest? AccessRequest { get; init; }
     public IPolicyInputStrategy? Strategy { get; init; }
-
+    
     public static PolicyInputResult Fail(string message)
     {
         return new PolicyInputResult(message, false);

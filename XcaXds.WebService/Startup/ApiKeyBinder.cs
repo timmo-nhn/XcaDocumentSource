@@ -1,4 +1,4 @@
-﻿using XcaXds.Commons.Models.Custom.ApiKey;
+﻿using XcaXds.Commons.Services;
 
 namespace XcaXds.WebService.Startup;
 

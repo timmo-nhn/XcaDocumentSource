@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
+using XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Serializers;

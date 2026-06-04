@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Commons.Models.Custom.ApiKey;
+﻿namespace XcaXds.Commons.Services;
 
 public class ApiKeyHolder
 {

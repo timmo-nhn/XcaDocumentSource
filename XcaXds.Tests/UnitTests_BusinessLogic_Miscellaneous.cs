@@ -1,4 +1,4 @@
-﻿using XcaXds.BusinessLogic.BusinessLogic;
+﻿using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Tests.Helpers;

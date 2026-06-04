@@ -1,10 +1,11 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
-using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Tests.Helpers;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 

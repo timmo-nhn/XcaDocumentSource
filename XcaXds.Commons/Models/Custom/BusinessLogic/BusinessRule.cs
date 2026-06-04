@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
+namespace XcaXds.Commons.Models.Custom.BusinessLogic;
 
 public class BusinessRule<T>
 {

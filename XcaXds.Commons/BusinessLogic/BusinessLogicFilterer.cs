@@ -1,10 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
+using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
-namespace XcaXds.BusinessLogic.BusinessLogic;
+namespace XcaXds.Commons.DataManipulators.BusinessLogic;
 
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs. Allows for partial filtering of the document list

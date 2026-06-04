@@ -1,12 +1,13 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
-using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -174,7 +175,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(
             registryObjectsCount: RegistryItemCount
-        // ,patientIdentifier: PatientIdentifier.IdNumber
+            // ,patientIdentifier: PatientIdentifier.IdNumber
         );
 
         var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
@@ -227,7 +228,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(
             registryObjectsCount: RegistryItemCount
-        // ,patientIdentifier: PatientIdentifier.IdNumber
+            // ,patientIdentifier: PatientIdentifier.IdNumber
         );
 
         var patientId = "UniqueId";
