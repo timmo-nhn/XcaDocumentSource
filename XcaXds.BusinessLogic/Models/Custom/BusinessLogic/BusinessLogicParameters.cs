@@ -1,7 +1,7 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
-namespace XcaXds.Commons.Models.Custom;
+namespace XcaXds.BusinessLogic.Models.Custom;
 
 public class BusinessLogicParameters
 {

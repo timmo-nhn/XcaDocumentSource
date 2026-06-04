@@ -1,8 +1,7 @@
-﻿using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators.BusinessLogic;
+﻿using XcaXds.BusinessLogic.Models.Custom;
+using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;

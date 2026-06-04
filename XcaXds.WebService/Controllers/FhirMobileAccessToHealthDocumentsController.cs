@@ -244,6 +244,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
 
+
     [RequiresApiKey]
     [ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml")]
@@ -401,8 +402,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Atna log generation
         var jwtToken = Request.Headers.Authorization.FirstOrDefault();
-        var pdpDecision = HttpContext.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
+        var pdpDecision = (HttpContext.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null)!;
+
         var additionalParameters = new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier, pdpDecision, HttpContext.Request.Path.Value);
+
         var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
             additionalParameters,
             jwtToken,

@@ -21,6 +21,7 @@ public class SoapEnvelope
         if (Header == null) return;
         Header.Action = action;
     }
+
     public string GetCorrespondingResponseAction()
     {
         return Header.Action switch
@@ -165,14 +166,6 @@ public partial class SoapTimestamp
     [XmlElement(Namespace = Constants.Soap.Namespaces.SecurityUtility)]
     public string? Expires { get; set; }
 }
-
-[Serializable]
-[XmlType(AnonymousType = true, Namespace = Constants.Soap.Namespaces.SecurityExt)]
-public partial class Assertion
-{
-
-}
-
 
 [Serializable]
 [XmlType(AnonymousType = true)]

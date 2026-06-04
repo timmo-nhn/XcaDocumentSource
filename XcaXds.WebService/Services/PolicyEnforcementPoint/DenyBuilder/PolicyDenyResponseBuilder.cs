@@ -1,5 +1,5 @@
-﻿using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
-using XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
+﻿using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
+using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 

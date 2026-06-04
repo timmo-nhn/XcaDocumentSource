@@ -1,6 +1,6 @@
 ﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
 
-namespace XcaXds.Commons.Models.Custom.BusinessLogic;
+namespace XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 
 public record ObfuscationEntry(
     string Name,

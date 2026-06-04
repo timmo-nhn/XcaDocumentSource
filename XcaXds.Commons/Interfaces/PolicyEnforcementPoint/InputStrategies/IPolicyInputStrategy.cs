@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using XcaXds.Commons.Models.PolicyEnforcementPoint.InputBuilder;
+using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
 
 namespace XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 

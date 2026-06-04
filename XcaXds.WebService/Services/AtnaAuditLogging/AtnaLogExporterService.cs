@@ -12,28 +12,12 @@ public class AtnaLogExporterService : BackgroundService
     private readonly IAtnaLogQueue _atnaLogQueue;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    private string _auditEventPath;
-
-
     public AtnaLogExporterService(ILogger<AtnaLogExporterService> logger, ApplicationConfig appConfig, IAtnaLogQueue atnaLogQueue, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _appConfig = appConfig;
         _atnaLogQueue = atnaLogQueue;
         _httpClientFactory = httpClientFactory;
-
-        // When running in a container the path will be different
-        var customPath = Environment.GetEnvironmentVariable("AUDITEVENTS_FILE_PATH");
-        if (!string.IsNullOrWhiteSpace(customPath))
-        {
-            _auditEventPath = customPath;
-        }
-        else
-        {
-            string baseDirectory = AppContext.BaseDirectory;
-            _auditEventPath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "AuditEvents");
-        }
-        Directory.CreateDirectory(_auditEventPath);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

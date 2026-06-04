@@ -1,5 +1,6 @@
 using Hl7.Fhir.Model;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
@@ -34,6 +35,8 @@ public class PolicyDecisionPointService
     public AccessControlResponse Evaluate(AbacRequest request)
     {
         ReloadPolicies();
+
+        ArgumentNullException.ThrowIfNull(request);
 
         if (_compiledPolicies is null || _compiledPolicies.Count == 0)
             throw new InvalidOperationException("Policy engine not initialized");

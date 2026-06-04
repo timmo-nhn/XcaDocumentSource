@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using XcaXds.Commons.Services;
+using XcaXds.Commons.Models.Custom.ApiKey;
 
 namespace XcaXds.WebService.AuthenticationHandler;
 
