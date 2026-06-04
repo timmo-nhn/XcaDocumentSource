@@ -39,16 +39,17 @@ public class FhirValidateResourceAtnaLogStrategy : IAtnaLogStrategy
         var uploadedEntries = (context.Items.TryGetValue("uploadedEntries", out var entries) ? entries : null) as IdentifiableType[];
         var registryResponse = (context.Items.TryGetValue("uploadedEntriesRegistryResponse", out var regrep) ? regrep : null) as SoapEnvelope;
         var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
+        var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var blRes) ? blRes : null) as Dictionary<string,int>;
         
-        var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision), jwtToken, fhirBundle, uploadedEntries);
+        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
+
+        var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(additionalParameters, jwtToken, fhirBundle, uploadedEntries);
 
         _atnaLogGeneratorService.CreateAuditLogForSoapRequestResponse(
-            new AdditionalParameters(
-                context.Request.Method,
-                context.TraceIdentifier,
-                pdpDecision),
+            additionalParameters,
             mockSoapResponse,
             registryResponse);
+
         return AtnaLogBuilderResult.Success($"{context.TraceIdentifier} - Successfully enqueued AuditMessage for request {context.TraceIdentifier}");
     }
 }

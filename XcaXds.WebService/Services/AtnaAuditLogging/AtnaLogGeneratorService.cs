@@ -567,7 +567,7 @@ public class AtnaLogGeneratorService
         auditEvent.Type = GetAuditEventTypeFromSoapEnvelope(requestEnvelope);
         auditEvent.Recorded = DateTimeOffset.Now;
         auditEvent.Outcome = GetEventOutcomeFromSoapRequestResponse(requestEnvelope, responseEnvelope);
-        auditEvent.OutcomeDesc = GetEventOutcomeDescriptionFromSoapRequestResponse(additionalParameters.AccessControlResponse);
+        auditEvent.OutcomeDesc = GetEventOutcomeDescriptionFromSoapRequestResponse(additionalParameters.AccessControlResponse, additionalParameters.AppliedBusinessLogic);
         auditEvent.Action = GetActionFromSoapEnvelope(requestEnvelope);
 
         var detail = new List<AuditEvent.DetailComponent>();
@@ -734,15 +734,18 @@ public class AtnaLogGeneratorService
         return auditEvent;
     }
 
-    private string? GetEventOutcomeDescriptionFromSoapRequestResponse(AccessControlResponse accessControlresponse)
+    private string? GetEventOutcomeDescriptionFromSoapRequestResponse(AccessControlResponse? accessControlresponse, Dictionary<string, int>? appliedBusinessLogic)
     {
-        var failedConditions = accessControlresponse.Diagnostics
+        var failedConditions = accessControlresponse?.Diagnostics
             .SelectMany(d => d.FailedConditions)
             .Select(d => "Invalid Parameter: " + d.AttributeId)
             .ToArray();
 
-        if (failedConditions.Length > 0)
+        if (failedConditions?.Length > 0)
             return string.Join(",\n", failedConditions);
+
+        if (appliedBusinessLogic?.Count > 0)
+            return "Business Logic Applied: " + string.Join("\n", appliedBusinessLogic.Keys);
 
         return null;
     }

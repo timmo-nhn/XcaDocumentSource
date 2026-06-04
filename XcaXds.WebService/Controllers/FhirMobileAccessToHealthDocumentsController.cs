@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
@@ -169,9 +170,13 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             Body = new() { AdhocQueryRequest = adhocQueryRequest }
         };
 
-        var response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
+        var abacRequest = HttpContext.Items.TryGetValue("accessRequest", out var accessRequest) ? accessRequest as AbacRequest : null;
 
-        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(response.Value?.Body.AdhocQueryResponse?.RegistryObjectList, _registryWrapper.GetDocumentRegistryContentAsDtos());
+        var registryQueryResponse = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
+        var filteredDocumentList = _xdsRegistryService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, registryQueryResponse.Value, abacRequest, out var businessLogicResults);
+        HttpContext.Items.Add("businessLogicResult", businessLogicResults);
+
+        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(registryQueryResponse.Value?.Body.AdhocQueryResponse?.RegistryObjectList, _registryWrapper.GetDocumentRegistryContentAsDtos());
 
         requestTimer.Stop();
 
@@ -403,8 +408,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         // Atna log generation
         var jwtToken = Request.Headers.Authorization.FirstOrDefault();
         var pdpDecision = (HttpContext.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null)!;
+        var businessLogicResult = (HttpContext.Items.TryGetValue("businessLogicResult", out var blRes) ? blRes as Dictionary<string, int> : null)!;
 
-        var additionalParameters = new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier, pdpDecision, HttpContext.Request.Path.Value);
+        var additionalParameters = new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier, pdpDecision,businessLogicResult, HttpContext.Request.Path.Value);
 
         var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
             additionalParameters,

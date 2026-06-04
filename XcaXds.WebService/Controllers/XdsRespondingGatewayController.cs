@@ -7,9 +7,7 @@ using System.Text;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
-using XcaXds.WebService.Attributes;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;
@@ -73,9 +71,9 @@ public class XdsRespondingGatewayController : ControllerBase
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
-        
-        var accessControlRequest = HttpContext.Items.TryGetValue("accessRequest", out var accessRequest) ? accessRequest as AbacRequest: null;
-        
+
+        var accessControlRequest = HttpContext.Items.TryGetValue("accessRequest", out var arqst) ? arqst as AbacRequest : null;
+
         if (soapEnvelope.Header.ReplyTo?.Address != Constants.Soap.Addresses.Anonymous)
         {
             action += "Async";
@@ -85,7 +83,6 @@ public class XdsRespondingGatewayController : ControllerBase
 
         switch (action)
         {
-
             case Constants.Xds.OperationContract.Iti38Action:
                 if (!await _featureManager.IsEnabledAsync("Iti38CrossGatewayQuery")) return NotFound();
 
@@ -93,7 +90,10 @@ public class XdsRespondingGatewayController : ControllerBase
 
                 // Only change from ITI-38 to ITI-18 is the action in the header
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
-                var iti38Response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope, accessControlRequest);
+
+                var iti38Response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
+                var filteredDocumentList = _xdsRegistryService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, iti38Response.Value, accessControlRequest, out var businessLogicResults);
+                HttpContext.Items.Add("businessLogicResult", businessLogicResults);
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
                 responseEnvelope = iti38Response.Value;
                 break;

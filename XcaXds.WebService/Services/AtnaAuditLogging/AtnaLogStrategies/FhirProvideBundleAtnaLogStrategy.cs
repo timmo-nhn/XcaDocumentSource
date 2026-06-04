@@ -39,12 +39,10 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
         var uploadedEntries = (context.Items.TryGetValue("uploadedEntries", out var entries) ? entries : null) as IdentifiableType[];
         var registryResponse = (context.Items.TryGetValue("uploadedEntriesRegistryResponse", out var regrep) ? regrep : null) as SoapEnvelope;
         var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
-        
-        var additionalParameters = new AdditionalParameters(
-            context.Request.Method,
-            context.TraceIdentifier,
-            pdpDecision);
-        
+        var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var blRes) ? blRes : null) as Dictionary<string, int>;
+
+        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
+
         var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
             additionalParameters,
             jwtToken,

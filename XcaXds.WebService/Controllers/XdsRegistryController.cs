@@ -1,6 +1,8 @@
+using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
+using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -61,9 +63,11 @@ public class XdsRegistryController : ControllerBase
                     break;
                 }
 
-                var registryQueryResponse = _registryService.RegistryStoredQuery(requestEnvelope, abacRequest);
+                var registryQueryResponse = _registryService.RegistryStoredQuery(requestEnvelope);
+                var filteredDocumentList = _registryService.FilterAdhocQueryResponseBasedOnBusinessLogic(requestEnvelope, registryQueryResponse.Value, abacRequest, out var filterResults);
+                HttpContext.Items.Add("businessLogicResult", filterResults);
 
-                responseEnvelope = registryQueryResponse.Value;
+                responseEnvelope = filteredDocumentList;
                 responseEnvelope.Header = new()
                 {
                     Action = requestEnvelope.GetCorrespondingResponseAction(),

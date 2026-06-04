@@ -1,7 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using Hl7.Fhir.Model;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
+using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.BusinessLogic.BusinessLogic;
@@ -94,5 +96,4 @@ public static class BusinessLogicFilterer
 
         return new(false, objects, rule.Name);
     }
-
 }

@@ -46,7 +46,9 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
         var responseSoapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(responseBodyString);
 
         var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
-        
+        var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var cast) ? cast : null) as Dictionary<string, int>;
+
+
         if (requestSoapEnvelope == null || responseSoapEnvelope == null)
         {
             var requestOrResponseOrBoth = (requestSoapEnvelope, responseSoapEnvelope) switch
@@ -60,12 +62,13 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
             return AtnaLogBuilderResult.Fail($"{context.TraceIdentifier} - Failed to deserialize SOAP {requestOrResponseOrBoth} body");
         }
 
+        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
+
         _atnaLogGeneratorService.CreateAuditLogForSoapRequestResponse(
-            new AdditionalParameters(
-                context.Request.Method, 
-                context.TraceIdentifier,
-                pdpDecision), 
-            requestSoapEnvelope, responseSoapEnvelope);
+            additionalParameters, 
+            requestSoapEnvelope, 
+            responseSoapEnvelope);
+
         return AtnaLogBuilderResult.Success($"{context.TraceIdentifier} - Successfully enqueued AuditMessage for request {context.TraceIdentifier}");
     }
 }

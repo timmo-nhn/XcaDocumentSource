@@ -30,13 +30,12 @@ public class FhirPatchDocumentAtnaLogStrategy : IAtnaLogStrategy
         var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
 
         var token = JwtExtractor.ExtractJwt(context.Request.Headers, out var _);
+        var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var cast) ? cast : null) as Dictionary<string, int>;
+
+        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
 
         _atnaLogGeneratorService.CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(
-            new AdditionalParameters(
-                context.Request.Method, 
-                context.TraceIdentifier, 
-                pdpDecision, 
-                context.Request.Path.Value),
+            additionalParameters,
             oldLabel,
             pathedEntry,
             token);

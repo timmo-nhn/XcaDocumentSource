@@ -1234,6 +1234,8 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         var iti62ResponseContent = await iti62RequestResponse.Content.ReadAsStringAsync();
 
         var iti62ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti62ResponseContent);
+        Assert.Null(iti62ResponseSoapObject.Body.Fault);
+
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
         Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());

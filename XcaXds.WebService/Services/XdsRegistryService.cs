@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Hl7.Fhir.Model;
+using Hl7.FhirPath.Sprache;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text.Json;
-using XcaXds.BusinessLogic;
 using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -188,7 +189,7 @@ public partial class XdsRegistryService
             .CreateSoapResult();
     }
 
-    public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope, AbacRequest? abacRequest = null)
+    public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope)
     {
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
 
@@ -274,29 +275,6 @@ public partial class XdsRegistryService
                 enumeratedEntriesResult = [.. registryElements ?? []];
 
                 var count = enumeratedEntriesResult.Count;
-
-                // Apply business-logic filtering
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {count}");
-                var businessLogic = BusinessLogicExtensions.MapFromAbacRequestToBusinessLogic(abacRequest);
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
-
-                enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var result)];
-
-                if (result.Count > 0)
-                {
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic applied: {JsonSerializer.Serialize(result)}");
-                }
-                else
-                {
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {count}");
-                }
-
-                enumeratedEntriesResult = enumeratedEntriesResult.ObfuscateRestrictedDocumentEntries(businessLogic, out var obfuscateCount);
-
-                if (count > 0)
-                {
-                    _logger.LogInformation($"{soapEnvelope?.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
-                }
 
                 // Safe guard to avoid duplicate IDs in response
                 enumeratedEntriesResult = enumeratedEntriesResult?
@@ -670,5 +648,47 @@ public partial class XdsRegistryService
         duplicateIds = duplicates.OfType<string>().ToArray();
 
         return duplicateIds.Length > 0;
+    }
+
+    public SoapEnvelope FilterAdhocQueryResponseBasedOnBusinessLogic(SoapEnvelope requestEnvelope, SoapEnvelope soapEnvelope, AbacRequest? abacRequest, out Dictionary<string, int>? filterResults)
+    {
+        filterResults = null;
+
+        // Apply business-logic filtering
+        var requestType = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery.Id;
+
+        if (requestType == Constants.Xds.StoredQueries.FindDocuments)
+        {
+            List<IdentifiableType> enumeratedEntriesResult = soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList?.ToList() ?? [];
+
+            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {enumeratedEntriesResult.Count}");
+
+            var businessLogic = BusinessLogicExtensions.MapFromAbacRequestToBusinessLogic(abacRequest);
+
+            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
+
+            enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out filterResults)];
+
+            if (filterResults.Count > 0)
+            {
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic applied: {JsonSerializer.Serialize(filterResults)}");
+            }
+            else
+            {
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {enumeratedEntriesResult.Count}");
+            }
+
+            enumeratedEntriesResult = enumeratedEntriesResult.ObfuscateRestrictedDocumentEntries(businessLogic, out var obfuscateCount);
+
+            if (obfuscateCount > 0)
+            {
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
+            }
+
+            soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = [.. enumeratedEntriesResult];
+
+        }
+
+        return soapEnvelope;
     }
 }

@@ -50,12 +50,13 @@ public class FhirDeleteDocumentsAtnaLogStrategy : IAtnaLogStrategy
 
         var deletedEntry = context.Items.TryGetValue("deletedEntry", out var entry) ? entry as DocumentEntryDto : null;
         var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
+        var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var blRes) ? blRes : null) as Dictionary<string, int>;
+
+        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
+
 
         _atnaLogGeneratorService.CreateAuditLogForFhirDeleteDocumentsRequest(
-            new AdditionalParameters(
-                request.Method,
-                context.TraceIdentifier,
-                pdpDecision),
+            additionalParameters,
             deletedEntry,
             operationOutcome,
             jwt);
