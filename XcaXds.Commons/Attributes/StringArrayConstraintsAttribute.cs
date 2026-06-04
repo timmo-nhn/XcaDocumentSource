@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.WebService.Attributes;
 
@@ -40,7 +39,7 @@ public class StringArrayConstraintsAttribute : ValidationAttribute
                 };
 
                 return new ValidationResult(
-                    $"Each string must be at most {MaxStringLength} characters.",memberNames);
+                    $"Each string must be at most {MaxStringLength} characters.", memberNames);
             }
         }
 
