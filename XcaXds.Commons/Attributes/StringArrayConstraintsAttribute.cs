@@ -23,7 +23,7 @@ public class StringArrayConstraintsAttribute : ValidationAttribute
         if (arr.Length > MaxItems)
         {
             return new ValidationResult(
-                $"Maximum number of items is {MaxItems} (MemberName: {context.MemberName}, Value: {string.Join(", ", arr.Take(5))}{(arr.Length > 5 ? ", ..." : "")})");
+                $"Maximum number of items is {MaxItems} (Type: {context.ObjectType.FullName}, Value: {string.Join(", ", arr.Take(5))}{(arr.Length > 5 ? ", ..." : "")})");
         }
 
         foreach (var item in arr)
