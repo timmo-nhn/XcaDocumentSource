@@ -63,7 +63,7 @@ public partial class RepositoryWrapper
             return _repository.Read(documentUniqueId);
         }
 
-        _logger.LogInformation($"{messageId} - {nameof(_appConfig.WrapRetrievedDocumentInCda)} Enabled".TrimStart([' ', '-']));
+        _logger.LogDebug($"{messageId} - {nameof(_appConfig.WrapRetrievedDocumentInCda)} Enabled".TrimStart([' ', '-']));
 
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
@@ -79,7 +79,7 @@ public partial class RepositoryWrapper
 
         documentKind = DocumentSniffer.DetectKind(documentDto.Data);
 
-        _logger.LogInformation($"{messageId} - Document kind {documentKind.ToString()}");
+        _logger.LogDebug($"{messageId} - Document kind {documentKind.ToString()}");
 
         if (documentKind == DocumentSniffer.DocumentKind.ClinicalDocumentXml)
         {

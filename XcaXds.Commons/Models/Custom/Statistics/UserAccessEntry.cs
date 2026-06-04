@@ -33,4 +33,5 @@ public class UserAccessEntry
     public string? SourceHomeCommunityId { get; set; }
     public string? SourceRepositoryUniqueId { get; set; }
     public string[]? Issues { get; set; }
+    public int? UploadedEntries { get; set; }
 }

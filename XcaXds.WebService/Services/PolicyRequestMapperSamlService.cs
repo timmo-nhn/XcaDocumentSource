@@ -43,7 +43,7 @@ public class PolicyRequestMapperSamlService
         var action = AccessControlExtensions.MapXacmlActionFromSoapEnvelope(soapEnvelope);
         var appliesTo = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
 
-        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+        var statements = samlToken?.GetAllStatements();
 
         if (appliesTo == AppliesTo.Unknown)
         {

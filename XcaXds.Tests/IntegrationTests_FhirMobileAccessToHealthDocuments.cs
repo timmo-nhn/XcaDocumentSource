@@ -403,7 +403,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         _atnaLogExportedChecker.AtnaLogExported = false;
         _atnaLogExportedChecker.AtnaMessageString = null;
 
-        //_policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "DEFAULT_machine_providebundle",
@@ -411,14 +410,6 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Create",
             noCode: true);
-
-        //_policyRepositoryService.DeletePolicy("DEFAULT_cz-deny-adhocquery-resourceid");
-        //_policyRepositoryService.DeletePolicy("DEFAULT_cz-gp-deny-if-different-resourceid");
-        //_policyRepositoryService.DeletePolicy("DEFAULT_cz-readdocumentlist-documents");
-        //_policyRepositoryService.DeletePolicy("DEFAULT_gp-deny2");
-        //_policyRepositoryService.DeletePolicy("DEFAULT_gp-CRUD");
-        //_policyRepositoryService.DeletePolicy("DEFAULT_machine_create_documents");
-        //_policyRepositoryService.DeletePolicy("DEFAULT_machine_delete_documents");
 
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
 

@@ -21,7 +21,7 @@ public class PolicyRequestMapperJsonWebTokenService
 		var action = AccessControlExtensions.MapXacmlActionFromUrlPath(urlPath, method);
 
 		var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(jwtToken);
-        var statements = samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+        var statements = samlToken.GetAllStatements();
 
         var appliesTo = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
 

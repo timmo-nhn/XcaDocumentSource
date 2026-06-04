@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens.Saml2;
+﻿using Firely.Fhir.Validation;
+using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Text.RegularExpressions;
 using System.Xml;
 using XcaXds.Commons.Commons;
@@ -8,7 +9,7 @@ using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Extensions;
 
-public class SamlExtensions
+public static class SamlExtensions
 {
     public static AppliesTo GetIssuerEnumFromSamlToken(Saml2SecurityToken? samlToken)
     {
@@ -34,7 +35,7 @@ public class SamlExtensions
 
     private static bool IsMachineToMachineToken(Saml2SecurityToken? samlToken)
     {
-        var statements = samlToken?.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).ToList();
+        var statements = samlToken?.GetAllStatements();
 
         var samltokenAuthorizationAttributes = statements?
             .Where(att =>
@@ -135,5 +136,10 @@ public class SamlExtensions
         if (codedValue == null) return null;
 
         return new(codedValue.Code, codedValue.CodeSystem);
+    }
+
+    public static Saml2Attribute[] GetAllStatements(this Saml2SecurityToken samlToken)
+    {
+        return [.. samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).Where(s => s != null)];
     }
 }

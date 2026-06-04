@@ -1,7 +1,7 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Text.Json;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Microsoft.IdentityModel.Tokens.Saml2;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -243,10 +243,7 @@ public class AtnaLogGeneratorService
         if (!string.IsNullOrWhiteSpace(samlAssertionXml))
         {
             samlToken = SamlExtensions.ReadSamlToken(samlAssertionXml);
-            statements = samlToken?.Assertion.Statements
-                .OfType<Saml2AttributeStatement>()
-                .SelectMany(statement => statement.Attributes)
-                .ToList();
+            statements = samlToken?.GetAllStatements().ToList();
 
             issuer = SamlExtensions.GetIssuerEnumFromSamlToken(samlToken);
         }
@@ -797,7 +794,7 @@ public class AtnaLogGeneratorService
 
         var allPatientIdentifiers = registryPatientIdentifiers
             .DistinctBy(pid => new
-                { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
+            { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
             .ToList();
 
         // The SAML-token contains a subject identifier (providerIdentifier) and a resource identifier (resourceId)
@@ -1012,10 +1009,7 @@ public class AtnaLogGeneratorService
         {
             samlToken = SamlExtensions.ReadSamlToken(samlTokenRaw);
 
-            statements = samlToken?.Assertion.Statements
-                .OfType<Saml2AttributeStatement>()
-                .SelectMany(statement => statement.Attributes)
-                .ToList();
+            statements = samlToken?.GetAllStatements().ToList();
         }
 
         return statements?.FirstOrDefault(s => s.Name == "is_validate_resource")?.Values
