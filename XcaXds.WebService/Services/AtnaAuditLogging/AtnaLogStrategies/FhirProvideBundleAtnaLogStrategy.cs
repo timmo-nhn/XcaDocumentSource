@@ -31,7 +31,7 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
         var jwtToken = context.Request.Headers.Authorization.FirstOrDefault();
 
         var requestString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(requestBody) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Request stream is null!");
-        ;
+        
         var fhirParser = new FhirJsonDeserializer();
 
         var fhirBundle = fhirParser.Deserialize<Bundle>(requestString) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Input is not valid FHIR Bundle");

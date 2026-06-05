@@ -13,7 +13,7 @@ public static class SoapExtensions
         throw new NotImplementedException();
     }
 
-    public static RegistryErrorList RegistryErrorsFromSoapEnvelope(SoapEnvelope? soapEnvelopeResponse)
+    public static RegistryErrorList? RegistryErrorsFromSoapEnvelope(SoapEnvelope? soapEnvelopeResponse)
     {
         var registryErrors = soapEnvelopeResponse?.Body.RegistryResponse?.RegistryErrorList;
         var queryErrors = soapEnvelopeResponse?.Body.AdhocQueryResponse?.RegistryErrorList;
@@ -22,6 +22,8 @@ public static class SoapExtensions
         var provideErrors = soapEnvelopeResponse?.Body.ProvideAndRegisterDocumentSetResponse?.RegistryResponse?.RegistryErrorList;
 
         RegistryErrorType[] allErrors = [..registryErrors?.RegistryError ?? [], ..queryErrors?.RegistryError ?? [], ..retrieveErrors?.RegistryError ?? [], ..registerErrors?.RegistryError ?? [], ..provideErrors?.RegistryError ?? []];
+
+        if (allErrors.Length == 0) return null;
 
         var highestSeverity = allErrors.MaxBy(err => err.GetSeverityLevel())?.Severity;
 

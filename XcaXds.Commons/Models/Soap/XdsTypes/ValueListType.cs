@@ -10,6 +10,7 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 public partial class ValueListType
 {
     [XmlElement("Value")]
+    [StringArrayConstraints(Constants.Properties.MaxArrayLength, Constants.Properties.MaxStringLength)]
     public string[]? Value { get; set; }
 
     public string[]? AddValue(string value)
@@ -21,5 +22,4 @@ public partial class ValueListType
         }
         return Value;
     }
-
 }

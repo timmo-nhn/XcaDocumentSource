@@ -4,8 +4,9 @@ using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.Statistics;
+using XcaXds.WebService.Services.Statistics;
 
-namespace XcaXds.WebService.Services.Statistics;
+namespace XcaXds.Tests.FakesAndDoubles;
 
 public class  MockStatisticsProcessorService : BackgroundService
 {

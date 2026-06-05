@@ -169,6 +169,18 @@ public class FhirService
             errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
         }
 
+        var highestSeverity = errors.MaxBy(err => err.GetSeverityLevel())?.Severity;
+
+        registerDocumentSetResponse?.Value?.Body.RegistryResponse = new()
+        {
+
+            RegistryErrorList = new()
+            {
+                HighestSeverity = highestSeverity,
+                RegistryError = errors.ToArray()
+            }
+        };
+
         if (errors.Count > 0)
         {
             foreach (var error in errors)

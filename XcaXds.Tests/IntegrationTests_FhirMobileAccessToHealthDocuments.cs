@@ -7,9 +7,9 @@ using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
-using XcaXds.WebService.Services.Statistics;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
@@ -432,8 +432,11 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
 
-        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle");
-        httpRequest.Content = stringContent;
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle")
+        {
+            Content = stringContent
+        };
+
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
         var expectedCount = RegistryContent.Count + 1;

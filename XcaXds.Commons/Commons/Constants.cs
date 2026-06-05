@@ -12,7 +12,7 @@ public static class Constants
     public static class Properties
     {
         public const int MaxStringLength = 255;
-        public const int MaxArrayLength = 255;
+        public const int MaxArrayLength = 65535;
     }
 
     public static class FileSizes

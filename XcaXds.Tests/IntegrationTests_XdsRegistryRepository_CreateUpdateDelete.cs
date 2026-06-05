@@ -13,8 +13,9 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
-using XcaXds.WebService.Services.Statistics;
+using XcaXds.WebService;
 using Xunit.Abstractions;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
 using Task = System.Threading.Tasks.Task;
@@ -23,12 +24,9 @@ namespace XcaXds.Tests;
 
 #pragma warning disable CS8604, CS8601, CS8602 // Possible null reference argument.
 
-public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
+public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
+    WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : IntegrationTests_DefaultFixture(factory, output), IClassFixture<WebApplicationFactory<Program>>
 {
-    public IntegrationTests_XcaXdsRegistryRepository_CRUD(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
-    {
-    }
-
     [Fact]
     [Trait("Read", "DocumentList (Isolated Access Control)")]
     public async Task XGQ_CrossGatewayQuery_KjernejournalForskriften_IAC()
@@ -806,7 +804,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         _policyRepositoryService.DeleteAllPolicies();
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
-        Assert.True(0 < (firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0));
+        Assert.NotEmpty(firstResponseSoap?.Body.RegistryResponse?.RegistryErrorList?.RegistryError);
 
         Assert.Equal(expectedCountAfterPnR, registryCountAfterPnr);
 
@@ -912,9 +910,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         {
             var randomFile = testdataDocuments.PickRandom();
 
-            document.Value = randomFile.data;
-            registryObjects.OfType<DocumentEntryDto>()?.FirstOrDefault(ro => ro.UniqueId == document.Id)?.MimeType = randomFile.mimeType;
-            if (randomFile.mimeType.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) == false)
+            document.Value = randomFile.Data;
+            registryObjects.OfType<DocumentEntryDto>()?.FirstOrDefault(ro => ro.UniqueId == document.Id)?.MimeType = randomFile.MimeType;
+            if (randomFile.MimeType.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) == false)
             {
                 unsupportedMimeTypeCount++;
             }
@@ -1097,7 +1095,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         iti42SoapRequestObject.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. registryObjects];
 
-        var itemsToUploadCount = iti42SoapRequestObject.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Count();
+        var itemsToUploadCount = iti42SoapRequestObject.Body.RegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Length;
         var expectedCountAfterRds = countFirst + itemsToUploadCount;
 
         var iti42RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti42SoapRequestObject).Content);
@@ -1332,10 +1330,10 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
         var requests = new List<Dude>
         {
-            new Dude { Request = iti18AdhocQuery, Endpoint = "/Registry/services/RegistryService" },
-            new Dude { Request = iti62DeleteObjects, Endpoint = "/Registry/services/RegistryService" },
-            new Dude { Request = iti86DeleteDocumentSet, Endpoint = "/Repository/services/RepositoryService" },
-            new Dude { Request = iti43RetrieveDocumentSet, Endpoint = "/Repository/services/RepositoryService" }
+            new() { Request = iti18AdhocQuery, Endpoint = "/Registry/services/RegistryService" },
+            new() { Request = iti62DeleteObjects, Endpoint = "/Registry/services/RegistryService" },
+            new() { Request = iti86DeleteDocumentSet, Endpoint = "/Repository/services/RepositoryService" },
+            new() { Request = iti43RetrieveDocumentSet, Endpoint = "/Repository/services/RepositoryService" }
         };
 
         foreach (var request in requests)
@@ -1353,7 +1351,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         _policyRepositoryService.DeleteAllPolicies();
     }
 
-    private XmlDocument? GetSoapEnvelopeWithKjernejournalForskriftenSamlToken(string soapEnvelope)
+    private static XmlDocument? GetSoapEnvelopeWithKjernejournalForskriftenSamlToken(string soapEnvelope)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
@@ -1372,11 +1370,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         if (attribute != null)
         {
             var valueElement = attribute.Element(saml + "AttributeValue");
-            if (valueElement != null)
-            {
-                // HAYO! KJ_SCOPE
-                valueElement.Value = "kjernejournalforskriften";
-            }
+            
+            // HAYO! KJ_SCOPE
+            valueElement?.Value = "kjernejournalforskriften";
         }
 
         var soapEnvelopeDocument = TestHelpers.LoadNewXmlDocument(soapEnvelope);
@@ -1385,13 +1381,13 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
     }
 
-    private XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(SoapEnvelope soapEnvelope)
+    private static XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(SoapEnvelope soapEnvelope)
     {
         var sxmls = new SoapXmlSerializer();
         return GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(soapEnvelope).Content);
     }
 
-    private XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(string soapEnvelope)
+    private static XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(string soapEnvelope)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
@@ -1406,7 +1402,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
     }
 
-    private XmlDocument? GetSoapEnvelopeWithHelsenorgeSamlToken(string soapEnvelope)
+    private static XmlDocument? GetSoapEnvelopeWithHelsenorgeSamlToken(string soapEnvelope)
     {
         var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
         var testDataFiles = Directory.GetFiles(testDataPath);
@@ -1419,7 +1415,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
     }
 
-    private XmlDocument? GetSoapEnvelopeWithSamlToken(XmlDocument? soapEnvelopeDocument, XmlDocument? kjSamlToken)
+    private static XmlDocument? GetSoapEnvelopeWithSamlToken(XmlDocument? soapEnvelopeDocument, XmlDocument? kjSamlToken)
     {
         var nsmgr = new XmlNamespaceManager(soapEnvelopeDocument.NameTable);
         nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
@@ -1476,7 +1472,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
         return [.. xmlDocuments];
     }
 
-    private SoapEnvelope? GetRandomIti38Request()
+    private static SoapEnvelope? GetRandomIti38Request()
     {
         var iti38SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("IT_iti-38_request.xml");
         return iti38SoapRequestObject;
@@ -1525,8 +1521,8 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD : IntegrationTests_D
 
 internal class FileDude
 {
-    public string? mimeType { get; set; }
-    public byte[]? data { get; set; }
+    public string? MimeType { get; set; }
+    public byte[]? Data { get; set; }
 }
 
 internal class Dude

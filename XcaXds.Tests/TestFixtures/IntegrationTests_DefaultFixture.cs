@@ -14,7 +14,6 @@ using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
 using XcaXds.WebService.Services;
-using XcaXds.WebService.Services.Statistics;
 using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 

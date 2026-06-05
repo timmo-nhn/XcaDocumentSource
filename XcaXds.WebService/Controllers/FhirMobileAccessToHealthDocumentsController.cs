@@ -348,6 +348,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
 
         // ATNA Audit Log generation
+        
         HttpContext.Items.Add("uploadedEntries", provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList);
         HttpContext.Items.Add("uploadedEntriesRegistryResponse", provideBundleResult.RegistryResponse);
 

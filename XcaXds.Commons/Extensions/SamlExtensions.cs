@@ -9,7 +9,7 @@ using XcaXds.Commons.Serializers;
 
 namespace XcaXds.Commons.Extensions;
 
-public static class SamlExtensions
+public static partial class SamlExtensions
 {
     public static AppliesTo GetIssuerEnumFromSamlToken(Saml2SecurityToken? samlToken)
     {
@@ -91,7 +91,7 @@ public static class SamlExtensions
         try
         {
             var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(Regex.Replace(attributeValue, @"\b:?xsi:?\b", ""));
+            xmlDocument.LoadXml(XsiRegex().Replace(attributeValue, ""));
             var attributes = xmlDocument.ChildNodes[0]?.Attributes;
 
             var type = attributes?.GetNamedItem("type")?.Value;
@@ -138,8 +138,24 @@ public static class SamlExtensions
         return new(codedValue.Code, codedValue.CodeSystem);
     }
 
+    /// <summary>
+    /// Get all attributes from the SAML token's assertion statements as a flattened list.
+    /// </summary>
     public static Saml2Attribute[] GetAllStatements(this Saml2SecurityToken samlToken)
     {
         return [.. samlToken.Assertion.Statements.OfType<Saml2AttributeStatement>().SelectMany(statement => statement.Attributes).Where(s => s != null)];
     }
+
+    /// <summary>
+    /// Get the value of a specific attribute from the SAML statements. 
+    /// If there are multiple attributes with the same name, only the first one will be returned. 
+    /// If the attribute is not found, null will be returned.
+    /// </summary>
+    public static string? GetValue(this List<Saml2Attribute> statements, string attributeName)
+    {   
+        return statements?.FirstOrDefault(s => s.Name == attributeName)?.Values.FirstOrDefault();
+    }
+
+    [GeneratedRegex(@"\b:?xsi:?\b")]
+    private static partial Regex XsiRegex();
 }
