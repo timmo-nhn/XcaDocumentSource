@@ -297,6 +297,14 @@ public class AtnaLogGeneratorService
                 auditEvent.Contained.Add(subjectResource);
             }
 
+            var resourceResource = GetResourceResource(requestEnvelope, statements, subjectDisplayName,
+                providerIdentifierCoded, issuer, hasSubject);
+
+            if (resourceResource != null)
+            {
+                auditEvent.Contained.Add(resourceResource);
+            }
+
             auditEvent.Entity.Add(new AuditEvent.EntityComponent()
             {
                 What = subjectResource == null
@@ -779,54 +787,21 @@ public class AtnaLogGeneratorService
                 : subjectNameXpn = new(subjectDisplayName, null);
         }
 
-        var registryPatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).ToList();
+        var subjectIdCx = SamlExtensions.GetSamlAttributeValueAsCx(statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values
+            .FirstOrDefault());
 
-        var patientResourceId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ResourceId20)?.Values
-            .FirstOrDefault();
-        var subjectId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ProviderIdentifier)?.Values
-            .FirstOrDefault();
-
-        var resourceIdCx = Hl7Object.Parse<CX>(patientResourceId);
-        var subjectIdCx = SamlExtensions.GetSamlAttributeValueAsCx(subjectId);
-
-        if (!string.IsNullOrWhiteSpace(resourceIdCx?.IdNumber))
+        var subjectPatientResource = new Patient
         {
-            var subjectPid = new PID(resourceIdCx, subjectNameXpn);
-            registryPatientIdentifiers.Add(subjectPid);
-        }
-
-        var allPatientIdentifiers = registryPatientIdentifiers
-            .DistinctBy(pid => new
-            { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
-            .ToList();
-
-        // The SAML-token contains a subject identifier (providerIdentifier) and a resource identifier (resourceId)
-        // In a normal Helsenorge-scenario, the identifiers are similar, because the subject is opening documents on themselves.
-        // However, when a person - in Helsenorge, with Power Of Attorney (representasjonsforhold) - opens documents on someone's behalf,
-        // the SAML token will only contain the identifier of the queried patient (resource-id), and not their name.
-        // Therfore we need to check this to avoid incorrectly resolving the subject name  to the resource ID.
-        var requestIsForAnotherPerson = subjectIdCx != null && !subjectIdCx.Equals(resourceIdCx);
-
-        Patient? patientResource = null;
-
-        if (!(allPatientIdentifiers.Count > 0)) return patientResource;
-
-        patientResource = new Patient
-        {
-            Id = "patient-1",
+            Id = "patient-subject-1",
         };
 
-        _logger.LogDebug($"AtnaLogGenerator Resolved {allPatientIdentifiers.Count} identifiers from request");
-
-        foreach (var identifier in allPatientIdentifiers)
+        if (subjectIdCx != null)
         {
-            if (string.IsNullOrWhiteSpace(identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId) ||
-                string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.IdNumber)) continue;
-
-            _logger.LogDebug($"AtnaLogGenerator found Patient Identifier: {identifier?.Serialize()}");
-            patientResource.Identifier.Add(new Identifier(
-                identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId.WithUrnOid(),
-                identifier?.PatientIdentifier?.IdNumber));
+            subjectPatientResource.Identifier.Add(new Identifier()
+            {
+                System = subjectIdCx.AssigningAuthority?.UniversalId?.WithUrnOid(),
+                Value = subjectIdCx.IdNumber
+            });
         }
 
         if (isProvideBundle)
@@ -848,26 +823,66 @@ public class AtnaLogGeneratorService
                     patientHumanName.Given = [patientGiven];
                 }
 
-                patientResource.Name = [patientHumanName];
+                subjectPatientResource.Name = [patientHumanName];
             }
         }
-        else if (issuer == AppliesTo.Helsenorge && hasSubject && requestIsForAnotherPerson == false)
+        else if ((issuer == AppliesTo.Helsenorge || issuer == AppliesTo.Machine) && hasSubject)
         {
             var patientHumanName = new HumanName
             {
                 Given = [subjectNameXpn.GivenName],
+                Family = subjectNameXpn.FamilyName
             };
 
-            patientHumanName.Family = subjectNameXpn.FamilyName;
-
-            patientResource.Name = [patientHumanName];
+            subjectPatientResource.Name = [patientHumanName];
         }
-        else if (issuer == AppliesTo.Machine && hasSubject && requestIsForAnotherPerson == false)
+
+        return subjectPatientResource;
+    }
+
+    private Resource? GetResourceResource(SoapEnvelope? requestEnvelope, List<Saml2Attribute>? statements, string? subjectDisplayName, CodedValue? providerIdentifierCoded, AppliesTo? issuer, bool hasSubject)
+    {
+        var resourcePatientResource = new Patient
         {
-            patientResource.Name = allPatientIdentifiers.Select(pid => GetNamesFromPid(pid)).OfType<HumanName>().ToList();
+            Id = "patient-resource-1",
+        };
+
+        var patientResourceId = statements?.FirstOrDefault(s => s.Name == Constants.Saml.Attribute.ResourceId20)?.Values
+            .FirstOrDefault();
+
+        var resourceIdCx = Hl7Object.Parse<CX>(patientResourceId);
+        var resstr = resourceIdCx?.Serialize();
+
+        if (!string.IsNullOrWhiteSpace(resourceIdCx?.IdNumber))
+        {
+            var resourcePid = new PID(resourceIdCx, null);
         }
 
-        return patientResource;
+        var registryResourcePatientIdentifiers = GetRegistryPatientIdentifierForRequest(requestEnvelope).ToList();
+
+        var allSubjectPatientIdentifiers = registryResourcePatientIdentifiers
+            .DistinctBy(pid => new { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
+            .ToList();
+
+        _logger.LogDebug($"AtnaLogGenerator resolved {allSubjectPatientIdentifiers.Count} subject identifiers from request");
+
+        if (!(allSubjectPatientIdentifiers.Count > 0)) return resourcePatientResource;
+
+        foreach (var identifier in allSubjectPatientIdentifiers)
+        {
+            if (string.IsNullOrWhiteSpace(identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId) ||
+                string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.IdNumber)) continue;
+
+            _logger.LogDebug($"AtnaLogGenerator found subject patient identifier: {identifier?.Serialize()}");
+
+            resourcePatientResource.Identifier.Add(new Identifier(
+                identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId.WithUrnOid(),
+                identifier?.PatientIdentifier?.IdNumber));
+        }
+
+
+
+        return resourcePatientResource;
     }
 
     private static HumanName? GetNamesFromPid(PID pid)

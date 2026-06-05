@@ -9,7 +9,6 @@ namespace XcaXds.Commons.Models.Soap.XdsTypes;
 [XmlType(Namespace = Constants.Xds.Namespaces.Rim)]
 public partial class ValueListType
 {
-    [StringArrayConstraints(Constants.Properties.MaxArrayLength,Constants.Properties.MaxStringLength)]
     [XmlElement("Value")]
     public string[]? Value { get; set; }
 
