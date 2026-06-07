@@ -78,7 +78,7 @@ public static class MultipartExtensions
         return boundary.ToString();
     }
 
-    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(Stream stream, string contentTypeHeader)
+    public static async Task<SoapEnvelope?> ReadMultipartSoapMessage(Stream? stream, string? contentTypeHeader)
     {
         if (MediaTypeHeaderValue.TryParse(contentTypeHeader, out var mediaTypeHeaderValue) &&
             !mediaTypeHeaderValue.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase))

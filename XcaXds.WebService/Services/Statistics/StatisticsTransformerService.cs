@@ -206,10 +206,10 @@ public class StatisticsTransformerService
         };
     }
 
-    private static SuccessType GetSuccessTypeFromRegistryError(RegistryErrorList registryErrorsFromSoapEnvelope, DocumentResponseType[]? documentResponse)
+    private static SuccessType GetSuccessTypeFromRegistryError(RegistryErrorList? registryErrorsFromSoapEnvelope, DocumentResponseType[]? documentResponse)
     {
-        var anyErrors = registryErrorsFromSoapEnvelope.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Error);
-        var anyWarnings = registryErrorsFromSoapEnvelope.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Warning);
+        var anyErrors = registryErrorsFromSoapEnvelope?.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Error) ?? false;
+        var anyWarnings = registryErrorsFromSoapEnvelope?.RegistryError.Any(err => err.Severity == Constants.Xds.ErrorSeverity.Warning) ?? false;
         var anyDocuments = documentResponse?.Length > 0;
 
         return (anyErrors, anyWarnings, anyDocuments) switch
@@ -224,7 +224,7 @@ public class StatisticsTransformerService
     {
         var issues = SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelope);
 
-        return issues.RegistryError.Select(e => $"{e.ErrorCode}: {e.CodeContext}").ToArray();
+        return issues?.RegistryError.Select(e => $"{e.ErrorCode}: {e.CodeContext}").ToArray();
     }
 
     private static string? GetSamlAttributeAsString(IEnumerable<Saml2Attribute>? statements, params string[] attributeNames)
