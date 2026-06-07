@@ -278,7 +278,7 @@ public class AtnaLogGeneratorService
 
         auditEvent.Type = GetAuditEventTypeFromSoapEnvelope(requestEnvelope);
         auditEvent.Recorded = DateTimeOffset.Now;
-        auditEvent.Outcome = GetEventOutcomeFromSoapRequestResponse(requestEnvelope, responseEnvelope);
+        auditEvent.Outcome = GetEventOutcomeFromSoapRequestResponse(responseEnvelope);
         auditEvent.OutcomeDesc = GetEventOutcomeDescriptionFromSoapRequestResponse(responseEnvelope, additionalParameters.AccessControlResponse, additionalParameters.AppliedBusinessLogic);
         auditEvent.Action = GetActionFromSoapEnvelope(requestEnvelope);
 
@@ -1107,13 +1107,13 @@ public class AtnaLogGeneratorService
         return isReplaceUpdate ? AuditEvent.AuditEventAction.U : AuditEvent.AuditEventAction.C;
     }
 
-    private static AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? requestEnvelope, SoapEnvelope? responseEnvelope)
+    private static AuditEvent.AuditEventOutcome GetEventOutcomeFromSoapRequestResponse(SoapEnvelope? responseEnvelope)
     {
-        var registryErrors = SoapExtensions.RegistryErrorsFromSoapEnvelope(responseEnvelope).RegistryError;
+        var registryErrors = SoapExtensions.RegistryErrorsFromSoapEnvelope(responseEnvelope)?.RegistryError;
         var soapFault = responseEnvelope?.Body.Fault;
 
         // If we don't even have a Soap request or response, or if there is a SOAP fault, consider it a major failure (N8)
-        if (requestEnvelope == null || responseEnvelope == null || soapFault != null)
+        if (responseEnvelope == null || soapFault != null)
         {
             return AuditEvent.AuditEventOutcome.N8;
         }
