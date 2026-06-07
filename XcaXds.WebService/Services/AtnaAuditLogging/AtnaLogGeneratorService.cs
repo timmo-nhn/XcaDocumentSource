@@ -804,7 +804,7 @@ public class AtnaLogGeneratorService
             .Select(d => "Invalid Parameter: " + d.AttributeId)
             .ToArray();
 
-        if (registryErrors.Length > 0)
+        if (registryErrors?.Length > 0)
             return string.Join(",\n", registryErrors);
 
         if (failedConditions?.Length > 0)
