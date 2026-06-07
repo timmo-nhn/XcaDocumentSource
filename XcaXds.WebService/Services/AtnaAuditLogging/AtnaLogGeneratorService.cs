@@ -789,7 +789,7 @@ public class AtnaLogGeneratorService
 
     private static string? GetEventOutcomeDescriptionFromSoapRequestResponse(SoapEnvelope? responseEnvelope, AccessControlResponse? accessControlresponse, Dictionary<string, int>? appliedBusinessLogic)
     {
-        var registryErrors = SoapExtensions.RegistryErrorsFromSoapEnvelope(responseEnvelope).RegistryError.Select(re => re.CodeContext).ToArray();
+        var registryErrors = SoapExtensions.RegistryErrorsFromSoapEnvelope(responseEnvelope)?.RegistryError.Select(re => re.CodeContext).ToArray();
 
         var noConditionsApplied = accessControlresponse?.Diagnostics.All(d => d.Decision == Decision.NotApplicable);
 
