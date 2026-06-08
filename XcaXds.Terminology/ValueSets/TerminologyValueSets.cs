@@ -1,12 +1,6 @@
 ﻿using XcaXds.Terminology.Models.Custom;
 
 namespace XcaXds.Terminology.ValueSets;
-public static class TerminologyValueSets
-{
-    // New dynamic valuesets
-    public static Dictionary<string, List<ComprehensiveCodeSystem>> CodeSystems { get; set; }
-
-}
 
 public static class Constants
 {     

@@ -873,16 +873,6 @@ public static class ConstantsExtensions
         return constants;
     }
 
-    public static ComprehensiveCodeSystem GetAsComprehensiveCodesystem(this Type type, Func<string, bool>? filter = null)
-    {
-        var codeSystem = type.GetAsKeyValuePair();
-
-        var system = codeSystem.First(v => v.Key.Equals("system", StringComparison.OrdinalIgnoreCase)).Value;
-        var values = codeSystem.Where(v => !v.Key.Equals("system", StringComparison.OrdinalIgnoreCase)).Select(v => v.Value).ToArray();
-
-        return new(system, values);
-    }
-
     public static string[] GetAsStringList(this Type type, Func<string, bool> filter)
     {
         return type.GetAsStringList().Where(filter).ToArray();

@@ -572,29 +572,15 @@ public static partial class CdaTransformer
         return null;
     }
 
-    private static CE? SetPatientAdministrativeGenderCode(string? patientGender)
+    private static CE? SetPatientAdministrativeGenderCode(CodedValue? patientGender)
     {
         if (patientGender != null)
         {
             return new()
             {
-                Code = patientGender switch
-                {
-                    "U" => "0",
-                    "M" => "1",
-                    "F" => "2",
-                    "O" => "9",
-                    _ => "0"
-                },
-                CodeSystem = .CodeSystems.Volven.Gender_3101.System,
-                DisplayName = patientGender switch
-                {
-                    "U" => "Not known",
-                    "M" => "Male",
-                    "F" => "Female",
-                    "O" => "Not applicable",
-                    _ => "Not known"
-                }
+                Code = patientGender.Code,
+                CodeSystem = patientGender.CodeSystem,
+                DisplayName = patientGender.DisplayName
             };
         }
         return null;

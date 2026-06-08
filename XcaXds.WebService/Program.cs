@@ -118,7 +118,7 @@ public class Program
         builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<AppStartupService>();
         builder.Services.AddHostedService<StatisticsProcessorService>();
-        builder.Services.AddHostedService<TerminologyService>();
+        builder.Services.AddHostedService<TerminologyUpdaterService>();
     }
 
     private static void DebuggingBeforeAppLaunch(WebApplicationBuilder builder)
