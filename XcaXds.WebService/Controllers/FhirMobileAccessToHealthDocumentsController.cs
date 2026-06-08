@@ -264,7 +264,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id, out var deletedEntry);
 
-        HttpContext.Items.Add("deletedEntry", deletedEntry);
+        if (deletedEntry != null)
+        {
+            HttpContext.Items.Add("deletedRegistryObjects", new List<DocumentEntryDto> { deletedEntry });
+        }
 
         if (deleteResponse.Success)
         {
@@ -272,7 +275,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             {
                 Severity = OperationOutcome.IssueSeverity.Information,
                 Code = OperationOutcome.IssueType.Success,
-                Diagnostics = $"Document and associated metadata was successfully deleted from the Document Repository"
+                Diagnostics = $"Document and associated metadata was successfully deleted from the Document Registry and Repository"
             });
         }
         else

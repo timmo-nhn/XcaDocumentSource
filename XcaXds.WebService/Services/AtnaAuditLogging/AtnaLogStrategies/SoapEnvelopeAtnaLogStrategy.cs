@@ -1,6 +1,7 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
@@ -34,7 +35,7 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
         {
             requestBodyString = await MultipartExtensions.ReadMultipartContentFromStream(requestBody, request.ContentType);
         }
-        
+
         var responseBodyString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(responseBody);
 
         if (response.ContentType != null && response.ContentType.Contains(Constants.MimeTypes.MultipartRelated))
@@ -47,6 +48,7 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
 
         var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
         var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var cast) ? cast : null) as Dictionary<string, int>;
+        var deletedEntries = (context.Items.TryGetValue("deletedRegistryObjects", out var deleted) ? deleted : null) as IEnumerable<RegistryObjectDto>;
 
 
         if (requestSoapEnvelope == null || responseSoapEnvelope == null)
@@ -62,11 +64,11 @@ public class SoapEnvelopeAtnaLogStrategy : IAtnaLogStrategy
             return AtnaLogBuilderResult.Fail($"{context.TraceIdentifier} - Failed to deserialize SOAP {requestOrResponseOrBoth} body");
         }
 
-        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
+        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult, null, deletedEntries?.OfType<DocumentEntryDto>());
 
         _atnaLogGeneratorService.CreateAuditLogForSoapRequestResponse(
-            additionalParameters, 
-            requestSoapEnvelope, 
+            additionalParameters,
+            requestSoapEnvelope,
             responseSoapEnvelope);
 
         return AtnaLogBuilderResult.Success($"{context.TraceIdentifier} - Successfully enqueued AuditMessage for request {context.TraceIdentifier}");

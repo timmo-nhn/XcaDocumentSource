@@ -28,30 +28,15 @@ public class AtnaLogEnricherService
         _policyRequestMapperJwtService = policyRequestMapperJwtService;
     }
 
-    public SoapEnvelope GetMockSoapEnvelopeFromJwtAndBundle(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, IdentifiableType?[]? registryObjects)
+    public SoapEnvelope GetMockSoapEnvelopeFromJwtAndBundle(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, IdentifiableType[]? registryObjects)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
         }
 
-        // HAYO! RequestTypeInSamlToken - This is maybe a bit "jank", but in SOAP-context this is an OK and pragmatic way to transport arbitrary stuff
-        var requestType = (additionalParameters.HttpMethod, additionalParameters.UrlPath) switch
-        {
-            ("POST", var path) when path != null && path.StartsWith("/R4/fhir") && path.EndsWith("/$validate")
-                => "is_validate_resource",
 
-            ("POST", _)
-                => "is_provide_bundle",
-
-            ("DELETE", _)
-                => "is_delete_bundle",
-
-            _ 
-                => "is_query_bundle"
-        };
-
-        XmlElement? samlAssertionElement = GetEnrichedSamlTokenFromTokenAndBundle(jwtToken, fhirBundle, requestType);
+        XmlElement? samlAssertionElement = GetEnrichedSamlTokenFromTokenAndBundle(jwtToken, fhirBundle);
 
         var errors = fhirBundle?.Entry
             .Select(res => res.Resource)
@@ -89,27 +74,6 @@ public class AtnaLogEnricherService
                 }
                 break;
 
-            case "DELETE":
-                if (registryObjects?.Length > 0)
-                {
-                    pnrEnvelope.Body.RemoveObjectsRequest = new()
-                    {
-                        ObjectRefList = new()
-                        {
-                            ObjectRef = [.. registryObjects.Select(obj => new ObjectRefType() { Id = obj?.Id })]
-                        }
-                    };
-                    pnrEnvelope.Body.ProvideAndRegisterDocumentSetRequest = new()
-                    {
-                        SubmitObjectsRequest = new()
-                        {
-                            RegistryObjectList = registryObjects!
-                        }
-                    };
-
-                }
-                break;
-
             default:
                 if (registryObjects?.Length > 0)
                 {
@@ -123,7 +87,7 @@ public class AtnaLogEnricherService
         return pnrEnvelope;
     }
 
-    private XmlElement? GetEnrichedSamlTokenFromTokenAndBundle(string? jwtToken, Bundle? fhirBundle, string requestType)
+    private XmlElement? GetEnrichedSamlTokenFromTokenAndBundle(string? jwtToken, Bundle? fhirBundle)
     {
         var patient = fhirBundle?.Entry
             .Where(e => e.Resource is Patient)
@@ -140,9 +104,6 @@ public class AtnaLogEnricherService
             var token = handler.ReadJwtToken(jwtToken);
 
             var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(token);
-            samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
-                        requestType,
-                        "true")));
 
             // Enrich SAML assertion with patient context from the submitted Bundle (if present).
             // This is used by downstream auditing/policy components expecting patient/resource attributes in the token.

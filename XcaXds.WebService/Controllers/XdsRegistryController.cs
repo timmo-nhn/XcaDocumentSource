@@ -5,6 +5,7 @@ using System.Diagnostics;
 using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
@@ -131,14 +132,9 @@ public class XdsRegistryController : ControllerBase
                     responseEnvelope.Header.Action = requestEnvelope.GetCorrespondingResponseAction();
                     responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body ?? new();
 
-                    // HAYO! DeleteDocuments_Jank! Put the deleted objects in the request so AtnaLogExporterService can access them for patient IDs
-                    requestEnvelope.Body.RegisterDocumentSetRequest = new()
-                    {
-                        SubmitObjectsRequest = new()
-                        {
-                            RegistryObjectList = deletedObjects.ToArray()
-                        }
-                    };
+                    // Add to HttpContext so AtnaLogExporterService can access them for patient IDs
+                    var deletedDtoObjects = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(deletedObjects);
+                    HttpContext.Items.Add("deletedRegistryObjects", deletedDtoObjects);
                 }
 
                 break;

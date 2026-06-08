@@ -651,11 +651,11 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    public static IdentifiableType[] TransformDocumentReferenceDtoListToRegistryObjects(List<RegistryObjectDto?>? documentReferences)
+    public static IdentifiableType[] TransformDocumentReferenceDtoListToRegistryObjects(IEnumerable<RegistryObjectDto?>? documentReferences)
     {
         var registryObjectList = new List<IdentifiableType>();
 
-        if (documentReferences?.Count > 0)
+        if (documentReferences?.Any() == true)
         {
             registryObjectList.AddRange(TransformRegistryObjectDtosToRegistryObjects(documentReferences.OfType<RegistryObjectDto>()));
         }

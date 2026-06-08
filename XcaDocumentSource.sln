@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Tests", "XcaXds.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.BusinessLogic", "XcaXds.BusinessLogic\XcaXds.BusinessLogic.csproj", "{07603E17-B9DB-4B2A-931B-3BD84F30F32D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Terminology", "XcaXds.Terminology\XcaXds.Terminology.csproj", "{A9AC71AB-BBD9-4C88-A435-FF219B257C43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{07603E17-B9DB-4B2A-931B-3BD84F30F32D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07603E17-B9DB-4B2A-931B-3BD84F30F32D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07603E17-B9DB-4B2A-931B-3BD84F30F32D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9AC71AB-BBD9-4C88-A435-FF219B257C43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9AC71AB-BBD9-4C88-A435-FF219B257C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9AC71AB-BBD9-4C88-A435-FF219B257C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9AC71AB-BBD9-4C88-A435-FF219B257C43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

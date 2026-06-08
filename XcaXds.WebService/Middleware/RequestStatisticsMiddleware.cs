@@ -1,7 +1,5 @@
 ﻿using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
 using System.Diagnostics;
-using Microsoft.Extensions.DependencyModel;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
@@ -10,7 +8,6 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.Statistics;
-using XcaXds.WebService.Services;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.WebService.Middleware;
@@ -92,7 +89,7 @@ public class RequestStatisticsMiddleware
         var statusCode = context.Response.StatusCode;
         var requestContentType = context.Request.ContentType;
         var responseContentType = context.Response.ContentType;
-        
+
         var requestType = GetRequestTypeFromContext(path, method);
 
         return new StatisticsRequestAndFields()
@@ -132,10 +129,14 @@ public class RequestStatisticsMiddleware
         var fhirBundle = requestType == RequestAndFieldRequestType.FhirProvideBundle ? Hl7FhirExtensions.GetResourceFromStream(requestBody) as Bundle : null;
         var documentEntriesFromBundle = GetDocumentEntriesFromBundle(fhirBundle);
 
-        List<DocumentEntryDto?>? deletedDocumentEntry = context.Items.TryGetValue("deletedEntry", out var entry) ? [entry as DocumentEntryDto] : [null];
-        deletedDocumentEntry.Add(documentEntriesFromBundle);
-        
-        return deletedDocumentEntry.Where(de => de != null).OfType<DocumentEntryDto>().ToArray();
+        var deletedRegistryObjects = (context.Items.TryGetValue("deletedRegistryObjects", out var entry) ? entry as List<DocumentEntryDto> : []) ?? [];
+
+        if (documentEntriesFromBundle != null)
+        {
+            deletedRegistryObjects.Add(documentEntriesFromBundle);
+        }
+
+        return deletedRegistryObjects.Where(de => de != null).OfType<DocumentEntryDto>().ToArray();
     }
 
     private static DocumentEntryDto? GetDocumentEntriesFromBundle(Bundle? fhirBundle)

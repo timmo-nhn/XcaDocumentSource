@@ -1267,7 +1267,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
 
-        Assert.Equal(System.Net.HttpStatusCode.OK, iti86RequestResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, iti86RequestResponse.StatusCode);
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
         await WaitForAtnaLogToBeExported();

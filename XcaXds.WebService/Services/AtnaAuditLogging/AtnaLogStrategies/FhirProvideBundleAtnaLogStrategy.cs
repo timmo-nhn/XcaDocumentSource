@@ -1,6 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
@@ -31,10 +32,12 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
         var jwtToken = context.Request.Headers.Authorization.FirstOrDefault();
 
         var requestString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(requestBody) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Request stream is null!");
+        var responseString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(responseBody) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Response stream is null!");
         
         var fhirParser = new FhirJsonDeserializer();
 
         var fhirBundle = fhirParser.Deserialize<Bundle>(requestString) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Input is not valid FHIR Bundle");
+        var fhirResponse = fhirParser.Deserialize<Resource>(responseString) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Input is not valid FHIR Bundle");
 
         var uploadedEntries = (context.Items.TryGetValue("uploadedEntries", out var entries) ? entries : null) as IdentifiableType[];
         var registryResponse = (context.Items.TryGetValue("uploadedEntriesRegistryResponse", out var regrep) ? regrep : null) as SoapEnvelope;
@@ -42,6 +45,10 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
         var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var blRes) ? blRes : null) as Dictionary<string, int>;
 
         var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
+
+        var registryErrorsFromFhirResponse = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(fhirResponse as OperationOutcome);
+
+        registryResponse?.Body.RegistryResponse?.RegistryErrorList?.RegistryError = [.. registryResponse.Body.RegistryResponse.RegistryErrorList.RegistryError, .. registryErrorsFromFhirResponse?.RegistryError ?? []];
 
         var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
             additionalParameters,

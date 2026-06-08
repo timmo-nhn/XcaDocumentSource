@@ -1,7 +1,5 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using System.Runtime.CompilerServices;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom;
@@ -48,16 +46,15 @@ public class FhirDeleteDocumentsAtnaLogStrategy : IAtnaLogStrategy
             return AtnaLogBuilderResult.Fail($"{context.TraceIdentifier} - No OperationOutcome in response! AtnaLog cannot be created for this request");
         }
 
-        var deletedEntry = context.Items.TryGetValue("deletedEntry", out var entry) ? entry as DocumentEntryDto : null;
+        var deletedRegistryObjects = context.Items.TryGetValue("deletedRegistryObjects", out var entry) ? entry as List<DocumentEntryDto> : null;
         var pdpDecision = context.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null;
         var businessLogicResult = (context.Items.TryGetValue("businessLogicResult", out var blRes) ? blRes : null) as Dictionary<string, int>;
 
-        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult);
+        var additionalParameters = new AdditionalParameters(context.Request.Method, context.TraceIdentifier, pdpDecision, businessLogicResult, null, deletedRegistryObjects);
 
 
         _atnaLogGeneratorService.CreateAuditLogForFhirDeleteDocumentsRequest(
             additionalParameters,
-            deletedEntry,
             operationOutcome,
             jwt);
 
