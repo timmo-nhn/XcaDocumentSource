@@ -49,7 +49,7 @@ public class DbDocumentEntry : DbRegistryObject
     public string? DE_SourcePatientInfoLastName { get; set; }
     public DateTime? DE_SourcePatientInfoBirthTime { get; set; }
     [StringLength(255)]
-    public string? DE_SourcePatientInfoGender { get; set; }
+    public DbCodedValue? DE_SourcePatientInfoGender { get; set; }
     public List<DbAuthorInfo> DE_Author { get; set; } = [];
     public List<DbCodedValue> DE_ConfidentialityCode { get; set; } = [];
 }

@@ -30,6 +30,7 @@
         <ProjectReference Include="..\XcaXds.BusinessLogic\XcaXds.BusinessLogic.csproj" />
         <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
         <ProjectReference Include="..\XcaXds.Source\XcaXds.Source.csproj" />
+        <ProjectReference Include="..\XcaXds.Terminology\XcaXds.Terminology.csproj" />
     </ItemGroup>
     
     <ItemGroup>

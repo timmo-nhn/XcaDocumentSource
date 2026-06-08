@@ -15,6 +15,7 @@ using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Source.Source;
+using XcaXds.Terminology.Services;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -117,6 +118,7 @@ public class Program
         builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<AppStartupService>();
         builder.Services.AddHostedService<StatisticsProcessorService>();
+        builder.Services.AddHostedService<TerminologyService>();
     }
 
     private static void DebuggingBeforeAppLaunch(WebApplicationBuilder builder)

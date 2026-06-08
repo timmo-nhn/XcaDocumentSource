@@ -16,5 +16,5 @@ public class SourcePatientInfo
     public DateTime? BirthTime { get; set; }
 
     [MaxLength(Constants.Properties.MaxStringLength)]
-    public string? Gender { get; set; }
+    public CodedValue? Gender { get; set; }
 }

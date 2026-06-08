@@ -1,12 +1,12 @@
-﻿using Hl7.Fhir.Model;
-using XcaXds.Commons.Extensions;
+﻿
+using XcaXds.Terminology.Extensions;
 
-namespace XcaXds.Commons.Models.Custom;
+namespace XcaXds.Terminology.Models.Custom;
 
 public class ComprehensiveCodeSystem
 {
     // For cases where we care about both the system and the values. E.g. for authorization purposes, where we want to check if a certain value is present in a certain system.
-    public ComprehensiveCodeSystem(string oid, string[] values)
+    public ComprehensiveCodeSystem(string oid, ValueSetValue[] values)
     {
         System = oid;
         Values = values;
@@ -20,7 +20,7 @@ public class ComprehensiveCodeSystem
 
     public string System { get; set; }
 
-    public string[]? Values { get; set; }
+    public ValueSetValue[]? Values { get; set; }
 }
 
 public static class ComprehensiveCodeSystemExtensions

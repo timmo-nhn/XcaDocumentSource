@@ -113,21 +113,14 @@ public static partial class CdaTransformer
             };
         }).ToList();
 
-        var patientGender = patientRole.Patient?.AdministrativeGenderCode?.Code switch
-        {
-            "0" => "U",
-            "1" => "M",
-            "2" => "F",
-            "9" => "O",
-            _ => "U"
-        };
+        var patientGender = patientRole.Patient?.AdministrativeGenderCode;
 
         return new()
         {
             BirthTime = patientRole.Patient?.BirthTime?.EffectiveTime.UtcDateTime,
             FirstName = authorNames?.FirstOrDefault(),
             LastName = authorNames?.LastOrDefault(),
-            Gender = patientGender,
+            Gender = new(patientGender?.Code, patientGender?.CodeSystem, patientGender?.DisplayName),
             PatientId = new() { Id = patientRole.Id.FirstOrDefault()?.Extension, System = patientRole.Id.FirstOrDefault()?.Root }
         };
     }
@@ -593,7 +586,7 @@ public static partial class CdaTransformer
                     "O" => "9",
                     _ => "0"
                 },
-                CodeSystem = Constants.CodeSystems.Volven.Gender_3101.System,
+                CodeSystem = .CodeSystems.Volven.Gender_3101.System,
                 DisplayName = patientGender switch
                 {
                     "U" => "Not known",
