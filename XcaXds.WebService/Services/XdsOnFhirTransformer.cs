@@ -10,16 +10,26 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Terminology.Services;
+using XcaXds.Terminology;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
 /// <summary>
 /// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) profile <para/>
-/// <a href="https://profiles.ihe.net/ITI/MHD/"/>
+/// See <see href="https://profiles.ihe.net/ITI/MHD/"/>
 /// </summary>
-public static class XdsOnFhirTransformer
+public class XdsOnFhirTransformerService
 {
-    public static AdhocQueryRequest ConvertIti67ToIti18AdhocQuery(MhdDocumentRequest documentRequest)
+    private readonly ILogger<XdsOnFhirTransformerService> _logger;
+    private readonly TerminologyService _terminologyService;
+    public XdsOnFhirTransformerService(ILogger<XdsOnFhirTransformerService> logger, TerminologyService terminologyService)
+    {
+        _logger = logger;
+        _terminologyService = terminologyService;
+    }
+
+    public AdhocQueryRequest ConvertIti67ToIti18AdhocQuery(MhdDocumentRequest documentRequest)
     {
         var adhocQueryRequest = new AdhocQueryRequest();
         var adhocQuery = new AdhocQueryType();
@@ -87,7 +97,8 @@ public static class XdsOnFhirTransformer
                 classCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = Constants.CodeSystems.Volven.CategoryCode_9602.System
+                    UniversalId = _terminologyService.GetCodeSystemByName(TerminologyConstants.XdsCodeSystemNames.ClassCode).FirstOrDefault()?.System
+                    //UniversalId = Constants.CodeSystems.Volven.CategoryCode_9602.System
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.ClassCode, [classCodeCx.Serialize()]);
@@ -102,7 +113,7 @@ public static class XdsOnFhirTransformer
                 typeCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = Constants.CodeSystems.Volven.TypeCode_9602.System
+                    UniversalId = _terminologyService.GetCodeSystemByName(TerminologyConstants.XdsCodeSystemNames.TypeCode).FirstOrDefault()?.System
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.TypeCode, [typeCodeCx.Serialize()]);
@@ -117,7 +128,7 @@ public static class XdsOnFhirTransformer
                 eventCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = Constants.CodeSystems.Volven.EventCode_7210.System
+                    UniversalId = _terminologyService.GetCodeSystemByName(TerminologyConstants.XdsCodeSystemNames.ClassCode).FirstOrDefault()?.System
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.EventCodeList, [eventCodeCx.Serialize()]);

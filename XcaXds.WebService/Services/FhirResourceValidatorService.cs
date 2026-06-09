@@ -11,7 +11,7 @@ using Hl7.Fhir.Support;
 using Hl7.FhirPath;
 using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom;
+using XcaXds.Terminology.Models.Custom;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
@@ -29,8 +29,8 @@ public class FhirResourceValidatorService
 
         _validator = InitValidator();
 
-        BusinessLogicFilters.AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
-        BusinessLogicFilters.AllowedAttachments.Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [_appConfig.HomeCommunityId]));
+        BusinessLogicFiltersService.AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
+        BusinessLogicFiltersService.AllowedAttachments.Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [new(_appConfig.HomeCommunityId)]));
     }
 
     public OperationOutcome ValidateFhirResource(Resource inputResource, bool useFirelyValidator = false)
@@ -79,31 +79,31 @@ public class FhirResourceValidatorService
     {
         var codeableConcepts = FindDescendantResources(bundle, "CodeableConcept", "Coding", "Attachment").ToArray();
 
-        ValidateIdentifiers(outcome, codeableConcepts, "facilityType", BusinessLogicFilters.AllowedFacilityTypes);
-        ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", BusinessLogicFilters.AllowedPracticeSettings);
-        ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", BusinessLogicFilters.AllowedConfidentialityCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "type", BusinessLogicFilters.AllowedTypeCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "category", BusinessLogicFilters.AllowedCategoryCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "format", BusinessLogicFilters.AllowedFormatCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "attachment", BusinessLogicFilters.AllowedAttachments);
+        ValidateIdentifiers(outcome, codeableConcepts, "facilityType", BusinessLogicFiltersService.AllowedFacilityTypes);
+        ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", BusinessLogicFiltersService.AllowedPracticeSettings);
+        ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", BusinessLogicFiltersService.AllowedConfidentialityCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "type", BusinessLogicFiltersService.AllowedTypeCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "category", BusinessLogicFiltersService.AllowedCategoryCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "format", BusinessLogicFiltersService.AllowedFormatCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "attachment", BusinessLogicFiltersService.AllowedAttachments);
     }
 
     private void ValidatePractitioners(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Practitioner");
-        ValidateIdentifiers(outcome, orgs, "Practitioner", BusinessLogicFilters.AllowedPractitionerOids);
+        ValidateIdentifiers(outcome, orgs, "Practitioner", BusinessLogicFiltersService.AllowedPractitionerOids);
     }
 
     private static void ValidateOrganizations(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Organization");
-        ValidateIdentifiers(outcome, orgs, "Organization", BusinessLogicFilters.AllowedOrganizationOids);
+        ValidateIdentifiers(outcome, orgs, "Organization", BusinessLogicFiltersService.AllowedOrganizationOids);
     }
 
     private static void ValidatePatients(OperationOutcome outcome, Bundle bundle)
     {
         var patients = FindDescendantResources(bundle, "Patient");
-        ValidateIdentifiers(outcome, patients, "Patient", BusinessLogicFilters.AllowedPatientOids);
+        ValidateIdentifiers(outcome, patients, "Patient", BusinessLogicFiltersService.AllowedPatientOids);
     }
 
     private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, ComprehensiveCodeSystem allowedSystems)

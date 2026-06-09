@@ -109,7 +109,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             ConfidentialityCode =
             [
-                .. BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate
+                .. BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate
                .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
                 new()
                 {
@@ -124,7 +124,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             ConfidentialityCode =
             [
-                .. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate
+                .. BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate
                 .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
                 new()
                 {

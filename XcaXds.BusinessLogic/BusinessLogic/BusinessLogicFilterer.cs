@@ -15,21 +15,21 @@ public static class BusinessLogicFilterer
 {
     public static readonly List<BusinessRule<IdentifiableType>> BusinessLogicRules = new List<BusinessRule<IdentifiableType>>()
     {
-        BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
-        BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
-        BusinessLogicFilters.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
-        BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
-        BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
-        BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
-        BusinessLogicFilters.CitizenShouldNotAccessDocumentsForPatientOver12,
+        BusinessLogicFiltersService.CitizenShouldSeeOwnDocumentReferences,
+        BusinessLogicFiltersService.CitizenBetween12And16ShouldNotSeeDocumentReferences,
+        BusinessLogicFiltersService.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
+        BusinessLogicFiltersService.CitizenShouldSeeChildrenBelow12DocumentReferences,
+        BusinessLogicFiltersService.CitizenShouldSeePowerOfAttorneyDocumentReferences,
+        BusinessLogicFiltersService.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
+        BusinessLogicFiltersService.CitizenShouldNotAccessDocumentsForPatientOver12,
 
-        BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
-        BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
-        BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
+        BusinessLogicFiltersService.HealthcarePersonellShouldSeeOwnDocumentReferences,
+        BusinessLogicFiltersService.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
+        BusinessLogicFiltersService.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
 
         //BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften,
 
-        BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
+        BusinessLogicFiltersService.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
     };
 
     public static void AddRule(BusinessRule<IdentifiableType> rule)

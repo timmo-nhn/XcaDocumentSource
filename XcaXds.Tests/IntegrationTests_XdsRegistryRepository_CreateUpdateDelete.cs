@@ -56,7 +56,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
         // Explicitly add KjernejournalForskriften rule for this test
-        BusinessLogicFilterer.AddRule(BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften);
+        BusinessLogicFilterer.AddRule(BusinessLogicFiltersService.HealthcarePersonellKjernejournalForskriften);
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
@@ -73,7 +73,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
-        var excpectedRegistryObjects = BusinessLogicFilters.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()).ToArray();
+        var excpectedRegistryObjects = BusinessLogicFiltersService.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -129,7 +129,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
-        var excpectedRegistryObjects = BusinessLogicFilters.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
+        var excpectedRegistryObjects = BusinessLogicFiltersService.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -186,7 +186,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
-        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
+        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -256,7 +256,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
-        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
+        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -912,7 +912,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
             document.Value = randomFile.Data;
             registryObjects.OfType<DocumentEntryDto>()?.FirstOrDefault(ro => ro.UniqueId == document.Id)?.MimeType = randomFile.MimeType;
-            if (randomFile.MimeType.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) == false)
+            if (randomFile.MimeType.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes) == false)
             {
                 unsupportedMimeTypeCount++;
             }

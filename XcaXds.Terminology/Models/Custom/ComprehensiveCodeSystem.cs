@@ -5,8 +5,10 @@ namespace XcaXds.Terminology.Models.Custom;
 
 public class ComprehensiveCodeSystem
 {
+    public ComprehensiveCodeSystem() { }
+
     // For cases where we care about both the system and the values. E.g. for authorization purposes, where we want to check if a certain value is present in a certain system.
-    public ComprehensiveCodeSystem(string oid, ValueSetValue[] values)
+    public ComprehensiveCodeSystem(string oid, CodeSystemValue[] values)
     {
         System = oid;
         Values = values;
@@ -20,7 +22,7 @@ public class ComprehensiveCodeSystem
 
     public string System { get; set; }
 
-    public ValueSetValue[]? Values { get; set; }
+    public CodeSystemValue[]? Values { get; set; }
 }
 
 public static class ComprehensiveCodeSystemExtensions
@@ -30,16 +32,16 @@ public static class ComprehensiveCodeSystemExtensions
         return source.Select(ccs => ccs.System).ToArray();
     }
 
-    public static string[]? Values(this IEnumerable<ComprehensiveCodeSystem> source, string system)
+    public static CodeSystemValue[]? Values(this IEnumerable<ComprehensiveCodeSystem> source, string system)
     {
         return source.Where(sys => sys.System.NoUrn() == system.NoUrn())?.Values()?.ToArray();
     }
 
-    public static string[]? Values(this IEnumerable<ComprehensiveCodeSystem> source)
+    public static CodeSystemValue[]? Values(this IEnumerable<ComprehensiveCodeSystem> source)
     {
         var elements = source.SelectMany(v => v.Values ?? []).ToArray();
 
-        return elements.Length > 0 ? elements : null;
+        return elements.Length > 0 ? [.. elements] : null;
     }
 
     /// <summary>
@@ -47,6 +49,6 @@ public static class ComprehensiveCodeSystemExtensions
     /// </summary>
     public static KeyValuePair<string, string>? GetValue(this IEnumerable<ComprehensiveCodeSystem> source, string value)
     {
-        return source.Where(v => v.Values?.Contains(value) ?? false).Select(v => new KeyValuePair<string, string>(v.System, value)).FirstOrDefault();
+        return source.Where(v => v.Values?.Any(vv => vv.Value == value) ?? false).Select(v => new KeyValuePair<string, string>(v.System, value)).FirstOrDefault();
     }
 }

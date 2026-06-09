@@ -1,14 +1,11 @@
-﻿using System.Reflection;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
-using XcaXds.Commons.Models.Custom;
-using XcaXds.Terminology.Models.Custom;
 
 namespace XcaXds.Commons.Commons;
 
-public static class Constants
+public static class Constants_new
 {
     public static class Properties
     {
@@ -431,19 +428,6 @@ public static class Constants
 
             public const string XdsRepresentationBelowMinimumAgeError = "XDSRepresentationBelowMinimumAgeError";
         }
-
-        public static class KjForskriftCategoryCodes
-        {
-            public const string EpikriserOgSammenfatninger = "A00-1";
-            public const string KontinuerligLopendeJournal = "B00-1";
-            public const string ProvesvarVevOgVaesker = "C00-1";
-            public const string Organfunksjon = "D00-1";
-            public const string BildediagnostikkOgAndreMedisinskeBilder = "E00-1";
-            public const string KurveObservasjonOgBehandling = "F00-1";
-            public const string Korrespondanse = "I00-1";
-            public const string AttesterMeldingOgErklaeringer = "J00-1";
-            public const string TestOgScoring = "S00-1";
-        }
     }
 
     public static class Hl7
@@ -718,96 +702,6 @@ public static class Constants
         }
     }
 
-    public static class Oid
-    {
-        // The correct "system"-value for OID
-        public const string System = "urn:ietf:rfc:3986";
-
-        public const string Fnr = "2.16.578.1.12.4.1.4.1";
-        public const string Dnr = "2.16.578.1.12.4.1.4.2";
-        public const string Hnr = "2.16.578.1.12.4.1.4.3";
-        public const string Hpr = "2.16.578.1.12.4.1.4.4";
-        public const string ReshId = "2.16.578.1.12.4.1.4.102";
-        public const string Brreg = "2.16.578.1.12.4.1.4.101";
-        public const string Nhn = "2.16.578.1.12.4.5";
-
-
-        public static class Saml
-        {
-            public static class Acp
-            {
-                // Citizen OID values
-
-                /// <summary>
-                /// CUSTOM OID: No representation overrides (represents themself)
-                /// </summary>
-                public const string NullValue = "urn:oid:2.16.578.1.12.4.1.7.2.1.0";
-
-                /// <summary>
-                /// Represent citizen under 12 years of age
-                /// </summary>
-                public const string RepresentCitizenUnder12 = "urn:oid:2.16.578.1.12.4.1.7.2.1.1";
-
-                /// <summary>
-                /// Represent another cititzen (Power of Attorney)
-                /// </summary>
-                public const string RepresentAnotherCitizen = "urn:oid:2.16.578.1.12.4.1.7.2.1.2";
-
-                /// <summary>
-                /// Represent citizen unable to give consent
-                /// </summary>
-                public const string RepresentedUnableToConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.3";
-
-                // Healthcare practitioner OID values
-
-                /// <summary>
-                /// Healthcare professional [subject] is not obliged to retrieve patient's consent to [resource] open and see patient's healthcare data, e.g. "patient's regular physician" (fastlege)
-                /// </summary>
-                public const string NotObligedToConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.4";
-
-                /// <summary>
-                /// Healthcare professional [subject] has been given explicit consent from patient [resource] to open and see patient's healthcare data, including locked data
-                /// </summary>
-                public const string ExcplicitConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.5";
-
-                /// <summary>
-                /// Healthcare professional [subject] is not able to retrieve consent from current patient [resource] (e.g. patient is unconscious)
-                /// </summary>
-                public const string UnableToConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.6";
-
-                /// <summary>
-                /// Healthcare professional [subject] has documented reasons to unlock all available healthcare data for current patient [resource] in an emergency/catastrophic situation
-                /// </summary>
-                public const string ExceptionToConcent = "urn:oid:2.16.578.1.12.4.1.7.2.1.7";
-
-                /// <summary>
-                /// Healthcare professional [subject] has retrieved consent from patient [resource] to open and see patient's healthcare data
-                /// </summary>
-                public const string HasConsent = "urn:oid:2.16.578.1.12.4.1.7.2.1.8";
-
-            }
-
-            public static class Bppc
-            {
-                /// <summary>
-                /// CUSTOM OID: Null value
-                /// </summary>
-                public const string NullValue = "urn:oid:2.16.578.1.12.4.1.7.2.2.0";
-
-                /// <summary>
-                /// Consent from an analog channel
-                /// </summary>
-                public const string AnalogChannel = "urn:oid:2.16.578.1.12.4.1.7.2.2.1";
-
-                /// <summary>
-                /// Consent from a digital channel
-                /// </summary>
-                public const string DigitalChannel = "urn:oid:2.16.578.1.12.4.1.7.2.2.2";
-            }
-
-        }
-    }
-
     public static class MimeTypes
     {
         public const string Acc = "audio/aac";
@@ -931,21 +825,9 @@ public static class Constants
 
     public static class JwtSaml
     {
-        public const string XdsPolicy = "XdsPolicy";
-        public const string XdsPolicyWithDPoP = "XdsPolicyWithDPoP";
-        public const string RequiredClaimsPolicy = "RequiredClaimsPolicy";
-        public const string DPoPTokenAuthenticationScheme = "dpop_token_authentication_scheme";
-        public const string BearerTokenAuthenticationScheme = "bearer_token_authentication_scheme";
-
-        public const string ClientIdClaimType = "client_id";
-        public const string AuthTime = "auth_time";
-        public const string PidClaimType = "helseid://claims/identity/pid";
         public const string SecurityLevelClaimType = "helseid://claims/identity/security_level";
-        public const string HprNumberClaimType = "helseid://claims/hpr/hpr_number";
         public const string TillitsrammeverkClaimType = "nhn:tillitsrammeverk:parameters";
-        public const string Scope = "scope";
         public const string FastlegeClaimType = "fastlege";
-
     }
 
     public static class Urn
@@ -963,88 +845,5 @@ public static class Constants
             public const string UnknownAttribute = BaseUrn + "xacml:unknownattribute";
             public const string UnknownPatientIdentifier = BaseUrn + "unknown-patient-identifier";
         }
-    }
-}
-
-public static class ConstantsExtensions
-{
-    public static Dictionary<string, string> GetAsDictionary(this Type type)
-    {
-        var constants = new Dictionary<string, string>();
-
-        // Get all static fields of the class
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic);
-
-        foreach (var field in fields)
-        {
-            var value = (string?)field.GetValue(null);
-            // Ensure that the field is a constant (it should be a static readonly or const field)
-            if (field.IsLiteral && !field.IsInitOnly && value != null)
-            {
-                constants.Add(field.Name, value);
-            }
-        }
-
-        return constants;
-    }
-
-    public static ComprehensiveCodeSystem GetAsComprehensiveCodesystem(this Type type, Func<string, bool>? filter = null)
-    {
-        var codeSystem = type.GetAsKeyValuePair();
-
-        var system = codeSystem.First(v => v.Key.Equals("system", StringComparison.OrdinalIgnoreCase)).Value;
-        var values = codeSystem.Where(v => !v.Key.Equals("system", StringComparison.OrdinalIgnoreCase)).Select(v => v.Value).ToArray();
-
-        return new(system, [.. values.Select(v => new CodeSystemValue(v))]);
-    }
-
-    public static string[] GetAsStringList(this Type type, Func<string, bool> filter)
-    {
-        return type.GetAsStringList().Where(filter).ToArray();
-    }
-
-    /// <summary>
-    /// Get all public static/readonly/const fields from a class type as a string[]
-    /// </summary>
-    /// <returns>string[] of the desired typeof(class)</returns>
-    public static string[] GetAsStringList(this Type type)
-    {
-        var constants = new List<string>();
-
-        // Get all static fields of the class
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
-
-        foreach (var field in fields)
-        {
-            var value = (string?)field.GetValue(null);
-            // Ensure that the field is a constant (it should be a static readonly or const field)
-            if (field.IsLiteral && !field.IsInitOnly && value != null)
-            {
-                constants.Add(value);
-            }
-        }
-
-        return constants.ToArray();
-    }
-
-    public static List<KeyValueEntry> GetAsKeyValuePair(this Type type)
-    {
-        var constants = new List<KeyValueEntry>();
-
-        // Get all static fields of the class
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic);
-
-        foreach (var field in fields)
-        {
-            var value = (string?)field.GetValue(null);
-
-            // Ensure that the field is a constant (it should be a static readonly or const field)
-            if (field.IsLiteral && !field.IsInitOnly && value != null)
-            {
-                constants = [.. constants, new KeyValueEntry() { Key = field.Name, Value = value }];
-            }
-        }
-
-        return constants;
     }
 }

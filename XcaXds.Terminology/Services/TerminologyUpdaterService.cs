@@ -23,29 +23,36 @@ public class TerminologyUpdaterService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting terminology service...");
+        _logger.LogInformation("Initializing terminology service...");
 
-        // Example: Mix of HTTP and File sources
+        var allCodeSystems = new Dictionary<string, ComprehensiveCodeSystem[]>();
 
-        var allCodeSystems = new List<ComprehensiveCodeSystem>();
+        var terminologySources = TerminologySources.GetDefinitions();
+        
+        _logger.LogDebug("Found {Count} terminology source definitions", terminologySources.Count);
 
-        foreach (var sources in TerminologySources.CodeSystems)
+        foreach (var sources in terminologySources)
         {
-            foreach (var source in sources.Value)
+            var codeSystems = new List<ComprehensiveCodeSystem>();
+            foreach (var source in sources.TerminologySources)
             {
-                var sourceHandler = _sourceFactory.GetSource(source);
+                var sourceHandler = _sourceFactory.GetSource(source.SourcePath);
                 try
                 {
                     var codeSystem = await sourceHandler.FetchAsync(source);
-                    allCodeSystems.Add(codeSystem);
+
+                    if (codeSystem == null) continue;
+                    codeSystems.Add(codeSystem);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Failed to fetch terminology from {Source}", source);
                 }
             }
-        }
 
+            _terminologyService.AddCodeSystem(sources.Name, [.. codeSystems]);
+            _terminologyService.GetCodeSystemByName(sources.Name);
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

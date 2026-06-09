@@ -271,7 +271,11 @@ public static class RegistryMetadataTransformer
                 BirthTime = birthTime == null ? null : DateTime.ParseExact(birthTime, Constants.Hl7.Dtm.DtmYmdFormat, CultureInfo.InvariantCulture),
                 LastName = name?.FamilyName,
                 FirstName = name?.GivenName,
-                Gender = gender ?? "U",
+                Gender = new()
+                {
+                    Code = gender,
+                    CodeSystem = "2.16.840.1.113883.18.2", // https://terminology.hl7.org/en/CodeSystem-v2-0001.html
+                },
                 PatientId = new()
                 {
                     Id = srcPatientId?.IdNumber ?? patientId?.IdNumber,

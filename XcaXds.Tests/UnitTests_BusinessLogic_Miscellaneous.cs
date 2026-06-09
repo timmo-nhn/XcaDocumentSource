@@ -21,6 +21,6 @@ public class UnitTests_BusinessLogic_Miscellaneous
     {
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(500, "13116900216", true).AsRegistryObjectList().OfType<ExtrinsicObjectType>().ToArray();
 
-        var excpectedRegistryObjects = BusinessLogicFilters.FilterByKjernejournalForskriften(metadata).ToArray();
+        var excpectedRegistryObjects = BusinessLogicFiltersService.FilterByKjernejournalForskriften(metadata).ToArray();
     }
 }

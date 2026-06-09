@@ -106,7 +106,7 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) == false).ToArray();
+        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes) == false).ToArray();
 
         if (invalidMimetypes?.Length > 0)
         {

@@ -23,12 +23,12 @@ public class BusinessRulesDescriptor : ExpressionVisitor
         {
             new(
                 "Citizen Confidentiality Codes",
-                [.. BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate
+                [.. BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate
                     .Select(c => new CodedValue(c.Item1!, c.Item2!))]
             ),
             new(
                 "HealthcarePersonell Confidentiality Codes",
-                [.. BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate
+                [.. BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate
                     .Select(c => new CodedValue(c.Item1!, c.Item2!))]
             )
         };
@@ -236,14 +236,14 @@ public class BusinessRulesDescriptor : ExpressionVisitor
             sb.AppendLine();
         }
 
-        foreach (var code in BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate)
+        foreach (var code in BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate)
         {
             sb.AppendLine("========= Citizen Confidentiality Codes To Obfuscate ==========");
             sb.AppendLine($"Class: {code.Item1}, Code: {code.Item2}");
             sb.AppendLine("==============================================================");
         }
 
-        foreach (var code in BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate)
+        foreach (var code in BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate)
         {
             sb.AppendLine("========= Healthcare Personell Confidentiality Codes To Obfuscate ==========");
             sb.AppendLine($"Class: {code.Item1}, Code: {code.Item2}");

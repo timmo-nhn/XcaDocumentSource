@@ -205,6 +205,12 @@ public class Program
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
 
+        builder.Services.AddSingleton<HttpTerminologySource>();
+        builder.Services.AddSingleton<FileTerminologySource>();
+        builder.Services.AddSingleton<TerminologySourceFactory>();
+        builder.Services.AddSingleton<TerminologyService>();
+        builder.Services.AddHostedService<TerminologyUpdaterService>();
+
         // Validation and certificate services
         builder.Services.AddSingleton<Saml2Validator>();
         builder.Services.AddSingleton<SigningCertificateService>();
@@ -229,6 +235,7 @@ public class Program
         // FHIR
         builder.Services.AddScoped<FhirService>();
         builder.Services.AddSingleton<FhirResourceValidatorService>();
+        builder.Services.AddSingleton<XdsOnFhirTransformerService>();
 
         // Health check
         builder.Services.AddHealthChecks();

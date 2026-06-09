@@ -305,7 +305,12 @@ public static class DatabaseMapper
                 DE_SourcePatientInfoFirstName = documentEntryDto.SourcePatientInfo?.FirstName,
                 DE_SourcePatientInfoLastName = documentEntryDto.SourcePatientInfo?.LastName,
                 DE_SourcePatientInfoBirthTime = documentEntryDto.SourcePatientInfo?.BirthTime,
-                DE_SourcePatientInfoGender = documentEntryDto.SourcePatientInfo?.Gender,
+                DE_SourcePatientInfoGender = new()
+                {
+                    Code = documentEntryDto.SourcePatientInfo?.Gender?.Code,
+                    CodeSystem = documentEntryDto.SourcePatientInfo?.Gender?.CodeSystem,
+                    DisplayName= documentEntryDto.SourcePatientInfo?.Gender?.DisplayName,
+                },
                 DE_Title = documentEntryDto.Title,
                 DE_TypeCode = new()
                 {

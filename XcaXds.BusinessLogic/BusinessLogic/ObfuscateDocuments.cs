@@ -38,8 +38,8 @@ public static class DocumentObfuscationExtensions
 
                 bool obfuscate = requestAppliesTo switch
                 {
-                    AppliesTo.HelseId => confCodes.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
-                    AppliesTo.Helsenorge => confCodes.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.HelseId => confCodes.Any(ccode => BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.Helsenorge => confCodes.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
                     _ => false
                 };
 

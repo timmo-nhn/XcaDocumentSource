@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Custom;
 
 namespace XcaXds.Terminology.Services;
@@ -12,13 +12,17 @@ public class HttpTerminologySource : ITerminologySource
         _clientFactory = clientFactory;
     }
 
-    public async Task<ComprehensiveCodeSystem> FetchAsync(string sourceIdentifier)
+    public async Task<ComprehensiveCodeSystem?> FetchAsync(TerminologySource<ICodeSystemMapper> terminologySource)
     {
         var client = _clientFactory.CreateClient();
-        var response = await client.GetAsync(sourceIdentifier);
+        // Client Authentication can be done here, for source endpoints requiring it...
+        var clientRequest = new HttpRequestMessage(HttpMethod.Get, terminologySource.SourcePath);
+
+        var response = await client.SendAsync(clientRequest);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<ComprehensiveCodeSystem>(content);
+
+        return terminologySource.MapperToUse.MapToComprehensiveCodeSystem(content);
     }
 }

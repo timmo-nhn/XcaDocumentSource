@@ -6,7 +6,7 @@ namespace XcaXds.Terminology.Mappers;
 /// Convert external value sets to ComprehensiveCodeSystem for ingesting in ValueSet. 
 /// This is used to convert between the value sets used in the XDS specification and the value sets used in the application.
 /// </summary>
-internal interface IValueSetMapper<T>
+public interface ICodeSystemMapper
 {
-    public ComprehensiveCodeSystem MapToComprehensiveCodeSystem(T input);
+    public ComprehensiveCodeSystem MapToComprehensiveCodeSystem(string rawInput);
 }

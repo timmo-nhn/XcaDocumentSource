@@ -30,6 +30,7 @@ public class SqliteRegistryDbContext : DbContext
         doc.ComplexProperty(d => d.DE_HealthCareFacilityTypeCode).HasDiscriminator();
         doc.ComplexProperty(d => d.DE_EventCodeList).HasDiscriminator();
         doc.ComplexProperty(d => d.DE_LegalAuthenticator).HasDiscriminator();
+        doc.ComplexProperty(d => d.DE_SourcePatientInfoGender).HasDiscriminator();
 
         doc.OwnsMany(d => d.DE_Author, a =>
         {

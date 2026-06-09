@@ -105,8 +105,8 @@ public class XdsRepositoryService
             var mimeTypeFromMagicByte = MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(assocDocument?.Value, out var mime) ? mime : null;
             var documentEntryMimetype = assocExtrinsicObject?.MimeType;
 
-            if (!documentEntryMimetype.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes) ||
-                !mimeTypeFromMagicByte.IsAnyOf(BusinessLogicFilters.AllowedMimeTypes))
+            if (!documentEntryMimetype.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes) ||
+                !mimeTypeFromMagicByte.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes))
             {
                 var message = $"Unsupported MimeType {mimeTypeFromMagicByte}";
 
@@ -114,7 +114,7 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, "XDS Repository");
             }
 
-            if (!BusinessLogicFilters.IsMatchingMimeType(mimeTypeFromMagicByte, documentEntryMimetype))
+            if (!BusinessLogicFiltersService.IsMatchingMimeType(mimeTypeFromMagicByte, documentEntryMimetype))
             {
                 var message = $"MimeType in DocumentEntry is missing or does not match actual document mime type. Document ID: {assocDocument?.Id}, DocumentEntry MimeType: {documentEntryMimetype}, Actual MimeType: {mimeTypeFromMagicByte}";
 
@@ -346,8 +346,8 @@ public class XdsRepositoryService
 
         bool restricted = requestAppliesTo switch
         {
-            AppliesTo.HelseId => confCodes?.Any(ccode => BusinessLogicFilters.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
-            AppliesTo.Helsenorge => confCodes?.Any(ccode => BusinessLogicFilters.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.HelseId => confCodes?.Any(ccode => BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.Helsenorge => confCodes?.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             _ => false
         };
 

@@ -4,44 +4,59 @@ using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Models.Custom;
+using XcaXds.Terminology.Services;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Volven.ConfidentialityCode_9603;
 
 namespace XcaXds.BusinessLogic.BusinessLogic;
 
-public static partial class BusinessLogicFilters
+public class BusinessLogicFiltersService
 {
-    public static readonly ComprehensiveCodeSystem VolvenDocumentTypes = typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem();
+    private readonly TerminologyService _terminologyService;
+    public BusinessLogicFiltersService(TerminologyService terminologyService)
+    {
+        _terminologyService = terminologyService;
+        CitizenObfuscationCodes = GetCitizenObfuscationCodes();
+    }
 
-    public static readonly Dictionary<string, string> Hl7ConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Hl7.ConfidentialityCode));
-    public static readonly string? Hl7ConfCodeOid = Hl7ConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
-    public static readonly CodedValue[]? Hl7ConfCodeValues = [.. Hl7ConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = Hl7ConfCodeOid })];
+    //public static readonly ComprehensiveCodeSystem VolvenDocumentTypes = typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem();
 
-    public static readonly Dictionary<string, string> VolvenConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603));
-    public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
-    public static readonly CodedValue[]? VolvenConfCodeValues = [.. VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid })];
+    //public static readonly Dictionary<string, string> Hl7ConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Hl7.ConfidentialityCode));
+    //public static readonly string? Hl7ConfCodeOid = Hl7ConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
+    //public static readonly CodedValue[]? Hl7ConfCodeValues = [.. Hl7ConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = Hl7ConfCodeOid })];
 
-    public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = [.. Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!))];
+    //public static readonly Dictionary<string, string> VolvenConfCodeClass = ConstantsExtensions.GetAsDictionary(typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603));
+    //public static readonly string? VolvenConfCodeOid = VolvenConfCodeClass.Where(kvp => string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => kvp.Value).FirstOrDefault() ?? string.Empty;
+    //public static readonly CodedValue[]? VolvenConfCodeValues = [.. VolvenConfCodeClass.Where(kvp => !string.Equals(kvp.Key, "System", StringComparison.InvariantCultureIgnoreCase)).Select(kvp => new CodedValue() { Code = kvp.Value, CodeSystem = VolvenConfCodeOid })];
 
-    private static readonly HashSet<(string Code, string CodeSystem)> CitizenObfuscationCodes =
-    [
-        (VeryRestricted, Constants.CodeSystems.Hl7.ConfidentialityCode.System),
-        (NORN_ANG, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
-    ];
+    //public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = [.. Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!))];
+
+
+
+    private static HashSet<(string Code, string CodeSystem)>? CitizenObfuscationCodes { get; set; }
+
+    private HashSet<(string Code, string CodeSystem)> GetCitizenObfuscationCodes()
+    {
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByName(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+
+        return new HashSet<(string Code, string CodeSystem)>()
+        {
+            (VeryRestricted, Constants.CodeSystems.Hl7.ConfidentialityCode.System),
+            (NORN_ANG, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
+        };
+    }
+
 
     private static readonly HashSet<(string Code, string CodeSystem)> HealthcarePersonellObfuscationCodes =
     [
         (NORS, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
     ];
-}
 
-public static partial class BusinessLogicFilters
-{
     public static readonly List<ComprehensiveCodeSystem> AllowedOrganizationOids =
     [
         new(Constants.Oid.Brreg),
