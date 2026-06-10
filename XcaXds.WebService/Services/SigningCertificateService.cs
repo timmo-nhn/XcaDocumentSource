@@ -21,18 +21,29 @@ public class SigningCertificateService
     {
         var client = _httpClientFactory.CreateClient();
 
-        var helseIdResponse = await GetToken(client, _applicationConfig.HelseIdSigningCertUrl);
+        _logger.LogDebug("URLs to get certificates from(Helsenorge): " + _applicationConfig.HelseIdSigningCertUrl);
+        _logger.LogDebug("URLs to get certificates from(HelseID): " + _applicationConfig.HelsenorgeSigningCertUrl);
 
-        if (!string.IsNullOrWhiteSpace(helseIdResponse))
+        try
         {
-            _applicationConfig.HelseidCert = helseIdResponse;
+            var helseIdResponse = await GetToken(client, _applicationConfig.HelseIdSigningCertUrl);
+
+            if (!string.IsNullOrWhiteSpace(helseIdResponse))
+            {
+                _applicationConfig.HelseidCert = helseIdResponse;
+            }
+
+            var helsenorgeResponse = await GetToken(client, _applicationConfig.HelsenorgeSigningCertUrl);
+
+            if (!string.IsNullOrWhiteSpace(helsenorgeResponse))
+            {
+                _applicationConfig.HelsenorgeCert = helsenorgeResponse;
+            }
         }
-
-        var helsenorgeResponse = await GetToken(client, _applicationConfig.HelsenorgeSigningCertUrl);
-
-        if (!string.IsNullOrWhiteSpace(helsenorgeResponse))
+        catch (Exception ex)
         {
-            _applicationConfig.HelsenorgeCert = helsenorgeResponse;
+            _logger.LogWarning("Exception when fetching certificates, using fallback values defined in config variables\n"+ ex.ToString());
+            throw;
         }
     }
 
