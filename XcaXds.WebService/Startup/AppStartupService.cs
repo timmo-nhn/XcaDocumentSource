@@ -77,10 +77,7 @@ public class AppStartupService : IHostedService
 
         //MigrateFromJsonRegistryToDatabase();
 
-        if (_env.IsProduction() == false)
-        {
-            AddDefaultAccessControlPolicies();
-        }
+        AddDefaultAccessControlPolicies();
 
         return Task.CompletedTask;
     }

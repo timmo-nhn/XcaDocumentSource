@@ -33,6 +33,11 @@ public static class TerminologyConstants
 
     }
 
+    public static class AuthenticationCodeSystemNames
+    {
+        public const string PurposeOfUse = "PurposeOfUse";
+    }
+
     /// <summary>
     /// The internal names of the code systems referenced by the XDS metadata specification will use. 
     /// </summary>

@@ -68,5 +68,9 @@ public static class TerminologySources
         [
             new("No/OrganizationAssigningAuthorities.json", new FileBasedJsonMapper()),
         ]),
+        new(TerminologyConstants.AuthenticationCodeSystemNames.PurposeOfUse,
+        [
+            new("PurposeOfUse_Old.json", new FileBasedJsonMapper()),
+        ]),
     ];
 }
