@@ -17,22 +17,36 @@ public class SigningCertificateService
         _applicationConfig = applicationConfig;
     }
 
-    public async Task OverrideSigningCertificatesFromExternalApis()
+    public async Task<string[]> OverrideSigningCertificatesFromExternalApis()
     {
         var client = _httpClientFactory.CreateClient();
 
-        var helseIdResponse = await GetToken(client, _applicationConfig.HelseIdSigningCertUrl);
+        var urls = _applicationConfig.SigningCertificateUrls.Split(";").Select(u => u.Trim()).ToArray();
+        var certificates = _applicationConfig.CertificatesRaw.Split(";").Select(u => u.Trim()).ToArray();
 
-        if (!string.IsNullOrWhiteSpace(helseIdResponse))
+        _logger.LogDebug("URLs to get certificates from(Helsenorge): " + _applicationConfig.SigningCertificateUrls);
+        _logger.LogDebug("URLs to get certificates from(HelseID): " + _applicationConfig.HelsenorgeSigningCertUrl);
+
+        try
         {
-            _applicationConfig.HelseidCert = helseIdResponse;
+            var helseIdResponse = await GetToken(client, _applicationConfig.SigningCertificateUrls);
+
+            if (!string.IsNullOrWhiteSpace(helseIdResponse))
+            {
+                _applicationConfig.HelseidCert = helseIdResponse;
+            }
+
+            var helsenorgeResponse = await GetToken(client, _applicationConfig.HelsenorgeSigningCertUrl);
+
+            if (!string.IsNullOrWhiteSpace(helsenorgeResponse))
+            {
+                _applicationConfig.HelsenorgeCert = helsenorgeResponse;
+            }
         }
-
-        var helsenorgeResponse = await GetToken(client, _applicationConfig.HelsenorgeSigningCertUrl);
-
-        if (!string.IsNullOrWhiteSpace(helsenorgeResponse))
+        catch (Exception ex)
         {
-            _applicationConfig.HelsenorgeCert = helsenorgeResponse;
+            _logger.LogWarning("Exception when fetching certificates, using fallback values defined in config variables\n" + ex.ToString());
+            return certificates;
         }
     }
 
