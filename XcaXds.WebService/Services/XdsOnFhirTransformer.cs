@@ -12,6 +12,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Terminology.Services;
 using XcaXds.Terminology;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
@@ -97,7 +98,7 @@ public class XdsOnFhirTransformerService
                 classCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ClassCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ClassCode).FirstOrDefault()?.SystemOid
                     //UniversalId = Constants.CodeSystems.Volven.CategoryCode_9602.System
                 };
 
@@ -113,7 +114,7 @@ public class XdsOnFhirTransformerService
                 typeCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.TypeCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.TypeCode).FirstOrDefault()?.SystemOid
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.TypeCode, [typeCodeCx.Serialize()]);
@@ -128,7 +129,7 @@ public class XdsOnFhirTransformerService
                 eventCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ClassCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ClassCode).FirstOrDefault()?.SystemOid
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.EventCodeList, [eventCodeCx.Serialize()]);
@@ -141,7 +142,7 @@ public class XdsOnFhirTransformerService
         return adhocQueryRequest;
     }
 
-    public static Bundle? TransformRegistryObjectsToFhirBundle(IdentifiableType[]? registryObjectList, IEnumerable<RegistryObjectDto> registryObjects)
+    public Bundle? TransformRegistryObjectsToFhirBundle(IdentifiableType[]? registryObjectList, IEnumerable<RegistryObjectDto> registryObjects)
     {
         // Create a Bundle with DocumentReference resources and return it as the response
         // See example here https://profiles.ihe.net/ITI/MHD/Bundle-Bundle-FindDocumentReferences.json
@@ -201,7 +202,7 @@ public class XdsOnFhirTransformerService
         return bundle;
     }
 
-    public static IEnumerable<DocumentReference> GetFhirDocumentReferencesFromRegistryObjects(IdentifiableType[] registryObjectList)
+    public IEnumerable<DocumentReference> GetFhirDocumentReferencesFromRegistryObjects(IdentifiableType[] registryObjectList)
     {
         // Mapping table used to generate DocumentReference:
         // https://profiles.ihe.net/ITI/MHD/StructureDefinition-IHE.MHD.Minimal.DocumentReference-mappings.html#mappings-for-xds-and-mhd-mapping-xds
@@ -516,7 +517,7 @@ public class XdsOnFhirTransformerService
         return GetPractitionerFromAuthorPerson(legalAuthenticatorSlot);
     }
 
-    private static List<Resource> GetAuthorRelatedAsResourceList(ExtrinsicObjectType assocExtrinsicObject)
+    private List<Resource> GetAuthorRelatedAsResourceList(ExtrinsicObjectType assocExtrinsicObject)
     {
         var resourceList = new List<Resource>();
 

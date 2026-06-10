@@ -19,11 +19,11 @@ public static partial class SamlExtensions
         {
             if (issuer.Contains("helseid-xdssaml"))
             {
-                return AppliesTo.HelseId;
+                return AppliesTo.HealthcarePersonell;
             }
             if (issuer.Contains("helsenorge"))
             {
-                return AppliesTo.Helsenorge;
+                return AppliesTo.Citizen;
             }
             if (IsMachineToMachineToken(samlToken))
             {
@@ -53,11 +53,11 @@ public static partial class SamlExtensions
         {
             if (issuer.Contains("helseid"))
             {
-                return AppliesTo.HelseId;
+                return AppliesTo.HealthcarePersonell;
             }
             if (issuer.Contains("helsenorge"))
             {
-                return AppliesTo.Helsenorge;
+                return AppliesTo.Citizen;
             }
         }
         return AppliesTo.Unknown;

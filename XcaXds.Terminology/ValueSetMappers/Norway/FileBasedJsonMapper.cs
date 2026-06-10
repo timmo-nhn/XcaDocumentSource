@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using XcaXds.Shared.Commons;
 using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Custom;
 
@@ -12,6 +13,6 @@ public class FileBasedJsonMapper : ICodeSystemMapper
 
     public ComprehensiveCodeSystem? MapToComprehensiveCodeSystem(string rawInput)
     {
-        return JsonSerializer.Deserialize<ComprehensiveCodeSystem>(rawInput, TerminologyConstants.JsonSerializerDefaultSettings);
+        return JsonSerializer.Deserialize<ComprehensiveCodeSystem>(rawInput, Constants.JsonDefaultOptions.DefaultSettings);
     }
 }

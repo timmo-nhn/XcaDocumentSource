@@ -27,9 +27,9 @@ public class TerminologyUpdaterService : IHostedService
 
         var allCodeSystems = new Dictionary<string, ComprehensiveCodeSystem[]>();
 
-        var terminologySources = TerminologySourcesService.GetDefinitions();
+        var terminologySources = TerminologySourcesRegistry.GetDefinitions();
 
-        _logger.LogDebug("Found {Count} terminology source definitions", terminologySources.Count);
+        _logger.LogDebug($"Found {terminologySources.Count} terminology source definitions");
 
         foreach (var sources in terminologySources)
         {
@@ -37,16 +37,21 @@ public class TerminologyUpdaterService : IHostedService
             foreach (var source in sources.TerminologySources)
             {
                 var sourceHandler = _sourceFactory.GetSource(source.SourcePath);
+                
                 try
                 {
+                    _logger.LogInformation($"Fetching terminology from {source.SourcePath} using handler {sourceHandler.GetType().Name}");
                     var codeSystem = await sourceHandler.FetchAsync(source);
 
                     if (codeSystem == null) continue;
+                    
+                    _logger.LogInformation($"Successfully fetched terminology from {source.SourcePath}. CodeSystem {codeSystem.Name}, Values: {codeSystem.Values?.Length ?? 0}");
+
                     codeSystems.Add(codeSystem);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to fetch terminology from {Source}", source);
+                    _logger.LogError(ex, $"Failed to fetch terminology from {source.SourcePath}, handler {sourceHandler.GetType().Name}");
                 }
             }
 

@@ -1,12 +1,11 @@
 ﻿using System.Xml;
 using System.Xml.Serialization;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.Commons.Models.ClinicalDocument;
 
 [Serializable]
-[XmlRoot("observation", Namespace = Constants.Xds.Namespaces.Hl7V3)]
 [XmlType("observation", Namespace = Constants.Xds.Namespaces.Hl7V3)]
 public class Observation : EntryItemBase
 {

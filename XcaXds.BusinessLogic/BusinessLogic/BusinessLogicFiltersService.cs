@@ -6,14 +6,46 @@ using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Commons;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Models.Custom;
 using XcaXds.Terminology.Services;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
-
+using static XcaXds.BusinessLogic.BusinessLogic.ValuesToUseForBusinessLogic;
 namespace XcaXds.BusinessLogic.BusinessLogic;
+
+internal static class ValuesToUseForBusinessLogic
+{
+    internal static string BTG = default!;
+    internal static string COC = default!;
+    internal static string CAREMGT = default!;
+    internal static string ETREAT = default!;
+    internal static string FAMRQT = default!;
+    internal static string PATRQT = default!;
+    internal static string PWATRNY = default!;
+    internal static string TREAT = default!;
+
+    internal static string ClinicalCare_1 = default!;
+    internal static string EmergencyCare_2 = default!;
+    internal static string Management_5 = default!;
+    internal static string SubjectOfCare_13 = default!;
+
+    internal static string Normal = default!;
+    internal static string Restricted = default!;
+    internal static string VeryRestricted = default!;
+
+    internal static class Acp
+    {
+        internal static string NullValue = default!;
+        internal static string RepresentCitizenUnder12 = default!;
+        internal static string RepresentAnotherCitizen = default!;
+        internal static string RepresentedUnableToConsent = default!;
+        internal static string NotObligedToConsent = default!;
+        internal static string ExcplicitConsent = default!;
+        internal static string UnableToConsent = default!;
+        internal static string ExceptionToConcent = default!;
+        internal static string HasConsent = default!;
+    }
+}
 
 public class BusinessLogicFiltersService
 {
@@ -22,6 +54,7 @@ public class BusinessLogicFiltersService
     public BusinessLogicFiltersService(TerminologyService terminologyService)
     {
         _terminologyService = terminologyService;
+        InitConstantValuesUsedForBusinessLogicFiltering();
     }
 
     //public static readonly ComprehensiveCodeSystem VolvenDocumentTypes = typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem();
@@ -36,9 +69,40 @@ public class BusinessLogicFiltersService
 
     //public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = [.. Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!))];
 
+
+    private void InitConstantValuesUsedForBusinessLogicFiltering()
+    {
+        typeof(ValuesToUseForBusinessLogic).GetEnumValuesAsUnderlyingType();
+        var values = _terminologyService.GetCodeSystemByKey(CodeSystemNames.AuthenticationCodeSystems.PurposeOfUse);
+
+        TREAT = values.GetValueSystemOid("TREAT")?.Value;
+        ETREAT = values.GetValueSystemOid("ETREAT")?.Value;
+        COC = values.GetValueSystemOid("COC")?.Value;
+        BTG = values.GetValueSystemOid("BTG")?.Value;
+
+
+        AllBusinessRules = GetAllBusinessRulesForFilteringDocumentList();
+    }
+
+    public string[] GetAllowedMimeTypes()
+    {
+        return
+        [
+            Constants.MimeTypes.Pdf,
+            Constants.MimeTypes.Jpeg,
+            Constants.MimeTypes.Png,
+            Constants.MimeTypes.Tiff,
+            Constants.MimeTypes.Gif,
+            Constants.MimeTypes.Xml,
+            Constants.MimeTypes.XmlReadable,
+            Constants.MimeTypes.Text,
+            Constants.MimeTypes.TextRtf,
+        ];
+    }
+
     public HashSet<(string Code, string CodeSystem)> GetCitizenObfuscationCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
 
         return new HashSet<(string Code, string CodeSystem)>()
         {
@@ -50,7 +114,7 @@ public class BusinessLogicFiltersService
 
     public HashSet<(string Code, string CodeSystem)> GetHealthcarePersonellObfuscationCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
 
         return new HashSet<(string Code, string CodeSystem)>()
         {
@@ -60,19 +124,19 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedOrganizationOids()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.OtherCodeSystemNames.OrganizationAssigningAuthorities);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.OtherCodeSystems.OrganizationAssigningAuthorities);
         return [.. confidentialityCodeSystems];
     }
 
     public List<ComprehensiveCodeSystem> GetAllowedPractitionerOids()
     {
-        var practitionerSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.OtherCodeSystemNames.PractitionerAssigningAuthorities);
+        var practitionerSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.OtherCodeSystems.PractitionerAssigningAuthorities);
         return [.. practitionerSystems];
     }
 
     public List<ComprehensiveCodeSystem> GetAllowedPatientOids()
     {
-        var patientSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.OtherCodeSystemNames.PatientAssigningAuthorities);
+        var patientSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.OtherCodeSystems.PatientAssigningAuthorities);
         return [.. patientSystems];
 
         //new(Constants.Oid.Fnr),
@@ -82,7 +146,7 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedFacilityTypes()
     {
-        var facilityTypes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.FacilityType);
+        var facilityTypes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.FacilityType);
         return [.. facilityTypes];
 
         //typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
@@ -91,7 +155,7 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedPracticeSettings()
     {
-        var practiceSettings = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.PracticeSettingCode);
+        var practiceSettings = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.PracticeSettingCode);
         return [.. practiceSettings];
 
         //typeof(Constants.CodeSystems.Volven.PracticeSetting_8651).GetAsComprehensiveCodesystem(),
@@ -104,7 +168,7 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedTypeCodes()
     {
-        var typeCodes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.TypeCode);
+        var typeCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.TypeCode);
         return [.. typeCodes];
 
         //typeof(Constants.CodeSystems.Volven.TypeCode_9602).GetAsComprehensiveCodesystem()
@@ -112,7 +176,7 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedClassCodes()
     {
-        var classCodes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ClassCode);
+        var classCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ClassCode);
         return [.. classCodes];
 
         //typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem()
@@ -120,7 +184,7 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedConfidentialityCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
         return [.. confidentialityCodeSystems];
 
         //typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603).GetAsComprehensiveCodesystem(),
@@ -130,7 +194,7 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedFormatCodes()
     {
-        var formatCodes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.FormatCode);
+        var formatCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.FormatCode);
         return [.. formatCodes];
 
         //new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
@@ -141,13 +205,13 @@ public class BusinessLogicFiltersService
 
     public List<ComprehensiveCodeSystem> GetAllowedAttachments()
     {
-        var attachments = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.Attachments);
+        var attachments = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Hl7CodeSystems.Attachments);
         return [.. attachments];
     }
 
     public (string, string)[] GetCitizenConfidentialityCodesToObfuscate()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
 
         return []
             //[.. confidentialityCodeSystems.Values().Where(GetCitizenObfuscationCodes().Contains)]
@@ -156,25 +220,12 @@ public class BusinessLogicFiltersService
 
     public (string, string)[] GetHealthcarePersonellConfidentialityCodesToObfuscate()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
 
         return []
             //[.. confidentialityCodeSystems.Where(GetHealthcarePersonellObfuscationCodes().Contains)]
             ;
     }
-
-    public static readonly string[] AllowedMimeTypes =
-    [
-        Constants.MimeTypes.Pdf,
-        Constants.MimeTypes.Jpeg,
-        Constants.MimeTypes.Png,
-        Constants.MimeTypes.Tiff,
-        Constants.MimeTypes.Gif,
-        Constants.MimeTypes.Xml,
-        Constants.MimeTypes.XmlReadable,
-        Constants.MimeTypes.Text,
-        Constants.MimeTypes.TextRtf,
-    ];
 
     public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimeType)
     {
@@ -200,253 +251,310 @@ public class BusinessLogicFiltersService
         return mimeTypeFromMagicByte == documentEntryMimeType;
     }
 
-    /// <summary>
-    /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
-    /// </summary>
-    public static BusinessRule<IdentifiableType> CitizenShouldSeeOwnDocumentReferences { get; set; } = new()
+    public Dictionary<string, BusinessRule<IdentifiableType>> AllBusinessRules { get; set; }
+
+    private Dictionary<string, BusinessRule<IdentifiableType>> GetAllBusinessRulesForFilteringDocumentList()
     {
-        Name = nameof(CitizenShouldSeeOwnDocumentReferences),
+        return new()
+        {
+            /// <summary>
+            /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
+            /// </summary>
+            {
+                "CitizenShouldSeeOwnDocumentReferences",new()
+                {
+                    Condition = logic =>
+                        logic.Resource != null &&
+                        logic.Subject != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
 
-        Condition = logic =>
-            logic.Resource != null &&
-            logic.Subject != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
+                        logic.Resource.Code == logic.Subject.Code &&
+                        logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
+                        logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
+                        logic.Acp.NoUrn() == XcaXds.Terminology.ValueSets.Constants.Volven.Oid.Saml.Acp.NullValue.NoUrn() &&
+                        logic.SubjectAge >= 18,
 
-            logic.Resource.Code == logic.Subject.Code &&
-            logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
-            logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-            logic.Acp == Constants.Oid.Saml.Acp.NullValue &&
-            logic.SubjectAge >= 18,
+                    Filter = robjs =>
+                        FilterByConfidentiality(
+                            robjs,
+                            allowedLevels: Strings(Normal, Restricted),
+                            disallowedLevels: Strings(VeryRestricted))
+                }
+            },
 
-        Filter = robjs =>
-            FilterByConfidentiality(
-                robjs,
-                allowedLevels: Strings(Normal, Restricted),
-                disallowedLevels: Strings(VeryRestricted))
-    };
+            /// <summary>
+            /// Jeg som innbygger (barn) med alder mellom 12-16 skal ikke ha tilgang til dokumentreferanser/dokumenter
+            /// </summary>
+            {
+                "CitizenBetween12And16ShouldNotSeeDocumentReferences",new()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+
+                        logic.Subject.Code == logic.Resource.Code &&
+                        logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
+                        logic.SubjectAge.InRange(12, 16),
+
+                    Filter = _ => DenyAll()
+                }
+            },
+
+            /// <summary>
+            /// Jeg som innbygger (barn) mellom 12-16 skal ikke ha tilgang til til dokumentreferanser/dokumenter
+            /// </summary>
+            {
+                "CitizenBetween12And16ShouldNotSeeDocumentReferences", new()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+
+                        logic.Subject.Code == logic.Resource.Code &&
+                        logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
+                        logic.SubjectAge.InRange(12, 16),
+
+                    Filter = _ => DenyAll()
+                }
+            },
+
+            /// <summary>
+            /// Jeg som innbygger (ungdom) med alder mellom 16-18 skal ha tilgang til til deler av dokumentreferanser/dokumenter
+            /// </summary>
+            {
+                "CitizenBetween16And18ShouldAccesPartsOfDocumentReferences", new()
+                {
+
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+
+                        logic.Subject.Code == logic.Resource.Code &&
+                        logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
+                        logic.SubjectAge.InRange(16, 18),
+
+                    Filter = robjs =>
+                        FilterByConfidentiality(
+                            robjs,
+                            allowedLevels: Strings(Normal, Restricted),
+                            disallowedLevels: Strings(VeryRestricted))
+                }
+            },
+
+            /// <summary>
+            /// Jeg som innbygger skal se dokumentreferanser/dokumenter for mine barn under 12 år
+            /// </summary>
+            {
+                "CitizenShouldSeeChildrenBelow12DocumentReferences",new ()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+
+                        logic.Subject.Code != logic.Resource.Code &&
+                        logic.Purpose.Code.IsAnyOf(FAMRQT, SubjectOfCare_13) &&
+                        logic.Acp == Acp.RepresentCitizenUnder12 &&
+                        logic.ResourceAge <= 12,
+
+                    Filter = robjs =>
+                        FilterByConfidentiality(
+                            robjs,
+                            allowedLevels: Strings(Normal, Restricted),
+                            disallowedLevels: Strings(VeryRestricted))
+                }
+            },
+
+            /// <summary>
+            /// Jeg som innbygger skal se dokumentreferanser/dokumenter til den som jeg har representasjonsforhold for
+            /// </summary>
+            {
+                "CitizenShouldSeePowerOfAttorneyDocumentReferences",new ()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Subject.Code != null &&
+                        logic.Resource.Code != null &&
+                        logic.Acp != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+
+                        logic.Subject.Code != logic.Resource.Code &&
+                        logic.Purpose.Code.IsAnyOf(PWATRNY, SubjectOfCare_13) &&
+                        logic.Acp.IsAnyOf(Acp.RepresentAnotherCitizen, Acp.RepresentedUnableToConsent) &&
+                        !logic.SubjectAge.InRange(12, 16),
+
+                    Filter = robjs =>
+                        FilterByConfidentiality(
+                            robjs,
+                            allowedLevels: Strings(Normal, Restricted),
+                            disallowedLevels: Strings(VeryRestricted))
+
+                }
+            },
+
+            /// <summary>
+            /// Jeg som innbygger skal IKKE se dokumentreferanser/dokumenter til den som jeg IKKE har representasjonsforhold eller foreldreansvar for
+            /// </summary>
+            {
+                "CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences", new ()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+
+                        logic.Subject.Code != logic.Resource.Code &&
+                        logic.Acp == Acp.NullValue &&
+                        logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13),
+
+                    Filter = _ => DenyAll()
+                }
+            },
+
+            /// <summary>
+            /// Jeg som innbygger skal IKKE se dokumentreferanser/dokumenter til mitt barn som er 13 år eller eldre
+            /// </summary>
+            {
+                "CitizenShouldNotAccessDocumentsForPatientOver12", new()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+
+                        logic.Subject.Code != logic.Resource.Code &&
+                        logic.Acp == Acp.RepresentCitizenUnder12 &&
+                        logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13) &&
+                        logic.ResourceAge >= 13,
 
 
-    /// <summary>
-    /// Jeg som innbygger (barn) med alder mellom 12-16 skal ikke ha tilgang til dokumentreferanser/dokumenter
-    /// </summary>
-    public static BusinessRule<IdentifiableType> CitizenBetween12And16ShouldNotSeeDocumentReferences { get; set; } = new()
-    {
-        Name = nameof(CitizenBetween12And16ShouldNotSeeDocumentReferences),
+                    Filter = _ => DenyAll()
+                }
+            },
 
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
+            /// <summary>
+            /// Jeg som helsepersonell skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
+            /// </summary>
+            {
+                "HealthcarePersonellShouldSeeOwnDocumentReferences", new()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
 
-            logic.Subject.Code == logic.Resource.Code &&
-            logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-            logic.SubjectAge.InRange(12, 16),
+                        logic.Subject.Code == logic.Resource.Code &&
+                        logic.Acp == Acp.NullValue &&
+                        logic.Purpose.Code.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5),
 
-        Filter = _ => DenyAll()
-    };
+                    Filter = robjs =>
+                        FilterByConfidentiality(
+                            robjs,
+                            allowedLevels: Strings(Normal, Restricted),
+                            disallowedLevels: Strings(VeryRestricted))
+                }
+            },
 
-    /// <summary>
-    /// Jeg som innbygger (ungdom) med alder mellom 16-18 skal ha tilgang til til deler av dokumentreferanser/dokumenter
-    /// </summary>
-    public static BusinessRule<IdentifiableType> CitizenBetween16And18ShouldAccesPartsOfDocumentReferences = new()
-    {
-        Name = nameof(CitizenBetween16And18ShouldAccesPartsOfDocumentReferences),
+            /// <summary>
+            /// Jeg som helsepersonell skal se alle dokumentreferanser/dokumenter for en pasient med relasjon til virksomheten som jeg representerer i en normal situasjon
+            /// </summary>
+            {
+                "HealthcarePersonellShouldSeeRelatedPatientDocumentReferences", new()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
+                        logic.Scope != null &&
 
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
+                        logic.Subject.Code != logic.Resource.Code &&
+                        logic.Scope.Contains("journaldokumenter_helsepersonell") &&
+                        logic.Purpose.Code.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5),
 
-            logic.Subject.Code == logic.Resource.Code &&
-            logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-            logic.SubjectAge.InRange(16, 18),
+                    Filter = robjs =>
+                        FilterByConfidentiality(
+                            robjs,
+                            allowedLevels: Strings(Normal, Restricted, VeryRestricted))
+                }
+            },
 
-        Filter = robjs =>
-            FilterByConfidentiality(
-                robjs,
-                allowedLevels: Strings(Normal, Restricted),
-                disallowedLevels: Strings(VeryRestricted))
-    };
+            /// <summary>
+            /// Jeg som helsepersonell skal se alle dokumentreferanser/dokumenter for en pasient med relasjon til virksomheten som jeg representerer i en akutt situasjon
+            /// </summary>
+            {
+                "HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences", new()
+                {
+                    Condition = logic =>
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null &&
 
-    /// <summary>
-    /// Jeg som innbygger skal se dokumentreferanser/dokumenter for mine barn under 12 år
-    /// </summary>
-    public static BusinessRule<IdentifiableType> CitizenShouldSeeChildrenBelow12DocumentReferences { get; set; } = new()
-    {
-        Name = nameof(CitizenShouldSeeChildrenBelow12DocumentReferences),
+                        logic.Subject.Code != logic.Resource.Code &&
+                        logic.Purpose.Code.IsAnyOf(ETREAT, EmergencyCare_2),
 
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
+                    Filter = robjs =>
+                        FilterByConfidentiality(
+                            robjs,
+                            allowedLevels: Strings(Normal, Restricted, VeryRestricted))
+                }
+            },
 
-            logic.Subject.Code != logic.Resource.Code &&
-            logic.Purpose.Code.IsAnyOf(FAMRQT, SubjectOfCare_13) &&
-            logic.Acp == Constants.Oid.Saml.Acp.RepresentCitizenUnder12 &&
-            logic.ResourceAge <= 12,
+            /// <summary>
+            /// Jeg som helsepersonell som representerer en helsevirksomhet skal ikke se noen dokumentreferanser/dokumenter dersom det mangler viktige elementer som f.eks. korrekt angitt Purpose of Use
+            /// </summary>
+            {
+                "HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences", new()
+                {
+                    Condition = logic => HealthcarePersonellHasMissingAttributes(logic),
 
-        Filter = robjs =>
-            FilterByConfidentiality(
-                robjs,
-                allowedLevels: Strings(Normal, Restricted),
-                disallowedLevels: Strings(VeryRestricted))
-    };
+                    Filter = _ => DenyAll()
+                }
+            },
 
-    /// <summary>
-    /// Jeg som innbygger skal se dokumentreferanser/dokumenter til den som jeg har representasjonsforhold for
-    /// </summary>
-    public static BusinessRule<IdentifiableType> CitizenShouldSeePowerOfAttorneyDocumentReferences { get; set; } = new()
-    {
-        Name = nameof(CitizenShouldSeePowerOfAttorneyDocumentReferences),
+            /// <summary>
+            /// Filter according to Kjernejournalforskriften <para/>
+            /// <code>
+            /// Category | Dokumentgruppe               | Visning i KJ | Eksempler på dokumenter
+            /// ====================================================================================
+            /// A00-1    | Epikriser og sammenfatninger | Ubegrenset   | Epikriser etter innleggelse, poliklinikk m.m.
+            /// C00-1    | Prøvesvar, vev og vesker     | Siste 1 år   | Medisinks biokjemi, patologi m.m.
+            /// D00-1    | Organfunksjon                | Siste 5 år   | Ultralyd av hjerte, spirometri m.m.
+            /// E00-1    | Bildediagnostikk             | Siste 5 år   | Radiologi, ultralyd m.m.
+            /// I00-1    | Korrespondanse               | Siste 1 år   | Henvisninger
+            /// </code>
+            /// </summary>
+            {
+                "HealthcarePersonellKjernejournalForskriften", new()
+                {
+                    Condition = logic =>
+                        logic.Scope != null &&
+                        logic.Scope.Length > 0 &&
 
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Subject.Code != null &&
-            logic.Resource.Code != null &&
-            logic.Acp != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
+                        logic.AppliesTo == AppliesTo.HealthcarePersonell &&
+                    // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
+                    // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
+                        logic.Scope.Contains("kjernejournalforskriften"),
 
-            logic.Subject.Code != logic.Resource.Code &&
-            logic.Purpose.Code.IsAnyOf(PWATRNY, SubjectOfCare_13) &&
-            logic.Acp.IsAnyOf(Constants.Oid.Saml.Acp.RepresentAnotherCitizen, Constants.Oid.Saml.Acp.RepresentedUnableToConsent) &&
-            !logic.SubjectAge.InRange(12, 16),
-
-        Filter = robjs =>
-            FilterByConfidentiality(
-                robjs,
-                allowedLevels: Strings(Normal, Restricted),
-                disallowedLevels: Strings(VeryRestricted))
-
-    };
-
-    /// <summary>
-    /// Jeg som innbygger skal IKKE se dokumentreferanser/dokumenter til den som jeg IKKE har representasjonsforhold eller foreldreansvar for
-    /// </summary>
-    public static BusinessRule<IdentifiableType> CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences { get; set; } = new()
-    {
-        Name = nameof(CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences),
-
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
-
-            logic.Subject.Code != logic.Resource.Code &&
-            logic.Acp == Constants.Oid.Saml.Acp.NullValue &&
-            logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13),
-
-        Filter = _ => DenyAll()
-    };
-
-    /// <summary>
-    /// Jeg som innbygger skal IKKE se dokumentreferanser/dokumenter til mitt barn som er 13 år eller eldre
-    /// </summary>
-    public static BusinessRule<IdentifiableType> CitizenShouldNotAccessDocumentsForPatientOver12 { get; set; } = new()
-    {
-        Name = nameof(CitizenShouldNotAccessDocumentsForPatientOver12),
-
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
-
-            logic.Subject.Code != logic.Resource.Code &&
-            logic.Acp == Constants.Oid.Saml.Acp.RepresentCitizenUnder12 &&
-            logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13) &&
-            logic.ResourceAge >= 13,
-
-
-        Filter = _ => DenyAll()
-    };
-
-    /// <summary>
-    /// Jeg som helsepersonell skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
-    /// </summary>
-    public static BusinessRule<IdentifiableType> HealthcarePersonellShouldSeeOwnDocumentReferences { get; set; } = new()
-    {
-        Name = nameof(HealthcarePersonellShouldSeeOwnDocumentReferences),
-
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
-
-            logic.Subject.Code == logic.Resource.Code &&
-            logic.Acp == Constants.Oid.Saml.Acp.NullValue &&
-            logic.Purpose.Code.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5),
-
-        Filter = robjs =>
-            FilterByConfidentiality(
-                robjs,
-                allowedLevels: Strings(Normal, Restricted),
-                disallowedLevels: Strings(VeryRestricted))
-    };
-
-    /// <summary>
-    /// Jeg som helsepersonell skal se alle dokumentreferanser/dokumenter for en pasient med relasjon til virksomheten som jeg representerer i en normal situasjon
-    /// </summary>
-    public static BusinessRule<IdentifiableType> HealthcarePersonellShouldSeeRelatedPatientDocumentReferences { get; set; } = new()
-    {
-        Name = nameof(HealthcarePersonellShouldSeeRelatedPatientDocumentReferences),
-
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
-            logic.Scope != null &&
-
-            logic.Subject.Code != logic.Resource.Code &&
-            logic.Scope.Contains("journaldokumenter_helsepersonell") &&
-            logic.Purpose.Code.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5),
-
-        Filter = robjs =>
-            FilterByConfidentiality(
-                robjs,
-                allowedLevels: Strings(Normal, Restricted, VeryRestricted))
-    };
-
-    /// <summary>
-    /// Jeg som helsepersonell skal se alle dokumentreferanser/dokumenter for en pasient med relasjon til virksomheten som jeg representerer i en akutt situasjon
-    /// </summary>
-    public static BusinessRule<IdentifiableType> HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences { get; set; } = new()
-    {
-        Name = nameof(HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences),
-
-        Condition = logic =>
-            logic.Subject != null &&
-            logic.Resource != null &&
-            logic.Purpose != null &&
-            logic.Purpose.Code != null &&
-
-            logic.Subject.Code != logic.Resource.Code &&
-            logic.Purpose.Code.IsAnyOf(ETREAT, EmergencyCare_2),
-
-        Filter = robjs =>
-            FilterByConfidentiality(
-                robjs,
-                allowedLevels: Strings(Normal, Restricted, VeryRestricted))
-    };
-
-    /// <summary>
-    /// Jeg som helsepersonell som representerer en helsevirksomhet skal ikke se noen dokumentreferanser/dokumenter dersom det mangler viktige elementer som f.eks. korrekt angitt Purpose of Use
-    /// </summary>
-    public static BusinessRule<IdentifiableType> HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences { get; set; } = new()
-    {
-        Name = nameof(HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences),
-        Condition = logic => HealthcarePersonellHasMissingAttributes(logic),
-
-        Filter = _ => DenyAll()
-    };
+                    Filter = robjs => FilterByKjernejournalForskriften(robjs)
+                }
+            }
+        };
+    }
 
     private static bool HealthcarePersonellHasMissingAttributes(BusinessLogicParameters logic)
     {
@@ -471,36 +579,9 @@ public class BusinessLogicFiltersService
         return subjectCodeMissing || resourceCodeMissing || subjectOrgCodeMissing || purposeMissingOrInvalid;
     }
 
-    /// <summary>
-    /// Filter according to Kjernejournalforskriften <para/>
-    /// <code>
-    /// Category | Dokumentgruppe               | Visning i KJ | Eksempler på dokumenter
-    /// ====================================================================================
-    /// A00-1    | Epikriser og sammenfatninger | Ubegrenset   | Epikriser etter innleggelse, poliklinikk m.m.
-    /// C00-1    | Prøvesvar, vev og vesker     | Siste 1 år   | Medisinks biokjemi, patologi m.m.
-    /// D00-1    | Organfunksjon                | Siste 5 år   | Ultralyd av hjerte, spirometri m.m.
-    /// E00-1    | Bildediagnostikk             | Siste 5 år   | Radiologi, ultralyd m.m.
-    /// I00-1    | Korrespondanse               | Siste 1 år   | Henvisninger
-    /// </code>
-    /// </summary>
-    public static BusinessRule<IdentifiableType> HealthcarePersonellKjernejournalForskriften { get; set; } = new()
-    {
-        Name = nameof(HealthcarePersonellKjernejournalForskriften),
-
-        Condition = logic =>
-            logic.Scope != null &&
-            logic.Scope.Length > 0 &&
-
-            logic.AppliesTo == AppliesTo.HelseId &&
-        // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
-        // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
-            logic.Scope.Contains("kjernejournalforskriften"),
-
-        Filter = robjs => FilterByKjernejournalForskriften(robjs)
-    };
 
 
-    public static IEnumerable<IdentifiableType> FilterByKjernejournalForskriften(IEnumerable<IdentifiableType> source)
+    public IEnumerable<IdentifiableType> FilterByKjernejournalForskriften(IEnumerable<IdentifiableType> source)
     {
         var now = DateTimeOffset.Now;
 
@@ -509,10 +590,11 @@ public class BusinessLogicFiltersService
 
         var sourceAsList = source.OfType<ExtrinsicObjectType>().ToList();
 
-        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.ProvesvarVevOgVaesker);
-        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.Organfunksjon);
-        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.BildediagnostikkOgAndreMedisinskeBilder);
-        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, Constants.Xds.KjForskriftCategoryCodes.Korrespondanse);
+        // HAYO! HAYO! HAYO! FIX THIS CodeSystem stuff!!!!
+        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.ProvesvarVevOgVaesker");
+        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.Organfunksjon");
+        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.BildediagnostikkOgAndreMedisinskeBilder");
+        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.Korrespondanse");
 
         var removeProvesvar = provesvarDocuments.Where(document => document.GetServiceStartTime() < oneYearAgo).ToList();
         var removeOrgan = organDocuments.Where(document => document.GetServiceStartTime() < fiveYearsAgo).ToList();
@@ -537,13 +619,13 @@ public class BusinessLogicFiltersService
         return systemMatches && codeMatches;
     }
 
-    private static List<ExtrinsicObjectType> GetVolvenDocumentsByCategory(List<ExtrinsicObjectType> documents, string categoryCode)
+    private List<ExtrinsicObjectType> GetVolvenDocumentsByCategory(List<ExtrinsicObjectType> documents, string categoryCode)
     {
         var categories = documents
             .Where(document =>
                 document.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ClassCode)
                 .Select(RegistryMetadataTransformer.MapClassificationToCodedValue)
-                .Any(coding => CodingMatches(coding, new CodedValue(categoryCode, VolvenDocumentTypes.System))))
+                .Any(coding => CodingMatches(coding, new CodedValue(categoryCode, "VolvenDocumentTypes.System")))) // HAYO! HAYO! HAYO! FIX THIS CodeSystem stuff
             .ToList();
 
         return categories;

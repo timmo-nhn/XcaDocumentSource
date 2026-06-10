@@ -451,7 +451,7 @@ public class AtnaLogGeneratorService
                          !string.IsNullOrWhiteSpace(providerIdentifierCoded?.Code) ||
                          !string.IsNullOrWhiteSpace(providerIdentifierCoded?.CodeSystem);
 
-        if (issuer == AppliesTo.Helsenorge)
+        if (issuer == AppliesTo.Citizen)
         {
             var subjectResource = GetSubjectResource(statements, subjectDisplayName, issuer, hasSubject, additionalParameters);
 
@@ -585,7 +585,7 @@ public class AtnaLogGeneratorService
             };
         }
 
-        if (issuer == AppliesTo.HelseId && hasSubject)
+        if (issuer == AppliesTo.HealthcarePersonell && hasSubject)
         {
             HumanName? healthcarePersonHumanName = null;
             var subjectNameParts = subjectDisplayName?.Split().ToList();
@@ -875,7 +875,7 @@ public class AtnaLogGeneratorService
                 subjectPatientResource.Name = [patientHumanName];
             }
         }
-        else if ((issuer == AppliesTo.Helsenorge || issuer == AppliesTo.Machine) && hasSubject)
+        else if ((issuer == AppliesTo.Citizen || issuer == AppliesTo.Machine) && hasSubject)
         {
             var patientHumanName = new HumanName
             {

@@ -20,7 +20,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.HelseId,
+            AppliesTo = AppliesTo.HealthcarePersonell,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "TREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
@@ -38,7 +38,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.HelseId,
+            AppliesTo = AppliesTo.HealthcarePersonell,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = "ETREAT", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
@@ -56,7 +56,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.Helsenorge,
+            AppliesTo = AppliesTo.Citizen,
             Acp = Constants.Oid.Saml.Acp.NullValue,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" }

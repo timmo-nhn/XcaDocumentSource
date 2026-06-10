@@ -30,7 +30,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
             new(Constants.Saml.Attribute.Role + ":codeSystem", "2.16.578.1.12.4.1.1.9060"),
             new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HelseId)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HealthcarePersonell)),
             new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
         );
 
@@ -64,7 +64,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
             new(Constants.Saml.Attribute.Role + ":codeSystem", "2.16.578.1.12.4.1.1.9060"),
             new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HelseId)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HealthcarePersonell)),
             new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
         );
 
@@ -91,7 +91,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
 
         var abacRequest = new AbacRequest(
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.Create),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HelseId)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HealthcarePersonell)),
             new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
         );
 
@@ -117,7 +117,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
 
         var abacRequest = new AbacRequest(
             (Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            (Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Helsenorge)),
+            (Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Citizen)),
             ("attribute01", "123123"),
             ("attribute02", "123123"),
             ("attribute03", "123123")
@@ -145,7 +145,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
 
         var abacRequest = new AbacRequest(
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Helsenorge)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Citizen)),
             new("attribute01", "123123"),
             new("attribute02", "456456"),
             new("attribute03", "789789")

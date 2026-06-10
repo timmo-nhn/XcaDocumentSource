@@ -239,13 +239,13 @@ public class ApplicationMetaController : ControllerBase
     public async Task<IActionResult> GetBusinessLogicRules(bool plainText)
     {
         return Ok(
-            plainText ? BusinessRulesDescriptor.BusinessRulesPlainText : BusinessRulesDescriptor.BusinessRulesJson);
+            plainText ? BusinessRulesDescriptorService.BusinessRulesPlainText : BusinessRulesDescriptorService.BusinessRulesJson);
     }
 
     [Produces("text/plain")]
     [HttpGet("business-logic-obfuscation")]
     public async Task<IActionResult> GetObfuscationRules()
     {
-        return Ok(BusinessRulesDescriptor.EntriesToObfuscateJson);
+        return Ok(BusinessRulesDescriptorService.EntriesToObfuscateJson);
     }
 }

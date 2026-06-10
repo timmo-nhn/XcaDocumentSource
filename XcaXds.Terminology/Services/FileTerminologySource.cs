@@ -40,6 +40,8 @@ public class FileTerminologySource : ITerminologySource
         var filePath = Path.Combine(_basePath, terminologySource.SourcePath);
         var content = await File.ReadAllTextAsync(filePath);
 
+        _logger.LogDebug($"Read content from file {filePath}: {content}");
+
         return terminologySource.MapperToUse.MapToComprehensiveCodeSystem(content);
     }
 }

@@ -116,7 +116,7 @@ public class AppStartupService : IHostedService
         var cz_deny_adhocquery_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-deny-adhocquery-resourceid",
-            AppliesTo = [AppliesTo.Helsenorge],
+            AppliesTo = [AppliesTo.Citizen],
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
             [
@@ -132,7 +132,7 @@ public class AppStartupService : IHostedService
         var cz_gp_deny_if_different_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-gp-deny-if-different-resourceid",
-            AppliesTo = [AppliesTo.Helsenorge, AppliesTo.HelseId],
+            AppliesTo = [AppliesTo.Citizen, AppliesTo.HealthcarePersonell],
             Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
             Rules =
             [
@@ -156,7 +156,7 @@ public class AppStartupService : IHostedService
         var cz_readdocumentlist_documents = new AbacPolicy()
         {
             Id = "DEFAULT_cz-readdocumentlist-documents",
-            AppliesTo = [AppliesTo.Helsenorge],
+            AppliesTo = [AppliesTo.Citizen],
             Rules =
             [
                 new(
@@ -173,7 +173,7 @@ public class AppStartupService : IHostedService
         var gp_deny_certain_roles = new AbacPolicy()
         {
             Id = "DEFAULT_gp-deny2",
-            AppliesTo = [AppliesTo.HelseId],
+            AppliesTo = [AppliesTo.HealthcarePersonell],
             Rules =
             [
                 new(
@@ -187,7 +187,7 @@ public class AppStartupService : IHostedService
         var gp_readdocumentlist_readdocument = new AbacPolicy()
         {
             Id = "DEFAULT_gp-readdocumentlist_readdocument",
-            AppliesTo = [AppliesTo.HelseId],
+            AppliesTo = [AppliesTo.HealthcarePersonell],
             Rules =
             [
                 new(

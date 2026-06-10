@@ -1,4 +1,5 @@
 ﻿using Hl7.Fhir.Model;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using XcaXds.BusinessLogic.Models.Custom;
@@ -11,35 +12,29 @@ namespace XcaXds.BusinessLogic.BusinessLogic;
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs. Allows for partial filtering of the document list
 /// </summary>
-public static class BusinessLogicFilterer
+public class BusinessLogicFiltererService
 {
-    public static readonly List<BusinessRule<IdentifiableType>> BusinessLogicRules = new List<BusinessRule<IdentifiableType>>()
+    private readonly ILogger<BusinessLogicFiltererService> _logger;
+    private readonly BusinessLogicFiltersService _businessLogicFiltersService;
+
+    public BusinessLogicFiltererService(ILogger<BusinessLogicFiltererService> logger, BusinessLogicFiltersService businessLogicFiltersService)
     {
-        BusinessLogicFiltersService.CitizenShouldSeeOwnDocumentReferences,
-        BusinessLogicFiltersService.CitizenBetween12And16ShouldNotSeeDocumentReferences,
-        BusinessLogicFiltersService.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
-        BusinessLogicFiltersService.CitizenShouldSeeChildrenBelow12DocumentReferences,
-        BusinessLogicFiltersService.CitizenShouldSeePowerOfAttorneyDocumentReferences,
-        BusinessLogicFiltersService.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
-        BusinessLogicFiltersService.CitizenShouldNotAccessDocumentsForPatientOver12,
-
-        BusinessLogicFiltersService.HealthcarePersonellShouldSeeOwnDocumentReferences,
-        BusinessLogicFiltersService.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
-        BusinessLogicFiltersService.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
-
-        //BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften,
-
-        BusinessLogicFiltersService.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-    };
-
-    public static void AddRule(BusinessRule<IdentifiableType> rule)
-    {
-        BusinessLogicRules.Add(rule);
+        _logger = logger;
+        _businessLogicFiltersService = businessLogicFiltersService;
+        BusinessLogicRules = _businessLogicFiltersService.AllBusinessRules;
     }
 
-    public static void RemoveRule(string ruleName)
+    public Dictionary<string, BusinessRule<IdentifiableType>> BusinessLogicRules = null;
+
+
+    public void AddRule(string key, BusinessRule<IdentifiableType> rule)
     {
-        BusinessLogicRules.RemoveAll(rul => rul.Name == ruleName);
+        BusinessLogicRules.Add(key, rule);
+    }
+
+    public void RemoveRule(string key)
+    {
+        BusinessLogicRules.Remove(key);
     }
 
     private static readonly ConcurrentDictionary<LambdaExpression, Delegate> _compiled = new();
@@ -49,7 +44,7 @@ public static class BusinessLogicFilterer
         return (Func<BusinessLogicParameters, bool>)_compiled.GetOrAdd(expr, e => e.Compile());
     }
 
-    public static IEnumerable<IdentifiableType> FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> results)
+    public IEnumerable<IdentifiableType> FilterRegistryObjectListBasedOnBusinessLogic(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> results)
     {
         results = new Dictionary<string, int>();
 
@@ -84,16 +79,16 @@ public static class BusinessLogicFilterer
         return current ?? [];
     }
 
-    public static BusinessLogicResult<T> ExecuteRule<T>(BusinessRule<T> rule, IEnumerable<T> objects, BusinessLogicParameters logic)
+    public static BusinessLogicResult<T> ExecuteRule<T>(KeyValuePair<string, BusinessRule<T>> rule, IEnumerable<T> objects, BusinessLogicParameters logic)
     {
-        var condition = CompileCached(rule.Condition!);
+        var condition = CompileCached(rule.Value.Condition!);
 
         if (condition(logic))
         {
-            var filtered = rule.Filter!.Compile()(objects);
-            return new(true, filtered, rule.Name);
+            var filtered = rule.Value.Filter!.Compile()(objects);
+            return new(true, filtered, rule.Key);
         }
 
-        return new(false, objects, rule.Name);
+        return new(false, objects, rule.Key);
     }
 }

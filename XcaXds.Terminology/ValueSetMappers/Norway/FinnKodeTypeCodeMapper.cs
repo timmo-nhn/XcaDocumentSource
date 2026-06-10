@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using XcaXds.Shared.Commons;
 using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Custom;
 using XcaXds.Terminology.Models.Finnkode;
@@ -11,7 +12,7 @@ public sealed class FinnKodeTypeCodeMapper : ICodeSystemMapper
 
     public ComprehensiveCodeSystem? MapToComprehensiveCodeSystem(string rawInput)
     {
-        var codeSystem = JsonSerializer.Deserialize<ValueSetCodeList>(rawInput, TerminologyConstants.JsonSerializerDefaultSettings);
+        var codeSystem = JsonSerializer.Deserialize<ValueSetCodeList>(rawInput, Constants.JsonDefaultOptions.DefaultSettings);
 
         if (codeSystem == null) return null;
 

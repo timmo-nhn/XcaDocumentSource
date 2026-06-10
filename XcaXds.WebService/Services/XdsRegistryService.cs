@@ -14,6 +14,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.WebService.Services;
 
@@ -22,6 +23,7 @@ public partial class XdsRegistryService
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
+    private readonly DocumentObfuscationService _documentObfuscationService;
     private readonly ILogger<XdsRegistryService> _logger;
 
     private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));

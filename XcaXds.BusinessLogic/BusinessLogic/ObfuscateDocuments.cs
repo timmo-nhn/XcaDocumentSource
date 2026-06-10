@@ -1,4 +1,5 @@
-﻿using XcaXds.BusinessLogic.BusinessLogic;
+﻿using Microsoft.Extensions.Logging;
+using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -6,22 +7,36 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
+using XcaXds.Shared.Commons;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Models.Custom;
+using XcaXds.Terminology.Services;
 
 namespace XcaXds.BusinessLogic.BusinessLogic;
 
-public static class DocumentObfuscationExtensions
+public class DocumentObfuscationService
 {
+    private readonly ILogger<DocumentObfuscationService> _logger;
+    private readonly BusinessLogicFiltersService _businessLogicFiltersService;
+    private readonly TerminologyService _terminologyService;
+
+    public DocumentObfuscationService(ILogger<DocumentObfuscationService> logger, BusinessLogicFiltersService businessLogicFiltersService, TerminologyService terminologyService)
+    {
+        _logger = logger;
+        _businessLogicFiltersService = businessLogicFiltersService;
+        _terminologyService = terminologyService;
+    }
+
     /// <summary>
     /// Obfuscate document entries in a document list with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
     /// Will not remove the entry from the result list! </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the DocumentEntry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public static List<IdentifiableType> ObfuscateRestrictedDocumentEntries(this List<IdentifiableType> identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
+    public void ObfuscateRestrictedDocumentEntries(List<IdentifiableType> identifiableTypes, BusinessLogicParameters? businessLogic, string[] valuesToIgnore, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
 
-        if (identifiableTypes == null) return [];
+        if (identifiableTypes == null) return;
 
         var requestAppliesTo = businessLogic?.AppliesTo ?? AppliesTo.Unknown;
 
@@ -38,13 +53,19 @@ public static class DocumentObfuscationExtensions
 
                 bool obfuscate = requestAppliesTo switch
                 {
-                    AppliesTo.HelseId => confCodes.Any(ccode => BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
-                    AppliesTo.Helsenorge => confCodes.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.HealthcarePersonell => confCodes.Any(ccode => _businessLogicFiltersService.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.Citizen => confCodes.Any(ccode => _businessLogicFiltersService.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
                     _ => false
                 };
 
+                var purposeOfUse = _terminologyService.GetCodeSystemByKey(CodeSystemNames.AuthenticationCodeSystems.PurposeOfUse);
+
+                var eTreat = _terminologyService.GetValueFromCodeSystem(purposeOfUse, "ETREAT")?.Value;
+                var btg = _terminologyService.GetValueFromCodeSystem(purposeOfUse, "BTG")?.Value;
+
+
                 // Dont obscure in emergency situations
-                if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)
+                if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(eTreat, btg) == true)
                 {
                     obfuscate = false;
                 }
@@ -63,7 +84,7 @@ public static class DocumentObfuscationExtensions
 
                 foreach (var slot in extrinsicObject.Slot ?? [])
                 {
-                    ObfuscateSlot(slot);
+                    ObfuscateSlot(slot, valuesToIgnore);
                 }
 
                 foreach (var classification in extrinsicObject.Classification ?? [])
@@ -78,11 +99,9 @@ public static class DocumentObfuscationExtensions
                 obfuscatedEntriesCount++;
             }
         }
-
-        return identifiableTypes;
     }
 
-    private static void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier, AppliesTo issuer = AppliesTo.Unknown)
+    private void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier, AppliesTo issuer = AppliesTo.Unknown)
     {
         if (externalIdentifier == null || string.IsNullOrWhiteSpace(externalIdentifier.IdentificationScheme)) return;
 
@@ -105,7 +124,7 @@ public static class DocumentObfuscationExtensions
         }
     }
 
-    private static void ObfuscateClassification(ClassificationType? classification)
+    private void ObfuscateClassification(ClassificationType? classification, string[] valuesToIgnore)
     {
         if (classification == null || string.IsNullOrWhiteSpace(classification.ClassificationScheme)) return;
 
@@ -123,7 +142,7 @@ public static class DocumentObfuscationExtensions
                 }
                 foreach (var slot in classification.Slot ?? [])
                 {
-                    ObfuscateSlot(slot);
+                    ObfuscateSlot(slot, valuesToIgnore);
                 }
                 break;
 
@@ -134,7 +153,7 @@ public static class DocumentObfuscationExtensions
         }
     }
 
-    private static void ObfuscateSlot(SlotType? slot)
+    private void ObfuscateSlot(SlotType? slot, string[] valuesToIgnore)
     {
         if (slot == null) return;
 
@@ -169,6 +188,10 @@ public static class DocumentObfuscationExtensions
                 break;
 
             case Constants.Xds.SlotNames.AuthorInstitution:
+                var purposeOfUse = _terminologyService.GetCodeSystemByKey(CodeSystemNames.AuthenticationCodeSystems.PurposeOfUse);
+
+                var eTreat = _terminologyService.GetValueFromCodeSystem(purposeOfUse, "ETREAT")?.Value;
+
                 for (int i = 0; i < slot.ValueList?.Value?.Length; i++)
                 {
                     var value = slot.ValueList.Value[i];
@@ -178,8 +201,8 @@ public static class DocumentObfuscationExtensions
                         var structuredValue = Hl7Object.Parse<XON>(value);
                         if (structuredValue == null) return;
 
-                        // Dont obfuscate the value for organization or the last value
-                        if (structuredValue.AssigningAuthority?.UniversalId == Constants.Oid.Brreg || i == slot.ValueList.Value.Length) continue;
+                        // Dont obfuscate ignored values or the last value
+                        if (structuredValue.AssigningAuthority?.UniversalId.IsAnyOf(valuesToIgnore) == true || i == slot.ValueList.Value.Length) continue;
 
                         structuredValue.OrganizationIdentifier = string.IsNullOrWhiteSpace(structuredValue.OrganizationIdentifier) ? null : "*****";
                         structuredValue.IdNumber = string.IsNullOrWhiteSpace(structuredValue.IdNumber) ? null : "*****";

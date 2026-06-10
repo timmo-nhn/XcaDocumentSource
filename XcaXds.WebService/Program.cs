@@ -5,6 +5,7 @@ using Microsoft.FeatureManagement;
 using NHN.OpenTelemetryExtensions;
 using System.Collections;
 using System.Text.Json.Serialization;
+using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Interfaces;
@@ -14,9 +15,9 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
+using XcaXds.Shared.ConfigBinder;
 using XcaXds.Source.Source;
 using XcaXds.Terminology.Services;
-using XcaXds.Terminology.Sources;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -206,12 +207,11 @@ public class Program
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
 
+        // Terminology services
         builder.Services.AddSingleton<HttpTerminologySource>();
         builder.Services.AddSingleton<FileTerminologySource>();
         builder.Services.AddSingleton<TerminologySourceFactory>();
         builder.Services.AddSingleton<TerminologyService>();
-        builder.Services.AddSingleton<TerminologySourcesService>();
-        builder.Services.AddHostedService<TerminologyUpdaterService>();
 
         // Validation and certificate services
         builder.Services.AddSingleton<Saml2Validator>();
@@ -236,6 +236,15 @@ public class Program
         builder.Services.AddScoped<FhirService>();
         builder.Services.AddSingleton<FhirResourceValidatorService>();
         builder.Services.AddSingleton<XdsOnFhirTransformerService>();
+
+        // Business logic
+        builder.Services.AddSingleton<BusinessLogicFiltererService>();
+        builder.Services.AddSingleton<BusinessLogicFiltersService>();
+        builder.Services.AddSingleton<BusinessRulesDescriptorService>();
+
+        // Obfuscation of document lists
+        builder.Services.AddSingleton<DocumentObfuscationService>();
+
 
         // Health check
         builder.Services.AddHealthChecks();

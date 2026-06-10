@@ -11,9 +11,9 @@ public class UnitTests_BusinessLogic_Miscellaneous
     [Fact]
     public async Task GetBusinessRuleDescriptor()
     {
-        var plaintext = BusinessRulesDescriptor.BusinessRulesPlainText;
-        var json = BusinessRulesDescriptor.BusinessRulesJson;
-        var obfuscate = BusinessRulesDescriptor.EntriesToObfuscateJson;
+        var plaintext = BusinessRulesDescriptorService.BusinessRulesPlainText;
+        var json = BusinessRulesDescriptorService.BusinessRulesJson;
+        var obfuscate = BusinessRulesDescriptorService.EntriesToObfuscateJson;
     }
 
     [Fact]
