@@ -43,7 +43,6 @@ public class SigningCertificateService
         catch (Exception ex)
         {
             _logger.LogWarning("Exception when fetching certificates, using fallback values defined in config variables\n"+ ex.ToString());
-            throw;
         }
     }
 
