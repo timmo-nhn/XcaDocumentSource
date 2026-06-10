@@ -15,7 +15,9 @@ public class ApplicationConfig
     public string AtnaLogExporterEndpoint { get; set; } = string.Empty;
     public string ClamAvEndpoint { get; set; } = string.Empty;
 	public bool ClamAvEnabled { get; set; }
-    public string CertificatesRaw { get; set; } = string.Empty;
-	public string SigningCertificateUrls { get; set;  } = string.Empty; 
+    public string[] CertificatesRaw { get; set; } = [];
+	public string[] SigningCertificateUrls { get; set;  } = []; 
     public string FriendlyName { get; set; }
+    public string[] ValidAudiences { get; set; } = [];
+    public string[] ValidIssuers { get; set; } = [];
 }

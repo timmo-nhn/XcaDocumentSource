@@ -214,7 +214,7 @@ public class Program
 
         // Validation and certificate services
         builder.Services.AddSingleton<Saml2Validator>();
-        builder.Services.AddSingleton<SigningCertificateService>();
+        builder.Services.AddSingleton<SigningCertificateFetcherService>();
 
         // "Meta" and status related services
         builder.Services.AddSingleton<ApplicationMetaService>();

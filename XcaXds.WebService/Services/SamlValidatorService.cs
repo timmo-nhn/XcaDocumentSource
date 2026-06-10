@@ -9,12 +9,12 @@ public class Saml2Validator
     private readonly ILogger<Saml2Validator> _logger;
     private readonly Saml2SecurityTokenHandler _saml2Handler = new Saml2SecurityTokenHandler();
     private readonly ApplicationConfig _appConfig;
-    private readonly SigningCertificateService _signingCertificateService;
+    private readonly SigningCertificateFetcherService _signingCertificateService;
 
     private string[]? SigningCertificates;
     private TokenValidationParameters ValidationParameters = default!;
 
-    public Saml2Validator(ILogger<Saml2Validator> logger, ApplicationConfig applicationConfig, SigningCertificateService signingCertificateService)
+    public Saml2Validator(ILogger<Saml2Validator> logger, ApplicationConfig applicationConfig, SigningCertificateFetcherService signingCertificateService)
     {
         _logger = logger;
         _appConfig = applicationConfig;
@@ -25,9 +25,9 @@ public class Saml2Validator
     {
         if (ValidationParameters != null) return false;
 
-        await _signingCertificateService.OverrideSigningCertificatesFromExternalApis();
+        var certificates = await _signingCertificateService.GetSamlTokenSigningCertificatesFromExternalApis();
 
-        SigningCertificates = [_appConfig.HelseidCert, _appConfig.HelsenorgeCert];
+        SigningCertificates = certificates;
 
         var idpCert = SigningCertificates.Select(cs => X509CertificateLoader.LoadCertificate(Convert.FromBase64String(cs)));
         var signingKeys = idpCert.Select(idpC => new X509SecurityKey(idpC));
