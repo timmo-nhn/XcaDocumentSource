@@ -16,6 +16,7 @@ using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Source.Source;
 using XcaXds.Terminology.Services;
+using XcaXds.Terminology.Sources;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -209,7 +210,7 @@ public class Program
         builder.Services.AddSingleton<FileTerminologySource>();
         builder.Services.AddSingleton<TerminologySourceFactory>();
         builder.Services.AddSingleton<TerminologyService>();
-        builder.Services.AddSingleton<TerminologyService>();
+        builder.Services.AddSingleton<TerminologySourcesService>();
         builder.Services.AddHostedService<TerminologyUpdaterService>();
 
         // Validation and certificate services

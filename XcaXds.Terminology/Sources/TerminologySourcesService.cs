@@ -15,7 +15,7 @@ namespace XcaXds.Terminology.Sources;
 /// <para/>
 /// The code systems can either be fetched from an API endpoint (<see cref="HttpTerminologySource"/>) or from a file (<see cref="FileTerminologySource"/>) or any other mechanism you can come up with :)
 /// </summary>
-public static class TerminologySources
+public static class TerminologySourcesService
 {
     public static List<TerminologySourceDefinition> GetDefinitions() => Terminology_Norway;
 

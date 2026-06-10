@@ -27,8 +27,8 @@ public class TerminologyUpdaterService : IHostedService
 
         var allCodeSystems = new Dictionary<string, ComprehensiveCodeSystem[]>();
 
-        var terminologySources = TerminologySources.GetDefinitions();
-        
+        var terminologySources = TerminologySourcesService.GetDefinitions();
+
         _logger.LogDebug("Found {Count} terminology source definitions", terminologySources.Count);
 
         foreach (var sources in terminologySources)

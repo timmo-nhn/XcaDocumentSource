@@ -19,17 +19,19 @@ public class FhirResourceValidatorService
 {
     private readonly ILogger<FhirResourceValidatorService> _logger;
     private readonly ApplicationConfig _appConfig;
+    private readonly BusinessLogicFiltersService _businessLogicFiltersService;
 
     private Validator _validator;
 
-    public FhirResourceValidatorService(ILogger<FhirResourceValidatorService> logger, ApplicationConfig appConfig)
+    public FhirResourceValidatorService(ILogger<FhirResourceValidatorService> logger, ApplicationConfig appConfig, BusinessLogicFiltersService businessLogicFiltersService)
     {
         _logger = logger;
         _appConfig = appConfig;
+        _businessLogicFiltersService = businessLogicFiltersService;
 
         _validator = InitValidator();
 
-        BusinessLogicFiltersService.AllowedPatientOids.Add(new(_appConfig.HomeCommunityId));
+        _businessLogicFiltersService.GetAllowedPatientOids().Add(new(_appConfig.HomeCommunityId));
         BusinessLogicFiltersService.AllowedAttachments.Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [new(_appConfig.HomeCommunityId)]));
     }
 

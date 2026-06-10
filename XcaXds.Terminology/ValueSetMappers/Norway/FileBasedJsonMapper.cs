@@ -2,7 +2,7 @@
 using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Custom;
 
-namespace XcaXds.Terminology.Sources;
+namespace XcaXds.Terminology.ValueSetMappers.Norway;
 
 public class FileBasedJsonMapper : ICodeSystemMapper
 {
