@@ -51,7 +51,7 @@ public class TerminologyUpdaterService : IHostedService
             }
 
             _terminologyService.AddCodeSystem(sources.Name, [.. codeSystems]);
-            _terminologyService.GetCodeSystemByName(sources.Name);
+            _terminologyService.GetCodeSystemByKey(sources.Name);
         }
     }
 

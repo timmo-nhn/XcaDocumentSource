@@ -9,8 +9,9 @@ public class TerminologySource<TMapper> where TMapper : ICodeSystemMapper
         SourcePath = sourcePath;
         MapperToUse = mapperToUse;
     }
+
     public string SourcePath { get; set; } = string.Empty;
-    // The implementation of 
+    // The implementation of ICodeSystemMapper to use
     public TMapper MapperToUse { get; set; }
 
 }

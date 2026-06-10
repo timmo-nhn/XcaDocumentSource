@@ -21,6 +21,14 @@ public static class BusinessLogicExtensions
         return year;
     }
 
+    /// <summary>
+    /// Checks if an integer is within a certain range (inclusive).<para/> Returns true if it is, false otherwise.
+    /// </summary>
+    public static bool InRange(this int input, int lower, int upper)
+    {
+        return input >= lower && input <= upper;
+    }
+
     public static BusinessLogicParameters MapFromAbacRequestToBusinessLogic(AbacRequest? abacRequest)
     {
         var businessLogic = new BusinessLogicParameters();

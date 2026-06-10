@@ -13,7 +13,7 @@ namespace XcaXds.Terminology.Sources;
 /// which include the source path and an implementation of the <see cref="ICodeSystemMapper"/>
 /// that will be used to convert the content from the sourcePath to a ComprehensiveCodeSystem.
 /// <para/>
-/// The code systems can either be fetched from an API endpoint (<see cref="HttpTerminologySource"/>) or from a file (<see cref="FileTerminologySource"/>).
+/// The code systems can either be fetched from an API endpoint (<see cref="HttpTerminologySource"/>) or from a file (<see cref="FileTerminologySource"/>) or any other mechanism you can come up with :)
 /// </summary>
 public static class TerminologySources
 {
@@ -24,7 +24,10 @@ public static class TerminologySources
     [
         new(TerminologyConstants.XdsCodeSystemNames.Gender,
         [
-            new("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/3101", new FinnKodeMapper())
+            new("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/3101", new FinnKodeMapper()),
+
+            // Example: Fallback to file based code system if running offline or external terminology service is unavailable
+            // new("OfflineCodeSystems/Genders.json", new FinnKodeMapper())
         ]),
 
         new(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode,
@@ -60,6 +63,10 @@ public static class TerminologySources
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8654" ,new FinnKodeMapper()),
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8655" ,new FinnKodeMapper()),
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8663" ,new FinnKodeMapper()),
+        ]),
+        new(TerminologyConstants.OtherCodeSystemNames.OrganizationAssigningAuthorities,
+        [
+            new("No/OrganizationAssigningAuthorities.json", new FileBasedJsonMapper()),
         ]),
     ];
 }

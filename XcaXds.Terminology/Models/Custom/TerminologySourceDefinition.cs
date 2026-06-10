@@ -4,7 +4,7 @@ namespace XcaXds.Terminology.Models.Custom;
 
 public class TerminologySourceDefinition
 {
-    public TerminologySourceDefinition(string name, params TerminologySource<ICodeSystemMapper>[] terminologySources)
+    public TerminologySourceDefinition(string name, TerminologySource<ICodeSystemMapper>[] terminologySources)
     {
         Name = name;
         TerminologySources = terminologySources;

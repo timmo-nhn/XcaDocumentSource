@@ -32,4 +32,14 @@ public static class TerminologyConstants
         public const string PracticeSettingCode = "PracticeSettingCode";
 
     }
+
+    /// <summary>
+    /// The internal names of the code systems referenced by the XDS metadata specification will use. 
+    /// </summary>
+    public static class OtherCodeSystemNames
+    {
+        public const string OrganizationAssigningAuthorities = "OrganizationAssigningAuthorities";
+        public const string PatientAssigningAuthorities = "PatientAssigningAuthorities";
+        public const string PractitionerAssigningAuthorities = "PractitionerAssigningAuthorities";
+    }
 }

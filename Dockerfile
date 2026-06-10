@@ -9,6 +9,7 @@ RUN dotnet publish XcaXds.WebService/XcaXds.WebService.csproj -c Release -o /app
 COPY XcaXds.Source/Registry /app/registry
 COPY XcaXds.Source/Repository /app/repository
 COPY XcaXds.Source/PolicyRepository /app/policyrepository
+COPY XcaXds.Terminology/OfflineCodeSystems /app/offlinecodesystems
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 

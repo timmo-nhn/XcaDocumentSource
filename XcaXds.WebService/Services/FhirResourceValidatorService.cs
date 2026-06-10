@@ -83,7 +83,7 @@ public class FhirResourceValidatorService
         ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", BusinessLogicFiltersService.AllowedPracticeSettings);
         ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", BusinessLogicFiltersService.AllowedConfidentialityCodes);
         ValidateIdentifiers(outcome, codeableConcepts, "type", BusinessLogicFiltersService.AllowedTypeCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "category", BusinessLogicFiltersService.AllowedCategoryCodes);
+        ValidateIdentifiers(outcome, codeableConcepts, "category", BusinessLogicFiltersService.AllowedClassCodes);
         ValidateIdentifiers(outcome, codeableConcepts, "format", BusinessLogicFiltersService.AllowedFormatCodes);
         ValidateIdentifiers(outcome, codeableConcepts, "attachment", BusinessLogicFiltersService.AllowedAttachments);
     }

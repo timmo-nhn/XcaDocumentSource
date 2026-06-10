@@ -18,10 +18,10 @@ namespace XcaXds.BusinessLogic.BusinessLogic;
 public class BusinessLogicFiltersService
 {
     private readonly TerminologyService _terminologyService;
+
     public BusinessLogicFiltersService(TerminologyService terminologyService)
     {
         _terminologyService = terminologyService;
-        CitizenObfuscationCodes = GetCitizenObfuscationCodes();
     }
 
     //public static readonly ComprehensiveCodeSystem VolvenDocumentTypes = typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem();
@@ -36,90 +36,132 @@ public class BusinessLogicFiltersService
 
     //public static readonly HashSet<(string Code, string CodeSystem)> AllConfidentialityCodes = [.. Hl7ConfCodeValues.Concat(VolvenConfCodeValues).Select(val => (val.Code!, val.CodeSystem!))];
 
-
-
-    private static HashSet<(string Code, string CodeSystem)>? CitizenObfuscationCodes { get; set; }
-
-    private HashSet<(string Code, string CodeSystem)> GetCitizenObfuscationCodes()
+    public HashSet<(string Code, string CodeSystem)> GetCitizenObfuscationCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByName(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
 
         return new HashSet<(string Code, string CodeSystem)>()
         {
-            (VeryRestricted, Constants.CodeSystems.Hl7.ConfidentialityCode.System),
-            (NORN_ANG, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
+            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "V").AsTuple(),
+            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORN_ANG").AsTuple(),
         };
     }
 
 
-    private static readonly HashSet<(string Code, string CodeSystem)> HealthcarePersonellObfuscationCodes =
-    [
-        (NORS, Constants.CodeSystems.Volven.ConfidentialityCode_9603.System)
-    ];
+    public HashSet<(string Code, string CodeSystem)> GetHealthcarePersonellObfuscationCodes()
+    {
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedOrganizationOids =
-    [
-        new(Constants.Oid.Brreg),
-        new(Constants.Oid.ReshId)
-    ];
+        return new HashSet<(string Code, string CodeSystem)>()
+        {
+            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORS").AsTuple(),
+        };
+    }
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedPractitionerOids =
-    [
-        new(Constants.Oid.Fnr),
-        new(Constants.Oid.Hpr),
-    ];
+    public List<ComprehensiveCodeSystem> GetAllowedOrganizationOids()
+    {
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.OtherCodeSystemNames.OrganizationAssigningAuthorities);
+        return [.. confidentialityCodeSystems];
+    }
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedPatientOids =
-    [
-        new(Constants.Oid.Fnr),
-        new(Constants.Oid.Dnr),
-        new(Constants.Oid.Hnr)
-    ];
+    public List<ComprehensiveCodeSystem> GetAllowedPractitionerOids()
+    {
+        var practitionerSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.OtherCodeSystemNames.PractitionerAssigningAuthorities);
+        return [.. practitionerSystems];
+    }
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedFacilityTypes =
-    [
-        typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.FacilityType_1305).GetAsComprehensiveCodesystem()
-    ];
+    public List<ComprehensiveCodeSystem> GetAllowedPatientOids()
+    {
+        var patientSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.OtherCodeSystemNames.PatientAssigningAuthorities);
+        return [.. patientSystems];
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedPracticeSettings =
-    [
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8651).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8653).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8654).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8655).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Volven.PracticeSetting_8663).GetAsComprehensiveCodesystem()
-    ];
+        //new(Constants.Oid.Fnr),
+        //new(Constants.Oid.Dnr),
+        //new(Constants.Oid.Hnr)
+    }
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedTypeCodes =
-    [
-        typeof(Constants.CodeSystems.Volven.TypeCode_9602).GetAsComprehensiveCodesystem()
-    ];
+    public List<ComprehensiveCodeSystem> GetAllowedFacilityTypes()
+    {
+        var facilityTypes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.FacilityType);
+        return [.. facilityTypes];
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedCategoryCodes =
-    [
-        typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem()
-    ];
+        //typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
+        //typeof(Constants.CodeSystems.Volven.FacilityType_1305).GetAsComprehensiveCodesystem()
+    }
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedConfidentialityCodes =
-    [
-        typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603).GetAsComprehensiveCodesystem(),
-        typeof(Constants.CodeSystems.Hl7.ConfidentialityCode).GetAsComprehensiveCodesystem(),
-        new("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
-    ];
+    public List<ComprehensiveCodeSystem> GetAllowedPracticeSettings()
+    {
+        var practiceSettings = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.PracticeSettingCode);
+        return [.. practiceSettings];
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedFormatCodes =
-    [
-        new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
-        new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
-        new("formatCodes"),
-        new("FormatCodes"),
-    ];
+        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8651).GetAsComprehensiveCodesystem(),
+        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8653).GetAsComprehensiveCodesystem(),
+        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8654).GetAsComprehensiveCodesystem(),
+        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8655).GetAsComprehensiveCodesystem(),
+        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8663).GetAsComprehensiveCodesystem()
 
-    public static readonly List<ComprehensiveCodeSystem> AllowedAttachments = [];
+    }
 
-    public static readonly (string, string)[] CitizenConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(CitizenObfuscationCodes.Contains)];
-    public static readonly (string, string)[] HealthcarePersonellConfidentialityCodesToObfuscate = [.. AllConfidentialityCodes.Where(HealthcarePersonellObfuscationCodes.Contains)];
+    public List<ComprehensiveCodeSystem> GetAllowedTypeCodes()
+    {
+        var typeCodes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.TypeCode);
+        return [.. typeCodes];
+
+        //typeof(Constants.CodeSystems.Volven.TypeCode_9602).GetAsComprehensiveCodesystem()
+    }
+
+    public List<ComprehensiveCodeSystem> GetAllowedClassCodes()
+    {
+        var classCodes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ClassCode);
+        return [.. classCodes];
+
+        //typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem()
+    }
+
+    public List<ComprehensiveCodeSystem> GetAllowedConfidentialityCodes()
+    {
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+        return [.. confidentialityCodeSystems];
+
+        //typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603).GetAsComprehensiveCodesystem(),
+        //typeof(Constants.CodeSystems.Hl7.ConfidentialityCode).GetAsComprehensiveCodesystem(),
+        //new("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
+    }
+
+    public List<ComprehensiveCodeSystem> GetAllowedFormatCodes()
+    {
+        var formatCodes = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.FormatCode);
+        return [.. formatCodes];
+
+        //new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
+        //new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
+        //new("formatCodes"),
+        //new("FormatCodes"),
+    }
+
+    public List<ComprehensiveCodeSystem> GetAllowedAttachments()
+    {
+        var attachments = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.Attachments);
+        return [.. attachments];
+    }
+
+    public (string, string)[] GetCitizenConfidentialityCodesToObfuscate()
+    {
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+
+        return []
+            //[.. confidentialityCodeSystems.Values().Where(GetCitizenObfuscationCodes().Contains)]
+            ;
+    }
+
+    public (string, string)[] GetHealthcarePersonellConfidentialityCodesToObfuscate()
+    {
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(TerminologyConstants.XdsCodeSystemNames.ConfidentialityCode);
+
+        return []
+            //[.. confidentialityCodeSystems.Where(GetHealthcarePersonellObfuscationCodes().Contains)]
+            ;
+    }
 
     public static readonly string[] AllowedMimeTypes =
     [
@@ -537,10 +579,6 @@ public class BusinessLogicFiltersService
 
     private static IEnumerable<IdentifiableType> DenyAll() { return []; }
 
-    public static bool InRange(this int input, int lower, int upper)
-    {
-        return input >= lower && input <= upper;
-    }
 
     /// <summary>
     /// Collection expressions are not directly supported in Expression Trees...
@@ -549,5 +587,4 @@ public class BusinessLogicFiltersService
     {
         return items;
     }
-
 }

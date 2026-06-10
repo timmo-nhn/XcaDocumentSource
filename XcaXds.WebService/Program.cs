@@ -209,6 +209,7 @@ public class Program
         builder.Services.AddSingleton<FileTerminologySource>();
         builder.Services.AddSingleton<TerminologySourceFactory>();
         builder.Services.AddSingleton<TerminologyService>();
+        builder.Services.AddSingleton<TerminologyService>();
         builder.Services.AddHostedService<TerminologyUpdaterService>();
 
         // Validation and certificate services
@@ -218,8 +219,6 @@ public class Program
         // "Meta" and status related services
         builder.Services.AddSingleton<ApplicationMetaService>();
         builder.Services.AddSingleton<MonitoringStatusService>();
-
-        // "Meta" and status related services
         builder.Services.AddSingleton<StatisticsTransformerService>();
         builder.Services.AddSingleton<XdsSubmitObjectsValidator>();
         builder.Services.AddSingleton<RequestThrottlingService>();

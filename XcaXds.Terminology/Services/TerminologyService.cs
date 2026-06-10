@@ -23,13 +23,28 @@ public class TerminologyService
         _logger.LogInformation($"Added code system {name} with {codeSystems.Length} entries");
     }
 
-    public ComprehensiveCodeSystem[] GetCodeSystemByName(string name)
+    public ComprehensiveCodeSystem[] GetCodeSystemByKey(string name)
     {
         return CodeSystems[name];
     }
 
     public ComprehensiveCodeSystem[] GetCodeSystemBySystem(string system)
     {
-        return CodeSystems.Values.SelectMany(cs => cs).Where(cs => cs.System == system).ToArray();
+        return CodeSystems.Values.SelectMany(cs => cs).Where(cs => cs.SystemOid == system).ToArray();
+    }
+
+    public KeyValuePair<string, string>? GetValueFromCodeSystem(ComprehensiveCodeSystem[] confidentialityCodeSystems, string inputValue)
+    {
+        _logger.LogInformation($"Getting value {inputValue} from code systems {string.Join(", ", confidentialityCodeSystems.Select(cc => cc.SystemOid))}");
+        var fetchedValue = confidentialityCodeSystems.GetValueSystemOid(inputValue); 
+        
+        if(fetchedValue != null )
+        {
+            _logger.LogInformation($"Got value {fetchedValue?.Value} from code system {fetchedValue?.Key}");
+
+            return fetchedValue;
+        }
+        _logger.LogWarning($"Could not find value {inputValue} in code systems {string.Join(", ", confidentialityCodeSystems.Select(cc => cc.SystemOid))}");
+        return null;
     }
 }

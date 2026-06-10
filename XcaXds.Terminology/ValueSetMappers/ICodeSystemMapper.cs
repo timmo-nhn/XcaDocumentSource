@@ -8,5 +8,5 @@ namespace XcaXds.Terminology.Mappers;
 /// </summary>
 public interface ICodeSystemMapper
 {
-    public ComprehensiveCodeSystem MapToComprehensiveCodeSystem(string rawInput);
+    public ComprehensiveCodeSystem? MapToComprehensiveCodeSystem(string rawInput);
 }

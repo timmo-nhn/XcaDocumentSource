@@ -10,31 +10,41 @@ public class ComprehensiveCodeSystem
     // For cases where we care about both the system and the values. E.g. for authorization purposes, where we want to check if a certain value is present in a certain system.
     public ComprehensiveCodeSystem(string oid, CodeSystemValue[] values)
     {
-        System = oid;
+        SystemOid = oid;
         Values = values;
     }
 
     // For cases where we only care about the system, and not the values. E.g. for filtering purposes.
     public ComprehensiveCodeSystem(string system)
     {
-        System = system;
+        SystemOid = system;
     }
 
-    public string System { get; set; }
+    public string? SystemOid { get; set; }
+    public string? SystemUrl { get; set; }
+    public string? Name { get; set; }
 
     public CodeSystemValue[]? Values { get; set; }
 }
 
 public static class ComprehensiveCodeSystemExtensions
 {
-    public static string[] Systems(this IEnumerable<ComprehensiveCodeSystem> source)
+    public static string[]? SystemOids(this IEnumerable<ComprehensiveCodeSystem> source)
     {
-        return source.Select(ccs => ccs.System).ToArray();
+        return [.. source.Select(ccs => ccs.SystemOid)];
+    }
+
+    public static string[]? SystemUrls(this IEnumerable<ComprehensiveCodeSystem> source)
+    {
+        return [.. source.Select(ccs => ccs.SystemUrl)];
     }
 
     public static CodeSystemValue[]? Values(this IEnumerable<ComprehensiveCodeSystem> source, string system)
     {
-        return source.Where(sys => sys.System.NoUrn() == system.NoUrn())?.Values()?.ToArray();
+        return source.Where(sys => 
+            sys.SystemOid?.NoUrn() == system.NoUrn() || 
+            sys.SystemUrl == system.NoUrn())?
+            .Values()?.ToArray();
     }
 
     public static CodeSystemValue[]? Values(this IEnumerable<ComprehensiveCodeSystem> source)
@@ -47,8 +57,33 @@ public static class ComprehensiveCodeSystemExtensions
     /// <summary>
     /// Get a certain value, and its associated system. If the value is not found, returns null.
     /// </summary>
-    public static KeyValuePair<string, string>? GetValue(this IEnumerable<ComprehensiveCodeSystem> source, string value)
+    public static KeyValuePair<string, string>? GetValueSystemOid(this IEnumerable<ComprehensiveCodeSystem> source, string value)
     {
-        return source.Where(v => v.Values?.Any(vv => vv.Value == value) ?? false).Select(v => new KeyValuePair<string, string>(v.System, value)).FirstOrDefault();
+        return source
+            .Where(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true)
+            .Select(v => new KeyValuePair<string, string>(v.SystemOid, value))
+            .FirstOrDefault();
+
+    }
+
+    /// <summary>
+    /// Get a certain value, and its associated system. If the value is not found, returns null.
+    /// </summary>
+    public static KeyValuePair<string, string>? GetValueSystemUrl(this IEnumerable<ComprehensiveCodeSystem> source, string value)
+    {
+        return source
+            .Where(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true)
+            .Select(v => new KeyValuePair<string, string>(v.SystemUrl, value))
+            .FirstOrDefault();
+
+    }
+
+    public static (string, string) AsTuple(this KeyValuePair<string, string>? source)
+    {
+        if (source.HasValue)
+        {
+            return (source.Value.Key, source.Value.Value);
+        }
+        return (string.Empty, string.Empty);
     }
 }
