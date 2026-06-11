@@ -1,17 +1,19 @@
 ﻿using Hl7.Fhir.Model;
+using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
-using XcaXds.Terminology.Models.Custom;
 using XcaXds.Terminology.Services;
-using static XcaXds.BusinessLogic.BusinessLogic.ValuesToUseForBusinessLogic;
-namespace XcaXds.BusinessLogic.BusinessLogic;
+using static XcaXds.BusinessLogic.Services.ValuesToUseForBusinessLogic;
+
+namespace XcaXds.BusinessLogic.Services;
 
 internal static class ValuesToUseForBusinessLogic
 {
@@ -47,11 +49,11 @@ internal static class ValuesToUseForBusinessLogic
     }
 }
 
-public class BusinessLogicFiltersService
+public class BusinessLogicFiltersRegistry
 {
     private readonly TerminologyService _terminologyService;
 
-    public BusinessLogicFiltersService(TerminologyService terminologyService)
+    public BusinessLogicFiltersRegistry(TerminologyService terminologyService)
     {
         _terminologyService = terminologyService;
         InitConstantValuesUsedForBusinessLogicFiltering();
@@ -73,15 +75,36 @@ public class BusinessLogicFiltersService
     private void InitConstantValuesUsedForBusinessLogicFiltering()
     {
         typeof(ValuesToUseForBusinessLogic).GetEnumValuesAsUnderlyingType();
-        var values = _terminologyService.GetCodeSystemByKey(CodeSystemNames.AuthenticationCodeSystems.PurposeOfUse);
+        var purposeOfUse = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.PurposeOfUse);
+        var confidentialityCode = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
+        var acp = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.Acp);
 
-        TREAT = values.GetValueSystemOid("TREAT")?.Value;
-        ETREAT = values.GetValueSystemOid("ETREAT")?.Value;
-        COC = values.GetValueSystemOid("COC")?.Value;
-        BTG = values.GetValueSystemOid("BTG")?.Value;
+        BTG = purposeOfUse.GetValueSystemOid("BTG")?.Value!;
+        COC = purposeOfUse.GetValueSystemOid("COC")?.Value!;
+        CAREMGT = purposeOfUse.GetValueSystemOid("CAREMGT")?.Value!;
+        ETREAT = purposeOfUse.GetValueSystemOid("ETREAT")?.Value!;
+        FAMRQT = purposeOfUse.GetValueSystemOid("FAMRQT")?.Value!;
+        PATRQT = purposeOfUse.GetValueSystemOid("PATRQT")?.Value!;
+        PWATRNY = purposeOfUse.GetValueSystemOid("PWATRNY")?.Value!;
+        TREAT = purposeOfUse.GetValueSystemOid("TREAT")?.Value!;
+        ClinicalCare_1 = purposeOfUse.GetValueSystemOid("ClinicalCare_1")?.Value!;
+        EmergencyCare_2 = purposeOfUse.GetValueSystemOid("EmergencyCare_2")?.Value!;
+        Management_5 = purposeOfUse.GetValueSystemOid("Management_5")?.Value!;
+        SubjectOfCare_13 = purposeOfUse.GetValueSystemOid("SubjectOfCare_13")?.Value!;
 
+        Normal = confidentialityCode.GetValueSystemOid("Normal")?.Value!;
+        Restricted = confidentialityCode.GetValueSystemOid("Restricted")?.Value!;
+        VeryRestricted = confidentialityCode.GetValueSystemOid("VeryRestricted")?.Value!;
 
-        AllBusinessRules = GetAllBusinessRulesForFilteringDocumentList();
+        Acp.NullValue = acp.GetValueSystemOid("NullValue")?.Value!;
+        Acp.RepresentCitizenUnder12 = acp.GetValueSystemOid("RepresentCitizenUnder12")?.Value!;
+        Acp.RepresentAnotherCitizen = acp.GetValueSystemOid("RepresentAnotherCitizen")?.Value!;
+        Acp.RepresentedUnableToConsent = acp.GetValueSystemOid("RepresentedUnableToConsent")?.Value!;
+        Acp.NotObligedToConsent = acp.GetValueSystemOid("NotObligedToConsent")?.Value!;
+        Acp.ExcplicitConsent = acp.GetValueSystemOid("ExcplicitConsent")?.Value!;
+        Acp.UnableToConsent = acp.GetValueSystemOid("UnableToConsent")?.Value!;
+        Acp.ExceptionToConcent = acp.GetValueSystemOid("ExceptionToConcent")?.Value!;
+        Acp.HasConsent = acp.GetValueSystemOid("HasConsent")?.Value!;
     }
 
     public string[] GetAllowedMimeTypes()
@@ -102,7 +125,7 @@ public class BusinessLogicFiltersService
 
     public HashSet<(string Code, string CodeSystem)> GetCitizenObfuscationCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
         return new HashSet<(string Code, string CodeSystem)>()
         {
@@ -111,10 +134,9 @@ public class BusinessLogicFiltersService
         };
     }
 
-
     public HashSet<(string Code, string CodeSystem)> GetHealthcarePersonellObfuscationCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
         return new HashSet<(string Code, string CodeSystem)>()
         {
@@ -122,21 +144,21 @@ public class BusinessLogicFiltersService
         };
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedOrganizationOids()
+    public ComprehensiveCodeSystem[] GetAllowedOrganizationOids()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.OtherCodeSystems.OrganizationAssigningAuthorities);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities);
         return [.. confidentialityCodeSystems];
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedPractitionerOids()
+    public ComprehensiveCodeSystem[] GetAllowedPractitionerOids()
     {
-        var practitionerSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.OtherCodeSystems.PractitionerAssigningAuthorities);
+        var practitionerSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PractitionerAssigningAuthorities);
         return [.. practitionerSystems];
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedPatientOids()
+    public ComprehensiveCodeSystem[] GetAllowedPatientOids()
     {
-        var patientSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.OtherCodeSystems.PatientAssigningAuthorities);
+        var patientSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PatientAssigningAuthorities);
         return [.. patientSystems];
 
         //new(Constants.Oid.Fnr),
@@ -144,18 +166,18 @@ public class BusinessLogicFiltersService
         //new(Constants.Oid.Hnr)
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedFacilityTypes()
+    public ComprehensiveCodeSystem[] GetAllowedFacilityTypes()
     {
-        var facilityTypes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.FacilityType);
+        var facilityTypes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.FacilityType);
         return [.. facilityTypes];
 
         //typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
         //typeof(Constants.CodeSystems.Volven.FacilityType_1305).GetAsComprehensiveCodesystem()
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedPracticeSettings()
+    public ComprehensiveCodeSystem[] GetAllowedPracticeSettings()
     {
-        var practiceSettings = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.PracticeSettingCode);
+        var practiceSettings = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.PracticeSettingCode);
         return [.. practiceSettings];
 
         //typeof(Constants.CodeSystems.Volven.PracticeSetting_8651).GetAsComprehensiveCodesystem(),
@@ -166,25 +188,25 @@ public class BusinessLogicFiltersService
 
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedTypeCodes()
+    public ComprehensiveCodeSystem[] GetAllowedTypeCodes()
     {
-        var typeCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.TypeCode);
+        var typeCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.TypeCode);
         return [.. typeCodes];
 
         //typeof(Constants.CodeSystems.Volven.TypeCode_9602).GetAsComprehensiveCodesystem()
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedClassCodes()
+    public ComprehensiveCodeSystem[] GetAllowedClassCodes()
     {
-        var classCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ClassCode);
+        var classCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode);
         return [.. classCodes];
 
         //typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem()
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedConfidentialityCodes()
+    public ComprehensiveCodeSystem[] GetAllowedConfidentialityCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
         return [.. confidentialityCodeSystems];
 
         //typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603).GetAsComprehensiveCodesystem(),
@@ -192,9 +214,9 @@ public class BusinessLogicFiltersService
         //new("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedFormatCodes()
+    public ComprehensiveCodeSystem[] GetAllowedFormatCodes()
     {
-        var formatCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.FormatCode);
+        var formatCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.FormatCode);
         return [.. formatCodes];
 
         //new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
@@ -203,15 +225,15 @@ public class BusinessLogicFiltersService
         //new("FormatCodes"),
     }
 
-    public List<ComprehensiveCodeSystem> GetAllowedAttachments()
+    public ComprehensiveCodeSystem[] GetAllowedAttachments()
     {
-        var attachments = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Hl7CodeSystems.Attachments);
+        var attachments = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Hl7.Attachments);
         return [.. attachments];
     }
 
     public (string, string)[] GetCitizenConfidentialityCodesToObfuscate()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
         return []
             //[.. confidentialityCodeSystems.Values().Where(GetCitizenObfuscationCodes().Contains)]
@@ -220,7 +242,7 @@ public class BusinessLogicFiltersService
 
     public (string, string)[] GetHealthcarePersonellConfidentialityCodesToObfuscate()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ConfidentialityCode);
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
         return []
             //[.. confidentialityCodeSystems.Where(GetHealthcarePersonellObfuscationCodes().Contains)]
@@ -253,7 +275,7 @@ public class BusinessLogicFiltersService
 
     public Dictionary<string, BusinessRule<IdentifiableType>> AllBusinessRules { get; set; }
 
-    private Dictionary<string, BusinessRule<IdentifiableType>> GetAllBusinessRulesForFilteringDocumentList()
+    public Dictionary<string, BusinessRule<IdentifiableType>> GetAllBusinessRulesForFilteringDocumentList()
     {
         return new()
         {
@@ -272,7 +294,7 @@ public class BusinessLogicFiltersService
                         logic.Resource.Code == logic.Subject.Code &&
                         logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
                         logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-                        logic.Acp.NoUrn() == XcaXds.Terminology.ValueSets.Constants.Volven.Oid.Saml.Acp.NullValue.NoUrn() &&
+                        logic.Acp.NoUrn() == Acp.NullValue.NoUrn() &&
                         logic.SubjectAge >= 18,
 
                     Filter = robjs =>
@@ -526,33 +548,33 @@ public class BusinessLogicFiltersService
                 }
             },
 
-            /// <summary>
-            /// Filter according to Kjernejournalforskriften <para/>
-            /// <code>
-            /// Category | Dokumentgruppe               | Visning i KJ | Eksempler på dokumenter
-            /// ====================================================================================
-            /// A00-1    | Epikriser og sammenfatninger | Ubegrenset   | Epikriser etter innleggelse, poliklinikk m.m.
-            /// C00-1    | Prøvesvar, vev og vesker     | Siste 1 år   | Medisinks biokjemi, patologi m.m.
-            /// D00-1    | Organfunksjon                | Siste 5 år   | Ultralyd av hjerte, spirometri m.m.
-            /// E00-1    | Bildediagnostikk             | Siste 5 år   | Radiologi, ultralyd m.m.
-            /// I00-1    | Korrespondanse               | Siste 1 år   | Henvisninger
-            /// </code>
-            /// </summary>
-            {
-                "HealthcarePersonellKjernejournalForskriften", new()
-                {
-                    Condition = logic =>
-                        logic.Scope != null &&
-                        logic.Scope.Length > 0 &&
+            ///// <summary>
+            ///// Filter according to Kjernejournalforskriften <para/>
+            ///// <code>
+            ///// Category | Dokumentgruppe               | Visning i KJ | Eksempler på dokumenter
+            ///// ====================================================================================
+            ///// A00-1    | Epikriser og sammenfatninger | Ubegrenset   | Epikriser etter innleggelse, poliklinikk m.m.
+            ///// C00-1    | Prøvesvar, vev og vesker     | Siste 1 år   | Medisinks biokjemi, patologi m.m.
+            ///// D00-1    | Organfunksjon                | Siste 5 år   | Ultralyd av hjerte, spirometri m.m.
+            ///// E00-1    | Bildediagnostikk             | Siste 5 år   | Radiologi, ultralyd m.m.
+            ///// I00-1    | Korrespondanse               | Siste 1 år   | Henvisninger
+            ///// </code>
+            ///// </summary>
+            //{
+            //    "HealthcarePersonellKjernejournalForskriften", new()
+            //    {
+            //        Condition = logic =>
+            //            logic.Scope != null &&
+            //            logic.Scope.Length > 0 &&
 
-                        logic.AppliesTo == AppliesTo.HealthcarePersonell &&
-                    // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
-                    // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
-                        logic.Scope.Contains("kjernejournalforskriften"),
+            //            logic.AppliesTo == AppliesTo.HealthcarePersonell &&
+            //        // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
+            //        // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
+            //            logic.Scope.Contains("kjernejournalforskriften"),
 
-                    Filter = robjs => FilterByKjernejournalForskriften(robjs)
-                }
-            }
+            //        Filter = robjs => FilterByKjernejournalForskriften(robjs)
+            //    }
+            //}
         };
     }
 
@@ -581,7 +603,7 @@ public class BusinessLogicFiltersService
 
 
 
-    public IEnumerable<IdentifiableType> FilterByKjernejournalForskriften(IEnumerable<IdentifiableType> source)
+    public static IEnumerable<IdentifiableType> FilterByKjernejournalForskriften(IEnumerable<IdentifiableType> source)
     {
         var now = DateTimeOffset.Now;
 
@@ -590,11 +612,10 @@ public class BusinessLogicFiltersService
 
         var sourceAsList = source.OfType<ExtrinsicObjectType>().ToList();
 
-        // HAYO! HAYO! HAYO! FIX THIS CodeSystem stuff!!!!
-        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.ProvesvarVevOgVaesker");
-        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.Organfunksjon");
-        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.BildediagnostikkOgAndreMedisinskeBilder");
-        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, "Constants.Xds.KjForskriftCategoryCodes.Korrespondanse");
+        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.ProvesvarVevOgVaesker);
+        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.Organfunksjon);
+        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.BildediagnostikkOgAndreMedisinskeBilder);
+        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.Korrespondanse);
 
         var removeProvesvar = provesvarDocuments.Where(document => document.GetServiceStartTime() < oneYearAgo).ToList();
         var removeOrgan = organDocuments.Where(document => document.GetServiceStartTime() < fiveYearsAgo).ToList();
@@ -608,6 +629,23 @@ public class BusinessLogicFiltersService
         return sourceAsList;
     }
 
+    // HAYO! This is a a straightforward way to implement it.
+    // But principally speaking it should really be factored out as a subset of the 9602 category codes in the terminology service
+    private static class KjForskriftCategoryCodes
+    {
+        public const string System = "2.16.578.1.12.4.1.1.9602";
+        public const string EpikriserOgSammenfatninger = "A00-1";
+        public const string KontinuerligLopendeJournal = "B00-1";
+        public const string ProvesvarVevOgVaesker = "C00-1";
+        public const string Organfunksjon = "D00-1";
+        public const string BildediagnostikkOgAndreMedisinskeBilder = "E00-1";
+        public const string KurveObservasjonOgBehandling = "F00-1";
+        public const string Korrespondanse = "I00-1";
+        public const string AttesterMeldingOgErklaeringer = "J00-1";
+        public const string TestOgScoring = "S00-1";
+    }
+
+
     private static bool CodingMatches(CodedValue? coding, CodedValue searchCoding)
     {
         if (coding == null)
@@ -619,13 +657,13 @@ public class BusinessLogicFiltersService
         return systemMatches && codeMatches;
     }
 
-    private List<ExtrinsicObjectType> GetVolvenDocumentsByCategory(List<ExtrinsicObjectType> documents, string categoryCode)
+    private static List<ExtrinsicObjectType> GetVolvenDocumentsByCategory(List<ExtrinsicObjectType> documents, string categoryCode)
     {
         var categories = documents
             .Where(document =>
                 document.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ClassCode)
                 .Select(RegistryMetadataTransformer.MapClassificationToCodedValue)
-                .Any(coding => CodingMatches(coding, new CodedValue(categoryCode, "VolvenDocumentTypes.System")))) // HAYO! HAYO! HAYO! FIX THIS CodeSystem stuff
+                .Any(coding => CodingMatches(coding, new CodedValue(categoryCode, KjForskriftCategoryCodes.System))))
             .ToList();
 
         return categories;
@@ -639,7 +677,7 @@ public class BusinessLogicFiltersService
             {
                 var classifications = extrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode);
 
-                if (allowedLevels == null || allowedLevels.Length == 0)
+                if (allowedLevels == null || allowedLevels.Length == 0 || classifications.Length == 0)
                 {
                     yield break;
                 }
@@ -648,8 +686,8 @@ public class BusinessLogicFiltersService
                 // - At least 1 classification must match any in allowedLevels
                 // - All classifications must not have any in disallowedLevels
                 // - Classifications can contain other codes not in allowedLevels or disallowedLevels
-                var hasAllowed = classifications.Any(cc => cc?.NodeRepresentation != null && allowedLevels.Contains(cc.NodeRepresentation));
-                var hasDisallowed = classifications.Any(cc => cc?.NodeRepresentation != null && (disallowedLevels ?? []).Contains(cc.NodeRepresentation));
+                var hasAllowed = classifications.Any(cc => cc?.NodeRepresentation != null && allowedLevels?.Contains(cc.NodeRepresentation) == true);
+                var hasDisallowed = classifications.Any(cc => cc?.NodeRepresentation != null && disallowedLevels?.Contains(cc.NodeRepresentation) == true);
 
                 if (hasAllowed && !hasDisallowed)
                 {

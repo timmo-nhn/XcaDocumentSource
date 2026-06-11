@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.Commons.Models.Soap.Actions;
 

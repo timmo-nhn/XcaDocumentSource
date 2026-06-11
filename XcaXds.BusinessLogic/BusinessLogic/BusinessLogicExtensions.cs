@@ -1,7 +1,9 @@
 ﻿using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.BusinessLogic.BusinessLogic;
 
@@ -14,7 +16,7 @@ public static class BusinessLogicExtensions
     {
         if (string.IsNullOrWhiteSpace(patientId) || patientId.Length != 11) return 0;
 
-        var patientNin = Hl7FhirExtensions.ParseNorwegianNinToDateTime(patientId);
+        var patientNin = NorwegianNinParsingExtensions.ParseNorwegianNinToDateTime(patientId);
 
         var year = DateTime.Today.Year - (patientNin.HasValue ? patientNin.Value.Year : 0);
 

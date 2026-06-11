@@ -1,4 +1,4 @@
-﻿using XcaXds.BusinessLogic.BusinessLogic;
+﻿using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Tests.Helpers;
@@ -21,6 +21,6 @@ public class UnitTests_BusinessLogic_Miscellaneous
     {
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(500, "13116900216", true).AsRegistryObjectList().OfType<ExtrinsicObjectType>().ToArray();
 
-        var excpectedRegistryObjects = BusinessLogicFiltersService.FilterByKjernejournalForskriften(metadata).ToArray();
+        var excpectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByKjernejournalForskriften(metadata).ToArray();
     }
 }

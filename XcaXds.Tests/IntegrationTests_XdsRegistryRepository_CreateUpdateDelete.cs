@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
-using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
@@ -16,9 +16,11 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
+using XcaXds.Shared.Commons;
 using Xunit.Abstractions;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.ConfidentialityCode;
+using static XcaXds.Tests.TestConstants.PurposeOfUse;
 using Task = System.Threading.Tasks.Task;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Tests;
 
@@ -43,7 +45,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_kjforskriften_readdocumentlist",
-            attributeId: Constants.Saml.Attribute.EhelseScope,
+            attributeId: TestConstants.SamlAttributes.EhelseScope,
 
             // HAYO! KJ_SCOPE use a non-standard scope
             codeValue: "kjernejournalforskriften",
@@ -56,7 +58,23 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
         // Explicitly add KjernejournalForskriften rule for this test
-        BusinessLogicFilterer.AddRule(BusinessLogicFiltersService.HealthcarePersonellKjernejournalForskriften);
+        //BusinessLogicFilterer.AddRule(BusinessLogicFiltersService.HealthcarePersonellKjernejournalForskriften);
+        _businessLogicFiltererService.AddRule(
+            "HealthcarePersonellKjernejournalForskriften", new()
+            {
+                Condition = logic =>
+                    logic.Scope != null &&
+                    logic.Scope.Length > 0 &&
+
+                    logic.AppliesTo == AppliesTo.HealthcarePersonell &&
+                    // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
+                    // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
+                    logic.Scope.Contains("kjernejournalforskriften"),
+
+                Filter = robjs => BusinessLogicFiltersRegistry.FilterByKjernejournalForskriften(robjs)
+            }
+        
+        );
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
@@ -73,7 +91,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
-        var excpectedRegistryObjects = BusinessLogicFiltersService.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()).ToArray();
+        var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -81,7 +99,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0);
+        Assert.Equal(expectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
 
@@ -129,7 +147,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var responseContent = await firstResponse.Content.ReadAsStringAsync();
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
-        var excpectedRegistryObjects = BusinessLogicFiltersService.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
+        var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -137,7 +155,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(excpectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0);
+        Assert.Equal(expectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
 
@@ -160,7 +178,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayQuery",
-            attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
+            attributeId: TestConstants.SamlAttributes.PurposeOfUse_Helsenorge,
             codeValue: "13",
             codeSystemValue: "1.0.14265.1",
             action: "ReadDocumentList");
@@ -186,7 +204,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
-        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
+        var expectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -256,7 +274,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
-        var excpectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
+        var expectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -288,7 +306,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "IT_CrossGatewayRetrieve",
-            attributeId: Constants.Saml.Attribute.Role,
+            attributeId: TestConstants.SamlAttributes.Role,
             codeValue: "LE;SP;PS",
             codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
             action: "ReadDocuments");
@@ -327,7 +345,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
-        var excpectedDocumentCount = iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest.Length;
+        var expectedDocumentCount = iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest.Length;
 
         // Cleanup
         await NukeRegistryRepository();
@@ -335,7 +353,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
+        Assert.Equal(expectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
 
@@ -396,7 +414,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
-        var excpectedDocumentCount = iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest.Length;
+        var expectedDocumentCount = iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest.Length;
 
         // Cleanup
         await NukeRegistryRepository();
@@ -404,7 +422,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(excpectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
+        Assert.Equal(expectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
 
@@ -912,7 +930,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
             document.Value = randomFile.Data;
             registryObjects.OfType<DocumentEntryDto>()?.FirstOrDefault(ro => ro.UniqueId == document.Id)?.MimeType = randomFile.MimeType;
-            if (randomFile.MimeType.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes) == false)
+            if (randomFile.MimeType.IsAnyOf(_businessLogicFiltersRegistry.GetAllowedMimeTypes()) == false)
             {
                 unsupportedMimeTypeCount++;
             }
@@ -1370,7 +1388,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         if (attribute != null)
         {
             var valueElement = attribute.Element(saml + "AttributeValue");
-            
+
             // HAYO! KJ_SCOPE
             valueElement?.Value = "kjernejournalforskriften";
         }

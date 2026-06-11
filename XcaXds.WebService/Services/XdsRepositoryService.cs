@@ -4,6 +4,7 @@ using PdfSharp.Pdf.IO;
 using System.Buffers.Text;
 using System.Text;
 using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
@@ -13,20 +14,33 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
+using XcaXds.Terminology.Services;
+using static XcaXds.Shared.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.WebService.Services;
 
 public class XdsRepositoryService
 {
+    private readonly ILogger<XdsRepositoryService> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly RepositoryWrapper _repositoryWrapper;
-    private readonly ILogger<XdsRepositoryService> _logger;
     private readonly RegistryWrapper _registry;
     private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
     private readonly IClamAvFileScanner _fileScanner;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
+    private readonly TerminologyService _terminologyService;
 
-    public XdsRepositoryService(ApplicationConfig xdsConfig, RepositoryWrapper repositoryWrapper, RegistryWrapper registry, ILogger<XdsRepositoryService> logger, XdsSubmitObjectsValidator submitObjectsValidator, IClamAvFileScanner fileScanner)
+    public XdsRepositoryService(
+        ApplicationConfig xdsConfig,
+        RepositoryWrapper repositoryWrapper,
+        RegistryWrapper registry,
+        ILogger<XdsRepositoryService> logger,
+        XdsSubmitObjectsValidator submitObjectsValidator,
+        IClamAvFileScanner fileScanner,
+        BusinessLogicFiltersRegistry businessLogicFiltersRegistry,
+        TerminologyService terminologyService)
     {
         _submitObjectsValidator = submitObjectsValidator;
         _repositoryWrapper = repositoryWrapper;
@@ -34,6 +48,8 @@ public class XdsRepositoryService
         _registry = registry;
         _logger = logger;
         _fileScanner = fileScanner;
+        _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
+        _terminologyService = terminologyService;
     }
 
     public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope, bool validateOnly = false)
@@ -105,8 +121,8 @@ public class XdsRepositoryService
             var mimeTypeFromMagicByte = MimeTypeExtensions.TryGetMimeTypeFromDocumentBytes(assocDocument?.Value, out var mime) ? mime : null;
             var documentEntryMimetype = assocExtrinsicObject?.MimeType;
 
-            if (!documentEntryMimetype.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes) ||
-                !mimeTypeFromMagicByte.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes))
+            if (!documentEntryMimetype.IsAnyOf(_businessLogicFiltersRegistry.GetAllowedMimeTypes()) ||
+                !mimeTypeFromMagicByte.IsAnyOf(_businessLogicFiltersRegistry.GetAllowedMimeTypes()))
             {
                 var message = $"Unsupported MimeType {mimeTypeFromMagicByte}";
 
@@ -114,7 +130,7 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, message, "XDS Repository");
             }
 
-            if (!BusinessLogicFiltersService.IsMatchingMimeType(mimeTypeFromMagicByte, documentEntryMimetype))
+            if (!BusinessLogicFiltersRegistry.IsMatchingMimeType(mimeTypeFromMagicByte, documentEntryMimetype))
             {
                 var message = $"MimeType in DocumentEntry is missing or does not match actual document mime type. Document ID: {assocDocument?.Id}, DocumentEntry MimeType: {documentEntryMimetype}, Actual MimeType: {mimeTypeFromMagicByte}";
 
@@ -346,8 +362,8 @@ public class XdsRepositoryService
 
         bool restricted = requestAppliesTo switch
         {
-            AppliesTo.HealthcarePersonell => confCodes?.Any(ccode => BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
-            AppliesTo.Citizen => confCodes?.Any(ccode => BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate.Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.HealthcarePersonell => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.Citizen => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             _ => false
         };
 

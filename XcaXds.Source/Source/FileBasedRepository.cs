@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Source.Source;
 
@@ -64,7 +64,7 @@ public class FileBasedRepository : IRepository
 
         if (!IsValidIdentifier(documentId) || !IsValidIdentifier(patientIdPart)) return false;
 
-        lock (_lock) 
+        lock (_lock)
         {
             var documentPath = Path.Combine(_repositoryPath, patientIdPart);
 

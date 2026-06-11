@@ -6,6 +6,7 @@ using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
 
 public class SoapDenyResponseStrategy : IPepDenyResponseStrategy
 {

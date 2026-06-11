@@ -9,9 +9,12 @@ using Hl7.Fhir.Specification.Source;
 using Hl7.Fhir.Specification.Terminology;
 using Hl7.Fhir.Support;
 using Hl7.FhirPath;
-using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Extensions;
+using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Models.Custom;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
@@ -19,20 +22,20 @@ public class FhirResourceValidatorService
 {
     private readonly ILogger<FhirResourceValidatorService> _logger;
     private readonly ApplicationConfig _appConfig;
-    private readonly BusinessLogicFiltersService _businessLogicFiltersService;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
 
     private Validator _validator;
 
-    public FhirResourceValidatorService(ILogger<FhirResourceValidatorService> logger, ApplicationConfig appConfig, BusinessLogicFiltersService businessLogicFiltersService)
+    public FhirResourceValidatorService(ILogger<FhirResourceValidatorService> logger, ApplicationConfig appConfig, BusinessLogicFiltersRegistry businessLogicFiltersRegistry)
     {
         _logger = logger;
         _appConfig = appConfig;
-        _businessLogicFiltersService = businessLogicFiltersService;
+        _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
 
         _validator = InitValidator();
 
-        _businessLogicFiltersService.GetAllowedPatientOids().Add(new(_appConfig.HomeCommunityId));
-        BusinessLogicFiltersService.AllowedAttachments.Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [new(_appConfig.HomeCommunityId)]));
+        //_businessLogicFiltersRegistry.GetAllowedPatientOids().Add(new(_appConfig.HomeCommunityId));
+        //_businessLogicFiltersRegistry.GetAllowedAttachments().Add(new("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId", [new(_appConfig.HomeCommunityId)]));
     }
 
     public OperationOutcome ValidateFhirResource(Resource inputResource, bool useFirelyValidator = false)
@@ -81,39 +84,39 @@ public class FhirResourceValidatorService
     {
         var codeableConcepts = FindDescendantResources(bundle, "CodeableConcept", "Coding", "Attachment").ToArray();
 
-        ValidateIdentifiers(outcome, codeableConcepts, "facilityType", BusinessLogicFiltersService.AllowedFacilityTypes);
-        ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", BusinessLogicFiltersService.AllowedPracticeSettings);
-        ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", BusinessLogicFiltersService.AllowedConfidentialityCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "type", BusinessLogicFiltersService.AllowedTypeCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "category", BusinessLogicFiltersService.AllowedClassCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "format", BusinessLogicFiltersService.AllowedFormatCodes);
-        ValidateIdentifiers(outcome, codeableConcepts, "attachment", BusinessLogicFiltersService.AllowedAttachments);
+        ValidateIdentifiers(outcome, codeableConcepts, "facilityType", _businessLogicFiltersRegistry.GetAllowedFacilityTypes());
+        ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", _businessLogicFiltersRegistry.GetAllowedPracticeSettings());
+        ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", _businessLogicFiltersRegistry.GetAllowedConfidentialityCodes());
+        ValidateIdentifiers(outcome, codeableConcepts, "type", _businessLogicFiltersRegistry.GetAllowedTypeCodes());
+        ValidateIdentifiers(outcome, codeableConcepts, "category", _businessLogicFiltersRegistry.GetAllowedClassCodes());
+        ValidateIdentifiers(outcome, codeableConcepts, "format", _businessLogicFiltersRegistry.GetAllowedFormatCodes());
+        ValidateIdentifiers(outcome, codeableConcepts, "attachment", _businessLogicFiltersRegistry.GetAllowedAttachments());
     }
 
     private void ValidatePractitioners(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Practitioner");
-        ValidateIdentifiers(outcome, orgs, "Practitioner", BusinessLogicFiltersService.AllowedPractitionerOids);
+        ValidateIdentifiers(outcome, orgs, "Practitioner", _businessLogicFiltersRegistry.GetAllowedPractitionerOids());
     }
 
-    private static void ValidateOrganizations(OperationOutcome outcome, Bundle bundle)
+    private void ValidateOrganizations(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Organization");
-        ValidateIdentifiers(outcome, orgs, "Organization", BusinessLogicFiltersService.AllowedOrganizationOids);
+        ValidateIdentifiers(outcome, orgs, "Organization", _businessLogicFiltersRegistry.GetAllowedOrganizationOids());
     }
 
-    private static void ValidatePatients(OperationOutcome outcome, Bundle bundle)
+    private void ValidatePatients(OperationOutcome outcome, Bundle bundle)
     {
         var patients = FindDescendantResources(bundle, "Patient");
-        ValidateIdentifiers(outcome, patients, "Patient", BusinessLogicFiltersService.AllowedPatientOids);
+        ValidateIdentifiers(outcome, patients, "Patient", _businessLogicFiltersRegistry.GetAllowedPatientOids());
     }
 
-    private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, ComprehensiveCodeSystem allowedSystems)
+    private void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, ComprehensiveCodeSystem allowedSystem)
     {
-        ValidateIdentifiers(outcome, resources, resourceName, [allowedSystems]);
+        ValidateIdentifiers(outcome, resources, resourceName, [allowedSystem]);
     }
 
-    private static void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, IEnumerable<ComprehensiveCodeSystem> codeSystems)
+    private void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, IEnumerable<ComprehensiveCodeSystem> codeSystems)
     {
         // Filter out unrelated resources
         resources = resources.Where(cc => cc.Name == resourceName).ToArray();
@@ -145,11 +148,11 @@ public class FhirResourceValidatorService
                 if (string.IsNullOrWhiteSpace(identifier.System) || string.IsNullOrWhiteSpace(identifier.Value))
                     continue;
 
-                var systemsMatch = codeSystems.Systems().Contains(identifier.System.NoUrn());
+                var systemsMatch = codeSystems.SystemOids().Contains(identifier.System.NoUrn());
 
                 // If Values is empty, accept anything
                 // The most psuedo-ternary-operatorial thing
-                var valuesMatch = (codeSystems.Values(identifier.System) ?? [identifier.Value]).Contains(identifier.Value.NoUrn());
+                var valuesMatch = codeSystems.Values(identifier.System)?.Select(v => v.Value).Contains(identifier.Value.NoUrn()) == true;
 
                 if (valuesMatch && systemsMatch)
                     continue;

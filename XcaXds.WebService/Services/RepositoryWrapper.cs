@@ -8,6 +8,8 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.WebService.Services;
 

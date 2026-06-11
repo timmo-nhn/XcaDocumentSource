@@ -5,6 +5,7 @@ using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.Commons.DataManipulators;
 

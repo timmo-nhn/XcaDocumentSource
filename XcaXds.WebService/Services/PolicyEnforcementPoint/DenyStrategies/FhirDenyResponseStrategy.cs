@@ -4,6 +4,7 @@ using System.Net;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
+using XcaXds.Shared.Commons;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies

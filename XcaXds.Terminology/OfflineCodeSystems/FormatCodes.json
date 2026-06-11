@@ -1,0 +1,12 @@
+
+public static class CodeValues
+{
+    public static string[] IheFormatCodes =
+    [
+        "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+        "urn:no:ehelse:document:pdf",
+        "urn:no:ehelse:document:text",
+        "urn:no:kith:xmlstds:henvisning",
+        "urn:no:ehelse:document:image",
+    ];
+}

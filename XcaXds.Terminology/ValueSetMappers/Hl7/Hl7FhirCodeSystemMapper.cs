@@ -1,8 +1,8 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using XcaXds.Terminology.Extensions;
+using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Mappers;
-using XcaXds.Terminology.Models.Custom;
 
 namespace XcaXds.Terminology.ValueSetMappers.Hl7;
 
@@ -20,7 +20,7 @@ public class Hl7FhirCodeSystemMapper : ICodeSystemMapper
 
     public Hl7FhirCodeSystemMapper()
     {
-        
+
     }
 
     public ComprehensiveCodeSystem? MapToComprehensiveCodeSystem(string rawInput)

@@ -1,4 +1,5 @@
-﻿using XcaXds.Terminology.Models.Custom;
+﻿using XcaXds.Shared.Models.Custom;
+using XcaXds.Terminology.Models.Custom;
 
 namespace XcaXds.Terminology.Mappers;
 

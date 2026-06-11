@@ -3,26 +3,38 @@ using Hl7.Fhir.Rest;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 
 namespace XcaXds.WebService.Services;
 
 public class RestfulRegistryRepositoryService
 {
+    private readonly ILogger<XdsRegistryService> _logger;
     private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
-    private readonly ILogger<XdsRegistryService> _logger;
     private readonly RepositoryWrapper _repositoryWrapper;
+    private readonly TerminologyService _terminologyService;
 
-    public RestfulRegistryRepositoryService(ApplicationConfig appConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, RepositoryWrapper repositoryWrapper)
+    public RestfulRegistryRepositoryService(
+        ApplicationConfig appConfig,
+        RegistryWrapper registryWrapper,
+        ILogger<XdsRegistryService> logger,
+        RepositoryWrapper repositoryWrapper,
+        TerminologyService terminologyService)
     {
+        _logger = logger;
         _appConfig = appConfig;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
-        _logger = logger;
+        _terminologyService = terminologyService;
     }
 
     public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime? serviceStartTime = null, DateTime? serviceStopTime = null, int currentPageNumber = 1, int pageSize = 10)
@@ -44,10 +56,13 @@ public class RestfulRegistryRepositoryService
         }
 
         var patientIdCx = Hl7Object.Parse<CX>(patientId)!;
+        var patientNin = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.PatientAssigningAuthorities, "NIN")?.Values.FirstOrDefault();
 
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing
-        patientIdCx.AssigningAuthority ??= Hl7FhirExtensions.ParseNorwegianNinToCxWithAssigningAuthority(patientId)?.AssigningAuthority ?? new() { UniversalId = Constants.Oid.Fnr, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
+        patientIdCx.AssigningAuthority ??= NorwegianNinParsingExtensions.ParseNorwegianNinToCxWithAssigningAuthority(patientId)?
+            .AssigningAuthority ?? 
+            new() { UniversalId = patientNin, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 

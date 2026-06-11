@@ -17,11 +17,17 @@ public class RequestStatisticsMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<RequestStatisticsMiddleware> _logger;
     private readonly IStatisticsQueue _statisticsQueue;
-    public RequestStatisticsMiddleware(RequestDelegate next, ILogger<RequestStatisticsMiddleware> logger, IStatisticsQueue statisticsQueue)
+    private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
+    public RequestStatisticsMiddleware(
+        RequestDelegate next, 
+        ILogger<RequestStatisticsMiddleware> logger, 
+        IStatisticsQueue statisticsQueue,
+        FhirToXdsTransformerService fhirToXdsTransformerService)
     {
         _next = next;
         _logger = logger;
         _statisticsQueue = statisticsQueue;
+        _fhirToXdsTransformerService = fhirToXdsTransformerService;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
@@ -124,7 +130,7 @@ public class RequestStatisticsMiddleware
         };
     }
 
-    private static DocumentEntryDto[]? GetDocumentEntriesRelatedToRequest(HttpContext context, Stream? requestBody, RequestAndFieldRequestType requestType)
+    private DocumentEntryDto[]? GetDocumentEntriesRelatedToRequest(HttpContext context, Stream? requestBody, RequestAndFieldRequestType requestType)
     {
         var fhirBundle = requestType == RequestAndFieldRequestType.FhirProvideBundle ? Hl7FhirExtensions.GetResourceFromStream(requestBody) as Bundle : null;
         var documentEntriesFromBundle = GetDocumentEntriesFromBundle(fhirBundle);
@@ -139,7 +145,7 @@ public class RequestStatisticsMiddleware
         return deletedRegistryObjects.Where(de => de != null).OfType<DocumentEntryDto>().ToArray();
     }
 
-    private static DocumentEntryDto? GetDocumentEntriesFromBundle(Bundle? fhirBundle)
+    private DocumentEntryDto? GetDocumentEntriesFromBundle(Bundle? fhirBundle)
     {
         if (fhirBundle == null) return null;
 
@@ -158,7 +164,7 @@ public class RequestStatisticsMiddleware
             .OfType<Binary>()
             .FirstOrDefault();
 
-        var extrinsicObject = FhirToXdsTransformer.ConvertDocumentReferenceToExtrinsicObject(patient, documentReferences, fhirBinaries);
+        var extrinsicObject = _fhirToXdsTransformerService.ConvertDocumentReferenceToExtrinsicObject(patient, documentReferences, fhirBinaries);
         var documentEntry = RegistryMetadataTransformer.TransformRegistryObjectToRegistryObjectDto(extrinsicObject.Value) as DocumentEntryDto;
 
         return documentEntry;

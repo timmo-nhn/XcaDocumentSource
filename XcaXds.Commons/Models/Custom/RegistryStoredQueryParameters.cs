@@ -4,6 +4,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.Commons.Models.Custom;
 

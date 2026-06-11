@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Terminology.Models.Custom;
+﻿namespace XcaXds.Shared.Models.Custom;
 
 public class CodeSystemValue
 {

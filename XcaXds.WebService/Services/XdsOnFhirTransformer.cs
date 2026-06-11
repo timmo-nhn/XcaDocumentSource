@@ -13,6 +13,8 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Terminology.Services;
 using XcaXds.Terminology;
 using XcaXds.Shared.Commons;
+using XcaXds.Commons.Extensions.No;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
@@ -39,7 +41,7 @@ public class XdsOnFhirTransformerService
         {
             var patientCx = Hl7Object.Parse<CX>(documentRequest.Patient, '|');
 
-            var patientOid = Hl7FhirExtensions.ParseNorwegianNinToCxWithAssigningAuthority(documentRequest.Patient);
+            var patientOid = NorwegianNinParsingExtensions.ParseNorwegianNinToCxWithAssigningAuthority(documentRequest.Patient);
 
             if (patientOid != null && patientCx != null)
             {
@@ -98,7 +100,7 @@ public class XdsOnFhirTransformerService
                 classCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ClassCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode).FirstOrDefault()?.SystemOid
                     //UniversalId = Constants.CodeSystems.Volven.CategoryCode_9602.System
                 };
 
@@ -114,7 +116,7 @@ public class XdsOnFhirTransformerService
                 typeCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.TypeCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.TypeCode).FirstOrDefault()?.SystemOid
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.TypeCode, [typeCodeCx.Serialize()]);
@@ -129,7 +131,7 @@ public class XdsOnFhirTransformerService
                 eventCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.XdsCodeSystems.ClassCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode).FirstOrDefault()?.SystemOid
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.EventCodeList, [eventCodeCx.Serialize()]);
@@ -540,13 +542,16 @@ public class XdsOnFhirTransformerService
 
         if (authorInstitutionValues != null && authorInstitutionValues.Count > 0)
         {
+            var organizationSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.Values.FirstOrDefault();
+            var departmentSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.Values.FirstOrDefault();
+
             authorInstitution = authorInstitutionValues
                 .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||
-                                            authInst?.AssigningAuthority?.UniversalId == Constants.Oid.Brreg);
+                                            authInst?.AssigningAuthority?.UniversalId == organizationSystem);
 
             authorDepartment = authorInstitutionValues
                 .LastOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||
-                                           authInst?.AssigningAuthority?.UniversalId == Constants.Oid.ReshId);
+                                           authInst?.AssigningAuthority?.UniversalId == departmentSystem);
 
             // If department and institution was the same, nullify department to avoid creating duplicates
             if (authorInstitution != null && authorDepartment != null && authorInstitution.OrganizationName == authorDepartment.OrganizationName)

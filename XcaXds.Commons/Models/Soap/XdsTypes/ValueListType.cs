@@ -1,7 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Attributes;
+using XcaXds.Shared.Commons;
 using XcaXds.WebService.Attributes;
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 

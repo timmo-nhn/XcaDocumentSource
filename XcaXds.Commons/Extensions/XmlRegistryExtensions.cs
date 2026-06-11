@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Commons.Extensions;
 

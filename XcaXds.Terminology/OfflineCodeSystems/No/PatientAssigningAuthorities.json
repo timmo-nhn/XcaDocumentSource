@@ -3,19 +3,19 @@
   "values": [
     {
       "value": "2.16.578.1.12.4.1.4.1",
-      "name": "Fnr"
+      "name": "NIN" // National Identification Number
     },
     {
       "value": "2.16.578.1.12.4.1.4.2",
-      "name": "Dnr"
+      "name": "TNIN" // Temporary Nin
     },
     {
       "value": "2.16.578.1.12.4.1.4.3",
-      "name": "Hnr"
+      "name": "ENIN" // Emergency Nin
     },
     {
       "value": "2.16.578.1.12.4.1.4.4",
-      "name": "Hpr"
+      "name": "GPIN" // General Practitioner Identification Number
     }
   ]
 }

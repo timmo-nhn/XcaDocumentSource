@@ -5,6 +5,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DomainResults;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.WebService.Services;
 
@@ -13,15 +14,21 @@ public class FhirService
     private readonly ILogger<FhirService> _logger;
     private readonly XdsRegistryService _registry;
     private readonly XdsRepositoryService _repository;
+    private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
 
     private const string HomeCommunityIdUrl_IheProfiles = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
     private const string HomeCommunityIdUrl_IheLegacy = "http://ihe.net/fhir/StructureDefinition/homeCommunityId";
 
-    public FhirService(ILogger<FhirService> logger, XdsRegistryService registry, XdsRepositoryService repository)
+    public FhirService(
+        ILogger<FhirService> logger,
+        XdsRegistryService registry, 
+        XdsRepositoryService repository,
+        FhirToXdsTransformerService fhirToXdsTransformerService)
     {
         _logger = logger;
         _registry = registry;
         _repository = repository;
+        _fhirToXdsTransformerService = fhirToXdsTransformerService;
     }
 
     public async Task<ProvideBundleResult> ProvideBundle(Bundle fhirBundle, string sessionId, bool validateOnly = false)
@@ -121,7 +128,7 @@ public class FhirService
         }
 
         _logger.LogInformation($"{sessionId} Converting FHIR bundle to XDS RegistryObjectList...");
-        var provideAndRegisterResult = FhirToXdsTransformer.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, homeCommunityId?.NoUrn());
+        var provideAndRegisterResult = _fhirToXdsTransformerService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, homeCommunityId?.NoUrn());
 
         _logger.LogInformation($"{sessionId} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
 

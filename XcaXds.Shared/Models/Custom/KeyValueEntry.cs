@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Commons.Models.Custom;
+﻿namespace XcaXds.Shared.Models.Custom;
 
 public class KeyValueEntry
 {

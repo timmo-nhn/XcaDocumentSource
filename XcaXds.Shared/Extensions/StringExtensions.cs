@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace XcaXds.Commons.Extensions;
+namespace XcaXds.Shared.Extensions;
 
 public static class StringExtensions
 {

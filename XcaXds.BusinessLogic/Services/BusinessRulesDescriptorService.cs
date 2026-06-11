@@ -7,17 +7,17 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Shared.Commons;
 
-namespace XcaXds.BusinessLogic.BusinessLogic;
+namespace XcaXds.BusinessLogic.Services;
 
 public class BusinessRulesDescriptorService : ExpressionVisitor
 {
     private readonly ILogger<BusinessRulesDescriptorService> _logger;
-    private readonly BusinessLogicFiltersService _businessLogicFiltersService;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
 
-    public BusinessRulesDescriptorService(ILogger<BusinessRulesDescriptorService> logger, BusinessLogicFiltersService businessLogicFiltersService)
+    public BusinessRulesDescriptorService(ILogger<BusinessRulesDescriptorService> logger, BusinessLogicFiltersRegistry businessLogicFiltersRegistry)
     {
         _logger = logger;
-        _businessLogicFiltersService = businessLogicFiltersService;
+        _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
 
         BusinessRulesPlainText  = WriteBusinessRulesPlainText();
         BusinessRulesJson = WriteBusinessRulesJsonFormatted();
@@ -38,12 +38,12 @@ public class BusinessRulesDescriptorService : ExpressionVisitor
         {
             new(
                 "Citizen Confidentiality Codes",
-                [.. _businessLogicFiltersService.GetCitizenConfidentialityCodesToObfuscate()
+                [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate()
                     .Select(c => new CodedValue(c.Item1!, c.Item2!))]
             ),
             new(
                 "HealthcarePersonell Confidentiality Codes",
-                [.. _businessLogicFiltersService.GetHealthcarePersonellConfidentialityCodesToObfuscate()
+                [.. _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate()
                     .Select(c => new CodedValue(c.Item1!, c.Item2!))]
             )
         };
@@ -55,7 +55,7 @@ public class BusinessRulesDescriptorService : ExpressionVisitor
     {
         var doc = new BusinessRulesDocument();
 
-        foreach (var rule in _businessLogicFiltersService.AllBusinessRules)
+        foreach (var rule in _businessLogicFiltersRegistry.AllBusinessRules)
         {
             if (rule.Value.Condition?.Body == null || rule.Value.Filter?.Body == null)
                 continue;
@@ -238,7 +238,7 @@ public class BusinessRulesDescriptorService : ExpressionVisitor
     private string WriteBusinessRulesPlainText()
     {
         var sb = new StringBuilder();
-        foreach (var ruleKvp in _businessLogicFiltersService.AllBusinessRules)
+        foreach (var ruleKvp in _businessLogicFiltersRegistry.AllBusinessRules)
         {
             var rule = ruleKvp.Value;
             var key = ruleKvp.Key;
@@ -254,14 +254,14 @@ public class BusinessRulesDescriptorService : ExpressionVisitor
             sb.AppendLine();
         }
 
-        foreach (var code in _businessLogicFiltersService.GetCitizenConfidentialityCodesToObfuscate())
+        foreach (var code in _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate())
         {
             sb.AppendLine("========= Citizen Confidentiality Codes To Obfuscate ==========");
             sb.AppendLine($"Class: {code.Item1}, Code: {code.Item2}");
             sb.AppendLine("==============================================================");
         }
 
-        foreach (var code in _businessLogicFiltersService.GetHealthcarePersonellConfidentialityCodesToObfuscate())
+        foreach (var code in _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate())
         {
             sb.AppendLine("========= Healthcare Personell Confidentiality Codes To Obfuscate ==========");
             sb.AppendLine($"Class: {code.Item1}, Code: {code.Item2}");

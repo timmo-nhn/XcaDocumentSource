@@ -1,9 +1,9 @@
 ﻿namespace XcaXds.WebService.InputFormatters;
 
 using Microsoft.AspNetCore.Mvc;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
 
 
 /// <summary>

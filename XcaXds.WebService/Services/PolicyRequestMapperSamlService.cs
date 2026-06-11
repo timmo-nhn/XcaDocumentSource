@@ -1,24 +1,35 @@
-﻿using System.Xml;
-using Microsoft.IdentityModel.Tokens.Saml2;
+﻿using Microsoft.IdentityModel.Tokens.Saml2;
+using System.Xml;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 
 namespace XcaXds.WebService.Services;
 
 /// <summary>
 /// Parse incoming requests (i.e. SOAP-requests with SAML-token) and generate Access requests from the request assertions
-/// </summary>
+/// </summary
+// HAYO! Maybe refactor into Interface!!!
 public class PolicyRequestMapperSamlService
 {
+    private readonly ILogger<PolicyRequestMapperSamlService> _logger;
     private readonly RegistryWrapper _registryWrapper;
+    private readonly TerminologyService _terminologyService;
 
-    public PolicyRequestMapperSamlService(RegistryWrapper registryWrapper)
+    public PolicyRequestMapperSamlService(
+        ILogger<PolicyRequestMapperSamlService> logger,
+        RegistryWrapper registryWrapper,
+        TerminologyService terminologyService)
     {
+        _logger = logger;
         _registryWrapper = registryWrapper;
+        _terminologyService = terminologyService;
     }
 
     public AbacRequest? GetAbacRequestFromSoapEnvelope(SoapEnvelope soapEnvelope)
@@ -74,7 +85,7 @@ public class PolicyRequestMapperSamlService
         return abacRequest;
     }
 
-    public static Dictionary<string, List<string>> MapAppliesToToAbacProperties(AppliesTo appliesTo)
+    public Dictionary<string, List<string>> MapAppliesToToAbacProperties(AppliesTo appliesTo)
     {
         return new()
         {
@@ -185,7 +196,7 @@ public class PolicyRequestMapperSamlService
         }
     }
 
-    public static Dictionary<string, List<string>> MapSamlAttributesToAbacProperties(IEnumerable<Saml2Attribute>? samltokenAuthorizationAttributes)
+    public Dictionary<string, List<string>> MapSamlAttributesToAbacProperties(IEnumerable<Saml2Attribute>? samltokenAuthorizationAttributes)
     {
         var abacProperties = new Dictionary<string, List<string>>();
 
@@ -201,7 +212,9 @@ public class PolicyRequestMapperSamlService
                 // If-statements to fix Helsenorge STS values not being proper GUIDs
                 if (attribute.Name.Contains("SecurityLevel"))
                 {
-                    attribute.Name = Constants.Saml.Attribute.EhelseSecurityLevel;
+                    var securityLevel = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "SecurityLevel")?.Values.FirstOrDefault();
+
+                    attribute.Name = securityLevel;
                 }
 
                 if (attribute.Name.Contains("Scope"))
@@ -248,7 +261,8 @@ public class PolicyRequestMapperSamlService
         if (abacProperties.All(att => att.Key.ToString() != Constants.Saml.Attribute.XuaAcp))
         {
             // Add default ACP "null value"
-            abacProperties.AddOrUpdate(Constants.Saml.Attribute.XuaAcp, [Constants.Oid.Saml.Acp.NullValue]);
+            var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+            abacProperties.AddOrUpdate(Constants.Saml.Attribute.XuaAcp, [acpNullValue]);
         }
 
         return abacProperties;

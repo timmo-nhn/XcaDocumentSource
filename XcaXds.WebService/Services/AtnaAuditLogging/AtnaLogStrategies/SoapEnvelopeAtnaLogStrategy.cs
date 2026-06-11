@@ -4,6 +4,8 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 

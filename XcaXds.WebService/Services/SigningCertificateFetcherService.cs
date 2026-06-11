@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Jwk;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.WebService.Services;
 

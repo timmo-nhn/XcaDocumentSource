@@ -22,7 +22,7 @@ public static class TerminologySourcesRegistry
     // Initial terminology implementation, for use in Norwegian eHealth
     public static List<TerminologySourceDefinition> Terminology_Norway =
     [
-        new(CodeSystemNames.XdsCodeSystems.Gender,
+        new(CodeSystemNames.Xds.Gender,
         [
             new("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/3101", new FinnKodeMapper()),
 
@@ -30,33 +30,34 @@ public static class TerminologySourcesRegistry
             // new("No/Genders.json", new FinnKodeMapper())
         ]),
 
-        new(CodeSystemNames.XdsCodeSystems.ConfidentialityCode,
+        new(CodeSystemNames.Xds.ConfidentialityCode,
         [
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9603", new FinnKodeMapper()),
             new ("https://terminology.hl7.org/7.1.0/en/CodeSystem-v3-Confidentiality.json", new Hl7FhirCodeSystemMapper())
         ]),
 
-        new(CodeSystemNames.XdsCodeSystems.ClassCode,
+        new(CodeSystemNames.Xds.ClassCode,
         [
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeClassCodeMapper())
         ]),
 
-        new(CodeSystemNames.XdsCodeSystems.TypeCode,
+        new(CodeSystemNames.Xds.TypeCode,
         [
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeTypeCodeMapper())
         ]),
 
-        new(CodeSystemNames.XdsCodeSystems.EventCode,
+        new(CodeSystemNames.Xds.EventCode,
         [
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/7210", new FinnKodeMapper())
         ]),
 
-        new(CodeSystemNames.XdsCodeSystems.FacilityType,
+        new(CodeSystemNames.Xds.FacilityType,
         [
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1303", new FinnKodeMapper()),
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1305", new FinnKodeMapper())
         ]),
-        new(CodeSystemNames.XdsCodeSystems.PracticeSettingCode,
+
+        new(CodeSystemNames.Xds.PracticeSettingCode,
         [
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8651" ,new FinnKodeMapper()),
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8653" ,new FinnKodeMapper()),
@@ -64,19 +65,26 @@ public static class TerminologySourcesRegistry
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8655" ,new FinnKodeMapper()),
             new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8663" ,new FinnKodeMapper()),
         ]),
-        new(CodeSystemNames.OtherCodeSystems.OrganizationAssigningAuthorities,
+
+        new(CodeSystemNames.Other.OrganizationAssigningAuthorities,
         [
             new("No/OrganizationAssigningAuthorities.json", new FileBasedJsonMapper()),
         ]),
-        new(CodeSystemNames.AuthenticationCodeSystems.PurposeOfUse,
+
+        new(CodeSystemNames.Authentication.PurposeOfUse,
         [
             new("PurposeOfUse_Old.json", new FileBasedJsonMapper()),
             new ("https://terminology.hl7.org/7.1.0/en/CodeSystem-v3-Confidentiality.json", new Hl7FhirCodeSystemMapper())
-
         ]),
-        new(CodeSystemNames.AuthenticationCodeSystems.Acp,
+
+        new(CodeSystemNames.Authentication.Acp,
         [
             new("Acp.json", new FileBasedJsonMapper()),
+        ]),
+
+        new(CodeSystemNames.Authentication.SamlAttributes,
+        [
+            new("No/SamlAttributes.json", new FileBasedJsonMapper()),
         ]),
     ];
 }

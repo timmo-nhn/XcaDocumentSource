@@ -6,7 +6,8 @@ using NHN.OpenTelemetryExtensions;
 using System.Collections;
 using System.Text.Json.Serialization;
 using XcaXds.BusinessLogic.BusinessLogic;
-using XcaXds.Commons.Commons;
+using XcaXds.BusinessLogic.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
@@ -15,6 +16,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
+using XcaXds.Shared.Commons;
 using XcaXds.Shared.ConfigBinder;
 using XcaXds.Source.Source;
 using XcaXds.Terminology.Services;
@@ -236,10 +238,16 @@ public class Program
         builder.Services.AddScoped<FhirService>();
         builder.Services.AddSingleton<FhirResourceValidatorService>();
         builder.Services.AddSingleton<XdsOnFhirTransformerService>();
+        builder.Services.AddSingleton<FhirToXdsTransformerService>();
+
+        // Transformer services
+        builder.Services.AddSingleton<JwtToSamlTransformerService>();
+        builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
+        builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
 
         // Business logic
-        builder.Services.AddSingleton<BusinessLogicFiltererService>();
-        builder.Services.AddSingleton<BusinessLogicFiltersService>();
+        builder.Services.AddSingleton<DocumentListFiltererService>();
+        builder.Services.AddSingleton<BusinessLogicFiltersRegistry>();
         builder.Services.AddSingleton<BusinessRulesDescriptorService>();
 
         // Obfuscation of document lists

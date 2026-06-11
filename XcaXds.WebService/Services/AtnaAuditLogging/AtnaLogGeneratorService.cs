@@ -13,8 +13,10 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
-using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
+using static XcaXds.Shared.Commons.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;
 

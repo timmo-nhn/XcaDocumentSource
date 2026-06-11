@@ -2,6 +2,7 @@
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.Statistics;
+using XcaXds.Shared.Commons;
 
 namespace XcaXds.WebService.Services.Statistics;
 

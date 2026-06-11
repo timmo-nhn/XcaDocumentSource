@@ -1,0 +1,121 @@
+{
+  "systemUrl": "SamlAttributes",
+  "values": [
+    {
+      "value": "urn:oasis:names:tc:xspa:1.0:subject:subject-id",
+      "name": "SubjectId"
+    },
+    {
+      "value": "urn:oasis:names:tc:xspa:1.0:subject:organization",
+      "name": "Organization"
+    },
+    {
+      "value": "urn:oasis:names:tc:xspa:1.0:subject:organization-id",
+      "name": "OrganizationId"
+    },
+    {
+      "value": "urn:oasis:names:tc:xspa:1.0:subject:child-organization",
+      "name": "ChildOrganization"
+    },
+    {
+      "value": "urn:oasis:names:tc:xspa:1.0:subject:role",
+      "name": "Role"
+    },
+    {
+      "value": "urn:oasis:names:tc:xspa:1.0:subject:purposeOfUse",
+      "name": "PurposeOfUse"
+    },
+    {
+      "value": "urn:oasis:names:tc:xspa:1.0:subject:purposeofuse",
+      "name": "PurposeOfUse_Helsenorge"
+    },
+    {
+      "value": "urn:oasis:names:tc:xspa:2.0:subject:npi",
+      "name": "Npi"
+    },
+    {
+      "value": "urn:ihe:iti:xca:2010:homeCommunityId",
+      "name": "HomeCommunityIdXca"
+    },
+    {
+      "value": "urn:ihe:iti:xua:2017:subject:provider-identifier",
+      "name": "ProviderIdentifier"
+    },
+    {
+      "value": "urn:ihe:iti:bppc:2007:docid",
+      "name": "BppcDocId"
+    },
+    {
+      "value": "urn:ihe:iti:xua:2012:acp",
+      "name": "XuaAcp"
+    },
+    {
+      "value": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",
+      "name": "ResourceId10"
+    },
+    {
+      "value": "urn:oasis:names:tc:xacml:2.0:resource:resource-id",
+      "name": "ResourceId20"
+    },
+    {
+      "value": "urn:oasis:names:tc:xacml:2.0:subject:role",
+      "name": "SubjectRole20"
+    },
+    {
+      "value": "urn:oasis:names:tc:xacml:2.0:action:purpose",
+      "name": "ActionPurpose20"
+    },
+    {
+      "value": "urn:no:ehelse:saml:1.0:subject:homeCommunityId",
+      "name": "EhelseHomeCommunityId"
+    },
+    {
+      "value": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
+      "name": "SecurityLevel"
+    },
+    {
+      "value": "urn:no:ehelse:saml:1.0:subject:Scope",
+      "name": "Scope"
+    },
+    {
+      "value": "urn:no:ehelse:saml:1.0:subject:client_id",
+      "name": "ClientId"
+    },
+    {
+      "value": "urn:no:ehelse:saml:1.0:subject:Authentication_method",
+      "name": "AuthenticationMethod"
+    },
+    {
+      "value": "urn:no:ehelse:saml:1.1:subject:healthcareservice",
+      "name": "HealthcareService"
+    },
+    {
+      "value": "urn:nhn:trust-framework:1.0:ext:subject:child-organization-name",
+      "name": "TrustChildOrgName"
+    },
+    {
+      "value": "urn:nhn:trust-framework:1.0:ext:resource:child-organization",
+      "name": "TrustResourceChildOrg"
+    },
+    {
+      "value": "urn:nhn:trust-framework:1.0:ext:resource:child-organization-id",
+      "name": "TrustResourceChildOrgId"
+    },
+    {
+      "value": "urn:nhn:trust-framework:1.0:ext:care-relationship:healthcare-service",
+      "name": "TrustHealthcareService"
+    },
+    {
+      "value": "urn:nhn:trust-framework:1.0:ext:care-relationship:purpose-of-use-details",
+      "name": "TrustPurposeOfUseDetails"
+    },
+    {
+      "value": "urn:nhn:trust-framework:1.0:ext:care-relationship:decision-ref",
+      "name": "TrustDecisionRef"
+    },
+    {
+      "value": "urn:oasis:names:tc:SAML:attribute:subject-id",
+      "name": "SamlSubjectId"
+    }
+  ]
+}

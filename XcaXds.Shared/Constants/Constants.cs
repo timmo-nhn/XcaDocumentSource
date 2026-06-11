@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml;
+using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.Shared.Commons;
 
@@ -11,6 +13,11 @@ public static class Constants
     {
         public const int MaxStringLength = 255;
         public const int MaxArrayLength = 65535;
+    }
+    public static class Oid
+    {
+        // The "system"-value for OID
+        public const string System = "urn:ietf:rfc:3986";
     }
 
     public static class FileSizes
@@ -181,18 +188,6 @@ public static class Constants
             //public const string GetFoldersForDocument = "urn:uuid:10cae35a-c7f9-4cf5-b61e-fc3278ffb578";
             //public const string GetRelatedDocuments = "urn:uuid:d90e5407-b356-4d91-a89f-873917b4b0e6";
             //public const string FindDocumentsByReferenceId = "urn:uuid:12941a89-e02e-4be5-967c-ce4bfc8fe492";
-        }
-
-        public static class CodeValues
-        {
-            public static string[] IheFormatCodes =
-            [
-                "urn:ihe:iti:xds:2017:mimeTypeSufficient",
-                "urn:no:ehelse:document:pdf",
-                "urn:no:ehelse:document:text",
-                "urn:no:kith:xmlstds:henvisning",
-                "urn:no:ehelse:document:image",
-            ];
         }
 
         public static class QueryParameters
@@ -512,8 +507,8 @@ public static class Constants
 
         public static class Separator
         {
-            public const char Amp = '&';
-            public const char Hatt = '^';
+            public const char Ampersand = '&';
+            public const char Caret = '^';
         }
 
         public static class UniversalIdType
@@ -834,16 +829,90 @@ public static class Constants
     {
         public static class Custom
         {
-            public const string BaseUrn = "urn:no:nhn:xcads:";
-            public const string DocumentEntryPatientIdentifier = BaseUrn + "document:patient-identifier";
-            public const string AdhocQueryPatientIdentifier = BaseUrn + "adhocquery:patient-identifier";
-            public const string DocumentUniqueId = BaseUrn + "document:uniqueid";
-            public const string RepositoryUniqueId = BaseUrn + "document:repositoryuniqueid";
-            public const string HomeCommunityId = BaseUrn + "document:homecommunityid";
-            public const string SamlNameId = BaseUrn + "saml:nameid";
-            public const string AppliesTo = BaseUrn + "xacml:appliesto";
-            public const string UnknownAttribute = BaseUrn + "xacml:unknownattribute";
-            public const string UnknownPatientIdentifier = BaseUrn + "unknown-patient-identifier";
+            public const string BaseUrn = "urn:xcads";
+            public const string DocumentEntryPatientIdentifier = BaseUrn + ":document:patient-identifier";
+            public const string AdhocQueryPatientIdentifier = BaseUrn + ":adhocquery:patient-identifier";
+            public const string DocumentUniqueId = BaseUrn + ":document:uniqueid";
+            public const string RepositoryUniqueId = BaseUrn + ":document:repositoryuniqueid";
+            public const string HomeCommunityId = BaseUrn + ":document:homecommunityid";
+            public const string SamlAttributes = BaseUrn + ":saml:attributes";
+            public const string SamlNameId = BaseUrn + SamlAttributes + ":nameid";
+            public const string AppliesTo = BaseUrn + ":xacml:appliesto";
+            public const string UnknownAttribute = BaseUrn + ":xacml:unknownattribute";
+            public const string UnknownPatientIdentifier = BaseUrn + ":unknown-patient-identifier";
         }
+    }
+}
+
+public static class ConstantsExtensions
+{
+    public static Dictionary<string, string> GetAsDictionary(this Type type)
+    {
+        var constants = new Dictionary<string, string>();
+
+        // Get all static fields of the class
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic);
+
+        foreach (var field in fields)
+        {
+            var value = (string?)field.GetValue(null);
+            // Ensure that the field is a constant (it should be a static readonly or const field)
+            if (field.IsLiteral && !field.IsInitOnly && value != null)
+            {
+                constants.Add(field.Name, value);
+            }
+        }
+
+        return constants;
+    }
+
+    public static string[] GetAsStringList(this Type type, Func<string, bool> filter)
+    {
+        return type.GetAsStringList().Where(filter).ToArray();
+    }
+
+    /// <summary>
+    /// Get all public static/readonly/const fields from a class type as a string[]
+    /// </summary>
+    /// <returns>string[] of the desired typeof(class)</returns>
+    public static string[] GetAsStringList(this Type type)
+    {
+        var constants = new List<string>();
+
+        // Get all static fields of the class
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+        foreach (var field in fields)
+        {
+            var value = (string?)field.GetValue(null);
+            // Ensure that the field is a constant (it should be a static readonly or const field)
+            if (field.IsLiteral && !field.IsInitOnly && value != null)
+            {
+                constants.Add(value);
+            }
+        }
+
+        return constants.ToArray();
+    }
+
+    public static List<KeyValueEntry> GetAsKeyValuePair(this Type type)
+    {
+        var constants = new List<KeyValueEntry>();
+
+        // Get all static fields of the class
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic);
+
+        foreach (var field in fields)
+        {
+            var value = (string?)field.GetValue(null);
+
+            // Ensure that the field is a constant (it should be a static readonly or const field)
+            if (field.IsLiteral && !field.IsInitOnly && value != null)
+            {
+                constants.Add(new KeyValueEntry() { Key = field.Name, Value = value });
+            }
+        }
+
+        return constants;
     }
 }

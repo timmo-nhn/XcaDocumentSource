@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -12,16 +13,16 @@ namespace XcaXds.BusinessLogic.BusinessLogic;
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs. Allows for partial filtering of the document list
 /// </summary>
-public class BusinessLogicFiltererService
+public class DocumentListFiltererService
 {
-    private readonly ILogger<BusinessLogicFiltererService> _logger;
-    private readonly BusinessLogicFiltersService _businessLogicFiltersService;
+    private readonly ILogger<DocumentListFiltererService> _logger;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
 
-    public BusinessLogicFiltererService(ILogger<BusinessLogicFiltererService> logger, BusinessLogicFiltersService businessLogicFiltersService)
+    public DocumentListFiltererService(ILogger<DocumentListFiltererService> logger, BusinessLogicFiltersRegistry businessLogicFiltersRegistry)
     {
         _logger = logger;
-        _businessLogicFiltersService = businessLogicFiltersService;
-        BusinessLogicRules = _businessLogicFiltersService.AllBusinessRules;
+        _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
+        BusinessLogicRules = _businessLogicFiltersRegistry.AllBusinessRules;
     }
 
     public Dictionary<string, BusinessRule<IdentifiableType>> BusinessLogicRules = null;

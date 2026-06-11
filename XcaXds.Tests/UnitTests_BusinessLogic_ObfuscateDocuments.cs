@@ -1,11 +1,11 @@
 ﻿using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 using Task = System.Threading.Tasks.Task;
+using XcaXds.BusinessLogic.Services;
 
 namespace XcaXds.Tests;
 
@@ -109,7 +109,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             ConfidentialityCode =
             [
-                .. BusinessLogicFiltersService.HealthcarePersonellConfidentialityCodesToObfuscate
+                .. BusinessLogicFiltersRegistry.HealthcarePersonellConfidentialityCodesToObfuscate
                .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
                 new()
                 {
@@ -124,7 +124,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments
         {
             ConfidentialityCode =
             [
-                .. BusinessLogicFiltersService.CitizenConfidentialityCodesToObfuscate
+                .. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate
                 .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
                 new()
                 {

@@ -3,11 +3,11 @@
   "values": [
     {
       "value": "2.16.578.1.12.4.1.4.101",
-      "name": "Brreg"
+      "name": "Organization"
     },
     {
       "value": "2.16.578.1.12.4.1.4.102",
-      "name": "ReshId"
+      "name": "Department"
     }
   ]
 }

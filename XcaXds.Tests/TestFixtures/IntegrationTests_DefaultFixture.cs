@@ -15,7 +15,11 @@ using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Startup;
+using XcaXds.Shared.Commons;
 using Xunit.Abstractions;
+using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
+using Microsoft.AspNetCore.TestHost;
 
 namespace XcaXds.Tests;
 
@@ -39,6 +43,9 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly AtnaLogExportedChecker _atnaLogExportedChecker;
     internal readonly ITestOutputHelper _output;
     internal readonly ApplicationMetaService _applicationMetaService;
+    internal readonly DocumentListFiltererService _businessLogicFiltererService;
+    internal readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
+
     internal readonly IServiceScope _scope;
 
     public Uri BaseAddress { get; private set; } = default!;
@@ -53,7 +60,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         AssigningAuthority = new HD()
         {
             UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-            UniversalId = Constants.Oid.Fnr
+            UniversalId = "2.16.578.1.12.4.1.4.1"
         }
     };
 
@@ -110,6 +117,8 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _registry = _scope.ServiceProvider.GetRequiredService<IRegistry>();
         _repository = _scope.ServiceProvider.GetRequiredService<IRepository>();
 
+        _businessLogicFiltersRegistry = _scope.ServiceProvider.GetRequiredService<BusinessLogicFiltersRegistry>();
+        _businessLogicFiltererService = _scope.ServiceProvider.GetRequiredService<DocumentListFiltererService>();
         _atnaLogExportedChecker = _scope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _atnaLogExportedChecker = _scope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _restfulRegistryService = _scope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();

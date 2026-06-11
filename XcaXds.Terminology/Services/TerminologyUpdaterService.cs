@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Models.Custom;
 using XcaXds.Terminology.Sources;
 

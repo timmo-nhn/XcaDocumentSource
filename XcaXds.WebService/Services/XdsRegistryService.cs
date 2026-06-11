@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text.Json;
 using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
@@ -15,25 +16,38 @@ using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.WebService.Services;
 
 public partial class XdsRegistryService
 {
+    private readonly ILogger<XdsRegistryService> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
     private readonly DocumentObfuscationService _documentObfuscationService;
-    private readonly ILogger<XdsRegistryService> _logger;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersService;
+    private readonly DocumentListFiltererService _businessLogicFiltererService;
 
     private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));
 
-    public XdsRegistryService(ApplicationConfig xdsConfig, RegistryWrapper registryWrapper, ILogger<XdsRegistryService> logger, XdsSubmitObjectsValidator submitObjectsValidator)
+    public XdsRegistryService(
+        ILogger<XdsRegistryService> logger, 
+        ApplicationConfig xdsConfig, 
+        RegistryWrapper registryWrapper, 
+        XdsSubmitObjectsValidator submitObjectsValidator,
+        DocumentObfuscationService documentObfuscationService,
+        BusinessLogicFiltersRegistry businessLogicFiltersService,
+        DocumentListFiltererService businessLogicFiltererService)
     {
+        _logger = logger;
         _xdsConfig = xdsConfig;
         _registryWrapper = registryWrapper;
-        _logger = logger;
         _submitObjectsValidator = submitObjectsValidator;
+        _documentObfuscationService = documentObfuscationService;
+        _businessLogicFiltersService = businessLogicFiltersService;
+        _businessLogicFiltererService = businessLogicFiltererService;
     }
 
     public static void ValidateRecursive(object? obj, List<ValidationResult> results)
@@ -108,7 +122,7 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(BusinessLogicFiltersService.AllowedMimeTypes) == false).ToArray();
+        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(_businessLogicFiltersService.GetAllowedMimeTypes()) == false).ToArray();
 
         if (invalidMimetypes?.Length > 0)
         {
@@ -669,7 +683,7 @@ public partial class XdsRegistryService
 
             _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
 
-            enumeratedEntriesResult = [.. enumeratedEntriesResult.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out filterResults)];
+            enumeratedEntriesResult = _businessLogicFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(enumeratedEntriesResult, businessLogic, out filterResults).ToList();
 
             if (filterResults.Count > 0)
             {
@@ -680,7 +694,7 @@ public partial class XdsRegistryService
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {enumeratedEntriesResult.Count}");
             }
 
-            enumeratedEntriesResult = enumeratedEntriesResult.ObfuscateRestrictedDocumentEntries(businessLogic, out var obfuscateCount);
+            _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
 
             if (obfuscateCount > 0)
             {

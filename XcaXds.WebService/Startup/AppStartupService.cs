@@ -1,6 +1,11 @@
-﻿using XcaXds.Commons.Commons;
+﻿using Microsoft.AspNetCore.Routing.Template;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Shared.Commons;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Startup;
@@ -15,6 +20,7 @@ public class AppStartupService : IHostedService
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
+    private readonly TerminologyService _terminologyService;
 
     public AppStartupService(
         ILogger<AppStartupService> logger,
@@ -24,8 +30,9 @@ public class AppStartupService : IHostedService
         MonitoringStatusService monitoringService,
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
-        PolicyRepositoryWrapper policyRepositoryWrapper
-    )
+        PolicyRepositoryWrapper policyRepositoryWrapper,
+        TerminologyService terminologyService
+        )
     {
         _logger = logger;
         _env = env;
@@ -35,6 +42,7 @@ public class AppStartupService : IHostedService
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _policyRepositoryWrapper = policyRepositoryWrapper;
+        _terminologyService = terminologyService;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -113,6 +121,8 @@ public class AppStartupService : IHostedService
 
     private void AddDefaultAccessControlPolicies()
     {
+        var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+
         var cz_deny_adhocquery_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-deny-adhocquery-resourceid",
@@ -122,7 +132,7 @@ public class AppStartupService : IHostedService
             [
                 new(
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                    new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue)
                 )
             ],
             Actions = ["ReadDocumentList"],
@@ -146,7 +156,7 @@ public class AppStartupService : IHostedService
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                    new(Constants.Saml.Attribute.XuaAcp + ":code", Constants.Oid.Saml.Acp.NullValue)
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue)
                 )
             ],
             Actions = ["ReadDocumentList", "ReadDocuments"],

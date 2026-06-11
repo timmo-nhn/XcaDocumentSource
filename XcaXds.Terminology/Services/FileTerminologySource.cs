@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Custom;
 

@@ -3,6 +3,8 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 

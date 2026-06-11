@@ -6,7 +6,7 @@ public static class CodeSystemNames
     /// The internal names of the code systems referenced by the XDS metadata specification will use. 
     /// These are not the same as the OIDs or URLs used in the XDS specification, but rather internal identifiers for the code systems that will be used in the application.
     /// </summary>
-    public static class XdsCodeSystems
+    public static class Xds
     {
         public const string ConfidentialityCode = "ConfidentialityCode";
         public const string Gender = "Gender";
@@ -18,21 +18,22 @@ public static class CodeSystemNames
         public const string FormatCode = "FormatCode";
     }
 
-    public static class Hl7CodeSystems
+    public static class Hl7
     {
         public const string Attachments = "Attachments";
     }
 
-    public static class AuthenticationCodeSystems
+    public static class Authentication
     {
         public const string PurposeOfUse = "PurposeOfUse";
         public const string Acp = "Acp";
+        public const string SamlAttributes = "SamlAttributes";
     }
 
     /// <summary>
     /// The internal names of the code systems referenced by the XDS metadata specification will use. 
     /// </summary>
-    public static class OtherCodeSystems
+    public static class Other
     {
         public const string OrganizationAssigningAuthorities = "OrganizationAssigningAuthorities";
         public const string PatientAssigningAuthorities = "PatientAssigningAuthorities";

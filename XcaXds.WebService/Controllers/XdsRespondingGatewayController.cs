@@ -8,6 +8,7 @@ using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Shared.Commons;
 using XcaXds.WebService.Services;
 
 namespace XcaXds.WebService.Controllers;

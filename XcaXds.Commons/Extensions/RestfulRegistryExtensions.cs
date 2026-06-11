@@ -1,6 +1,7 @@
-﻿using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Commons.Extensions;
 

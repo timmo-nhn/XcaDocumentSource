@@ -13,20 +13,33 @@ using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Commons;
+using XcaXds.Shared.Extensions;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 
 namespace XcaXds.WebService.Services.Statistics;
 
 public class StatisticsTransformerService
 {
     private readonly ILogger<StatisticsTransformerService> _logger;
-    private readonly RegistryWrapper _registryWrapper;
     private readonly ApplicationConfig _appConfig;
+    private readonly RegistryWrapper _registryWrapper;
+    private readonly JwtToSamlTransformerService _jwtToSamlTransformerService;
+    private readonly TerminologyService _terminologyService;
 
-    public StatisticsTransformerService(ILogger<StatisticsTransformerService> logger, RegistryWrapper registryWrapper, ApplicationConfig appConfig)
+    public StatisticsTransformerService(
+        ILogger<StatisticsTransformerService> logger,
+        ApplicationConfig appConfig,
+        RegistryWrapper registryWrapper,
+        JwtToSamlTransformerService jwtToSamlTransformerService,
+        TerminologyService terminologyService)
     {
         _logger = logger;
-        _registryWrapper = registryWrapper;
         _appConfig = appConfig;
+        _registryWrapper = registryWrapper;
+        _jwtToSamlTransformerService = jwtToSamlTransformerService;
+        _terminologyService = terminologyService;
     }
 
     public async Task<UserAccessEntry> TransformToUserAccessEntry(StatisticsRequestAndFields inputFields)
@@ -77,17 +90,21 @@ public class StatisticsTransformerService
 
         if (jwt == null) throw new InvalidOperationException("JWT cannot be null.");
 
-        var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(jwt);
+        var samlToken = _jwtToSamlTransformerService.MapJsonWebTokenToSamlToken(jwt);
 
         fhirBundleResponse ??= Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody);
 
         var statements = samlToken?.GetAllStatements();
 
+        var organization = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.Values.FirstOrDefault();
+        var department = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.Values.FirstOrDefault();
+        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+
         var subjectOrganization = GetSamlAttributeAsCodedValue(statements, "helseid://claims/client/claims/orgnr_parent");
-        subjectOrganization?.CodeSystem ??= Constants.Oid.Brreg;
+        subjectOrganization?.CodeSystem ??= organization;
 
         var subjectChildOrganization = GetSamlAttributeAsCodedValue(statements, "urn:oasis:names:tc:xspa:1.0:subject:child-organization");
-        subjectChildOrganization?.CodeSystem ??= Constants.Oid.Brreg;
+        subjectChildOrganization?.CodeSystem ??= organization;
 
         return new UserAccessEntry()
         {
@@ -102,7 +119,7 @@ public class StatisticsTransformerService
             SubjectChildOrganization = subjectChildOrganization,
             SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
 
-            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? Constants.Oid.Saml.Acp.NullValue,
+            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? acp,
 
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
@@ -176,6 +193,9 @@ public class StatisticsTransformerService
 
         var statements = samlToken?.GetAllStatements().ToList();
 
+        // HAYO! Add as class properties instead?
+        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+
         return new UserAccessEntry()
         {
             SessionId = soapEnvelopeRequest.Header?.MessageId,
@@ -190,7 +210,7 @@ public class StatisticsTransformerService
             SubjectChildOrganization = GetSamlAttributeAsCodedValue(statements, Constants.Saml.Attribute.ChildOrganization),
             SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
             AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ??
-                          Constants.Oid.Saml.Acp.NullValue,
+                          acp,
             UploadedEntries = uploadedEntries?.Length,
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
