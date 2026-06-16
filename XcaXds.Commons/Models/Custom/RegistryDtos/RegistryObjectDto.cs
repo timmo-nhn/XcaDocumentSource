@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 

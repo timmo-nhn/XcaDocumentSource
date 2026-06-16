@@ -130,7 +130,7 @@ public class AtnaLogEnricherService
 
                 samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.ResourceId20
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "ResourceId20")?.Values.FirstOrDefault(),
+                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "ResourceId20")?.FirstOrDefault(),
                     resourceId.Serialize())));
 
                 var patientName = patient?.Name?.FirstOrDefault();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using XcaXds.Commons.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.WebService.Services.Statistics;

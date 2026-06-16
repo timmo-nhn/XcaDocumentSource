@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Routing.Template;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.ClinicalDocument;
-using XcaXds.Commons.Models.Custom.PolicyDtos;
+﻿using XcaXds.Commons.Models.Custom.PolicyDtos;
+using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
@@ -21,6 +20,7 @@ public class AppStartupService : IHostedService
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
     private readonly TerminologyService _terminologyService;
+    private readonly TerminologyUpdaterService _terminologyUpdaterService;
 
     public AppStartupService(
         ILogger<AppStartupService> logger,
@@ -31,7 +31,8 @@ public class AppStartupService : IHostedService
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
         PolicyRepositoryWrapper policyRepositoryWrapper,
-        TerminologyService terminologyService
+        TerminologyService terminologyService,
+        TerminologyUpdaterService terminologyUpdaterService
         )
     {
         _logger = logger;
@@ -43,6 +44,7 @@ public class AppStartupService : IHostedService
         _repositoryWrapper = repositoryWrapper;
         _policyRepositoryWrapper = policyRepositoryWrapper;
         _terminologyService = terminologyService;
+        _terminologyUpdaterService = terminologyUpdaterService;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -119,14 +121,21 @@ public class AppStartupService : IHostedService
         _logger.LogInformation($"Removed {duds.Count} stale entries from Registry");
     }
 
-    private void AddDefaultAccessControlPolicies()
+    private async Task AddDefaultAccessControlPolicies()
     {
-        var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+        while (_terminologyUpdaterService.ServiceStatus != ServiceState.Ready &&
+            _terminologyUpdaterService.ServiceStatus != ServiceState.Crashed)
+        {
+            _logger.LogInformation($"Waiting for terminology service to initialize... (State: {_terminologyUpdaterService.ServiceStatus})");
+            Thread.Sleep(1000);
+        }
+
+        var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
 
         var cz_deny_adhocquery_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-deny-adhocquery-resourceid",
-            AppliesTo = [AppliesTo.Citizen],
+            AppliesTo = [AppliesTo.Helsenorge],
             Description = "Deny if the patient identifier in the resource-id SAML-attribute differs from the ITI-18 slot $XDSDocumentEntryPatientId (transformed to urn:no:nhn:xcads:adhocquery:patient-identifier)",
             Rules =
             [
@@ -142,7 +151,7 @@ public class AppStartupService : IHostedService
         var cz_gp_deny_if_different_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-gp-deny-if-different-resourceid",
-            AppliesTo = [AppliesTo.Citizen, AppliesTo.HealthcarePersonell],
+            AppliesTo = [AppliesTo.Helsenorge, AppliesTo.Kjernejournal],
             Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
             Rules =
             [
@@ -166,7 +175,7 @@ public class AppStartupService : IHostedService
         var cz_readdocumentlist_documents = new AbacPolicy()
         {
             Id = "DEFAULT_cz-readdocumentlist-documents",
-            AppliesTo = [AppliesTo.Citizen],
+            AppliesTo = [AppliesTo.Helsenorge],
             Rules =
             [
                 new(
@@ -183,7 +192,7 @@ public class AppStartupService : IHostedService
         var gp_deny_certain_roles = new AbacPolicy()
         {
             Id = "DEFAULT_gp-deny2",
-            AppliesTo = [AppliesTo.HealthcarePersonell],
+            AppliesTo = [AppliesTo.Kjernejournal],
             Rules =
             [
                 new(
@@ -197,7 +206,7 @@ public class AppStartupService : IHostedService
         var gp_readdocumentlist_readdocument = new AbacPolicy()
         {
             Id = "DEFAULT_gp-readdocumentlist_readdocument",
-            AppliesTo = [AppliesTo.HealthcarePersonell],
+            AppliesTo = [AppliesTo.Kjernejournal],
             Rules =
             [
                 new(
@@ -327,21 +336,21 @@ public class AppStartupService : IHostedService
         }
     }
 
-//private void MigrateFromJsonRegistryToDatabase()
-//{
-//    // If registry doesn't exist yet, no need to migrate
-//    if (fileBasedRegistry.RegistryExists() == false) return;
+    //private void MigrateFromJsonRegistryToDatabase()
+    //{
+    //    // If registry doesn't exist yet, no need to migrate
+    //    if (fileBasedRegistry.RegistryExists() == false) return;
 
-//    // If already migrated, no need to migrate again :P
-//    if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
+    //    // If already migrated, no need to migrate again :P
+    //    if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
 
-//    _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
+    //    _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
 
-//    var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
+    //    var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
 
-//    _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
+    //    _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
 
-//    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
-//    fileBasedRegistry.MarkFileRegistryAsMigrated();
-//}
+    //    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
+    //    fileBasedRegistry.MarkFileRegistryAsMigrated();
+    //}
 }

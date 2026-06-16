@@ -1,6 +1,4 @@
-﻿using XcaXds.Shared.Extensions;
-
-namespace XcaXds.Shared.Models.Custom;
+﻿namespace XcaXds.Shared.Models.Custom;
 
 public class ComprehensiveCodeSystem
 {
@@ -21,7 +19,6 @@ public class ComprehensiveCodeSystem
 
     public string? SystemOid { get; set; }
     public string? SystemUrl { get; set; }
-    public string? Name { get; set; }
 
     public CodeSystemValue[]? Values { get; set; }
 }

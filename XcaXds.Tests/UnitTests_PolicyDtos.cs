@@ -1,4 +1,5 @@
 ﻿using XcaXds.Commons.Models.Custom.PolicyDtos;
+using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 
 namespace XcaXds.Tests;
 

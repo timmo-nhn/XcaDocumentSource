@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Xml.Serialization;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models.Soap.Actions;
 

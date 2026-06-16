@@ -41,7 +41,7 @@ public class FileTerminologySource : ITerminologySource
         var filePath = Path.Combine(_basePath, terminologySource.SourcePath);
         var content = await File.ReadAllTextAsync(filePath);
 
-        _logger.LogDebug($"Read content from file {filePath}: {content}");
+        _logger.LogDebug($"Read content from file {filePath}. Mapping to ComprehensiveCodesystem");
 
         return terminologySource.MapperToUse.MapToComprehensiveCodeSystem(content);
     }

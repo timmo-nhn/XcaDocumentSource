@@ -33,33 +33,62 @@ public static class ComprehensiveCodeSystemExtensions
     /// <summary>
     /// Get a certain value, and its associated system. If the value is not found, returns null.
     /// </summary>
-    public static KeyValuePair<string, string>? GetValueSystemOid(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
+    public static KeyValuePair<string, string>? GetByValueOid(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
     {
-        return source?
-            .Where(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true)
-            .Select(v => new KeyValuePair<string, string>(v.SystemOid, value))
-            .FirstOrDefault();
+        var ss = source?.SelectMany(v => v.Values);
+        var returnValue = ss.FirstOrDefault(v => v.Value == value);
 
+        var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true);
+
+        if (systemForValue == null || string.IsNullOrWhiteSpace(systemForValue?.SystemOid) || string.IsNullOrWhiteSpace(returnValue?.Value))
+        {
+            return null;
+        }
+
+        return new(systemForValue.SystemOid, returnValue.Value);
+    }
+
+    /// <summary>
+    /// Get a certain value, and its associated system, based on the name. If the value is not found, returns null.
+    /// </summary>
+    public static string? GetByName(this IEnumerable<ComprehensiveCodeSystem>? source, string name)
+    {
+        var ss = source?.SelectMany(v => v.Values ?? []);
+        return ss?.FirstOrDefault(v => v.Name == name)?.Value;
+    }
+
+    /// <summary>
+    /// Get a certain value, and its associated system, based on the name. If the value is not found, returns null.
+    /// </summary>
+    public static string? GetByValue(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
+    {
+        var ss = source?.SelectMany(v => v.Values ?? []);
+        return ss?.FirstOrDefault(v => v.Value == value)?.Value;
     }
 
     /// <summary>
     /// Get a certain value, and its associated system. If the value is not found, returns null.
     /// </summary>
-    public static KeyValuePair<string, string>? GetValueSystemUrl(this IEnumerable<ComprehensiveCodeSystem> source, string value)
+    public static KeyValuePair<string, string>? GetByValueSystemUrl(this IEnumerable<ComprehensiveCodeSystem> source, string value)
     {
-        return source
-            .Where(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true)
-            .Select(v => new KeyValuePair<string, string>(v.SystemUrl, value))
-            .FirstOrDefault();
+        var returnValue = source?.SelectMany(v => v.Values ?? []).FirstOrDefault(v => v.Value == value);
 
+        var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true);
+
+        if (systemForValue != null && string.IsNullOrWhiteSpace(systemForValue?.SystemUrl) && string.IsNullOrWhiteSpace(returnValue?.Value))
+        {
+            return null;
+        }
+
+        return new(systemForValue!.SystemUrl!, returnValue!.Value!);
     }
 
-    public static (string, string) AsTuple(this KeyValuePair<string, string>? source)
+    public static ValueTuple<string, string>? AsTuple(this KeyValuePair<string, string>? source)
     {
         if (source.HasValue)
         {
             return (source.Value.Key, source.Value.Value);
         }
-        return (string.Empty, string.Empty);
+        return null;
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 public class SoapEnvelopeModelBinderProvider : IModelBinderProvider
 {

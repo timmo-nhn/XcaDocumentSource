@@ -1,13 +1,14 @@
 ﻿using Hl7.Fhir.Model;
 using System.Diagnostics;
 using XcaXds.Commons.Attributes;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.Statistics;
+using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Enums;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.WebService.Middleware;
@@ -19,8 +20,8 @@ public class RequestStatisticsMiddleware
     private readonly IStatisticsQueue _statisticsQueue;
     private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
     public RequestStatisticsMiddleware(
-        RequestDelegate next, 
-        ILogger<RequestStatisticsMiddleware> logger, 
+        RequestDelegate next,
+        ILogger<RequestStatisticsMiddleware> logger,
         IStatisticsQueue statisticsQueue,
         FhirToXdsTransformerService fhirToXdsTransformerService)
     {
@@ -165,6 +166,8 @@ public class RequestStatisticsMiddleware
             .FirstOrDefault();
 
         var extrinsicObject = _fhirToXdsTransformerService.ConvertDocumentReferenceToExtrinsicObject(patient, documentReferences, fhirBinaries);
+        var sxmls = new SoapXmlSerializer();
+        var eo = sxmls.SerializeSoapMessageToXmlString(extrinsicObject.Value).Content;
         var documentEntry = RegistryMetadataTransformer.TransformRegistryObjectToRegistryObjectDto(extrinsicObject.Value) as DocumentEntryDto;
 
         return documentEntry;

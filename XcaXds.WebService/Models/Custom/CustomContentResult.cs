@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Commons;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.WebService.Models.Custom;
 

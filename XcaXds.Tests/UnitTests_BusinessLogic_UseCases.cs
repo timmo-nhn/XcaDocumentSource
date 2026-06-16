@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text.Json;
 using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Models.Custom;
@@ -5,18 +6,19 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Enums;
 using Xunit.Abstractions;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
-using static XcaXds.Commons.Commons.Constants.CodeSystems.OtherIsoDerived.PurposeOfUse;
+using static XcaXds.Tests.TestConstants.CodeSystems.Hl7.PurposeOfUse;
+using static XcaXds.Tests.TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 
 namespace XcaXds.Tests;
 
-public class UnitTests_BusinessLogic_UseCases
+public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     private List<IdentifiableType> DocumentReferences = new();
     internal readonly ITestOutputHelper _output;
 
-    public UnitTests_BusinessLogic_UseCases(ITestOutputHelper output)
+    public UnitTests_BusinessLogic_UseCases(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
     {
         _output = output;
     }
@@ -31,16 +33,16 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
-            Subject = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
+            Subject = new() { Code = patientId, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId),
-            Resource = new() { Code = patientId, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = patientId, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -57,16 +59,16 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = PATRQT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = patientId12To16Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId12To16Years),
-            Resource = new() { Code = patientId12To16Years, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = patientId12To16Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId12To16Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -82,16 +84,16 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = PATRQT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = patientId16To18Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId16To18Years),
-            Resource = new() { Code = patientId16To18Years, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = patientId16To18Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(patientId16To18Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -108,16 +110,17 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
-            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.RepresentCitizenUnder12,
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resourceBelow12Years, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resourceBelow12Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resourceBelow12Years),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -134,16 +137,17 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.RepresentAnotherCitizen,
-            Purpose = new() { Code = PWATRNY, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.RepresentAnotherCitizen,
+            Purpose = new() { Code = PWATRNY, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -160,16 +164,17 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = PATRQT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = PATRQT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -186,16 +191,17 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.RepresentCitizenUnder12,
-            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = Constants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.RepresentCitizenUnder12,
+            Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -211,16 +217,17 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = TREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = TREAT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -237,17 +244,18 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = TREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = TREAT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             Scope = ["journaldokumenter_helsepersonell"],
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -264,16 +272,17 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = ETREAT, CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = ETREAT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -290,17 +299,18 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.HealthcarePersonell,
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            AppliesTo = AppliesTo.Kjernejournal,
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = "FEILVERDI", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -317,17 +327,18 @@ public class UnitTests_BusinessLogic_UseCases
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.Citizen,
-            Acp = Constants.Oid.Saml.Acp.NullValue,
-            Purpose = new() { Code = "FEILVERDI", CodeSystem = Constants.CodeSystems.Hl7.PurposeOfUse.System },
-            Subject = new() { Code = subject, CodeSystem = Constants.Oid.Fnr },
+            AppliesTo = AppliesTo.Helsenorge,
+            Acp = TestConstants.Acp.NullValue,
+            Purpose = new() { Code = "FEILVERDI", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
+            Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
             SubjectAge = BusinessLogicExtensions.GetAgeFromPatientId(subject),
-            Resource = new() { Code = resource, CodeSystem = Constants.Oid.Fnr },
+            Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
             ResourceAge = BusinessLogicExtensions.GetAgeFromPatientId(resource),
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = DocumentReferences.FilterRegistryObjectListBasedOnBusinessLogic(businessLogic, out var applied).ToList();
+        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
 
@@ -342,12 +353,12 @@ public class UnitTests_BusinessLogic_UseCases
             [
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = "othercodethatshouldntaffectlogic"
                 }
             ],
@@ -359,17 +370,17 @@ public class UnitTests_BusinessLogic_UseCases
             [
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Restricted
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Restricted
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 
@@ -382,22 +393,22 @@ public class UnitTests_BusinessLogic_UseCases
             [
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.Restricted
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Restricted
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
-                    Code = Constants.CodeSystems.Hl7.ConfidentialityCode.VeryRestricted
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.VeryRestricted
                 },
                 new()
                 {
-                    CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
                     Code = "othercodethatshouldntaffectlogic"
                 }
 

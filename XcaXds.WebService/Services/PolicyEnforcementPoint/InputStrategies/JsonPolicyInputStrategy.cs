@@ -2,7 +2,7 @@
 using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
 

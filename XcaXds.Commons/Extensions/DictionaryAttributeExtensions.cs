@@ -1,8 +1,10 @@
+namespace XcaXds.Commons.Extensions;
+
 public static class DictionaryAttributeExtensions
 {
-    extension(Dictionary<string, List<string>> dictionary)
+    extension<T>(Dictionary<string, List<T>> dictionary)
     {
-        public void AddOrUpdate(string key, List<string> value)
+        public void AddOrUpdate(string key, List<T> value)
         {
             if (dictionary.ContainsKey(key))
             {
@@ -14,7 +16,7 @@ public static class DictionaryAttributeExtensions
             }
         }
 
-        public void AddRange(Dictionary<string, List<string>> values)
+        public void AddRange(Dictionary<string, List<T>> values)
         {
             foreach (var value in values)
             {
@@ -23,15 +25,14 @@ public static class DictionaryAttributeExtensions
         }
 
 
-        public Dictionary<string, string> IndexAttributesWithPrefix(string prefix)
+        public Dictionary<string, T?> IndexAttributesWithPrefix(string prefix)
         {
             return dictionary
                 .Where(kvp => kvp.Key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionary(
                     kvp => kvp.Key,
-                    kvp => kvp.Value.FirstOrDefault() ?? string.Empty,
+                    kvp => kvp.Value.FirstOrDefault(),
                     StringComparer.InvariantCultureIgnoreCase);
         }
-        // public void GetValueOrDefault
     }
 }

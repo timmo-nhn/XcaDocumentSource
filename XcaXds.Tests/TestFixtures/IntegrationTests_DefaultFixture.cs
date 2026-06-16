@@ -4,22 +4,22 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using XcaXds.Commons.Commons;
+using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Shared.Constants;
+using XcaXds.Terminology.Services;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.Fhir;
 using XcaXds.WebService.Startup;
-using XcaXds.Shared.Commons;
 using Xunit.Abstractions;
-using XcaXds.BusinessLogic.BusinessLogic;
-using XcaXds.BusinessLogic.Services;
-using Microsoft.AspNetCore.TestHost;
 
 namespace XcaXds.Tests;
 
@@ -43,8 +43,12 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly AtnaLogExportedChecker _atnaLogExportedChecker;
     internal readonly ITestOutputHelper _output;
     internal readonly ApplicationMetaService _applicationMetaService;
-    internal readonly DocumentListFiltererService _businessLogicFiltererService;
+    internal readonly DocumentListFiltererService _documentListFiltererService;
     internal readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
+    internal readonly BusinessRulesDescriptorService _businessRulesDescriptorService;
+    internal readonly TerminologyService _terminologyService;
+    internal readonly XdsOnFhirTransformerService _xdsOnFhirTransformerService;
+    internal readonly FhirResourceValidatorService _fhirResourceValidatorService;
 
     internal readonly IServiceScope _scope;
 
@@ -93,6 +97,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 //services.AddSingleton<IRegistry>(new InMemoryRegistry());
 
                 services.RemoveAll<IHostedService>();
+                services.AddHostedService<TerminologyServiceInitializerService>();
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
                 services.AddHostedService<IntegrationTestCleanupService>();
                 services.AddHostedService<MockStatisticsProcessorService>();
@@ -117,8 +122,11 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _registry = _scope.ServiceProvider.GetRequiredService<IRegistry>();
         _repository = _scope.ServiceProvider.GetRequiredService<IRepository>();
 
+        _fhirResourceValidatorService = _scope.ServiceProvider.GetRequiredService<FhirResourceValidatorService>();
+        _xdsOnFhirTransformerService = _scope.ServiceProvider.GetRequiredService<XdsOnFhirTransformerService>();
+        _businessRulesDescriptorService = _scope.ServiceProvider.GetRequiredService<BusinessRulesDescriptorService>();
         _businessLogicFiltersRegistry = _scope.ServiceProvider.GetRequiredService<BusinessLogicFiltersRegistry>();
-        _businessLogicFiltererService = _scope.ServiceProvider.GetRequiredService<DocumentListFiltererService>();
+        _documentListFiltererService = _scope.ServiceProvider.GetRequiredService<DocumentListFiltererService>();
         _atnaLogExportedChecker = _scope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _atnaLogExportedChecker = _scope.ServiceProvider.GetRequiredService<AtnaLogExportedChecker>();
         _restfulRegistryService = _scope.ServiceProvider.GetRequiredService<RestfulRegistryRepositoryService>();
@@ -152,7 +160,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         {
             await Task.Delay(50);
         }
-        
+
         Assert.False(string.IsNullOrWhiteSpace(MockStatisticsProcessorService.UserAccessEntryJson));
     }
 

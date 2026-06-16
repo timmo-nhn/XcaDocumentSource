@@ -1,23 +1,20 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Models.Custom.PolicyDtos;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using System.Text.Json;
+using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using Xunit.Abstractions;
-using XcaXds.Shared.Commons;
 
 namespace XcaXds.Tests;
 
-public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
+public class IntegrationTests_AccessControl(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : IntegrationTests_DefaultFixture(factory, output), IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    public IntegrationTests_AccessControl(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
-    {
-    }
-
     [Fact]
     public async Task Healthcarepersonell_Role_Valid_Should_GetAccess()
     {
+
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
             policyName: "Healthcarepersonell_ROLE",
@@ -31,8 +28,8 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
             new(Constants.Saml.Attribute.Role + ":codeSystem", "2.16.578.1.12.4.1.1.9060"),
             new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HealthcarePersonell)),
-            new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Kjernejournal)),
+            new(Constants.Saml.Attribute.XuaAcp, TestConstants.Acp.NullValue)
         );
 
         abacRequest = JsonSerializer.Deserialize<AbacRequest>(
@@ -65,8 +62,8 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
             new(Constants.Saml.Attribute.Role + ":codeSystem", "2.16.578.1.12.4.1.1.9060"),
             new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HealthcarePersonell)),
-            new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Kjernejournal)),
+            new(Constants.Saml.Attribute.XuaAcp, TestConstants.Acp.NullValue)
         );
 
         var response = _policyDecisionPointService.Evaluate(abacRequest);
@@ -92,8 +89,8 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
 
         var abacRequest = new AbacRequest(
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.Create),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HealthcarePersonell)),
-            new(Constants.Saml.Attribute.XuaAcp, Constants.Oid.Saml.Acp.NullValue)
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Kjernejournal)),
+            new(Constants.Saml.Attribute.XuaAcp, TestConstants.Acp.NullValue)
         );
 
         var response = _policyDecisionPointService.Evaluate(abacRequest);
@@ -118,7 +115,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
 
         var abacRequest = new AbacRequest(
             (Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            (Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Citizen)),
+            (Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Helsenorge)),
             ("attribute01", "123123"),
             ("attribute02", "123123"),
             ("attribute03", "123123")
@@ -146,7 +143,7 @@ public class IntegrationTests_AccessControl : IntegrationTests_DefaultFixture, I
 
         var abacRequest = new AbacRequest(
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Citizen)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Helsenorge)),
             new("attribute01", "123123"),
             new("attribute02", "456456"),
             new("attribute03", "789789")

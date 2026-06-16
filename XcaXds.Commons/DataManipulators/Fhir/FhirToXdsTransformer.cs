@@ -8,7 +8,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
@@ -1542,7 +1542,7 @@ public class FhirToXdsTransformerService
         foreach (var orgRef in listOrganization)
         {
 
-            var authorDept = documentReference!.Contained!
+            var authorDept = documentReference.Contained?
                 .OfType<Organization>()
                 .FirstOrDefault(dpt => dpt?.PartOf?.Reference == parentOrgReference.Reference);
 
@@ -1555,14 +1555,13 @@ public class FhirToXdsTransformerService
                     OrganizationName = authorDept.Name,
                     AssigningAuthority = new HD()
                     {
-                        UniversalId = $"{Department}",
+                        UniversalId = authorDept.Identifier?.FirstOrDefault()?.System ?? authorDept.Type?.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
                         UniversalIdType = "ISO"
                     },
-                    OrganizationIdentifier = authorDept?.Identifier?.First()?.Value ?? string.Empty
+                    OrganizationIdentifier = authorDept?.Identifier?.FirstOrDefault()?.Value ?? authorDept.Type?.FirstOrDefault()?.Coding.FirstOrDefault()?.Code
                 };
                 return authorDepartment;
             }
-
         }
 
         return null;

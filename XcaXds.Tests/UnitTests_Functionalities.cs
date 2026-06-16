@@ -1,5 +1,6 @@
 ﻿using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Extensions.No;
 
 namespace XcaXds.Tests;
 
@@ -10,23 +11,22 @@ public class UnitTests_Functionalities
     {
         var nins = new[]
         {
-            new { Value = "65739381163", AssignedAuthority = Constants.Oid.Dnr, Excpected = DateTime.Parse("09.03.1889") }, // (09.03.1889) RUND JUKEBOKS
-            new { Value = "05020279712", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("05.02.2002") }, // (05.02.2002) Tim Fnr
-            new { Value = "13116900216", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - Normal Fnr
-            new { Value = "53116900216", AssignedAuthority = Constants.Oid.Dnr, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - D-number: Day + 40        
-            new { Value = "13516900216", AssignedAuthority = Constants.Oid.Hnr, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - H-number: Month + 40
-            new { Value = "13916900216", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +80 Synthetic Normal
-            new { Value = "53916900216", AssignedAuthority = Constants.Oid.Dnr, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +80 Synthetic D-number: Day + 40
-            new { Value = "13766900216", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +65 Synthetic Normal
-            new { Value = "53766900216", AssignedAuthority = Constants.Oid.Dnr, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +65 Synthetic D-number: Day + 40
-            new { Value = "02835998374", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("02.03.1959") }, // (02.03.1959) AUTORISERT JUL
-            new { Value = "17855599120", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("17.05.1955") }, // (17.05.1955) USNOBBET KLOKKE
-            new { Value = "08777634659", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("08.12.1976") }, // (08.12.1976) ULYDIG BOLLE
-            new { Value = "29870049887", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("29.07.1900") }, // (29.07.1900) SIVILISERT ANTILOPE
-            new { Value = "16910948990", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("16.11.1909") }, // (16.11.1909) BARMHJERTIG BØK
-            new { Value = "22810999865", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("22.01.2009") }, // (22.01.2009) FORSKJELLIG ANALYSE
-            new { Value = "09838973652", AssignedAuthority = Constants.Oid.Fnr, Excpected = DateTime.Parse("09.03.1889") }, // (09.03.1889) RUND JUKEBOKS
-
+            new { Value = "65739381163", AssignedAuthority = TestConstants.AssigningAuthority.TNin, Excpected = DateTime.Parse("09.03.1889") }, // (09.03.1889) RUND JUKEBOKS
+            new { Value = "05020279712", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("05.02.2002") }, // (05.02.2002) Tim Nin
+            new { Value = "13116900216", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - Normal Nin
+            new { Value = "53116900216", AssignedAuthority = TestConstants.AssigningAuthority.TNin, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - D-number: Day + 40        
+            new { Value = "13516900216", AssignedAuthority = TestConstants.AssigningAuthority.ENin, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - H-number: Month + 40
+            new { Value = "13916900216", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +80 Synthetic Normal
+            new { Value = "53916900216", AssignedAuthority = TestConstants.AssigningAuthority.TNin, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +80 Synthetic D-number: Day + 40
+            new { Value = "13766900216", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +65 Synthetic Normal
+            new { Value = "53766900216", AssignedAuthority = TestConstants.AssigningAuthority.TNin, Excpected = DateTime.Parse("13.11.1969") }, // (13.11.1969) Line Danser - +65 Synthetic D-number: Day + 40
+            new { Value = "02835998374", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("02.03.1959") }, // (02.03.1959) AUTORISERT JUL
+            new { Value = "17855599120", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("17.05.1955") }, // (17.05.1955) USNOBBET KLOKKE
+            new { Value = "08777634659", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("08.12.1976") }, // (08.12.1976) ULYDIG BOLLE
+            new { Value = "29870049887", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("29.07.1900") }, // (29.07.1900) SIVILISERT ANTILOPE
+            new { Value = "16910948990", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("16.11.1909") }, // (16.11.1909) BARMHJERTIG BØK
+            new { Value = "22810999865", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("22.01.2009") }, // (22.01.2009) FORSKJELLIG ANALYSE
+            new { Value = "09838973652", AssignedAuthority = TestConstants.AssigningAuthority.Nin, Excpected = DateTime.Parse("09.03.1889") }, // (09.03.1889) RUND JUKEBOKS
         };
 
         var nins2 = new[]
@@ -535,14 +535,14 @@ public class UnitTests_Functionalities
 
         foreach (var nin in nins2)
         {
-            var parsedNin = Hl7FhirExtensions.ParseNorwegianNinToCxWithAssigningAuthority(nin);
+            var parsedNin = NorwegianNinParsingExtensions.ParseNorwegianNinToCxWithAssigningAuthority(nin);
         }
 
         foreach (var nin in nins)
         {
-            var parsedNin = Hl7FhirExtensions.ParseNorwegianNinToCxWithAssigningAuthority(nin.Value);
+            var parsedNin = NorwegianNinParsingExtensions.ParseNorwegianNinToCxWithAssigningAuthority(nin.Value);
 
-            var dateTimeFromNin = Hl7FhirExtensions.ParseNorwegianNinToDateTime(parsedNin);
+            var dateTimeFromNin = NorwegianNinParsingExtensions.ParseNorwegianNinToDateTime(parsedNin);
 
             Assert.Equal(nin.Excpected, dateTimeFromNin);
 

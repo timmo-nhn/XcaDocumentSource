@@ -8,7 +8,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
@@ -56,7 +56,7 @@ public class RestfulRegistryRepositoryService
         }
 
         var patientIdCx = Hl7Object.Parse<CX>(patientId)!;
-        var patientNin = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.PatientAssigningAuthorities, "NIN")?.Values.FirstOrDefault();
+        var patientNin = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.PersonAssigningAuthorities, "NIN")?.FirstOrDefault();
 
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing

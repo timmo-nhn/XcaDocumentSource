@@ -4,12 +4,8 @@ using Xunit.Abstractions;
 
 namespace XcaXds.Tests;
 
-public class IntegrationTests_AuthorizationEndpoints : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
+public class IntegrationTests_AuthorizationEndpoints(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : IntegrationTests_DefaultFixture(factory, output), IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    public IntegrationTests_AuthorizationEndpoints(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
-    {
-    }
-
     [Fact]
     public async Task TestSecureEndpoint()
     {

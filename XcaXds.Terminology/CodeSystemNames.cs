@@ -27,6 +27,7 @@ public static class CodeSystemNames
     {
         public const string PurposeOfUse = "PurposeOfUse";
         public const string Acp = "Acp";
+        public const string Bppc = "Bppc";
         public const string SamlAttributes = "SamlAttributes";
     }
 
@@ -36,7 +37,7 @@ public static class CodeSystemNames
     public static class Other
     {
         public const string OrganizationAssigningAuthorities = "OrganizationAssigningAuthorities";
-        public const string PatientAssigningAuthorities = "PatientAssigningAuthorities";
+        public const string PersonAssigningAuthorities = "PatientAssigningAuthorities";
         public const string PractitionerAssigningAuthorities = "PractitionerAssigningAuthorities";
     }
 }

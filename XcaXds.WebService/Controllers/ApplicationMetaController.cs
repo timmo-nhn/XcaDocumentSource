@@ -14,7 +14,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
@@ -153,7 +153,7 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("about/domain-config")]
     public async Task<IActionResult> GetDomainConfig()
     {
-        var patientNin = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.PatientAssigningAuthorities, "NIN")?.Values.FirstOrDefault();
+        var patientNin = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.PersonAssigningAuthorities, "NIN")?.FirstOrDefault();
 
         var config = new DomainConfig()
         {
@@ -252,13 +252,13 @@ public class ApplicationMetaController : ControllerBase
     public async Task<IActionResult> GetBusinessLogicRules(bool plainText)
     {
         return Ok(
-            plainText ? _businessRulesDescriptorService.BusinessRulesPlainText : _businessRulesDescriptorService.BusinessRulesJson);
+            plainText ? _businessRulesDescriptorService.WriteBusinessRulesPlainText() : _businessRulesDescriptorService.WriteBusinessRulesJsonFormatted());
     }
 
     [Produces("text/plain")]
     [HttpGet("business-logic-obfuscation")]
     public async Task<IActionResult> GetObfuscationRules()
     {
-        return Ok(_businessRulesDescriptorService.EntriesToObfuscateJson);
+        return Ok(_businessRulesDescriptorService.WriteEntriesToObfuscateJsonFormatted());
     }
 }

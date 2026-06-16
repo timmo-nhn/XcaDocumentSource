@@ -28,16 +28,27 @@ public class Hl7FhirCodeSystemMapper : ICodeSystemMapper
         var hl7Parser = new FhirJsonDeserializer();
         var codeSystem = hl7Parser.Deserialize<CodeSystem>(rawInput);
 
+        var allConcepts = codeSystem.Concept
+            .FirstOrDefault(c => string.IsNullOrWhiteSpace(_displayDiscriminator) || c.Display == _displayDiscriminator)?
+            .Concept?.Select(c => new CodeSystemValue(c.Code, c.Display))
+            .ToArrayOrNull() 
+            ??
+            codeSystem.Concept
+            .SelectMany(c => c.Concept)
+            .Where(c => string.IsNullOrWhiteSpace(_displayDiscriminator) || c.Display == _displayDiscriminator)
+            .Select(c => new CodeSystemValue(c.Code, c.Display))
+            .ToArrayOrNull() 
+            ?? 
+            codeSystem.Concept
+            .Where(c => string.IsNullOrWhiteSpace(_displayDiscriminator) || c.Display == _displayDiscriminator)
+            .Select(c => new CodeSystemValue(c.Code, c.Display))
+            .ToArrayOrNull();
+
         return new ComprehensiveCodeSystem()
         {
             SystemOid = codeSystem.Identifier.FirstOrDefault()?.Value?.NoUrn(),
             SystemUrl = codeSystem.Url,
-            Values = codeSystem.Concept?.FirstOrDefault(c => string.IsNullOrWhiteSpace(_displayDiscriminator) || c.Display == _displayDiscriminator)?
-            .Concept.Select(c => new CodeSystemValue
-            {
-                Name = c.Display,
-                Value = c.Code
-            }).ToArray()
+            Values = allConcepts
         };
     }
 }

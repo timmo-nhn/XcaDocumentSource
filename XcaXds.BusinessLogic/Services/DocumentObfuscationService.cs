@@ -1,32 +1,30 @@
 ﻿using Microsoft.Extensions.Logging;
 using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
-using XcaXds.Terminology.Models.Custom;
 using XcaXds.Terminology.Services;
-using XcaXds.Terminology.Sources;
 
 namespace XcaXds.BusinessLogic.Services;
 
 public class DocumentObfuscationService
 {
     private readonly ILogger<DocumentObfuscationService> _logger;
-    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersService;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
     private readonly TerminologyService _terminologyService;
 
-    public DocumentObfuscationService(ILogger<DocumentObfuscationService> logger, BusinessLogicFiltersRegistry businessLogicFiltersService, TerminologyService terminologyService)
+    public DocumentObfuscationService(ILogger<DocumentObfuscationService> logger, BusinessLogicFiltersRegistry businessLogicFiltersRegistry, TerminologyService terminologyService)
     {
         _logger = logger;
-        _businessLogicFiltersService = businessLogicFiltersService;
+        _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
         _terminologyService = terminologyService;
     }
+
 
     /// <summary>
     /// Obfuscate document entries in a document list with restrictive confidentialitycodes so their documents are unable to be retrieved </para>
@@ -56,8 +54,8 @@ public class DocumentObfuscationService
 
                 bool obfuscate = requestAppliesTo switch
                 {
-                    AppliesTo.HealthcarePersonell => confCodes.Any(ccode => _businessLogicFiltersService.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
-                    AppliesTo.Citizen => confCodes.Any(ccode => _businessLogicFiltersService.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.Kjernejournal => confCodes.Any(ccode => _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.Helsenorge => confCodes.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
                     _ => false
                 };
 

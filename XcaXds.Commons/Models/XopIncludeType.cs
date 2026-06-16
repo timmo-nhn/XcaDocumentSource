@@ -1,5 +1,5 @@
 ﻿using System.Xml.Serialization;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models;
 

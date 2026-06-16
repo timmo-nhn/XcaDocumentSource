@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Commons.Extensions;
+﻿namespace XcaXds.Shared.Extensions;
 
 /// <summary>
 /// <a href="https://stackoverflow.com/questions/2019417/how-to-access-random-item-in-list" />
@@ -29,4 +29,13 @@ public static class EnumerableExtensions
         return list;
     }
 
+    /// <summary>
+    /// Returns null if the input is null or empty, otherwise returns an array of the input.
+    /// <para/>
+    /// Useful for cleanly null coalescing when doing LINQ-operations
+    /// </summary>
+    public static T[]? ToArrayOrNull<T>(this IEnumerable<T>? input)
+    {
+        return input == null || !input.Any() ? null : input.ToArray();
+    }
 }

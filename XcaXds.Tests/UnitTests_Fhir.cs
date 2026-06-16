@@ -1,21 +1,21 @@
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Microsoft.Extensions.Logging.Testing;
-using Moq;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators.Fhir;
+using Microsoft.AspNetCore.Mvc.Testing;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Extensions;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
+using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests;
 
-public class UnitTests_Fhir
+public class UnitTests_Fhir(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : IntegrationTests_DefaultFixture(factory, output), IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     [Fact]
     public async Task MHD_Iti67ToIti18AdhocQueryConversion()
@@ -27,7 +27,7 @@ public class UnitTests_Fhir
             Status = "current"
         };
 
-        var adhocquery = XdsOnFhirTransformer.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
+        var adhocquery = _xdsOnFhirTransformerService.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
@@ -53,7 +53,7 @@ public class UnitTests_Fhir
         var registryPackages = randomAssociation.Select(ra => registryObjects.GetById(ra?.SourceObject ?? "")).OfType<RegistryPackageType>().ToList();
         var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject ?? "")).OfType<ExtrinsicObjectType>().ToList();
 
-        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry().ToBlockingEnumerable());
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry().ToBlockingEnumerable());
         var fhirJsonSerializer = new FhirJsonSerializer();
         if (bundle != null)
         {
@@ -79,19 +79,17 @@ public class UnitTests_Fhir
         var bundle02 = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle02);
         var bundleWrongValues = fhirjsonDeserializer.Deserialize<Bundle>(fhirProvideBundle01WrongValues);
 
-        var fhirValidator = new FhirResourceValidatorService(new FakeLogger<FhirResourceValidatorService>(), new Mock<ApplicationConfig>().Object);
-
         var fhirJsonSerializer = new FhirJsonSerializer();
 
-        var validationResult01 = fhirValidator.ValidateFhirResource(bundle01);
+        var validationResult01 = _fhirResourceValidatorService.ValidateFhirResource(bundle01);
         var jsonResponse = fhirJsonSerializer.SerializeToString(validationResult01);
         Assert.DoesNotContain(OperationOutcome.IssueSeverity.Error, validationResult01.Issue.Select(iss => iss.Severity));
 
 
-        var validationResult02 = fhirValidator.ValidateFhirResource(bundle02);
+        var validationResult02 = _fhirResourceValidatorService.ValidateFhirResource(bundle02);
         Assert.DoesNotContain(OperationOutcome.IssueSeverity.Error, validationResult02.Issue.Select(iss => iss.Severity));
 
-        var validationResult01WrongValues = fhirValidator.ValidateFhirResource(bundleWrongValues);
+        var validationResult01WrongValues = _fhirResourceValidatorService.ValidateFhirResource(bundleWrongValues);
         Assert.Contains(OperationOutcome.IssueSeverity.Error, validationResult01WrongValues.Issue.Select(iss => iss.Severity));
 
         jsonResponse = fhirJsonSerializer.SerializeToString(validationResult01);

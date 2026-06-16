@@ -14,10 +14,11 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
+using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
-using static XcaXds.Shared.Commons.Constants.CodeSystems.Hl7.PurposeOfUse;
 
 namespace XcaXds.WebService.Services;
 
@@ -362,10 +363,13 @@ public class XdsRepositoryService
 
         bool restricted = requestAppliesTo switch
         {
-            AppliesTo.HealthcarePersonell => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
-            AppliesTo.Citizen => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.Kjernejournal => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.Helsenorge => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
             _ => false
         };
+
+        var ETREAT = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Xds.ConfidentialityCode, "ETREAT")?.FirstOrDefault();
+        var BTG = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Xds.ConfidentialityCode, "BTG")?.FirstOrDefault();
 
         // Dont obscure in emergency situations
         if (restricted && !string.IsNullOrWhiteSpace(businessLogicParameters?.Purpose?.Code) && businessLogicParameters.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)

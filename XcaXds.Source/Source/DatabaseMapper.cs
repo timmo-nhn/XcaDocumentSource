@@ -128,12 +128,7 @@ public static class DatabaseMapper
                         FirstName = documentEntry.DE_SourcePatientInfoFirstName,
                         LastName = documentEntry.DE_SourcePatientInfoLastName,
                         BirthTime = documentEntry.DE_SourcePatientInfoBirthTime,
-                        Gender = new()
-                        {
-                            Code = documentEntry.DE_SourcePatientInfoGender?.Code,
-                            CodeSystem = documentEntry.DE_SourcePatientInfoGender?.CodeSystem,
-                            DisplayName = documentEntry.DE_SourcePatientInfoGender?.DisplayName
-                        }
+                        Gender = documentEntry.DE_SourcePatientInfoGender
                     },
                     Title = documentEntry.DE_Title,
                     TypeCode = new()
@@ -305,12 +300,7 @@ public static class DatabaseMapper
                 DE_SourcePatientInfoFirstName = documentEntryDto.SourcePatientInfo?.FirstName,
                 DE_SourcePatientInfoLastName = documentEntryDto.SourcePatientInfo?.LastName,
                 DE_SourcePatientInfoBirthTime = documentEntryDto.SourcePatientInfo?.BirthTime,
-                DE_SourcePatientInfoGender = new()
-                {
-                    Code = documentEntryDto.SourcePatientInfo?.Gender?.Code,
-                    CodeSystem = documentEntryDto.SourcePatientInfo?.Gender?.CodeSystem,
-                    DisplayName= documentEntryDto.SourcePatientInfo?.Gender?.DisplayName,
-                },
+                DE_SourcePatientInfoGender = documentEntryDto.SourcePatientInfo?.Gender,
                 DE_Title = documentEntryDto.Title,
                 DE_TypeCode = new()
                 {

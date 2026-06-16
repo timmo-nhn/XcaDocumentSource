@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Custom;
@@ -21,7 +21,7 @@ public sealed class FinnKodeTypeCodeMapper : ICodeSystemMapper
 
         foreach (var codeValue in codeSystem.CodeValues ?? [])
         {
-            if (codeValue.Value != null && codeValue.Value.EndsWith("00-1") == true)
+            if (codeValue.Value != null && codeValue.Value.EndsWith("00-1") == false)
                 values.Add(new(codeValue.Value, codeValue.Name));
         }
 

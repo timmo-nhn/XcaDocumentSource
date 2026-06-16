@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Finnkode;

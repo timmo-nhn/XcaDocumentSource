@@ -1,22 +1,21 @@
 ﻿using Hl7.Fhir.Model;
 using System.Globalization;
 using System.Text;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Terminology.Services;
-using XcaXds.Terminology;
-using XcaXds.Shared.Commons;
-using XcaXds.Commons.Extensions.No;
+using XcaXds.Shared.Constants;
 using XcaXds.Shared.Extensions;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 
-namespace XcaXds.Commons.DataManipulators.Fhir;
+namespace XcaXds.WebService.Services.Fhir;
 
 /// <summary>
 /// XDS on FHIR functionality, supporting the Mobile access to Health Documents (MHD) profile <para/>
@@ -542,8 +541,8 @@ public class XdsOnFhirTransformerService
 
         if (authorInstitutionValues != null && authorInstitutionValues.Count > 0)
         {
-            var organizationSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.Values.FirstOrDefault();
-            var departmentSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.Values.FirstOrDefault();
+            var organizationSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.FirstOrDefault();
+            var departmentSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.FirstOrDefault();
 
             authorInstitution = authorInstitutionValues
                 .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||

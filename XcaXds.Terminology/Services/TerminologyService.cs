@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Globalization;
+﻿using Hl7.Fhir.Specification.Terminology;
+using Microsoft.Extensions.Logging;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 
@@ -16,11 +16,21 @@ public class TerminologyService
         _logger = logger;
     }
 
-    public void AddCodeSystem(string name, ComprehensiveCodeSystem[] codeSystems)
+    public void AddOrUpdateCodeSystem(string name, ComprehensiveCodeSystem[] codeSystems)
     {
-        _logger.LogInformation($"Adding code system {name} with {codeSystems.Length} entries...");
-        CodeSystems.Add(name, codeSystems);
+        if (CodeSystems.ContainsKey(name))
+        {
+            _logger.LogInformation($"Adding to existing code system {name} with {codeSystems.Length} entries...");
+            CodeSystems[name] = CodeSystems[name].Concat(codeSystems).ToArray();
+        }
+        else
+        {
+            _logger.LogInformation($"Adding code system {name} with {codeSystems.Length} entries...");
+            CodeSystems.Add(name, codeSystems);
+        }
+
         _logger.LogInformation($"Added code system {name} with {codeSystems.Length} entries");
+
     }
 
     public ComprehensiveCodeSystem[] GetCodeSystemByKey(string name)
@@ -33,23 +43,31 @@ public class TerminologyService
         return CodeSystems.Values.SelectMany(cs => cs).Where(cs => cs.SystemOid == system || cs.SystemUrl == system).ToArray();
     }
 
-    public Dictionary<string, string>? GetValueFromCodeSystemByName(string codeSystemName, string inputValue)
+    public string[]? GetValueFromCodeSystemByName(string codeSystemName, string inputValue)
     {
-        _logger.LogInformation($"Attempting to get value {inputValue}");
+        _logger.LogInformation($"Attempting to get Value from Name {inputValue} in System {codeSystemName}");
 
-        var fetchedValue = CodeSystems
-            .Where(cs => cs.Key == codeSystemName)
-            .Select(cs => cs.Value.GetValueSystemOid(inputValue))
-            .ToDictionary(gob => gob!.Value.Key, gob => gob!.Value.Value);
+        var fetchedSystems = CodeSystems.TryGetValue(codeSystemName, out var codeSys) ? codeSys : null;
 
-        if (fetchedValue != null)
+        if (fetchedSystems != null)
         {
-            _logger.LogInformation($"Got {fetchedValue?.Count ?? 0} values");
+            _logger.LogInformation($"Got {fetchedSystems?.Length} CodeSystems");
 
-            return fetchedValue;
+            var eligibleValue = fetchedSystems?
+                .SelectMany(cs => cs.Values ?? [])
+                .Where(cs => cs.Name == inputValue)
+                .ToArray();
+
+            if (eligibleValue is { Length: > 0 } s)
+            {
+                var values = s.Select(ev => ev.Value).OfType<string>().ToArray();
+                _logger.LogInformation($"Got {s.Length} value{(s.Length > 1 ? "s" : "")} ({string.Join(' ', values)})");
+
+                return values;
+            }
         }
 
-        _logger.LogWarning($"Could not find value {inputValue}");
+        _logger.LogInformation($"Could not find value {inputValue} from {codeSystemName}");
         return null;
     }
 
@@ -57,7 +75,7 @@ public class TerminologyService
     {
         _logger.LogInformation($"Getting value {inputValue} from code systems {string.Join(", ", codeSystems?.Select(cc => cc.SystemOid) ?? [])}");
 
-        var fetchedValue = codeSystems.GetValueSystemOid(inputValue);
+        var fetchedValue = codeSystems.GetByValueOid(inputValue);
 
         if (fetchedValue != null)
         {

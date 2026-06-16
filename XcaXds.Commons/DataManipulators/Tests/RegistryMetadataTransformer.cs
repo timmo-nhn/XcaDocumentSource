@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Commons.DataManipulators.Tests;
@@ -273,11 +273,7 @@ public static class RegistryMetadataTransformer
                 BirthTime = birthTime == null ? null : DateTime.ParseExact(birthTime, Constants.Hl7.Dtm.DtmYmdFormat, CultureInfo.InvariantCulture),
                 LastName = name?.FamilyName,
                 FirstName = name?.GivenName,
-                Gender = new()
-                {
-                    Code = gender,
-                    CodeSystem = "2.16.840.1.113883.18.2", // https://terminology.hl7.org/en/CodeSystem-v2-0001.html
-                },
+                Gender = gender,
                 PatientId = new()
                 {
                     Id = srcPatientId?.IdNumber ?? patientId?.IdNumber,
@@ -1404,7 +1400,6 @@ public static class RegistryMetadataTransformer
         {
             if (registryObject.ConfidentialityCode?.Count > 0)
             {
-                // Hard coded strings are uncool, but since this method is related to FHIR/XDS and their concepts, it's probably fine
                 var alternateCodeSystems = registryObject.ConfidentialityCode.Where(c => c?.CodeSystem?.NoUrn() == "http://terminology.hl7.org/CodeSystem/v3-Confidentiality").ToArray();
 
                 if (!(alternateCodeSystems?.Length > 0)) return;
@@ -1413,7 +1408,8 @@ public static class RegistryMetadataTransformer
                     .Select(acs => new CodedValue()
                     {
                         Code = acs.Code,
-                        CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
+                        // Hard coded strings are not juicy, but since this method is related to FHIR/XDS concepts, it's probably fine?!
+                        CodeSystem = "2.16.840.1.113883.5.25",
                         DisplayName = acs.DisplayName
                     }).ToArray();
 

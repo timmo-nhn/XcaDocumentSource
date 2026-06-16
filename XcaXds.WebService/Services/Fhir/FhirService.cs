@@ -7,7 +7,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Extensions;
 
-namespace XcaXds.WebService.Services;
+namespace XcaXds.WebService.Services.Fhir;
 
 public class FhirService
 {

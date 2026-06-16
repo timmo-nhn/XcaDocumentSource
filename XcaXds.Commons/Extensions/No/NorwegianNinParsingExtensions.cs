@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Extensions.No;
 

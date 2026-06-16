@@ -16,10 +16,11 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
-using XcaXds.Shared.Commons;
 using XcaXds.Shared.ConfigBinder;
+using XcaXds.Shared.Constants;
 using XcaXds.Source.Source;
 using XcaXds.Terminology.Services;
+using XcaXds.Terminology.Sources;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -27,6 +28,7 @@ using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
+using XcaXds.WebService.Services.Fhir;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
@@ -119,10 +121,10 @@ public class Program
 
     private static void RegisterHostedServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddHostedService<AtnaLogExporterService>();
+        builder.Services.AddHostedService<TerminologyServiceInitializerService>();
         builder.Services.AddHostedService<AppStartupService>();
+        builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<StatisticsProcessorService>();
-        builder.Services.AddHostedService<TerminologyUpdaterService>();
     }
 
     private static void DebuggingBeforeAppLaunch(WebApplicationBuilder builder)
@@ -214,6 +216,8 @@ public class Program
         builder.Services.AddSingleton<FileTerminologySource>();
         builder.Services.AddSingleton<TerminologySourceFactory>();
         builder.Services.AddSingleton<TerminologyService>();
+        builder.Services.AddSingleton<TerminologyUpdaterService>();
+        builder.Services.AddSingleton<TerminologySourcesRegistryService>();
 
         // Validation and certificate services
         builder.Services.AddSingleton<Saml2Validator>();

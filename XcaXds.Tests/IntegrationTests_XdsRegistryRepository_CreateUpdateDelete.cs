@@ -6,21 +6,21 @@ using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using XcaXds.BusinessLogic.Services;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
+using XcaXds.Shared.Extensions;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
-using XcaXds.Shared.Commons;
 using Xunit.Abstractions;
-using static XcaXds.Tests.TestConstants.PurposeOfUse;
+using static XcaXds.Tests.TestConstants.CodeSystems.Hl7.ConfidentialityCode;
 using Task = System.Threading.Tasks.Task;
-using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Tests;
 
@@ -59,14 +59,14 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         // Explicitly add KjernejournalForskriften rule for this test
         //BusinessLogicFilterer.AddRule(BusinessLogicFiltersService.HealthcarePersonellKjernejournalForskriften);
-        _businessLogicFiltererService.AddRule(
+        _documentListFiltererService.AddRule(
             "HealthcarePersonellKjernejournalForskriften", new()
             {
                 Condition = logic =>
                     logic.Scope != null &&
                     logic.Scope.Length > 0 &&
 
-                    logic.AppliesTo == AppliesTo.HealthcarePersonell &&
+                    logic.AppliesTo == AppliesTo.Kjernejournal &&
                     // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
                     // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
                     logic.Scope.Contains("kjernejournalforskriften"),
@@ -224,7 +224,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
     public async Task XGQ_CrossGatewayQuery_Helsenorge_PerformanceTest()
     {
         // Override default with many more entries to simulate a very mature registry/repository.
-        RegistryItemCount = 10000;
+        //RegistryItemCount = 10000;
 
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();

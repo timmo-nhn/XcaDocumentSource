@@ -13,10 +13,8 @@ using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Extensions;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
-using XcaXds.Terminology.Models.Custom;
-using XcaXds.Shared.Extensions;
 
-namespace XcaXds.Commons.DataManipulators.Fhir;
+namespace XcaXds.WebService.Services.Fhir;
 
 public class FhirResourceValidatorService
 {
@@ -88,6 +86,7 @@ public class FhirResourceValidatorService
         ValidateIdentifiers(outcome, codeableConcepts, "practiceSetting", _businessLogicFiltersRegistry.GetAllowedPracticeSettings());
         ValidateIdentifiers(outcome, codeableConcepts, "securityLabel", _businessLogicFiltersRegistry.GetAllowedConfidentialityCodes());
         ValidateIdentifiers(outcome, codeableConcepts, "type", _businessLogicFiltersRegistry.GetAllowedTypeCodes());
+        ValidateIdentifiers(outcome, codeableConcepts, "type", "contained", _businessLogicFiltersRegistry.GetAllowedOrganizationSystems());
         ValidateIdentifiers(outcome, codeableConcepts, "category", _businessLogicFiltersRegistry.GetAllowedClassCodes());
         ValidateIdentifiers(outcome, codeableConcepts, "format", _businessLogicFiltersRegistry.GetAllowedFormatCodes());
         ValidateIdentifiers(outcome, codeableConcepts, "attachment", _businessLogicFiltersRegistry.GetAllowedAttachments());
@@ -96,19 +95,19 @@ public class FhirResourceValidatorService
     private void ValidatePractitioners(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Practitioner");
-        ValidateIdentifiers(outcome, orgs, "Practitioner", _businessLogicFiltersRegistry.GetAllowedPractitionerOids());
+        ValidateIdentifiers(outcome, orgs, "Practitioner", _businessLogicFiltersRegistry.GetAllowedPractitionerSystems());
     }
 
     private void ValidateOrganizations(OperationOutcome outcome, Bundle bundle)
     {
         var orgs = FindDescendantResources(bundle, "Organization");
-        ValidateIdentifiers(outcome, orgs, "Organization", _businessLogicFiltersRegistry.GetAllowedOrganizationOids());
+        ValidateIdentifiers(outcome, orgs, "Organization", _businessLogicFiltersRegistry.GetAllowedOrganizationSystems());
     }
 
     private void ValidatePatients(OperationOutcome outcome, Bundle bundle)
     {
         var patients = FindDescendantResources(bundle, "Patient");
-        ValidateIdentifiers(outcome, patients, "Patient", _businessLogicFiltersRegistry.GetAllowedPatientOids());
+        ValidateIdentifiers(outcome, patients, "Patient", _businessLogicFiltersRegistry.GetAllowedPatientSystems());
     }
 
     private void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, ComprehensiveCodeSystem allowedSystem)
@@ -118,8 +117,17 @@ public class FhirResourceValidatorService
 
     private void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, IEnumerable<ComprehensiveCodeSystem> codeSystems)
     {
+        ValidateIdentifiers(outcome, resources, resourceName, "resource", codeSystems);
+    }
+
+    private void ValidateIdentifiers(OperationOutcome outcome, IEnumerable<ITypedElement> resources, string resourceName, string parentResourceName, IEnumerable<ComprehensiveCodeSystem> codeSystems)
+    {
         // Filter out unrelated resources
-        resources = resources.Where(cc => cc.Name == resourceName).ToArray();
+        resources = resources
+            .Where(cc =>
+                string.Equals(cc.Name, resourceName, StringComparison.InvariantCultureIgnoreCase) &&
+                string.Equals(cc.GetParentName(), parentResourceName, StringComparison.InvariantCultureIgnoreCase))
+            .ToArray();
 
         foreach (var resourceElement in resources)
         {
@@ -148,10 +156,9 @@ public class FhirResourceValidatorService
                 if (string.IsNullOrWhiteSpace(identifier.System) || string.IsNullOrWhiteSpace(identifier.Value))
                     continue;
 
-                var systemsMatch = codeSystems.SystemOids().Contains(identifier.System.NoUrn());
+                var systemsMatch = codeSystems.SystemOids().Contains(identifier.System.NoUrn()) || codeSystems.SystemUrls().Contains(identifier.System.NoUrn());
 
                 // If Values is empty, accept anything
-                // The most psuedo-ternary-operatorial thing
                 var valuesMatch = codeSystems.Values(identifier.System)?.Select(v => v.Value).Contains(identifier.Value.NoUrn()) == true;
 
                 if (valuesMatch && systemsMatch)

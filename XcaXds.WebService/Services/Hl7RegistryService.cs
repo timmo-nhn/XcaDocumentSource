@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Hl7.V2;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.WebService.Services;
 

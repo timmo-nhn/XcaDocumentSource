@@ -13,7 +13,8 @@ using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
@@ -96,9 +97,9 @@ public class StatisticsTransformerService
 
         var statements = samlToken?.GetAllStatements();
 
-        var organization = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.Values.FirstOrDefault();
-        var department = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.Values.FirstOrDefault();
-        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+        var organization = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.FirstOrDefault();
+        var department = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.FirstOrDefault();
+        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
 
         var subjectOrganization = GetSamlAttributeAsCodedValue(statements, "helseid://claims/client/claims/orgnr_parent");
         subjectOrganization?.CodeSystem ??= organization;
@@ -194,7 +195,7 @@ public class StatisticsTransformerService
         var statements = samlToken?.GetAllStatements().ToList();
 
         // HAYO! Add as class properties instead?
-        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
 
         return new UserAccessEntry()
         {

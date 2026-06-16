@@ -1,9 +1,18 @@
 using System.Text.Json.Serialization;
 
-namespace XcaXds.Commons.Commons;
+namespace XcaXds.Shared.Enums;
 public static class Enums
 {
     
+}
+
+public enum ServiceState
+{
+    NotInitialized,
+    Starting,
+    Crashed,
+    Unknown,
+    Ready,
 }
 
 public enum RequestAndFieldRequestType
@@ -373,12 +382,12 @@ public enum AppliesTo
     /// <summary>
     /// Citizen, where the user is a person and the access is for the purpose of providing healthcare services to themself or on behalf of another citizen (e.g., a parent accessing on behalf of a child)
     /// </summary>
-    Citizen,
+    Helsenorge,
 
     /// <summary>
     /// Healthcare personnel, where the user is a person and the access is for the purpose of providing healthcare services to the citizen
     /// </summary>
-    HealthcarePersonell,
+    Kjernejournal,
 
     /// <summary>
     /// Machine-to-machine communication, where the user is not a person but a system or application

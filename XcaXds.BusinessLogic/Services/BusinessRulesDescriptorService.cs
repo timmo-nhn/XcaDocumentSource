@@ -5,7 +5,7 @@ using System.Text.Json;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.BusinessLogic.Services;
 
@@ -18,21 +18,13 @@ public class BusinessRulesDescriptorService : ExpressionVisitor
     {
         _logger = logger;
         _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
-
-        BusinessRulesPlainText  = WriteBusinessRulesPlainText();
-        BusinessRulesJson = WriteBusinessRulesJsonFormatted();
-        EntriesToObfuscateJson= WriteEntriesToObfuscateJsonFormatted();
     }
 
     private readonly StringBuilder _sb = new();
 
     private static List<object> _parsedExpressions { get; set; } = [];
 
-    public string BusinessRulesPlainText { get; init; } 
-    public string BusinessRulesJson { get; init; } 
-    public string EntriesToObfuscateJson { get; init; } 
-
-    private string WriteEntriesToObfuscateJsonFormatted()
+    public string WriteEntriesToObfuscateJsonFormatted()
     {
         var entryList = new List<ObfuscationEntry>
         {
@@ -51,7 +43,7 @@ public class BusinessRulesDescriptorService : ExpressionVisitor
         return JsonSerializer.Serialize(entryList, Constants.JsonDefaultOptions.DefaultSettings);
     }
 
-    private string WriteBusinessRulesJsonFormatted()
+    public string WriteBusinessRulesJsonFormatted()
     {
         var doc = new BusinessRulesDocument();
 
@@ -235,7 +227,7 @@ public class BusinessRulesDescriptorService : ExpressionVisitor
         };
     }
 
-    private string WriteBusinessRulesPlainText()
+    public string WriteBusinessRulesPlainText()
     {
         var sb = new StringBuilder();
         foreach (var ruleKvp in _businessLogicFiltersRegistry.AllBusinessRules)

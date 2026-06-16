@@ -45,9 +45,9 @@ public class DocumentListFiltererService
         return (Func<BusinessLogicParameters, bool>)_compiled.GetOrAdd(expr, e => e.Compile());
     }
 
-    public IEnumerable<IdentifiableType> FilterRegistryObjectListBasedOnBusinessLogic(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> results)
+    public IEnumerable<IdentifiableType> FilterRegistryObjectListBasedOnBusinessLogic(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> appliedRules)
     {
-        results = new Dictionary<string, int>();
+        appliedRules = new Dictionary<string, int>();
 
         if (businessLogic == null) return registryObjects;
 
@@ -65,7 +65,7 @@ public class DocumentListFiltererService
             {
                 rulesApplied.Add(result);
                 current = result.RegistryObjects;
-                resultCounts.Add(result.Name ?? "Unknown", (current != null && current.TryGetNonEnumeratedCount(out var count)) ? count : current?.Count() ?? 0);
+                resultCounts.Add(result.Name ?? "Unnamed business rule", (current != null && current.TryGetNonEnumeratedCount(out var count)) ? count : current?.Count() ?? 0);
             }
         }
 
@@ -76,7 +76,7 @@ public class DocumentListFiltererService
             current = [];
         }
 
-        results = resultCounts;
+        appliedRules = resultCounts;
         return current ?? [];
     }
 

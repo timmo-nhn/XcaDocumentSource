@@ -6,7 +6,8 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 
@@ -212,7 +213,7 @@ public class PolicyRequestMapperSamlService
                 // If-statements to fix Helsenorge STS values not being proper GUIDs
                 if (attribute.Name.Contains("SecurityLevel"))
                 {
-                    var securityLevel = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "SecurityLevel")?.Values.FirstOrDefault();
+                    var securityLevel = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "SecurityLevel")?.FirstOrDefault();
 
                     attribute.Name = securityLevel;
                 }
@@ -261,7 +262,7 @@ public class PolicyRequestMapperSamlService
         if (abacProperties.All(att => att.Key.ToString() != Constants.Saml.Attribute.XuaAcp))
         {
             // Add default ACP "null value"
-            var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.Values.FirstOrDefault();
+            var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
             abacProperties.AddOrUpdate(Constants.Saml.Attribute.XuaAcp, [acpNullValue]);
         }
 

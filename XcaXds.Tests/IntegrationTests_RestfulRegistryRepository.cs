@@ -58,114 +58,114 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         {
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [new(Constants.CodeSystems.Hl7.ConfidentialityCode.Normal, Constants.CodeSystems.Hl7.ConfidentialityCode.System)],
+                ConfidentialityCode = [new(TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal, TestConstants.CodeSystems.Hl7.ConfidentialityCode.System)],
                 SourcePatientInfo = new(){PatientId = new(){Id = PatientIdentifier.IdNumber, System = PatientIdentifier.AssigningAuthority?.UniversalId}}
 
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [new(Constants.CodeSystems.Hl7.ConfidentialityCode.Normal, Constants.CodeSystems.Hl7.ConfidentialityCode.System)],
+                ConfidentialityCode = [new(TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal, TestConstants.CodeSystems.Hl7.ConfidentialityCode.System)],
                 SourcePatientInfo = new(){PatientId = new(){Id = "AnotherPatient", System = "123.123.123"}}
 
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode = [.. BusinessLogicFiltersRegistry.CitizenConfidentialityCodesToObfuscate.Select(code => new CodedValue(code.Item1, code.Item2))],
+                ConfidentialityCode = [.. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Select(code => new CodedValue(code.Item1, code.Item2))],
                 SourcePatientInfo = new(){PatientId = new(){Id = "AnotherPatient", System = "123.123.123"}}
             },
         };

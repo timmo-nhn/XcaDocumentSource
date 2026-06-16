@@ -5,7 +5,7 @@ using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.DataManipulators;
 
@@ -121,7 +121,7 @@ public static partial class CdaTransformer
             BirthTime = patientRole.Patient?.BirthTime?.EffectiveTime.UtcDateTime,
             FirstName = authorNames?.FirstOrDefault(),
             LastName = authorNames?.LastOrDefault(),
-            Gender = new(patientGender?.Code, patientGender?.CodeSystem, patientGender?.DisplayName),
+            Gender = patientGender?.Code,
             PatientId = new() { Id = patientRole.Id.FirstOrDefault()?.Extension, System = patientRole.Id.FirstOrDefault()?.Root }
         };
     }
@@ -573,15 +573,14 @@ public static partial class CdaTransformer
         return null;
     }
 
-    private static CE? SetPatientAdministrativeGenderCode(CodedValue? patientGender)
+    private static CE? SetPatientAdministrativeGenderCode(string? patientGender)
     {
         if (patientGender != null)
         {
             return new()
             {
-                Code = patientGender.Code,
-                CodeSystem = patientGender.CodeSystem,
-                DisplayName = patientGender.DisplayName
+                Code = patientGender,
+                CodeSystem = "2.16.840.1.113883.18.2",
             };
         }
         return null;

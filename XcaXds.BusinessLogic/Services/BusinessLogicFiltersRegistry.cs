@@ -3,10 +3,9 @@ using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
@@ -57,6 +56,7 @@ public class BusinessLogicFiltersRegistry
     {
         _terminologyService = terminologyService;
         InitConstantValuesUsedForBusinessLogicFiltering();
+        AllBusinessRules = GetAllBusinessRulesForFilteringDocumentList();
     }
 
     //public static readonly ComprehensiveCodeSystem VolvenDocumentTypes = typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem();
@@ -74,179 +74,140 @@ public class BusinessLogicFiltersRegistry
 
     private void InitConstantValuesUsedForBusinessLogicFiltering()
     {
-        typeof(ValuesToUseForBusinessLogic).GetEnumValuesAsUnderlyingType();
         var purposeOfUse = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.PurposeOfUse);
         var confidentialityCode = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
         var acp = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.Acp);
 
-        BTG = purposeOfUse.GetValueSystemOid("BTG")?.Value!;
-        COC = purposeOfUse.GetValueSystemOid("COC")?.Value!;
-        CAREMGT = purposeOfUse.GetValueSystemOid("CAREMGT")?.Value!;
-        ETREAT = purposeOfUse.GetValueSystemOid("ETREAT")?.Value!;
-        FAMRQT = purposeOfUse.GetValueSystemOid("FAMRQT")?.Value!;
-        PATRQT = purposeOfUse.GetValueSystemOid("PATRQT")?.Value!;
-        PWATRNY = purposeOfUse.GetValueSystemOid("PWATRNY")?.Value!;
-        TREAT = purposeOfUse.GetValueSystemOid("TREAT")?.Value!;
-        ClinicalCare_1 = purposeOfUse.GetValueSystemOid("ClinicalCare_1")?.Value!;
-        EmergencyCare_2 = purposeOfUse.GetValueSystemOid("EmergencyCare_2")?.Value!;
-        Management_5 = purposeOfUse.GetValueSystemOid("Management_5")?.Value!;
-        SubjectOfCare_13 = purposeOfUse.GetValueSystemOid("SubjectOfCare_13")?.Value!;
+        BTG = purposeOfUse.GetByValueOid("BTG")?.Value!;
+        COC = purposeOfUse.GetByValueOid("COC")?.Value!;
+        CAREMGT = purposeOfUse.GetByValueOid("CAREMGT")?.Value!;
+        ETREAT = purposeOfUse.GetByValueOid("ETREAT")?.Value!;
+        FAMRQT = purposeOfUse.GetByValueOid("FAMRQT")?.Value!;
+        PATRQT = purposeOfUse.GetByValueOid("PATRQT")?.Value!;
+        PWATRNY = purposeOfUse.GetByValueOid("PWATRNY")?.Value!;
+        TREAT = purposeOfUse.GetByValueOid("TREAT")?.Value!;
+        ClinicalCare_1 = purposeOfUse.GetByValueOid("1")?.Value!;
+        EmergencyCare_2 = purposeOfUse.GetByValueOid("2")?.Value!;
+        Management_5 = purposeOfUse.GetByValueOid("5")?.Value!;
+        SubjectOfCare_13 = purposeOfUse.GetByValueOid("13")?.Value!;
 
-        Normal = confidentialityCode.GetValueSystemOid("Normal")?.Value!;
-        Restricted = confidentialityCode.GetValueSystemOid("Restricted")?.Value!;
-        VeryRestricted = confidentialityCode.GetValueSystemOid("VeryRestricted")?.Value!;
+        Normal = confidentialityCode.GetByValueOid("N")?.Value!;
+        Restricted = confidentialityCode.GetByValueOid("R")?.Value!;
+        VeryRestricted = confidentialityCode.GetByValueOid("V")?.Value!;
 
-        Acp.NullValue = acp.GetValueSystemOid("NullValue")?.Value!;
-        Acp.RepresentCitizenUnder12 = acp.GetValueSystemOid("RepresentCitizenUnder12")?.Value!;
-        Acp.RepresentAnotherCitizen = acp.GetValueSystemOid("RepresentAnotherCitizen")?.Value!;
-        Acp.RepresentedUnableToConsent = acp.GetValueSystemOid("RepresentedUnableToConsent")?.Value!;
-        Acp.NotObligedToConsent = acp.GetValueSystemOid("NotObligedToConsent")?.Value!;
-        Acp.ExcplicitConsent = acp.GetValueSystemOid("ExcplicitConsent")?.Value!;
-        Acp.UnableToConsent = acp.GetValueSystemOid("UnableToConsent")?.Value!;
-        Acp.ExceptionToConcent = acp.GetValueSystemOid("ExceptionToConcent")?.Value!;
-        Acp.HasConsent = acp.GetValueSystemOid("HasConsent")?.Value!;
+        Acp.NullValue = acp.GetByName("NullValue")!;
+        Acp.RepresentCitizenUnder12 = acp.GetByName("RepresentCitizenUnder12")!;
+        Acp.RepresentAnotherCitizen = acp.GetByName("RepresentAnotherCitizen")!;
+        Acp.RepresentedUnableToConsent = acp.GetByName("RepresentedUnableToConsent")!;
+        Acp.NotObligedToConsent = acp.GetByName("NotObligedToConsent")!;
+        Acp.ExcplicitConsent = acp.GetByName("ExcplicitConsent")!;
+        Acp.UnableToConsent = acp.GetByName("UnableToConsent")!;
+        Acp.ExceptionToConcent = acp.GetByName("ExceptionToConcent")!;
+        Acp.HasConsent = acp.GetByName("HasConsent")!;
     }
 
-    public string[] GetAllowedMimeTypes()
+    public string[] GetAllowedMimeTypes() => 
+    [
+        Constants.MimeTypes.Pdf,
+        Constants.MimeTypes.Jpeg,
+        Constants.MimeTypes.Png,
+        Constants.MimeTypes.Tiff,
+        Constants.MimeTypes.Gif,
+        Constants.MimeTypes.Xml,
+        Constants.MimeTypes.XmlReadable,
+        Constants.MimeTypes.Text,
+        Constants.MimeTypes.TextRtf,
+    ];
+
+    public HashSet<(string Code, string CodeSystem)?> GetCitizenObfuscationCodes()
     {
+        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
+
         return
         [
-            Constants.MimeTypes.Pdf,
-            Constants.MimeTypes.Jpeg,
-            Constants.MimeTypes.Png,
-            Constants.MimeTypes.Tiff,
-            Constants.MimeTypes.Gif,
-            Constants.MimeTypes.Xml,
-            Constants.MimeTypes.XmlReadable,
-            Constants.MimeTypes.Text,
-            Constants.MimeTypes.TextRtf,
+            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "V").AsTuple(),
+            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORN_ANG").AsTuple(),
         ];
     }
 
-    public HashSet<(string Code, string CodeSystem)> GetCitizenObfuscationCodes()
+    public HashSet<(string Code, string CodeSystem)?> GetHealthcarePersonellObfuscationCodes()
     {
         var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
-        return new HashSet<(string Code, string CodeSystem)>()
-        {
-            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "V").AsTuple(),
-            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORN_ANG").AsTuple(),
-        };
-    }
-
-    public HashSet<(string Code, string CodeSystem)> GetHealthcarePersonellObfuscationCodes()
-    {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
-
-        return new HashSet<(string Code, string CodeSystem)>()
-        {
+        return
+        [
             _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORS").AsTuple(),
-        };
+        ];
     }
 
-    public ComprehensiveCodeSystem[] GetAllowedOrganizationOids()
+    public (string, string)[] GetCitizenConfidentialityCodesToObfuscate()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities);
-        return [.. confidentialityCodeSystems];
+        return GetCitizenObfuscationCodes().Select(c => (c?.Code, c?.CodeSystem)).ToArray()!;
     }
 
-    public ComprehensiveCodeSystem[] GetAllowedPractitionerOids()
+    public (string, string)[] GetHealthcarePersonellConfidentialityCodesToObfuscate()
+    {
+        return GetHealthcarePersonellObfuscationCodes().Select(c => (c?.Code, c?.CodeSystem)).ToArray()!;
+    }
+
+    public ComprehensiveCodeSystem[] GetAllowedOrganizationSystems()
+    {
+        var organizationSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities);
+        return [.. organizationSystems];
+    }
+
+    public ComprehensiveCodeSystem[] GetAllowedPractitionerSystems()
     {
         var practitionerSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PractitionerAssigningAuthorities);
         return [.. practitionerSystems];
     }
 
-    public ComprehensiveCodeSystem[] GetAllowedPatientOids()
+    public ComprehensiveCodeSystem[] GetAllowedPatientSystems()
     {
-        var patientSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PatientAssigningAuthorities);
+        var patientSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PersonAssigningAuthorities);
         return [.. patientSystems];
-
-        //new(Constants.Oid.Fnr),
-        //new(Constants.Oid.Dnr),
-        //new(Constants.Oid.Hnr)
     }
 
     public ComprehensiveCodeSystem[] GetAllowedFacilityTypes()
     {
         var facilityTypes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.FacilityType);
         return [.. facilityTypes];
-
-        //typeof(Constants.CodeSystems.Volven.FacilityType_1303).GetAsComprehensiveCodesystem(),
-        //typeof(Constants.CodeSystems.Volven.FacilityType_1305).GetAsComprehensiveCodesystem()
     }
 
     public ComprehensiveCodeSystem[] GetAllowedPracticeSettings()
     {
         var practiceSettings = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.PracticeSettingCode);
         return [.. practiceSettings];
-
-        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8651).GetAsComprehensiveCodesystem(),
-        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8653).GetAsComprehensiveCodesystem(),
-        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8654).GetAsComprehensiveCodesystem(),
-        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8655).GetAsComprehensiveCodesystem(),
-        //typeof(Constants.CodeSystems.Volven.PracticeSetting_8663).GetAsComprehensiveCodesystem()
-
     }
 
     public ComprehensiveCodeSystem[] GetAllowedTypeCodes()
     {
         var typeCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.TypeCode);
         return [.. typeCodes];
-
-        //typeof(Constants.CodeSystems.Volven.TypeCode_9602).GetAsComprehensiveCodesystem()
     }
 
     public ComprehensiveCodeSystem[] GetAllowedClassCodes()
     {
         var classCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode);
         return [.. classCodes];
-
-        //typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem()
     }
 
     public ComprehensiveCodeSystem[] GetAllowedConfidentialityCodes()
     {
         var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
         return [.. confidentialityCodeSystems];
-
-        //typeof(Constants.CodeSystems.Volven.ConfidentialityCode_9603).GetAsComprehensiveCodesystem(),
-        //typeof(Constants.CodeSystems.Hl7.ConfidentialityCode).GetAsComprehensiveCodesystem(),
-        //new("http://terminology.hl7.org/CodeSystem/v3-Confidentiality")
     }
 
     public ComprehensiveCodeSystem[] GetAllowedFormatCodes()
     {
         var formatCodes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.FormatCode);
         return [.. formatCodes];
-
-        //new("http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"),
-        //new("http://www.kith.no/xmlstds/epikrise/2012-02-15"),
-        //new("formatCodes"),
-        //new("FormatCodes"),
     }
 
     public ComprehensiveCodeSystem[] GetAllowedAttachments()
     {
         var attachments = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Hl7.Attachments);
         return [.. attachments];
-    }
-
-    public (string, string)[] GetCitizenConfidentialityCodesToObfuscate()
-    {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
-
-        return []
-            //[.. confidentialityCodeSystems.Values().Where(GetCitizenObfuscationCodes().Contains)]
-            ;
-    }
-
-    public (string, string)[] GetHealthcarePersonellConfidentialityCodesToObfuscate()
-    {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
-
-        return []
-            //[.. confidentialityCodeSystems.Where(GetHealthcarePersonellObfuscationCodes().Contains)]
-            ;
     }
 
     public static bool IsMatchingMimeType(string? mimeTypeFromMagicByte, string? documentEntryMimeType)
@@ -275,6 +236,26 @@ public class BusinessLogicFiltersRegistry
 
     public Dictionary<string, BusinessRule<IdentifiableType>> AllBusinessRules { get; set; }
 
+    public bool CitizenShouldSeeOwnDocumentReferences(BusinessLogicParameters logic)
+    {
+        var hasRequiredAttributes =
+             logic.Resource != null &&
+             logic.Subject != null &&
+             logic.Purpose != null &&
+             logic.Purpose.Code != null;
+
+
+        if (hasRequiredAttributes) {
+            return logic.Resource.Code == logic.Subject.Code &&
+                logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
+                logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
+                logic.Acp.NoUrn() == Acp.NullValue.NoUrn() &&
+                logic.SubjectAge >= 18;
+        }
+
+        return false;
+    }
+
     public Dictionary<string, BusinessRule<IdentifiableType>> GetAllBusinessRulesForFilteringDocumentList()
     {
         return new()
@@ -283,19 +264,9 @@ public class BusinessLogicFiltersRegistry
             /// Jeg som innbygger (voksen) skal se alle mine egne dokumentreferanser; og ha tilgang til mine egne dokumenter
             /// </summary>
             {
-                "CitizenShouldSeeOwnDocumentReferences",new()
+                "CitizenShouldSeeOwnDocumentReferences", new()
                 {
-                    Condition = logic =>
-                        logic.Resource != null &&
-                        logic.Subject != null &&
-                        logic.Purpose != null &&
-                        logic.Purpose.Code != null &&
-
-                        logic.Resource.Code == logic.Subject.Code &&
-                        logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
-                        logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-                        logic.Acp.NoUrn() == Acp.NullValue.NoUrn() &&
-                        logic.SubjectAge >= 18,
+                    Condition = logic => CitizenShouldSeeOwnDocumentReferences(logic),
 
                     Filter = robjs =>
                         FilterByConfidentiality(
@@ -326,30 +297,10 @@ public class BusinessLogicFiltersRegistry
             },
 
             /// <summary>
-            /// Jeg som innbygger (barn) mellom 12-16 skal ikke ha tilgang til til dokumentreferanser/dokumenter
-            /// </summary>
-            {
-                "CitizenBetween12And16ShouldNotSeeDocumentReferences", new()
-                {
-                    Condition = logic =>
-                        logic.Subject != null &&
-                        logic.Resource != null &&
-                        logic.Purpose != null &&
-                        logic.Purpose.Code != null &&
-
-                        logic.Subject.Code == logic.Resource.Code &&
-                        logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-                        logic.SubjectAge.InRange(12, 16),
-
-                    Filter = _ => DenyAll()
-                }
-            },
-
-            /// <summary>
             /// Jeg som innbygger (ungdom) med alder mellom 16-18 skal ha tilgang til til deler av dokumentreferanser/dokumenter
             /// </summary>
             {
-                "CitizenBetween16And18ShouldAccesPartsOfDocumentReferences", new()
+                "CitizenBetween16And18ShouldAccessPartsOfDocumentReferences", new()
                 {
 
                     Condition = logic =>
@@ -460,7 +411,6 @@ public class BusinessLogicFiltersRegistry
                         logic.Acp == Acp.RepresentCitizenUnder12 &&
                         logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13) &&
                         logic.ResourceAge >= 13,
-
 
                     Filter = _ => DenyAll()
                 }
@@ -629,8 +579,8 @@ public class BusinessLogicFiltersRegistry
         return sourceAsList;
     }
 
-    // HAYO! This is a a straightforward way to implement it.
-    // But principally speaking it should really be factored out as a subset of the 9602 category codes in the terminology service
+    // HAYO! This is a a straightforward way to implement it, but principally speaking
+    // it should really be factored out as a subset of the 9602 category codes in the terminology service
     private static class KjForskriftCategoryCodes
     {
         public const string System = "2.16.578.1.12.4.1.1.9602";

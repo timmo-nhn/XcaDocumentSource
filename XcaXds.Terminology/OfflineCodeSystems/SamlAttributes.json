@@ -66,54 +66,6 @@
       "name": "ActionPurpose20"
     },
     {
-      "value": "urn:no:ehelse:saml:1.0:subject:homeCommunityId",
-      "name": "EhelseHomeCommunityId"
-    },
-    {
-      "value": "urn:no:ehelse:saml:1.0:subject:SecurityLevel",
-      "name": "SecurityLevel"
-    },
-    {
-      "value": "urn:no:ehelse:saml:1.0:subject:Scope",
-      "name": "Scope"
-    },
-    {
-      "value": "urn:no:ehelse:saml:1.0:subject:client_id",
-      "name": "ClientId"
-    },
-    {
-      "value": "urn:no:ehelse:saml:1.0:subject:Authentication_method",
-      "name": "AuthenticationMethod"
-    },
-    {
-      "value": "urn:no:ehelse:saml:1.1:subject:healthcareservice",
-      "name": "HealthcareService"
-    },
-    {
-      "value": "urn:nhn:trust-framework:1.0:ext:subject:child-organization-name",
-      "name": "TrustChildOrgName"
-    },
-    {
-      "value": "urn:nhn:trust-framework:1.0:ext:resource:child-organization",
-      "name": "TrustResourceChildOrg"
-    },
-    {
-      "value": "urn:nhn:trust-framework:1.0:ext:resource:child-organization-id",
-      "name": "TrustResourceChildOrgId"
-    },
-    {
-      "value": "urn:nhn:trust-framework:1.0:ext:care-relationship:healthcare-service",
-      "name": "TrustHealthcareService"
-    },
-    {
-      "value": "urn:nhn:trust-framework:1.0:ext:care-relationship:purpose-of-use-details",
-      "name": "TrustPurposeOfUseDetails"
-    },
-    {
-      "value": "urn:nhn:trust-framework:1.0:ext:care-relationship:decision-ref",
-      "name": "TrustDecisionRef"
-    },
-    {
       "value": "urn:oasis:names:tc:SAML:attribute:subject-id",
       "name": "SamlSubjectId"
     }

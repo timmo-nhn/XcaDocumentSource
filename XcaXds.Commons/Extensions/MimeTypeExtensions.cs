@@ -3,7 +3,7 @@ using System.Text.Json;
 using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Extensions;
 

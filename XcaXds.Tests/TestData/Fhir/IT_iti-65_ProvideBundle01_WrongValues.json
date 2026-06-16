@@ -63,8 +63,8 @@
                         "valueCodeableConcept": {
                             "coding": [
                                 {
-                                    "system": "urn:oid:2.16.578.1.12.4.1.1.9608",
-                                    "code": "A03-2",
+                                    "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                                    "code": "A09123-2",
                                     "display": "Epikrise"
                                 }
                             ]
@@ -222,8 +222,8 @@
                 "type": {
                     "coding": [
                         {
-                            "system": "urn:oid:2.16.578.1.12.4.1.1.9608",
-                            "code": "A03-2",
+                            "system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+                            "code": "A0399-2",
                             "display": "Epikrise"
                         }
                     ]

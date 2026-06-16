@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using XcaXds.Commons.Commons;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
@@ -17,5 +17,5 @@ public class SourcePatientInfo
     public DateTime? BirthTime { get; set; }
 
     [MaxLength(Constants.Properties.MaxStringLength)]
-    public CodedValue? Gender { get; set; }
+    public string? Gender { get; set; }
 }

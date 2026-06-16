@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Shared.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Serializers;
 

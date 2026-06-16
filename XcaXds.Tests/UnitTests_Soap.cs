@@ -1,5 +1,5 @@
 using System.Xml;
-using XcaXds.Commons.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 
@@ -195,7 +195,7 @@ public class UnitTests_Soap
             </soapenv:Envelope>
             """;
 
-        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        var sxmls = new SoapXmlSerializer( Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
 
         var soapEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(soapMessage);
 
