@@ -25,7 +25,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.Kjernejournal,
+            AppliesTo = AppliesTo.HelseId,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = "TREAT", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" },
@@ -46,7 +46,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.Kjernejournal,
+            AppliesTo = AppliesTo.HelseId,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = "ETREAT", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" },

@@ -299,7 +299,7 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
 
         var businessLogic = new BusinessLogicParameters()
         {
-            AppliesTo = AppliesTo.Kjernejournal,
+            AppliesTo = AppliesTo.HelseId,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },

@@ -28,7 +28,7 @@ public class IntegrationTests_AccessControl(WebApplicationFactory<WebService.Pro
             new(Constants.Saml.Attribute.Role + ":codeSystem", "2.16.578.1.12.4.1.1.9060"),
             new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Kjernejournal)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HelseId)),
             new(Constants.Saml.Attribute.XuaAcp, TestConstants.Acp.NullValue)
         );
 
@@ -62,7 +62,7 @@ public class IntegrationTests_AccessControl(WebApplicationFactory<WebService.Pro
             new(Constants.Saml.Attribute.Role + ":codeSystem", "2.16.578.1.12.4.1.1.9060"),
             new(Constants.Saml.Attribute.EhelseSecurityLevel, "4"),
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.ReadDocumentList),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Kjernejournal)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HelseId)),
             new(Constants.Saml.Attribute.XuaAcp, TestConstants.Acp.NullValue)
         );
 
@@ -89,7 +89,7 @@ public class IntegrationTests_AccessControl(WebApplicationFactory<WebService.Pro
 
         var abacRequest = new AbacRequest(
             new(Constants.Xacml.Attribute.ActionId, Constants.Xacml.Actions.Create),
-            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.Kjernejournal)),
+            new(Constants.Urn.Custom.AppliesTo, nameof(AppliesTo.HelseId)),
             new(Constants.Saml.Attribute.XuaAcp, TestConstants.Acp.NullValue)
         );
 

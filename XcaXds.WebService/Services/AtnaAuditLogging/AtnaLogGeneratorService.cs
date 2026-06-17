@@ -599,7 +599,7 @@ public class AtnaLogGeneratorService
             };
         }
 
-        if (issuer == AppliesTo.Kjernejournal && hasSubject)
+        if (issuer == AppliesTo.HelseId && hasSubject)
         {
             HumanName? healthcarePersonHumanName = null;
             var subjectNameParts = subjectDisplayName?.Split().ToList();

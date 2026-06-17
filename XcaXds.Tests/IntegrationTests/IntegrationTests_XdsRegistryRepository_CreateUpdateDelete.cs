@@ -66,7 +66,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
                     logic.Scope != null &&
                     logic.Scope.Length > 0 &&
 
-                    logic.AppliesTo == AppliesTo.Kjernejournal &&
+                    logic.AppliesTo == AppliesTo.HelseId &&
                     // HAYO! KJ_SCOPE As of march 2026, PHR has not defined a specific scope for Kjernejournalforskriften,
                     // For now, a bogus value of "kjernejournalforskriften" in the scope as an indicator that this filter should be applied.
                     logic.Scope.Contains("kjernejournalforskriften"),

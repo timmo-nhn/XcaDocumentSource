@@ -76,7 +76,7 @@ public static class TestHelpers
 
         policyRepositoryService.AddPolicy(new AbacPolicy()
         {
-            AppliesTo = [AppliesTo.Kjernejournal, AppliesTo.Helsenorge, AppliesTo.Machine],
+            AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
             Id = policyName,
             Rules = [rules],
             Actions = [action],
@@ -88,7 +88,7 @@ public static class TestHelpers
     {
         policyRepositoryService.AddPolicy(new AbacPolicy()
         {
-            AppliesTo = [AppliesTo.Kjernejournal, AppliesTo.Helsenorge, AppliesTo.Machine],
+            AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
             Id = policyName,
             Rules = [new() { Conditions = rules }],
             Actions = [action],
@@ -108,7 +108,7 @@ public static class TestHelpers
             var rules = randomAttributes.Select(att => new AbacRuleGroup() { Conditions = [new(att.Value, att.Key)] }).ToList();
             policyRepositoryService.AddPolicy(new AbacPolicy()
             {
-                AppliesTo = [AppliesTo.Kjernejournal, AppliesTo.Helsenorge, AppliesTo.Machine],
+                AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
                 Id = Guid.NewGuid().ToString(),
                 Rules = rules,
                 Actions = [actions.PickRandom().Value],

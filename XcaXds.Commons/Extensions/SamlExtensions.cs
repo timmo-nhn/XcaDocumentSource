@@ -20,7 +20,7 @@ public static partial class SamlExtensions
         {
             if (issuer.Contains("helseid-xdssaml"))
             {
-                return AppliesTo.Kjernejournal;
+                return AppliesTo.HelseId;
             }
             if (issuer.Contains("helsenorge"))
             {
@@ -54,7 +54,7 @@ public static partial class SamlExtensions
         {
             if (issuer.Contains("helseid"))
             {
-                return AppliesTo.Kjernejournal;
+                return AppliesTo.HelseId;
             }
             if (issuer.Contains("helsenorge"))
             {

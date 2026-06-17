@@ -154,7 +154,7 @@ public class AppStartupService : IHostedService
         var cz_gp_deny_if_different_resourceid = new AbacPolicy()
         {
             Id = "DEFAULT_cz-gp-deny-if-different-resourceid",
-            AppliesTo = [AppliesTo.Helsenorge, AppliesTo.Kjernejournal],
+            AppliesTo = [AppliesTo.Helsenorge, AppliesTo.HelseId],
             Description = "If the Citizen or healthcare personell is trying to access data for another patient, the correct acp value must be specified",
             Rules =
             [
@@ -195,7 +195,7 @@ public class AppStartupService : IHostedService
         var gp_deny_certain_roles = new AbacPolicy()
         {
             Id = "DEFAULT_gp-deny2",
-            AppliesTo = [AppliesTo.Kjernejournal],
+            AppliesTo = [AppliesTo.HelseId],
             Rules =
             [
                 new(
@@ -209,7 +209,7 @@ public class AppStartupService : IHostedService
         var gp_readdocumentlist_readdocument = new AbacPolicy()
         {
             Id = "DEFAULT_gp-readdocumentlist_readdocument",
-            AppliesTo = [AppliesTo.Kjernejournal],
+            AppliesTo = [AppliesTo.HelseId],
             Rules =
             [
                 new(
