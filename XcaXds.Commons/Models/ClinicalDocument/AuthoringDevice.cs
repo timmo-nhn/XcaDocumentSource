@@ -1,7 +1,7 @@
 ﻿
 using System.Xml.Serialization;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models.ClinicalDocument;
 

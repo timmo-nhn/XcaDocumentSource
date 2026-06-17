@@ -1,5 +1,5 @@
 ﻿using System.Xml.Serialization;
-using XcaXds.Commons.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
 namespace XcaXds.Commons.Models.Soap.Actions;

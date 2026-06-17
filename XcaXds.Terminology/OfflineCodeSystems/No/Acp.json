@@ -1,0 +1,41 @@
+{
+  "systemOid": "2.16.578.1.12.4.1.7.2.1",
+  "values": [
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.0",
+      "name": "NullValue"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.1",
+      "name": "RepresentCitizenUnder12"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.2",
+      "name": "RepresentAnotherCitizen"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.3",
+      "name": "RepresentedUnableToConsent"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.4",
+      "name": "NotObligedToConsent"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.5",
+      "name": "ExcplicitConsent"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.6",
+      "name": "UnableToConsent"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.7",
+      "name": "ExceptionToConcent"
+    },
+    {
+      "value": "2.16.578.1.12.4.1.7.2.1.8",
+      "name": "HasConsent"
+    }
+  ]
+}

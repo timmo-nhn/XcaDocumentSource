@@ -1,12 +1,16 @@
 ﻿using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.WebService.Services;
+using XcaXds.Shared.Enums;
+using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
+using XcaXds.Shared.Extensions;
+using XcaXds.WebService.Services.Policy;
 
 namespace XcaXds.Tests.Helpers;
 
@@ -72,7 +76,7 @@ public static class TestHelpers
 
         policyRepositoryService.AddPolicy(new AbacPolicy()
         {
-            AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
+            AppliesTo = [AppliesTo.Kjernejournal, AppliesTo.Helsenorge, AppliesTo.Machine],
             Id = policyName,
             Rules = [rules],
             Actions = [action],
@@ -84,7 +88,7 @@ public static class TestHelpers
     {
         policyRepositoryService.AddPolicy(new AbacPolicy()
         {
-            AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
+            AppliesTo = [AppliesTo.Kjernejournal, AppliesTo.Helsenorge, AppliesTo.Machine],
             Id = policyName,
             Rules = [new() { Conditions = rules }],
             Actions = [action],
@@ -104,7 +108,7 @@ public static class TestHelpers
             var rules = randomAttributes.Select(att => new AbacRuleGroup() { Conditions = [new(att.Value, att.Key)] }).ToList();
             policyRepositoryService.AddPolicy(new AbacPolicy()
             {
-                AppliesTo = [AppliesTo.HelseId, AppliesTo.Helsenorge, AppliesTo.Machine],
+                AppliesTo = [AppliesTo.Kjernejournal, AppliesTo.Helsenorge, AppliesTo.Machine],
                 Id = Guid.NewGuid().ToString(),
                 Rules = rules,
                 Actions = [actions.PickRandom().Value],

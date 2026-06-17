@@ -10,6 +10,10 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Extensions;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
+using XcaXds.WebService.Services.Policy;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;
 
@@ -21,11 +25,19 @@ public class AtnaLogEnricherService
 {
     private readonly ILogger<AtnaLogEnricherService> _logger;
     private readonly PolicyRequestMapperJsonWebTokenService _policyRequestMapperJwtService;
+    private readonly JwtToSamlTransformerService _jwtToSamlTransformerService;
+    private readonly TerminologyService _terminologyService;
 
-    public AtnaLogEnricherService(ILogger<AtnaLogEnricherService> logger, PolicyRequestMapperJsonWebTokenService policyRequestMapperJwtService)
+    public AtnaLogEnricherService(
+        ILogger<AtnaLogEnricherService> logger,
+        PolicyRequestMapperJsonWebTokenService policyRequestMapperJwtService,
+        JwtToSamlTransformerService jwtToSamlTransformerService,
+        TerminologyService terminologyService)
     {
         _logger = logger;
         _policyRequestMapperJwtService = policyRequestMapperJwtService;
+        _jwtToSamlTransformerService = jwtToSamlTransformerService;
+        _terminologyService = terminologyService;
     }
 
     public SoapEnvelope GetMockSoapEnvelopeFromJwtAndBundle(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, IdentifiableType[]? registryObjects)
@@ -103,7 +115,7 @@ public class AtnaLogEnricherService
 
             var token = handler.ReadJwtToken(jwtToken);
 
-            var samlToken = JwtToSamlTransformer.MapJsonWebTokenToSamlToken(token);
+            var samlToken = _jwtToSamlTransformerService.MapJsonWebTokenToSamlToken(token);
 
             // Enrich SAML assertion with patient context from the submitted Bundle (if present).
             // This is used by downstream auditing/policy components expecting patient/resource attributes in the token.
@@ -118,7 +130,8 @@ public class AtnaLogEnricherService
                 var resourceId = new CX(patientValue, patientSystem);
 
                 samlToken.Assertion.Statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
-                    Constants.Saml.Attribute.ResourceId20,
+                    //Constants.Saml.Attribute.ResourceId20
+                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "ResourceId20")?.FirstOrDefault(),
                     resourceId.Serialize())));
 
                 var patientName = patient?.Name?.FirstOrDefault();

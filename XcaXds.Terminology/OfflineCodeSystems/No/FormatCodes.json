@@ -1,0 +1,17 @@
+{
+  "systemOid": "formatCodes",
+  "values": [
+    {
+      "value": "urn:no:ehelse:document:pdf"
+    },
+    {
+      "value": "urn:no:ehelse:document:image"
+    },
+    {
+      "value": "urn:no:ehelse:document:text"
+    },
+    {
+      "value": "urn:no:kith:xmlstds:henvisning"
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Commons.DataManipulators.Tests;
 

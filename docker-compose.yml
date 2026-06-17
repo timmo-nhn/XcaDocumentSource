@@ -7,17 +7,14 @@ services:
       - ASPNETCORE_URLS=http://+:5000
       - DOTNET_RUNNING_IN_CONTAINER=true
       - ASPNETCORE_ENVIRONMENT=Development
-      - REGISTRY_FILE_PATH=/mnt/registry
-      - REPOSITORY_FILE_PATH=/mnt/repository
+      # - REGISTRY_FILE_PATH=/mnt/registry
+      # - REPOSITORY_FILE_PATH=/mnt/repository
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otlp-collector.opentelemetry:4317
       - DEPLOYMENT_ENVIRONMENT=Development
       - SERVICE_NAME=XcaDS
 
     ports:
       - "5000:5000"
-    volumes:
-      - ./XcaXds.Source/Data:/mnt/registry
-      - ./XcaXds.Source/Repository:/mnt/repository
     networks:
       - xcanet
 

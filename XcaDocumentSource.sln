@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.BusinessLogic", "Xca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Terminology", "XcaXds.Terminology\XcaXds.Terminology.csproj", "{A9AC71AB-BBD9-4C88-A435-FF219B257C43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XcaXds.Shared", "XcaXds.Shared\XcaXds.Shared.csproj", "{9CB42C2C-330F-4985-A47D-979E83CA39C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{A9AC71AB-BBD9-4C88-A435-FF219B257C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9AC71AB-BBD9-4C88-A435-FF219B257C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9AC71AB-BBD9-4C88-A435-FF219B257C43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CB42C2C-330F-4985-A47D-979E83CA39C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CB42C2C-330F-4985-A47D-979E83CA39C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CB42C2C-330F-4985-A47D-979E83CA39C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CB42C2C-330F-4985-A47D-979E83CA39C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

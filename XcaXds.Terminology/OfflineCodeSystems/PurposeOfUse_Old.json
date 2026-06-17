@@ -1,0 +1,21 @@
+{
+  "systemOid": "1.0.14265.1",
+  "values": [
+    {
+      "value": "1",
+      "name": "ClinicalCare"
+    },
+    {
+      "value": "2",
+      "name": "EmergencyCare"
+    },
+    {
+      "value": "5",
+      "name": "Management"
+    },
+    {
+      "value": "13",
+      "name": "SubjectOfCare"
+    }
+  ]
+}

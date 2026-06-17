@@ -5,6 +5,7 @@ using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.DataManipulators;
 
@@ -113,21 +114,14 @@ public static partial class CdaTransformer
             };
         }).ToList();
 
-        var patientGender = patientRole.Patient?.AdministrativeGenderCode?.Code switch
-        {
-            "0" => "U",
-            "1" => "M",
-            "2" => "F",
-            "9" => "O",
-            _ => "U"
-        };
+        var patientGender = patientRole.Patient?.AdministrativeGenderCode;
 
         return new()
         {
             BirthTime = patientRole.Patient?.BirthTime?.EffectiveTime.UtcDateTime,
             FirstName = authorNames?.FirstOrDefault(),
             LastName = authorNames?.LastOrDefault(),
-            Gender = patientGender,
+            Gender = patientGender?.Code,
             PatientId = new() { Id = patientRole.Id.FirstOrDefault()?.Extension, System = patientRole.Id.FirstOrDefault()?.Root }
         };
     }
@@ -585,23 +579,8 @@ public static partial class CdaTransformer
         {
             return new()
             {
-                Code = patientGender switch
-                {
-                    "U" => "0",
-                    "M" => "1",
-                    "F" => "2",
-                    "O" => "9",
-                    _ => "0"
-                },
-                CodeSystem = Constants.CodeSystems.Volven.Gender_3101.System,
-                DisplayName = patientGender switch
-                {
-                    "U" => "Not known",
-                    "M" => "Male",
-                    "F" => "Female",
-                    "O" => "Not applicable",
-                    _ => "Not known"
-                }
+                Code = patientGender,
+                CodeSystem = "2.16.840.1.113883.18.2",
             };
         }
         return null;

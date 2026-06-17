@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
-using XcaXds.Commons.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 

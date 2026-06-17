@@ -1,0 +1,215 @@
+﻿using Hl7.Fhir.Model;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.DomainResults;
+using XcaXds.Commons.Models.Soap;
+using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Extensions;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
+
+namespace XcaXds.WebService.Services.Fhir;
+
+public class FhirService
+{
+    private readonly ILogger<FhirService> _logger;
+    private readonly XdsRegistryService _registry;
+    private readonly XdsRepositoryService _repository;
+    private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
+
+    private const string HomeCommunityIdUrl_IheProfiles = "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId";
+    private const string HomeCommunityIdUrl_IheLegacy = "http://ihe.net/fhir/StructureDefinition/homeCommunityId";
+
+    public FhirService(
+        ILogger<FhirService> logger,
+        XdsRegistryService registry, 
+        XdsRepositoryService repository,
+        FhirToXdsTransformerService fhirToXdsTransformerService)
+    {
+        _logger = logger;
+        _registry = registry;
+        _repository = repository;
+        _fhirToXdsTransformerService = fhirToXdsTransformerService;
+    }
+
+    public async Task<ProvideBundleResult> ProvideBundle(Bundle fhirBundle, string sessionId, bool validateOnly = false)
+    {
+        var operationOutcome = new OperationOutcome();
+
+        var patient = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<Patient>()
+            .FirstOrDefault();
+
+        var documentReferences = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<DocumentReference>()
+            .ToList();
+
+        var fhirBinaries = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<Binary>()
+            .ToList();
+
+        var submissionSetList = fhirBundle.Entry
+            .Select(e => e.Resource)
+            .OfType<List>()
+            .FirstOrDefault();
+
+        //if (submissionSetList == null) return BadRequest(OperationOutcome.ForMessage($"List element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        //if (documentReferences.Count == 0) return BadRequest(OperationOutcome.ForMessage($"DocumentReference element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        //if (fhirBinaries.Count == 0) return BadRequest(OperationOutcome.ForMessage($"Binary element is missing or malformed", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        //if (patient == null) return BadRequest(OperationOutcome.ForMessage($"Patient not found in DocumentReference", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
+
+        if (submissionSetList == null) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+        {
+            Severity = OperationOutcome.IssueSeverity.Fatal,
+            Code = OperationOutcome.IssueType.Invalid,
+            Diagnostics = $"List element is missing or malformed"
+        });
+
+        if (documentReferences.Count == 0) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+        {
+            Severity = OperationOutcome.IssueSeverity.Fatal,
+            Code = OperationOutcome.IssueType.Invalid,
+            Diagnostics = $"DocumentReference element is missing or malformed"
+
+        });
+
+        if (fhirBinaries.Count == 0) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+        {
+            Severity = OperationOutcome.IssueSeverity.Fatal,
+            Code = OperationOutcome.IssueType.Invalid,
+            Diagnostics = $"Binary element is missing or malformed"
+
+        });
+
+        if (patient == null) operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+        {
+            Severity = OperationOutcome.IssueSeverity.Fatal,
+            Code = OperationOutcome.IssueType.Invalid,
+            Diagnostics = $"Patient not found in DocumentReference"
+        });
+
+        var sourceIdIdentifier = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
+        var extResReference = sourceIdIdentifier!.Value as Identifier; // Changed from reference to identifier
+        var sourceId = extResReference?.Value?.Replace("urn:oid:", "");
+        //var sourceId = sourceIdIdentifier?.ElementId;
+
+        if (string.IsNullOrEmpty(sourceId))
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = "Missing List.extension[ihe-sourceId]"
+            });
+        }
+
+        var firstDocumentReference = documentReferences.First();
+        var attachment = firstDocumentReference!.Content.FirstOrDefault()?.Attachment;
+        var allAttachments = documentReferences.SelectMany(dr => dr!.Content).Select(c => c.Attachment).ToList();
+
+        var homeCommunityIdExtension = attachment.GetExtension(HomeCommunityIdUrl_IheProfiles) ??
+           attachment.GetExtension(HomeCommunityIdUrl_IheLegacy);
+
+        var homeCommunityId = homeCommunityIdExtension?.Value?.ToString();
+
+        if (string.IsNullOrEmpty(homeCommunityId))
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = "Missing DocumentReference.content.attachment.extension[homeCommunityId]"
+            });
+        }
+
+        _logger.LogInformation($"{sessionId} Converting FHIR bundle to XDS RegistryObjectList...");
+        var provideAndRegisterResult = _fhirToXdsTransformerService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, homeCommunityId?.NoUrn());
+
+        _logger.LogInformation($"{sessionId} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
+
+        var provideAndRegisterRequest = provideAndRegisterResult.Value;
+
+        if (provideAndRegisterResult.Success == false && provideAndRegisterResult.OperationOutcome != null && provideAndRegisterRequest != null)
+        {
+            operationOutcome.Issue.AddRange(provideAndRegisterResult.OperationOutcome.Issue);
+        }
+
+        var submittedDocumentsTooLarge = _repository.CheckIfDocumentsAreTooLarge(provideAndRegisterRequest);
+
+        var iti42SoapEnvelope = _registry.CopyIti41ToIti42Message(provideAndRegisterRequest);
+
+        var repositoryDocumentExists = _repository.CheckIfDocumentExistsInRepository(provideAndRegisterRequest);
+
+        SoapRequestResult<SoapEnvelope>? registerDocumentSetResponse = null;
+        SoapRequestResult<SoapEnvelope>? documentUploadResponse = null;
+
+        // Any errors that have previously occured will override the validateOnly parameter, supporting
+        // the atomic nature of provide and register (all-or-nothing),
+        // while also allowing us to validate everything without returning too early, preventing
+        // the end user from fighting "waves" of errors
+        var effectiveValidateOnly =
+            repositoryDocumentExists.IsSuccess == false ||
+            iti42SoapEnvelope.IsSuccess == false ||
+            submittedDocumentsTooLarge.IsSuccess == false ||
+            validateOnly;
+
+        documentUploadResponse = await _repository.UploadContentToRepository(provideAndRegisterRequest, effectiveValidateOnly);
+
+        effectiveValidateOnly = documentUploadResponse.IsSuccess == false;
+
+        registerDocumentSetResponse = _registry.AppendToRegistry(iti42SoapEnvelope.Value, effectiveValidateOnly);
+
+
+        var errors = new List<RegistryErrorType>();
+        errors.AddRange(submittedDocumentsTooLarge.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        errors.AddRange(iti42SoapEnvelope.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        errors.AddRange(repositoryDocumentExists.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+
+        if (registerDocumentSetResponse != null && documentUploadResponse != null)
+        {
+            errors.AddRange(registerDocumentSetResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+            errors.AddRange(documentUploadResponse.Value?.Body.RegistryResponse?.RegistryErrorList?.RegistryError ?? []);
+        }
+
+        var highestSeverity = errors.MaxBy(err => err.GetSeverityLevel())?.Severity;
+
+        registerDocumentSetResponse?.Value?.Body.RegistryResponse = new()
+        {
+
+            RegistryErrorList = new()
+            {
+                HighestSeverity = highestSeverity,
+                RegistryError = errors.ToArray()
+            }
+        };
+
+        if (errors.Count > 0)
+        {
+            foreach (var error in errors)
+            {
+                _logger.LogError($"{sessionId}Error while converting to Bundle\n\tError: {error.ErrorCode}\n\tErrorCode: {error.CodeContext}");
+
+                operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+                {
+                    Severity = OperationOutcome.IssueSeverity.Error,
+                    Code = OperationOutcome.IssueType.Value,
+                    Diagnostics = $"XDSError_Code: {error.ErrorCode}, XDSError_CodeContext: {error.CodeContext}"
+                });
+            }
+        }
+
+        return new()
+        {
+            Outcome = operationOutcome,
+            ProvideAndRegisterRequest = provideAndRegisterRequest,
+            RegistryResponse = registerDocumentSetResponse?.Value
+        };
+    }
+}

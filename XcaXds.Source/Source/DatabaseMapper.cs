@@ -128,7 +128,7 @@ public static class DatabaseMapper
                         FirstName = documentEntry.DE_SourcePatientInfoFirstName,
                         LastName = documentEntry.DE_SourcePatientInfoLastName,
                         BirthTime = documentEntry.DE_SourcePatientInfoBirthTime,
-                        Gender = documentEntry.DE_SourcePatientInfoGender,
+                        Gender = documentEntry.DE_SourcePatientInfoGender
                     },
                     Title = documentEntry.DE_Title,
                     TypeCode = new()

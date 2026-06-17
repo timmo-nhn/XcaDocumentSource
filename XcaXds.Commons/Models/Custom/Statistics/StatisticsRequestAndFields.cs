@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
+using XcaXds.Shared.Enums;
 
 namespace XcaXds.Commons.Models.Custom.Statistics;
 

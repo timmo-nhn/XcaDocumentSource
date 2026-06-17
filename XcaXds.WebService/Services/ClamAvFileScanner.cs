@@ -1,4 +1,5 @@
 ﻿using nClam;
+using XcaXds.Commons.Interfaces;
 
 namespace XcaXds.WebService.Services;
 

@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Serializers;
 
@@ -19,7 +20,7 @@ public abstract class Hl7Object
 
     public string? Serialize()
     {
-        return Serialize(Constants.Hl7.Separator.Hatt);
+        return Serialize(Constants.Hl7.Separator.Caret);
     }
 
     public string? Serialize(char separator)
@@ -31,17 +32,17 @@ public abstract class Hl7Object
             if (item.Property?.PropertyType == typeof(HD))
             {
                 var hd = (HD?)item.Property.GetGetMethod()?.Invoke(this, null);
-                stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Amp) : string.Empty) + separator);
+                stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Ampersand) : string.Empty) + separator);
             }
             else if (item.Property?.PropertyType == typeof(CX))
             {
                 var cx = (CX?)item.Property.GetGetMethod()?.Invoke(this, null);
-                stringBuilder.Append((cx != null ? cx.Serialize(Constants.Hl7.Separator.Hatt) : string.Empty) + separator);
+                stringBuilder.Append((cx != null ? cx.Serialize(Constants.Hl7.Separator.Caret) : string.Empty) + separator);
             }
             else if (item.Property?.PropertyType == typeof(XPN))
             {
                 var xpn = (XPN?)item.Property.GetGetMethod()?.Invoke(this, null);
-                stringBuilder.Append((xpn != null ? xpn.Serialize(Constants.Hl7.Separator.Hatt) : string.Empty) + separator);
+                stringBuilder.Append((xpn != null ? xpn.Serialize(Constants.Hl7.Separator.Caret) : string.Empty) + separator);
             }
             else if (item.Property?.PropertyType == typeof(DateTime))
             {
@@ -85,7 +86,7 @@ public abstract class Hl7Object
 
     public static T? Parse<T>(string? s) where T : Hl7Object, new()
     {
-        return Parse<T>(s, Constants.Hl7.Separator.Hatt);
+        return Parse<T>(s, Constants.Hl7.Separator.Caret);
     }
 
     public static T? Parse<T>(string? s, char separator) where T : Hl7Object, new()
@@ -97,7 +98,7 @@ public abstract class Hl7Object
 
         var output = new T();
 
-        if (separator == Constants.Hl7.Separator.Amp)
+        if (separator == Constants.Hl7.Separator.Ampersand)
         {
             s = HttpUtility.HtmlDecode(s);
         }
@@ -121,15 +122,15 @@ public abstract class Hl7Object
 
             if (item.Property?.PropertyType == typeof(HD))
             {
-                objectValue = new[] { Parse<HD>(value, Constants.Hl7.Separator.Amp) };
+                objectValue = new[] { Parse<HD>(value, Constants.Hl7.Separator.Ampersand) };
             }
             else if (item.Property?.PropertyType == typeof(CX))
             {
-                objectValue = new[] { Parse<CX>(value, Constants.Hl7.Separator.Hatt) };
+                objectValue = new[] { Parse<CX>(value, Constants.Hl7.Separator.Caret) };
             }
             else if (item.Property?.PropertyType == typeof(XPN))
             {
-                objectValue = new[] { Parse<XPN>(value, Constants.Hl7.Separator.Hatt) };
+                objectValue = new[] { Parse<XPN>(value, Constants.Hl7.Separator.Caret) };
             }
             else if (item.Property?.PropertyType == typeof(DateTime))
             {

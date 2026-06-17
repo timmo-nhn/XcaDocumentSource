@@ -5,6 +5,8 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Commons.DataManipulators.Tests;
 
@@ -271,7 +273,7 @@ public static class RegistryMetadataTransformer
                 BirthTime = birthTime == null ? null : DateTime.ParseExact(birthTime, Constants.Hl7.Dtm.DtmYmdFormat, CultureInfo.InvariantCulture),
                 LastName = name?.FamilyName,
                 FirstName = name?.GivenName,
-                Gender = gender ?? "U",
+                Gender = gender,
                 PatientId = new()
                 {
                     Id = srcPatientId?.IdNumber ?? patientId?.IdNumber,
@@ -518,21 +520,25 @@ public static class RegistryMetadataTransformer
             .ToArray();
 
         // Find organization XON here aswell to ensure we dont double-register stuff
-        var organization = authorSlotXon
-            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
-                                      asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-                                     (asXon?.AssigningAuthority?.UniversalId != null &&
-                                      asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-                 ?? authorSlotXon.LastOrDefault();
+        var organization = authorSlotXon.LastOrDefault();
+            // HAYO! Is LastOrDefault sufficient?!?
+            //authorSlotXon
+            //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
+            //                          asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
+            //                         (asXon?.AssigningAuthority?.UniversalId != null &&
+            //                          asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
+            //     ??
 
 
         // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).
         // If none is found, take the first in the XON list
-        var department = authorSlotXon
-            .FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
-                                     !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-                                     (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-                 ?? authorSlotXon.FirstOrDefault();
+        var department = authorSlotXon.FirstOrDefault();
+                 // HAYO! Is FirstOrDefault sufficient?!?
+                 //authorSlotXon
+                 //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
+                 //                         !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
+                 //                         (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
+                 //     ?? 
 
         if (department != null && department?.OrganizationIdentifier != organization?.OrganizationIdentifier)
         {
@@ -561,11 +567,12 @@ public static class RegistryMetadataTransformer
 
         // Find the XON object where assigningAuthority is NOT brreg.
         // If none is found, take the last in the XON list
-        var organization = authorSlotXon
-            .FirstOrDefault(asXon =>
-                (asXon?.AssigningFacility?.UniversalId != null && asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-                (asXon?.AssigningAuthority?.UniversalId != null && asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-            ?? authorSlotXon.LastOrDefault();
+        var organization = authorSlotXon.LastOrDefault();
+        // HAYO! Is LastOrDefault sufficient?!?
+        //.FirstOrDefault(asXon =>
+        //    (asXon?.AssigningFacility?.UniversalId != null && asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
+        //    (asXon?.AssigningAuthority?.UniversalId != null && asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
+        //?? 
 
         if (organization != null)
         {
@@ -1393,7 +1400,7 @@ public static class RegistryMetadataTransformer
         {
             if (registryObject.ConfidentialityCode?.Count > 0)
             {
-                var alternateCodeSystems = registryObject.ConfidentialityCode.Where(c => c?.CodeSystem?.NoUrn() == Constants.CodeSystems.Hl7.ConfidentialityCode.System_Alternate).ToArray();
+                var alternateCodeSystems = registryObject.ConfidentialityCode.Where(c => c?.CodeSystem?.NoUrn() == "http://terminology.hl7.org/CodeSystem/v3-Confidentiality").ToArray();
 
                 if (!(alternateCodeSystems?.Length > 0)) return;
 
@@ -1401,7 +1408,8 @@ public static class RegistryMetadataTransformer
                     .Select(acs => new CodedValue()
                     {
                         Code = acs.Code,
-                        CodeSystem = Constants.CodeSystems.Hl7.ConfidentialityCode.System,
+                        // Hard coded strings are not juicy, but since this method is related to FHIR/XDS concepts, it's probably fine?!
+                        CodeSystem = "2.16.840.1.113883.5.25",
                         DisplayName = acs.DisplayName
                     }).ToArray();
 

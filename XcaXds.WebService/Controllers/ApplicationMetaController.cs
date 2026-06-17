@@ -6,6 +6,7 @@ using System.Text.Json;
 using XcaInteropService.Commons.Enums;
 using XcaInteropService.Commons.Models.Custom;
 using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -13,7 +14,12 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
+using XcaXds.Shared.Constants;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -29,6 +35,9 @@ public class ApplicationMetaController : ControllerBase
     private readonly MonitoringStatusService _monitoringService;
     private readonly RequestThrottlingService _requestThrottlingService;
     private readonly ApplicationMetaService _applicationMetaService;
+    private readonly TerminologyService _terminologyService;
+    private readonly DocumentListFiltererService _documentListFiltererService;
+    private readonly BusinessRulesDescriptorService _businessRulesDescriptorService;
     private readonly IVariantFeatureManager _featureManager;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
@@ -42,8 +51,10 @@ public class ApplicationMetaController : ControllerBase
         MonitoringStatusService monitoringService,
         RequestThrottlingService requestThrottlingService,
         ApplicationMetaService applicationMetaService,
-        IVariantFeatureManager featureManager
-    )
+        TerminologyService terminologyService,
+        IVariantFeatureManager featureManager,
+        DocumentListFiltererService documentListFiltererService,
+        BusinessRulesDescriptorService businessRulesDescriptorService)
     {
         _logger = logger;
         _appConfig = xdsConfig;
@@ -54,6 +65,8 @@ public class ApplicationMetaController : ControllerBase
         _requestThrottlingService = requestThrottlingService;
         _applicationMetaService = applicationMetaService;
         _featureManager = featureManager;
+        _terminologyService = terminologyService;
+        _documentListFiltererService = documentListFiltererService;
     }
 
     [HttpGet("health-check")]
@@ -142,6 +155,8 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("about/domain-config")]
     public async Task<IActionResult> GetDomainConfig()
     {
+        var patientNin = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.PersonAssigningAuthorities, "NIN")?.FirstOrDefault();
+
         var config = new DomainConfig()
         {
             Enabled = true,
@@ -150,7 +165,7 @@ public class ApplicationMetaController : ControllerBase
             HomeCommunityId = _appConfig.HomeCommunityId,
             PatientResolverType = PatientResolverType.IDENTITY,
             Return = DomainReturn.DocumentList,
-            PatientAssigningAuthority = Constants.Oid.Fnr,
+            PatientAssigningAuthority = patientNin,
             QueryUrl = GetFullQueryUrl(),
         };
 
@@ -231,7 +246,7 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("business-logic-names")]
     public async Task<IActionResult> GetBusinessLogicNames()
     {
-        return Ok(BusinessLogicFilterer.BusinessLogicRules.Select(br => br.Name));
+        return Ok(_documentListFiltererService.BusinessLogicRules.Select(br => br.Key));
     }
 
     [Produces("text/plain")]
@@ -239,13 +254,13 @@ public class ApplicationMetaController : ControllerBase
     public async Task<IActionResult> GetBusinessLogicRules(bool plainText)
     {
         return Ok(
-            plainText ? BusinessRulesDescriptor.BusinessRulesPlainText : BusinessRulesDescriptor.BusinessRulesJson);
+            plainText ? _businessRulesDescriptorService.WriteBusinessRulesPlainText() : _businessRulesDescriptorService.WriteBusinessRulesJsonFormatted());
     }
 
     [Produces("text/plain")]
     [HttpGet("business-logic-obfuscation")]
     public async Task<IActionResult> GetObfuscationRules()
     {
-        return Ok(BusinessRulesDescriptor.EntriesToObfuscateJson);
+        return Ok(_businessRulesDescriptorService.WriteEntriesToObfuscateJsonFormatted());
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Hl7.Fhir.Model;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -11,35 +13,29 @@ namespace XcaXds.BusinessLogic.BusinessLogic;
 /// <summary>
 /// Filters a document list based on more granular and business-oriented parameters than what PEP performs. Allows for partial filtering of the document list
 /// </summary>
-public static class BusinessLogicFilterer
+public class DocumentListFiltererService
 {
-    public static readonly List<BusinessRule<IdentifiableType>> BusinessLogicRules = new List<BusinessRule<IdentifiableType>>()
+    private readonly ILogger<DocumentListFiltererService> _logger;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
+
+    public DocumentListFiltererService(ILogger<DocumentListFiltererService> logger, BusinessLogicFiltersRegistry businessLogicFiltersRegistry)
     {
-        BusinessLogicFilters.CitizenShouldSeeOwnDocumentReferences,
-        BusinessLogicFilters.CitizenBetween12And16ShouldNotSeeDocumentReferences,
-        BusinessLogicFilters.CitizenBetween16And18ShouldAccesPartsOfDocumentReferences,
-        BusinessLogicFilters.CitizenShouldSeeChildrenBelow12DocumentReferences,
-        BusinessLogicFilters.CitizenShouldSeePowerOfAttorneyDocumentReferences,
-        BusinessLogicFilters.CitizenShouldNotSeeNonPowerOfAttorneyDocumentReferences,
-        BusinessLogicFilters.CitizenShouldNotAccessDocumentsForPatientOver12,
-
-        BusinessLogicFilters.HealthcarePersonellShouldSeeOwnDocumentReferences,
-        BusinessLogicFilters.HealthcarePersonellShouldSeeEmergencyRelatedPatientDocumentReferences,
-        BusinessLogicFilters.HealthcarePersonellWithMissingAttributesShouldNotSeeDocumentReferences,
-
-        //BusinessLogicFilters.HealthcarePersonellKjernejournalForskriften,
-
-        BusinessLogicFilters.HealthcarePersonellShouldSeeRelatedPatientDocumentReferences,
-    };
-
-    public static void AddRule(BusinessRule<IdentifiableType> rule)
-    {
-        BusinessLogicRules.Add(rule);
+        _logger = logger;
+        _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
+        BusinessLogicRules = _businessLogicFiltersRegistry.AllBusinessRules;
     }
 
-    public static void RemoveRule(string ruleName)
+    public Dictionary<string, BusinessRule<IdentifiableType>> BusinessLogicRules = null;
+
+
+    public void AddRule(string key, BusinessRule<IdentifiableType> rule)
     {
-        BusinessLogicRules.RemoveAll(rul => rul.Name == ruleName);
+        BusinessLogicRules.Add(key, rule);
+    }
+
+    public void RemoveRule(string key)
+    {
+        BusinessLogicRules.Remove(key);
     }
 
     private static readonly ConcurrentDictionary<LambdaExpression, Delegate> _compiled = new();
@@ -49,9 +45,9 @@ public static class BusinessLogicFilterer
         return (Func<BusinessLogicParameters, bool>)_compiled.GetOrAdd(expr, e => e.Compile());
     }
 
-    public static IEnumerable<IdentifiableType> FilterRegistryObjectListBasedOnBusinessLogic(this IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> results)
+    public IEnumerable<IdentifiableType> FilterRegistryObjectListBasedOnBusinessLogic(IEnumerable<IdentifiableType> registryObjects, BusinessLogicParameters? businessLogic, out Dictionary<string, int> appliedRules)
     {
-        results = new Dictionary<string, int>();
+        appliedRules = new Dictionary<string, int>();
 
         if (businessLogic == null) return registryObjects;
 
@@ -69,7 +65,7 @@ public static class BusinessLogicFilterer
             {
                 rulesApplied.Add(result);
                 current = result.RegistryObjects;
-                resultCounts.Add(result.Name ?? "Unknown", (current != null && current.TryGetNonEnumeratedCount(out var count)) ? count : current?.Count() ?? 0);
+                resultCounts.Add(result.Name ?? "Unnamed business rule", (current != null && current.TryGetNonEnumeratedCount(out var count)) ? count : current?.Count() ?? 0);
             }
         }
 
@@ -80,20 +76,20 @@ public static class BusinessLogicFilterer
             current = [];
         }
 
-        results = resultCounts;
+        appliedRules = resultCounts;
         return current ?? [];
     }
 
-    public static BusinessLogicResult<T> ExecuteRule<T>(BusinessRule<T> rule, IEnumerable<T> objects, BusinessLogicParameters logic)
+    public static BusinessLogicResult<T> ExecuteRule<T>(KeyValuePair<string, BusinessRule<T>> rule, IEnumerable<T> objects, BusinessLogicParameters logic)
     {
-        var condition = CompileCached(rule.Condition!);
+        var condition = CompileCached(rule.Value.Condition!);
 
         if (condition(logic))
         {
-            var filtered = rule.Filter!.Compile()(objects);
-            return new(true, filtered, rule.Name);
+            var filtered = rule.Value.Filter!.Compile()(objects);
+            return new(true, filtered, rule.Key);
         }
 
-        return new(false, objects, rule.Name);
+        return new(false, objects, rule.Key);
     }
 }

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Xml.Serialization;
-using XcaXds.Commons.Commons;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -65,7 +65,7 @@ public partial class SlotType
             {
                 firstValue = firstValue.Split("','").FirstOrDefault();
 
-                return firstValue?.Trim().Trim(['(', ')']).Trim('\'').Replace("\\u0027", ""); 
+                return firstValue?.Trim().Trim(['(', ')']).Trim('\'').Replace("\\u0027", "");
             }
             return firstValue;
         }

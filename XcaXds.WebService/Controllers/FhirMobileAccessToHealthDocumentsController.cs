@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Web;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -18,10 +17,15 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
+using XcaXds.WebService.Services.Fhir;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 
 namespace XcaXds.WebService.Controllers;
 
@@ -33,7 +37,6 @@ namespace XcaXds.WebService.Controllers;
 public class FhirMobileAccessToHealthDocumentsController : Controller
 {
     private readonly ILogger<FhirMobileAccessToHealthDocumentsController> _logger;
-
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly RegistryWrapper _registryWrapper;
@@ -42,6 +45,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly AtnaLogGeneratorService _atnaLoggingService;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
     private readonly FhirResourceValidatorService _fhirValidator;
+    private readonly XdsOnFhirTransformerService _xdsOnFhirTransformerService;
     private readonly IVariantFeatureManager _featureManager;
 
 
@@ -57,10 +61,11 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         AtnaLogEnricherService atnaLogEnricherService,
         FhirService fhirService,
         FhirResourceValidatorService fhirValidator,
+        XdsOnFhirTransformerService xdsOnFhirTransformerService,
         IVariantFeatureManager featureManager)
     {
-        _xdsRegistryService = xdsRegistryService;
         _logger = logger;
+        _xdsRegistryService = xdsRegistryService;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _atnaLoggingService = atnaLoggingService;
@@ -69,6 +74,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         _fhirService = fhirService;
         _fhirValidator = fhirValidator;
         _featureManager = featureManager;
+        _xdsOnFhirTransformerService = xdsOnFhirTransformerService;
     }
 
     [Consumes("application/fhir+json")]
@@ -156,7 +162,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var adhocQueryRequest = new AdhocQueryRequest()
         {
-            AdhocQuery = XdsOnFhirTransformer.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery,
+            AdhocQuery = _xdsOnFhirTransformerService.ConvertIti67ToIti18AdhocQuery(documentRequest).AdhocQuery,
             Id = Constants.Xds.StoredQueries.FindDocuments,
             ResponseOption = new()
             {
@@ -176,7 +182,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var filteredDocumentList = _xdsRegistryService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, registryQueryResponse.Value, abacRequest, out var businessLogicResults);
         HttpContext.Items.Add("businessLogicResult", businessLogicResults);
 
-        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(registryQueryResponse.Value?.Body.AdhocQueryResponse?.RegistryObjectList, _registryWrapper.GetDocumentRegistryContentAsDtos());
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle(registryQueryResponse.Value?.Body.AdhocQueryResponse?.RegistryObjectList, _registryWrapper.GetDocumentRegistryContentAsDtos());
 
         requestTimer.Stop();
 
@@ -242,7 +248,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var registryItems = _registryWrapper.GetRegistryItemAndRelated(id);
         var registryObjects = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryItems).ToArray();
 
-        var documentReference = XdsOnFhirTransformer.GetFhirDocumentReferencesFromRegistryObjects(registryObjects).FirstOrDefault();
+        var documentReference = _xdsOnFhirTransformerService.GetFhirDocumentReferencesFromRegistryObjects(registryObjects).FirstOrDefault();
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
         var jsonResult = JsonSerializer.Serialize(documentReference, options);
 
@@ -586,7 +592,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         related.AddRange(associations);
         related.AddRange(registryPackages);
 
-        var bundle = XdsOnFhirTransformer.TransformRegistryObjectsToFhirBundle(related.ToArray(), _registryWrapper.GetDocumentRegistryContentAsDtos());
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle(related.ToArray(), _registryWrapper.GetDocumentRegistryContentAsDtos());
         var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
                             ?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
 

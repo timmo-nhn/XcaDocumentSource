@@ -4,14 +4,13 @@
 The Document Registry/Repository-solution is created to be easily interchangeable with existing Document Source solutions. It is based on a simple file-based Registry and Repository.  
 The Document Registry is a XML-file with a 1:1 representation of the serialized document metadata, such as what is returned in **ITI-messages**.
 A RegistryService is registered with Dependency Injection (DI), which holds an instance of the Document Registry. When a document is uploaded or deleted using one of **ITI-41**, **ITI-42** or **ITI-62**, the DI-instance of the Registry is updated to correspond to the modifications made. 
->**🔶 Implementation Note** <br> If the **Registry.json** file is edited directly by hand, such as using a text-editor, the application must be restarted or "bumped" by uploading or deleting registry objects with a registry request, thus triggering an update to the DI-instance.
 
 ## IRegistry/IRepository
-The IRegistry and IRepository (at `<solution>/XcaXds.Source/Services/`) are the actual Registry/Repository Implementation. The base implementation is file-based.  
+The IRegistry and IRepository (at `<solution>/XcaXds.Source/Services/`) are the actual Registry/Repository Implementation. The base implementation is database and file-based.  
 The documents are stored in a folder named after the Repository-Id OID (Object Identifier) as defined in the **appsettings.json**-file and is created automatically when a document is first uploaded.  
 The unique ID of the document is represented as the file-system name of the file.
   
-When an implementer wants to connect XcaDocumentSource to an existing Registry/Repostiory solution, it should theoretically be nescesarry to create a new implementation of the IRegistry and/or IRepository-interfaces, and plug them into the implementation defined in the `Program.cs` of `XcaXds.WebService`-solution. Note that further modifications may be nescesarry.  
+When an implementer wants to connect XcaDocumentSource to an existing Registry/Repostiory solution, it should only be nescesarry to create a new implementation of the IRegistry and/or IRepository-interfaces, and plug them into the implementation defined in the `Program.cs` of `XcaXds.WebService`-solution. Note that further modifications may be nescesarry.  
 
 
 
@@ -48,7 +47,7 @@ subgraph "XcaDocumentSource"
         regw[Registry Wrapper]
         repw[Repository Wrapper]
         subgraph "File System"
-            regfile[Registry File<br><pre>Registry.json]
+            regfile[Registry File<br><pre>Registry.db]
             repfol[Repository Folder]
         end
     end

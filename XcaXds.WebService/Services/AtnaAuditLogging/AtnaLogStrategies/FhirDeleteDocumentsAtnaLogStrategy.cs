@@ -39,7 +39,8 @@ public class FhirDeleteDocumentsAtnaLogStrategy : IAtnaLogStrategy
             return AtnaLogBuilderResult.Fail($"{context.TraceIdentifier} - JWT extraction failed! AtnaLog cannot be created for this request");
         }
 
-        var operationOutcome = fhirParser.DeserializeResource(await HttpRequestResponseExtensions.GetStreamAsStringAsync(response.Body)) as OperationOutcome;
+        var contentString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(response.Body);
+        var operationOutcome = fhirParser.DeserializeResource(contentString) as OperationOutcome;
 
         if (operationOutcome == null)
         {

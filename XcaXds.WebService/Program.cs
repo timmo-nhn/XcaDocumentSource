@@ -5,8 +5,11 @@ using Microsoft.FeatureManagement;
 using NHN.OpenTelemetryExtensions;
 using System.Collections;
 using System.Text.Json.Serialization;
-using XcaXds.Commons.Commons;
+using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Services;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.Commons.Interfaces.Statistics;
@@ -14,7 +17,13 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
+using XcaXds.Shared.ConfigBinder;
+using XcaXds.Shared.Constants;
 using XcaXds.Source.Source;
+using XcaXds.Terminology.Interfaces;
+using XcaXds.Terminology.Services;
+using XcaXds.Terminology.Sources;
+using XcaXds.Terminology.TerminologySources;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -22,11 +31,15 @@ using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
+using XcaXds.WebService.Services.Fhir;
+using XcaXds.WebService.Services.Policy;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.WebService.Services.Statistics;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
@@ -36,7 +49,7 @@ public class Program
     private static readonly bool RunningInContainer =
         bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? bool.FalseString);
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -102,6 +115,9 @@ public class Program
 
         app.MapControllers();
 
+        var terminologyUpdater = app.Services.GetRequiredService<TerminologyUpdaterService>();
+        await terminologyUpdater.InitializeTerminologyServiceAsync(CancellationToken.None);
+
         app.Run();
     }
 
@@ -114,8 +130,8 @@ public class Program
 
     private static void RegisterHostedServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<AppStartupService>();
+        builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<StatisticsProcessorService>();
     }
 
@@ -203,15 +219,21 @@ public class Program
         builder.Services.AddSingleton<IRepository, FileBasedRepository>();
         builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
 
+        // Terminology services
+        builder.Services.AddSingleton<HttpTerminologySource>();
+        builder.Services.AddSingleton<FileTerminologySource>();
+        builder.Services.AddSingleton<StringTerminologySource>();
+        builder.Services.AddSingleton<TerminologyService>();
+        builder.Services.AddSingleton<TerminologyUpdaterService>();
+        builder.Services.AddSingleton<TerminologySourcesRegistryService>();
+
         // Validation and certificate services
         builder.Services.AddSingleton<Saml2Validator>();
-        builder.Services.AddSingleton<SigningCertificateService>();
+        builder.Services.AddSingleton<SigningCertificateFetcherService>();
 
         // "Meta" and status related services
         builder.Services.AddSingleton<ApplicationMetaService>();
         builder.Services.AddSingleton<MonitoringStatusService>();
-
-        // "Meta" and status related services
         builder.Services.AddSingleton<StatisticsTransformerService>();
         builder.Services.AddSingleton<XdsSubmitObjectsValidator>();
         builder.Services.AddSingleton<RequestThrottlingService>();
@@ -227,6 +249,25 @@ public class Program
         // FHIR
         builder.Services.AddScoped<FhirService>();
         builder.Services.AddSingleton<FhirResourceValidatorService>();
+        builder.Services.AddSingleton<XdsOnFhirTransformerService>();
+        builder.Services.AddSingleton<FhirToXdsTransformerService>();
+
+        // Transformer services
+        builder.Services.AddSingleton<JwtToSamlTransformerService>();
+        builder.Services.AddSingleton<BusinessLogicMapperService>();
+        builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
+        builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
+
+        // Business logic
+        builder.Services.AddSingleton<DocumentListFiltererService>();
+        builder.Services.AddSingleton<BusinessLogicFiltersRegistry>();
+        builder.Services.AddSingleton<BusinessRulesDescriptorService>();
+
+        // Obfuscation of document lists
+        builder.Services.AddSingleton<DocumentObfuscationService>();
+
+        builder.Services.AddSingleton<INinParser, NorwegianNinParser>();
+
 
         // Health check
         builder.Services.AddHealthChecks();

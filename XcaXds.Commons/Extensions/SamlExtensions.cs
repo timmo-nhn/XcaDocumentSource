@@ -6,6 +6,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Enums;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -19,7 +20,7 @@ public static partial class SamlExtensions
         {
             if (issuer.Contains("helseid-xdssaml"))
             {
-                return AppliesTo.HelseId;
+                return AppliesTo.Kjernejournal;
             }
             if (issuer.Contains("helsenorge"))
             {
@@ -53,7 +54,7 @@ public static partial class SamlExtensions
         {
             if (issuer.Contains("helseid"))
             {
-                return AppliesTo.HelseId;
+                return AppliesTo.Kjernejournal;
             }
             if (issuer.Contains("helsenorge"))
             {

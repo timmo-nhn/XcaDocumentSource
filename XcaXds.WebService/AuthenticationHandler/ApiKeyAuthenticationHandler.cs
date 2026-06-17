@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using XcaXds.Commons.Models.Custom.ApiKey;
@@ -24,6 +25,21 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
     {
         const string headerName = "X-API-KEY";
 
+        Claim[]? claims = null;
+
+        var identity = new ClaimsIdentity(claims, Scheme.Name);
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, Scheme.Name);
+
+        var isLocal = Context.Connection.RemoteIpAddress is { } ip &&
+              (IPAddress.IsLoopback(ip) || ip.Equals(Context.Connection.LocalIpAddress));
+
+        if (isLocal)
+        {
+            claims = [new Claim(ClaimTypes.Name, "LocalUser")];
+            return Task.FromResult(AuthenticateResult.Success(ticket));
+        }
+
         if (!Request.Headers.TryGetValue(headerName, out var providedKey))
         {
             return Task.FromResult(AuthenticateResult.Fail("Missing API key"));
@@ -36,14 +52,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key"));
         }
 
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, "ApiKeyUser")
-        };
-
-        var identity = new ClaimsIdentity(claims, Scheme.Name);
-        var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, Scheme.Name);
+        claims = [new Claim(ClaimTypes.Name, "ApiKeyUser")];
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }

@@ -1,12 +1,17 @@
-﻿using System.Globalization;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Support;
+using Microsoft.Extensions.Logging;
+using System.Globalization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Extensions;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 
@@ -15,9 +20,29 @@ namespace XcaXds.Commons.DataManipulators.Fhir;
 /// XDS registry objects (ExtrinsicObject, RegistryPackage, Association) 
 /// For now it mainly supports only one-directional transformation (FHIR -> XDS)
 /// </summary>
-public static class FhirToXdsTransformer
+public class FhirToXdsTransformerService
 {
-    public static ServiceResultDto<ProvideAndRegisterDocumentSetRequestType> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, string? homeCommunityId)
+    private readonly ILogger<FhirToXdsTransformerService> _logger;
+    private readonly TerminologyService _terminologyService;
+    private readonly ApplicationConfig _applicationConfig;
+
+    private static string? Organization;
+    private static string? Department;
+
+    public FhirToXdsTransformerService(
+        ILogger<FhirToXdsTransformerService> logger, 
+        TerminologyService terminologyService,
+        ApplicationConfig applicationConfig)
+    {
+        _logger = logger;
+        _terminologyService = terminologyService;
+        _applicationConfig = applicationConfig;
+
+        Organization = _terminologyService.GetValueFromCodeSystem(_terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities), "Organization")?.Key;
+        Department = _terminologyService.GetValueFromCodeSystem(_terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities), "Department")?.Key;
+    }
+
+    public ServiceResultDto<ProvideAndRegisterDocumentSetRequestType> CreateSoapObjectFromComprehensiveBundle(Bundle bundle, Patient? bundlePatient, List<DocumentReference>? documentReferences, List? submissionSetList, List<Binary>? fhirBinaries, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -125,7 +150,7 @@ public static class FhirToXdsTransformer
         return creationResult;
     }
 
-    private static ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(Patient? bundlePatient, List? submissionSetList, string? homeCommunityId)
+    private ServiceResultDto<RegistryPackageType> ConvertSubmissionSetListAndDocumentReferenceToRegistryPackage(Patient? bundlePatient, List? submissionSetList, string? homeCommunityId)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -404,7 +429,7 @@ public static class FhirToXdsTransformer
             if (documentOrganization != null)
             {
                 // If extension is not missing this will be default value
-                var value = $"{Constants.Oid.Brreg}.{documentOrganization?.Identifier?.FirstOrDefault()?.Value}";
+                var value = $"{Organization}.{documentOrganization?.Identifier?.FirstOrDefault()?.Value}";
 
                 // Replace default value
                 if (!string.IsNullOrEmpty(sourceId))
@@ -474,7 +499,7 @@ public static class FhirToXdsTransformer
         }
     }
 
-    public static ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Binary? fhirBinary)
+    public ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Binary? fhirBinary)
     {
         var operationOutcome = new OperationOutcome();
 
@@ -1517,7 +1542,7 @@ public static class FhirToXdsTransformer
         foreach (var orgRef in listOrganization)
         {
 
-            var authorDept = documentReference!.Contained!
+            var authorDept = documentReference.Contained?
                 .OfType<Organization>()
                 .FirstOrDefault(dpt => dpt?.PartOf?.Reference == parentOrgReference.Reference);
 
@@ -1530,14 +1555,13 @@ public static class FhirToXdsTransformer
                     OrganizationName = authorDept.Name,
                     AssigningAuthority = new HD()
                     {
-                        UniversalId = $"{Constants.Oid.ReshId}",
+                        UniversalId = authorDept.Identifier?.FirstOrDefault()?.System ?? authorDept.Type?.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
                         UniversalIdType = "ISO"
                     },
-                    OrganizationIdentifier = authorDept?.Identifier?.First()?.Value ?? string.Empty
+                    OrganizationIdentifier = authorDept?.Identifier?.FirstOrDefault()?.Value ?? authorDept.Type?.FirstOrDefault()?.Coding.FirstOrDefault()?.Code
                 };
                 return authorDepartment;
             }
-
         }
 
         return null;
@@ -1559,7 +1583,7 @@ public static class FhirToXdsTransformer
             OrganizationName = authorDept.Name,
             AssigningAuthority = new HD()
             {
-                UniversalId = $"{Constants.Oid.ReshId}",
+                UniversalId = $"{Department}",
                 UniversalIdType = "ISO"
             },
             OrganizationIdentifier = authorDept?.Identifier?.First()?.Value ?? string.Empty
@@ -1597,7 +1621,7 @@ public static class FhirToXdsTransformer
         {
             authorOrganization.AssigningAuthority = new HD()
             {
-                UniversalId = $"{Constants.Oid.Brreg}",
+                UniversalId = $"{Department}",
                 UniversalIdType = "ISO"
             };
             authorOrganization.OrganizationIdentifier = authorOrg?.Identifier?.First()?.Value ?? string.Empty;
@@ -1625,7 +1649,7 @@ public static class FhirToXdsTransformer
         {
             authorOrganization.AssigningAuthority = new HD()
             {
-                UniversalId = $"{Constants.Oid.Brreg}",
+                UniversalId = $"{Department}",
                 UniversalIdType = "ISO"
             };
             authorOrganization.OrganizationIdentifier = authorOrg?.Identifier?.First()?.Value ?? string.Empty;
@@ -1825,14 +1849,14 @@ public static class FhirToXdsTransformer
         return patient;
     }
 
-    public static string GenerateRandomOid()
+    public string GenerateRandomOid()
     {
         // Generate a random suffix for uniqueness
         var random = new Random();
         var randomSuffix = $"{random.Next(1, 99999)}.{random.Next(1, 99999)}.{random.Next(1, 99999)}";
 
         // Combine base and suffix
-        var randomOid = $"{Constants.Oid.Nhn}.7.4.{randomSuffix}";
+        var randomOid = $"{_applicationConfig.HomeCommunityId}.7.4.{randomSuffix}";
         return randomOid;
     }
 
@@ -2096,5 +2120,10 @@ public static class FhirToXdsTransformer
             Error("All non-sign relationships must reference the same target document.");
 
         return operationOutcome;
+    }
+
+    public object CreateSoapObjectFromComprehensiveBundle(Bundle fhirBundle, Patient? patient, List<DocumentReference> documentReferences, List? submissionSetList, List<Binary> fhirBinaries, object value)
+    {
+        throw new NotImplementedException();
     }
 }

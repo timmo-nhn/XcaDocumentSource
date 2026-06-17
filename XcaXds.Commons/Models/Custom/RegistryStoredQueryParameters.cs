@@ -4,6 +4,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Models.Custom;
 
@@ -122,13 +123,13 @@ public static class RegistryStoredQueryParameters
             // ConfidentialityCode
             var confidentialityCodes = findDocumentsSearchParameters.XdsDocumentEntryConfidentialityCode.SelectMany(c => c).Select(Hl7Object.Parse<mCE>).ToList();
 
-            var alternateCodeSystems = confidentialityCodes?.Where(c => c?.AssigningAuthority == Constants.CodeSystems.Hl7.ConfidentialityCode.System);
+            var alternateCodeSystems = confidentialityCodes?.Where(c => c?.AssigningAuthority == "2.16.840.1.113883.5.25");
 
             var newCodeSystems = alternateCodeSystems?
                 .Select(acs => new mCE()
                 {
                     IdNumber = acs?.IdNumber,
-                    AssigningAuthority = acs?.AssigningAuthority = Constants.CodeSystems.Hl7.ConfidentialityCode.System_Alternate
+                    AssigningAuthority = acs?.AssigningAuthority = "http://terminology.hl7.org/CodeSystem/v3-Confidentiality"
                 }.Serialize())
                 .OfType<string>()
                 .ToArray();

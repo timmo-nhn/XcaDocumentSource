@@ -10,8 +10,10 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
 using XcaXds.WebService.Attributes;
-using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.XdsRegistry;
 
 namespace XcaXds.WebService.Controllers;
 

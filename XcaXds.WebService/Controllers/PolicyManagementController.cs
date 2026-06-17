@@ -7,7 +7,8 @@ using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.Policy;
+using XcaXds.WebService.Services.XdsRegistry;
 
 namespace XcaXds.WebService.Controllers;
 

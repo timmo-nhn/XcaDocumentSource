@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
+﻿using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
+using XcaXds.Shared.Enums;
 
 namespace XcaXds.Commons.Models.Custom.PolicyDtos;
 
@@ -12,84 +11,19 @@ public class AbacPolicy
     public string? Description { get; set; }
     public string? Effect { get; set; }
     public List<string>? Actions { get; set; }
-
-    // public void MergeWith(AbacPolicy? patch, bool? append = false)
-    // {
-    //     if (patch == null || patch.Rules == null) return;
-    //
-    //     if (Rules == null)
-    //     {
-    //         Rules = patch.Rules;
-    //         return;
-    //     }
-    //
-    //     for (int orIdx = 0; orIdx < patch.Rules.Count; orIdx++)
-    //     {
-    //         var patchOrGroup = patch.Rules[orIdx];
-    //
-    //         if (orIdx >= Rules.Count)
-    //         {
-    //             Rules.Add(patchOrGroup);
-    //             continue;
-    //         }
-    //
-    //         var targetOrGroup = Rules[orIdx];
-    //
-    //         var dict = targetOrGroup.Conditions.ToDictionary(r => r.AttributeId ?? "", r => r);
-    //
-    //         foreach (var patchRule in patchOrGroup)
-    //         {
-    //             if (string.IsNullOrWhiteSpace(patchRule.AttributeId)) continue;
-    //
-    //             if (dict.TryGetValue(patchRule.AttributeId, out var existing))
-    //             {
-    //                 if (append == true)
-    //                 {
-    //                     var mergedValues = (existing.Value + ";" + patchRule.Value)
-    //                         .Split(';', StringSplitOptions.RemoveEmptyEntries)
-    //                         .Distinct()
-    //                         .ToList();
-    //
-    //                     dict[patchRule.AttributeId] = new PolicyMatch
-    //                     {
-    //                         AttributeId = existing.AttributeId,
-    //                         Value = string.Join(";", mergedValues)
-    //                     };
-    //                 }
-    //                 else
-    //                 {
-    //                     dict[patchRule.AttributeId] = new PolicyMatch
-    //                     {
-    //                         AttributeId = patchRule.AttributeId,
-    //                         Value = patchRule.Value
-    //                     };
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 dict[patchRule.AttributeId] = patchRule;
-    //             }
-    //         }
-    //
-    //         Rules[orIdx] = dict.Values.ToList();
-    //     }
-    // }
 }
 
 public class AbacRuleGroup
 {
     public List<AbacCondition> Conditions { get; set; } = [];
 
-    public AbacRuleGroup()
-    {
-        
-    }
-    
+    public AbacRuleGroup() { }
+
     public AbacRuleGroup(AbacCondition condition)
     {
         Conditions = [condition];
     }
-    
+
     public AbacRuleGroup(params AbacCondition[] conditions)
     {
         Conditions = conditions.ToList();

@@ -1,15 +1,17 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.Extensions;
 using XcaXds.Commons.Attributes;
-using XcaXds.Commons.Commons;
+using XcaXds.Shared.Constants;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.Policy;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
+using XcaXds.WebService.Services.XdsRegistry;
 using Task = System.Threading.Tasks.Task;
 
 
@@ -53,7 +55,7 @@ public class PolicyEnforcementPointMiddleware
         _requestThrottlingService = requestThrottlingService;
         _policyRepositoryService = policyRepositoryService;
         _policyRepositoryWrapper = policyRepositoryWrapper;
-        _policyDecisionPointService = policyDecisionPointService;;
+        _policyDecisionPointService = policyDecisionPointService; ;
     }
 
     public async Task InvokeAsync(
@@ -126,10 +128,10 @@ public class PolicyEnforcementPointMiddleware
             await policyDenyResponseBuilder.WriteAsync(httpContext, policyInput, _xdsConfig, policyInput.ErrorMessage);
             return;
         }
-        
+
         var decision = _policyDecisionPointService.Evaluate(policyInput.AccessRequest!);
         _logger.LogInformation(JsonSerializer.Serialize(decision, Constants.JsonDefaultOptions.DefaultSettings));
-        
+
         AttachPepDecisionResponse(httpContext, decision);
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Decision.ToString()}");
@@ -157,7 +159,7 @@ public class PolicyEnforcementPointMiddleware
 
     private void AttachPepDecisionResponse(HttpContext httpContext, AccessControlResponse decision)
     {
-        httpContext.Items.Add("pdpDecision",decision);
+        httpContext.Items.Add("pdpDecision", decision);
     }
 
     private bool PolicyEnforcementPointEnabledForRequestEndpoint(HttpContext httpContext)

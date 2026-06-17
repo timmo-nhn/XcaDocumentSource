@@ -13,8 +13,13 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared.Constants;
+using XcaXds.Shared.Enums;
+using XcaXds.Shared.Extensions;
+using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
-using static XcaXds.Commons.Commons.Constants.Xds.AssociationType;
+using XcaXds.WebService.Services.XdsRegistry;
+using static XcaXds.Shared.Constants.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;
 
@@ -25,15 +30,24 @@ public class AtnaLogGeneratorService
     private readonly IAtnaLogQueue _queue;
     private readonly RegistryWrapper _registryWrapper;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
+    private readonly TerminologyService _terminologyService;
 
-    public AtnaLogGeneratorService(ILogger<AtnaLogGeneratorService> logger, ApplicationConfig appConfig,
-        IAtnaLogQueue queue, RegistryWrapper registryWrapper, AtnaLogEnricherService atnaLogEnricherService)
+    public const string IsoHealthRecordLifecycleEvent = "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle";
+
+    public AtnaLogGeneratorService(
+        ILogger<AtnaLogGeneratorService> logger,
+        ApplicationConfig appConfig,
+        IAtnaLogQueue queue,
+        RegistryWrapper registryWrapper,
+        AtnaLogEnricherService atnaLogEnricherService,
+        TerminologyService terminologyService)
     {
         _logger = logger;
         _appConfig = appConfig;
         _queue = queue;
         _registryWrapper = registryWrapper;
         _atnaLogEnricherService = atnaLogEnricherService;
+        _terminologyService = terminologyService;
     }
 
     public void CreateAuditLogForSoapRequestResponse(AdditionalParameters additionalParameters, SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
@@ -585,7 +599,7 @@ public class AtnaLogGeneratorService
             };
         }
 
-        if (issuer == AppliesTo.HelseId && hasSubject)
+        if (issuer == AppliesTo.Kjernejournal && hasSubject)
         {
             HumanName? healthcarePersonHumanName = null;
             var subjectNameParts = subjectDisplayName?.Split().ToList();
@@ -1116,7 +1130,7 @@ public class AtnaLogGeneratorService
     /// <summary>
     /// <a href="https://hl7.org/fhir/R4/valueset-audit-event-type.html"/>
     /// </summary>
-    private static Coding GetAuditEventTypeFromSoapEnvelope(SoapEnvelope? requestEnvelope, AdditionalParameters additionalParameters)
+    private Coding GetAuditEventTypeFromSoapEnvelope(SoapEnvelope? requestEnvelope, AdditionalParameters additionalParameters)
     {
         var action = requestEnvelope?.Header.Action;
 
@@ -1124,7 +1138,7 @@ public class AtnaLogGeneratorService
             return new Coding()
             {
                 Code = "verify",
-                System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                System = IsoHealthRecordLifecycleEvent,
                 Display = "Verify Record Lifecycle Event"
             };
 
@@ -1137,7 +1151,7 @@ public class AtnaLogGeneratorService
                 return new Coding()
                 {
                     Code = "access",
-                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                    System = IsoHealthRecordLifecycleEvent,
                     Display = "Access/View Record Lifecycle Event"
                 };
 
@@ -1165,14 +1179,14 @@ public class AtnaLogGeneratorService
                     "transform" => new Coding()
                     {
                         Code = "transform",
-                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                        System = IsoHealthRecordLifecycleEvent,
                         Display = "Transform/Translate Record Lifecycle Event"
                     },
 
                     "amend" => new Coding()
                     {
                         Code = "amend",
-                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                        System = IsoHealthRecordLifecycleEvent,
                         Display = "Amend (Update) Record Lifecycle Event"
                     },
 
@@ -1180,7 +1194,7 @@ public class AtnaLogGeneratorService
                     _ => new Coding()
                     {
                         Code = "originate",
-                        System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                        System = IsoHealthRecordLifecycleEvent,
                         Display = "Originate/Retain Record Lifecycle Event"
                     }
                 };
@@ -1190,7 +1204,7 @@ public class AtnaLogGeneratorService
                 return new Coding()
                 {
                     Code = "destroy",
-                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                    System = IsoHealthRecordLifecycleEvent,
                     Display = "Destroy/Delete Record Lifecycle Event"
                 };
 
@@ -1198,7 +1212,7 @@ public class AtnaLogGeneratorService
                 return new Coding()
                 {
                     Code = "access",
-                    System = Constants.CodeSystems.Hl7.Lifecycle.IsoHealthRecordLifecycleEvent,
+                    System = IsoHealthRecordLifecycleEvent,
                     Display = "Access/View Record Lifecycle Event"
                 };
         }
