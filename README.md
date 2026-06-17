@@ -98,6 +98,10 @@ document <--> docstore
 
 ## Solution Documentation
 
+> **⚠️ Note!**  
+The **Dockerfile** supports overriding the upstream container registry via `UPSTREAM_REGISTRY` (default: `mcr.microsoft.com`).
+In GitLab CI this is set through build args so base images are pulled via `CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX`.
+
 ### [🌐 Document Sharing overiew - Actors and Components](/Docs/Overview.md)
 Describes the high-level principles of document sharing, and the components involved in the process.
 
