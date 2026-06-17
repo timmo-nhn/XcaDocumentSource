@@ -5,12 +5,15 @@ default:
 include:
   - project: helsepersonell/team-plattform/nhn-ci-template
     file: .gitlab-ci.yml
-    ref: "0.12.1"
+    ref: "0.19.2"
 
 variables:
   IMAGE_NAME: xcadocumentsource
   HARBOR_REPOSITORY: team-dokumentdeling
   HARBOR_IMAGE_REPOSITORY: $IMAGE_NAME
+  # Route Docker base image pulls through GitLab Dependency Proxy in CI builds.
+  DOCKER_BUILD_ARGS: "--build-arg UPSTREAM_REGISTRY=${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/mcr.microsoft.com"
+  BUILD_ARGS: "--build-arg UPSTREAM_REGISTRY=${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/mcr.microsoft.com"
 
 build image and push to harbor:
   tags:
@@ -44,4 +47,3 @@ tag manifest prod:
   variables:
     DEPLOY_ENVIRONMENTS: "prod"
   when: manual
-
