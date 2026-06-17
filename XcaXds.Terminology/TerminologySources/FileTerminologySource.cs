@@ -25,14 +25,19 @@ public class FileTerminologySource : ITerminologySource
         else
         {
             string baseDirectory = AppContext.BaseDirectory;
-            _basePath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Terminology", "OfflineCodeSystems");
+            _basePath = Path.Combine(baseDirectory, "..", "..", "..", "..", "XcaXds.Source", "OfflineCodeSystems");
         }
-
+        
         _basePath = Path.GetFullPath(_basePath);
 
-        Directory.CreateDirectory(_basePath);
-
-        _logger.LogInformation($"OfflineCodeSystems repository path: {_basePath}");
+        if (!Path.Exists(_basePath))
+        {
+            _logger.LogWarning("OfflineCodeSystems path not found, only external code systems are included");
+        }
+        else
+        {
+            _logger.LogInformation($"OfflineCodeSystems repository path: {_basePath}");
+        }
     }
 
     public async Task<ComprehensiveCodeSystem?> FetchAsync(TerminologySource<ITerminologySource, ICodeSystemMapper> terminologySource)
