@@ -8,6 +8,8 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Shared.Constants;
 using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 
 namespace XcaXds.WebService.Controllers;
 

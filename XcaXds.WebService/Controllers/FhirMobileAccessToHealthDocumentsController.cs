@@ -24,6 +24,8 @@ using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.Fhir;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 
 namespace XcaXds.WebService.Controllers;
 

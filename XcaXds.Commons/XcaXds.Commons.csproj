@@ -14,6 +14,7 @@
 	<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.3.10" />
 	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
 	<PackageReference Include="Microsoft.IdentityModel.Tokens.Saml" Version="8.19.1" />
+	<PackageReference Include="nClam" Version="9.0.0" />
 	<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
 	<PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
 	<PackageReference Include="System.ServiceModel.Http" Version="10.0.652802" />

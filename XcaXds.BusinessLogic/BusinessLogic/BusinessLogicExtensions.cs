@@ -17,7 +17,7 @@ public static class BusinessLogicExtensions
     {
         if (string.IsNullOrWhiteSpace(patientId) || patientId.Length != 11) return 0;
 
-        var patientNin = NorwegianNinParsingExtensions.ParseNorwegianNinToDateTime(patientId);
+        var patientNin = NorwegianNinParser.ParseNorwegianNinToDateTime(patientId);
 
         var year = DateTime.Today.Year - (patientNin.HasValue ? patientNin.Value.Year : 0);
 

@@ -1,6 +1,6 @@
 ﻿using nClam;
 using System.Text;
-using XcaXds.WebService.Services;
+using XcaXds.Commons.Interfaces;
 
 namespace XcaXds.Tests.FakesAndDoubles;
 

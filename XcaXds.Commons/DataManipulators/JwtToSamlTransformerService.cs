@@ -337,7 +337,6 @@ namespace XcaXds.Commons.DataManipulators
                     samlClaims.AuthenticationMethod)));
             }
 
-            // HAYO! HAYO! HAYO! Find out what values should be here!!!!!
             statements.Add(new Saml2AttributeStatement(new Saml2Attribute(bppcAttribute, bppcNullValue)));
             statements.Add(new Saml2AttributeStatement(new Saml2Attribute(xuaAcpAttribute, xuaAcpNullValue)));
 
@@ -346,7 +345,7 @@ namespace XcaXds.Commons.DataManipulators
 
         private static string? MapResourceClaimToSamlAttributeValue(SamlClaimValues samlClaims)
         {
-            var patientIdCx = NorwegianNinParsingExtensions.ParseNorwegianNinToCxWithAssigningAuthority(samlClaims.ResourceId);
+            var patientIdCx = NorwegianNinParser.ParseNinToCxWithAssigningAuthority(samlClaims.ResourceId);
             return patientIdCx?.Serialize();
         }
 

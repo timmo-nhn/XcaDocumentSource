@@ -6,6 +6,8 @@ using XcaXds.Commons.Models.Custom.DomainResults;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Extensions;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 
 namespace XcaXds.WebService.Services.Fhir;
 

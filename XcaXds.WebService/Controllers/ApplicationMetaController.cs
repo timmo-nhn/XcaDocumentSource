@@ -18,6 +18,8 @@ using XcaXds.Shared.Constants;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 
 namespace XcaXds.WebService.Controllers;
 

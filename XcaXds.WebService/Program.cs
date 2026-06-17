@@ -29,11 +29,14 @@ using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 using XcaXds.WebService.Services.Fhir;
+using XcaXds.WebService.Services.Policy;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.WebService.Services.Statistics;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;

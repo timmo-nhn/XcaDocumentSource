@@ -18,6 +18,7 @@ using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
+using XcaXds.WebService.Services.XdsRegistry;
 using static XcaXds.Shared.Constants.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;

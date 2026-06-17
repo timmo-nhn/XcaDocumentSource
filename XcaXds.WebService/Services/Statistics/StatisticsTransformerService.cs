@@ -18,6 +18,7 @@ using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
+using XcaXds.WebService.Services.XdsRegistry;
 
 namespace XcaXds.WebService.Services.Statistics;
 

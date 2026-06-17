@@ -12,6 +12,8 @@ using XcaXds.Shared.Constants;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
+using XcaXds.WebService.Services.XdsRegistry;
+using XcaXds.WebService.Services.XdsRepository;
 
 namespace XcaXds.WebService.Services;
 
@@ -60,7 +62,7 @@ public class RestfulRegistryRepositoryService
 
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing
-        patientIdCx.AssigningAuthority ??= NorwegianNinParsingExtensions.ParseNorwegianNinToCxWithAssigningAuthority(patientId)?
+        patientIdCx.AssigningAuthority ??= NorwegianNinParser.ParseNinToCxWithAssigningAuthority(patientId)?
             .AssigningAuthority ?? 
             new() { UniversalId = patientNin, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
 

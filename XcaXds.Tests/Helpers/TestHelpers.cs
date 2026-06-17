@@ -7,10 +7,10 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.WebService.Services;
 using XcaXds.Shared.Enums;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Shared.Extensions;
+using XcaXds.WebService.Services.Policy;
 
 namespace XcaXds.Tests.Helpers;
 

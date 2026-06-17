@@ -1,3 +1,0 @@
-replicaCount: 2
-ingress:
-  fqdn: trd.t-xcads.pjd.nhn.no

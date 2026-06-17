@@ -18,6 +18,8 @@ using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.Fhir;
+using XcaXds.WebService.Services.Policy;
+using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Startup;
 using Xunit.Abstractions;
 
@@ -86,15 +88,6 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 // which disposes the root IServiceProvider and can surface later as
                 // ObjectDisposedException during EF Core queries.
                 services.Configure<HostOptions>(o => { o.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore; });
-
-                //// Remove implementations defined in Program.cs (WebApplicationFactory<WebService.Program>) ...
-                //services.RemoveAll<IRepository>();
-                //services.RemoveAll<IPolicyRepository>();
-                //services.RemoveAll<IRegistry>();
-                //// ...so replace with the mock implementations
-                //services.AddSingleton<IRepository>(new InMemoryRepository());
-                //services.AddSingleton<IPolicyRepository>(new InMemoryPolicyRepository());
-                //services.AddSingleton<IRegistry>(new InMemoryRegistry());
 
                 services.RemoveAll<IHostedService>();
                 services.AddHostedService<TerminologyServiceInitializerService>();
