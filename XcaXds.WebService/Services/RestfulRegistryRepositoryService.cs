@@ -4,6 +4,7 @@ using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Extensions.No;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -24,19 +25,22 @@ public class RestfulRegistryRepositoryService
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly TerminologyService _terminologyService;
+    private readonly INinParser _ninParser;
 
     public RestfulRegistryRepositoryService(
         ApplicationConfig appConfig,
         RegistryWrapper registryWrapper,
         ILogger<XdsRegistryService> logger,
         RepositoryWrapper repositoryWrapper,
-        TerminologyService terminologyService)
+        TerminologyService terminologyService,
+        INinParser ninParser)
     {
         _logger = logger;
         _appConfig = appConfig;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _terminologyService = terminologyService;
+        _ninParser = ninParser;
     }
 
     public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime? serviceStartTime = null, DateTime? serviceStopTime = null, int currentPageNumber = 1, int pageSize = 10)
@@ -62,7 +66,7 @@ public class RestfulRegistryRepositoryService
 
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing
-        patientIdCx.AssigningAuthority ??= NorwegianNinParser.ParseNinToCxWithAssigningAuthority(patientId)?
+        patientIdCx.AssigningAuthority ??= _ninParser.ParseNinToCxWithAssigningAuthority(patientId)?
             .AssigningAuthority ?? 
             new() { UniversalId = patientNin, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
 

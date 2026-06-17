@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using XcaXds.Shared.Constants;
 using XcaXds.Shared.Models.Custom;
-using XcaXds.Terminology.Mappers;
+using XcaXds.Terminology.Interfaces;
 using XcaXds.Terminology.Models.Custom;
 
 namespace XcaXds.Terminology.ValueSetMappers.Norway;

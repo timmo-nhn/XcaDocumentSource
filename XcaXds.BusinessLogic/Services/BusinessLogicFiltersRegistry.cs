@@ -1,5 +1,5 @@
 ﻿using Hl7.Fhir.Model;
-using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;

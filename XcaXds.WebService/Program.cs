@@ -9,6 +9,7 @@ using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.Commons.Interfaces.Statistics;
@@ -19,8 +20,10 @@ using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Shared.ConfigBinder;
 using XcaXds.Shared.Constants;
 using XcaXds.Source.Source;
+using XcaXds.Terminology.Interfaces;
 using XcaXds.Terminology.Services;
 using XcaXds.Terminology.Sources;
+using XcaXds.Terminology.TerminologySources;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
@@ -46,7 +49,7 @@ public class Program
     private static readonly bool RunningInContainer =
         bool.Parse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") ?? bool.FalseString);
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -112,6 +115,9 @@ public class Program
 
         app.MapControllers();
 
+        var terminologyUpdater = app.Services.GetRequiredService<TerminologyUpdaterService>();
+        await terminologyUpdater.InitializeTerminologyServiceAsync(CancellationToken.None);
+
         app.Run();
     }
 
@@ -124,7 +130,6 @@ public class Program
 
     private static void RegisterHostedServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddHostedService<TerminologyServiceInitializerService>();
         builder.Services.AddHostedService<AppStartupService>();
         builder.Services.AddHostedService<AtnaLogExporterService>();
         builder.Services.AddHostedService<StatisticsProcessorService>();
@@ -217,7 +222,7 @@ public class Program
         // Terminology services
         builder.Services.AddSingleton<HttpTerminologySource>();
         builder.Services.AddSingleton<FileTerminologySource>();
-        builder.Services.AddSingleton<TerminologySourceFactory>();
+        builder.Services.AddSingleton<StringTerminologySource>();
         builder.Services.AddSingleton<TerminologyService>();
         builder.Services.AddSingleton<TerminologyUpdaterService>();
         builder.Services.AddSingleton<TerminologySourcesRegistryService>();
@@ -249,6 +254,7 @@ public class Program
 
         // Transformer services
         builder.Services.AddSingleton<JwtToSamlTransformerService>();
+        builder.Services.AddSingleton<BusinessLogicMapperService>();
         builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
         builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
 
@@ -259,6 +265,8 @@ public class Program
 
         // Obfuscation of document lists
         builder.Services.AddSingleton<DocumentObfuscationService>();
+
+        builder.Services.AddSingleton<INinParser, NorwegianNinParser>();
 
 
         // Health check

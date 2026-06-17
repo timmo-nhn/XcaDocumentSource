@@ -1,15 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using XcaXds.Shared.Models.Custom;
-using XcaXds.Terminology.Mappers;
+using XcaXds.Terminology.Interfaces;
 using XcaXds.Terminology.Models.Custom;
 
-namespace XcaXds.Terminology.Services;
+namespace XcaXds.Terminology.TerminologySources;
 
 public class FileTerminologySource : ITerminologySource
 {
     private readonly ILogger<FileTerminologySource> _logger;
-    
+
     private readonly string _basePath;
 
     public FileTerminologySource(ILogger<FileTerminologySource> logger)
@@ -36,7 +35,7 @@ public class FileTerminologySource : ITerminologySource
         _logger.LogInformation($"OfflineCodeSystems repository path: {_basePath}");
     }
 
-    public async Task<ComprehensiveCodeSystem?> FetchAsync(TerminologySource<ICodeSystemMapper> terminologySource)
+    public async Task<ComprehensiveCodeSystem?> FetchAsync(TerminologySource<ITerminologySource, ICodeSystemMapper> terminologySource)
     {
         var filePath = Path.Combine(_basePath, terminologySource.SourcePath);
         var content = await File.ReadAllTextAsync(filePath);

@@ -4,6 +4,7 @@ using System.Text;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Extensions.No;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -25,10 +26,16 @@ public class XdsOnFhirTransformerService
 {
     private readonly ILogger<XdsOnFhirTransformerService> _logger;
     private readonly TerminologyService _terminologyService;
-    public XdsOnFhirTransformerService(ILogger<XdsOnFhirTransformerService> logger, TerminologyService terminologyService)
+    private readonly INinParser _ninParser;
+
+    public XdsOnFhirTransformerService(
+        ILogger<XdsOnFhirTransformerService> logger,
+        TerminologyService terminologyService,
+        INinParser ninParser)
     {
         _logger = logger;
         _terminologyService = terminologyService;
+        _ninParser = ninParser;
     }
 
     public AdhocQueryRequest ConvertIti67ToIti18AdhocQuery(MhdDocumentRequest documentRequest)
@@ -40,7 +47,7 @@ public class XdsOnFhirTransformerService
         {
             var patientCx = Hl7Object.Parse<CX>(documentRequest.Patient, '|');
 
-            var patientOid = NorwegianNinParser.ParseNinToCxWithAssigningAuthority(documentRequest.Patient);
+            var patientOid = _ninParser.ParseNinToCxWithAssigningAuthority(documentRequest.Patient);
 
             if (patientOid != null && patientCx != null)
             {

@@ -1,11 +1,20 @@
-﻿using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using XcaXds.Commons.Extensions.No;
+using XcaXds.Commons.Models.Soap.XdsTypes;
+using Xunit.Abstractions;
 
 namespace XcaXds.Tests.UnitTests;
 
-public class UnitTests_Functionalities
+public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
+    private List<IdentifiableType> DocumentReferences = new();
+    internal readonly ITestOutputHelper _output;
+
+    public UnitTests_Functionalities(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
+    {
+        _output = output;
+    }
+
     [Fact]
     public async Task ParseNorwegianNationalIdentifiers()
     {
@@ -535,14 +544,14 @@ public class UnitTests_Functionalities
 
         foreach (var nin in nins2)
         {
-            var parsedNin = NorwegianNinParser.ParseNinToCxWithAssigningAuthority(nin);
+            var parsedNin = _ninParser.ParseNinToCxWithAssigningAuthority(nin);
         }
 
         foreach (var nin in nins)
         {
-            var parsedNin = NorwegianNinParser.ParseNinToCxWithAssigningAuthority(nin.Value);
+            var parsedNin = _ninParser.ParseNinToCxWithAssigningAuthority(nin.Value);
 
-            var dateTimeFromNin = NorwegianNinParser.ParseNorwegianNinToDateTime(parsedNin);
+            var dateTimeFromNin = _ninParser.ParseNinToDateTime(parsedNin);
 
             Assert.Equal(nin.Excpected, dateTimeFromNin);
 

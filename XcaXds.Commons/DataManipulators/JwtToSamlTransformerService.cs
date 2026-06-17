@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Extensions.No;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
@@ -15,13 +16,16 @@ namespace XcaXds.Commons.DataManipulators
     {
         private readonly ILogger<JwtToSamlTransformerService> _logger;
         private readonly TerminologyService _terminologyService;
+        private readonly INinParser _ninParser;
 
         public JwtToSamlTransformerService(
             ILogger<JwtToSamlTransformerService> logger,
-            TerminologyService terminologyService)
+            TerminologyService terminologyService,
+            INinParser ninParser)
         {
             _logger = logger;
             _terminologyService = terminologyService;
+            _ninParser = ninParser;
         }
 
         public Saml2SecurityToken MapJsonWebTokenToSamlToken(JwtSecurityToken jwtToken)
@@ -343,9 +347,9 @@ namespace XcaXds.Commons.DataManipulators
             return statements;
         }
 
-        private static string? MapResourceClaimToSamlAttributeValue(SamlClaimValues samlClaims)
+        private string? MapResourceClaimToSamlAttributeValue(SamlClaimValues samlClaims)
         {
-            var patientIdCx = NorwegianNinParser.ParseNinToCxWithAssigningAuthority(samlClaims.ResourceId);
+            var patientIdCx = _ninParser.ParseNinToCxWithAssigningAuthority(samlClaims.ResourceId);
             return patientIdCx?.Serialize();
         }
 

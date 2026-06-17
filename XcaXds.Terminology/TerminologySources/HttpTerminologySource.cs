@@ -1,8 +1,8 @@
 ﻿using XcaXds.Shared.Models.Custom;
-using XcaXds.Terminology.Mappers;
+using XcaXds.Terminology.Interfaces;
 using XcaXds.Terminology.Models.Custom;
 
-namespace XcaXds.Terminology.Services;
+namespace XcaXds.Terminology.TerminologySources;
 
 public class HttpTerminologySource : ITerminologySource
 {
@@ -13,7 +13,7 @@ public class HttpTerminologySource : ITerminologySource
         _clientFactory = clientFactory;
     }
 
-    public async Task<ComprehensiveCodeSystem?> FetchAsync(TerminologySource<ICodeSystemMapper> terminologySource)
+    public async Task<ComprehensiveCodeSystem?> FetchAsync(TerminologySource<ITerminologySource, ICodeSystemMapper> terminologySource)
     {
         var client = _clientFactory.CreateClient();
         // Client Authentication can be done here, for source endpoints requiring it...

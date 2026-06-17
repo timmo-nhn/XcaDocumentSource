@@ -1,7 +1,6 @@
 ﻿using XcaXds.Shared.Models.Custom;
-using XcaXds.Terminology.Models.Custom;
 
-namespace XcaXds.Terminology.Mappers;
+namespace XcaXds.Terminology.Interfaces;
 
 /// <summary>
 /// Convert external value sets to ComprehensiveCodeSystem for ingesting in ValueSet. 

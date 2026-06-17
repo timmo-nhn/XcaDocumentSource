@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text.Json;
 using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -30,6 +31,7 @@ public partial class XdsRegistryService
     private readonly DocumentObfuscationService _documentObfuscationService;
     private readonly BusinessLogicFiltersRegistry _businessLogicFiltersService;
     private readonly DocumentListFiltererService _businessLogicFiltererService;
+    private readonly BusinessLogicMapperService _businessLogicMapperService;
 
     private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));
 
@@ -40,7 +42,8 @@ public partial class XdsRegistryService
         XdsSubmitObjectsValidator submitObjectsValidator,
         DocumentObfuscationService documentObfuscationService,
         BusinessLogicFiltersRegistry businessLogicFiltersService,
-        DocumentListFiltererService businessLogicFiltererService)
+        DocumentListFiltererService businessLogicFiltererService,
+        BusinessLogicMapperService businessLogicMapperService)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
@@ -49,6 +52,7 @@ public partial class XdsRegistryService
         _documentObfuscationService = documentObfuscationService;
         _businessLogicFiltersService = businessLogicFiltersService;
         _businessLogicFiltererService = businessLogicFiltererService;
+        _businessLogicMapperService = businessLogicMapperService;
     }
 
     public static void ValidateRecursive(object? obj, List<ValidationResult> results)
@@ -680,7 +684,7 @@ public partial class XdsRegistryService
 
             _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {enumeratedEntriesResult.Count}");
 
-            var businessLogic = BusinessLogicExtensions.MapFromAbacRequestToBusinessLogic(abacRequest);
+            var businessLogic = _businessLogicMapperService.MapFromAbacRequestToBusinessLogic(abacRequest);
 
             _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
 

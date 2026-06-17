@@ -30,7 +30,6 @@ public class TerminologyService
         }
 
         _logger.LogInformation($"Added code system {name} with {codeSystems.Length} entries");
-
     }
 
     public ComprehensiveCodeSystem[] GetCodeSystemByKey(string name)

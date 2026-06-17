@@ -8,7 +8,6 @@ namespace XcaXds.Terminology.Services;
 public class TerminologyUpdaterService
 {
     private readonly ILogger<TerminologyUpdaterService> _logger;
-    private readonly TerminologySourceFactory _sourceFactory;
     private readonly TerminologyService _terminologyService;
     private readonly TerminologySourcesRegistryService _terminologySourcesRegistryService;
 
@@ -16,12 +15,10 @@ public class TerminologyUpdaterService
 
     public TerminologyUpdaterService(
     ILogger<TerminologyUpdaterService> logger,
-    TerminologySourceFactory sourceFactory,
     TerminologyService terminologyService,
     TerminologySourcesRegistryService terminologySourcesRegistryService)
     {
         _logger = logger;
-        _sourceFactory = sourceFactory;
         _terminologyService = terminologyService;
         _terminologySourcesRegistryService = terminologySourcesRegistryService;
     }
@@ -29,8 +26,8 @@ public class TerminologyUpdaterService
     public async Task InitializeTerminologyServiceAsync(CancellationToken cancellationToken)
     {
         var allCodeSystems = new Dictionary<string, ComprehensiveCodeSystem[]>();
-        
-        var terminologySources = _terminologySourcesRegistryService.GetDefinitions();
+
+        var terminologySources = _terminologySourcesRegistryService.GetAllDefinitions();
 
         _logger.LogDebug($"Found {terminologySources.Count} terminology source definitions");
 
@@ -39,7 +36,7 @@ public class TerminologyUpdaterService
             var codeSystems = new List<ComprehensiveCodeSystem>();
             foreach (var source in sources.TerminologySources)
             {
-                var sourceHandler = _sourceFactory.GetSource(source.SourcePath);
+                var sourceHandler = source.Source;
 
                 try
                 {

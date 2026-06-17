@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using XcaXds.Terminology.Mappers;
 using XcaXds.Terminology.Models.Custom;
-using XcaXds.Terminology.Services;
+using XcaXds.Terminology.TerminologySources;
 using XcaXds.Terminology.ValueSetMappers.Hl7;
 using XcaXds.Terminology.ValueSetMappers.Norway;
 using XcaXds.Terminology.ValueSetMappers.XcaDocumentSource;
@@ -21,77 +20,77 @@ public class TerminologySourcesRegistryService
 {
     private readonly ILogger<TerminologySourcesRegistryService> _logger;
     private readonly ApplicationConfig _applicationConfig;
+    private readonly FileTerminologySource _fileSource;
+    private readonly HttpTerminologySource _httpSource;
+    private readonly StringTerminologySource _stringSource;
 
-    public TerminologySourcesRegistryService(ILogger<TerminologySourcesRegistryService> logger, ApplicationConfig applicationConfig)
+
+    public TerminologySourcesRegistryService(
+        ILogger<TerminologySourcesRegistryService> logger,
+        ApplicationConfig applicationConfig,
+        FileTerminologySource fileSource,
+        HttpTerminologySource httpSource,
+        StringTerminologySource stringSource)
     {
         _logger = logger;
         _applicationConfig = applicationConfig;
+        _fileSource = fileSource;
+        _httpSource = httpSource;
+        _stringSource = stringSource;
+
         AddApplicationSpecificTerminologySources();
     }
 
-    public List<TerminologySourceDefinition> GetDefinitions() => [.. TerminologySources_Norway, .. TerminologySources_XdsHl7, .. TerminologySources_Other];
+    public List<TerminologySourceDefinition> GetAllDefinitions() => [.. GetTerminologySources_Norway(), .. GetTerminologySources_XdsHl7(), .. AddApplicationSpecificTerminologySources()];
 
-    private void AddApplicationSpecificTerminologySources()
-    {
-        AddNewTerminologySource(
-        [
-            new(CodeSystemNames.Hl7.Attachments,
-            [
-                new(_applicationConfig.HomeCommunityId, new StringBasedMapper(";", "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId")),
-            ]),
-        ]);
-    }
-
-    public void AddNewTerminologySource(List<TerminologySourceDefinition> sources)
-    {
-        TerminologySources_Other.AddRange(sources);
-    }
-
-    // XcaDS-specific CodeSystems, such as information about the running instance
-    private static readonly List<TerminologySourceDefinition> TerminologySources_Other =
-    [
-    ];
-
-    private static readonly List<TerminologySourceDefinition> TerminologySources_XdsHl7 =
+    private List<TerminologySourceDefinition> AddApplicationSpecificTerminologySources() =>
     [
         new(CodeSystemNames.Hl7.Attachments,
         [
-            new("Attachments.json", new FileBasedJsonMapper()),
+            new(_stringSource, _applicationConfig.HomeCommunityId, new StringBasedMapper(null, "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId")),
+        ]),
+    ];
+
+    private List<TerminologySourceDefinition> GetTerminologySources_XdsHl7() =>
+    [
+        new(CodeSystemNames.Hl7.Attachments,
+        [
+            new(_fileSource, "Attachments.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Xds.FormatCode,
         [
-            new("FormatCodes.json", new FileBasedJsonMapper()),
+            new(_fileSource, "FormatCodes.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Authentication.SamlAttributes,
         [
-            new("SamlAttributes.json", new FileBasedJsonMapper()),
+            new(_fileSource, "SamlAttributes.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Authentication.PurposeOfUse,
         [
-            new("PurposeOfUse_Old.json", new FileBasedJsonMapper()),
-            new ("https://terminology.hl7.org/2.1.0/CodeSystem-v3-ActReason.json", new Hl7FhirCodeSystemMapper())
+            new(_fileSource, "PurposeOfUse_Old.json", new FileBasedJsonMapper()),
+            new (_httpSource, "https://terminology.hl7.org/2.1.0/CodeSystem-v3-ActReason.json", new Hl7FhirCodeSystemMapper())
         ]),
 
         new(CodeSystemNames.Other.OrganizationAssigningAuthorities,
         [
-            new("https://terminology.hl7.org/7.2.0/en/CodeSystem-organization-type.json", new Hl7FhirCodeSystemMapper()),
+            new(_httpSource, "https://terminology.hl7.org/7.2.0/en/CodeSystem-organization-type.json", new Hl7FhirCodeSystemMapper()),
         ]),
     ];
 
     // Initial terminology implementation, for use in Norwegian eHealth
-    private static readonly List<TerminologySourceDefinition> TerminologySources_Norway =
+    private List<TerminologySourceDefinition> GetTerminologySources_Norway() =>
     [
         new(CodeSystemNames.Xds.FormatCode,
         [
-            new("No/FormatCodes.json", new FileBasedJsonMapper()),
+            new(_fileSource, "No/FormatCodes.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Xds.Gender,
         [
-            new("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/3101", new FinnKodeMapper()),
+            new(_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/3101", new FinnKodeMapper()),
 
             // Example: Fallback to file based code system if running offline or external terminology service is unavailable
             // new("No/Genders.json", new FinnKodeMapper())
@@ -99,68 +98,68 @@ public class TerminologySourcesRegistryService
 
         new(CodeSystemNames.Xds.ConfidentialityCode,
         [
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9603", new FinnKodeMapper()),
-            new ("https://terminology.hl7.org/7.1.0/en/CodeSystem-v3-Confidentiality.json", new Hl7FhirCodeSystemMapper("Confidentiality"))
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9603", new FinnKodeMapper()),
+            new (_httpSource, "https://terminology.hl7.org/7.1.0/en/CodeSystem-v3-Confidentiality.json", new Hl7FhirCodeSystemMapper("Confidentiality"))
         ]),
 
         new(CodeSystemNames.Xds.ClassCode,
         [
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeClassCodeMapper())
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeClassCodeMapper())
         ]),
 
         new(CodeSystemNames.Xds.TypeCode,
         [
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeTypeCodeMapper())
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeTypeCodeMapper())
         ]),
 
         new(CodeSystemNames.Xds.EventCode,
         [
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/7210", new FinnKodeMapper())
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/7210", new FinnKodeMapper())
         ]),
 
         new(CodeSystemNames.Xds.FacilityType,
         [
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1303", new FinnKodeMapper()),
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1305", new FinnKodeMapper())
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1303", new FinnKodeMapper()),
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1305", new FinnKodeMapper())
         ]),
 
         new(CodeSystemNames.Xds.PracticeSettingCode,
         [
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8651" ,new FinnKodeMapper()),
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8653" ,new FinnKodeMapper()),
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8654" ,new FinnKodeMapper()),
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8655" ,new FinnKodeMapper()),
-            new ("https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8663" ,new FinnKodeMapper()),
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8651" ,new FinnKodeMapper()),
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8653" ,new FinnKodeMapper()),
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8654" ,new FinnKodeMapper()),
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8655" ,new FinnKodeMapper()),
+            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8663" ,new FinnKodeMapper()),
         ]),
 
         new(CodeSystemNames.Other.OrganizationAssigningAuthorities,
         [
-            new("No/OrganizationAssigningAuthorities.json", new FileBasedJsonMapper()),
+            new(_fileSource, "No/OrganizationAssigningAuthorities.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Other.PersonAssigningAuthorities,
         [
-            new("No/PersonAssigningAuthorities.json", new FileBasedJsonMapper()),
+            new(_fileSource, "No/PersonAssigningAuthorities.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Other.PractitionerAssigningAuthorities,
         [
-            new("No/PractitionerAssigningAuthorities.json", new FileBasedJsonMapper()),
+            new(_fileSource, "No/PractitionerAssigningAuthorities.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Authentication.Acp,
         [
-            new("No/Acp.json", new FileBasedJsonMapper()),
+            new(_fileSource, "No/Acp.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Authentication.Bppc,
         [
-            new("No/Bppc.json", new FileBasedJsonMapper()),
+            new(_fileSource, "No/Bppc.json", new FileBasedJsonMapper()),
         ]),
 
         new(CodeSystemNames.Authentication.SamlAttributes,
         [
-            new("No/SamlAttributes_No.json", new FileBasedJsonMapper()),
+            new(_fileSource, "No/SamlAttributes_No.json", new FileBasedJsonMapper()),
         ])
     ];
 }

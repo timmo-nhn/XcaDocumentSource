@@ -1,10 +1,10 @@
-﻿using XcaXds.Terminology.Mappers;
+﻿using XcaXds.Terminology.Interfaces;
 
 namespace XcaXds.Terminology.Models.Custom;
 
 public class TerminologySourceDefinition
 {
-    public TerminologySourceDefinition(string name, TerminologySource<ICodeSystemMapper>[] terminologySources)
+    public TerminologySourceDefinition(string name, TerminologySource<ITerminologySource, ICodeSystemMapper>[] terminologySources)
     {
         Name = name;
         TerminologySources = terminologySources;
@@ -14,5 +14,5 @@ public class TerminologySourceDefinition
 
     public string Name { get; set; } = string.Empty;
 
-    public TerminologySource<ICodeSystemMapper>[] TerminologySources { get; set; }
+    public TerminologySource<ITerminologySource, ICodeSystemMapper>[] TerminologySources { get; set; }
 }

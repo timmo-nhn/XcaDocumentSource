@@ -3,7 +3,7 @@ using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Buffers.Text;
 using System.Text;
-using XcaXds.BusinessLogic.BusinessLogic;
+using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -34,6 +34,7 @@ public class XdsRepositoryService
     private readonly IClamAvFileScanner _fileScanner;
     private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
     private readonly TerminologyService _terminologyService;
+    private readonly BusinessLogicMapperService _businessLogicMapperService;
 
     public XdsRepositoryService(
         ApplicationConfig xdsConfig,
@@ -43,7 +44,8 @@ public class XdsRepositoryService
         XdsSubmitObjectsValidator submitObjectsValidator,
         IClamAvFileScanner fileScanner,
         BusinessLogicFiltersRegistry businessLogicFiltersRegistry,
-        TerminologyService terminologyService)
+        TerminologyService terminologyService,
+        BusinessLogicMapperService businessLogicMapperService)
     {
         _submitObjectsValidator = submitObjectsValidator;
         _repositoryWrapper = repositoryWrapper;
@@ -53,6 +55,7 @@ public class XdsRepositoryService
         _fileScanner = fileScanner;
         _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
         _terminologyService = terminologyService;
+        _businessLogicMapperService = businessLogicMapperService;
     }
 
     public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope, bool validateOnly = false)
@@ -355,7 +358,7 @@ public class XdsRepositoryService
 
     private bool DocumentIsRestrictedForUser(DocumentRequestType document, AbacRequest abacRequest)
     {
-        var businessLogicParameters = BusinessLogicExtensions.MapFromAbacRequestToBusinessLogic(abacRequest);
+        var businessLogicParameters = _businessLogicMapperService.MapFromAbacRequestToBusinessLogic(abacRequest);
 
         var requestAppliesTo = businessLogicParameters.AppliesTo;
 

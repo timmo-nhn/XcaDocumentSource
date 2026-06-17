@@ -132,14 +132,14 @@ public class NorwegianNinParser : INinParser
 
         switch (patientCx.AssigningAuthority?.UniversalId)
         {
-            case Fnr:
+            case var fnr when fnr == Fnr:
                 break;
 
-            case Dnr:
+            case var dnr when dnr == Dnr:
                 day = (int.Parse(day) - 40).ToString();
                 break;
 
-            case Hnr:
+            case var hnr when hnr == Hnr:
                 month = (int.Parse(month) - 40).ToString();
                 break;
 
@@ -148,5 +148,16 @@ public class NorwegianNinParser : INinParser
         }
 
         return DateTime.Parse($"{month}/{day}/{century}{year}", CultureInfo.InvariantCulture);
+    }
+
+    public int GetAgeFromPatientId(string? patientId)
+    {
+        if (string.IsNullOrWhiteSpace(patientId) || patientId.Length != 11) return 0;
+
+        var patientNin = ParseNinToDateTime(patientId);
+
+        var year = DateTime.Today.Year - (patientNin.HasValue ? patientNin.Value.Year : 0);
+
+        return year;
     }
 }

@@ -2,7 +2,7 @@
 using Hl7.Fhir.Serialization;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
-using XcaXds.Terminology.Mappers;
+using XcaXds.Terminology.Interfaces;
 
 namespace XcaXds.Terminology.ValueSetMappers.Hl7;
 

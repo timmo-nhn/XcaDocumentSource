@@ -7,4 +7,5 @@ public interface INinParser
     public CX? ParseNinToCxWithAssigningAuthority(string? inputNin);
     public DateTime? ParseNinToDateTime(CX? patientCx);
     public DateTime? ParseNinToDateTime(string? patientIdentifier);
+    public int GetAgeFromPatientId(string? patientId);
 }

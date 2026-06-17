@@ -51,6 +51,8 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly TerminologyService _terminologyService;
     internal readonly XdsOnFhirTransformerService _xdsOnFhirTransformerService;
     internal readonly FhirResourceValidatorService _fhirResourceValidatorService;
+    internal readonly BusinessLogicMapperService _businessLogicMapperService;
+    internal readonly INinParser _ninParser;
 
     internal readonly IServiceScope _scope;
 
@@ -90,7 +92,6 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 services.Configure<HostOptions>(o => { o.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore; });
 
                 services.RemoveAll<IHostedService>();
-                services.AddHostedService<TerminologyServiceInitializerService>();
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
                 services.AddHostedService<IntegrationTestCleanupService>();
                 services.AddHostedService<MockStatisticsProcessorService>();
@@ -128,6 +129,9 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _registryWrapper = _scope.ServiceProvider.GetRequiredService<RegistryWrapper>();
         _apiKeyHolder = _scope.ServiceProvider.GetRequiredService<ApiKeyHolder>();
         _applicationMetaService = _scope.ServiceProvider.GetRequiredService<ApplicationMetaService>();
+        _businessLogicMapperService = _scope.ServiceProvider.GetRequiredService<BusinessLogicMapperService>();
+        _ninParser = _scope.ServiceProvider.GetRequiredService<INinParser>();
+
 
         _client.DefaultRequestHeaders.Add("X-API-Key", _apiKeyHolder.ApiKey);
     }
