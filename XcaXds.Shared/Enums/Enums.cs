@@ -387,7 +387,7 @@ public enum AppliesTo
     /// <summary>
     /// Healthcare personnel, where the user is a person and the access is for the purpose of providing healthcare services to the citizen
     /// </summary>
-    Kjernejournal,
+    HelseId,
 
     /// <summary>
     /// Machine-to-machine communication, where the user is not a person but a system or application
