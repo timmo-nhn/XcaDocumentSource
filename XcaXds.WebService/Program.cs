@@ -283,6 +283,11 @@ public class Program
                 .Select(e => new KeyValuePair<string, string>((string)e.Key, (string)e.Value!))
                 .ToList();
 
+            foreach (var var in envVars)
+            {
+                Console.WriteLine($"{var.Key}: {var.Value}");
+            }
+
             apiKey = ApiKeyBinder.BindApiKeyEnvironmentVariablesToApiKey(envVars);
             xdsConfig = ConfigBinder.BindKeyValueEnvironmentVariablesToXdsConfiguration(envVars);
 

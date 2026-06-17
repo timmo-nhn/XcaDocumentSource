@@ -8,8 +8,7 @@ public static class ApiKeyBinder
     {
         return new()
         {
-            ApiKey = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__ApiKey").Value
+            ApiKey = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__ApiKey").Value ?? string.Empty
         };
     }
 }
-
