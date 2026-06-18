@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using XcaXds.Terminology.Interfaces;
 using XcaXds.Terminology.Models.Custom;
 using XcaXds.Terminology.TerminologySources;
 using XcaXds.Terminology.ValueSetMappers.Hl7;
@@ -23,10 +25,12 @@ public class TerminologySourcesRegistryService
     private readonly FileTerminologySource _fileSource;
     private readonly HttpTerminologySource _httpSource;
     private readonly StringTerminologySource _stringSource;
+    private readonly List<TerminologySourceDefinition> _cachedDefinitions;
 
 
     public TerminologySourcesRegistryService(
         ILogger<TerminologySourcesRegistryService> logger,
+        IConfiguration configuration,
         ApplicationConfig applicationConfig,
         FileTerminologySource fileSource,
         HttpTerminologySource httpSource,
@@ -38,128 +42,93 @@ public class TerminologySourcesRegistryService
         _httpSource = httpSource;
         _stringSource = stringSource;
 
-        AddApplicationSpecificTerminologySources();
+        var terminologyConfiguration = configuration.GetSection("TerminologySources").Get<TerminologySourcesConfiguration>();
+
+        if (terminologyConfiguration?.Definitions == null || terminologyConfiguration.Definitions.Count == 0)
+        {
+            throw new InvalidOperationException("TerminologySources configuration is missing or empty.");
+        }
+
+        _cachedDefinitions = [.. terminologyConfiguration.Definitions.Select(MapToRuntimeDefinition)];
+        _logger.LogInformation("Loaded {Count} terminology definitions from configuration", _cachedDefinitions.Count);
     }
 
-    public List<TerminologySourceDefinition> GetAllDefinitions() => [.. GetTerminologySources_Norway(), .. GetTerminologySources_XdsHl7(), .. AddApplicationSpecificTerminologySources()];
+    public List<TerminologySourceDefinition> GetAllDefinitions() => _cachedDefinitions;
 
-    private List<TerminologySourceDefinition> AddApplicationSpecificTerminologySources() =>
-    [
-        new(CodeSystemNames.Hl7.Attachments,
-        [
-            new(_stringSource, _applicationConfig.HomeCommunityId, new StringBasedMapper(null, "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId")),
-        ]),
-    ];
+    private TerminologySourceDefinition MapToRuntimeDefinition(TerminologySourceDefinitionConfiguration configDefinition)
+    {
+        if (string.IsNullOrWhiteSpace(configDefinition.Name))
+        {
+            throw new InvalidOperationException("TerminologySources contains a definition with an empty name.");
+        }
 
-    private List<TerminologySourceDefinition> GetTerminologySources_XdsHl7() =>
-    [
-        new(CodeSystemNames.Hl7.Attachments,
-        [
-            new(_fileSource, "Attachments.json", new FileBasedJsonMapper()),
-        ]),
+        if (configDefinition.Sources == null || configDefinition.Sources.Count == 0)
+        {
+            throw new InvalidOperationException($"TerminologySources definition '{configDefinition.Name}' contains no sources.");
+        }
 
-        new(CodeSystemNames.Xds.FormatCode,
-        [
-            new(_fileSource, "FormatCodes.json", new FileBasedJsonMapper()),
-        ]),
+        return new TerminologySourceDefinition(
+            configDefinition.Name,
+            [.. configDefinition.Sources.Select(MapToRuntimeSource)]);
+    }
 
-        new(CodeSystemNames.Authentication.SamlAttributes,
-        [
-            new(_fileSource, "SamlAttributes.json", new FileBasedJsonMapper()),
-        ]),
+    private TerminologySource<ITerminologySource, ICodeSystemMapper> MapToRuntimeSource(
+        TerminologySourceConfiguration configSource)
+    {
+        if (string.IsNullOrWhiteSpace(configSource.Type))
+        {
+            throw new InvalidOperationException("Terminology source is missing required 'Type'.");
+        }
 
-        new(CodeSystemNames.Authentication.PurposeOfUse,
-        [
-            new(_fileSource, "PurposeOfUse_Old.json", new FileBasedJsonMapper()),
-            new (_httpSource, "https://terminology.hl7.org/2.1.0/CodeSystem-v3-ActReason.json", new Hl7FhirCodeSystemMapper())
-        ]),
+        if (string.IsNullOrWhiteSpace(configSource.Mapper))
+        {
+            throw new InvalidOperationException("Terminology source is missing required 'Mapper'.");
+        }
 
-        new(CodeSystemNames.Other.OrganizationAssigningAuthorities,
-        [
-            new(_httpSource, "https://terminology.hl7.org/7.2.0/en/CodeSystem-organization-type.json", new Hl7FhirCodeSystemMapper()),
-        ]),
-    ];
+        if (string.IsNullOrWhiteSpace(configSource.SourcePath))
+        {
+            throw new InvalidOperationException("Terminology source is missing required 'SourcePath'.");
+        }
 
-    // Initial terminology implementation, for use in Norwegian eHealth
-    private List<TerminologySourceDefinition> GetTerminologySources_Norway() =>
-    [
-        new(CodeSystemNames.Xds.FormatCode,
-        [
-            new(_fileSource, "No/FormatCodes.json", new FileBasedJsonMapper()),
-        ]),
+        var source = ResolveSource(configSource.Type);
+        var mapper = ResolveMapper(configSource.Mapper, configSource.MapperOptions);
+        var sourcePath = ResolveSourcePath(configSource.SourcePath);
 
-        new(CodeSystemNames.Xds.Gender,
-        [
-            new(_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/3101", new FinnKodeMapper()),
+        return new(source, sourcePath, mapper);
+    }
 
-            // Example: Fallback to file based code system if running offline or external terminology service is unavailable
-            // new("No/Genders.json", new FinnKodeMapper())
-        ]),
+    private ITerminologySource ResolveSource(string sourceType)
+    {
+        return sourceType.ToLowerInvariant() switch
+        {
+            "file" => _fileSource,
+            "http" => _httpSource,
+            "string" => _stringSource,
+            _ => throw new InvalidOperationException($"Unsupported terminology source type '{sourceType}'")
+        };
+    }
 
-        new(CodeSystemNames.Xds.ConfidentialityCode,
-        [
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9603", new FinnKodeMapper()),
-            new (_httpSource, "https://terminology.hl7.org/7.1.0/en/CodeSystem-v3-Confidentiality.json", new Hl7FhirCodeSystemMapper("Confidentiality"))
-        ]),
+    private ICodeSystemMapper ResolveMapper(string mapperName, TerminologyMapperOptions? options)
+    {
+        return mapperName switch
+        {
+            nameof(FileBasedJsonMapper) => new FileBasedJsonMapper(),
+            nameof(FinnKodeMapper) => new FinnKodeMapper(),
+            nameof(FinnKodeClassCodeMapper) => new FinnKodeClassCodeMapper(),
+            nameof(FinnKodeTypeCodeMapper) => new FinnKodeTypeCodeMapper(),
+            nameof(Hl7FhirCodeSystemMapper) => string.IsNullOrWhiteSpace(options?.DisplayDiscriminator)
+                ? new Hl7FhirCodeSystemMapper()
+                : new Hl7FhirCodeSystemMapper(options.DisplayDiscriminator),
+            nameof(StringBasedMapper) => new StringBasedMapper(options?.Separator, options?.System ??
+                throw new InvalidOperationException("StringBasedMapper requires MapperOptions.System")),
+            _ => throw new InvalidOperationException($"Unsupported terminology mapper '{mapperName}'")
+        };
+    }
 
-        new(CodeSystemNames.Xds.ClassCode,
-        [
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeClassCodeMapper())
-        ]),
-
-        new(CodeSystemNames.Xds.TypeCode,
-        [
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/9602", new FinnKodeTypeCodeMapper())
-        ]),
-
-        new(CodeSystemNames.Xds.EventCode,
-        [
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/7210", new FinnKodeMapper())
-        ]),
-
-        new(CodeSystemNames.Xds.FacilityType,
-        [
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1303", new FinnKodeMapper()),
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/1305", new FinnKodeMapper())
-        ]),
-
-        new(CodeSystemNames.Xds.PracticeSettingCode,
-        [
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8651" ,new FinnKodeMapper()),
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8653" ,new FinnKodeMapper()),
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8654" ,new FinnKodeMapper()),
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8655" ,new FinnKodeMapper()),
-            new (_httpSource, "https://fat.kote.helsedirektoratet.no/api/code-systems/adm/codelist/8663" ,new FinnKodeMapper()),
-        ]),
-
-        new(CodeSystemNames.Other.OrganizationAssigningAuthorities,
-        [
-            new(_fileSource, "No/OrganizationAssigningAuthorities.json", new FileBasedJsonMapper()),
-        ]),
-
-        new(CodeSystemNames.Other.PersonAssigningAuthorities,
-        [
-            new(_fileSource, "No/PersonAssigningAuthorities.json", new FileBasedJsonMapper()),
-        ]),
-
-        new(CodeSystemNames.Other.PractitionerAssigningAuthorities,
-        [
-            new(_fileSource, "No/PractitionerAssigningAuthorities.json", new FileBasedJsonMapper()),
-        ]),
-
-        new(CodeSystemNames.Authentication.Acp,
-        [
-            new(_fileSource, "No/Acp.json", new FileBasedJsonMapper()),
-        ]),
-
-        new(CodeSystemNames.Authentication.Bppc,
-        [
-            new(_fileSource, "No/Bppc.json", new FileBasedJsonMapper()),
-        ]),
-
-        new(CodeSystemNames.Authentication.SamlAttributes,
-        [
-            new(_fileSource, "No/SamlAttributes_No.json", new FileBasedJsonMapper()),
-        ])
-    ];
+    private string ResolveSourcePath(string sourcePath)
+    {
+        return sourcePath
+            .Replace("{HomeCommunityId}", _applicationConfig.HomeCommunityId, StringComparison.Ordinal)
+            .Replace("{RepositoryUniqueId}", _applicationConfig.RepositoryUniqueId, StringComparison.Ordinal);
+    }
 }

@@ -2,6 +2,10 @@
 
 namespace XcaXds.Commons.Interfaces;
 
+/// <summary>
+/// Parse a National Identifier Number and get birth dates and standardized coded identifiers
+/// 
+/// </summary>
 public interface INinParser
 {
     public CX? ParseNinToCxWithAssigningAuthority(string? inputNin);

@@ -1,5 +1,4 @@
 using System.Text;
-using Microsoft.AspNetCore.WebUtilities;
 
 namespace XcaXds.Commons.Models.Custom;
 
@@ -8,7 +7,7 @@ public class SoapEnvelopeMultipartReader
     private string _boundary;
     private Stream _stream;
     private StreamReader _reader;
-    private string _currentSectionContentId;
+    //private string _currentSectionContentId;
 
     private int _currentSection;
 
@@ -16,7 +15,7 @@ public class SoapEnvelopeMultipartReader
     {
         _boundary = boundary;
         _stream = stream;
-        _reader = new StreamReader(stream, leaveOpen:true);
+        _reader = new StreamReader(stream, leaveOpen: true);
     }
 
     public async Task<MultipartSection?> ReadNextSectionAsync()
@@ -70,7 +69,7 @@ public class SoapEnvelopeMultipartReader
                         .Trim()
                         .Trim('<', '>');
                 }
-                
+
                 // MIME Headers and Body should be separated by an empty line  
                 if (string.IsNullOrEmpty(line))
                 {
@@ -78,11 +77,11 @@ public class SoapEnvelopeMultipartReader
                 }
             }
             else
-            { 
+            {
                 sb.AppendLine(line);
             }
         }
 
         return sb.ToString();
-    } 
+    }
 }

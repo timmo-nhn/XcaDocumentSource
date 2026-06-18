@@ -39,6 +39,27 @@ public class UnitTests_Fhir(WebApplicationFactory<WebService.Program> factory, I
     }
 
     [Fact]
+    public async Task MHD_ConvertBundleToIti41()
+    {
+        var documentReferenceRequest = new MhdDocumentRequest()
+        {
+            Patient = "13116900216",
+            Creation = "eq2019-01-14T16:55",
+            Status = "current"
+        };
+
+        var adhocquery = _xdsOnFhirTransformerService.ConvertIti67ToIti18AdhocQuery(documentReferenceRequest);
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+
+        var adhocquerystring = sxmls.SerializeSoapMessageToXmlString(adhocquery);
+
+        var statusSlot = adhocquery.AdhocQuery.GetFirstSlot(Constants.Xds.QueryParameters.FindDocuments.Status);
+
+        Assert.Equal(Constants.Xds.StatusValues.Approved, statusSlot?.GetFirstValue());
+    }
+
+    [Fact]
     public async Task MHD_TransformRegistryObjectsToFhirBundle()
     {
         var mockRegistry = new InMemoryRegistry();

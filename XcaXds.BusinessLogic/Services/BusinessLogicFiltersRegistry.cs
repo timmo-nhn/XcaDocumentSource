@@ -254,15 +254,16 @@ public class BusinessLogicFiltersRegistry
         var hasRequiredAttributes =
              logic.Resource != null &&
              logic.Subject != null &&
+             logic.Acp != null &&
              logic.Purpose != null &&
              logic.Purpose.Code != null;
 
 
         if (hasRequiredAttributes) {
-            return logic.Resource.Code == logic.Subject.Code &&
+            return logic.Resource!.Code == logic.Subject!.Code &&
                 logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
-                logic.Purpose.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-                logic.Acp.NoUrn() == Acp.NullValue.NoUrn() &&
+                logic.Purpose!.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
+                logic.Acp!.NoUrn() == Acp.NullValue.NoUrn() &&
                 logic.SubjectAge >= 18;
         }
 
