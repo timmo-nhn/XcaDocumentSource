@@ -7,6 +7,7 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Shared.Constants;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 
@@ -18,11 +19,15 @@ public class DocumentObfuscationService
     private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
     private readonly TerminologyService _terminologyService;
 
+    private ComprehensiveCodeSystem[] _purposeOfUse;
+    
     public DocumentObfuscationService(ILogger<DocumentObfuscationService> logger, BusinessLogicFiltersRegistry businessLogicFiltersRegistry, TerminologyService terminologyService)
     {
         _logger = logger;
         _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
         _terminologyService = terminologyService;
+
+        _purposeOfUse = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.PurposeOfUse);
     }
 
 
@@ -41,6 +46,9 @@ public class DocumentObfuscationService
 
         var requestAppliesTo = businessLogic?.AppliesTo ?? AppliesTo.Unknown;
 
+        var eTreat = _purposeOfUse.GetByValue("ETREAT");
+        var btg = _purposeOfUse.GetByValue("BTG");
+
         foreach (var identifiableType in identifiableTypes)
         {
             if (identifiableType is ExtrinsicObjectType extrinsicObject)
@@ -58,12 +66,6 @@ public class DocumentObfuscationService
                     AppliesTo.Helsenorge => confCodes.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
                     _ => false
                 };
-
-                var purposeOfUse = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.PurposeOfUse);
-
-                var eTreat = _terminologyService.GetValueFromCodeSystem(purposeOfUse, "ETREAT")?.Value;
-                var btg = _terminologyService.GetValueFromCodeSystem(purposeOfUse, "BTG")?.Value;
-
 
                 // Dont obscure in emergency situations
                 if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(eTreat, btg) == true)
@@ -97,6 +99,7 @@ public class DocumentObfuscationService
                 {
                     ObfuscateExternalIdentifier(externalIdentifier);
                 }
+
                 obfuscatedEntriesCount++;
             }
         }

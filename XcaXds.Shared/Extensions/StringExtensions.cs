@@ -48,10 +48,10 @@ public static class StringExtensions
         return Encoding.UTF8.GetBytes(input);
     }
 
-    public static bool IsAnyOf(this string? value, params string[] options)
+    public static bool IsAnyOf(this string? value, params string?[] options)
     {
         if (string.IsNullOrWhiteSpace(value) || options == null) return false;
 
-        return options.Contains(value);
+        return options.OfType<string>().Contains(value);
     }
 }

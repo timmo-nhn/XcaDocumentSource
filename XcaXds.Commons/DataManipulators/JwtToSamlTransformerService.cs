@@ -7,6 +7,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 
@@ -129,6 +130,8 @@ namespace XcaXds.Commons.DataManipulators
 
         private List<Saml2Statement> MapJwtClaimsToSamlTokenStatements(SamlClaimValues samlClaims)
         {
+            var samlAttributes = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.SamlAttributes);
+
             var statements = new List<Saml2Statement>();
             if (!string.IsNullOrWhiteSpace(samlClaims.NameId))
             {
@@ -194,7 +197,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.SubjectId,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "SubjectId")?.FirstOrDefault(),
+                    samlAttributes.GetByName("SubjectId"),
                     samlClaims.SubjectId)));
             }
             else
@@ -206,7 +209,7 @@ namespace XcaXds.Commons.DataManipulators
                 {
                     statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                         //Constants.Saml.Attribute.SubjectId,
-                        _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "SubjectId")?.FirstOrDefault(),
+                        samlAttributes.GetByName("SubjectId"),
                         composedName)));
                 }
             }
@@ -220,7 +223,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.Role,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "Role")?.FirstOrDefault(),
+                    samlAttributes.GetByName("Role"),
                     MapAttributesToHl7XmlAttribute(samlClaims.RoleCode, samlClaims.RoleCodeSystem, samlClaims.RoleCodeSystemName, samlClaims.RoleCodeName, "Role", "CE"))));
             }
 
@@ -228,7 +231,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.EhelseHomeCommunityId,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "EhelseHomeCommunityId")?.FirstOrDefault(),
+                    samlAttributes.GetByName("EhelseHomeCommunityId"),
                     samlClaims.HomeCommunityId)));
             }
 
@@ -236,7 +239,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.Npi,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "NIN")?.FirstOrDefault(),
+                    samlAttributes.GetByName("Npi"),
                     samlClaims.Npi)));
             }
 
@@ -244,7 +247,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.PurposeOfUse,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "PurposeOfUse")?.FirstOrDefault(),
+                    samlAttributes.GetByName("PurposeOfUse"),
                     MapAttributesToHl7XmlAttribute(samlClaims.PurposeOfUseCode, samlClaims.PurposeOfUseCodeSystem, samlClaims.PurposeOfUseAuthorityName, samlClaims.PurposeOfUseDescription, "PurposeOfUse", "CE"))));
             }
 
@@ -252,7 +255,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.PurposeOfUse,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "Organization")?.FirstOrDefault(),
+                    samlAttributes.GetByName("Organization"),
                     samlClaims.Organization)));
             }
 
@@ -260,7 +263,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.PurposeOfUse,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "OrganizationId")?.FirstOrDefault(),
+                    samlAttributes.GetByName("OrganizationId"),
                     MapAttributesToHl7XmlAttribute(samlClaims.OrganizationId, samlClaims.OrganizationCodeSystem, samlClaims.OrganizationAuthority, null, "id", "II"))));
             }
 
@@ -268,7 +271,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.TrustChildOrgName,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "TrustChildOrgName")?.FirstOrDefault(),
+                    samlAttributes.GetByName("TrustChildOrgName"),
                     samlClaims.ChildOrganizationName)));
             }
 
@@ -276,7 +279,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.ChildOrganization,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "ChildOrganization")?.FirstOrDefault(),
+                    samlAttributes.GetByName("ChildOrganization"),
                     MapAttributesToHl7XmlAttribute(samlClaims.ChildOrganization, samlClaims.ChildOrganizationCodeSystem, samlClaims.ChildOrganizationAuthority, null, "id", "II"))));
             }
 
@@ -284,7 +287,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.TrustResourceChildOrg,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "TrustResourceChildOrg")?.FirstOrDefault(),
+                    samlAttributes.GetByName("TrustResourceChildOrg"),
                     MapAttributesToHl7XmlAttribute(samlClaims.PatientChildOrganization, samlClaims.PatientChildOrganizationCodeSystem, samlClaims.PatientChildOrganizationAuthority, null, "id", "II"))));
             }
 
@@ -292,7 +295,7 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.ResourceId20,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "ResourceId20")?.FirstOrDefault(),
+                    samlAttributes.GetByName("ResourceId20"),
                     MapResourceClaimToSamlAttributeValue(samlClaims))));
             }
 
@@ -300,18 +303,19 @@ namespace XcaXds.Commons.DataManipulators
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
                     //Constants.Saml.Attribute.EhelseSecurityLevel,
-                    _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "SecurityLevel")?.FirstOrDefault(),
+                    samlAttributes.GetByName("SecurityLevel"),
                     samlClaims.SecurityLevel)));
             }
 
-            var scopeAttribute = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "Scope")?.FirstOrDefault();
-            var clientIdAttribute = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "ClientId")?.FirstOrDefault();
-            var authenticationMethodAttribute = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "AuthenticationMethod")?.FirstOrDefault();
-            var healthcareServiceAttribute = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "HealthcareService")?.FirstOrDefault();
-            var organizationAttribute = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "Organization")?.FirstOrDefault();
-            var bppcAttribute = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "BppcDocId")?.FirstOrDefault();
-            var bppcNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
-            var xuaAcpAttribute = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.SamlAttributes, "XuaAcp")?.FirstOrDefault();
+            var scopeAttribute = samlAttributes.GetByName("Scope");
+            var clientIdAttribute = samlAttributes.GetByName("ClientId");
+            var authenticationMethodAttribute = samlAttributes.GetByName("AuthenticationMethod");
+            var healthcareServiceAttribute = samlAttributes.GetByName("HealthcareService");
+            var organizationAttribute = samlAttributes.GetByName("Organization");
+            var bppcAttribute = samlAttributes.GetByName("BppcDocId");
+            var xuaAcpAttribute = samlAttributes.GetByName("XuaAcp");
+            
+            var bppcNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Bppc, "NullValue")?.FirstOrDefault();
             var xuaAcpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
             
             foreach (var scope in samlClaims.Scope ?? [])

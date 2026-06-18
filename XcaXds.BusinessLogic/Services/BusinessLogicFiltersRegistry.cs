@@ -136,6 +136,7 @@ public class BusinessLogicFiltersRegistry
 
         return
         [
+            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "N").AsTuple(),
             _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORS").AsTuple(),
         ];
     }
