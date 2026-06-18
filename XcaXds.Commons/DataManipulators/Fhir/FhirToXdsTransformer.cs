@@ -1586,7 +1586,7 @@ public class FhirToXdsTransformerService
                 UniversalId = $"{Department}",
                 UniversalIdType = "ISO"
             },
-            OrganizationIdentifier = authorDept?.Identifier?.First()?.Value ?? string.Empty
+            OrganizationIdentifier = authorDept?.Identifier?.FirstOrDefault()?.Value ?? string.Empty
         };
         return authorDepartment;
     }
