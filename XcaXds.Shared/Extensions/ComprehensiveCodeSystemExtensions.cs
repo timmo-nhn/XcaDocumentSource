@@ -35,8 +35,8 @@ public static class ComprehensiveCodeSystemExtensions
     /// </summary>
     public static KeyValuePair<string, string>? GetByValueOid(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
     {
-        var ss = source?.SelectMany(v => v.Values);
-        var returnValue = ss.FirstOrDefault(v => v.Value == value);
+        var ss = source?.SelectMany(v => v.Values ?? []);
+        var returnValue = ss?.FirstOrDefault(v => v.Value == value);
 
         var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true);
 

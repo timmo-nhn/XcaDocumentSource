@@ -52,11 +52,17 @@ public class BusinessLogicFiltersRegistry
 {
     private readonly TerminologyService _terminologyService;
 
+    private (string Code, string CodeSystem)[] CitizenConfidentialityCodesToObfucscate { get; set; }
+    private (string Code, string CodeSystem)[] HealthcarePersonellConfidentialityCodesToObfucscate { get; set; }
+
     public BusinessLogicFiltersRegistry(TerminologyService terminologyService)
     {
         _terminologyService = terminologyService;
         InitConstantValuesUsedForBusinessLogicFiltering();
         AllBusinessRules = GetAllBusinessRulesForFilteringDocumentList();
+
+        CitizenConfidentialityCodesToObfucscate = GetCitizenObfuscationCodes();
+        HealthcarePersonellConfidentialityCodesToObfucscate = GetHealthcarePersonellObfuscationCodes();
     }
 
     //public static readonly ComprehensiveCodeSystem VolvenDocumentTypes = typeof(Constants.CodeSystems.Volven.CategoryCode_9602).GetAsComprehensiveCodesystem();
@@ -119,37 +125,43 @@ public class BusinessLogicFiltersRegistry
         Constants.MimeTypes.TextRtf,
     ];
 
-    public HashSet<(string Code, string CodeSystem)?> GetCitizenObfuscationCodes()
+
+    private (string, string)[] GetCitizenObfuscationCodes()
     {
         var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
-        return
-        [
+        return new[]
+        {
             _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "V").AsTuple(),
             _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORN_ANG").AsTuple(),
-        ];
+        }
+        .OfType<(string, string)>()
+        .ToArrayOrNull() ?? throw new InvalidOperationException("No obfuscation codes set, application might expose data which is not in conformance with business logic");
     }
 
-    public HashSet<(string Code, string CodeSystem)?> GetHealthcarePersonellObfuscationCodes()
+    private (string, string)[] GetHealthcarePersonellObfuscationCodes()
     {
         var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
-        return
-        [
+        return new[]
+        {
             _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "N").AsTuple(),
             _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORS").AsTuple(),
-        ];
+        }
+        .OfType<(string, string)>()
+        .ToArrayOrNull() ?? throw new InvalidOperationException("No obfuscation codes set, application might expose data which is not in conformance with business logic");
     }
 
     public (string, string)[] GetCitizenConfidentialityCodesToObfuscate()
     {
-        return GetCitizenObfuscationCodes().Select(c => (c?.Code, c?.CodeSystem)).ToArray()!;
+        return CitizenConfidentialityCodesToObfucscate;
     }
 
     public (string, string)[] GetHealthcarePersonellConfidentialityCodesToObfuscate()
     {
-        return GetHealthcarePersonellObfuscationCodes().Select(c => (c?.Code, c?.CodeSystem)).ToArray()!;
+        return HealthcarePersonellConfidentialityCodesToObfucscate;
     }
+
 
     public ComprehensiveCodeSystem[] GetAllowedOrganizationSystems()
     {

@@ -39,8 +39,9 @@ public class DocumentObfuscationService
     public void ObfuscateRestrictedDocumentEntries(List<IdentifiableType> identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
-
-        var valuesToIgnore = _terminologyService.GetValueFromCodeSystem(_terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities), "Organization")?.Key;
+        
+        var organizationValues = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities);
+        var valuesToIgnore = organizationValues.GetByValue("Organization");
 
         if (identifiableTypes == null) return;
 

@@ -20,21 +20,21 @@ public class TerminologyService
     {
         if (CodeSystems.ContainsKey(name))
         {
-            _logger.LogInformation($"Adding to existing code system {name} with {codeSystems.Length} entries...");
+            _logger.LogInformation($"Adding to existing code system '{name}' with {codeSystems.Length} entries...");
             CodeSystems[name] = CodeSystems[name].Concat(codeSystems).ToArray();
         }
         else
         {
-            _logger.LogInformation($"Adding code system {name} with {codeSystems.Length} entries...");
+            _logger.LogInformation($"Adding code system '{name}' with {codeSystems.Length} entries...");
             CodeSystems.Add(name, codeSystems);
         }
 
-        _logger.LogInformation($"Added code system {name} with {codeSystems.Length} entries");
+        _logger.LogInformation($"Added code system '{name}' with {codeSystems.Length} entries");
     }
 
     public ComprehensiveCodeSystem[] GetCodeSystemByKey(string name)
     {
-        _logger.LogDebug($"Getting code system by name {name}");
+        _logger.LogDebug($"Getting code system by name '{name}'");
         return CodeSystems[name];
     }
 
@@ -45,13 +45,13 @@ public class TerminologyService
 
     public string[]? GetValueFromCodeSystemByName(string codeSystemName, string inputValue)
     {
-        _logger.LogDebug($"Attempting to get Value from Name {inputValue} in System {codeSystemName}");
+        _logger.LogDebug($"Attempting to get Value from Name '{inputValue}' from System '{codeSystemName}'");
 
         var fetchedSystems = CodeSystems.TryGetValue(codeSystemName, out var codeSys) ? codeSys : null;
 
         if (fetchedSystems != null)
         {
-            _logger.LogDebug($"Got {fetchedSystems?.Length} CodeSystems");
+            _logger.LogDebug($"Fetched '{fetchedSystems?.Length}' CodeSystems");
 
             var eligibleValue = fetchedSystems?
                 .SelectMany(cs => cs.Values ?? [])
@@ -67,24 +67,24 @@ public class TerminologyService
             }
         }
 
-        _logger.LogDebug($"Could not find value {inputValue} from {codeSystemName}");
+        _logger.LogDebug($"Could not find value '{inputValue}' from '{codeSystemName}'");
         return null;
     }
 
     public KeyValuePair<string, string>? GetValueFromCodeSystem(ComprehensiveCodeSystem[]? codeSystems, string inputValue)
     {
-        _logger.LogDebug($"Getting value {inputValue} from code systems {string.Join(", ", codeSystems?.Select(cc => cc.SystemOid) ?? [])}");
+        _logger.LogDebug($"Getting value '{inputValue}' from code systems '{string.Join(", ", codeSystems?.Select(cc => cc.SystemOid) ?? [])}'");
 
         var fetchedValue = codeSystems.GetByValueOid(inputValue);
 
         if (fetchedValue != null)
         {
-            _logger.LogDebug($"Got value {fetchedValue?.Value} from code system {fetchedValue?.Key}");
+            _logger.LogDebug($"Got value '{fetchedValue?.Value}' from code system '{fetchedValue?.Key}'");
 
             return fetchedValue;
         }
 
-        _logger.LogWarning($"Could not find value {inputValue} in code systems {string.Join(", ", codeSystems?.Select(cc => cc.SystemOid) ?? [])}");
+        _logger.LogWarning($"Could not find value '{inputValue}' in code systems '{string.Join(", ", codeSystems?.Select(cc => cc.SystemOid) ?? [])}'");
 
         return null;
     }
