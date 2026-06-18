@@ -47,3 +47,4 @@ tag manifest prod:
   variables:
     DEPLOY_ENVIRONMENTS: "prod"
   when: manual
+  
