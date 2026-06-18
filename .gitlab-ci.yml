@@ -14,6 +14,8 @@ variables:
   # Route Docker base image pulls through GitLab Dependency Proxy in CI builds.
   DOCKER_BUILD_ARGS: "--build-arg UPSTREAM_REGISTRY=${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/mcr.microsoft.com"
   BUILD_ARGS: "--build-arg UPSTREAM_REGISTRY=${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/mcr.microsoft.com"
+  # enable kaniko image layer caching for faster builds
+  NHN_KANIKO_CACHE_ENABLED: true
 
 build image and push to harbor:
   tags:
@@ -31,19 +33,10 @@ tag manifest:
     - 2026-03-standard
   extends:
     - .manifest-repo-update-singlefile
-  before_script:
-    - |
-      if [ "${MANIFEST_REPO_TOKEN}" == "" ]; then
-        echo "No token is set"
-      else 
-        echo "Manifest repo token is set"
-      fi
   variables:
     MANIFEST_REPO_URL: milliways.nhn.no/helsepersonell/team-dokumentdeling/xcads/k8s/xcadocumentstore.git
     SRC_FOLDER: "."
     DEPLOY_ENVIRONMENTS: "test"
-    GITLAB_USER: "manifest-update"
-    GITLAB_TOKEN: $MANIFEST_REPO_TOKEN
     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
 
 tag manifest prod:
