@@ -16,8 +16,8 @@ COPY . .
 RUN dotnet restore XcaXds.WebService/XcaXds.WebService.csproj
 RUN dotnet publish XcaXds.WebService/XcaXds.WebService.csproj -c Release -o /app
 
-# If you do not want the local directories to be included in the container, 
-# comment the following lines and ensure the paths are correct. 
+# If you do not want the local directories to be included in the container,
+# comment the following lines and ensure the paths are correct.
 # Otherwise, these files can be mounted as volumes at runtime.
 COPY XcaXds.Source/Registry /app/registry
 COPY XcaXds.Source/Repository /app/repository
@@ -40,6 +40,8 @@ ENV NO_PROXY=${NHN_NO_PROXY}
 ENV http_proxy=${NHN_HTTP_PROXY}
 ENV https_proxy=${NHN_HTTP_PROXY}
 ENV no_proxy=${NHN_NO_PROXY}
+ENV HOME=/mnt/data/tmp
+RUN mkdir -p /mnt/data/tmp/.fhir/packages
 
 # Update CA certificates to include latest root certificates
 RUN apt-get update && apt-get install -y sqlite3 ca-certificates curl && update-ca-certificates && rm -rf /var/lib/apt/lists/*
