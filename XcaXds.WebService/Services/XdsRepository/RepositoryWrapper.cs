@@ -4,7 +4,7 @@ using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Services.XdsRegistry;
 

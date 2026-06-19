@@ -1,4 +1,3 @@
-using XcaXds.Shared.Constants;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
@@ -6,6 +5,7 @@ using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
 using XcaXds.Tests.Helpers;
+using XcaXds.Shared;
 
 namespace XcaXds.Tests.UnitTests;
 

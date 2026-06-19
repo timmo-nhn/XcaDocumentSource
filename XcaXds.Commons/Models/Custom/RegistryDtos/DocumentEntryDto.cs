@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
+using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 

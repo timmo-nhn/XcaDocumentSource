@@ -3,14 +3,14 @@ using Hl7.Fhir.Rest;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services.XdsRegistry;
@@ -67,7 +67,7 @@ public class RestfulRegistryRepositoryService
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing
         patientIdCx.AssigningAuthority ??= _ninParser.ParseNinToCxWithAssigningAuthority(patientId)?
-            .AssigningAuthority ?? 
+            .AssigningAuthority ??
             new() { UniversalId = patientNin, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
 
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();

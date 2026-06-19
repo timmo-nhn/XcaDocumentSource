@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using System.Xml;
 using XcaXds.Commons.Commons;
-using XcaXds.Shared.Constants;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
@@ -11,6 +10,7 @@ using XcaXds.Shared.Enums;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Services.Policy;
+using XcaXds.Shared;
 
 namespace XcaXds.Tests.Helpers;
 

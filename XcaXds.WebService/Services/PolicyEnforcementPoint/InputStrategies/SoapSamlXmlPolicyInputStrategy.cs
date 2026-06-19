@@ -6,7 +6,7 @@ using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.WebService.Services.Policy;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using XcaXds.Shared.Constants;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Tests.FakesAndDoubles;
@@ -13,6 +12,7 @@ using XcaXds.WebService;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 using XcaXds.Shared.Extensions;
+using XcaXds.Shared;
 
 namespace XcaXds.Tests.IntegrationTests;
 

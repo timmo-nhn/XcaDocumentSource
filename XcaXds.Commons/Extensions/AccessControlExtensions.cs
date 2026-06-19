@@ -1,8 +1,8 @@
 ﻿using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
-using static XcaXds.Shared.Constants.Constants.Xds.AssociationType;
+using static XcaXds.Shared.Constants.Xds.AssociationType;
 
 namespace XcaXds.Commons.Extensions;
 

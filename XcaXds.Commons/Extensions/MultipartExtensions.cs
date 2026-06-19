@@ -6,7 +6,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 
 namespace XcaXds.Commons.Extensions;
 

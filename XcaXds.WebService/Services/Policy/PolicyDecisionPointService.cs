@@ -3,7 +3,7 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 

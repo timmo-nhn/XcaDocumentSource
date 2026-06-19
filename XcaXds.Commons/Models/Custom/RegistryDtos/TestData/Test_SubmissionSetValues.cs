@@ -1,5 +1,5 @@
-﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
+﻿using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
+using XcaXds.Shared.Models.Custom;
 
 public class Test_SubmissionSetValues
 {

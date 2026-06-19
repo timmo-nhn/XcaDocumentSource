@@ -13,13 +13,14 @@ using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using XcaXds.WebService.Services.XdsRegistry;
-using static XcaXds.Shared.Constants.Constants.Xds.AssociationType;
+using static XcaXds.Shared.Constants.Xds.AssociationType;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;
 

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging.Testing;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using XcaXds.Shared.Constants;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
@@ -11,6 +10,7 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Source.Source;
 using XcaXds.Tests.Helpers;
 using Xunit.Abstractions;
+using XcaXds.Shared;
 
 namespace XcaXds.Tests.IntegrationTests;
 

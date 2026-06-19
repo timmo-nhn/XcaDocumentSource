@@ -6,8 +6,9 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services.XdsRegistry;
@@ -126,7 +127,8 @@ public class PolicyRequestMapperSamlService
     {
         foreach (var removeObject in removeObjectsRequest ?? [])
         {
-            abacRequestAttributes.AddOrUpdate(Constants.Urn.Custom.DocumentUniqueId, [removeObject.Id]);
+            if(removeObject.Id != null)
+                abacRequestAttributes.AddOrUpdate(Constants.Urn.Custom.DocumentUniqueId, [removeObject.Id]);
         }
     }
 
@@ -149,8 +151,10 @@ public class PolicyRequestMapperSamlService
 
         foreach (var registryRepository in registriesRepositoriesToUploadTo ?? [])
         {
-            abacRequestAttributes.AddOrUpdate(Constants.Urn.Custom.RepositoryUniqueId, [registryRepository.Repository]);
-            abacRequestAttributes.AddOrUpdate(Constants.Urn.Custom.HomeCommunityId, [registryRepository.HomeCommunity]);
+            if (registryRepository.Repository != null)
+                abacRequestAttributes.AddOrUpdate(Constants.Urn.Custom.RepositoryUniqueId, [registryRepository.Repository]);
+            if (registryRepository.HomeCommunity != null)
+                abacRequestAttributes.AddOrUpdate(Constants.Urn.Custom.HomeCommunityId, [registryRepository.HomeCommunity]);
         }
     }
 
@@ -193,8 +197,10 @@ public class PolicyRequestMapperSamlService
     {
         if (patientIdentifier?.Code != null || patientIdentifier?.CodeSystem != null)
         {
-            abacRequestAttributes.AddOrUpdate($"{Constants.Urn.Custom.AdhocQueryPatientIdentifier}:code", [patientIdentifier.Code]);
-            abacRequestAttributes.AddOrUpdate($"{Constants.Urn.Custom.AdhocQueryPatientIdentifier}:codeSystem", [patientIdentifier.CodeSystem]);
+            if (patientIdentifier.Code != null)
+                abacRequestAttributes.AddOrUpdate($"{Constants.Urn.Custom.AdhocQueryPatientIdentifier}:code", [patientIdentifier.Code]);
+            if (patientIdentifier.CodeSystem != null)
+                abacRequestAttributes.AddOrUpdate($"{Constants.Urn.Custom.AdhocQueryPatientIdentifier}:codeSystem", [patientIdentifier.CodeSystem]);
         }
     }
 
@@ -219,7 +225,7 @@ public class PolicyRequestMapperSamlService
                     attribute.Name = securityLevel;
                 }
 
-                if (attribute.Name.Contains("Scope"))
+                if (attribute.Name?.Contains("Scope") == true)
                 {
                     attribute.Name = Constants.Saml.Attribute.EhelseScope;
                 }
@@ -240,7 +246,8 @@ public class PolicyRequestMapperSamlService
                 }
                 else
                 {
-                    abacProperties.AddOrUpdate(attribute.Name + ":code", [attributeValueAsCodedValue.Code]);
+                    if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue?.Code))
+                        abacProperties.AddOrUpdate(attribute.Name + ":code", [attributeValueAsCodedValue.Code]);
                 }
 
                 if (!string.IsNullOrWhiteSpace(attributeValueAsCodedValue?.CodeSystem))
@@ -264,7 +271,8 @@ public class PolicyRequestMapperSamlService
         {
             // Add default ACP "null value"
             var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
-            abacProperties.AddOrUpdate(Constants.Saml.Attribute.XuaAcp, [acpNullValue]);
+            if (acpNullValue != null)
+                abacProperties.AddOrUpdate(Constants.Saml.Attribute.XuaAcp, [acpNullValue]);
         }
 
         return abacProperties;

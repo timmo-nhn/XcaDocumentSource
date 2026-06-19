@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XcaXds.Commons\XcaXds.Commons.csproj" />
+    <ProjectReference Include="..\XcaXds.Shared\XcaXds.Shared.csproj" />
   </ItemGroup>
 
 </Project>

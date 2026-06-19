@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;

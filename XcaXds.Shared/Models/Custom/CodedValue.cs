@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using XcaXds.Shared.Constants;
 
-namespace XcaXds.Commons.Models.Custom.RegistryDtos;
+namespace XcaXds.Shared.Models.Custom;
 
 [DebuggerDisplay("CodedValue (Code = {Code}, CodeSystem = {CodeSystem}, DisplayName = {DisplayName})")]
 public class CodedValue

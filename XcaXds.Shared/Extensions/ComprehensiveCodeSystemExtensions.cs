@@ -1,4 +1,5 @@
-﻿using XcaXds.Shared.Models.Custom;
+﻿using Hl7.Fhir.Validation;
+using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.Shared.Extensions;
 
@@ -90,5 +91,10 @@ public static class ComprehensiveCodeSystemExtensions
             return (source.Value.Key, source.Value.Value);
         }
         return null;
+    }
+
+    public static CodedValue[]? AsCodedValue(this ValueTuple<string, string>[]? source)
+    {
+        return source?.Select(s => new CodedValue(s.Item1, s.Item2)).ToArrayOrNull();
     }
 }

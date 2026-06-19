@@ -11,7 +11,7 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Terminology.Services;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
@@ -35,6 +35,8 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     private readonly WebApplicationFactory<Program> _factory;
 
     internal readonly ApiKeyHolder _apiKeyHolder;
+    internal readonly ApplicationMetaService _applicationMetaService;
+    internal readonly ApplicationConfig _applicationConfig;
     internal readonly HttpClient _client;
     internal readonly RestfulRegistryRepositoryService _restfulRegistryService;
     internal readonly PolicyRepositoryService _policyRepositoryService;
@@ -44,7 +46,6 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly IRepository _repository;
     internal readonly AtnaLogExportedChecker _atnaLogExportedChecker;
     internal readonly ITestOutputHelper _output;
-    internal readonly ApplicationMetaService _applicationMetaService;
     internal readonly DocumentListFiltererService _documentListFiltererService;
     internal readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
     internal readonly BusinessRulesDescriptorService _businessRulesDescriptorService;
@@ -116,6 +117,8 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _registry = _scope.ServiceProvider.GetRequiredService<IRegistry>();
         _repository = _scope.ServiceProvider.GetRequiredService<IRepository>();
 
+        _applicationConfig = _scope.ServiceProvider.GetRequiredService<ApplicationConfig>();
+        _terminologyService = _scope.ServiceProvider.GetRequiredService<TerminologyService>();
         _fhirResourceValidatorService = _scope.ServiceProvider.GetRequiredService<FhirResourceValidatorService>();
         _xdsOnFhirTransformerService = _scope.ServiceProvider.GetRequiredService<XdsOnFhirTransformerService>();
         _businessRulesDescriptorService = _scope.ServiceProvider.GetRequiredService<BusinessRulesDescriptorService>();

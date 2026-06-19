@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
@@ -20,7 +19,7 @@ public class DocumentObfuscationService
     private readonly TerminologyService _terminologyService;
 
     private ComprehensiveCodeSystem[] _purposeOfUse;
-    
+
     public DocumentObfuscationService(ILogger<DocumentObfuscationService> logger, BusinessLogicFiltersRegistry businessLogicFiltersRegistry, TerminologyService terminologyService)
     {
         _logger = logger;
@@ -39,7 +38,7 @@ public class DocumentObfuscationService
     public void ObfuscateRestrictedDocumentEntries(List<IdentifiableType> identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
-        
+
         var organizationValues = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities);
         var valuesToIgnore = organizationValues.GetByValue("Organization");
 
@@ -207,7 +206,7 @@ public class DocumentObfuscationService
                         if (structuredValue == null) return;
 
                         // Dont obfuscate ignored values or the last value
-                        if (structuredValue.AssigningAuthority?.UniversalId.IsAnyOf(valuesToIgnore) == true || i == slot.ValueList.Value.Length) continue;
+                        if (structuredValue.AssigningAuthority?.UniversalId.IsAnyOf(valuesToIgnore ?? []) == true || i == slot.ValueList.Value.Length) continue;
 
                         structuredValue.OrganizationIdentifier = string.IsNullOrWhiteSpace(structuredValue.OrganizationIdentifier) ? null : "*****";
                         structuredValue.IdNumber = string.IsNullOrWhiteSpace(structuredValue.IdNumber) ? null : "*****";

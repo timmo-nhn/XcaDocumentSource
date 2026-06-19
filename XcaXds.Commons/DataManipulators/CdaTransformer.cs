@@ -5,7 +5,8 @@ using XcaXds.Commons.Models.ClinicalDocument;
 using XcaXds.Commons.Models.ClinicalDocument.Types;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
+using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.Commons.DataManipulators;
 
@@ -76,9 +77,9 @@ public static partial class CdaTransformer
     private static string GetUniqueIdFromClinicalDocument(ClinicalDocument clinicalDocument)
     {
         var clinicalDocumentId = clinicalDocument.Id.Extension;
-        if (string.IsNullOrWhiteSpace(clinicalDocumentId)) throw new ArgumentNullException(nameof(clinicalDocumentId) + " must have an unique Identifier!");
-
-        return clinicalDocumentId;
+        return string.IsNullOrWhiteSpace(clinicalDocumentId)
+            ? throw new ArgumentNullException(nameof(clinicalDocumentId), " must have an unique Identifier!")
+            : clinicalDocumentId;
     }
 
     private static CodedValue? GetTypeCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
@@ -95,17 +96,15 @@ public static partial class CdaTransformer
 
     private static SourcePatientInfo? GetSourcePatientInfoFromClinicalDocument(ClinicalDocument clinicalDocument)
     {
-        var patientRole = clinicalDocument.RecordTarget?.FirstOrDefault(pr => pr.PatientRole?.Id != null)?.PatientRole;
-
-        if (patientRole == null) throw new ArgumentNullException("No PatientRole in ClinicalDocument");
-
+        var patientRole = (clinicalDocument.RecordTarget?.FirstOrDefault(pr => pr.PatientRole?.Id != null)?.PatientRole) ?? throw new ArgumentNullException("No PatientRole in ClinicalDocument");
+        
         var authorNames = patientRole.Patient?.Name?
         .SelectMany(nme =>
         {
-            var prefix = nme.Prefix?.Select(g => g.Value) ?? Enumerable.Empty<string>();
-            var given = nme.Given?.Select(g => g.Value) ?? Enumerable.Empty<string>();
-            var family = nme.Family?.Select(f => f.Value) ?? Enumerable.Empty<string>();
-            var suffix = nme.Suffix?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+            var prefix = nme.Prefix?.Select(g => g.Value) ?? [];
+            var given = nme.Given?.Select(g => g.Value) ?? [];
+            var family = nme.Family?.Select(f => f.Value) ?? [];
+            var suffix = nme.Suffix?.Select(f => f.Value) ?? [];
 
             return new[]
             {
@@ -161,10 +160,10 @@ public static partial class CdaTransformer
         var authorNames = authorCdaName?.Name?
             .SelectMany(nme =>
             {
-                var prefix = nme.Prefix?.Select(g => g.Value) ?? Enumerable.Empty<string>();
-                var given = nme.Given?.Select(g => g.Value) ?? Enumerable.Empty<string>();
-                var family = nme.Family?.Select(f => f.Value) ?? Enumerable.Empty<string>();
-                var suffix = nme.Suffix?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+                var prefix = nme.Prefix?.Select(g => g.Value) ?? [];
+                var given = nme.Given?.Select(g => g.Value) ?? [];
+                var family = nme.Family?.Select(f => f.Value) ?? [];
+                var suffix = nme.Suffix?.Select(f => f.Value) ?? [];
                 return new[]
                 {
                     string.Join(" ", prefix.Concat(given)),
@@ -202,7 +201,7 @@ public static partial class CdaTransformer
 
         var inputBytes = Encoding.UTF8.GetBytes(cdaXml);
 
-        return BitConverter.ToString(SHA1.HashData(inputBytes)).Replace("-", "").ToLowerInvariant();
+        return Convert.ToHexStringLower(SHA1.HashData(inputBytes));
     }
 
     private static CodedValue? GetFormatCodeFromClinicalDocument(ClinicalDocument clinicalDocument)
@@ -243,29 +242,29 @@ public static partial class CdaTransformer
             // https://finnkode.helsedirektoratet.no/adm/collections/9602?q=9602
             Code = clinicalDocument.Code?.Code switch
             {
-                string code when code.StartsWith("A") => "A00-1",
-                string code when code.StartsWith("B") => "B00-1",
-                string code when code.StartsWith("C") => "C00-1",
-                string code when code.StartsWith("D") => "D00-1",
-                string code when code.StartsWith("E") => "E00-1",
-                string code when code.StartsWith("F") => "F00-1",
-                string code when code.StartsWith("I") => "I00-1",
-                string code when code.StartsWith("J") => "J00-1",
-                string code when code.StartsWith("S") => "S00-1",
+                string code when code.StartsWith('A') => "A00-1",
+                string code when code.StartsWith('B') => "B00-1",
+                string code when code.StartsWith('C') => "C00-1",
+                string code when code.StartsWith('D') => "D00-1",
+                string code when code.StartsWith('E') => "E00-1",
+                string code when code.StartsWith('F') => "F00-1",
+                string code when code.StartsWith('I') => "I00-1",
+                string code when code.StartsWith('J') => "J00-1",
+                string code when code.StartsWith('S') => "S00-1",
                 _ => clinicalDocument.Code?.Code
             },
             CodeSystem = clinicalDocument.Code?.CodeSystem,
             DisplayName = clinicalDocument.Code?.Code switch
             {
-                string code when code.StartsWith("A") => "Epikriser og sammenfatninger",
-                string code when code.StartsWith("B") => "Kontinuerlig/løpende journal",
-                string code when code.StartsWith("C") => "Prøvesvar, vev og væsker",
-                string code when code.StartsWith("D") => "Organfunksjon",
-                string code when code.StartsWith("E") => "Bildediagnostikk",
-                string code when code.StartsWith("F") => "Kurve, observasjon og behandling",
-                string code when code.StartsWith("I") => "Korrespondanse",
-                string code when code.StartsWith("J") => "Attester, melding og erklæringer",
-                string code when code.StartsWith("S") => "Test og scoring",
+                string code when code.StartsWith('A') => "Epikriser og sammenfatninger",
+                string code when code.StartsWith('B') => "Kontinuerlig/løpende journal",
+                string code when code.StartsWith('C') => "Prøvesvar, vev og væsker",
+                string code when code.StartsWith('D') => "Organfunksjon",
+                string code when code.StartsWith('E') => "Bildediagnostikk",
+                string code when code.StartsWith('F') => "Kurve, observasjon og behandling",
+                string code when code.StartsWith('I') => "Korrespondanse",
+                string code when code.StartsWith('J') => "Attester, melding og erklæringer",
+                string code when code.StartsWith('S') => "Test og scoring",
                 _ => clinicalDocument.Code?.DisplayName
             }
         };
@@ -301,10 +300,11 @@ public static partial class CdaTransformer
         var authorNames = authorCdaName?.Name?
             .SelectMany(nme =>
             {
-                var prefix = nme.Prefix?.Select(g => g.Value) ?? Enumerable.Empty<string>();
-                var given = nme.Given?.Select(g => g.Value) ?? Enumerable.Empty<string>();
-                var family = nme.Family?.Select(f => f.Value) ?? Enumerable.Empty<string>();
-                var suffix = nme.Suffix?.Select(f => f.Value) ?? Enumerable.Empty<string>();
+                var prefix = nme.Prefix?.Select(g => g.Value) ?? [];
+                var given = nme.Given?.Select(g => g.Value) ?? [];
+                var family = nme.Family?.Select(f => f.Value) ?? [];
+                var suffix = nme.Suffix?.Select(f => f.Value) ?? [];
+
                 return new[]
                 {
                     string.Join(" ", prefix.Concat(given)),

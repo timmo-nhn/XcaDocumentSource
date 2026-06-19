@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text.Json;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;

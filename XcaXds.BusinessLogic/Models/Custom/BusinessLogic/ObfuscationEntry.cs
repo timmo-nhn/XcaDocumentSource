@@ -1,8 +1,5 @@
-﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
+﻿using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 
-public record ObfuscationEntry(
-    string Name,
-    CodedValue[] CodeSystems
-);
+public record ObfuscationEntry(string Name,CodedValue[] CodeSystems);

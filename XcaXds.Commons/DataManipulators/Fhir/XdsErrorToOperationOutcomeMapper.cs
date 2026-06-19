@@ -1,7 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 
 namespace XcaXds.Commons.DataManipulators.Fhir;
 

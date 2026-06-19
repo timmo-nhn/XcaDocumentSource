@@ -1,5 +1,6 @@
 ﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Shared.Enums;
+using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.Commons.Models.Custom.Statistics;
 

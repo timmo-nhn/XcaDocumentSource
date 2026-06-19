@@ -7,6 +7,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared.Enums;
+using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.Commons.Extensions;
 

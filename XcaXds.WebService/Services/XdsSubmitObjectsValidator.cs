@@ -2,7 +2,7 @@
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 
 namespace XcaXds.WebService.Services;
 

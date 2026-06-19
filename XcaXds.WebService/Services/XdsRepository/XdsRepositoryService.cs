@@ -15,7 +15,7 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
@@ -356,7 +356,7 @@ public class XdsRepositoryService
         return resultEnvelope;
     }
 
-    private bool DocumentIsRestrictedForUser(DocumentRequestType document, AbacRequest abacRequest)
+    private bool DocumentIsRestrictedForUser(DocumentRequestType document, AbacRequest? abacRequest)
     {
         var businessLogicParameters = _businessLogicMapperService.MapFromAbacRequestToBusinessLogic(abacRequest);
 
@@ -373,8 +373,10 @@ public class XdsRepositoryService
             _ => false
         };
 
-        var ETREAT = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Xds.ConfidentialityCode, "ETREAT")?.FirstOrDefault();
-        var BTG = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Xds.ConfidentialityCode, "BTG")?.FirstOrDefault();
+        var purposeOfUseSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.PurposeOfUse);
+
+        var ETREAT = purposeOfUseSystems.GetByValue("ETREAT");
+        var BTG = purposeOfUseSystems.GetByValue("BTG");
 
         // Dont obscure in emergency situations
         if (restricted && !string.IsNullOrWhiteSpace(businessLogicParameters?.Purpose?.Code) && businessLogicParameters.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)

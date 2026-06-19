@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using XcaXds.Shared.Constants;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.WebService.Services.Statistics;
+using XcaXds.Shared;
 
 namespace XcaXds.Tests.FakesAndDoubles;
 

@@ -6,6 +6,7 @@ using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Enums;
+using XcaXds.Shared.Models.Custom;
 using Xunit.Abstractions;
 using static XcaXds.Tests.TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 

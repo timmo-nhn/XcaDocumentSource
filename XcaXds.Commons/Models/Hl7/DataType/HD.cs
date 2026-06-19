@@ -1,6 +1,6 @@
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 
 namespace XcaXds.Commons.Models.Hl7.DataType;
 

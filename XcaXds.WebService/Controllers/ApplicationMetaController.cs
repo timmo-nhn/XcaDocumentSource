@@ -14,7 +14,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
@@ -67,6 +67,7 @@ public class ApplicationMetaController : ControllerBase
         _featureManager = featureManager;
         _terminologyService = terminologyService;
         _documentListFiltererService = documentListFiltererService;
+        _businessRulesDescriptorService = businessRulesDescriptorService;
     }
 
     [HttpGet("health-check")]

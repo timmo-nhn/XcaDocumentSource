@@ -1,10 +1,5 @@
-﻿using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Extensions.No;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Shared.Constants;
-using XcaXds.Shared.Enums;
+﻿using XcaXds.Commons.Extensions;
+using XcaXds.Shared.Models.Custom;
 
 namespace XcaXds.BusinessLogic.Extensions;
 
@@ -36,7 +31,7 @@ public static class BusinessLogicExtensions
         if (!indexed.TryGetValue($"{attribute}:code", out var code))
             return null;
 
-        return new CodedValue
+        return new CodedValue()
         {
             Code = code,
             CodeSystem = indexed.GetValueOrDefault($"{attribute}:codeSystem"),

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using System.Xml;
 using XcaXds.Shared.Models.Custom;
 
-namespace XcaXds.Shared.Constants;
+namespace XcaXds.Shared;
 
 public static class Constants
 {
@@ -698,7 +698,7 @@ public static class ConstantsExtensions
 
     public static string[] GetAsStringList(this Type type, Func<string, bool> filter)
     {
-        return type.GetAsStringList().Where(filter).ToArray();
+        return [.. type.GetAsStringList().Where(filter)];
     }
 
     /// <summary>
@@ -722,7 +722,7 @@ public static class ConstantsExtensions
             }
         }
 
-        return constants.ToArray();
+        return [.. constants];
     }
 
     public static List<KeyValueEntry> GetAsKeyValuePair(this Type type)

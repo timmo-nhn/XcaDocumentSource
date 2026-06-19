@@ -5,6 +5,7 @@ using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Shared.Models.Custom;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 

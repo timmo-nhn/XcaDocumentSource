@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text.Json;
 using XcaXds.Commons.Attributes;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.Policy;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;

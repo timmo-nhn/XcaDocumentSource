@@ -3,7 +3,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 
 namespace XcaXds.Commons.Serializers;
 

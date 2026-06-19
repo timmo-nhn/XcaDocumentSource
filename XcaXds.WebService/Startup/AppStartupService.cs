@@ -1,7 +1,7 @@
 ﻿using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
@@ -50,7 +50,7 @@ public class AppStartupService : IHostedService
         _terminologyUpdaterService = terminologyUpdaterService;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
         var startupTime = DateTime.Now;
         _logger.LogInformation($"Startup Time (UTC): {startupTime.ToString("O")}");
@@ -90,9 +90,7 @@ public class AppStartupService : IHostedService
 
         //MigrateFromJsonRegistryToDatabase();
 
-        AddDefaultAccessControlPolicies();
-
-        return Task.CompletedTask;
+        await AddDefaultAccessControlPolicies();
     }
 
 
@@ -241,6 +239,20 @@ public class AppStartupService : IHostedService
             Effect = "Permit"
         };
 
+        var machine_validate_documents = new AbacPolicy()
+        {
+            Id = "DEFAULT_machine_validate_documents",
+            AppliesTo = [AppliesTo.Machine],
+            Rules =
+            [
+                new(
+                    (AbacCondition)new(Constants.Saml.Attribute.EhelseScope, Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments)
+                )
+            ],
+            Actions = ["Execute"],
+            Effect = "Permit"
+        };
+
         var machine_delete_documents = new AbacPolicy()
         {
             Id = "DEFAULT_machine_delete_documents",
@@ -283,6 +295,7 @@ public class AppStartupService : IHostedService
         _policyRepositoryWrapper.AddPolicy(machine_create_update_documents);
         _policyRepositoryWrapper.AddPolicy(machine_delete_documents);
         _policyRepositoryWrapper.AddPolicy(machine_read_document_status);
+        _policyRepositoryWrapper.AddPolicy(machine_validate_documents);
     }
 
     /// <summary>

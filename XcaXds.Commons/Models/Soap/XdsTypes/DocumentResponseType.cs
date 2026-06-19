@@ -1,7 +1,7 @@
 using System.Xml;
 using System.Xml.Serialization;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 
 namespace XcaXds.Commons.Models.Soap.XdsTypes;
 

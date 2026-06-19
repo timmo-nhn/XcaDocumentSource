@@ -1,7 +1,7 @@
 ﻿using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.Commons.Interfaces;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 
 namespace XcaXds.BusinessLogic.Services;

@@ -12,7 +12,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Tests.FakesAndDoubles;
@@ -73,7 +73,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
                 Filter = robjs => BusinessLogicFiltersRegistry.FilterByKjernejournalForskriften(robjs)
             }
-        
+
         );
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
@@ -423,6 +423,91 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
         Assert.Equal(expectedDocumentCount, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0);
+
+        await WaitForAtnaLogToBeExported();
+
+        _output.WriteLine($"Documents retrieved: {retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse?.Length ?? 0}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
+    }
+
+
+    [Fact]
+    [Trait("Read", "Documents")]
+    public async Task XGR_CrossGatewayRetrieve_Multipart_Helsenorge_RestrictedDocument_ShouldNotGetAccess()
+    {
+        await NukeRegistryRepository();
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_CrossGatewayRetrieve",
+            attributeId: Constants.Saml.Attribute.PurposeOfUse_Helsenorge,
+            codeValue: "13",
+            codeSystemValue: "1.0.14265.1",
+            action: "ReadDocuments");
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var confCodesCitizen = _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate()?.AsCodedValue();
+
+        var restrictedDoc = new DocumentEntryDto()
+        {
+            AvailabilityStatus = Constants.Xds.StatusValues.Approved,
+            ConfidentialityCode = confCodesCitizen.ToList(),
+            UniqueId = "RestrictedDocument",
+            HomeCommunityId = _applicationConfig.HomeCommunityId,
+            RepositoryUniqueId = _applicationConfig.RepositoryUniqueId,
+            SourcePatientInfo = new SourcePatientInfo()
+            {
+                PatientId = new PatientId() { Id = "12345", System = "balle" }
+            }
+        };
+
+        var document = new DocumentDto()
+        {
+            Data = Encoding.UTF8.GetBytes("This is a restricted document"),
+            DocumentId = restrictedDoc.UniqueId
+        };
+
+        _registry.UpdateRegistry([restrictedDoc]);
+        _repository.Write(document.DocumentId, document.Data, restrictedDoc.SourcePatientInfo.PatientId.Id);
+
+        var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-39_request.xml")));
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        var iti39Request = sxmls.DeserializeXmlString<SoapEnvelope>(iti39SoapEnvelope);
+
+        iti39Request.Body.RetrieveDocumentSetRequest?.DocumentRequest =
+        [
+            new DocumentRequestType()
+            {
+                DocumentUniqueId = restrictedDoc.UniqueId,
+                RepositoryUniqueId = _applicationConfig.RepositoryUniqueId,
+                HomeCommunityId = _applicationConfig.HomeCommunityId,
+            }
+        ];
+
+        iti39SoapEnvelope = sxmls.SerializeSoapMessageToXmlString(iti39Request).Content;
+
+        var crossGatewayRetrieve = GetSoapEnvelopeWithHelsenorgeSamlToken(iti39SoapEnvelope);
+
+        var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
+
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
+
+        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+
+        var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
+
+
+        // Cleanup
+        await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+
+        Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(1, retrieveDocumentSetResponse?.Body.RetrieveDocumentSetResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
 

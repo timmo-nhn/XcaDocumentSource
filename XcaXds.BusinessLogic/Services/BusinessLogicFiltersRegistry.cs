@@ -5,7 +5,7 @@ using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
-using XcaXds.Shared.Constants;
+using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;

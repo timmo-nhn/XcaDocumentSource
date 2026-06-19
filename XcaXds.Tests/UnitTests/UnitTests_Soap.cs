@@ -1,7 +1,7 @@
 using System.Xml;
-using XcaXds.Shared.Constants;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
+using XcaXds.Shared;
 
 namespace XcaXds.Tests.UnitTests;
 

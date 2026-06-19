@@ -1,10 +1,6 @@
 ﻿using Hl7.Fhir.Model;
-using System.Globalization;
 using Hl7.Fhir.Serialization;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Hl7.DataType;
-using XcaXds.Shared.Constants;
 
 namespace XcaXds.Commons.Extensions;
 

@@ -1,4 +1,5 @@
 ﻿using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Source.Models.DatabaseDtos;
 using XcaXds.Source.Models.DatabaseDtos.Types;
 
