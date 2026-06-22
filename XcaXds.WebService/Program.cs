@@ -228,7 +228,7 @@ public class Program
         builder.Services.AddSingleton<TerminologySourcesRegistryService>();
 
         // Validation and certificate services
-        builder.Services.AddSingleton<Saml2Validator>();
+        builder.Services.AddSingleton<SamlValidatorService>();
         builder.Services.AddSingleton<SigningCertificateFetcherService>();
 
         // "Meta" and status related services

@@ -4,9 +4,9 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace XcaXds.WebService.Services;
 
-public class Saml2Validator
+public class SamlValidatorService
 {
-    private readonly ILogger<Saml2Validator> _logger;
+    private readonly ILogger<SamlValidatorService> _logger;
     private readonly Saml2SecurityTokenHandler _saml2Handler = new Saml2SecurityTokenHandler();
     private readonly ApplicationConfig _appConfig;
     private readonly SigningCertificateFetcherService _signingCertificateService;
@@ -14,14 +14,19 @@ public class Saml2Validator
     private string[]? SigningCertificates;
     private TokenValidationParameters ValidationParameters = default!;
 
-    public Saml2Validator(ILogger<Saml2Validator> logger, ApplicationConfig applicationConfig, SigningCertificateFetcherService signingCertificateService)
+    public SamlValidatorService(ILogger<SamlValidatorService> logger, ApplicationConfig applicationConfig, SigningCertificateFetcherService signingCertificateService)
     {
         _logger = logger;
         _appConfig = applicationConfig;
         _signingCertificateService = signingCertificateService;
     }
 
-    public async Task<Saml2Validator> CreateSamlValidator()
+    public TokenValidationParameters GetSamlValidationParameters()
+    {
+        return ValidationParameters;
+    }
+
+    public async Task<SamlValidatorService> CreateSamlValidator()
     {
         if (ValidationParameters != null) return this;
 

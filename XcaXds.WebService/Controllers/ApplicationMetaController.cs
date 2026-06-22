@@ -39,6 +39,7 @@ public class ApplicationMetaController : ControllerBase
     private readonly DocumentListFiltererService _documentListFiltererService;
     private readonly BusinessRulesDescriptorService _businessRulesDescriptorService;
     private readonly IVariantFeatureManager _featureManager;
+    private readonly SamlValidatorService _samlValidatorService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
 
@@ -54,7 +55,8 @@ public class ApplicationMetaController : ControllerBase
         TerminologyService terminologyService,
         IVariantFeatureManager featureManager,
         DocumentListFiltererService documentListFiltererService,
-        BusinessRulesDescriptorService businessRulesDescriptorService)
+        BusinessRulesDescriptorService businessRulesDescriptorService,
+        SamlValidatorService samlValidatorService)
     {
         _logger = logger;
         _appConfig = xdsConfig;
@@ -68,6 +70,7 @@ public class ApplicationMetaController : ControllerBase
         _terminologyService = terminologyService;
         _documentListFiltererService = documentListFiltererService;
         _businessRulesDescriptorService = businessRulesDescriptorService;
+        _samlValidatorService = samlValidatorService;
     }
 
     [HttpGet("health-check")]
@@ -185,6 +188,13 @@ public class ApplicationMetaController : ControllerBase
     public async Task<IActionResult> GetXdsConfig()
     {
         return Ok(_appConfig);
+    }
+
+    [Produces("application/json")]
+    [HttpGet("about/samlvalidationparameters")]
+    public async Task<IActionResult> GetSamlValidationParameters()
+    {
+        return Ok(_samlValidatorService.GetSamlValidationParameters());
     }
 
     [RequiresApiKey]

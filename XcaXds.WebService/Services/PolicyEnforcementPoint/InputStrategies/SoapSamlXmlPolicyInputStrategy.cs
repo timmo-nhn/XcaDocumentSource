@@ -15,8 +15,8 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 {
     private readonly PolicyRequestMapperSamlService _policyRequestMapperSamlService;
     private readonly ILogger<SoapSamlXmlPolicyInputStrategy> _logger;
-    private readonly Saml2Validator _samlValidator;
-    public SoapSamlXmlPolicyInputStrategy(ILogger<SoapSamlXmlPolicyInputStrategy> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService, Saml2Validator samlValidator)
+    private readonly SamlValidatorService _samlValidator;
+    public SoapSamlXmlPolicyInputStrategy(ILogger<SoapSamlXmlPolicyInputStrategy> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService, SamlValidatorService samlValidator)
     {
         _logger = logger;
         _policyRequestMapperSamlService = policyRequestMapperSamlService;
