@@ -1,6 +1,6 @@
 {
-  "systemOid": "formatCodes",
-  "systemUrl": "http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode",
+  "system": "formatCodes",
+  "alternativeSystems": ["http://ihe.net/fhir/ihe.formatcode.fhir/CodeSystem/formatcode"],
   "values": [
     {
       "value": "urn:ihe:iti:xds:2017:mimeTypeSufficient"

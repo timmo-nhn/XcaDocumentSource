@@ -19,9 +19,10 @@ RUN dotnet publish XcaXds.WebService/XcaXds.WebService.csproj -c Release -o /app
 # If you do not want the local directories to be included in the container,
 # comment the following lines and ensure the paths are correct.
 # Otherwise, these files can be mounted as volumes at runtime.
-COPY XcaXds.Source/Registry /app/registry
-COPY XcaXds.Source/Repository /app/repository
-COPY XcaXds.Source/PolicyRepository /app/policyrepository
+# COPY XcaXds.Source/Registry /app/registry
+# COPY XcaXds.Source/Repository /app/repository
+# COPY XcaXds.Source/PolicyRepository /app/policyrepository
+
 COPY XcaXds.Source/OfflineCodeSystems /app/offlinecodesystems
 
 ####################################################################################################

@@ -53,6 +53,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly XdsOnFhirTransformerService _xdsOnFhirTransformerService;
     internal readonly FhirResourceValidatorService _fhirResourceValidatorService;
     internal readonly BusinessLogicMapperService _businessLogicMapperService;
+    internal readonly DocumentObfuscationService _documentObfuscationService;
     internal readonly INinParser _ninParser;
 
     internal readonly IServiceScope _scope;
@@ -117,6 +118,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _registry = _scope.ServiceProvider.GetRequiredService<IRegistry>();
         _repository = _scope.ServiceProvider.GetRequiredService<IRepository>();
 
+        _documentObfuscationService = _scope.ServiceProvider.GetRequiredService<DocumentObfuscationService>();
         _applicationConfig = _scope.ServiceProvider.GetRequiredService<ApplicationConfig>();
         _terminologyService = _scope.ServiceProvider.GetRequiredService<TerminologyService>();
         _fhirResourceValidatorService = _scope.ServiceProvider.GetRequiredService<FhirResourceValidatorService>();

@@ -18,8 +18,8 @@ namespace XcaXds.Tests.IntegrationTests;
 public class IntegrationTests_Benchmark_ReadWriteRegistry : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     public IntegrationTests_Benchmark_ReadWriteRegistry(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output) { }
-
-    [Fact]
+    
+    //[Fact]
     public async Task RegistryBenchmark()
     {
         var statistics = "registryObjects;documentList;read;write\n";

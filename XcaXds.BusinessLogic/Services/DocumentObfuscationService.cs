@@ -35,19 +35,28 @@ public class DocumentObfuscationService
     /// Will not remove the entry from the result list! </para>
     /// Metadata which does not explicitly reveal the document content will be preserved, so the DocumentEntry can be properly displayed (authorInstitution, healthcarefacilitytypecode)
     /// </summary>
-    public void ObfuscateRestrictedDocumentEntries(List<IdentifiableType> identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
+    public List<IdentifiableType> ObfuscateRestrictedDocumentEntries(List<IdentifiableType>? identifiableTypes, BusinessLogicParameters? businessLogic, out int obfuscatedEntriesCount)
     {
         obfuscatedEntriesCount = 0;
 
         var organizationValues = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities);
-        var valuesToIgnore = organizationValues.GetByValue("Organization");
+        var valuesToIgnore = organizationValues.GetByValue("Organization")?.Value;
 
-        if (identifiableTypes == null) return;
+        if ((identifiableTypes?.Count > 0) == false) return [];
 
         var requestAppliesTo = businessLogic?.AppliesTo ?? AppliesTo.Unknown;
 
-        var eTreat = _purposeOfUse.GetByValue("ETREAT");
-        var btg = _purposeOfUse.GetByValue("BTG");
+        var codesThatOverrideObfuscation = new[]
+        {
+            _purposeOfUse.GetByValue("ETREAT")?.Value,
+            _purposeOfUse.GetByValue("BTG")?.Value,
+        };
+
+        var test = new[]
+                {
+            _purposeOfUse.GetByValue("ETREAT"),
+            _purposeOfUse.GetByValue("BTG"),
+        };
 
         foreach (var identifiableType in identifiableTypes)
         {
@@ -68,7 +77,7 @@ public class DocumentObfuscationService
                 };
 
                 // Dont obscure in emergency situations
-                if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(eTreat, btg) == true)
+                if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(codesThatOverrideObfuscation) == true)
                 {
                     obfuscate = false;
                 }
@@ -103,6 +112,8 @@ public class DocumentObfuscationService
                 obfuscatedEntriesCount++;
             }
         }
+
+        return identifiableTypes;
     }
 
     private void ObfuscateExternalIdentifier(ExternalIdentifierType? externalIdentifier, AppliesTo issuer = AppliesTo.Unknown)

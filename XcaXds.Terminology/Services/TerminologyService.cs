@@ -18,10 +18,10 @@ public class TerminologyService
 
     public void AddOrUpdateCodeSystem(string name, ComprehensiveCodeSystem[] codeSystems)
     {
-        if (CodeSystems.ContainsKey(name))
+        if (CodeSystems.TryGetValue(name, out var existingCodeSystems))
         {
             _logger.LogInformation($"Adding to existing code system '{name}' with {codeSystems.Length} entries...");
-            CodeSystems[name] = CodeSystems[name].Concat(codeSystems).ToArray();
+            CodeSystems[name] = existingCodeSystems.Concat(codeSystems).ToArray();
         }
         else
         {
@@ -40,7 +40,7 @@ public class TerminologyService
 
     public ComprehensiveCodeSystem[] GetCodeSystemBySystem(string system)
     {
-        return CodeSystems.Values.SelectMany(cs => cs).Where(cs => cs.SystemOid == system || cs.SystemUrl == system).ToArray();
+        return CodeSystems.Values.SelectMany(cs => cs).Where(cs => cs.System == system || cs.SystemsAlternate?.Any(aSys => aSys == system) == true).ToArray();
     }
 
     public string[]? GetValueFromCodeSystemByName(string codeSystemName, string inputValue)
@@ -73,9 +73,9 @@ public class TerminologyService
 
     public KeyValuePair<string, string>? GetValueFromCodeSystem(ComprehensiveCodeSystem[]? codeSystems, string inputValue)
     {
-        _logger.LogDebug($"Getting value '{inputValue}' from code systems '{string.Join(", ", codeSystems?.Select(cc => cc.SystemOid) ?? [])}'");
+        _logger.LogDebug($"Getting value '{inputValue}' from code systems '{string.Join(", ", codeSystems?.Select(cc => cc.System) ?? [])}'");
 
-        var fetchedValue = codeSystems.GetByValueOid(inputValue);
+        var fetchedValue = codeSystems.GetByValueSystem(inputValue);
 
         if (fetchedValue != null)
         {
@@ -84,7 +84,7 @@ public class TerminologyService
             return fetchedValue;
         }
 
-        _logger.LogWarning($"Could not find value '{inputValue}' in code systems '{string.Join(", ", codeSystems?.Select(cc => cc.SystemOid) ?? [])}'");
+        _logger.LogWarning($"Could not find value '{inputValue}' in code systems '{string.Join(", ", codeSystems?.Select(cc => cc.System) ?? [])}'");
 
         return null;
     }

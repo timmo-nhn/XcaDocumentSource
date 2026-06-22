@@ -1,5 +1,5 @@
 {
-  "systemUrl": "SamlAttributes",
+  "system": "SamlAttributes",
   "values": [
     {
       "value": "urn:oasis:names:tc:xspa:1.0:subject:subject-id",

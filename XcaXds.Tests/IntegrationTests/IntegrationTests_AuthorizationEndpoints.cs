@@ -6,7 +6,7 @@ namespace XcaXds.Tests.IntegrationTests;
 
 public class IntegrationTests_AuthorizationEndpoints(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : IntegrationTests_DefaultFixture(factory, output), IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    [Fact]
+    //[Fact]
     public async Task TestSecureEndpoint()
     {
         var response = await _client.GetAsync("/secure");

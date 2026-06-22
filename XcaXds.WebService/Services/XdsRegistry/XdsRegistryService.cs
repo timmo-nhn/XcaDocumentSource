@@ -699,7 +699,7 @@ public partial class XdsRegistryService
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {enumeratedEntriesResult.Count}");
             }
 
-            _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
+            enumeratedEntriesResult = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
 
             if (obfuscateCount > 0)
             {

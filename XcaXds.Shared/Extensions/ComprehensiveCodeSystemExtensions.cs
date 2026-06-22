@@ -8,19 +8,19 @@ public static class ComprehensiveCodeSystemExtensions
 {
     public static string[]? SystemOids(this IEnumerable<ComprehensiveCodeSystem> source)
     {
-        return [.. source.Select(ccs => ccs.SystemOid).OfType<string>()];
+        return [.. source.Select(ccs => ccs.System).OfType<string>()];
     }
 
     public static string[]? SystemUrls(this IEnumerable<ComprehensiveCodeSystem> source)
     {
-        return [.. source.Select(ccs => ccs.SystemUrl).OfType<string>()];
+        return [.. source.SelectMany(ccs => ccs.SystemsAlternate ?? []).OfType<string>()];
     }
 
     public static CodeSystemValue[]? Values(this IEnumerable<ComprehensiveCodeSystem> source, string system)
     {
         return source.Where(sys =>
-            sys.SystemOid?.NoUrn() == system.NoUrn() ||
-            sys.SystemUrl == system.NoUrn())?
+            sys.System?.NoUrn() == system.NoUrn() ||
+            sys.SystemsAlternate?.Any(alt => alt.NoUrn() == system.NoUrn()) == true)?
             .Values()?.ToArray();
     }
 
@@ -34,19 +34,19 @@ public static class ComprehensiveCodeSystemExtensions
     /// <summary>
     /// Get a certain value, and its associated system. If the value is not found, returns null.
     /// </summary>
-    public static KeyValuePair<string, string>? GetByValueOid(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
+    public static KeyValuePair<string, string>? GetByValueSystem(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
     {
         var ss = source?.SelectMany(v => v.Values ?? []);
         var returnValue = ss?.FirstOrDefault(v => v.Value == value);
 
         var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true);
 
-        if (systemForValue == null || string.IsNullOrWhiteSpace(systemForValue?.SystemOid) || string.IsNullOrWhiteSpace(returnValue?.Value))
+        if (systemForValue == null || string.IsNullOrWhiteSpace(systemForValue?.System) || string.IsNullOrWhiteSpace(returnValue?.Value))
         {
             return null;
         }
 
-        return new(systemForValue.SystemOid, returnValue.Value);
+        return new(systemForValue.System, returnValue.Value);
     }
 
     /// <summary>
@@ -61,27 +61,10 @@ public static class ComprehensiveCodeSystemExtensions
     /// <summary>
     /// Get a certain value, and its associated system, based on the name. If the value is not found, returns null.
     /// </summary>
-    public static string? GetByValue(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
+    public static CodeSystemValue? GetByValue(this IEnumerable<ComprehensiveCodeSystem>? source, string value)
     {
         var ss = source?.SelectMany(v => v.Values ?? []);
-        return ss?.FirstOrDefault(v => v.Value == value)?.Value;
-    }
-
-    /// <summary>
-    /// Get a certain value, and its associated system. If the value is not found, returns null.
-    /// </summary>
-    public static KeyValuePair<string, string>? GetByValueSystemUrl(this IEnumerable<ComprehensiveCodeSystem> source, string value)
-    {
-        var returnValue = source?.SelectMany(v => v.Values ?? []).FirstOrDefault(v => v.Value == value);
-
-        var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true);
-
-        if (systemForValue != null && string.IsNullOrWhiteSpace(systemForValue?.SystemUrl) && string.IsNullOrWhiteSpace(returnValue?.Value))
-        {
-            return null;
-        }
-
-        return new(systemForValue!.SystemUrl!, returnValue!.Value!);
+        return ss?.FirstOrDefault(v => v.Value == value);
     }
 
     public static ValueTuple<string, string>? AsTuple(this KeyValuePair<string, string>? source)
@@ -91,6 +74,11 @@ public static class ComprehensiveCodeSystemExtensions
             return (source.Value.Key, source.Value.Value);
         }
         return null;
+    }
+
+    public static CodedValue[]? AsCodedValue(this KeyValuePair<string, string>[]? source)
+    {
+        return source?.Select(s => new CodedValue(s.Key, s.Value)).ToArrayOrNull();
     }
 
     public static CodedValue[]? AsCodedValue(this ValueTuple<string, string>[]? source)

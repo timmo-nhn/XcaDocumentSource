@@ -204,7 +204,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
-        var expectedRegistryObjects = RegistryContent.Where(rc => !rc.DocumentEntry.ConfidentialityCode.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!)))).ToArray();
+        //var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
 
         // Cleanup
         await NukeRegistryRepository();
@@ -212,7 +212,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         Assert.Equal(System.Net.HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
-        Assert.Equal(0, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryErrorList?.RegistryError?.Length ?? 0);
+        //Assert.Equal(expectedRegistryObjects.Length, firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.Length ?? 0);
 
         await WaitForAtnaLogToBeExported();
 

@@ -84,22 +84,22 @@ public class BusinessLogicFiltersRegistry
         var confidentialityCode = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
         var acp = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.Acp);
 
-        BTG = purposeOfUse.GetByValueOid("BTG")?.Value!;
-        COC = purposeOfUse.GetByValueOid("COC")?.Value!;
-        CAREMGT = purposeOfUse.GetByValueOid("CAREMGT")?.Value!;
-        ETREAT = purposeOfUse.GetByValueOid("ETREAT")?.Value!;
-        FAMRQT = purposeOfUse.GetByValueOid("FAMRQT")?.Value!;
-        PATRQT = purposeOfUse.GetByValueOid("PATRQT")?.Value!;
-        PWATRNY = purposeOfUse.GetByValueOid("PWATRNY")?.Value!;
-        TREAT = purposeOfUse.GetByValueOid("TREAT")?.Value!;
-        ClinicalCare_1 = purposeOfUse.GetByValueOid("1")?.Value!;
-        EmergencyCare_2 = purposeOfUse.GetByValueOid("2")?.Value!;
-        Management_5 = purposeOfUse.GetByValueOid("5")?.Value!;
-        SubjectOfCare_13 = purposeOfUse.GetByValueOid("13")?.Value!;
+        BTG = purposeOfUse.GetByValueSystem("BTG")?.Value!;
+        COC = purposeOfUse.GetByValueSystem("COC")?.Value!;
+        CAREMGT = purposeOfUse.GetByValueSystem("CAREMGT")?.Value!;
+        ETREAT = purposeOfUse.GetByValueSystem("ETREAT")?.Value!;
+        FAMRQT = purposeOfUse.GetByValueSystem("FAMRQT")?.Value!;
+        PATRQT = purposeOfUse.GetByValueSystem("PATRQT")?.Value!;
+        PWATRNY = purposeOfUse.GetByValueSystem("PWATRNY")?.Value!;
+        TREAT = purposeOfUse.GetByValueSystem("TREAT")?.Value!;
+        ClinicalCare_1 = purposeOfUse.GetByValueSystem("1")?.Value!;
+        EmergencyCare_2 = purposeOfUse.GetByValueSystem("2")?.Value!;
+        Management_5 = purposeOfUse.GetByValueSystem("5")?.Value!;
+        SubjectOfCare_13 = purposeOfUse.GetByValueSystem("13")?.Value!;
 
-        Normal = confidentialityCode.GetByValueOid("N")?.Value!;
-        Restricted = confidentialityCode.GetByValueOid("R")?.Value!;
-        VeryRestricted = confidentialityCode.GetByValueOid("V")?.Value!;
+        Normal = confidentialityCode.GetByValueSystem("N")?.Value!;
+        Restricted = confidentialityCode.GetByValueSystem("R")?.Value!;
+        VeryRestricted = confidentialityCode.GetByValueSystem("V")?.Value!;
 
         Acp.NullValue = acp.GetByName("NullValue")!;
         Acp.RepresentCitizenUnder12 = acp.GetByName("RepresentCitizenUnder12")!;
@@ -402,7 +402,7 @@ public class BusinessLogicFiltersRegistry
                         logic.Purpose.Code != null &&
 
                         logic.Subject.Code != logic.Resource.Code &&
-                        logic.Acp == Acp.NullValue &&
+                        logic.Acp == Acp.NullValue.NoUrn() &&
                         logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13),
 
                     Filter = _ => DenyAll()

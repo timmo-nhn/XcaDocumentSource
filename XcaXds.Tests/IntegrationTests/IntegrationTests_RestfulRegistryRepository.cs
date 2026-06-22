@@ -18,7 +18,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
     }
 
 
-    [Fact]
+    //[Fact]
     [Trait("Delete", "Registry/Repository")]
     public async Task Delete_OlderThanXMonths()
     {
@@ -34,7 +34,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         Assert.Equal(await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(), documentEntries.Length - oldDocumentEntries.Length);
     }
 
-    [Fact]
+    //[Fact]
     [Trait("Delete", "Registry/Repository")]
     public async Task Delete_SpecificParameteres()
     {

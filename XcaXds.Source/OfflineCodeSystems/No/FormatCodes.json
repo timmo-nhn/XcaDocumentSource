@@ -1,5 +1,5 @@
 {
-  "systemOid": "formatCodes",
+  "system": "formatCodes",
   "values": [
     {
       "value": "urn:no:ehelse:document:pdf"

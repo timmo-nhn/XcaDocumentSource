@@ -106,7 +106,7 @@ public class XdsOnFhirTransformerService
                 classCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode).FirstOrDefault()?.System
                     //UniversalId = Constants.CodeSystems.Volven.CategoryCode_9602.System
                 };
 
@@ -122,7 +122,7 @@ public class XdsOnFhirTransformerService
                 typeCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.TypeCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.TypeCode).FirstOrDefault()?.System
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.TypeCode, [typeCodeCx.Serialize()]);
@@ -137,7 +137,7 @@ public class XdsOnFhirTransformerService
                 eventCodeCx.AssigningAuthority ??= new()
                 {
                     UniversalIdType = Constants.Hl7.UniversalIdType.Iso,
-                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode).FirstOrDefault()?.SystemOid
+                    UniversalId = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ClassCode).FirstOrDefault()?.System
                 };
 
                 adhocQuery.AddSlot(Constants.Xds.QueryParameters.FindDocuments.EventCodeList, [eventCodeCx.Serialize()]);

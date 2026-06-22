@@ -25,7 +25,7 @@ public class DocumentListFiltererService
         BusinessLogicRules = _businessLogicFiltersRegistry.AllBusinessRules;
     }
 
-    public Dictionary<string, BusinessRule<IdentifiableType>> BusinessLogicRules = null;
+    public Dictionary<string, BusinessRule<IdentifiableType>> BusinessLogicRules = default!;
 
 
     public void AddRule(string key, BusinessRule<IdentifiableType> rule)

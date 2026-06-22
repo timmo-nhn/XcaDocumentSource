@@ -375,8 +375,8 @@ public class XdsRepositoryService
 
         var purposeOfUseSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Authentication.PurposeOfUse);
 
-        var ETREAT = purposeOfUseSystems.GetByValue("ETREAT");
-        var BTG = purposeOfUseSystems.GetByValue("BTG");
+        var ETREAT = purposeOfUseSystems.GetByValue("ETREAT")?.Value;
+        var BTG = purposeOfUseSystems.GetByValue("BTG")?.Value;
 
         // Dont obscure in emergency situations
         if (restricted && !string.IsNullOrWhiteSpace(businessLogicParameters?.Purpose?.Code) && businessLogicParameters.Purpose.Code.IsAnyOf(ETREAT, BTG) == true)

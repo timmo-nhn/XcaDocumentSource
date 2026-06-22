@@ -411,7 +411,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Validate bundle
         var provideBundleResult = await _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, validateOnly: true);
-        var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle, useFirelyValidator: true);
+        var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
 
         operationOutcome.Issue.AddRange(provideBundleResult.Outcome.Issue);
         operationOutcome.Issue.AddRange(validationResult.Issue);

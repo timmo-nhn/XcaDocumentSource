@@ -18,10 +18,7 @@ public class Hl7FhirCodeSystemMapper : ICodeSystemMapper
         _displayDiscriminator = displayDiscriminator;
     }
 
-    public Hl7FhirCodeSystemMapper()
-    {
-
-    }
+    public Hl7FhirCodeSystemMapper() { }
 
     public ComprehensiveCodeSystem? MapToComprehensiveCodeSystem(string rawInput)
     {
@@ -31,14 +28,14 @@ public class Hl7FhirCodeSystemMapper : ICodeSystemMapper
         var allConcepts = codeSystem.Concept
             .FirstOrDefault(c => string.IsNullOrWhiteSpace(_displayDiscriminator) || c.Display == _displayDiscriminator)?
             .Concept?.Select(c => new CodeSystemValue(c.Code, c.Display))
-            .ToArrayOrNull() 
+            .ToArrayOrNull()
             ??
             codeSystem.Concept
             .SelectMany(c => c.Concept)
             .Where(c => string.IsNullOrWhiteSpace(_displayDiscriminator) || c.Display == _displayDiscriminator)
             .Select(c => new CodeSystemValue(c.Code, c.Display))
-            .ToArrayOrNull() 
-            ?? 
+            .ToArrayOrNull()
+            ??
             codeSystem.Concept
             .Where(c => string.IsNullOrWhiteSpace(_displayDiscriminator) || c.Display == _displayDiscriminator)
             .Select(c => new CodeSystemValue(c.Code, c.Display))
@@ -46,8 +43,8 @@ public class Hl7FhirCodeSystemMapper : ICodeSystemMapper
 
         return new ComprehensiveCodeSystem()
         {
-            SystemOid = codeSystem.Identifier.FirstOrDefault()?.Value?.NoUrn(),
-            SystemUrl = codeSystem.Url,
+            System = codeSystem.Identifier.FirstOrDefault()?.Value?.NoUrn(),
+            SystemsAlternate = [.. new[] { codeSystem.Url }.OfType<string>()],
             Values = allConcepts
         };
     }
