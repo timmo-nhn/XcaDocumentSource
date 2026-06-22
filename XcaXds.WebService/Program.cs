@@ -304,8 +304,31 @@ public class Program
             builder.Configuration.GetSection("XdsConfiguration").Bind(apiKey);
         }
 
+        NormalizeDelimitedArrayConfig(builder, xdsConfig);
+
         builder.Services.AddSingleton(xdsConfig);
         builder.Services.AddSingleton(apiKey);
+    }
+
+    private static void NormalizeDelimitedArrayConfig(WebApplicationBuilder builder, ApplicationConfig xdsConfig)
+    {
+        var xdsConfigurationSection = builder.Configuration.GetSection("XdsConfiguration");
+
+        xdsConfig.CertificatesRaw = GetDelimitedArrayOrFallback(xdsConfigurationSection["CertificatesRaw"], xdsConfig.CertificatesRaw);
+        xdsConfig.SigningCertificateUrls = GetDelimitedArrayOrFallback(xdsConfigurationSection["SigningCertificateUrls"], xdsConfig.SigningCertificateUrls);
+        xdsConfig.ValidAudiences = GetDelimitedArrayOrFallback(xdsConfigurationSection["ValidAudiences"], xdsConfig.ValidAudiences);
+        xdsConfig.ValidIssuers = GetDelimitedArrayOrFallback(xdsConfigurationSection["ValidIssuers"], xdsConfig.ValidIssuers);
+    }
+
+    private static string[] GetDelimitedArrayOrFallback(string? rawValue, string[]? fallback)
+    {
+        if (!string.IsNullOrWhiteSpace(rawValue))
+        {
+            return rawValue
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        }
+
+        return fallback ?? [];
     }
 
     private static void ConfigureLoggingOptions(WebApplicationBuilder builder)

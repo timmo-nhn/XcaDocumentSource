@@ -24,9 +24,9 @@ public class SigningCertificateFetcherService
 
         var urls = _applicationConfig.SigningCertificateUrls;
 
-        var certificates = _applicationConfig.CertificatesRaw;
+        var fallbackDefinedCertificates = _applicationConfig.CertificatesRaw;
 
-        _logger.LogDebug($"Found {urls.Length} URLs to get certificates from: " + _applicationConfig.SigningCertificateUrls);
+        _logger.LogDebug($"Found {urls.Length} URLs to get certificates from: " + string.Join(", ",_applicationConfig.SigningCertificateUrls));
 
         try
         {
@@ -44,7 +44,7 @@ public class SigningCertificateFetcherService
         catch (Exception ex)
         {
             _logger.LogWarning("Error when fetching certificates, using fallback values defined in config variables\n" + ex.ToString());
-            return certificates;
+            return fallbackDefinedCertificates;
         }
     }
 
@@ -54,7 +54,7 @@ public class SigningCertificateFetcherService
         var content = await response.Content.ReadAsStringAsync();
 
         var jwk = JsonSerializer.Deserialize<Jwk>(content, Constants.JsonDefaultOptions.DefaultSettings);
-        var helsenorgeKey = jwk?.Keys?.FirstOrDefault()?.X5C?.FirstOrDefault();
-        return helsenorgeKey;
+        var x5cKey = jwk?.Keys?.FirstOrDefault()?.X5C?.FirstOrDefault();
+        return x5cKey;
     }
 }

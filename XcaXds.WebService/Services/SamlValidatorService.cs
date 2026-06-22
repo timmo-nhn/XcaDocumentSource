@@ -21,22 +21,22 @@ public class Saml2Validator
         _signingCertificateService = signingCertificateService;
     }
 
-    public async Task<bool> InitValidatorIfNotInited()
+    public async Task<Saml2Validator> CreateSamlValidator()
     {
-        if (ValidationParameters != null) return false;
+        if (ValidationParameters != null) return this;
 
         var certificates = await _signingCertificateService.GetSamlTokenSigningCertificatesFromExternalApis();
 
         SigningCertificates = certificates;
 
-        var idpCert = SigningCertificates.Select(cs => X509CertificateLoader.LoadCertificate(Convert.FromBase64String(cs)));
-        var signingKeys = idpCert.Select(idpC => new X509SecurityKey(idpC));
+        var idpCert = SigningCertificates.Select(cs => X509CertificateLoader.LoadCertificate(Convert.FromBase64String(cs))).ToArray();
+        var signingKeys = idpCert.Select(idpC => new X509SecurityKey(idpC)).ToArray();
 
-        ValidationParameters = new TokenValidationParameters
+        ValidationParameters = new TokenValidationParameters()
         {
             ClockSkew = TimeSpan.FromMinutes(5),
-            ValidAudiences = ["https://ptr1xds-reg.prod.drift.nhn.no/", "https://xds-web.test.nhn.no/", "nhn:dokumentdeling-saml"],
-            ValidIssuers = ["https://helseid-xdssaml.prod.drift.nhn.no", "https://helseid-xdssaml.test.nhn.no", "sikkerhet.helsenorge.no"],
+            ValidAudiences = _appConfig.ValidAudiences,
+            ValidIssuers = _appConfig.ValidIssuers,
 
             IssuerSigningKeys = signingKeys,
             ValidateAudience = true,
@@ -46,17 +46,18 @@ public class Saml2Validator
             RequireSignedTokens = true,
         };
 
-        return true;
+        return this;
     }
 
     public bool ValidateSamlToken(string samlXml, out string? validationMessage)
     {
         validationMessage = string.Empty;
         var token = _saml2Handler.ReadSaml2Token(samlXml);
+
         try
         {
             var unescapedSamlToken = System.Text.RegularExpressions.Regex.Unescape(samlXml);
-            var principal = _saml2Handler.ValidateToken(samlXml, ValidationParameters, out var validatedToken);
+            var principal = _saml2Handler.ValidateToken(unescapedSamlToken, ValidationParameters, out var validatedToken);
             //var principal = _saml2Handler.ValidateToken(unescapedSamlToken, _validationParameters, out var validatedToken); // Must use this for tokens from Kjernejournal portal? Tim: vi må diskutere dette nærmere
             var results = new List<bool>();
 
@@ -68,8 +69,7 @@ public class Saml2Validator
 
                 if (!chain.Build(x509Key.Certificate))
                 {
-                    validationMessage = string.Join(", ",
-                        chain.ChainStatus.Select(s => $"{s.Status}: {s.StatusInformation}"));
+                    validationMessage = string.Join(", ", chain.ChainStatus.Select(s => $"{s.Status}: {s.StatusInformation}"));
                     validationMessage = $"Certificate chain invalid: {validationMessage}";
                     results.Add(false);
                 }

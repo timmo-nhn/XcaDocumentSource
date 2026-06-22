@@ -69,8 +69,8 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
                 return PolicyInputResult.Fail($"{context.TraceIdentifier} - Fail! No SAML-token in request!");
             }
 
-            await _samlValidator.InitValidatorIfNotInited();
-            var tokenIsValid = _samlValidator.ValidateSamlToken(samlTokenString, out var message);
+            var validator = await _samlValidator.CreateSamlValidator();
+            var tokenIsValid = validator.ValidateSamlToken(samlTokenString, out var message);
 
             if (tokenIsValid == false)
             {
