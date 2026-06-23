@@ -1,13 +1,16 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace XcaXds.Shared.Extensions;
 
 public static class StringExtensions
 {
-    /// <summary>
-    /// Remove "urn:uuid:" and "urn:oid:" on the string
-    /// </summary>
-    public static string NoUrn(this string input)
+	private static readonly Regex OidRegex = new(@"^\d+(\.\d+)*$", RegexOptions.Compiled);
+
+	/// <summary>
+	/// Remove "urn:uuid:" and "urn:oid:" on the string
+	/// </summary>
+	public static string NoUrn(this string input)
     {
         if (string.IsNullOrEmpty(input))
         {
@@ -27,7 +30,20 @@ public static class StringExtensions
             return input;
         }
 
-        return $"urn:oid:{input.NoUrn()}";
+        // fyi: some other values I've come across during testing: 
+        // input which contains "http://"
+        // input which contains "*****" (restricted documents), sperrede dokumenter 
+        // input which is set to "Ukjent"
+        // input which is set to "infoflyt-api-test", seen for Usnobbet klokke (17855599120):
+
+        input = input.NoUrn(); 
+
+		if (OidRegex.IsMatch(input))
+		{
+			input = "urn:oid:" + input;
+		}
+
+		return input;
     }
 
     /// <summary>

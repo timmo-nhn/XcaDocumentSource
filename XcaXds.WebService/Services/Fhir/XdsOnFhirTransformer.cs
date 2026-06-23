@@ -1,4 +1,5 @@
 ﻿using Hl7.Fhir.Model;
+using System.Drawing;
 using System.Globalization;
 using System.Text;
 using XcaXds.Commons.DataManipulators.Tests;
@@ -447,12 +448,20 @@ public class XdsOnFhirTransformerService
         var contenType = assocExtrinsicObject.MimeType;
         var language = assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.LanguageCode)?.GetFirstValue();
         var url = "placeholder";
-        var size = long.MinValue;
-        if (long.TryParse(assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.Size)?.GetFirstValue() ?? "0", out var sizeLong))
+		// Note on size: R5 uses long as size and serializes to quoted string, but R4 uses unsignedInt as size and serializes to unquoted number. We will use unsignedInt for now,
+		// but this may need to be revisited if we want to support R5.
+		// As long as we use endpoint paths which starts with "/R4/" we should use R4 compatible serialization. If we want to support R5, we should use unsignedInt for size and serialize to unquoted number.
+		//var size = long.MinValue;
+		var sizeInt = int.MinValue;
+		/*if (long.TryParse(assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.Size)?.GetFirstValue() ?? "0", out var sizeLong)) // Only for R5
         {
             size = sizeLong;
-        }
-        var hash = Encoding.UTF8.GetBytes(assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.Hash)?.GetFirstValue() ?? "");
+        }*/
+		if (int.TryParse(assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.Size)?.GetFirstValue() ?? "0", out var sizeUnsignedInt)) // Only for R4
+		{
+			sizeInt = sizeUnsignedInt;
+		}
+		var hash = Encoding.UTF8.GetBytes(assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.Hash)?.GetFirstValue() ?? "");
         var title = assocExtrinsicObject.Name?.GetFirstValue();
 
         var creationSlot = assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.CreationTime)?.GetFirstValue();
@@ -464,7 +473,8 @@ public class XdsOnFhirTransformerService
             ContentType = contenType,
             Language = language,
             Url = url,
-            Size = size,
+            //Size = size,
+            SizeUnsignedInt = sizeUnsignedInt,
             Hash = hash,
             Title = title,
             Creation = creation
@@ -682,7 +692,13 @@ public class XdsOnFhirTransformerService
 
     private static Practitioner? GetPractitionerFromAuthorPerson(XCN? authorPerson)
     {
-        if (authorPerson == null) return null;
+        if (authorPerson == null
+            || (authorPerson.FamilyName == null
+			    && authorPerson.GivenName == null 
+                && authorPerson.MiddleName == null
+                && authorPerson.PersonIdentifier == null
+			    )
+            ) return null;
 
         var practitioner = new Practitioner();
         practitioner.Id = Guid.NewGuid().ToString();
