@@ -858,7 +858,7 @@ public static class RegistryMetadataTransformer
                 AssigningAuthority = new()
                 {
                     UniversalId = sourcePatientInfo?.PatientId?.System ?? string.Empty,
-                    UniversalIdType = sourcePatientInfo?.PatientId?.System ?? Constants.Hl7.UniversalIdType.Iso
+                    UniversalIdType = Constants.Hl7.UniversalIdType.Iso
                 }
             };
 
@@ -1093,7 +1093,7 @@ public static class RegistryMetadataTransformer
             AssigningAuthority = new HD()
             {
                 UniversalId = authorSpeciality.CodeSystem,
-                UniversalIdType = authorSpeciality.CodeSystem ?? Constants.Hl7.UniversalIdType.Iso
+                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
             }
         };
 
@@ -1111,7 +1111,7 @@ public static class RegistryMetadataTransformer
             AssigningAuthority = new HD()
             {
                 UniversalId = authorRole.CodeSystem,
-                UniversalIdType = authorRole.CodeSystem ?? Constants.Hl7.UniversalIdType.Iso
+                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
             }
         };
 

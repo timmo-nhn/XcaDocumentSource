@@ -270,7 +270,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
-        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
+        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
