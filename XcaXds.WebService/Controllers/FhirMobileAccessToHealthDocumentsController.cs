@@ -385,6 +385,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
 
+    [RequiresApiKey]
     [ExportsAtnaAuditLog]
     [Consumes("application/fhir+json", "application/fhir+xml")]
     [Produces("application/fhir+json", "application/fhir+xml")]
@@ -415,21 +416,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         operationOutcome.Issue.AddRange(provideBundleResult.Outcome.Issue);
         operationOutcome.Issue.AddRange(validationResult.Issue);
-
-        // Atna log generation
-        var jwtToken = Request.Headers.Authorization.FirstOrDefault();
-        var pdpDecision = (HttpContext.Items.TryGetValue("pdpDecision", out var decision) ? decision as AccessControlResponse : null)!;
-        var businessLogicResult = (HttpContext.Items.TryGetValue("businessLogicResult", out var blRes) ? blRes as Dictionary<string, int> : null)!;
-
-        var additionalParameters = new AdditionalParameters(HttpContext.Request.Method, HttpContext.TraceIdentifier, pdpDecision,businessLogicResult, HttpContext.Request.Path.Value);
-
-        var mockSoapResponse = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
-            additionalParameters,
-            jwtToken,
-            fhirBundle,
-            provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList);
-        
-        _atnaLoggingService.CreateAuditLogForSoapRequestResponse(additionalParameters, mockSoapResponse, provideBundleResult.RegistryResponse);
 
         var fhirSerializer = new FhirJsonSerializer();
 

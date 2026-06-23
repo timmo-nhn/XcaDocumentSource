@@ -701,13 +701,9 @@ public partial class XdsRegistryService
 
             enumeratedEntriesResult = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
 
-            if (obfuscateCount > 0)
-            {
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
-            }
+            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
 
             soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = [.. enumeratedEntriesResult];
-
         }
 
         return soapEnvelope;

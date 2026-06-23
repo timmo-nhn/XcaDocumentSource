@@ -952,7 +952,7 @@ public static class RegistryMetadataTransformer
                 AssigningAuthority = new()
                 {
                     UniversalId = legalAuthenticator.IdSystem,
-                    UniversalIdType = legalAuthenticator.IdSystem ?? Constants.Hl7.UniversalIdType.Iso
+                    UniversalIdType = Constants.Hl7.UniversalIdType.Iso
                 }
             };
 

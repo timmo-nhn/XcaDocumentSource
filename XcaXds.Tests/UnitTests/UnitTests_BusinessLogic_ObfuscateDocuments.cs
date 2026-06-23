@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.BusinessLogic.Services;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Models.Custom;
 using Xunit.Abstractions;
-using static XcaXds.Shared.Constants.Xds.Uuids;
 using static XcaXds.Tests.TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 
 using Task = System.Threading.Tasks.Task;
@@ -55,8 +53,8 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = "ETREAT", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" },
-            Subject = new("subject","code"),
-            Resource = new("resource","code"),
+            Subject = new("subject", "code"),
+            Resource = new("resource", "code"),
         };
 
         DocumentReferences = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(DocumentReferences, businessLogic, out var obfuscated);
@@ -77,14 +75,18 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" },
-            Subject = new("subject","system"),
+            Subject = new("subject", "system"),
             Resource = new("subject", "system"),
             SubjectAge = 21
         };
 
         var initialCount = DocumentReferences.Count;
 
+        var sxmls = new SoapXmlSerializer();
+
         DocumentReferences = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(DocumentReferences, businessLogic, out var obfuscated);
+        var extobj = sxmls.SerializeSoapMessageToXmlString(DocumentReferences);
+
         DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var entries).ToList();
 
         Assert.Equal(2, obfuscated);
@@ -102,14 +104,14 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
             Acp = TestConstants.Acp.RepresentAnotherCitizen,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             SubjectOrganization = new() { Code = "Norsk Helsenett" },
-            Subject = new("subject","system"),
+            Subject = new("subject", "system"),
             Resource = new("resource", "system"),
             SubjectAge = 21
         };
 
         var initialCount = DocumentReferences.Count;
 
-        DocumentReferences = DocumentReferences = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(DocumentReferences, businessLogic, out var obfuscated);
+        DocumentReferences = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(DocumentReferences, businessLogic, out var obfuscated);
         DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var entries).ToList();
 
         Assert.Equal(2, obfuscated);
@@ -138,7 +140,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
     private void SetupDocumentReferencesWithConfidentialityCodes()
     {
         DocumentReferences = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(
-        [ 
+        [
             new DocumentEntryDto()
             {
                 ConfidentialityCode =
@@ -154,6 +156,13 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                         Code = "othercodethatshouldntaffectlogic"
                     }
                 ],
+                LegalAuthenticator = new()
+                {
+                    Id = "123123123",
+                    IdSystem = "1.2.3.4",
+                    FirstName = "Sky",
+                    LastName = "Bert"
+                }
             },
 
             new DocumentEntryDto()
@@ -161,7 +170,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                 ConfidentialityCode =
                 [
                     .. _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate()
-                   .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
+                   .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
                     new()
                     {
                         CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
@@ -169,13 +178,20 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                     }
 
                 ],
+                LegalAuthenticator = new()
+                {
+                    Id = "123123123",
+                    IdSystem = "1.2.3.4",
+                    FirstName = "Sky",
+                    LastName = "Bert"
+                }
             },
             new DocumentEntryDto()
             {
                 ConfidentialityCode =
                 [
                     .. _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate()
-                   .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
+                   .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
                     new()
                     {
                         CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
@@ -183,6 +199,13 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                     }
 
                 ],
+                LegalAuthenticator = new()
+                {
+                    Id = "123123123",
+                    IdSystem = "1.2.3.4",
+                    FirstName = "Sky",
+                    LastName = "Bert"
+                }
             },
 
             new DocumentEntryDto()
@@ -190,7 +213,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                 ConfidentialityCode =
                 [
                     .. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate()
-                    .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
+                    .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
                     new()
                     {
                         CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
@@ -198,13 +221,20 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                     }
 
                 ],
+                LegalAuthenticator = new()
+                {
+                    Id = "123123123",
+                    IdSystem = "1.2.3.4",
+                    FirstName = "Sky",
+                    LastName = "Bert"
+                }
             },
             new DocumentEntryDto()
             {
                 ConfidentialityCode =
                 [
                     .. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate()
-                    .Select(p => new CodedValue() { CodeSystem = p.Item2, Code = p.Item1 }),
+                    .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
                     new()
                     {
                         CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
@@ -212,6 +242,13 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                     }
 
                 ],
+                LegalAuthenticator = new()
+                {
+                    Id = "123123123",
+                    IdSystem = "1.2.3.4",
+                    FirstName = "Sky",
+                    LastName = "Bert"
+                }
             }
         ]).ToList();
     }

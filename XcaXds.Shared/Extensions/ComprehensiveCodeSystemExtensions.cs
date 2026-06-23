@@ -76,6 +76,15 @@ public static class ComprehensiveCodeSystemExtensions
         return null;
     }
 
+    public static ValueTuple<string, string>? Reverse(this ValueTuple<string, string>? source)
+    {
+        if (source.HasValue)
+        {
+            return (source.Value.Item2, source.Value.Item1);
+        }
+        return null;
+    }
+
     public static CodedValue[]? AsCodedValue(this KeyValuePair<string, string>[]? source)
     {
         return source?.Select(s => new CodedValue(s.Key, s.Value)).ToArrayOrNull();

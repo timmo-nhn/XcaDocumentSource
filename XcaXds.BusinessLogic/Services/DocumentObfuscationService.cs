@@ -52,11 +52,8 @@ public class DocumentObfuscationService
             _purposeOfUse.GetByValue("BTG")?.Value,
         };
 
-        var test = new[]
-                {
-            _purposeOfUse.GetByValue("ETREAT"),
-            _purposeOfUse.GetByValue("BTG"),
-        };
+        var healthcatePersonellCodes = _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate();
+        var citizenCodes = _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate();
 
         foreach (var identifiableType in identifiableTypes)
         {
@@ -69,10 +66,11 @@ public class DocumentObfuscationService
                         CodeSystem = cls.GetFirstSlot()?.GetFirstValue()
                     }).ToArray();
 
+
                 bool obfuscate = requestAppliesTo switch
                 {
-                    AppliesTo.HelseId => confCodes.Any(ccode => _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
-                    AppliesTo.Helsenorge => confCodes.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.HelseId => confCodes.Any(ccode => healthcatePersonellCodes.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.Helsenorge => confCodes.Any(ccode => citizenCodes.Contains((ccode.Code!, ccode.CodeSystem!))),
                     _ => false
                 };
 
