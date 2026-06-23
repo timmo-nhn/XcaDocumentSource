@@ -72,13 +72,13 @@ public static class Hl7FhirExtensions
         return new DateTime(date.Ticks - date.Ticks % roundTicks, date.Kind);
     }
 
-    public static ResourceReference GetResourceAsResourceReference(Resource resource)
+    public static ResourceReference GetAsResourceReference(this Resource resource)
     {
         return new ResourceReference() { Reference = $"#{resource.Id}" };
     }
 
-    public static List<ResourceReference> GetResourceAsResourceReference(List<Resource> resource)
+    public static List<ResourceReference> GetAsResourceReference(this List<Resource> resource)
     {
-        return resource.Select(res => GetResourceAsResourceReference(res)).ToList();
+        return resource.Select(res => GetAsResourceReference(res)).ToList();
     }
 }

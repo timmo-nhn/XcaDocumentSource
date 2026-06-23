@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -256,7 +255,7 @@ public class XdsOnFhirTransformerService
             if (patientResource != null)
             {
                 documentReference.Contained.Add(patientResource);
-                documentReference.Subject = Hl7FhirExtensions.GetResourceAsResourceReference(patientResource);
+                documentReference.Subject = patientResource.GetAsResourceReference();
             }
 
             // Add Author
@@ -264,7 +263,7 @@ public class XdsOnFhirTransformerService
             if (authorResources != null)
             {
                 documentReference.Contained.AddRange(authorResources);
-                documentReference.Author = Hl7FhirExtensions.GetResourceAsResourceReference(authorResources);
+                documentReference.Author = authorResources.GetAsResourceReference();
             }
 
             // Authenticator
@@ -272,7 +271,7 @@ public class XdsOnFhirTransformerService
             if (authenticator != null)
             {
                 documentReference.Contained.Add(authenticator);
-                documentReference.Authenticator = Hl7FhirExtensions.GetResourceAsResourceReference(authenticator);
+                documentReference.Authenticator = authenticator.GetAsResourceReference();
             }
 
             // RelatesTo (XDS Associations -> FHIR relatesTo)
@@ -552,12 +551,12 @@ public class XdsOnFhirTransformerService
             var departmentSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.FirstOrDefault();
 
             authorInstitution = authorInstitutionValues
-                .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||
-                                            authInst?.AssigningAuthority?.UniversalId == organizationSystem);
+                .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId == organizationSystem || authInst?.AssigningAuthority?.UniversalId != null
+                                            );
 
             authorDepartment = authorInstitutionValues
-                .LastOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId != null ||
-                                           authInst?.AssigningAuthority?.UniversalId == departmentSystem);
+                .LastOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId == departmentSystem || authInst?.AssigningAuthority?.UniversalId != null
+                                           );
 
             // If department and institution was the same, nullify department to avoid creating duplicates
             if (authorInstitution != null && authorDepartment != null && authorInstitution.OrganizationName == authorDepartment.OrganizationName)

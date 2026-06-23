@@ -34,7 +34,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_getdocumentreference",
+            policyName: "IT_machine_getdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "ReadDocumentList",
@@ -73,6 +73,84 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     }
 
     [Fact]
+    [Trait("Fetch", "Get DocumentReference")]
+    public async Task DocumentReference_GetDocumentReference_Dept()
+    {
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_machine_providebundle",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "Create",
+            noCode: true);
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_machine_getdocumentreference",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "ReadDocumentList",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var registryObjects = RegistryContent.AsRegistryObjectDtos();
+
+        var registryContentCount = registryObjects.Count();
+
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle02.json")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
+
+        var fhirParser = new FhirJsonDeserializer();
+        var fhirBundle = fhirParser.DeserializeResource(fhirProvideBundle);
+
+        var provideBundleDocumentUniqueId = fhirBundle is Bundle bundle 
+            ? bundle.Entry
+                .Select(e => e.Resource)
+                .OfType<Binary>()
+                .FirstOrDefault().Id
+            : null;
+
+        var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
+
+        var uploadHttpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle")
+        {
+            Content = stringContent
+        };
+
+        uploadHttpRequest.Headers.Add("Authorization", jsonWebToken);
+        var expectedCount = RegistryContent.Count + 1;
+        var firstResponse = await _client.SendAsync(uploadHttpRequest);
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/R4/fhir/DocumentReference/{provideBundleDocumentUniqueId}");
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+        var secondResponse = await _client.SendAsync(httpRequest);
+
+        Assert.Equal(HttpStatusCode.OK, secondResponse.StatusCode);
+
+        var content = await secondResponse.Content.ReadAsStringAsync();
+
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
+        _output.WriteLine("DocumentReference: " + content);
+    }
+
+    [Fact]
     [Trait("Delete", "Delete DocumentReference")]
     public async Task DeleteDocumentsAndMetadata_ExportsAtnaLog_IAC()
     {
@@ -91,7 +169,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_deletedocuments",
+            policyName: "IT_machine_deletedocuments",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeDeleteDocument,
             action: "Delete",
@@ -221,7 +299,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_patchdocumentreference",
+            policyName: "IT_" +
+            "machine_patchdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Update",
@@ -281,7 +360,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_patchdocumentreference",
+            policyName: "IT_" +
+            "machine_patchdocumentreference",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Update",
@@ -348,7 +428,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         //_policyRepositoryService.DeleteAllPolicies();
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_providebundle",
+            policyName: "IT_" +
+            "machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Create",
@@ -406,7 +487,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_providebundle",
+            policyName: "IT_machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Create",
@@ -483,7 +564,8 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         TestHelpers.AddAccessControlPolicyForIntegrationTest(
             _policyRepositoryService,
-            policyName: "DEFAULT_machine_providebundle",
+            policyName: "IT_" +
+            "machine_providebundle",
             attributeId: Constants.Saml.Attribute.EhelseScope,
             codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
             action: "Create",

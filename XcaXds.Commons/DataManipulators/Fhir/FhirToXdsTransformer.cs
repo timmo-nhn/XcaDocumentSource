@@ -644,11 +644,10 @@ public class FhirToXdsTransformerService
                         Location = ["DocumentReference.Author"]
                     });
                     break;
-            }
-            ;
+            };
         }
 
-        /*- Special case => just 1 practitioner and 1 organization provided in DocumentReference - without any practitinerRole -*/
+        /*- Special case => just 1 practitioner and 1 organization provided in DocumentReference - without any practitionerRole -*/
         if ((listPractitioner.Count == 1) && (listOrganization.Count == 1) && (listPractitionerRole.Count == 0))
         {
             var listAuthorSlots = new List<SlotType>();
@@ -1347,7 +1346,6 @@ public class FhirToXdsTransformerService
         ref List<SlotType> listAuthorSlots,
         ref OperationOutcome operationOutcome)
     {
-
         // Department
         var refAuthorDept = GetAuthorDepartment(documentReference, listOrganization, orgReference, out var deptOrgReference);
 
@@ -1384,7 +1382,7 @@ public class FhirToXdsTransformerService
         {
             var refAuthorOrgNameOnly = new XON()
             {
-                OrganizationName = refAuthorOrg!.OrganizationName
+                OrganizationName = refAuthorOrg.OrganizationName
             };
 
             var refAuthorOrgNameOnlyString = refAuthorOrgNameOnly.Serialize();
@@ -1392,15 +1390,16 @@ public class FhirToXdsTransformerService
 
             var authorInstitutionSlot = new SlotType("authorInstitution");
 
-            authorInstitutionSlot.AddValue(refAuthorOrgString);
-            authorInstitutionSlot.AddValue(refAuthorOrgNameOnlyString);
-
             var refAuthorDeptString = refAuthorDept?.Serialize();
 
             if (!string.IsNullOrWhiteSpace(refAuthorDeptString))
             {
                 authorInstitutionSlot.AddValue(refAuthorDeptString);
             }
+
+            authorInstitutionSlot.AddValue(refAuthorOrgNameOnlyString);
+
+            authorInstitutionSlot.AddValue(refAuthorOrgString);
 
             listAuthorSlots.Add(authorInstitutionSlot);
         }
@@ -1547,7 +1546,6 @@ public class FhirToXdsTransformerService
 
         foreach (var orgRef in listOrganization)
         {
-
             var authorDept = documentReference.Contained?
                 .OfType<Organization>()
                 .FirstOrDefault(dpt => dpt?.PartOf?.Reference == parentOrgReference?.Reference);
@@ -1564,7 +1562,7 @@ public class FhirToXdsTransformerService
                         UniversalId = authorDept.Identifier?.FirstOrDefault()?.System ?? authorDept.Type?.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
                         UniversalIdType = "ISO"
                     },
-                    OrganizationIdentifier = authorDept?.Identifier?.FirstOrDefault()?.Value ?? authorDept?.Type?.FirstOrDefault()?.Coding.FirstOrDefault()?.Code
+                    OrganizationIdentifier = authorDept?.Identifier?.FirstOrDefault()?.Value
                 };
                 return authorDepartment;
             }

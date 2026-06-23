@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -506,8 +505,8 @@ public static class RegistryMetadataTransformer
             return authorList;
         }
         return null;
-
     }
+
     private static AuthorOrganization? GetAuthorDepartmentFromClassification(ClassificationType authorClassification)
     {
         if (authorClassification == null) return null;
@@ -520,26 +519,28 @@ public static class RegistryMetadataTransformer
             .Select(asl => Hl7Object.Parse<XON>(asl))
             .ToArray();
 
-        // Find organization XON here aswell to ensure we dont double-register stuff
+        // HAYO! Is LastOrDefault sufficient?!?
         var organization = authorSlotXon.LastOrDefault();
-            // HAYO! Is LastOrDefault sufficient?!?
-            //authorSlotXon
-            //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
-            //                          asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-            //                         (asXon?.AssigningAuthority?.UniversalId != null &&
-            //                          asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-            //     ??
+
+        // Old approach:
+        // Find organization XON here aswell to ensure we dont double-register stuff
+        //authorSlotXon
+        //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
+        //                          asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
+        //                         (asXon?.AssigningAuthority?.UniversalId != null &&
+        //                          asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
 
 
+        // HAYO! Is FirstOrDefault sufficient?!?
+        var department = authorSlotXon.FirstOrDefault() is { OrganizationIdentifier: not null } gobb ? gobb : null;
+        
+        // Old approach:
         // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).
         // If none is found, take the first in the XON list
-        var department = authorSlotXon.FirstOrDefault();
-                 // HAYO! Is FirstOrDefault sufficient?!?
-                 //authorSlotXon
-                 //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
-                 //                         !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-                 //                         (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-                 //     ?? 
+        //authorSlotXon
+        //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
+        //                         !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
+        //                         (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
 
         if (department != null && department?.OrganizationIdentifier != organization?.OrganizationIdentifier)
         {
@@ -1403,7 +1404,7 @@ public static class RegistryMetadataTransformer
             {
                 var alternateCodeSystems = registryObject.ConfidentialityCode.Where(c => c?.CodeSystem?.NoUrn() == "http://terminology.hl7.org/CodeSystem/v3-Confidentiality").ToArray();
 
-                if (!(alternateCodeSystems?.Length > 0)) return;
+                if (!(alternateCodeSystems?.Length > 0)) continue;
 
                 var newCodeSystems = alternateCodeSystems
                     .Select(acs => new CodedValue()
@@ -1420,6 +1421,37 @@ public static class RegistryMetadataTransformer
                 }
 
                 registryObject.ConfidentialityCode.AddRange(newCodeSystems);
+
+                // Deduplicate
+                registryObject.ConfidentialityCode = [.. registryObject.ConfidentialityCode.DistinctBy(cv => new { cv.Code, cv.CodeSystem, cv.DisplayName })];
+            }
+
+            if (registryObject.Author?.Count > 0)
+            {
+
+                foreach (var author in registryObject.Author)
+                {
+                    var department = author.Department;
+
+                    if (!(department?.AssigningAuthority?.NoUrn() == "http://terminology.hl7.org/CodeSystem/organization-type")) continue;
+
+                }
+
+                // Michal - transform from URL to OID
+                //var newCodeSystems = alternateCodeSystems
+                //    .Select(acs => new CodedValue()
+                //    {
+                //        Code = acs.Department.Id,
+                //        CodeSystem = "2.16.840.1.113883.4.642.1.1128",
+                //        DisplayName = acs.DisplayName
+                //    }).ToArray();
+
+                //foreach (var item in alternateCodeSystems)
+                //{
+                //    registryObject.Author.Remove(item);
+                //}
+
+                //registryObject.ConfidentialityCode.AddRange(newCodeSystems);
 
                 // Deduplicate
                 registryObject.ConfidentialityCode = [.. registryObject.ConfidentialityCode.DistinctBy(cv => new { cv.Code, cv.CodeSystem, cv.DisplayName })];
