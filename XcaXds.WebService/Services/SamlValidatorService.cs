@@ -77,6 +77,7 @@ public class SamlValidatorService
                     validationMessage = string.Join(", ", chain.ChainStatus.Select(s => $"{s.Status}: {s.StatusInformation}"));
                     validationMessage = $"Certificate chain invalid: {validationMessage}";
                     results.Add(false);
+                    continue;
                 }
 
                 results.Add(true);
