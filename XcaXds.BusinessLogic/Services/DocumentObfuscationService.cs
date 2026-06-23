@@ -9,6 +9,7 @@ using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
+using static XcaXds.BusinessLogic.Services.ValuesToUseForBusinessLogic;
 
 namespace XcaXds.BusinessLogic.Services;
 
@@ -48,11 +49,11 @@ public class DocumentObfuscationService
 
         var codesThatOverrideObfuscation = new[]
         {
-            _purposeOfUse.GetByValue("ETREAT")?.Value,
-            _purposeOfUse.GetByValue("BTG")?.Value,
+            _purposeOfUse.GetByValue("ETREAT"),
+            _purposeOfUse.GetByValue("BTG"),
         };
 
-        var healthcatePersonellCodes = _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate();
+        var healthcarePersonellCodes = _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate();
         var citizenCodes = _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate();
 
         foreach (var identifiableType in identifiableTypes)
@@ -66,16 +67,16 @@ public class DocumentObfuscationService
                         CodeSystem = cls.GetFirstSlot()?.GetFirstValue()
                     }).ToArray();
 
-
+                // All confidentiality codes in the list of codes to obfuscate must be in the DocumentEntry for the DocumentEntry to be obfuscated
                 bool obfuscate = requestAppliesTo switch
                 {
-                    AppliesTo.HelseId => confCodes.Any(ccode => healthcatePersonellCodes.Contains((ccode.Code!, ccode.CodeSystem!))),
-                    AppliesTo.Helsenorge => confCodes.Any(ccode => citizenCodes.Contains((ccode.Code!, ccode.CodeSystem!))),
+                    AppliesTo.HelseId => healthcarePersonellCodes.All(hcp => confCodes.Any(ccode => ccode.Code == hcp.Item1 && ccode.CodeSystem == hcp.Item2)),
+                    AppliesTo.Helsenorge => citizenCodes.All(ccd => confCodes.Any(ccode => ccode.Code == ccd.Item1 && ccode.CodeSystem == ccd.Item2)),
                     _ => false
                 };
 
                 // Dont obfuscate in emergency situations
-                if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(codesThatOverrideObfuscation) == true)
+                if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf([.. codesThatOverrideObfuscation.Select(c => c?.Value)]) == true)
                 {
                     obfuscate = false;
                 }
