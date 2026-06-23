@@ -532,7 +532,7 @@ public static class RegistryMetadataTransformer
 
 
         // HAYO! Is FirstOrDefault sufficient?!?
-        var department = authorSlotXon.FirstOrDefault() is { OrganizationIdentifier: not null } gobb ? gobb : null;
+        var department = authorSlotXon.FirstOrDefault() is { AssigningAuthority: not null } gobb ? gobb : null;
         
         // Old approach:
         // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).
@@ -858,7 +858,7 @@ public static class RegistryMetadataTransformer
                 AssigningAuthority = new()
                 {
                     UniversalId = sourcePatientInfo?.PatientId?.System ?? string.Empty,
-                    UniversalIdType = sourcePatientInfo?.PatientId?.System ?? Constants.Hl7.UniversalIdType.Iso
+                    UniversalIdType = Constants.Hl7.UniversalIdType.Iso
                 }
             };
 
@@ -1093,7 +1093,7 @@ public static class RegistryMetadataTransformer
             AssigningAuthority = new HD()
             {
                 UniversalId = authorSpeciality.CodeSystem,
-                UniversalIdType = authorSpeciality.CodeSystem ?? Constants.Hl7.UniversalIdType.Iso
+                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
             }
         };
 
@@ -1111,7 +1111,7 @@ public static class RegistryMetadataTransformer
             AssigningAuthority = new HD()
             {
                 UniversalId = authorRole.CodeSystem,
-                UniversalIdType = authorRole.CodeSystem ?? Constants.Hl7.UniversalIdType.Iso
+                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
             }
         };
 

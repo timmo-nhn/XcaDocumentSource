@@ -3,7 +3,6 @@ using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
@@ -112,7 +111,7 @@ public class BusinessLogicFiltersRegistry
         Acp.HasConsent = acp.GetByName("HasConsent")!;
     }
 
-    public string[] GetAllowedMimeTypes() => 
+    public string[] GetAllowedMimeTypes() =>
     [
         Constants.MimeTypes.Pdf,
         Constants.MimeTypes.Jpeg,
@@ -249,25 +248,23 @@ public class BusinessLogicFiltersRegistry
 
     public Dictionary<string, BusinessRule<IdentifiableType>> AllBusinessRules { get; set; }
 
-    public bool CitizenShouldSeeOwnDocumentReferences(BusinessLogicParameters logic)
+    public bool CitizenPowerOfAttorney(BusinessLogicParameters logic)
     {
-        var hasRequiredAttributes =
-             logic.Resource != null &&
-             logic.Subject != null &&
-             logic.Acp != null &&
-             logic.Purpose != null &&
-             logic.Purpose.Code != null;
+        var fieldsMatch =
+                        logic.Subject != null &&
+                        logic.Resource != null &&
+                        logic.Subject.Code != null &&
+                        logic.Resource.Code != null &&
+                        logic.Acp != null &&
+                        logic.Purpose != null &&
+                        logic.Purpose.Code != null;
 
-
-        if (hasRequiredAttributes) {
-            return logic.Resource!.Code == logic.Subject!.Code &&
-                logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
-                logic.Purpose!.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
-                logic.Acp!.NoUrn() == Acp.NullValue.NoUrn() &&
-                logic.SubjectAge >= 18;
-        }
-
-        return false;
+        return fieldsMatch
+            ? logic.Subject.Code != logic.Resource.Code &&
+            logic.Purpose.Code.IsAnyOf(PWATRNY, SubjectOfCare_13) &&
+            logic.Acp.NoUrn().IsAnyOf(Acp.RepresentAnotherCitizen.NoUrn(), Acp.RepresentedUnableToConsent.NoUrn()) &&
+            (logic.SubjectAge.InRange(12, 16) == false)
+            : false;
     }
 
     public Dictionary<string, BusinessRule<IdentifiableType>> GetAllBusinessRulesForFilteringDocumentList()
@@ -280,7 +277,19 @@ public class BusinessLogicFiltersRegistry
             {
                 "CitizenShouldSeeOwnDocumentReferences", new()
                 {
-                    Condition = logic => CitizenShouldSeeOwnDocumentReferences(logic),
+                    Condition = logic =>
+                    logic.Resource != null &&
+                    logic.Subject != null &&
+                    logic.Purpose != null &&
+                    logic.Purpose.Code != null &&
+                    logic.Acp != null &&
+
+                    logic.Resource!.Code == logic.Subject!.Code &&
+                    logic.Resource.CodeSystem == logic.Subject.CodeSystem &&
+                    logic.Purpose!.Code.IsAnyOf(PATRQT, SubjectOfCare_13) &&
+                    logic.Acp!.NoUrn() == Acp.NullValue.NoUrn() &&
+                    logic.SubjectAge >= 18,
+
 
                     Filter = robjs =>
                         FilterByConfidentiality(
@@ -346,10 +355,11 @@ public class BusinessLogicFiltersRegistry
                         logic.Resource != null &&
                         logic.Purpose != null &&
                         logic.Purpose.Code != null &&
+                        logic.Acp != null &&
 
                         logic.Subject.Code != logic.Resource.Code &&
                         logic.Purpose.Code.IsAnyOf(FAMRQT, SubjectOfCare_13) &&
-                        logic.Acp == Acp.RepresentCitizenUnder12 &&
+                        logic.Acp.NoUrn() == Acp.RepresentCitizenUnder12.NoUrn() &&
                         logic.ResourceAge <= 12,
 
                     Filter = robjs =>
@@ -366,19 +376,7 @@ public class BusinessLogicFiltersRegistry
             {
                 "CitizenShouldSeePowerOfAttorneyDocumentReferences",new ()
                 {
-                    Condition = logic =>
-                        logic.Subject != null &&
-                        logic.Resource != null &&
-                        logic.Subject.Code != null &&
-                        logic.Resource.Code != null &&
-                        logic.Acp != null &&
-                        logic.Purpose != null &&
-                        logic.Purpose.Code != null &&
-
-                        logic.Subject.Code != logic.Resource.Code &&
-                        logic.Purpose.Code.IsAnyOf(PWATRNY, SubjectOfCare_13) &&
-                        logic.Acp.IsAnyOf(Acp.RepresentAnotherCitizen, Acp.RepresentedUnableToConsent) &&
-                        !logic.SubjectAge.InRange(12, 16),
+                    Condition = logic => CitizenPowerOfAttorney(logic),
 
                     Filter = robjs =>
                         FilterByConfidentiality(
@@ -388,6 +386,7 @@ public class BusinessLogicFiltersRegistry
 
                 }
             },
+
 
             /// <summary>
             /// Jeg som innbygger skal IKKE se dokumentreferanser/dokumenter til den som jeg IKKE har representasjonsforhold eller foreldreansvar for
@@ -400,9 +399,10 @@ public class BusinessLogicFiltersRegistry
                         logic.Resource != null &&
                         logic.Purpose != null &&
                         logic.Purpose.Code != null &&
+                        logic.Acp != null &&
 
                         logic.Subject.Code != logic.Resource.Code &&
-                        logic.Acp == Acp.NullValue.NoUrn() &&
+                        logic.Acp.NoUrn() == Acp.NullValue.NoUrn() &&
                         logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13),
 
                     Filter = _ => DenyAll()
@@ -420,9 +420,10 @@ public class BusinessLogicFiltersRegistry
                         logic.Resource != null &&
                         logic.Purpose != null &&
                         logic.Purpose.Code != null &&
+                        logic.Acp != null &&
 
                         logic.Subject.Code != logic.Resource.Code &&
-                        logic.Acp == Acp.RepresentCitizenUnder12 &&
+                        logic.Acp.NoUrn() == Acp.RepresentCitizenUnder12.NoUrn() &&
                         logic.Purpose.Code.IsAnyOf(PATRQT, FAMRQT, PWATRNY, SubjectOfCare_13) &&
                         logic.ResourceAge >= 13,
 
@@ -441,9 +442,10 @@ public class BusinessLogicFiltersRegistry
                         logic.Resource != null &&
                         logic.Purpose != null &&
                         logic.Purpose.Code != null &&
+                        logic.Acp != null &&
 
                         logic.Subject.Code == logic.Resource.Code &&
-                        logic.Acp == Acp.NullValue &&
+                        logic.Acp.NoUrn() == Acp.NullValue.NoUrn() &&
                         logic.Purpose.Code.IsAnyOf(TREAT, CAREMGT, ClinicalCare_1, Management_5),
 
                     Filter = robjs =>

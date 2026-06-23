@@ -233,19 +233,10 @@
             "resourceType": "Organization",
             "id": "db3c7ff1-1d7e-4e8a-be35-6d3b1610433d",
             "name": "KAD 3",
-            "type": [
-              {
-                "coding": [
-                  {
-                    "system": "http://terminology.hl7.org/CodeSystem/organization-type",
-                    "code": "dept"
-                  }
-                ]
-              }
-            ],
             "identifier": [
               {
-                "value": "123123123"
+                "system": "2.16.578.1.12.4.5.390",
+                "value": "KAD3"
               }
             ],
             "partOf": {

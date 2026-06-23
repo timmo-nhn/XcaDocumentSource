@@ -224,7 +224,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
     public async Task XGQ_CrossGatewayQuery_Helsenorge_PerformanceTest()
     {
         // Override default with many more entries to simulate a very mature registry/repository.
-        //RegistryItemCount = 10000;
+        RegistryItemCount = 1000;
 
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -270,7 +270,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
-        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
+        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 

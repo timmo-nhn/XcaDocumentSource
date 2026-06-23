@@ -74,7 +74,7 @@ public class DocumentObfuscationService
                     _ => false
                 };
 
-                // Dont obscure in emergency situations
+                // Dont obfuscate in emergency situations
                 if (obfuscate && !string.IsNullOrWhiteSpace(businessLogic?.Purpose?.Code) && businessLogic.Purpose.Code.IsAnyOf(codesThatOverrideObfuscation) == true)
                 {
                     obfuscate = false;
@@ -82,7 +82,7 @@ public class DocumentObfuscationService
 
                 if (!obfuscate && requestAppliesTo != AppliesTo.Unknown) continue;
 
-                // HAYO! GUID_OBSCURE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
+                // HAYO! GUID_OBFUSCATE Setting ID to Guid.Empty will break client processes that expect a valid UUID, but since the document cannot be retrieved,
                 // WARNING: This might cause a risk of exposing metadata that can be used to retrieve the document through other means,
                 // though XcaDS Has measures in place to keep this from happening
                 //extrinsicObject.Id = Guid.Empty.ToString();
