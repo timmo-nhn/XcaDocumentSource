@@ -532,7 +532,7 @@ public static class RegistryMetadataTransformer
 
 
         // HAYO! Is FirstOrDefault sufficient?!?
-        var department = authorSlotXon.FirstOrDefault() is { OrganizationIdentifier: not null } gobb ? gobb : null;
+        var department = authorSlotXon.FirstOrDefault() is { AssigningAuthority: not null } gobb ? gobb : null;
         
         // Old approach:
         // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).

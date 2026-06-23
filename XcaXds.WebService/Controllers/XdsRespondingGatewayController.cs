@@ -98,7 +98,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 var filteredDocumentList = _xdsRegistryService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, iti38Response.Value, accessControlRequest, out var businessLogicResults);
                 HttpContext.Items.Add("businessLogicResult", businessLogicResults);
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
-                responseEnvelope = iti38Response.Value;
+                responseEnvelope = filteredDocumentList;
                 break;
 
 

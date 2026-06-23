@@ -224,7 +224,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
     public async Task XGQ_CrossGatewayQuery_Helsenorge_PerformanceTest()
     {
         // Override default with many more entries to simulate a very mature registry/repository.
-        //RegistryItemCount = 10000;
+        RegistryItemCount = 1000;
 
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();

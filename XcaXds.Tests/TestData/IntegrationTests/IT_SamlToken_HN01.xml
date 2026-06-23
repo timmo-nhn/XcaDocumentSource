@@ -65,8 +65,8 @@ For Integration tests to work properly, its recommended to not touch these files
 		<saml:Attribute Name="Scope">
 			<saml:AttributeValue>innsynregisterbruk,innsynregisterinnhold,innsynpasientjournal,prover</saml:AttributeValue>
 		</saml:Attribute>
-		<saml:Attribute Name="client_id">
-			<saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.1.1.1</saml:AttributeValue>
+		<saml:Attribute Name="urn:ihe:iti:xua:2012:acp">
+			<saml:AttributeValue>urn:oid:2.16.578.1.12.4.1.7.2.1.2</saml:AttributeValue>
 		</saml:Attribute>
 	</saml:AttributeStatement>
 	<saml:AuthnStatement AuthnInstant="2026-03-23T15:19:39.278Z" SessionNotOnOrAfter="2026-03-23T15:39:39.278Z">

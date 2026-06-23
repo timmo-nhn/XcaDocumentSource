@@ -547,16 +547,14 @@ public class XdsOnFhirTransformerService
 
         if (authorInstitutionValues != null && authorInstitutionValues.Count > 0)
         {
-            var organizationSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.FirstOrDefault();
-            var departmentSystem = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.FirstOrDefault();
+            var organizations = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization");
+            var departments = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department");
 
             authorInstitution = authorInstitutionValues
-                .FirstOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId == organizationSystem || authInst?.AssigningAuthority?.UniversalId != null
-                                            );
+                .FirstOrDefault(authInst => organizations?.FirstOrDefault(org => org.NoUrn().Equals(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true) != null);
 
             authorDepartment = authorInstitutionValues
-                .LastOrDefault(authInst => authInst?.AssigningAuthority?.UniversalId == departmentSystem || authInst?.AssigningAuthority?.UniversalId != null
-                                           );
+                .LastOrDefault(authInst => departments?.FirstOrDefault(dpt => dpt.NoUrn().Equals(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true) != null);
 
             // If department and institution was the same, nullify department to avoid creating duplicates
             if (authorInstitution != null && authorDepartment != null && authorInstitution.OrganizationName == authorDepartment.OrganizationName)

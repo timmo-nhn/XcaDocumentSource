@@ -190,6 +190,8 @@ public partial class XdsRegistryService
         registryResponse.EvaluateStatusCode();
         if (validateOnly == false)
         {
+            var sxmls = new SoapXmlSerializer();
+            var gobb = sxmls.SerializeSoapMessageToXmlString(submissionRegistryObjects).Content;
             var submissionElementsToUpdate = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(submissionRegistryObjects).ToList();
 
             RegistryMetadataTransformer.TransformFhirConceptsToXdsConcepts(submissionElementsToUpdate);
@@ -690,6 +692,8 @@ public partial class XdsRegistryService
 
             enumeratedEntriesResult = _businessLogicFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(enumeratedEntriesResult, businessLogic, out filterResults).ToList();
 
+            var gobb = JsonSerializer.Serialize(businessLogic);
+
             if (filterResults.Count > 0)
             {
                 _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic applied: {JsonSerializer.Serialize(filterResults)}");
@@ -700,7 +704,8 @@ public partial class XdsRegistryService
             }
 
             enumeratedEntriesResult = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
-
+            var sxmls = new SoapXmlSerializer();
+            var content = sxmls.SerializeSoapMessageToXmlString(enumeratedEntriesResult).Content;
             _logger.LogInformation($"{soapEnvelope.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
 
             soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = [.. enumeratedEntriesResult];
