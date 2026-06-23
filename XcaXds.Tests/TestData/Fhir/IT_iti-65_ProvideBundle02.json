@@ -235,7 +235,8 @@
             "name": "KAD 3",
             "identifier": [
               {
-                "system": "2.16.578.1.12.4.5.390"
+                "system": "2.16.578.1.12.4.5.390",
+                "value": "KAD3"
               }
             ],
             "partOf": {
