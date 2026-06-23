@@ -36,8 +36,13 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
         };
 
         DocumentReferences = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(DocumentReferences, businessLogic, out var obfuscated);
+        var sxmls = new SoapXmlSerializer();
+
+        var extobj = sxmls.SerializeSoapMessageToXmlString(DocumentReferences).Content;
+
         DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var entries).ToList();
 
+        Assert.Contains("****", extobj);
         Assert.Equal(2, obfuscated);
         Assert.Equal(1, entries.Count);
     }

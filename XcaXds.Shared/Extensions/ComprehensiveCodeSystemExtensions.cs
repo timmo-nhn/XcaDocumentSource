@@ -39,7 +39,25 @@ public static class ComprehensiveCodeSystemExtensions
         var ss = source?.SelectMany(v => v.Values ?? []);
         var returnValue = ss?.FirstOrDefault(v => v.Value == value);
 
-        var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Value?.Equals(value, StringComparison.OrdinalIgnoreCase) == true)) == true);
+        var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Value?.Equals(value) == true)) == true);
+
+        if (systemForValue == null || string.IsNullOrWhiteSpace(systemForValue?.System) || string.IsNullOrWhiteSpace(returnValue?.Value))
+        {
+            return null;
+        }
+
+        return new(systemForValue.System, returnValue.Value);
+    }
+
+    /// <summary>
+    /// Get a certain value, and its associated system. If the value is not found, returns null.
+    /// </summary>
+    public static KeyValuePair<string, string>? GetByNameSystem(this IEnumerable<ComprehensiveCodeSystem>? source, string name)
+    {
+        var ss = source?.SelectMany(v => v.Values ?? []);
+        var returnValue = ss?.FirstOrDefault(v => v.Name == name);
+
+        var systemForValue = source?.FirstOrDefault(systems => (systems.Values?.Any(val => val.Name?.Equals(name) == true)) == true);
 
         if (systemForValue == null || string.IsNullOrWhiteSpace(systemForValue?.System) || string.IsNullOrWhiteSpace(returnValue?.Value))
         {
