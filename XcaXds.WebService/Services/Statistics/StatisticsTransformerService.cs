@@ -64,12 +64,15 @@ public class StatisticsTransformerService
         var fhirBundleResponse = Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody) as Bundle;
 
         var uploadedEntries = fhirBundleRequest?.Entry.Select(res => res.Resource).OfType<Binary>().ToList();
+        var documentReference = fhirBundleRequest?.Entry.Select(res => res.Resource).OfType<DocumentReference>().ToList();
+        var confidentialityCodes = documentReference?.SelectMany(dr => dr.SecurityLabel).SelectMany(sl => sl.Coding).Select(cd => new CodedValue(cd.Code, cd.System, cd.Display)).ToArray();
 
         if (jwt == null && fhirBundleRequest == null)
             throw new InvalidOperationException("JWT or Fhir Bundle cannot be null.");
 
         var userAccessEntry = await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields, fhirBundleResponse);
         userAccessEntry.UploadedEntries = uploadedEntries?.Count;
+        userAccessEntry.DocumentConfidentialityCodes = confidentialityCodes;
 
         return userAccessEntry;
     }

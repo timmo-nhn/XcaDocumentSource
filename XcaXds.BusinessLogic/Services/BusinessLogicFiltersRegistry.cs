@@ -127,7 +127,7 @@ public class BusinessLogicFiltersRegistry
 
     private (string, string)[] GetCitizenObfuscationCodes()
     {
-        var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
+var confidentialityCodeSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Xds.ConfidentialityCode);
 
         return new[]
         {

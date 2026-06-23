@@ -1392,14 +1392,17 @@ public class FhirToXdsTransformerService
 
             var refAuthorDeptString = refAuthorDept?.Serialize();
 
+            //HAYO! AUTHORINSTITUTION_SLOT_ORDER Order of these AddValue calls are important!!!!
+            authorInstitutionSlot.AddValue(refAuthorOrgString);
+            
+            authorInstitutionSlot.AddValue(refAuthorOrgNameOnlyString);
+
             if (!string.IsNullOrWhiteSpace(refAuthorDeptString))
             {
                 authorInstitutionSlot.AddValue(refAuthorDeptString);
             }
 
-            authorInstitutionSlot.AddValue(refAuthorOrgNameOnlyString);
 
-            authorInstitutionSlot.AddValue(refAuthorOrgString);
 
             listAuthorSlots.Add(authorInstitutionSlot);
         }
