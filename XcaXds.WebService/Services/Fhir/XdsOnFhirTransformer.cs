@@ -727,10 +727,10 @@ public class XdsOnFhirTransformerService
             var lastName = nameParts?.Skip(1);
 
             if (lastName?.Any() ?? false)
-            {
                 name.Given = lastName;
-            }
-            practitioner.Name.Add(name);
+
+            if(name != null && (string.IsNullOrWhiteSpace(name.Family) == false || name.Given.Any(string.IsNullOrWhiteSpace) == false))
+                practitioner.Name.Add(name);
         }
 
         return practitioner;

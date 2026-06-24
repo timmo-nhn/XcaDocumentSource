@@ -36,7 +36,7 @@ public class SigningCertificateFetcherService
             {
                 var certificateRaw = await GetToken(client, url);
                 if (certificateRaw != null)
-                    newCertificates.Add(certificateRaw);
+                    newCertificates.AddRange(certificateRaw);
             }
 
             return [.. newCertificates];
@@ -48,13 +48,13 @@ public class SigningCertificateFetcherService
         }
     }
 
-    private async Task<string?> GetToken(HttpClient client, string jwkEndpointUrl)
+    private async Task<string[]?> GetToken(HttpClient client, string jwkEndpointUrl)
     {
         var response = await client.GetAsync(jwkEndpointUrl);
         var content = await response.Content.ReadAsStringAsync();
 
         var jwk = JsonSerializer.Deserialize<Jwk>(content, Constants.JsonDefaultOptions.DefaultSettings);
-        var x5cKey = jwk?.Keys?.FirstOrDefault()?.X5C?.FirstOrDefault();
+        var x5cKey = jwk?.Keys?.SelectMany(ky => ky.X5C ?? [])?.OfType<string>()?.ToArray();
         return x5cKey;
     }
 }

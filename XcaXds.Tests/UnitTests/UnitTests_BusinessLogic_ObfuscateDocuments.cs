@@ -36,8 +36,13 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
         };
 
         DocumentReferences = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(DocumentReferences, businessLogic, out var obfuscated);
+        var sxmls = new SoapXmlSerializer();
+
+        var extobj = sxmls.SerializeSoapMessageToXmlString(DocumentReferences).Content;
+
         DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var entries).ToList();
 
+        Assert.Contains("****", extobj);
         Assert.Equal(2, obfuscated);
         Assert.Equal(1, entries.Count);
     }
@@ -142,6 +147,37 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
     {
         DocumentReferences = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(
         [
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode =
+                [
+                    new()
+                    {
+                        CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                        Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    }
+                ],
+                LegalAuthenticator = new()
+                {
+                    Id = "123123123",
+                    IdSystem = "1.2.3.4",
+                    FirstName = "Sky",
+                    LastName = "Bert"
+                },
+                Author = [
+                    new()
+                    {
+                        Organization = new()
+                        {
+                            Id = "1231231",
+                            OrganizationName = "Organization",
+                            AssigningAuthority = "2.16.578.123456"
+                        }
+                    }
+                ],
+                Title = "Clinical Document"
+            },
+
             new DocumentEntryDto()
             {
                 ConfidentialityCode =

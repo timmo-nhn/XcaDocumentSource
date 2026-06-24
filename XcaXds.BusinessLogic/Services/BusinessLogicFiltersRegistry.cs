@@ -131,8 +131,8 @@ public class BusinessLogicFiltersRegistry
 
         return new[]
         {
-            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "V").AsTuple().Reverse(),
-            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORN_ANG").AsTuple().Reverse(),
+            confidentialityCodeSystems.GetByNameSystem("very restricted").AsTuple().Reverse(),
+            confidentialityCodeSystems.GetByValueSystem("NORN_ANG").AsTuple().Reverse(),
         }
         .OfType<(string, string)>()
         .ToArrayOrNull() ?? throw new InvalidOperationException("No obfuscation codes set, application might expose data which is not in conformance with business logic");
@@ -144,8 +144,8 @@ public class BusinessLogicFiltersRegistry
 
         return new[]
         {
-            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "N").AsTuple().Reverse(),
-            _terminologyService.GetValueFromCodeSystem(confidentialityCodeSystems, "NORS").AsTuple().Reverse(),
+            confidentialityCodeSystems.GetByNameSystem("normal").AsTuple().Reverse(),
+            confidentialityCodeSystems.GetByValueSystem("NORS").AsTuple().Reverse(),
         }
         .OfType<(string, string)>()
         .ToArrayOrNull() ?? throw new InvalidOperationException("No obfuscation codes set, application might expose data which is not in conformance with business logic");

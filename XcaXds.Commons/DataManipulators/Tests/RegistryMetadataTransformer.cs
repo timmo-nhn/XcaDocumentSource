@@ -519,8 +519,9 @@ public static class RegistryMetadataTransformer
             .Select(asl => Hl7Object.Parse<XON>(asl))
             .ToArray();
 
-        // HAYO! Is LastOrDefault sufficient?!?
-        var organization = authorSlotXon.LastOrDefault();
+        //HAYO! AUTHORINSTITUTION_SLOT_ORDER
+        // HAYO! Is FirstOrDefault sufficient?!?
+        var organization = authorSlotXon.FirstOrDefault();
 
         // Old approach:
         // Find organization XON here aswell to ensure we dont double-register stuff
@@ -531,8 +532,9 @@ public static class RegistryMetadataTransformer
         //                          asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
 
 
-        // HAYO! Is FirstOrDefault sufficient?!?
-        var department = authorSlotXon.FirstOrDefault() is { AssigningAuthority: not null } gobb ? gobb : null;
+        // HAYO! Is LastOrDefault sufficient?!?
+        //HAYO! AUTHORINSTITUTION_SLOT_ORDER
+        var department = authorSlotXon.LastOrDefault() is { AssigningAuthority: not null } gobb ? gobb : null;
         
         // Old approach:
         // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).

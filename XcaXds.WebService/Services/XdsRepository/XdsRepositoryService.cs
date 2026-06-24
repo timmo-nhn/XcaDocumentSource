@@ -36,6 +36,9 @@ public class XdsRepositoryService
     private readonly TerminologyService _terminologyService;
     private readonly BusinessLogicMapperService _businessLogicMapperService;
 
+    private ValueTuple<string,string>[] HealthcarePersonellCodesToRestrict { get; set; }
+    private ValueTuple<string,string>[] CitizenCodesToRestrict { get; set; }
+
     public XdsRepositoryService(
         ApplicationConfig xdsConfig,
         RepositoryWrapper repositoryWrapper,
@@ -56,6 +59,10 @@ public class XdsRepositoryService
         _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
         _terminologyService = terminologyService;
         _businessLogicMapperService = businessLogicMapperService;
+
+        HealthcarePersonellCodesToRestrict = _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate();
+        CitizenCodesToRestrict = _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate();
+
     }
 
     public async Task<SoapRequestResult<SoapEnvelope>> UploadContentToRepository(SoapEnvelope iti41Envelope, bool validateOnly = false)
@@ -368,8 +375,8 @@ public class XdsRepositoryService
 
         bool restricted = requestAppliesTo switch
         {
-            AppliesTo.HelseId => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
-            AppliesTo.Helsenorge => confCodes?.Any(ccode => _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate().Contains((ccode.Code!, ccode.CodeSystem!))) ?? false,
+            AppliesTo.HelseId => HealthcarePersonellCodesToRestrict.All(hcp => confCodes?.Any(ccode => ccode.Code == hcp.Item1 && ccode.CodeSystem == hcp.Item2) == true),
+            AppliesTo.Helsenorge => CitizenCodesToRestrict.All(ccd => confCodes?.Any(ccode => ccode.Code == ccd.Item1 && ccode.CodeSystem == ccd.Item2) == true),
             _ => false
         };
 
