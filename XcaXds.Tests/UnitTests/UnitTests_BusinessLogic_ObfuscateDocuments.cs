@@ -155,6 +155,37 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
                     {
                         CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
                         Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal
+                    }
+                ],
+                LegalAuthenticator = new()
+                {
+                    Id = "123123123",
+                    IdSystem = "1.2.3.4",
+                    FirstName = "Sky",
+                    LastName = "Bert"
+                },
+                Author = [
+                    new()
+                    {
+                        Organization = new()
+                        {
+                            Id = "1231231",
+                            OrganizationName = "Organization",
+                            AssigningAuthority = "2.16.578.123456"
+                        }
+                    }
+                ],
+                Title = "Clinical Document"
+            },
+
+            new DocumentEntryDto()
+            {
+                ConfidentialityCode =
+                [
+                    new()
+                    {
+                        CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                        Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal
                     },
                     new()
                     {
