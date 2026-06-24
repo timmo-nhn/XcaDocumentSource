@@ -52,7 +52,26 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
         // If BypassPolicyEnforcementPoint is true and ValidateSamlTokenIntegrity is true, we should still skip validating the SAML-token,
         // as SAML-token validation can be seen as a subset of the policy enforcement process
         var shouldBypassTokenValidation = !appConfig.ValidateSamlTokenIntegrity;
-        if (appConfig.BypassPolicyEnforcementPoint == true)
+
+		if (appConfig.CanOverrideValidateSamlTokenIntegrityWithQueryParameter)
+        {
+			// This functionality is only used by PJD REST API and Pasientens journaldokumenter Test EPJ to override the appConfig.ValidateSamlTokenIntegrity value for testing purposes
+			var query = context.Request.Query;
+            if (query != null)
+            {
+				// read query parameter "validateSamlTokenIntegrity" and override the appConfig.ValidateSamlTokenIntegrity value if it exists
+				if (query.ContainsKey("validateSamlTokenIntegrity"))
+				{
+					var validateSamlTokenIntegrityQueryParam = query["validateSamlTokenIntegrity"].ToString();
+					if (bool.TryParse(validateSamlTokenIntegrityQueryParam, out var validateSamlTokenIntegrity))
+					{
+						shouldBypassTokenValidation = !validateSamlTokenIntegrity;
+					}
+				}
+			}
+		}
+		
+		if (appConfig.BypassPolicyEnforcementPoint == true)
         {
             shouldBypassTokenValidation = true;
         }
