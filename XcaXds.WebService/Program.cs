@@ -203,6 +203,7 @@ public class Program
         builder.Services.AddScoped<IAtnaLogStrategy, SoapEnvelopeAtnaLogStrategy>();
         builder.Services.AddScoped<IAtnaLogStrategy, FhirPatchDocumentAtnaLogStrategy>();
         builder.Services.AddScoped<IAtnaLogStrategy, FhirDeleteDocumentsAtnaLogStrategy>();
+        builder.Services.AddScoped<IAtnaLogStrategy, FhirValidateBundleAtnaLogStrategy>();
         builder.Services.AddScoped<IAtnaLogStrategy, FhirProvideBundleAtnaLogStrategy>();
 
         // Singleton services

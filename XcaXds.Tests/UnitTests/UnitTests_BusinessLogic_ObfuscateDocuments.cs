@@ -145,6 +145,34 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
 
     private void SetupDocumentReferencesWithConfidentialityCodes()
     {
+        var citizenCodesToObfuscate = new CodedValue[]
+        {
+            new()
+            {
+                CodeSystem = TestConstants.CodeSystems.Volven.ConfidentialityCode_9603.System,
+                Code = TestConstants.CodeSystems.Volven.ConfidentialityCode_9603.NORN_ANG
+            },
+            new()
+            {
+                CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.VeryRestricted
+            },
+        };
+
+        var healthcarePersonellCodesToObfuscate = new CodedValue[]
+        {
+            new()
+            {
+                CodeSystem = TestConstants.CodeSystems.Volven.ConfidentialityCode_9603.System,
+                Code = TestConstants.CodeSystems.Volven.ConfidentialityCode_9603.NORS
+            },
+            new()
+            {
+                CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                Code = TestConstants.CodeSystems.Hl7.ConfidentialityCode.Normal
+            },
+        };
+
         DocumentReferences = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(
         [
             new DocumentEntryDto()
@@ -216,17 +244,12 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
 
             new DocumentEntryDto()
             {
-                ConfidentialityCode =
-                [
-                    .. _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate()
-                   .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
-                    new()
-                    {
-                        CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
-                        Code = "othercodethatshouldntaffectlogic"
-                    }
-
-                ],
+                ConfidentialityCode = citizenCodesToObfuscate
+                .Append(new()
+                {
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = "othercodethatshouldntaffectlogic"
+                }).ToList(),
                 LegalAuthenticator = new()
                 {
                     Id = "123123123",
@@ -249,17 +272,12 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode =
-                [
-                    .. _businessLogicFiltersRegistry.GetHealthcarePersonellConfidentialityCodesToObfuscate()
-                   .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
-                    new()
-                    {
-                        CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
-                        Code = "othercodethatshouldntaffectlogic"
-                    }
-
-                ],
+                ConfidentialityCode = citizenCodesToObfuscate
+                .Append(new()
+                {
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = "othercodethatshouldntaffectlogic"
+                }).ToList(),
                 LegalAuthenticator = new()
                 {
                     Id = "123123123",
@@ -283,17 +301,12 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
 
             new DocumentEntryDto()
             {
-                ConfidentialityCode =
-                [
-                    .. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate()
-                    .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
-                    new()
-                    {
-                        CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
-                        Code = "othercodethatshouldntaffectlogic"
-                    }
-
-                ],
+                ConfidentialityCode = healthcarePersonellCodesToObfuscate
+                .Append(new()
+                {
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = "othercodethatshouldntaffectlogic"
+                }).ToList(),
                 LegalAuthenticator = new()
                 {
                     Id = "123123123",
@@ -316,17 +329,12 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
             },
             new DocumentEntryDto()
             {
-                ConfidentialityCode =
-                [
-                    .. _businessLogicFiltersRegistry.GetCitizenConfidentialityCodesToObfuscate()
-                    .Select(p => new CodedValue() { Code = p.Item1, CodeSystem = p.Item2 }),
-                    new()
-                    {
-                        CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
-                        Code = "othercodethatshouldntaffectlogic"
-                    }
-
-                ],
+                ConfidentialityCode = healthcarePersonellCodesToObfuscate
+                .Append(new()
+                {
+                    CodeSystem = TestConstants.CodeSystems.Hl7.ConfidentialityCode.System,
+                    Code = "othercodethatshouldntaffectlogic"
+                }).ToList(),
                 LegalAuthenticator = new()
                 {
                     Id = "123123123",

@@ -32,7 +32,8 @@ public static class EnumerableExtensions
     /// <summary>
     /// Returns null if the input is null or empty, otherwise returns an array of the input.
     /// <para/>
-    /// Useful for cleanly null coalescing when doing LINQ-operations
+    /// Useful for when you want null instead of an empty array, 
+    /// or for cleanly null coalescing when doing LINQ-operations
     /// </summary>
     public static T[]? ToArrayOrNull<T>(this IEnumerable<T>? input)
     {

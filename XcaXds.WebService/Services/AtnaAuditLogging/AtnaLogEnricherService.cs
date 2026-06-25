@@ -2,10 +2,8 @@
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
 using System.Xml;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
@@ -26,36 +24,65 @@ public class AtnaLogEnricherService
     private readonly ILogger<AtnaLogEnricherService> _logger;
     private readonly PolicyRequestMapperJsonWebTokenService _policyRequestMapperJwtService;
     private readonly JwtToSamlTransformerService _jwtToSamlTransformerService;
+    private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
     private readonly TerminologyService _terminologyService;
 
     public AtnaLogEnricherService(
         ILogger<AtnaLogEnricherService> logger,
         PolicyRequestMapperJsonWebTokenService policyRequestMapperJwtService,
         JwtToSamlTransformerService jwtToSamlTransformerService,
+        FhirToXdsTransformerService fhirToXdsTransformerService,
         TerminologyService terminologyService)
     {
         _logger = logger;
         _policyRequestMapperJwtService = policyRequestMapperJwtService;
         _jwtToSamlTransformerService = jwtToSamlTransformerService;
+        _fhirToXdsTransformerService = fhirToXdsTransformerService;
         _terminologyService = terminologyService;
     }
 
-    public SoapEnvelope GetMockSoapEnvelopeFromJwtAndBundle(AdditionalParameters additionalParameters, string? jwtToken, Bundle? fhirBundle, IdentifiableType[]? registryObjects)
+    public SoapEnvelope GetMockSoapEnvelopeFromJwtAndBundle(AdditionalParameters additionalParameters, string? jwtToken, Resource? resource, IdentifiableType[]? registryObjects)
     {
         if (!string.IsNullOrWhiteSpace(jwtToken) && jwtToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
             jwtToken = jwtToken.Substring("Bearer ".Length).Trim();
         }
 
+        // Resource can either be a bundle or an Operationoutcome
+        var fhirBundle = resource as Bundle;
+        var operationOutcome = resource as OperationOutcome;
 
         XmlElement? samlAssertionElement = GetEnrichedSamlTokenFromTokenAndBundle(jwtToken, fhirBundle);
 
-        var errors = fhirBundle?.Entry
+        ExtrinsicObjectType? documentReferenceFromBundle = null;
+
+        if (fhirBundle != null)
+        {
+            var patient = fhirBundle?.Entry.
+                Select(res => res.Resource)
+                .OfType<Patient>()
+                .FirstOrDefault();
+
+            var binary = fhirBundle?.Entry.
+                Select(res => res.Resource)
+                .OfType<Binary>()
+                .FirstOrDefault();
+
+            var documentReference = fhirBundle?.Entry.
+                Select(res => res.Resource)
+                .OfType<DocumentReference>()
+                .FirstOrDefault();
+
+            documentReferenceFromBundle = documentReference != null ? _fhirToXdsTransformerService.ConvertDocumentReferenceToExtrinsicObject(patient, documentReference, binary)?.Value : null;
+        }
+
+        var operationOutcomes = fhirBundle?.Entry
             .Select(res => res.Resource)
             .OfType<OperationOutcome>()
-            .FirstOrDefault();
+            .FirstOrDefault()
+            ?? operationOutcome;
 
-        var xdsErrors = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(errors);
+        var xdsErrors = XdsErrorToOperationOutcomeMapper.GetXdsErrorsFromOperationOutcome(operationOutcomes);
 
         var pnrEnvelope = new SoapEnvelope()
         {
@@ -67,20 +94,20 @@ public class AtnaLogEnricherService
             },
             Body = new()
             {
-                RegistryResponse = xdsErrors?.RegistryError.Length > 0 ? new() { RegistryErrorList = xdsErrors } : null,
+                RegistryResponse = xdsErrors?.RegistryError != null ? new() { RegistryErrorList = xdsErrors } : null,
             }
         };
 
         switch (additionalParameters.HttpMethod)
         {
             case "POST":
-                if (registryObjects?.Length > 0)
+                if (registryObjects?.Length > 0 || documentReferenceFromBundle != null)
                 {
                     pnrEnvelope.Body.ProvideAndRegisterDocumentSetRequest = new()
                     {
                         SubmitObjectsRequest = new()
                         {
-                            RegistryObjectList = registryObjects!
+                            RegistryObjectList = registryObjects ?? [documentReferenceFromBundle!]
                         }
                     };
                 }
@@ -97,6 +124,7 @@ public class AtnaLogEnricherService
         pnrEnvelope.Body.RegistryResponse?.EvaluateStatusCode();
 
         return pnrEnvelope;
+
     }
 
     private XmlElement? GetEnrichedSamlTokenFromTokenAndBundle(string? jwtToken, Bundle? fhirBundle)
