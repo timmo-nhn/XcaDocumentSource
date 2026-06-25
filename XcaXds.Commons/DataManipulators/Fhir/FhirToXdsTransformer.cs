@@ -113,7 +113,7 @@ public class FhirToXdsTransformerService
                 associations.Add(assocResult.Value);
             }
 
-            // Map relatesTo → XDS associations (0..N)
+            // Map relatesTo → XDS associations (0 ... N)
             var relationAssociations =
                 MapRelationsToXdsAssociations(documentReference, sourceExtrinsicId);
 
@@ -702,35 +702,33 @@ public class FhirToXdsTransformerService
 
                     // Process just in case that there is an organization-reference, otherwise just jump over
                     // Neccessary for author.count > 1
-                    if (orgReference != null)
+                    
+                    // Organization
+                    AddAuthorInstitutionSlot(documentReference, orgReference,
+                        ref listOrganization,
+                        ref listProcessedOrganization,
+                        ref listAuthorSlots,
+                        ref operationOutcome);
+                    listProcessedOrganization.Add(orgReference);
+
+                    // Role
+                    AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
+
+                    // Specialty
+                    AddAuthorSpecialtySlot(authorSpecialty, ref listAuthorSlots, ref operationOutcome);
+
+                    // Add processed reference of PractitionerRole to processed list
+                    listProcessedPractitionerRole.Add(roleReference);
+
+                    extrinsicObject.AddClassification(new ClassificationType()
                     {
-                        // Organization
-                        AddAuthorInstitutionSlot(documentReference, orgReference,
-                            ref listOrganization,
-                            ref listProcessedOrganization,
-                            ref listAuthorSlots,
-                            ref operationOutcome);
-                        listProcessedOrganization.Add(orgReference);
-
-                        // Role
-                        AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
-
-                        // Specialty
-                        AddAuthorSpecialtySlot(authorSpecialty, ref listAuthorSlots, ref operationOutcome);
-
-                        // Add processed reference of PractitionerRole to processed list
-                        listProcessedPractitionerRole.Add(roleReference);
-
-                        extrinsicObject.AddClassification(new ClassificationType()
-                        {
-                            Id = Guid.NewGuid().ToString(),
-                            ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
-                            ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
-                            ObjectType = Constants.Xds.ObjectTypes.Classification,
-                            NodeRepresentation = string.Empty,
-                            Slot = [.. listAuthorSlots]
-                        });
-                    }
+                        Id = Guid.NewGuid().ToString(),
+                        ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
+                        ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
+                        ObjectType = Constants.Xds.ObjectTypes.Classification,
+                        NodeRepresentation = string.Empty,
+                        Slot = [.. listAuthorSlots]
+                    });
                 }
                 // Remove processed PractitionerRole from main list
                 foreach (var processedRole in listProcessedPractitionerRole)
@@ -753,7 +751,7 @@ public class FhirToXdsTransformerService
             // Remove processed Organization from main processing list
             foreach (var processedOrganization in listProcessedOrganization)
             {
-                var processedOrg = listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault();
+                var processedOrg = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
                 if (processedOrg != null)
                 {
                     listOrganization.Remove(processedOrg);
@@ -808,7 +806,7 @@ public class FhirToXdsTransformerService
                 // Remove processed Organization from main list
                 foreach (var processedOrganization in listProcessedOrganization)
                 {
-                    var processedOrganizations = listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault();
+                    var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
 
                     if (processedOrganizations != null)
                     {
@@ -844,7 +842,7 @@ public class FhirToXdsTransformerService
                 // Remove processed Organization from main list
                 foreach (var processedOrganization in listProcessedOrganization)
                 {
-                    var processedOrganizations = listOrganization.Where(x => x.Reference == processedOrganization.Reference).FirstOrDefault();
+                    var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
 
                     if (processedOrganizations != null)
                     {
@@ -1006,7 +1004,7 @@ public class FhirToXdsTransformerService
             var classCodeClassification = new ClassificationType
             {
                 Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference?.Id?.NoUrn() ?? "Unknown",
+                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
                 ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.ClassCode,
                 ObjectType = Constants.Xds.ObjectTypes.Classification,
                 NodeRepresentation = classCode.Code ?? "Unknown",
@@ -1020,7 +1018,7 @@ public class FhirToXdsTransformerService
                 classCodeClassification.Name = new InternationalStringType(name);
             }
 
-            if (!string.IsNullOrWhiteSpace(classCode?.System))
+            if (!string.IsNullOrWhiteSpace(classCode.System))
             {
                 classCodeClassification.AddSlot(new SlotType
                 {
@@ -1349,10 +1347,8 @@ public class FhirToXdsTransformerService
         // Department
         var refAuthorDept = GetAuthorDepartment(documentReference, listOrganization, orgReference, out var deptOrgReference);
 
-        if (deptOrgReference != null)
-        {
-            listProcessedOrganization.Add(deptOrgReference);
-        }
+        listProcessedOrganization.Add(deptOrgReference);
+        
         var refAuthorOrg = GetAuthorOrganization(documentReference, orgReference);
 
         if (refAuthorOrg == null && refAuthorDept == null)
@@ -1401,8 +1397,6 @@ public class FhirToXdsTransformerService
             {
                 authorInstitutionSlot.AddValue(refAuthorDeptString);
             }
-
-
 
             listAuthorSlots.Add(authorInstitutionSlot);
         }
@@ -1467,7 +1461,7 @@ public class FhirToXdsTransformerService
     {
         var containedRef = documentReference.Contained.Where(x => x.Id == authorReference.Reference?.Trim('#')).FirstOrDefault();
 
-        return containedRef?.TypeName.ToString();
+        return containedRef?.TypeName;
     }
 
     private static ServiceResultDto<AssociationType> CreateAssociationForSubmissionSet(ExtrinsicObjectType? extrinsicObject, RegistryPackageType? registryPackage)
@@ -1543,7 +1537,7 @@ public class FhirToXdsTransformerService
         };
     }
 
-    internal static XON? GetAuthorDepartment(DocumentReference documentReference, List<ResourceReference> listOrganization, ResourceReference? parentOrgReference, out ResourceReference deptOrgReference)
+    private static XON? GetAuthorDepartment(DocumentReference documentReference, List<ResourceReference> listOrganization, ResourceReference? parentOrgReference, out ResourceReference deptOrgReference)
     {
         deptOrgReference = null!;
 
@@ -1551,25 +1545,57 @@ public class FhirToXdsTransformerService
         {
             var authorDept = documentReference.Contained?
                 .OfType<Organization>()
-                .FirstOrDefault(dpt => dpt?.PartOf?.Reference == parentOrgReference?.Reference);
+                .FirstOrDefault(dpt => dpt.PartOf?.Reference == parentOrgReference?.Reference);
 
 
-            if (authorDept != null && authorDept.Name != null)
+            if (authorDept?.Name == null) continue;
+            
+            deptOrgReference = orgRef;
+
+            // Define if department is RESH-type (urn:oid:***.102) or evt. defined with nhn-oid for department (urn:oid:***.390)
+            // potentionally can be expressed as type of organization by using HL7-code "dept" which can be also accepted
+                
+            var deptTypeSystem = authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.System;
+
+            var deptOid = "";
+            var deptName = "";
+
+            // Check first if "dept"-code is defined
+            if (!string.IsNullOrEmpty(deptTypeSystem))
             {
-                deptOrgReference = orgRef;
-                var authorDepartment = new XON()
-                {
-                    OrganizationName = authorDept.Name,
-                    AssigningAuthority = new HD()
+                if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
+                        $"http://terminology.hl7.org/CodeSystem/organization-type") != 0)
+                    if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.Code, 
+                            "dept") != 0)
                     {
-                        UniversalId = authorDept.Identifier?.FirstOrDefault()?.System ?? authorDept.Type?.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
-                        UniversalIdType = "ISO"
+                        deptOid = "2.16.578.1.12.4.5.390";
+                        deptName = authorDept.Name;
                     }
-                };
-                return authorDepartment;
             }
-        }
 
+            // Focus on OID-usage
+            switch (authorDept.Identifier.FirstOrDefault()?.System)
+            {
+                // RESH-id
+                case "2.16.578.1.12.4.1.4.102":
+                // NHNs help-OID for department    
+                case "2.16.578.1.12.4.5.390":
+                    deptOid = authorDept.Identifier.FirstOrDefault()?.System;
+                    deptName = authorDept.Identifier.FirstOrDefault()?.Value;
+                    break;
+            }
+
+            var authorDepartment = new XON()
+            {
+                OrganizationName = deptName,
+                AssigningAuthority = new HD()
+                {
+                    UniversalId = deptOid,
+                    UniversalIdType = "ISO"
+                }
+            };
+            return authorDepartment;
+        }
         return null;
     }
 
@@ -1584,12 +1610,20 @@ public class FhirToXdsTransformerService
             return null;
         }
 
+        
+        // Define if department is RESH-type (urn:oid:***.102) or evt. defined with nhn-oid for department (urn:oid:***.390)
+        // potentionally can be expressed as HL7-code "dept" which should be also accepted
+        
+        var deptType = "2.16.578.1.12.4.5.390";
+        
+        //TODO: missing code for treating author's department on submission level
+        
         var authorDepartment = new XON()
         {
             OrganizationName = authorDept.Name,
             AssigningAuthority = new HD()
             {
-                UniversalId = $"{Department}",
+                UniversalId = $"{deptType}",
                 UniversalIdType = "ISO"
             },
             OrganizationIdentifier = authorDept?.Identifier?.FirstOrDefault()?.Value ?? string.Empty

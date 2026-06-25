@@ -10,7 +10,8 @@ public class ApplicationConfig
     public bool BypassPolicyEnforcementPoint { get; set; }
     public int DocumentUploadSizeLimitKb { get; set; }
     public bool ValidateSamlTokenIntegrity { get; set; }
-    public string HostName { get; set; } = string.Empty;
+	public bool CanOverrideValidateSamlTokenIntegrityWithQueryParameter { get; set; }
+	public string HostName { get; set; } = string.Empty;
     public string IpAddress { get; set; } = string.Empty;
     public string AtnaLogExporterEndpoint { get; set; } = string.Empty;
     public string ClamAvEndpoint { get; set; } = string.Empty;

@@ -507,11 +507,11 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    private static AuthorOrganization? GetAuthorDepartmentFromClassification(ClassificationType authorClassification)
+    private static AuthorOrganization? GetAuthorDepartmentFromClassification(ClassificationType? authorClassification)
     {
         if (authorClassification == null) return null;
 
-        var authorOrganization = new AuthorOrganization();
+        //var authorOrganization = new AuthorOrganization();
 
         var authorSlotXon = authorClassification
             .GetSlots(Constants.Xds.SlotNames.AuthorInstitution)
@@ -524,7 +524,7 @@ public static class RegistryMetadataTransformer
         var organization = authorSlotXon.FirstOrDefault();
 
         // Old approach:
-        // Find organization XON here aswell to ensure we dont double-register stuff
+        // Find organization XON here aswell to ensure we don't double-register stuff
         //authorSlotXon
         //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
         //                          asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
@@ -537,14 +537,14 @@ public static class RegistryMetadataTransformer
         var department = authorSlotXon.LastOrDefault() is { AssigningAuthority: not null } gobb ? gobb : null;
         
         // Old approach:
-        // Find the XON object where assigningAuthority is NOT brreg(ie. empty, OID for department or other OID).
+        // Find the XON object where assigningAuthority is NOT brreg(i.e. empty, OID for department or other OID).
         // If none is found, take the first in the XON list
         //authorSlotXon
         //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
         //                         !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
         //                         (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
 
-        if (department != null && department?.OrganizationIdentifier != organization?.OrganizationIdentifier)
+        if (department != null && department.OrganizationIdentifier != organization?.OrganizationIdentifier)
         {
             return new()
             {
@@ -557,7 +557,7 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    private static AuthorOrganization? GetAuthorOrganizationFromClassification(ClassificationType authorClassification)
+    private static AuthorOrganization? GetAuthorOrganizationFromClassification(ClassificationType? authorClassification)
     {
         if (authorClassification == null) return null;
 
@@ -571,7 +571,11 @@ public static class RegistryMetadataTransformer
 
         // Find the XON object where assigningAuthority is NOT brreg.
         // If none is found, take the last in the XON list
-        var organization = authorSlotXon.LastOrDefault();
+        //@tim: var organization = authorSlotXon.LastOrDefault();
+        var organization = authorSlotXon
+            .Where(x => x?.OrganizationIdentifier != null && (bool)x.AssigningAuthority?.UniversalId?.Contains("2.16.578.1.12.4.1.4.101"))
+            .ToArray()
+            .FirstOrDefault();
         // HAYO! Is LastOrDefault sufficient?!?
         //.FirstOrDefault(asXon =>
         //    (asXon?.AssigningFacility?.UniversalId != null && asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||

@@ -550,19 +550,22 @@ public class XdsOnFhirTransformerService
         }
 
 
-
+        // Author Organization and Department part
+        
         var authorInstitution = new XON();
         var authorDepartment = new XON();
         var authorInstitutionValues = authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorInstitution)?.GetValues().Select(auth => Hl7Object.Parse<XON>(auth)).ToList();
 
-        if (authorInstitutionValues != null && authorInstitutionValues.Count > 0)
+        if (authorInstitutionValues is { Count: > 0 })
         {
             var organizations = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization");
             var departments = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department");
 
+            // Select value for legal entity from DTO 
             authorInstitution = authorInstitutionValues
                 .FirstOrDefault(authInst => organizations?.FirstOrDefault(org => org.NoUrn().Equals(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true) != null);
 
+            // Select value for department from DTO
             authorDepartment = authorInstitutionValues
                 .LastOrDefault(authInst => departments?.FirstOrDefault(dpt => dpt.NoUrn().Equals(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true) != null);
 
@@ -573,7 +576,7 @@ public class XdsOnFhirTransformerService
             }
         }
 
-
+        // Create HL7 FHIR Organization for legal entity 
         var organization = GetOrganizationFromAuthorInstitution(authorInstitution);
 
         if (authorInstitution != null && organization != null)
@@ -581,10 +584,10 @@ public class XdsOnFhirTransformerService
             resourceList.Add(organization);
         }
 
-
+        // Create HL7 FHIR Organization for department of legal entity
         var department = GetOrganizationDepartmentFromAuthorInstitution(authorDepartment);
 
-        if (authorDepartment != null && department != null)
+        if (authorDepartment != null)
         {
             department.PartOf = new ResourceReference()
             {
@@ -593,7 +596,8 @@ public class XdsOnFhirTransformerService
             resourceList.Add(department);
         }
 
-
+        // Author Speciality
+        
         var authorSpeciality = Hl7Object.Parse<CX>(authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorSpecialty)?.GetValues().FirstOrDefault());
         var authorRole = Hl7Object.Parse<CX>(authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorRole)?.GetValues().FirstOrDefault());
 
@@ -609,35 +613,63 @@ public class XdsOnFhirTransformerService
         return resourceList;
     }
 
-    private static Organization? GetOrganizationFromAuthorInstitution(XON? authorInstitution)
+    private static Organization GetOrganizationFromAuthorInstitution(XON? authorInstitution)
     {
         var organization = new Organization();
         if (authorInstitution != null)
         {
             organization.Id = Guid.NewGuid().ToString();
 
-            organization.Name = authorInstitution?.OrganizationName;
-            if (authorInstitution?.OrganizationIdentifier != null)
+            organization.Name = authorInstitution.OrganizationName;
+            if (authorInstitution.OrganizationIdentifier != null)
             {
-                organization.Identifier = [new() { Value = authorInstitution?.OrganizationIdentifier, System = authorInstitution?.AssigningAuthority?.UniversalId?.WithUrnOid() }];
+                organization.Identifier = [
+                    new Identifier
+                    {
+                        Value = authorInstitution.OrganizationIdentifier, 
+                        System = authorInstitution.AssigningAuthority?.UniversalId?.WithUrnOid()
+                    }];
             }
         }
 
         return organization;
     }
 
-    private static Organization? GetOrganizationDepartmentFromAuthorInstitution(XON? authorDepartment)
+    private static Organization GetOrganizationDepartmentFromAuthorInstitution(XON? authorDepartment)
     {
         var department = new Organization();
-        if (authorDepartment != null)
-        {
-            department.Id = Guid.NewGuid().ToString();
 
-            department.Name = authorDepartment?.OrganizationName;
-            if (authorDepartment?.OrganizationIdentifier != null)
+        if (authorDepartment == null) return department;
+        
+        department.Id = Guid.NewGuid().ToString();
+        department.Name = authorDepartment.OrganizationName;
+
+        // Add "dept"-code in department.Type if DTO provide oid == *.390
+        if (authorDepartment.AssigningAuthority?.UniversalId == "2.16.578.1.12.4.5.390")
+        {
+            department.Type =
+            [
+                new CodeableConcept
+                {
+                    Coding =
+                    [
+                        new Coding
+                        {
+                            Code = "dept",
+                            System = "http://terminology.hl7.org/CodeSystem/organization-type",
+                        }
+                    ]
+                }
+            ];
+        }
+        
+        if (authorDepartment.OrganizationIdentifier != null)
+        {
+            department.Identifier = [new Identifier
             {
-                department.Identifier = [new() { Value = authorDepartment?.OrganizationIdentifier, System = authorDepartment?.AssigningAuthority?.UniversalId?.WithUrnOid() }];
-            }
+                Value = authorDepartment.OrganizationIdentifier,
+                System = authorDepartment.AssigningAuthority?.UniversalId?.WithUrnOid()
+            }];
         }
 
         return department;
@@ -647,9 +679,10 @@ public class XdsOnFhirTransformerService
     {
         if (authorSpeciality == null && authorRole == null) return null;
 
-        var practitionerRole = new PractitionerRole();
-
-        practitionerRole.Id = Guid.NewGuid().ToString();
+        var practitionerRole = new PractitionerRole
+        {
+            Id = Guid.NewGuid().ToString()
+        };
 
         if (authorRole != null)
         {
@@ -718,7 +751,7 @@ public class XdsOnFhirTransformerService
                 practitioner.Identifier = [new() { Value = authorPerson.PersonIdentifier, System = authorPerson.AssigningAuthority?.UniversalId?.WithUrnOid() }];
             }
         }
-        // If its just a plain text name (authorPerson.PersonIdentifier will contain the name)
+        // If it is just a plain text name (authorPerson.PersonIdentifier will contain the name)
         else if (authorPerson != null && authorPerson.GivenName == null && authorPerson.FamilyName == null)
         {
             var nameParts = authorPerson.PersonIdentifier?.Split(" ");
@@ -759,7 +792,7 @@ public class XdsOnFhirTransformerService
         }
 
 
-        // Patient Id
+        // Patient ID
         var patientIdCx = Hl7Object.Parse<CX>(sourcePatientId);
         if (patientIdCx != null)
         {
