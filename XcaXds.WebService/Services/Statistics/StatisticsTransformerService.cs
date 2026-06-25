@@ -87,7 +87,10 @@ public class StatisticsTransformerService
             .OfType<OperationOutcome>()
             .FirstOrDefault() ?? responseOperationOutcome;
 
-        return operationOutcome?.Issue.Select(i => $"{i.Severity}: {i.Code} - {i.Diagnostics}").ToArray();
+        return operationOutcome?.Issue
+            .Where(iss => iss.Code != OperationOutcome.IssueType.Success)
+            .Select(i => $"{i.Severity}: {i.Code} - {i.Diagnostics}")
+            .ToArrayOrNull();
     }
 
     private async Task<UserAccessEntry> GetUserAccessEntryFromFhirUrlBasedRequest(StatisticsRequestAndFields inputFields, Resource? fhirBundleResponse = null)

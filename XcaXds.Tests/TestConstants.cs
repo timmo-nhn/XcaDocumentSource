@@ -69,6 +69,43 @@ public static class TestConstants
 
     public static class CodeSystems
     {
+        public static class Volven
+        {
+            public static class ConfidentialityCode_9603
+            {
+                public const string System = "2.16.578.1.12.4.1.1.9603";
+
+                /// <summary> Normal</summary>
+                public const string N = "N";
+                /// <summary> Nektet, andre grunner</summary>
+                public const string NORN_ANG = "NORN_ANG";
+                /// <summary> Nektet, alle dokumenter</summary>
+                public const string NORN_ALL = "NORN_ALL";
+                /// <summary> Nektet, duplikat</summary>
+                public const string NORN_DUP = "NORN_DUP";
+                /// <summary> Nektet, eget ønske</summary>
+                public const string NORN_EPO = "NORN_EPO";
+                /// <summary> Nektet, fare for helsepersonell</summary>
+                public const string NORN_FFH = "NORN_FFH";
+                /// <summary> Nektet, fare for liv</summary>
+                public const string NORN_FFL = "NORN_FFL";
+                /// <summary> Nektet, foreldet</summary>
+                public const string NORN_FOR = "NORN_FOR";
+                /// <summary> Nektet, foreldreansvarlig</summary>
+                public const string NORN_FORANS = "NORN_FORANS";
+                /// <summary> Nektet, forsvarlig pasientbehandling</summary>
+                public const string NORN_FPB = "NORN_FPB";
+                /// <summary> Nektet, klart utilrådelig</summary>
+                public const string NORN_KUT = "NORN_KUT";
+                /// <summary> Nektet, ungdom</summary>
+                public const string NORN_UNGDOM = "NORN_UNGDOM";
+                /// <summary> Sperret</summary>
+                public const string NORS = "NORS";
+                /// <summary> Utsatt innsyn for innbygger</summary>
+                public const string NORU = "NORU";
+            }
+        }
+
         public static class Hl7
         {
             public static class ConfidentialityCode
