@@ -37,14 +37,11 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
-        var isLocal = Context.Connection.RemoteIpAddress is { } ip &&
-              (IPAddress.IsLoopback(ip) || ip.Equals(Context.Connection.LocalIpAddress));
-
         var apiKey = Request.Headers.TryGetValue(headerName, out var providedKey) ? providedKey.OfType<string>().ToArrayOrNull() : null;
 
         // Skip auth when no key is provided and config allows bypass or request is local;
         // if a key IS provided it must always be validated regardless of config/ip
-        var shouldSkipAuth = !(apiKey?.Length > 0) && (_appConfig.ApiKeyEnabled || isLocal);
+        var shouldSkipAuth = _appConfig.ApiKeyEnabled == false || apiKey?.Any() == true;
 
         if (shouldSkipAuth)
         {
