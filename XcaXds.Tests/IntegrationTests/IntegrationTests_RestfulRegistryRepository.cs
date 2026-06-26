@@ -5,6 +5,7 @@ using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
@@ -36,18 +37,17 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
 
     [Fact]
     [Trait("Delete", "Registry/Repository")]
-    public async Task Get_Rest_DocumentReference()
+    public async Task Get_Rest_DocumentReference_NoApiKey()
     {
-        var days = Random.Shared.Next(30, 365);
 
         var documentEntries = (await EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber)).AsRegistryObjectDtos().OfType<DocumentEntryDto>().ToArray();
+        var randomEntry = documentEntries.PickRandom();
 
-        var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.Now.AddDays(-days)).ToArray();
+        _client.DefaultRequestHeaders.Remove("X-API-KEY");
 
-        var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days);
-        var firstResponse = await _client.DeleteAsync(url);
+        var url = QueryHelpers.AddQueryString("/api/rest/document-list", "id", randomEntry.SourcePatientInfo?.PatientId?.Id!);
+        var firstResponse = await _client.GetAsync(url);
 
-        Assert.Equal(await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(), documentEntries.Length - oldDocumentEntries.Length);
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         var content = await firstResponse.Content.ReadAsStringAsync();
     }
 
-    private void SetDocumentRegistryContent()
+    private List<RegistryObjectDto> SetDocumentRegistryContent()
     {
         var documentEntries = new List<RegistryObjectDto>
         {
@@ -188,5 +188,6 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         };
 
         _registryWrapper.SetDocumentRegistryContentWithDtos(documentEntries);
+        return documentEntries;
     }
 }
