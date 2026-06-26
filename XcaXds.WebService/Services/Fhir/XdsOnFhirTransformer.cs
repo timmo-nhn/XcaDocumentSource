@@ -665,11 +665,13 @@ public class XdsOnFhirTransformerService
         
         if (authorDepartment.OrganizationIdentifier != null)
         {
-            department.Identifier = [new Identifier
-            {
-                Value = authorDepartment.OrganizationIdentifier,
-                System = authorDepartment.AssigningAuthority?.UniversalId?.WithUrnOid()
-            }];
+            department.Identifier = [
+                new Identifier
+                    {
+                        Value = authorDepartment.OrganizationIdentifier,
+                        System = authorDepartment.AssigningAuthority?.UniversalId?.WithUrnOid()
+                        }
+            ];
         }
 
         return department;

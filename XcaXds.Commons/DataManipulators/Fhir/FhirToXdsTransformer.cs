@@ -1564,9 +1564,9 @@ public class FhirToXdsTransformerService
             if (!string.IsNullOrEmpty(deptTypeSystem))
             {
                 if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
-                        $"http://terminology.hl7.org/CodeSystem/organization-type") != 0)
+                        $"http://terminology.hl7.org/CodeSystem/organization-type") == 0 )
                     if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.Code, 
-                            "dept") != 0)
+                            "dept") == 0)
                     {
                         deptOid = "2.16.578.1.12.4.5.390";
                         deptName = authorDept.Name;
