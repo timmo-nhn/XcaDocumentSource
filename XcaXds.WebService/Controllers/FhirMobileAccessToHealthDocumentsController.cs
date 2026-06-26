@@ -338,8 +338,6 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 OperationOutcome.IssueSeverity.Fatal));
         }
 
-        ProvideBundleResult? provideBundleResult = new();
-
         // Validate bundle first
         var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
         var anyValidationErrors = validationResult.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error) == true;
@@ -354,7 +352,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         }
 
         // Then provide
-        provideBundleResult = await _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, effectiveValidate);
+        var provideBundleResult = await _fhirService.ProvideBundle(fhirBundle, Request.HttpContext.TraceIdentifier, effectiveValidate);
         provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
 
         // ATNA Audit Log generation

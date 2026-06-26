@@ -23,6 +23,8 @@ public static class ConfigBinder
         appConfig.AtnaLogExporterEndpoint = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__AtnaLogExporterEndpoint").Value;
         appConfig.ClamAvEndpoint = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__ClamavEndpoint").Value;
         appConfig.HostName = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "HOSTNAME").Value;
+        appConfig.ApiKey = xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__ApiKey").Value;
+        appConfig.ApiKeyEnabled = bool.Parse(xdsConfigEnvVars.FirstOrDefault(f => f.Key == "XdsConfiguration__ApiKeyEnabled").Value ?? "true");
 
         return appConfig;
     }

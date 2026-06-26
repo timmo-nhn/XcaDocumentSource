@@ -1,6 +1,8 @@
 ﻿
 public class ApplicationConfig
 {
+    public bool ApiKeyEnabled { get; set; }
+    public string ApiKey { get; set; } = string.Empty;
     public int TimeoutInSeconds { get; set; }
     public bool WrapRetrievedDocumentInCda { get; set; }
     public bool MultipartResponseForIti43AndIti39 { get; set; }
