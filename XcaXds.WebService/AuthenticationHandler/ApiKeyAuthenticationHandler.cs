@@ -41,7 +41,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
 
         // Skip auth when no key is provided and config allows bypass or request is local;
         // if a key IS provided it must always be validated regardless of config/ip
-        var shouldSkipAuth = _appConfig.ApiKeyEnabled == false || apiKey?.Any() == true;
+        var shouldSkipAuth = apiKey == null && _appConfig.ApiKeyEnabled == false;
 
         if (shouldSkipAuth)
         {
