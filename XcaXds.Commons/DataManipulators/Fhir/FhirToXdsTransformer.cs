@@ -709,7 +709,10 @@ public class FhirToXdsTransformerService
                         ref listProcessedOrganization,
                         ref listAuthorSlots,
                         ref operationOutcome);
-                    listProcessedOrganization.Add(orgReference);
+                    if (orgReference != null)
+                    {
+                        listProcessedOrganization.Add(orgReference);
+                    }
 
                     // Role
                     AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
@@ -751,6 +754,11 @@ public class FhirToXdsTransformerService
             // Remove processed Organization from main processing list
             foreach (var processedOrganization in listProcessedOrganization)
             {
+                if (processedOrganization == null)
+                {
+                    continue;
+                }
+
                 var processedOrg = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
                 if (processedOrg != null)
                 {
@@ -775,7 +783,10 @@ public class FhirToXdsTransformerService
 
                     // Organization
                     AddAuthorInstitutionSlot(documentReference, orgReference, ref listOrganization, ref listProcessedOrganization, ref listAuthorSlots, ref operationOutcome);
-                    listProcessedOrganization.Add(orgReference);
+                    if (orgReference != null)
+                    {
+                        listProcessedOrganization.Add(orgReference);
+                    }
 
                     // Role
                     AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
@@ -806,6 +817,11 @@ public class FhirToXdsTransformerService
                 // Remove processed Organization from main list
                 foreach (var processedOrganization in listProcessedOrganization)
                 {
+                    if (processedOrganization == null)
+                    {
+                        continue;
+                    }
+
                     var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
 
                     if (processedOrganizations != null)
@@ -842,6 +858,11 @@ public class FhirToXdsTransformerService
                 // Remove processed Organization from main list
                 foreach (var processedOrganization in listProcessedOrganization)
                 {
+                    if (processedOrganization == null)
+                    {
+                        continue;
+                    }
+
                     var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
 
                     if (processedOrganizations != null)
@@ -1347,7 +1368,10 @@ public class FhirToXdsTransformerService
         // Department
         var refAuthorDept = GetAuthorDepartment(documentReference, listOrganization, orgReference, out var deptOrgReference);
 
-        listProcessedOrganization.Add(deptOrgReference);
+        if (deptOrgReference != null)
+        {
+            listProcessedOrganization.Add(deptOrgReference);
+        }
         
         var refAuthorOrg = GetAuthorOrganization(documentReference, orgReference);
 
@@ -1537,66 +1561,63 @@ public class FhirToXdsTransformerService
         };
     }
 
-    private static XON? GetAuthorDepartment(DocumentReference documentReference, List<ResourceReference> listOrganization, ResourceReference? parentOrgReference, out ResourceReference deptOrgReference)
+    private static XON? GetAuthorDepartment(DocumentReference documentReference, List<ResourceReference> listOrganization, ResourceReference? parentOrgReference, out ResourceReference? deptOrgReference)
     {
-        deptOrgReference = null!;
+        deptOrgReference = null;
 
-        foreach (var orgRef in listOrganization)
+        var authorDept = documentReference.Contained?
+            .OfType<Organization>()
+            .FirstOrDefault(dpt => dpt.PartOf?.Reference == parentOrgReference?.Reference);
+
+        if (authorDept?.Id == null || authorDept.Name == null)
         {
-            var authorDept = documentReference.Contained?
-                .OfType<Organization>()
-                .FirstOrDefault(dpt => dpt.PartOf?.Reference == parentOrgReference?.Reference);
-
-
-            if (authorDept?.Name == null) continue;
-            
-            deptOrgReference = orgRef;
-
-            // Define if department is RESH-type (urn:oid:***.102) or evt. defined with nhn-oid for department (urn:oid:***.390)
-            // potentionally can be expressed as type of organization by using HL7-code "dept" which can be also accepted
-                
-            var deptTypeSystem = authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.System;
-
-            var deptOid = "";
-            var deptName = "";
-
-            // Check first if "dept"-code is defined
-            if (!string.IsNullOrEmpty(deptTypeSystem))
-            {
-                if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
-                        $"http://terminology.hl7.org/CodeSystem/organization-type") == 0 )
-                    if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.Code, 
-                            "dept") == 0)
-                    {
-                        deptOid = "2.16.578.1.12.4.5.390";
-                        deptName = authorDept.Name;
-                    }
-            }
-
-            // Focus on OID-usage
-            switch (authorDept.Identifier.FirstOrDefault()?.System)
-            {
-                // RESH-id
-                case "2.16.578.1.12.4.1.4.102":
-                // NHNs help-OID for department    
-                case "2.16.578.1.12.4.5.390":
-                    deptOid = authorDept.Identifier.FirstOrDefault()?.System;
-                    deptName = authorDept.Identifier.FirstOrDefault()?.Value;
-                    break;
-            }
-
-            var authorDepartment = new XON()
-            {
-                OrganizationName = deptName,
-                AssigningAuthority = new HD()
-                {
-                    UniversalId = deptOid,
-                    UniversalIdType = "ISO"
-                }
-            };
-            return authorDepartment;
+            return null;
         }
-        return null;
+
+        deptOrgReference = listOrganization.FirstOrDefault(orgRef =>
+            string.Equals(orgRef.Reference, $"#{authorDept.Id}", StringComparison.Ordinal));
+
+        if (deptOrgReference == null)
+        {
+            return null;
+        }
+
+        var deptTypeSystem = authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.System;
+
+        var deptOid = "";
+        var deptName = "";
+
+        if (!string.IsNullOrEmpty(deptTypeSystem))
+        {
+            if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.System,
+                    "http://terminology.hl7.org/CodeSystem/organization-type") == 0)
+                if (string.CompareOrdinal(authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault()?.Code,
+                        "dept") == 0)
+                {
+                    deptOid = "2.16.578.1.12.4.5.390";
+                    deptName = authorDept.Name;
+                }
+        }
+
+        switch (authorDept.Identifier.FirstOrDefault()?.System)
+        {
+            case "2.16.578.1.12.4.1.4.102":
+            case "2.16.578.1.12.4.5.390":
+                deptOid = authorDept.Identifier.FirstOrDefault()?.System;
+                deptName = authorDept.Identifier.FirstOrDefault()?.Value;
+                break;
+        }
+
+        var authorDepartment = new XON()
+        {
+            OrganizationName = deptName,
+            AssigningAuthority = new HD()
+            {
+                UniversalId = deptOid,
+                UniversalIdType = "ISO"
+            }
+        };
+        return authorDepartment;
     }
 
     internal static XON? GetAuthorDepartment(List submissionSet)
