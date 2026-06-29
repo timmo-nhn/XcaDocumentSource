@@ -284,10 +284,6 @@
 					{
 						"reference": "#3ae94be8-d67a-42b8-9711-6865a8d35712",
 						"type": "Organization"
-					},
-					{
-						"reference": "#b6d21163-3a20-4b9d-915e-21d37fd11854",
-						"type": "Organization"
 					}
 				],
 				"securityLabel": [
