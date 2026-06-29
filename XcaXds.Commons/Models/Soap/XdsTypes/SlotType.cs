@@ -121,4 +121,14 @@ public partial class SlotType
             ValueList.Value = [.. ValueList.Value, value];
         }
     }
+
+    internal void SetValue(params string?[]? values)
+    {
+        if (values == null || values.Length == 0) return;
+
+        ValueList ??= new();
+        ValueList.Value ??= [];
+
+        ValueList.Value = values.OfType<string>().ToArray();
+    }
 }

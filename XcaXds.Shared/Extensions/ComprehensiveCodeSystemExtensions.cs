@@ -70,11 +70,21 @@ public static class ComprehensiveCodeSystemExtensions
     /// <summary>
     /// Get a certain value, and its associated system, based on the name. If the value is not found, returns null.
     /// </summary>
-    public static string? GetByName(this IEnumerable<ComprehensiveCodeSystem>? source, string name)
+    public static string? GetFirstValueByName(this IEnumerable<ComprehensiveCodeSystem>? source, string name)
     {
         var ss = source?.SelectMany(v => v.Values ?? []);
         return ss?.FirstOrDefault(v => v.Name == name)?.Value;
     }
+
+    /// <summary>
+    /// Get all values matching Code system value name. If the value is not found, returns null.
+    /// </summary>
+    public static string[]? GetAllValuesByName(this IEnumerable<ComprehensiveCodeSystem>? source, string name)
+    {
+        var ss = source?.SelectMany(v => v.Values ?? []);
+        return ss?.Where(v => v.Name == name).Select(v => v.Value).OfType<string>().ToArray();
+    }
+
 
     /// <summary>
     /// Get a certain value, and its associated system, based on the name. If the value is not found, returns null.

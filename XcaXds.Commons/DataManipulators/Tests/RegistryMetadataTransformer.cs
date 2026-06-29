@@ -348,9 +348,6 @@ public static class RegistryMetadataTransformer
         }
 
         return null;
-
-
-
     }
 
     private static string? GetLanguageCodeFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
@@ -937,7 +934,7 @@ public static class RegistryMetadataTransformer
     private static void GetLegalAuthenticatorSlotFromDocumentEntryDto(ExtrinsicObjectType extrinsicObject, DocumentEntryDto documentEntryMetadata)
     {
         var legalAuthenticator = documentEntryMetadata.LegalAuthenticator;
-        if (legalAuthenticator != null)
+        if (legalAuthenticator?.Id != null)
         {
             string? middleName = null;
             string? lastName = null;

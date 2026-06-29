@@ -19,9 +19,9 @@ public class NorwegianNinParser : INinParser
     {
         _terminologyService = terminologyService;
         _ninSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PersonAssigningAuthorities);
-        Fnr = _ninSystems.GetByName("NIN")!;
-        Dnr = _ninSystems.GetByName("TNIN")!;
-        Hnr = _ninSystems.GetByName("ENIN")!;
+        Fnr = _ninSystems.GetFirstValueByName("NIN")!;
+        Dnr = _ninSystems.GetFirstValueByName("TNIN")!;
+        Hnr = _ninSystems.GetFirstValueByName("ENIN")!;
     }
 
     public string Fnr { get; init; }

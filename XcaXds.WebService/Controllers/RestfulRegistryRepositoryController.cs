@@ -1,13 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
+using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.Fhir;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
 
@@ -21,6 +27,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 {
     private readonly ILogger<RestfulRegistryRepositoryController> _logger;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
+    private readonly XdsOnFhirTransformerService _xdsOnFhirTransformerService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly IVariantFeatureManager _featureManager;
@@ -28,6 +35,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
     public RestfulRegistryRepositoryController(
         ILogger<RestfulRegistryRepositoryController> logger,
         RestfulRegistryRepositoryService registryRestfulService,
+        XdsOnFhirTransformerService xdsOnFhirTransformerService,
         IVariantFeatureManager featureManager,
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper
@@ -35,6 +43,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
     {
         _logger = logger;
         _restfulRegistryService = registryRestfulService;
+        _xdsOnFhirTransformerService = xdsOnFhirTransformerService;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _featureManager = featureManager;
@@ -203,13 +212,13 @@ public class RestfulRegistryRepositoryController : ControllerBase
         return Content(RegistryJsonSerializer.Serialize(result), Constants.MimeTypes.Json);
     }
 
-    [Produces("application/json")]
+    [Produces("application/json", "application/xml")]
     [HttpGet("document-entry")]
-    public async Task<IActionResult> GetDocumentEntry(string? id)
+    public async Task<IActionResult> GetDocumentEntry(string? id, RestfulDocumentEntryReturnType returnType)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry");
+        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry. Return type: {returnType.ToString()}");
 
         if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("X-Patient-Id", out var patientId))
         {
@@ -246,15 +255,55 @@ public class RestfulRegistryRepositoryController : ControllerBase
                 DocumentId = documentEntry?.UniqueId
             }
         };
-        requestTimer.Stop();
+        var registryObjectList = RegistryMetadataTransformer.TransformDocumentReferenceDtoToRegistryObjects(documentReference);
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry");
-
-        if (documentEntry != null)
+        switch (returnType)
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {documentEntry.Id} in {requestTimer.ElapsedMilliseconds} ms");
-            return Content(RegistryJsonSerializer.Serialize(documentReference), Constants.MimeTypes.Json);
+            case RestfulDocumentEntryReturnType.Rest:
+
+
+                requestTimer.Stop();
+
+                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry. Id: '{documentEntry?.Id}' Time: '{requestTimer.ElapsedMilliseconds}' ms");
+
+                if (documentEntry != null)
+                {
+                    return Content(RegistryJsonSerializer.Serialize(documentReference), Constants.MimeTypes.Json);
+                }
+                break;
+
+            case RestfulDocumentEntryReturnType.EbRim:
+                
+                var sxmls = new SoapXmlSerializer();
+                var content = sxmls.SerializeSoapMessageToXmlString(registryObjectList).Content;
+
+                if (!string.IsNullOrWhiteSpace(content))
+                {
+                    return Content(content, Constants.MimeTypes.Xml);
+                }
+
+                break;
+
+            case RestfulDocumentEntryReturnType.Fhir:
+                var documentReferenceList = _xdsOnFhirTransformerService.GetFhirDocumentReferencesFromRegistryObjects(registryObjectList);
+                
+                var bundle = new Bundle();
+
+                foreach (var abbe in documentReferenceList)
+                {
+                    bundle.Entry.Add(new() { Resource = abbe});
+                }
+
+                var fhirParser = new FhirJsonSerializer();
+                var fhirDocumentReferences = fhirParser.SerializeToString(bundle);
+
+                if (!string.IsNullOrWhiteSpace(fhirDocumentReferences))
+                {
+                    return Content(fhirDocumentReferences, Constants.MimeTypes.FhirJson);
+                }
+                break;
         }
+
 
         return NotFound();
     }

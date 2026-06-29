@@ -1,14 +1,18 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using XcaXds.BusinessLogic.Services;
+using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
@@ -783,6 +787,113 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         await WaitForAtnaLogToBeExported();
 
         _output.WriteLine($"Registry count before test run: {RegistryItemCount}\nUploaded: {itemsToUploadCount} entries.\nRegistry count: {registryCountAfterPnr}\nExported AtnaLog: {_atnaLogExportedChecker.AtnaMessageString}\nUser Access Entry: {MockStatisticsProcessorService.UserAccessEntryJson}");
+    }
+
+    [Fact]
+    [Trait("Upload", "Modify Registry/Repository")]
+    public async Task PNR_XGQ_ProvideBundle_GetDocumentList()
+    {
+        // Provide Bundle
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_machine_providebundle",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "Create",
+            noCode: true);
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
+
+        RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("ProvideBundle02.json")));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
+
+        var fhirParser = new FhirJsonDeserializer();
+        var fhirBundle = fhirParser.DeserializeResource(fhirProvideBundle);
+
+        var resources = fhirBundle is Bundle bundle ? bundle.Entry
+            .Select(e => e.Resource).ToArray()
+            : null;
+
+        var provideBundleDocumentUniqueId = resources
+            .OfType<Binary>()
+            .FirstOrDefault().Id;
+
+        var provideBundlePatient = resources
+            .OfType<Patient>()
+            .FirstOrDefault()
+            .Identifier
+            .FirstOrDefault();
+
+        var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle")
+        {
+            Content = stringContent
+        };
+
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+
+        var expectedCount = RegistryContent.Count + 1;
+
+        var firstResponse = await _client.SendAsync(httpRequest);
+
+        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
+        var documentFromProvideBundle = _repository.Read(provideBundleDocumentUniqueId);
+
+        Assert.NotNull(documentFromProvideBundle);
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(expectedCount, actualCount);
+
+        // Cross gateway query to get document list
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_CrossGatewayQuery",
+            attributeId: Constants.Saml.Attribute.Role,
+            codeValue: "LE;SP;PS",
+            codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
+            action: "ReadDocumentList");
+
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        
+        integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
+
+        var bundlePatientIdCx = new CX(provideBundlePatient.Value, provideBundlePatient.System.NoUrn()).Serialize();
+
+        var documentEntryDto = _restfulRegistryService.GetDocumentListForPatient(bundlePatientIdCx,"approved").DocumentListEntries?.FirstOrDefault()?.DocumentReference;
+        var documentEntryDtoJson = RegistryJsonSerializer.Serialize(documentEntryDto);
+        var iti38Object = sxmls.DeserializeXmlString<SoapEnvelope>(iti38SoapEnvelope);
+
+        iti38Object.Body.AdhocQueryRequest.AdhocQuery.SetSlotValue(Constants.Xds.QueryParameters.FindDocuments.PatientId, bundlePatientIdCx);
+
+        iti38SoapEnvelope = sxmls.SerializeSoapMessageToXmlString(iti38Object).Content;
+
+        var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalSamlToken(iti38SoapEnvelope);
+
+        var secondResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var secondContent = await secondResponse.Content.ReadAsStringAsync();
+        
+        var secondResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(secondContent);
+
+        var count = secondResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
+
+        _output.WriteLine($"================DocumentEntry (JSON)================\n {documentEntryDtoJson}\n\n================SOAP response================\n {sxmls.SerializeSoapMessageToXmlString(secondResponseSoap, Constants.XmlDefaultOptions.DefaultXmlWriterSettings).Content}\n\n================Bundle================\n {Regex.Replace(fhirProvideBundle, "PD94bW.*?\"","<base64>\"")}");
     }
 
     [Fact]

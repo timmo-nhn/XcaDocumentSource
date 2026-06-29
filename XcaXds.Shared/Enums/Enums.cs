@@ -79,6 +79,13 @@ public enum StoredQuery
 //    SnapshotOfOnDemandDocumentEntry
 //}
 
+public enum RestfulDocumentEntryReturnType
+{
+    Rest,
+    EbRim,
+    Fhir,
+}
+
 public enum ReturnType
 {
     LeafClass,

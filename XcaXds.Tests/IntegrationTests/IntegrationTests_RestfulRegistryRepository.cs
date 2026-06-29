@@ -1,10 +1,12 @@
 ﻿using Hl7.Fhir.Model;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.WebUtilities;
-using XcaXds.BusinessLogic.Services;
-using XcaXds.Commons.Commons;
+using System.Net;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Shared;
+using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 using Xunit.Abstractions;
@@ -36,7 +38,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
     }
 
     [Fact]
-    [Trait("Delete", "Registry/Repository")]
+    [Trait("Get", "Registry/Repository")]
     public async Task Get_Rest_DocumentReference_NoApiKey()
     {
 
@@ -51,6 +53,29 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
     }
 
     [Fact]
+    [Trait("Get", "Registry/Repository")]
+    public async Task Get_Rest_DocumentReference_Fhir()
+    {
+        var documentEntries = (await EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber)).AsRegistryObjectDtos().OfType<DocumentEntryDto>().ToArray();
+        var randomEntry = documentEntries.PickRandom();
+
+        var url = QueryHelpers.AddQueryString("/api/rest/document-entry", 
+        [ 
+            new KeyValuePair<string,string>("id", randomEntry.Id!)!,
+            new KeyValuePair<string,string>("returnType", RestfulDocumentEntryReturnType.Fhir.ToString())!,
+
+        ]);
+
+        var firstResponse = await _client.GetAsync(url);
+        var content = await firstResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+        Assert.Equal(Constants.MimeTypes.FhirJson, firstResponse.Content.Headers.ContentType?.MediaType);
+
+        _output.WriteLine("Entry: " + content);
+    }
+
+    [Fact]
     [Trait("Delete", "Registry/Repository")]
     public async Task Delete_SpecificParameteres()
     {
@@ -58,7 +83,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
 
         var parameters = new List<KeyValuePair<string, string?>>
         {
-            new("patientIdentifier", "2.16.578.1.12.4.1.4.1|13116900216"),
+            new("patientIdentifier", $"{PatientIdentifier.AssigningAuthority?.UniversalId}|{PatientIdentifier.IdNumber}"),
             new("securityLabel", "2.16.840.1.113883.5.25|V"),
             new("securityLabel", "2.16.578.1.12.4.1.1.9603|NORN_ANG"),
         };

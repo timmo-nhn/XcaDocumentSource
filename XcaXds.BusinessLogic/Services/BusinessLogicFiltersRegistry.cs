@@ -100,15 +100,15 @@ public class BusinessLogicFiltersRegistry
         Restricted = confidentialityCode.GetByValueSystem("R")?.Value!;
         VeryRestricted = confidentialityCode.GetByValueSystem("V")?.Value!;
 
-        Acp.NullValue = acp.GetByName("NullValue")!;
-        Acp.RepresentCitizenUnder12 = acp.GetByName("RepresentCitizenUnder12")!;
-        Acp.RepresentAnotherCitizen = acp.GetByName("RepresentAnotherCitizen")!;
-        Acp.RepresentedUnableToConsent = acp.GetByName("RepresentedUnableToConsent")!;
-        Acp.NotObligedToConsent = acp.GetByName("NotObligedToConsent")!;
-        Acp.ExcplicitConsent = acp.GetByName("ExcplicitConsent")!;
-        Acp.UnableToConsent = acp.GetByName("UnableToConsent")!;
-        Acp.ExceptionToConcent = acp.GetByName("ExceptionToConcent")!;
-        Acp.HasConsent = acp.GetByName("HasConsent")!;
+        Acp.NullValue = acp.GetFirstValueByName("NullValue")!;
+        Acp.RepresentCitizenUnder12 = acp.GetFirstValueByName("RepresentCitizenUnder12")!;
+        Acp.RepresentAnotherCitizen = acp.GetFirstValueByName("RepresentAnotherCitizen")!;
+        Acp.RepresentedUnableToConsent = acp.GetFirstValueByName("RepresentedUnableToConsent")!;
+        Acp.NotObligedToConsent = acp.GetFirstValueByName("NotObligedToConsent")!;
+        Acp.ExcplicitConsent = acp.GetFirstValueByName("ExcplicitConsent")!;
+        Acp.UnableToConsent = acp.GetFirstValueByName("UnableToConsent")!;
+        Acp.ExceptionToConcent = acp.GetFirstValueByName("ExceptionToConcent")!;
+        Acp.HasConsent = acp.GetFirstValueByName("HasConsent")!;
     }
 
     public string[] GetAllowedMimeTypes() =>
