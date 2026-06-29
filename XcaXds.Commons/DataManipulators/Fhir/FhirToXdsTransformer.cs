@@ -1565,9 +1565,22 @@ public class FhirToXdsTransformerService
     {
         deptOrgReference = null;
 
-        var authorDept = documentReference.Contained?
+        var referencedOrganization = documentReference.Contained?
             .OfType<Organization>()
-            .FirstOrDefault(dpt => dpt.PartOf?.Reference == parentOrgReference?.Reference);
+            .FirstOrDefault(org => org.Id == parentOrgReference?.Reference?.Trim('#'));
+
+        Organization? authorDept = null;
+
+        if (referencedOrganization?.PartOf != null)
+        {
+            authorDept = referencedOrganization;
+        }
+        else
+        {
+            authorDept = documentReference.Contained?
+                .OfType<Organization>()
+                .FirstOrDefault(dpt => dpt.PartOf?.Reference == parentOrgReference?.Reference);
+        }
 
         if (authorDept?.Id == null || authorDept.Name == null)
         {
