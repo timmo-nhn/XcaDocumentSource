@@ -40,8 +40,8 @@ public class SamlValidatorService
         ValidationParameters = new TokenValidationParameters()
         {
             ClockSkew = TimeSpan.FromMinutes(5),
-            ValidAudiences = _appConfig.ValidAudiences,
-            ValidIssuers = _appConfig.ValidIssuers,
+            ValidAudiences = _appConfig.SamlValidationValidAudiences,
+            ValidIssuers = _appConfig.SamlValidationValidIssuers,
 
             IssuerSigningKeys = signingKeys,
             ValidateAudience = true,

@@ -296,7 +296,7 @@ public class Program
             var envVars = Environment.GetEnvironmentVariables()
                 .Cast<DictionaryEntry>()
                 .Select(e => new KeyValuePair<string, string>((string)e.Key, (string)e.Value!))
-                .ToList();
+                .ToDictionary();
 
             foreach (var var in envVars)
             {
@@ -329,10 +329,10 @@ public class Program
     {
         var xdsConfigurationSection = builder.Configuration.GetSection("XdsConfiguration");
 
-        xdsConfig.CertificatesRaw = GetDelimitedArrayOrFallback(xdsConfigurationSection["CertificatesRaw"], xdsConfig.CertificatesRaw);
-        xdsConfig.SigningCertificateUrls = GetDelimitedArrayOrFallback(xdsConfigurationSection["SigningCertificateUrls"], xdsConfig.SigningCertificateUrls);
-        xdsConfig.ValidAudiences = GetDelimitedArrayOrFallback(xdsConfigurationSection["ValidAudiences"], xdsConfig.ValidAudiences);
-        xdsConfig.ValidIssuers = GetDelimitedArrayOrFallback(xdsConfigurationSection["ValidIssuers"], xdsConfig.ValidIssuers);
+        xdsConfig.SamlValidationCertificatesRaw = GetDelimitedArrayOrFallback(xdsConfigurationSection["CertificatesRaw"], xdsConfig.SamlValidationCertificatesRaw);
+        xdsConfig.SamlValidationSigningCertificateUrls = GetDelimitedArrayOrFallback(xdsConfigurationSection["SigningCertificateUrls"], xdsConfig.SamlValidationSigningCertificateUrls);
+        xdsConfig.SamlValidationValidAudiences = GetDelimitedArrayOrFallback(xdsConfigurationSection["ValidAudiences"], xdsConfig.SamlValidationValidAudiences);
+        xdsConfig.SamlValidationValidIssuers = GetDelimitedArrayOrFallback(xdsConfigurationSection["ValidIssuers"], xdsConfig.SamlValidationValidIssuers);
     }
 
     private static string[] GetDelimitedArrayOrFallback(string? rawValue, string[]? fallback)

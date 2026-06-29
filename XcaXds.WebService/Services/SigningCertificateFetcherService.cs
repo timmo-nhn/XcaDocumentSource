@@ -22,11 +22,11 @@ public class SigningCertificateFetcherService
     {
         var client = _httpClientFactory.CreateClient();
 
-        var urls = _applicationConfig.SigningCertificateUrls;
+        var urls = _applicationConfig.SamlValidationSigningCertificateUrls;
 
-        var fallbackDefinedCertificates = _applicationConfig.CertificatesRaw;
+        var fallbackDefinedCertificates = _applicationConfig.SamlValidationCertificatesRaw;
 
-        _logger.LogDebug($"Found {urls.Length} URLs to get certificates from: " + string.Join(", ",_applicationConfig.SigningCertificateUrls));
+        _logger.LogDebug($"Found {urls.Length} URLs to get certificates from: " + string.Join(", ",_applicationConfig.SamlValidationSigningCertificateUrls));
 
         try
         {
