@@ -1,4 +1,5 @@
-﻿using Hl7.Fhir.Model;
+﻿using System.Diagnostics;
+using Hl7.Fhir.Model;
 using Hl7.Fhir.Support;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -94,7 +95,7 @@ public class FhirToXdsTransformerService
             }
 
             var validationOutcome = ValidateDocumentRelations(documentReference);
-            if (validationOutcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
+            if (validationOutcome.Issue.Any(issue => issue.Severity == OperationOutcome.IssueSeverity.Error))
             {
                 operationOutcome.AddIssue(validationOutcome.Issue);
                 continue; // or fail fast
@@ -228,7 +229,7 @@ public class FhirToXdsTransformerService
                 });
             }
 
-            // XDS SubmAuthor
+            // XDS SubmAuthor - Legal entity
             var submAuthorOrg = GetAuthorOrganization(submissionSetList);
 
             if (submAuthorOrg == null)
@@ -242,7 +243,7 @@ public class FhirToXdsTransformerService
                 });
             }
 
-            // Department
+            // XDS SubmAuthor - Department
             var submAuthorDept = GetAuthorDepartment(submissionSetList);
 
             if (submAuthorDept == null)
@@ -303,7 +304,7 @@ public class FhirToXdsTransformerService
                     }
                 };
 
-                var slotPreview = string.Join(", ", authorDepartmentSlot.ValueList.Value.Select(val => val.Substring(0, 5).Trim() + "...")).ToArray();
+                //var slotPreview = string.Join(", ", authorDepartmentSlot.ValueList.Value.Select(val => val.Substring(0, 5).Trim() + "...")).ToArray();
 
                 var submAuthorDepartmentString = submAuthorDept?.Serialize();
 
@@ -1614,8 +1615,8 @@ public class FhirToXdsTransformerService
 
         if (deptIdentifier?.System.IsAnyOf(department,departmentAlternate) == true)
         {
-            deptOid = deptIdentifier?.System;
-            deptName = deptIdentifier?.Value;
+            deptOid = deptIdentifier.System;
+            deptName = deptIdentifier.Value;
         }
 
         var authorDepartment = new XON()
@@ -1625,19 +1626,20 @@ public class FhirToXdsTransformerService
             {
                 UniversalId = deptOid,
                 UniversalIdType = "ISO"
-            }
+            },
+            OrganizationIdentifier = authorDept.Identifier.FirstOrDefault()?.Value ?? $"name-only:{deptName}"
         };
 
         return authorDepartment;
     }
 
-    internal XON? GetAuthorDepartment(List submissionSet)
+    private XON? GetAuthorDepartment(List submissionSet)
     {
         var authorDept = submissionSet.Contained
             .OfType<Organization>()
-            .FirstOrDefault(dpt => dpt?.PartOf != null);
+            .FirstOrDefault(dpt => dpt.PartOf != null);
 
-        if (authorDept == null || authorDept.Name == null)
+        if (authorDept?.Name == null)
         {
             return null;
         }
@@ -1645,21 +1647,40 @@ public class FhirToXdsTransformerService
 
         // Define if department is RESH-type (urn:oid:***.102) or evt. defined with nhn-oid for department (urn:oid:***.390)
         // potentionally can be expressed as HL7-code "dept" which should be also accepted
+        
+        var deptType = authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault();
 
-        var deptType = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities).GetFirstValueByName("DepartmentAlternate");
+        var deptOid = "";
+        var deptName = "";
 
-        //TODO: missing code for treating author's department on submission level
+        var departmentAlternate = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities).GetFirstValueByName("DepartmentAlternate");
+        var department = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities).GetFirstValueByName("Department");
+        
+        if (deptType is { System: "http://terminology.hl7.org/CodeSystem/organization-type", Code: "dept" })
+        {
+            deptOid = departmentAlternate;
+            deptName = authorDept.Name;
+        }
+
+        var deptIdentifier = authorDept.Identifier.FirstOrDefault();
+
+        if (deptIdentifier?.System.IsAnyOf(department,departmentAlternate) == true)
+        {
+            deptOid = deptIdentifier.System;
+            deptName = deptIdentifier.Value;
+        }
 
         var authorDepartment = new XON()
         {
-            OrganizationName = authorDept.Name,
+            OrganizationName = deptName,
             AssigningAuthority = new HD()
             {
-                UniversalId = $"{deptType}",
+                UniversalId = deptOid,
                 UniversalIdType = "ISO"
             },
-            OrganizationIdentifier = authorDept?.Identifier?.FirstOrDefault()?.Value ?? string.Empty
+            OrganizationIdentifier = authorDept.Identifier.FirstOrDefault()?.Value ?? $"name-only:{deptName}"
         };
+        
         return authorDepartment;
     }
 

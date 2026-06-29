@@ -1121,7 +1121,7 @@ public static class RegistryMetadataTransformer
         classification.AddSlot(Constants.Xds.SlotNames.AuthorRole, [authorRoleCx.Serialize()]);
     }
 
-    private static void GetAuthorInstitutionSlotFromAuthor(ClassificationType classification, AuthorInfo author)
+    private static void GetAuthorInstitutionSlotFromAuthor(ClassificationType classification, AuthorInfo? author)
     {
         if (author == null) return;
 
@@ -1131,8 +1131,8 @@ public static class RegistryMetadataTransformer
             ValueList = new()
         };
 
-        var organization = new XON();
-        var department = new XON();
+        //var organization = new XON();
+        //var department = new XON();
 
         if (author.Organization != null)
         {
