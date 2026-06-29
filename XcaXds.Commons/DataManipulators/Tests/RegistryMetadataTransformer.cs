@@ -1157,7 +1157,7 @@ public static class RegistryMetadataTransformer
 
         if (author.Department != null)
         {
-            var dpt = new XON()
+			var dpt = new XON()
             {
                 OrganizationName = author.Department.OrganizationName,
                 OrganizationIdentifier = author.Department.Id,
@@ -1167,6 +1167,12 @@ public static class RegistryMetadataTransformer
                     UniversalIdType = string.IsNullOrWhiteSpace(author.Department.AssigningAuthority) ? null : Constants.Hl7.UniversalIdType.Iso
                 }
             };
+
+            if (author.Department.AssigningAuthority == "2.16.578.1.12.4.5.390")
+            {				
+				// This is a workaround for the Siemens eHS (XCA gateway) which strips away the assigning authority if the OrganizationIdentifier is not set
+				dpt.OrganizationIdentifier = $"name-only:{author.Department.OrganizationName}"; 
+            }
 
             var departmentString = dpt.Serialize();
             authorInstitutionSlot.AddValue(departmentString);
