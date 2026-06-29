@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
+using Microsoft.OpenApi;
 using NHN.OpenTelemetryExtensions;
 using System.Collections;
 using System.Text.Json.Serialization;
@@ -81,7 +82,20 @@ public class Program
         builder.Services.AddFeatureManagement();
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            var securityScheme = new OpenApiSecurityScheme
+            {
+                Name = "X-API-KEY", // Replace with your actual header name (e.g., "Authorization", "api_key")
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "ApiKeyScheme",
+                In = ParameterLocation.Header,
+                Description = "Enter your API key into the field below. Example: Bearer {token} or simply your key."
+            };
+
+            options.AddSecurityDefinition("ApiKeyScheme", securityScheme);
+            options.OperationFilter<RequiresApiKeyOperationFilter>();
+        });
 
         builder.SetupOpenTelemetryDHP();
 

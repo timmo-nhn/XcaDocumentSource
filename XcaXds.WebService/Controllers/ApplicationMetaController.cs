@@ -194,6 +194,7 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("about/samlvalidationparameters")]
     public async Task<IActionResult> GetSamlValidationParameters()
     {
+        await _samlValidatorService.CreateSamlValidator();
         return Ok(_samlValidatorService.GetSamlValidationParameters());
     }
 
