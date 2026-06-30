@@ -8,7 +8,7 @@ using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 
-namespace XcaXds.Commons.DataManipulators.Tests;
+namespace XcaXds.Commons.DataManipulators;
 
 public static class RegistryMetadataTransformer
 {

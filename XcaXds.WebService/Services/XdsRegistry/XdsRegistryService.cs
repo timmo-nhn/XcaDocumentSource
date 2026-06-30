@@ -7,7 +7,7 @@ using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;

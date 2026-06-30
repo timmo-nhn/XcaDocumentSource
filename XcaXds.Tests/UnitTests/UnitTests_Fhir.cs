@@ -1,7 +1,7 @@
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
-using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;

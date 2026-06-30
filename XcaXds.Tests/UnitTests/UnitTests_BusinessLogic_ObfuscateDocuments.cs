@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;

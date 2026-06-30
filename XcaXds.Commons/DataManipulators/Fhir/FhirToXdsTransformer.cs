@@ -623,18 +623,18 @@ public class FhirToXdsTransformerService
         var listPractitioner = new List<ResourceReference>();
         var listPractitionerRole = new List<ResourceReference>();
 
-        foreach (var authorReference in documentReference.Author)
+        foreach (var authorReference in documentReference.Contained)
         {
-            switch (GetAuthorReferenceTarget(documentReference, authorReference))
+            switch (GetAuthorReferenceTarget(documentReference, authorReference.GetAsResourceReference()))
             {
                 case "Organization":
-                    listOrganization.Add(authorReference);
+                    listOrganization.Add(authorReference.GetAsResourceReference());
                     break;
                 case "Practitioner":
-                    listPractitioner.Add(authorReference);
+                    listPractitioner.Add(authorReference.GetAsResourceReference());
                     break;
                 case "PractitionerRole":
-                    listPractitionerRole.Add(authorReference);
+                    listPractitionerRole.Add(authorReference.GetAsResourceReference());
                     break;
                 default:
                     operationOutcome.AddIssue(new OperationOutcome.IssueComponent
@@ -1484,7 +1484,7 @@ public class FhirToXdsTransformerService
 
     private static string? GetAuthorReferenceTarget(DocumentReference documentReference, ResourceReference authorReference)
     {
-        var containedRef = documentReference.Contained.Where(x => x.Id == authorReference.Reference?.Trim('#')).FirstOrDefault();
+        var containedRef = documentReference.Contained.FirstOrDefault(x => x.Id == authorReference.Reference?.Trim('#'));
 
         return containedRef?.TypeName;
     }
