@@ -11,6 +11,7 @@ using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions.No;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.Commons.Interfaces.Statistics;
@@ -281,7 +282,9 @@ public class Program
         // Obfuscation of document lists
         builder.Services.AddSingleton<DocumentObfuscationService>();
 
+        // Nin parsers        
         builder.Services.AddSingleton<INinParser, NorwegianNinParser>();
+        builder.Services.AddSingleton<NinParserFactory>();
 
 
         // Health check

@@ -544,14 +544,14 @@ public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClass
 
         foreach (var nin in nins2)
         {
-            var parsedNin = _ninParser.ParseNinToCxWithAssigningAuthority(nin);
+            var parsedNin = _ninParserFactory.CreateNinParser(nin)?.ParseNinToCxWithAssigningAuthority(nin);
         }
 
         foreach (var nin in nins)
         {
-            var parsedNin = _ninParser.ParseNinToCxWithAssigningAuthority(nin.Value);
+            var parsedNin = _ninParserFactory.CreateNinParser(nin.Value)?.ParseNinToCxWithAssigningAuthority(nin.Value);
 
-            var dateTimeFromNin = _ninParser.ParseNinToDateTime(parsedNin);
+            var dateTimeFromNin = _ninParserFactory.CreateNinParser(parsedNin?.IdNumber)?.ParseNinToDateTime(parsedNin);
 
             Assert.Equal(nin.Excpected, dateTimeFromNin);
 

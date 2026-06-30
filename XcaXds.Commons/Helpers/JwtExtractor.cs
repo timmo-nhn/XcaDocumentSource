@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace XcaXds.Commons.Helpers;
@@ -24,7 +23,7 @@ public static class JwtExtractor
     public static JwtSecurityToken? ExtractJwt(IHeaderDictionary headers, out bool success)
     {
         var jwtToken = headers["Authorization"].FirstOrDefault();
-     
+
         return ExtractJwt(jwtToken, out success);
     }
 }

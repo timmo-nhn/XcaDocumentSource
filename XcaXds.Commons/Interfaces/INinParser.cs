@@ -8,6 +8,7 @@ namespace XcaXds.Commons.Interfaces;
 /// </summary>
 public interface INinParser
 {
+    public bool CanHandle(string inputNin);
     public CX? ParseNinToCxWithAssigningAuthority(string? inputNin);
     public DateTime? ParseNinToDateTime(CX? patientCx);
     public DateTime? ParseNinToDateTime(string? patientIdentifier);

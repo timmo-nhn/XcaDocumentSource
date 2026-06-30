@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -26,16 +27,16 @@ public class XdsOnFhirTransformerService
 {
     private readonly ILogger<XdsOnFhirTransformerService> _logger;
     private readonly TerminologyService _terminologyService;
-    private readonly INinParser _ninParser;
+    private readonly NinParserFactory _ninParserFactory;
 
     public XdsOnFhirTransformerService(
         ILogger<XdsOnFhirTransformerService> logger,
         TerminologyService terminologyService,
-        INinParser ninParser)
+        NinParserFactory ninParserFactory)
     {
         _logger = logger;
         _terminologyService = terminologyService;
-        _ninParser = ninParser;
+        _ninParserFactory = ninParserFactory;
     }
 
     public AdhocQueryRequest ConvertIti67ToIti18AdhocQuery(MhdDocumentRequest documentRequest)
@@ -47,7 +48,7 @@ public class XdsOnFhirTransformerService
         {
             var patientCx = Hl7Object.Parse<CX>(documentRequest.Patient, '|');
 
-            var patientOid = _ninParser.ParseNinToCxWithAssigningAuthority(documentRequest.Patient);
+            var patientOid = _ninParserFactory.CreateNinParser(documentRequest.Patient)?.ParseNinToCxWithAssigningAuthority(documentRequest.Patient);
 
             if (patientOid != null && patientCx != null)
             {
@@ -217,19 +218,19 @@ public class XdsOnFhirTransformerService
 
         var documentReferenceList = new List<DocumentReference>();
 
-        var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
-        var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToArray();
-        var associations = registryObjectList.OfType<AssociationType>().ToArray();
+        var extrinsicObjects = registryObjectList.OfType<ExtrinsicObjectType>().ToList();
+        var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToList();
+        var associations = registryObjectList.OfType<AssociationType>().ToList();
 
-        if (extrinsicObjects.Length == 1 && registryPackages.Length == 1 && associations.Length == 0)
+        if (extrinsicObjects.Count == 1 && registryPackages.Count == 1 && associations.Count == 0)
         {
-            associations = [.. associations.Append(new AssociationType()
+            associations.Add(new AssociationType()
             {
                 Id = Guid.NewGuid().ToString(),
                 AssociationTypeData = Constants.Xds.AssociationType.HasMember,
                 SourceObject = registryPackages.FirstOrDefault()?.Id ?? "Unknown",
                 TargetObject = extrinsicObjects.FirstOrDefault()?.Id ?? "Unknown"
-            })];
+            });
         }
 
         foreach (var association in associations)
@@ -313,7 +314,7 @@ public class XdsOnFhirTransformerService
         return documentReferenceList;
     }
 
-    private static List<DocumentReference.RelatesToComponent> BuildRelatesTo(AssociationType[] allAssociations, ExtrinsicObjectType currentEo)
+    private static List<DocumentReference.RelatesToComponent> BuildRelatesTo(IEnumerable<AssociationType> allAssociations, ExtrinsicObjectType currentEo)
     {
         var relatesTo = new List<DocumentReference.RelatesToComponent>();
 
@@ -328,20 +329,20 @@ public class XdsOnFhirTransformerService
                 a.SourceObject?.NoUrn() == sourceId)
             .ToList();
 
-        foreach (var a in outgoing)
+        foreach (var association in outgoing)
         {
-            var code = a.AssociationTypeData switch
+            var code = association.AssociationTypeData switch
             {
                 var t when t == Constants.Xds.AssociationType.Replace => DocumentRelationshipType.Replaces,
                 var t when t == Constants.Xds.AssociationType.Addendum => DocumentRelationshipType.Appends,
                 var t when t == Constants.Xds.AssociationType.Transformation => DocumentRelationshipType.Transforms,
-                var t when t == Constants.Xds.AssociationType.DigitalSignature /* or Signs */ => DocumentRelationshipType.Signs,
+                var t when t == Constants.Xds.AssociationType.Signs => DocumentRelationshipType.Signs,
                 _ => (DocumentRelationshipType?)null
             };
 
-            if (code is null) continue;
+            if (code == null) continue;
 
-            var targetUuid = a.TargetObject?.NoUrn();
+            var targetUuid = association.TargetObject?.NoUrn();
             if (string.IsNullOrWhiteSpace(targetUuid)) continue;
 
             relatesTo.Add(new DocumentReference.RelatesToComponent
@@ -540,7 +541,6 @@ public class XdsOnFhirTransformerService
 
         var authorClassification = assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.Author);
 
-
         var authorPerson = Hl7Object.Parse<XCN>(authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorPerson)?.GetValues().FirstOrDefault());
         var practitioner = GetPractitionerFromAuthorPerson(authorPerson);
 
@@ -548,7 +548,6 @@ public class XdsOnFhirTransformerService
         {
             resourceList.Add(practitioner);
         }
-
 
         // Author Organization and Department part
         

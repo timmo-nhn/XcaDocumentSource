@@ -367,7 +367,7 @@ public static class Constants
             public const string Transformation = "urn:ihe:iti:2007:AssociationType:XFRM";
             public const string Addendum = "urn:ihe:iti:2007:AssociationType:APND";
             public const string ReplaceWithTransformation = "urn:ihe:iti:2007:AssociationType:XFRM_RPLC";
-            public const string DigitalSignature = "urn:ihe:iti:2007:AssociationType:signs";
+            public const string Signs = "urn:ihe:iti:2007:AssociationType:signs";
             public const string SnapshotOfOnDemandDocumentEntry = "urn:ihe:iti:2010:AssociationType:IsSnapshotOf";
         }
 

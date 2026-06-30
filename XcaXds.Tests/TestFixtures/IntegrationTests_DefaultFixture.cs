@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.ApiKey;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -54,7 +55,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
     internal readonly FhirResourceValidatorService _fhirResourceValidatorService;
     internal readonly BusinessLogicMapperService _businessLogicMapperService;
     internal readonly DocumentObfuscationService _documentObfuscationService;
-    internal readonly INinParser _ninParser;
+    internal readonly NinParserFactory _ninParserFactory;
 
     internal readonly IServiceScope _scope;
 
@@ -135,7 +136,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _apiKeyHolder = _scope.ServiceProvider.GetRequiredService<ApiKeyHolder>();
         _applicationMetaService = _scope.ServiceProvider.GetRequiredService<ApplicationMetaService>();
         _businessLogicMapperService = _scope.ServiceProvider.GetRequiredService<BusinessLogicMapperService>();
-        _ninParser = _scope.ServiceProvider.GetRequiredService<INinParser>();
+        _ninParserFactory = _scope.ServiceProvider.GetRequiredService<NinParserFactory>();
 
 
         _client.DefaultRequestHeaders.Add("X-API-Key", _apiKeyHolder.ApiKey);

@@ -3,6 +3,7 @@ using Hl7.Fhir.Rest;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
@@ -25,7 +26,7 @@ public class RestfulRegistryRepositoryService
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly TerminologyService _terminologyService;
-    private readonly INinParser _ninParser;
+    private readonly NinParserFactory _ninParserFactory;
 
     public RestfulRegistryRepositoryService(
         ApplicationConfig appConfig,
@@ -33,14 +34,14 @@ public class RestfulRegistryRepositoryService
         ILogger<XdsRegistryService> logger,
         RepositoryWrapper repositoryWrapper,
         TerminologyService terminologyService,
-        INinParser ninParser)
+        NinParserFactory ninParserFactory)
     {
         _logger = logger;
         _appConfig = appConfig;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
         _terminologyService = terminologyService;
-        _ninParser = ninParser;
+        _ninParserFactory = ninParserFactory;
     }
 
     public DocumentListResponse GetDocumentListForPatient(string? patientId, string? status, DateTime? serviceStartTime = null, DateTime? serviceStopTime = null, int currentPageNumber = 1, int pageSize = 10)
@@ -66,7 +67,7 @@ public class RestfulRegistryRepositoryService
 
         // Account for searches only including the patient Id and not assigning authority (eg api/GetDocumentList?id=13116900216)
         // Add default assigning authority if missing
-        patientIdCx.AssigningAuthority ??= _ninParser.ParseNinToCxWithAssigningAuthority(patientId)?
+        patientIdCx.AssigningAuthority ??= _ninParserFactory.CreateNinParser(patientId)?.ParseNinToCxWithAssigningAuthority(patientId)?
             .AssigningAuthority ??
             new() { UniversalId = patientNin, UniversalIdType = Constants.Hl7.UniversalIdType.Iso }; ;
 

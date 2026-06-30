@@ -2,10 +2,8 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Extensions.No;
-using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
@@ -17,16 +15,16 @@ namespace XcaXds.Commons.DataManipulators
     {
         private readonly ILogger<JwtToSamlTransformerService> _logger;
         private readonly TerminologyService _terminologyService;
-        private readonly INinParser _ninParser;
+        private readonly NinParserFactory _ninParserFactory;
 
         public JwtToSamlTransformerService(
             ILogger<JwtToSamlTransformerService> logger,
             TerminologyService terminologyService,
-            INinParser ninParser)
+            NinParserFactory ninParserFactory)
         {
             _logger = logger;
             _terminologyService = terminologyService;
-            _ninParser = ninParser;
+            _ninParserFactory = ninParserFactory;
         }
 
         public Saml2SecurityToken MapJsonWebTokenToSamlToken(JwtSecurityToken jwtToken)
@@ -314,10 +312,10 @@ namespace XcaXds.Commons.DataManipulators
             var organizationAttribute = samlAttributes.GetFirstValueByName("Organization");
             var bppcAttribute = samlAttributes.GetFirstValueByName("BppcDocId");
             var xuaAcpAttribute = samlAttributes.GetFirstValueByName("XuaAcp");
-            
+
             var bppcNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Bppc, "NullValue")?.FirstOrDefault();
             var xuaAcpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
-            
+
             foreach (var scope in samlClaims.Scope ?? [])
             {
                 statements.Add(new Saml2AttributeStatement(new Saml2Attribute(
@@ -353,7 +351,11 @@ namespace XcaXds.Commons.DataManipulators
 
         private string? MapResourceClaimToSamlAttributeValue(SamlClaimValues samlClaims)
         {
-            var patientIdCx = _ninParser.ParseNinToCxWithAssigningAuthority(samlClaims.ResourceId);
+            var ninParser = _ninParserFactory.CreateNinParser(samlClaims.ResourceId);
+            
+            if (ninParser == null) return null;
+
+            var patientIdCx = ninParser.ParseNinToCxWithAssigningAuthority(samlClaims.ResourceId);
             return patientIdCx?.Serialize();
         }
 

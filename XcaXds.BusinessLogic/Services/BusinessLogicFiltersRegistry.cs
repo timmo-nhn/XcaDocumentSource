@@ -260,9 +260,9 @@ public class BusinessLogicFiltersRegistry
                         logic.Purpose.Code != null;
 
         return fieldsMatch
-            ? logic.Subject.Code != logic.Resource.Code &&
-            logic.Purpose.Code.IsAnyOf(PWATRNY, SubjectOfCare_13) &&
-            logic.Acp.NoUrn().IsAnyOf(Acp.RepresentAnotherCitizen.NoUrn(), Acp.RepresentedUnableToConsent.NoUrn()) &&
+            ? logic.Subject!.Code != logic.Resource!.Code &&
+            logic.Purpose!.Code.IsAnyOf(PWATRNY, SubjectOfCare_13) &&
+            logic.Acp!.NoUrn().IsAnyOf(Acp.RepresentAnotherCitizen.NoUrn(), Acp.RepresentedUnableToConsent.NoUrn()) &&
             (logic.SubjectAge.InRange(12, 16) == false)
             : false;
     }

@@ -570,7 +570,7 @@ public static class RegistryMetadataTransformer
         // If none is found, take the last in the XON list
         //@tim: var organization = authorSlotXon.LastOrDefault();
         var organization = authorSlotXon
-            .Where(x => x?.OrganizationIdentifier != null && (bool)x.AssigningAuthority?.UniversalId?.Contains("2.16.578.1.12.4.1.4.101"))
+            .Where(x => x?.OrganizationIdentifier != null && x.AssigningAuthority?.UniversalId?.Contains("2.16.578.1.12.4.1.4.101") == true)
             .ToArray()
             .FirstOrDefault();
         // HAYO! Is LastOrDefault sufficient?!?
@@ -1463,7 +1463,7 @@ public static class RegistryMetadataTransformer
                 //registryObject.ConfidentialityCode.AddRange(newCodeSystems);
 
                 // Deduplicate
-                registryObject.ConfidentialityCode = [.. registryObject.ConfidentialityCode.DistinctBy(cv => new { cv.Code, cv.CodeSystem, cv.DisplayName })];
+                registryObject.ConfidentialityCode = [.. registryObject.ConfidentialityCode?.DistinctBy(cv => new { cv.Code, cv.CodeSystem, cv.DisplayName }) ?? []];
             }
         }
     }

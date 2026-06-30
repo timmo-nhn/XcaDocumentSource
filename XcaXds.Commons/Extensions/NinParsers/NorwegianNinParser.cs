@@ -19,14 +19,19 @@ public class NorwegianNinParser : INinParser
     {
         _terminologyService = terminologyService;
         _ninSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PersonAssigningAuthorities);
-        Fnr = _ninSystems.GetFirstValueByName("NIN")!;
-        Dnr = _ninSystems.GetFirstValueByName("TNIN")!;
-        Hnr = _ninSystems.GetFirstValueByName("ENIN")!;
+        Nin = _ninSystems.GetFirstValueByName("NIN")!;
+        TNin = _ninSystems.GetFirstValueByName("TNIN")!;
+        ENin = _ninSystems.GetFirstValueByName("ENIN")!;
     }
 
-    public string Fnr { get; init; }
-    public string Dnr { get; init; }
-    public string Hnr { get; init; }
+    public string Nin { get; init; }
+    public string TNin { get; init; }
+    public string ENin { get; init; }
+
+    public bool CanHandle(string inputNin)
+    {
+        return ParseNinToCxWithAssigningAuthority(inputNin) != null;
+    }
 
     /// <summary>
     /// Parse a National Identifier Number and get the birth date aswell as the proper assigning authority depending on whether its a Dnr, Hnr or Pnr/Fnr)<para/>
@@ -51,28 +56,28 @@ public class NorwegianNinParser : INinParser
         {
             if (int.Parse(day) - 40 is > 0 and <= 31)
             {
-                oid.UniversalId = Dnr;
+                oid.UniversalId = TNin;
             }
             else
             {
-                oid.UniversalId = Fnr;
+                oid.UniversalId = Nin;
             }
         }
 
         // Normal D-number = +40 on day
         else if (int.Parse(day) - 40 is > 0 and <= 31)
         {
-            oid.UniversalId = Dnr;
+            oid.UniversalId = TNin;
         }
 
         // Normal H-number = +40 on month
         else if (int.Parse(month) - 40 is > 0 and <= 12)
         {
-            oid.UniversalId = Hnr;
+            oid.UniversalId = ENin;
         }
         else
         {
-            oid.UniversalId = Fnr;
+            oid.UniversalId = Nin;
         }
 
         return new CX()
@@ -132,14 +137,14 @@ public class NorwegianNinParser : INinParser
 
         switch (patientCx.AssigningAuthority?.UniversalId)
         {
-            case var fnr when fnr == Fnr:
+            case var fnr when fnr == Nin:
                 break;
 
-            case var dnr when dnr == Dnr:
+            case var dnr when dnr == TNin:
                 day = (int.Parse(day) - 40).ToString();
                 break;
 
-            case var hnr when hnr == Hnr:
+            case var hnr when hnr == ENin:
                 month = (int.Parse(month) - 40).ToString();
                 break;
 

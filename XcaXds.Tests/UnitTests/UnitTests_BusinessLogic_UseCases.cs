@@ -36,9 +36,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = patientId, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(patientId),
+            SubjectAge = _ninParserFactory.CreateNinParser(patientId)?.GetAgeFromPatientId(patientId) ?? 0,
             Resource = new() { Code = patientId, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(patientId),
+            ResourceAge = _ninParserFactory.CreateNinParser(patientId)?.GetAgeFromPatientId(patientId) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -62,9 +62,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = patientId12To16Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(patientId12To16Years),
+            SubjectAge = _ninParserFactory.CreateNinParser(patientId12To16Years)?.GetAgeFromPatientId(patientId12To16Years) ?? 0,
             Resource = new() { Code = patientId12To16Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(patientId12To16Years),
+            ResourceAge = _ninParserFactory.CreateNinParser(patientId12To16Years)?.GetAgeFromPatientId(patientId12To16Years) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -87,9 +87,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = patientId16To18Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(patientId16To18Years),
+            SubjectAge = _ninParserFactory.CreateNinParser(patientId16To18Years)?.GetAgeFromPatientId(patientId16To18Years) ?? 0,
             Resource = new() { Code = patientId16To18Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(patientId16To18Years),
+            ResourceAge = _ninParserFactory.CreateNinParser(patientId16To18Years)?.GetAgeFromPatientId(patientId16To18Years) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -113,9 +113,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.RepresentCitizenUnder12,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resourceBelow12Years, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resourceBelow12Years),
+            ResourceAge = _ninParserFactory.CreateNinParser(resourceBelow12Years)?.GetAgeFromPatientId(resourceBelow12Years) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -140,9 +140,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.RepresentAnotherCitizen,
             Purpose = new() { Code = PWATRNY, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resource),
+            ResourceAge = _ninParserFactory.CreateNinParser(resource)?.GetAgeFromPatientId(resource) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -167,9 +167,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = PATRQT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resource),
+            ResourceAge = _ninParserFactory.CreateNinParser(resource)?.GetAgeFromPatientId(resource) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -194,9 +194,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.RepresentCitizenUnder12,
             Purpose = new() { Code = SubjectOfCare_13, CodeSystem = TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resource),
+            ResourceAge = _ninParserFactory.CreateNinParser(resource)?.GetAgeFromPatientId(resource) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -220,9 +220,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = TREAT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(subject),
+            ResourceAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -247,9 +247,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = TREAT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resource),
+            ResourceAge = _ninParserFactory.CreateNinParser(resource)?.GetAgeFromPatientId(resource) ?? 0,
             Scope = ["journaldokumenter_helsepersonell"],
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
@@ -275,9 +275,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = ETREAT, CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resource),
+            ResourceAge = _ninParserFactory.CreateNinParser(resource)?.GetAgeFromPatientId(resource) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -303,9 +303,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resource),
+            ResourceAge = _ninParserFactory.CreateNinParser(resource)?.GetAgeFromPatientId(resource) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
@@ -331,9 +331,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             Acp = TestConstants.Acp.NullValue,
             Purpose = new() { Code = "FEILVERDI", CodeSystem = TestConstants.CodeSystems.Hl7.PurposeOfUse.System },
             Subject = new() { Code = subject, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            SubjectAge = _ninParser.GetAgeFromPatientId(subject),
+            SubjectAge = _ninParserFactory.CreateNinParser(subject)?.GetAgeFromPatientId(subject) ?? 0,
             Resource = new() { Code = resource, CodeSystem = TestConstants.AssigningAuthority.Nin },
-            ResourceAge = _ninParser.GetAgeFromPatientId(resource),
+            ResourceAge = _ninParserFactory.CreateNinParser(resource)?.GetAgeFromPatientId(resource) ?? 0,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 

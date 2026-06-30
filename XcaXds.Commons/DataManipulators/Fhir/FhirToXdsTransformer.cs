@@ -623,18 +623,18 @@ public class FhirToXdsTransformerService
         var listPractitioner = new List<ResourceReference>();
         var listPractitionerRole = new List<ResourceReference>();
 
-        foreach (var authorReference in documentReference.Contained)
+        foreach (var authorReference in documentReference.Author)
         {
-            switch (GetAuthorReferenceTarget(documentReference, authorReference.GetAsResourceReference()))
+            switch (GetAuthorReferenceTarget(documentReference, authorReference))
             {
                 case "Organization":
-                    listOrganization.Add(authorReference.GetAsResourceReference());
+                    listOrganization.Add(authorReference);
                     break;
                 case "Practitioner":
-                    listPractitioner.Add(authorReference.GetAsResourceReference());
+                    listPractitioner.Add(authorReference);
                     break;
                 case "PractitionerRole":
-                    listPractitionerRole.Add(authorReference.GetAsResourceReference());
+                    listPractitionerRole.Add(authorReference);
                     break;
                 default:
                     operationOutcome.AddIssue(new OperationOutcome.IssueComponent
@@ -649,7 +649,7 @@ public class FhirToXdsTransformerService
         }
 
         /*- Special case => just 1 practitioner and 1 organization provided in DocumentReference - without any practitionerRole -*/
-        if ((listPractitioner.Count == 1) && (listOrganization.Count == 1) && (listPractitionerRole.Count == 0))
+        if (listPractitioner.Count == 1 && listOrganization.Count == 1 && listPractitionerRole.Count == 0)
         {
             var listAuthorSlots = new List<SlotType>();
             var practitionerReference = listPractitioner.FirstOrDefault();
@@ -1568,7 +1568,7 @@ public class FhirToXdsTransformerService
 
         var referencedOrganization = documentReference.Contained?
             .OfType<Organization>()
-            .FirstOrDefault(org => org.Id == parentOrgReference?.Reference?.Trim('#'));
+            .FirstOrDefault(org => org.PartOf?.Reference == parentOrgReference?.Reference);
 
         Organization? authorDept = null;
 
@@ -1588,13 +1588,13 @@ public class FhirToXdsTransformerService
             return null;
         }
 
-        deptOrgReference = listOrganization.FirstOrDefault(orgRef =>
-            string.Equals(orgRef.Reference, $"#{authorDept.Id}", StringComparison.Ordinal));
+        //deptOrgReference = listOrganization.FirstOrDefault(orgRef =>
+        //    string.Equals(orgRef.Reference, $"#{authorDept.Id}", StringComparison.Ordinal));
 
-        if (deptOrgReference == null)
-        {
-            return null;
-        }
+        //if (deptOrgReference == null)
+        //{
+        //    return null;
+        //}
 
         var deptType = authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault();
 
@@ -1829,31 +1829,26 @@ public class FhirToXdsTransformerService
 
         // Find PractitionerRole based on reference and belonging to correct practitioner by reference at the same time
         var authorDocRef = documentReference.Contained.OfType<PractitionerRole>()
-            .Where(x => (x.Id == roleReference.Reference?.Trim('#')) && (x.Practitioner?.Reference == practitionerReference.Reference))
-            .FirstOrDefault();
+            .FirstOrDefault(x => (x.Id == roleReference.Reference?.Trim('#')) && (x.Practitioner?.Reference == practitionerReference.Reference));
 
-        if (authorDocRef != null)
+        if (authorDocRef == null || authorDocRef.Practitioner?.Url != practitionerReference!.Url) return;
+
+        // List of roles if declared
+        if (authorDocRef.Code.Count > 0)
         {
-            if (authorDocRef.Practitioner?.Url == practitionerReference!.Url)
-            {
-                // List of roles if declared
-                if (authorDocRef.Code.Count > 0)
-                {
-                    authorRole = authorDocRef.Code.SelectMany(role => role.Coding.Select(code => code.Display)).OfType<string>().ToList();
-                }
+            authorRole = authorDocRef.Code.SelectMany(role => role.Coding.Select(code => code.Display)).OfType<string>().ToList();
+        }
 
-                // List of specialties if declared
-                if (authorDocRef.Specialty.Count > 0)
-                {
-                    authorSpecialty = authorDocRef.Specialty.SelectMany(specialty => specialty.Coding.Select(coding => coding.Display)).OfType<string>().ToList();
-                }
+        // List of specialties if declared
+        if (authorDocRef.Specialty.Count > 0)
+        {
+            authorSpecialty = authorDocRef.Specialty.SelectMany(specialty => specialty.Coding.Select(coding => coding.Display)).OfType<string>().ToList();
+        }
 
-                // Reference to organization
-                if (authorDocRef.Organization != null)
-                {
-                    organizationReference = authorDocRef.Organization;
-                }
-            }
+        // Reference to organization
+        if (authorDocRef.Organization != null)
+        {
+            organizationReference = authorDocRef.Organization;
         }
     }
 
@@ -1982,7 +1977,7 @@ public class FhirToXdsTransformerService
                     Constants.Xds.AssociationType.Addendum,
 
                 DocumentRelationshipType.Signs =>
-                    Constants.Xds.AssociationType.DigitalSignature,
+                    Constants.Xds.AssociationType.Signs,
 
                 //DocumentRelationshipType.IsSnapshotOf =>
                 //	Xds.Constants.Xds.AssociationType.SnapshotOfOnDemandDocumentEntry,
