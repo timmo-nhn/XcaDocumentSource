@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Hl7.Fhir.Serialization;
+using Microsoft.AspNetCore.Mvc.Testing;
+using XcaXds.Commons.Commons;
+using XcaXds.Commons.DataManipulators.Tests;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Tests.Helpers;
 using Xunit.Abstractions;
 
 namespace XcaXds.Tests.UnitTests;
@@ -598,5 +603,25 @@ public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClass
     {
         await Task.Delay(2000);
         return $"This is {input}";
+    }
+
+    [Fact]
+    public async Task GenerateTestDataProvideBundle()
+    {
+        var registryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata();
+
+        var jsonRegistryObjects = RegistryJsonSerializer.Serialize(registryObjects);
+
+        var registryObjectList = registryObjects.AsRegistryObjectList().ToArray();
+
+        var documentReferences = _xdsOnFhirTransformerService.GetFhirDocumentReferencesFromRegistryObjects(registryObjectList);
+
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle(registryObjectList, _registry.ReadRegistry().ToBlockingEnumerable());
+
+        var serializer = new FhirJsonSerializer();
+
+        var bundleString = serializer.SerializeToString(bundle!);
+
+        _output.WriteLine($"Generated bundle:\n{bundleString}\nRegistry objects:\n{jsonRegistryObjects}");
     }
 }

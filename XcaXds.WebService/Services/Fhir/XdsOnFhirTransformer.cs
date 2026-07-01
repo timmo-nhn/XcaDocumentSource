@@ -14,6 +14,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 
@@ -37,7 +38,15 @@ public class XdsOnFhirTransformerService
         _logger = logger;
         _terminologyService = terminologyService;
         _ninParserFactory = ninParserFactory;
+
+        _organizations = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization");
+        _department = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department");
+        _departmentAlternate = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "DepartmentAlternate");
     }
+
+    public string[]? _organizations { get; set; }
+    public string[]? _department { get; set; }
+    public string[]? _departmentAlternate { get; set; }
 
     public AdhocQueryRequest ConvertIti67ToIti18AdhocQuery(MhdDocumentRequest documentRequest)
     {
@@ -555,18 +564,15 @@ public class XdsOnFhirTransformerService
         var authorDepartment = new XON();
         var authorInstitutionValues = authorClassification?.GetSlots(Constants.Xds.SlotNames.AuthorInstitution)?.GetValues().Select(auth => Hl7Object.Parse<XON>(auth)).ToList();
 
-        if (authorInstitutionValues is { Count: > 0 })
+        if (authorInstitutionValues?.Count > 0)
         {
-            var organizations = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization");
-            var departments = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department");
-
             // Select value for legal entity from DTO 
             authorInstitution = authorInstitutionValues
-                .FirstOrDefault(authInst => organizations?.FirstOrDefault(org => org.NoUrn().Equals(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true) != null);
+                .FirstOrDefault(authInst => _organizations?.FirstOrDefault(org => org.NoUrn().Equals(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true) != null);
 
             // Select value for department from DTO
             authorDepartment = authorInstitutionValues
-                .LastOrDefault(authInst => departments?.FirstOrDefault(dpt => dpt.NoUrn().Equals(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true) != null);
+                .LastOrDefault(authInst => _department?.Concat(_departmentAlternate ?? []).Contains(authInst?.AssigningAuthority?.UniversalId?.NoUrn()) == true);
 
             // If department and institution was the same, nullify department to avoid creating duplicates
             if (authorInstitution != null && authorDepartment != null && authorInstitution.OrganizationName == authorDepartment.OrganizationName)
@@ -634,7 +640,7 @@ public class XdsOnFhirTransformerService
         return organization;
     }
 
-    private static Organization GetOrganizationDepartmentFromAuthorInstitution(XON? authorDepartment)
+    private Organization GetOrganizationDepartmentFromAuthorInstitution(XON? authorDepartment)
     {
         var department = new Organization();
 
@@ -644,7 +650,7 @@ public class XdsOnFhirTransformerService
         department.Name = authorDepartment.OrganizationName;
 
         // Add "dept"-code in department.Type if DTO provide oid == *.390
-        if (authorDepartment.AssigningAuthority?.UniversalId == "2.16.578.1.12.4.5.390")
+        if (_departmentAlternate.Contains(authorDepartment.AssigningAuthority?.UniversalId))
         {
             department.Type =
             [
@@ -664,13 +670,11 @@ public class XdsOnFhirTransformerService
         
         if (authorDepartment.OrganizationIdentifier != null)
         {
-            department.Identifier = [
-                new Identifier
-                    {
-                        Value = authorDepartment.OrganizationIdentifier,
-                        System = authorDepartment.AssigningAuthority?.UniversalId?.WithUrnOid()
-                        }
-            ];
+            department.Identifier.Add(new Identifier()
+            {
+                Value = authorDepartment.OrganizationIdentifier,
+                System = authorDepartment.AssigningAuthority?.UniversalId?.WithUrnOid()
+            });
         }
 
         return department;

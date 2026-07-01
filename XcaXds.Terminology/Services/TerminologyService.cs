@@ -71,6 +71,34 @@ public class TerminologyService
         return null;
     }
 
+    public string[]? GetValueFromCodeSystemByName(string codeSystemName, params string[] inputValues)
+    {
+        _logger.LogDebug($"Attempting to get Value from Name '{string.Join(", ", inputValues)}' from System '{codeSystemName}'");
+
+        var fetchedSystems = CodeSystems.TryGetValue(codeSystemName, out var codeSys) ? codeSys : null;
+
+        if (fetchedSystems != null)
+        {
+            _logger.LogDebug($"Fetched '{fetchedSystems?.Length}' CodeSystems");
+
+            var eligibleValue = fetchedSystems?
+                .SelectMany(cs => cs.Values ?? [])
+                .Where(cs => inputValues.Contains(cs.Name))
+                .ToArray();
+
+            if (eligibleValue is { Length: > 0 } s)
+            {
+                var values = s.Select(ev => ev.Value).OfType<string>().ToArray();
+                _logger.LogDebug($"Got {s.Length} value{(s.Length > 1 ? "s" : "")} ({string.Join(' ', values)})");
+
+                return values;
+            }
+        }
+
+        _logger.LogDebug($"Could not find value '{string.Join(", ", inputValues)}' from '{codeSystemName}'");
+        return null;
+    }
+
     public KeyValuePair<string, string>? GetValueFromCodeSystem(ComprehensiveCodeSystem[]? codeSystems, string inputValue)
     {
         _logger.LogDebug($"Getting value '{inputValue}' from code systems '{string.Join(", ", codeSystems?.Select(cc => cc.System) ?? [])}'");

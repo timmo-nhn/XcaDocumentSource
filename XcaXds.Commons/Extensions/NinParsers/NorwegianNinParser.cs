@@ -19,14 +19,14 @@ public class NorwegianNinParser : INinParser
     {
         _terminologyService = terminologyService;
         _ninSystems = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.PersonAssigningAuthorities);
-        Nin = _ninSystems.GetFirstValueByName("NIN")!;
-        TNin = _ninSystems.GetFirstValueByName("TNIN")!;
-        ENin = _ninSystems.GetFirstValueByName("ENIN")!;
+        _nin = _ninSystems.GetFirstValueByName("NIN")!;
+        _tNin = _ninSystems.GetFirstValueByName("TNIN")!;
+        _eNin = _ninSystems.GetFirstValueByName("ENIN")!;
     }
 
-    public string Nin { get; init; }
-    public string TNin { get; init; }
-    public string ENin { get; init; }
+    private string _nin { get; init; }
+    private string _tNin { get; init; }
+    private string _eNin { get; init; }
 
     public bool CanHandle(string inputNin)
     {
@@ -56,28 +56,28 @@ public class NorwegianNinParser : INinParser
         {
             if (int.Parse(day) - 40 is > 0 and <= 31)
             {
-                oid.UniversalId = TNin;
+                oid.UniversalId = _tNin;
             }
             else
             {
-                oid.UniversalId = Nin;
+                oid.UniversalId = _nin;
             }
         }
 
         // Normal D-number = +40 on day
         else if (int.Parse(day) - 40 is > 0 and <= 31)
         {
-            oid.UniversalId = TNin;
+            oid.UniversalId = _tNin;
         }
 
         // Normal H-number = +40 on month
         else if (int.Parse(month) - 40 is > 0 and <= 12)
         {
-            oid.UniversalId = ENin;
+            oid.UniversalId = _eNin;
         }
         else
         {
-            oid.UniversalId = Nin;
+            oid.UniversalId = _nin;
         }
 
         return new CX()
@@ -137,14 +137,14 @@ public class NorwegianNinParser : INinParser
 
         switch (patientCx.AssigningAuthority?.UniversalId)
         {
-            case var fnr when fnr == Nin:
+            case var fnr when fnr == _nin:
                 break;
 
-            case var dnr when dnr == TNin:
+            case var dnr when dnr == _tNin:
                 day = (int.Parse(day) - 40).ToString();
                 break;
 
-            case var hnr when hnr == ENin:
+            case var hnr when hnr == _eNin:
                 month = (int.Parse(month) - 40).ToString();
                 break;
 
