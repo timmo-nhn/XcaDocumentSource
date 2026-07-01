@@ -1568,7 +1568,7 @@ public class FhirToXdsTransformerService
 
         var referencedOrganization = documentReference.Contained?
             .OfType<Organization>()
-            .FirstOrDefault(org => org.PartOf?.Reference == parentOrgReference?.Reference);
+            .FirstOrDefault(org => org.Id == parentOrgReference?.Reference?.Trim('#'));
 
         Organization? authorDept = null;
 
@@ -1588,13 +1588,8 @@ public class FhirToXdsTransformerService
             return null;
         }
 
-        //deptOrgReference = listOrganization.FirstOrDefault(orgRef =>
-        //    string.Equals(orgRef.Reference, $"#{authorDept.Id}", StringComparison.Ordinal));
-
-        //if (deptOrgReference == null)
-        //{
-        //    return null;
-        //}
+        deptOrgReference = listOrganization.FirstOrDefault(orgRef =>
+            string.Equals(orgRef.Reference, $"#{authorDept.Id}", StringComparison.Ordinal));
 
         var deptType = authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault();
 
