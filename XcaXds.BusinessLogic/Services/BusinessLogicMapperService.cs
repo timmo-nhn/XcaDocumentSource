@@ -1,6 +1,6 @@
 ﻿using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.Commons.Helpers;
+using XcaXds.Commons.Extensions.NinParsers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Shared;
 using XcaXds.Shared.Enums;
@@ -17,7 +17,6 @@ public class BusinessLogicMapperService
 
     public BusinessLogicParameters MapFromAbacRequestToBusinessLogic(AbacRequest? abacRequest)
     {
-
         var businessLogic = new BusinessLogicParameters();
         var appliesTo = BusinessLogicExtensions.GetAbacRequestAttributeAsString(abacRequest, Constants.Urn.Custom.AppliesTo)?.FirstOrDefault() ?? nameof(AppliesTo.Unknown);
         businessLogic.AppliesTo = Enum.TryParse<AppliesTo>(appliesTo, out var apto) ? apto : AppliesTo.Unknown;

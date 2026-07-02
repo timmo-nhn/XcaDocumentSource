@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Extensions.NinParsers;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Shared;
 using XcaXds.Shared.Extensions;

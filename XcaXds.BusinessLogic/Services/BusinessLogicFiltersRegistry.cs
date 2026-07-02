@@ -50,13 +50,16 @@ internal static class ValuesToUseForBusinessLogic
 public class BusinessLogicFiltersRegistry
 {
     private readonly TerminologyService _terminologyService;
+    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
     private (string Code, string CodeSystem)[] CitizenConfidentialityCodesToObfucscate { get; set; }
     private (string Code, string CodeSystem)[] HealthcarePersonellConfidentialityCodesToObfucscate { get; set; }
 
-    public BusinessLogicFiltersRegistry(TerminologyService terminologyService)
+    public BusinessLogicFiltersRegistry(TerminologyService terminologyService, RegistryMetadataTransformerService registryMetadataTransformerService)
     {
         _terminologyService = terminologyService;
+        _registryMetadataTransformerService = registryMetadataTransformerService;
+
         InitConstantValuesUsedForBusinessLogicFiltering();
         AllBusinessRules = GetAllBusinessRulesForFilteringDocumentList();
 
@@ -571,6 +574,11 @@ public class BusinessLogicFiltersRegistry
 
     public static IEnumerable<IdentifiableType> FilterByKjernejournalForskriften(IEnumerable<IdentifiableType> source)
     {
+        var kj_ProvesvarVevOgVaesker = "C00-1";
+        var kj_Organfunksjon = "D00-1";
+        var kj_BildediagnostikkOgAndreMedisinskeBilder = "E00-1";
+        var kj_Korrespondanse = "I00-1";
+
         var now = DateTimeOffset.Now;
 
         var oneYearAgo = now.AddYears(-1);
@@ -578,10 +586,10 @@ public class BusinessLogicFiltersRegistry
 
         var sourceAsList = source.OfType<ExtrinsicObjectType>().ToList();
 
-        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.ProvesvarVevOgVaesker);
-        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.Organfunksjon);
-        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.BildediagnostikkOgAndreMedisinskeBilder);
-        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, KjForskriftCategoryCodes.Korrespondanse);
+        var provesvarDocuments = GetVolvenDocumentsByCategory(sourceAsList, kj_ProvesvarVevOgVaesker);
+        var organDocuments = GetVolvenDocumentsByCategory(sourceAsList, kj_Organfunksjon);
+        var bildeDocuments = GetVolvenDocumentsByCategory(sourceAsList, kj_BildediagnostikkOgAndreMedisinskeBilder);
+        var korrespondanseDocuments = GetVolvenDocumentsByCategory(sourceAsList, kj_Korrespondanse);
 
         var removeProvesvar = provesvarDocuments.Where(document => document.GetServiceStartTime() < oneYearAgo).ToList();
         var removeOrgan = organDocuments.Where(document => document.GetServiceStartTime() < fiveYearsAgo).ToList();
@@ -594,23 +602,6 @@ public class BusinessLogicFiltersRegistry
         sourceAsList.RemoveAll(doc => removeKorrespondanse.Any(remove => remove.Id == doc.Id));
         return sourceAsList;
     }
-
-    // HAYO! This is a a straightforward way to implement it, but principally speaking
-    // it should really be factored out as a subset of the 9602 category codes in the terminology service
-    private static class KjForskriftCategoryCodes
-    {
-        public const string System = "2.16.578.1.12.4.1.1.9602";
-        public const string EpikriserOgSammenfatninger = "A00-1";
-        public const string KontinuerligLopendeJournal = "B00-1";
-        public const string ProvesvarVevOgVaesker = "C00-1";
-        public const string Organfunksjon = "D00-1";
-        public const string BildediagnostikkOgAndreMedisinskeBilder = "E00-1";
-        public const string KurveObservasjonOgBehandling = "F00-1";
-        public const string Korrespondanse = "I00-1";
-        public const string AttesterMeldingOgErklaeringer = "J00-1";
-        public const string TestOgScoring = "S00-1";
-    }
-
 
     private static bool CodingMatches(CodedValue? coding, CodedValue searchCoding)
     {
@@ -625,11 +616,13 @@ public class BusinessLogicFiltersRegistry
 
     private static List<ExtrinsicObjectType> GetVolvenDocumentsByCategory(List<ExtrinsicObjectType> documents, string categoryCode)
     {
+        var doctypeSystem = "2.16.578.1.12.4.1.1.9602";
+
         var categories = documents
             .Where(document =>
                 document.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ClassCode)
-                .Select(RegistryMetadataTransformer.MapClassificationToCodedValue)
-                .Any(coding => CodingMatches(coding, new CodedValue(categoryCode, KjForskriftCategoryCodes.System))))
+                .Select(gb => RegistryMetadataTransformerService.MapClassificationToCodedValue(gb))
+                .Any(coding => CodingMatches(coding, new CodedValue(categoryCode, doctypeSystem))))
             .ToList();
 
         return categories;

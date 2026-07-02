@@ -24,7 +24,7 @@ public class RegistryWrapper
         var dtoList = GetDocumentRegistryContentAsDtos(patientIdentifier);
         foreach (var dto in dtoList)
         {
-            var item = RegistryMetadataTransformer.TransformRegistryObjectDtoToRegistryObject(dto);
+            var item = RegistryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObject(dto);
 
             if (item == null) continue;
 

@@ -1,6 +1,6 @@
 ﻿using XcaXds.Commons.Models.Custom.PolicyDtos;
 
-namespace XcaXds.WebService.Services.Policy;
+namespace XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 
 public class PolicyRepositoryService
 {

@@ -32,6 +32,7 @@ public class AtnaLogGeneratorService
     private readonly RegistryWrapper _registryWrapper;
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
     private readonly TerminologyService _terminologyService;
+    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
     public const string IsoHealthRecordLifecycleEvent = "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle";
 
@@ -41,7 +42,8 @@ public class AtnaLogGeneratorService
         IAtnaLogQueue queue,
         RegistryWrapper registryWrapper,
         AtnaLogEnricherService atnaLogEnricherService,
-        TerminologyService terminologyService)
+        TerminologyService terminologyService,
+        RegistryMetadataTransformerService registryMetadataTransformerService)
     {
         _logger = logger;
         _appConfig = appConfig;
@@ -49,6 +51,7 @@ public class AtnaLogGeneratorService
         _registryWrapper = registryWrapper;
         _atnaLogEnricherService = atnaLogEnricherService;
         _terminologyService = terminologyService;
+        _registryMetadataTransformerService = registryMetadataTransformerService;
     }
 
     public void CreateAuditLogForSoapRequestResponse(AdditionalParameters additionalParameters, SoapEnvelope requestEnvelope, SoapEnvelope? responseEnvelope)
@@ -90,7 +93,7 @@ public class AtnaLogGeneratorService
             deletedEntry = [new DocumentEntryDto() { Id = documentId }];
         }
 
-        var deletedRegistryObjects = RegistryMetadataTransformer
+        var deletedRegistryObjects = RegistryMetadataTransformerService
             .TransformDocumentReferenceDtoListToRegistryObjects(deletedEntry);
 
         var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
@@ -128,7 +131,7 @@ public class AtnaLogGeneratorService
         List<CodedValue>? oldSecurityLabel,
         List<CodedValue>? newSecurityLabel)
     {
-        var extrinsicObject = RegistryMetadataTransformer
+        var extrinsicObject = RegistryMetadataTransformerService
             .TransformDocumentReferenceDtoListToRegistryObjects([updatedEntry])
             .OfType<ExtrinsicObjectType>()
             .FirstOrDefault();
@@ -303,12 +306,12 @@ public class AtnaLogGeneratorService
         var adhocQueryType = requestEnvelope?.Body.AdhocQueryRequest?.AdhocQuery?.Id;
         var docRequest = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest;
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList ?? 
-            RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects(additionalParameters.DeletedRegistryObjects);
+            RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(additionalParameters.DeletedRegistryObjects);
         var soapAction = requestEnvelope?.Header.Action;
 
-        var documentEntry = (DocumentEntryDto?)RegistryMetadataTransformer
+        var documentEntry = (DocumentEntryDto?)_registryMetadataTransformerService
             .TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<ExtrinsicObjectType>())?.FirstOrDefault();
-        var submissionSet = (SubmissionSetDto?)RegistryMetadataTransformer
+        var submissionSet = (SubmissionSetDto?)_registryMetadataTransformerService
             .TransformRegistryObjectsToRegistryObjectDtos(rol?.OfType<RegistryPackageType>())?.FirstOrDefault();
 
         if (!string.IsNullOrWhiteSpace(adhocQueryType))
@@ -996,7 +999,7 @@ public class AtnaLogGeneratorService
 
         if (provideAndRegister != null)
         {
-            var registryObjects = RegistryMetadataTransformer
+            var registryObjects = _registryMetadataTransformerService
                 .TransformRegistryObjectsToRegistryObjectDtos(provideAndRegister).ToArray();
 
             return PatientIdPidFromDocumentEntries(registryObjects) ?? [];

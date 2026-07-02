@@ -7,7 +7,7 @@ using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
-namespace XcaXds.WebService.Services.Policy;
+namespace XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 
 public class PolicyDecisionPointService
 {

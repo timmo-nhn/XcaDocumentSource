@@ -7,7 +7,8 @@ using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.WebService.Services.Policy;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy.RequestMappers;
 using XcaXds.WebService.Services.XdsRegistry;
 
 namespace XcaXds.WebService.Controllers;
@@ -20,8 +21,8 @@ public class PolicyManagementController : ControllerBase
     private readonly PolicyRepositoryService _policyRepositoryService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly ILogger<PolicyManagementController> _logger;
-    private readonly PolicyRequestMapperSamlService _policyRequestMapperSamlService;
-    public PolicyManagementController(PolicyRepositoryService policyRepositoryService, RegistryWrapper registryWrapper, ILogger<PolicyManagementController> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService)
+    private readonly SamlPolicyRequestMapper _policyRequestMapperSamlService;
+    public PolicyManagementController(PolicyRepositoryService policyRepositoryService, RegistryWrapper registryWrapper, ILogger<PolicyManagementController> logger, SamlPolicyRequestMapper policyRequestMapperSamlService)
 
     {
         _policyRequestMapperSamlService = policyRequestMapperSamlService;

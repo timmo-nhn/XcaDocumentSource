@@ -202,8 +202,7 @@ public class StatisticsTransformerService
 
         var statements = samlToken?.GetAllStatements().ToList();
 
-        // HAYO! Add as class properties instead?
-        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
+        var samlAcpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
 
         return new UserAccessEntry()
         {
@@ -218,12 +217,11 @@ public class StatisticsTransformerService
 
             SubjectChildOrganization = GetSamlAttributeAsCodedValue(statements, Constants.Saml.Attribute.ChildOrganization),
             SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
-            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ??
-                          acp,
+            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? samlAcpNullValue,
             UploadedEntries = uploadedEntries?.Length,
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
-            SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
+            SourceHostName = _appConfig.HostName?.Split("-xcadocumentsource").FirstOrDefault(),
             Success = GetSuccessTypeFromRegistryError(SoapExtensions.RegistryErrorsFromSoapEnvelope(soapEnvelopeResponse), soapEnvelopeResponse?.Body.RetrieveDocumentSetResponse?.DocumentResponse),
             DocumentConfidentialityCodes = GetConfidentialityCodeFromRetrievedDocument(soapEnvelopeRequest),
             Endpoint = inputFields.Path,

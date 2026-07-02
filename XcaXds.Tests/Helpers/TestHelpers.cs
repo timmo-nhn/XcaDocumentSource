@@ -1,16 +1,15 @@
 ﻿using System.Text.Json;
 using System.Xml;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
+using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
-using XcaXds.Shared.Enums;
-using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
-using XcaXds.Shared.Extensions;
-using XcaXds.WebService.Services.Policy;
 using XcaXds.Shared;
+using XcaXds.Shared.Enums;
+using XcaXds.Shared.Extensions;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 
 namespace XcaXds.Tests.Helpers;
 

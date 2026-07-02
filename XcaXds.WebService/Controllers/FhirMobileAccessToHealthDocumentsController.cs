@@ -247,7 +247,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         if (!await _featureManager.IsEnabledAsync("Fhir_GetDocumentReference")) return NotFound();
 
         var registryItems = _registryWrapper.GetRegistryItemAndRelated(id);
-        var registryObjects = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryItems).ToArray();
+        var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(registryItems).ToArray();
 
         var documentReference = _xdsOnFhirTransformerService.GetFhirDocumentReferencesFromRegistryObjects(registryObjects).FirstOrDefault();
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();

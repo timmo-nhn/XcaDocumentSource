@@ -10,8 +10,8 @@ using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
+using XcaXds.Commons.Extensions.NinParsers;
 using XcaXds.Commons.Extensions.No;
-using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
 using XcaXds.Commons.Interfaces.Statistics;
@@ -34,11 +34,12 @@ using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
 using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
 using XcaXds.WebService.Services.Fhir;
-using XcaXds.WebService.Services.Policy;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy.RequestMappers;
 using XcaXds.WebService.Services.Statistics;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
@@ -197,7 +198,6 @@ public class Program
         // Scoped services
         builder.Services.AddScoped<XdsRegistryService>();
         builder.Services.AddScoped<XdsRepositoryService>();
-        builder.Services.AddScoped<Hl7RegistryService>();
         builder.Services.AddScoped<AtnaLogGeneratorService>();
 
         // Policy input builder and strategies
@@ -223,8 +223,8 @@ public class Program
 
         // Singleton services
         builder.Services.AddSingleton<AtnaLogEnricherService>();
-        builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
-        builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
+        builder.Services.AddSingleton<SamlPolicyRequestMapper>();
+        builder.Services.AddSingleton<JsonWebTokenPolicyRequestMapper>();
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
         builder.Services.AddSingleton<PolicyDecisionPointService>();
@@ -269,10 +269,11 @@ public class Program
         builder.Services.AddSingleton<FhirToXdsTransformerService>();
 
         // Transformer services
+        builder.Services.AddSingleton<RegistryMetadataTransformerService>();
         builder.Services.AddSingleton<JwtToSamlTransformerService>();
         builder.Services.AddSingleton<BusinessLogicMapperService>();
-        builder.Services.AddSingleton<PolicyRequestMapperSamlService>();
-        builder.Services.AddSingleton<PolicyRequestMapperJsonWebTokenService>();
+        builder.Services.AddSingleton<SamlPolicyRequestMapper>();
+        builder.Services.AddSingleton<JsonWebTokenPolicyRequestMapper>();
 
         // Business logic
         builder.Services.AddSingleton<DocumentListFiltererService>();

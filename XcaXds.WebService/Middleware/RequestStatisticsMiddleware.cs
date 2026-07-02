@@ -19,16 +19,19 @@ public class RequestStatisticsMiddleware
     private readonly ILogger<RequestStatisticsMiddleware> _logger;
     private readonly IStatisticsQueue _statisticsQueue;
     private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
+    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
     public RequestStatisticsMiddleware(
         RequestDelegate next,
         ILogger<RequestStatisticsMiddleware> logger,
         IStatisticsQueue statisticsQueue,
-        FhirToXdsTransformerService fhirToXdsTransformerService)
+        FhirToXdsTransformerService fhirToXdsTransformerService,
+        RegistryMetadataTransformerService registryMetadataTransformerService)
     {
         _next = next;
         _logger = logger;
         _statisticsQueue = statisticsQueue;
         _fhirToXdsTransformerService = fhirToXdsTransformerService;
+        _registryMetadataTransformerService = registryMetadataTransformerService;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
@@ -168,7 +171,7 @@ public class RequestStatisticsMiddleware
         var extrinsicObject = _fhirToXdsTransformerService.ConvertDocumentReferenceToExtrinsicObject(patient, documentReferences, fhirBinaries);
         var sxmls = new SoapXmlSerializer();
         var eo = sxmls.SerializeSoapMessageToXmlString(extrinsicObject.Value).Content;
-        var documentEntry = RegistryMetadataTransformer.TransformRegistryObjectToRegistryObjectDto(extrinsicObject.Value) as DocumentEntryDto;
+        var documentEntry = _registryMetadataTransformerService.TransformRegistryObjectToRegistryObjectDto(extrinsicObject.Value) as DocumentEntryDto;
 
         return documentEntry;
     }

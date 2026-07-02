@@ -415,6 +415,6 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             ],
         };
 
-        DocumentReferences = RegistryMetadataTransformer.TransformDocumentReferenceDtoListToRegistryObjects([documentEntry1, documentEntry2, documentEntry3]).ToList();
+        DocumentReferences = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects([documentEntry1, documentEntry2, documentEntry3]).ToList();
     }
 }

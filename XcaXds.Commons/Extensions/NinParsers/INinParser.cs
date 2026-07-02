@@ -1,6 +1,6 @@
 ﻿using XcaXds.Commons.Models.Hl7.DataType;
 
-namespace XcaXds.Commons.Interfaces;
+namespace XcaXds.Commons.Extensions.NinParsers;
 
 /// <summary>
 /// Parse a National Identifier Number and get birth dates and standardized coded identifiers

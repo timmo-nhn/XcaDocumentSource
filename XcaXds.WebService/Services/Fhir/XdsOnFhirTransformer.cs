@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Text;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Helpers;
+using XcaXds.Commons.Extensions.NinParsers;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -184,7 +184,7 @@ public class XdsOnFhirTransformerService
         // we need to fetch the registry and get the missing registry objects to properly map this to a FHIR resource
         if (registryObjectList != null && registryObjectList.Length == registryObjectList?.OfType<ExtrinsicObjectType>().ToArray().Length)
         {
-            var registryContent = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(registryObjects);
+            var registryContent = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(registryObjects);
 
             var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
             var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -231,7 +231,7 @@ public class XdsOnFhirTransformerService
         var registryPackages = registryObjectList.OfType<RegistryPackageType>().ToList();
         var associations = registryObjectList.OfType<AssociationType>().ToList();
 
-        if (extrinsicObjects.Count == 1 && registryPackages.Count == 1 && associations.Count == 0)
+        if (extrinsicObjects.Count == 1 && registryPackages.Count >= 1 && associations.Count == 0)
         {
             associations.Add(new AssociationType()
             {
@@ -253,9 +253,9 @@ public class XdsOnFhirTransformerService
 
             documentReference.Id = assocExtrinsicObject?.Id?.NoUrn();
 
-            if (assocRegistryPackage == null || assocExtrinsicObject == null) continue;
+            if (assocExtrinsicObject == null) continue;
 
-            documentReference.MasterIdentifier = GetMasterIdentifierFromRegistryPackageSourceId(assocRegistryPackage, assocExtrinsicObject);
+            documentReference.MasterIdentifier = GetMasterIdentifierFromExtrinsicObjectUniqueId(assocExtrinsicObject);
             documentReference.Identifier = GetIdentifierFromExtrinsicObjectId(assocExtrinsicObject);
             documentReference.Status = GetDocumentReferenceStatusFromExtrinsicObjectStatus(assocExtrinsicObject);
             documentReference.Type = GetTypeFromExtrinsicObjectTypeCode(assocExtrinsicObject);
@@ -299,14 +299,12 @@ public class XdsOnFhirTransformerService
                 documentReference.SecurityLabel.AddRange(securityLabel);
             }
 
-
             // Content
             var content = GetDocumentReferenceContentPropertyFromExtrinsicObject(assocExtrinsicObject);
             if (content != null)
             {
                 documentReference.Content.Add(content);
             }
-
 
             // Context
             var context = GetContextComponentFromExtrinsicObject(assocExtrinsicObject);
@@ -315,7 +313,6 @@ public class XdsOnFhirTransformerService
                 documentReference.Context = context;
                 documentReference.Context.SourcePatientInfo = documentReference.Subject;
             }
-
 
             documentReferenceList.Add(documentReference);
         }
@@ -342,10 +339,10 @@ public class XdsOnFhirTransformerService
         {
             var code = association.AssociationTypeData switch
             {
-                var t when t == Constants.Xds.AssociationType.Replace => DocumentRelationshipType.Replaces,
-                var t when t == Constants.Xds.AssociationType.Addendum => DocumentRelationshipType.Appends,
-                var t when t == Constants.Xds.AssociationType.Transformation => DocumentRelationshipType.Transforms,
-                var t when t == Constants.Xds.AssociationType.Signs => DocumentRelationshipType.Signs,
+                Constants.Xds.AssociationType.Replace => DocumentRelationshipType.Replaces,
+                Constants.Xds.AssociationType.Addendum => DocumentRelationshipType.Appends,
+                Constants.Xds.AssociationType.Transformation => DocumentRelationshipType.Transforms,
+                Constants.Xds.AssociationType.Signs => DocumentRelationshipType.Signs,
                 _ => (DocumentRelationshipType?)null
             };
 
@@ -376,7 +373,7 @@ public class XdsOnFhirTransformerService
         var context = new DocumentReference.ContextComponent();
 
 
-        var eventCodeList = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.EventCodeList));
+        var eventCodeList = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.EventCodeList));
 
         if (eventCodeList != null)
         {
@@ -411,7 +408,7 @@ public class XdsOnFhirTransformerService
             context.Period.End = ((DateTimeOffset)serviceStopTimeDate).ToUniversalTime().ToString(Constants.Hl7.Dtm.DtmFhirIsoDateTimeFormat);
         }
 
-        var healthCareFacilityType = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode));
+        var healthCareFacilityType = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode));
 
         if (healthCareFacilityType != null)
         {
@@ -430,7 +427,7 @@ public class XdsOnFhirTransformerService
         }
 
 
-        var practiceSettingCode = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode));
+        var practiceSettingCode = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode));
 
         if (practiceSettingCode != null)
         {
@@ -462,7 +459,7 @@ public class XdsOnFhirTransformerService
 		// but this may need to be revisited if we want to support R5.
 		// As long as we use endpoint paths which starts with "/R4/" we should use R4 compatible serialization. If we want to support R5, we should use unsignedInt for size and serialize to unquoted number.
 		//var size = long.MinValue;
-		var sizeInt = int.MinValue;
+		var sizeInt = 0;
 		/*if (long.TryParse(assocExtrinsicObject.GetFirstSlot(Constants.Xds.SlotNames.Size)?.GetFirstValue() ?? "0", out var sizeLong)) // Only for R5
         {
             size = sizeLong;
@@ -490,7 +487,7 @@ public class XdsOnFhirTransformerService
             Creation = creation
         };
 
-        var format = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.FormatCode));
+        var format = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.FormatCode));
 
         if (format != null)
         {
@@ -507,7 +504,7 @@ public class XdsOnFhirTransformerService
 
     private static List<CodeableConcept>? GetCodeableConceptFromExtrinsicObjectConfidentialityCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-        var confidentialityCodes = RegistryMetadataTransformer.MapClassificationToCodedValue(
+        var confidentialityCodes = RegistryMetadataTransformerService.MapClassificationToCodedValue(
             assocExtrinsicObject.GetClassifications(Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode));
 
         if (confidentialityCodes == null || confidentialityCodes.Count == 0) return null;
@@ -828,7 +825,7 @@ public class XdsOnFhirTransformerService
 
     private static List<CodeableConcept>? GetCategoryFromExtrinsicObjectClassCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-        var classCode = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ClassCode));
+        var classCode = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.ClassCode));
 
         if (classCode == null) return null;
 
@@ -849,7 +846,7 @@ public class XdsOnFhirTransformerService
 
     private static CodeableConcept? GetTypeFromExtrinsicObjectTypeCode(ExtrinsicObjectType assocExtrinsicObject)
     {
-        var typeCode = RegistryMetadataTransformer.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.TypeCode));
+        var typeCode = RegistryMetadataTransformerService.MapClassificationToCodedValue(assocExtrinsicObject.GetFirstClassification(Constants.Xds.Uuids.DocumentEntry.TypeCode));
         if (typeCode == null) return null;
 
         var codeable = new CodeableConcept()
@@ -882,17 +879,17 @@ public class XdsOnFhirTransformerService
         };
     }
 
-    private static Identifier? GetMasterIdentifierFromRegistryPackageSourceId(RegistryPackageType? assocRegistryPackage, ExtrinsicObjectType assocExtrinsicObject)
+    private static Identifier? GetMasterIdentifierFromExtrinsicObjectUniqueId(ExtrinsicObjectType assocExtrinsicObject)
     {
-        var sourceId = assocRegistryPackage?.GetFirstExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.SourceId)?.Value;
         var uniqueId = assocExtrinsicObject?.GetFirstExternalIdentifier(Constants.Xds.Uuids.DocumentEntry.UniqueId)?.Value;
+        //var repositoryUniqueId = assocExtrinsicObject?.GetFirstSlot(Constants.Xds.SlotNames.RepositoryUniqueId)?.GetFirstValue();
 
-        if (sourceId == null || uniqueId == null) return null;
+        if (uniqueId == null) return null;
 
         return new()
         {
             Value = uniqueId.WithUrnOid(),
-            System = sourceId.WithUrnOid()
+            //System = repositoryUniqueId?.WithUrnOid()
         };
     }
 }

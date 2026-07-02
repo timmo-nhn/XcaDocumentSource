@@ -1413,7 +1413,6 @@ public class FhirToXdsTransformerService
 
             var refAuthorDeptString = refAuthorDept?.Serialize();
 
-            //HAYO! AUTHORINSTITUTION_SLOT_ORDER Order of these AddValue calls are important!!!!
             authorInstitutionSlot.AddValue(refAuthorOrgString);
 
             authorInstitutionSlot.AddValue(refAuthorOrgNameOnlyString);
@@ -1995,11 +1994,11 @@ public class FhirToXdsTransformerService
     }
 
     private static Binary? MatchBinaryToDocumentReference(
-    Bundle bundle,
-    DocumentReference documentReference,
-    int indexFallback,
-    List<Binary>? binaries,
-    OperationOutcome operationOutcome)
+        Bundle bundle,
+        DocumentReference documentReference,
+        int indexFallback,
+        List<Binary>? binaries,
+        OperationOutcome operationOutcome)
     {
         if (binaries?.Count == 0) return null;
 

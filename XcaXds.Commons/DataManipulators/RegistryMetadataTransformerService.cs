@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Microsoft.Extensions.Logging;
+using System.Globalization;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -7,12 +8,26 @@ using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
+using XcaXds.Terminology;
+using XcaXds.Terminology.Services;
 
 namespace XcaXds.Commons.DataManipulators;
 
-public static class RegistryMetadataTransformer
+public class RegistryMetadataTransformerService
 {
-    public static DocumentReferenceDto TransformRegistryObjectsToDocumentReferenceDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType? document = null)
+    private readonly ILogger<RegistryMetadataTransformerService> _logger;
+    private readonly TerminologyService _terminologyService;
+
+    private readonly string? _organizationSystem;
+
+    public RegistryMetadataTransformerService(ILogger<RegistryMetadataTransformerService> logger, TerminologyService terminologyService)
+    {
+        _logger = logger;
+        _terminologyService = terminologyService;
+        _organizationSystem = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities).GetFirstValueByName("Organization");
+    }
+
+    public DocumentReferenceDto TransformRegistryObjectsToDocumentReferenceDto(ExtrinsicObjectType extrinsicObject, RegistryPackageType registryPackage, AssociationType association, DocumentType? document = null)
     {
         var documentEntryDto = new DocumentReferenceDto();
 
@@ -73,7 +88,7 @@ public static class RegistryMetadataTransformer
         }
     }
 
-    public static IEnumerable<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<IdentifiableType>? registryObjectList)
+    public IEnumerable<RegistryObjectDto> TransformRegistryObjectsToRegistryObjectDtos(IEnumerable<IdentifiableType>? registryObjectList)
     {
         if (registryObjectList == null) yield break;
 
@@ -86,7 +101,7 @@ public static class RegistryMetadataTransformer
         }
     }
 
-    public static RegistryObjectDto? TransformRegistryObjectToRegistryObjectDto(IdentifiableType? registryObject)
+    public RegistryObjectDto? TransformRegistryObjectToRegistryObjectDto(IdentifiableType? registryObject)
     {
         try
         {
@@ -136,7 +151,7 @@ public static class RegistryMetadataTransformer
         return associationDto;
     }
 
-    private static SubmissionSetDto? TransformRegistryPackageToSubmissionSetDto(RegistryPackageType? registryPackage)
+    private SubmissionSetDto? TransformRegistryPackageToSubmissionSetDto(RegistryPackageType? registryPackage)
     {
         if (registryPackage == null) return null;
 
@@ -181,7 +196,7 @@ public static class RegistryMetadataTransformer
         return registryPackage.GetFirstExternalIdentifier(Constants.Xds.Uuids.SubmissionSet.SourceId)?.Value;
     }
 
-    private static List<AuthorInfo>? GetAuthorsFromRegistryPackage(RegistryPackageType? registryPackage)
+    private List<AuthorInfo>? GetAuthorsFromRegistryPackage(RegistryPackageType? registryPackage)
     {
         var authorClassifications = registryPackage?.GetClassifications(Constants.Xds.Uuids.SubmissionSet.Author);
         if (authorClassifications == null || authorClassifications.Length == 0) return null;
@@ -204,7 +219,7 @@ public static class RegistryMetadataTransformer
         return authorList;
     }
 
-    private static DocumentEntryDto? TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject)
+    private DocumentEntryDto? TransformExtrinsicObjectToDocumentEntryDto(ExtrinsicObjectType extrinsicObject)
     {
         if (extrinsicObject == null) return null;
 
@@ -480,7 +495,7 @@ public static class RegistryMetadataTransformer
         };
     }
 
-    private static List<AuthorInfo>? GetAuthorFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
+    private List<AuthorInfo>? GetAuthorFromExtrinsicObject(ExtrinsicObjectType? extrinsicObject)
     {
         var authorClassifications = extrinsicObject?.GetClassifications(Constants.Xds.Uuids.DocumentEntry.Author);
 
@@ -504,7 +519,7 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    private static AuthorOrganization? GetAuthorDepartmentFromClassification(ClassificationType? authorClassification)
+    private AuthorOrganization? GetAuthorDepartmentFromClassification(ClassificationType? authorClassification)
     {
         if (authorClassification == null) return null;
 
@@ -516,30 +531,12 @@ public static class RegistryMetadataTransformer
             .Select(asl => Hl7Object.Parse<XON>(asl))
             .ToArray();
 
-        //HAYO! AUTHORINSTITUTION_SLOT_ORDER
-        // HAYO! Is FirstOrDefault sufficient?!?
-        var organization = authorSlotXon.FirstOrDefault();
-
-        // Old approach:
-        // Find organization XON here aswell to ensure we don't double-register stuff
-        //authorSlotXon
-        //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
-        //                          asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-        //                         (asXon?.AssigningAuthority?.UniversalId != null &&
-        //                          asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-
-
-        // HAYO! Is LastOrDefault sufficient?!?
-        //HAYO! AUTHORINSTITUTION_SLOT_ORDER
-        var department = authorSlotXon.LastOrDefault() is { AssigningAuthority: not null } gobb ? gobb : null;
-        
-        // Old approach:
-        // Find the XON object where assigningAuthority is NOT brreg(i.e. empty, OID for department or other OID).
-        // If none is found, take the first in the XON list
-        //authorSlotXon
-        //.FirstOrDefault(asXon => (asXon?.AssigningFacility?.UniversalId != null &&
-        //                         !asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-        //                         (asXon?.AssigningAuthority?.UniversalId != null && !asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
+        var organization = authorSlotXon.FirstOrDefault(org => 
+            org?.AssigningAuthority?.UniversalId?.Equals(_organizationSystem) == true);
+       
+        var department = authorSlotXon.LastOrDefault(org => 
+            org?.AssigningAuthority?.UniversalId?.Equals(_organizationSystem) == false &&
+            org?.AssigningAuthority != null);
 
         if (department != null && department.OrganizationIdentifier != organization?.OrganizationIdentifier)
         {
@@ -554,7 +551,7 @@ public static class RegistryMetadataTransformer
         return null;
     }
 
-    private static AuthorOrganization? GetAuthorOrganizationFromClassification(ClassificationType? authorClassification)
+    private AuthorOrganization? GetAuthorOrganizationFromClassification(ClassificationType? authorClassification)
     {
         if (authorClassification == null) return null;
 
@@ -566,18 +563,10 @@ public static class RegistryMetadataTransformer
             .Select(asl => Hl7Object.Parse<XON>(asl))
             .ToArray();
 
-        // Find the XON object where assigningAuthority is NOT brreg.
-        // If none is found, take the last in the XON list
-        //@tim: var organization = authorSlotXon.LastOrDefault();
         var organization = authorSlotXon
-            .Where(x => x?.OrganizationIdentifier != null && x.AssigningAuthority?.UniversalId?.Contains("2.16.578.1.12.4.1.4.101") == true)
+            .Where(x => x?.OrganizationIdentifier != null && x.AssigningAuthority?.UniversalId == _organizationSystem)
             .ToArray()
             .FirstOrDefault();
-        // HAYO! Is LastOrDefault sufficient?!?
-        //.FirstOrDefault(asXon =>
-        //    (asXon?.AssigningFacility?.UniversalId != null && asXon.AssigningFacility.UniversalId.Contains(Constants.Oid.Brreg)) ||
-        //    (asXon?.AssigningAuthority?.UniversalId != null && asXon.AssigningAuthority.UniversalId.Contains(Constants.Oid.Brreg)))
-        //?? 
 
         if (organization != null)
         {
@@ -1157,7 +1146,7 @@ public static class RegistryMetadataTransformer
 
         if (author.Department != null)
         {
-			var dpt = new XON()
+            var dpt = new XON()
             {
                 OrganizationName = author.Department.OrganizationName,
                 OrganizationIdentifier = author.Department.Id,
@@ -1169,9 +1158,9 @@ public static class RegistryMetadataTransformer
             };
 
             if (author.Department.AssigningAuthority == "2.16.578.1.12.4.5.390")
-            {				
-				// This is a workaround for the Siemens eHS (XCA gateway) which strips away the assigning authority if the OrganizationIdentifier is not set
-				dpt.OrganizationIdentifier = $"name-only:{author.Department.OrganizationName}"; 
+            {
+                // This is a workaround for the Siemens eHS (XCA gateway) which strips away the assigning authority if the OrganizationIdentifier is not set
+                dpt.OrganizationIdentifier = $"name-only:{author.Department.OrganizationName}";
             }
 
             var departmentString = dpt.Serialize();
@@ -1405,7 +1394,7 @@ public static class RegistryMetadataTransformer
     /// Map them to the values XDS-based systems might expect (OIDs instead of )
     /// </summary>
     /// <param name="elementsToUpdate"></param>
-    public static void TransformFhirConceptsToXdsConcepts(IEnumerable<RegistryObjectDto> elementsToUpdate)
+    public void TransformFhirConceptsToXdsConcepts(IEnumerable<RegistryObjectDto> elementsToUpdate)
     {
         foreach (var registryObject in elementsToUpdate.OfType<DocumentEntryDto>())
         {

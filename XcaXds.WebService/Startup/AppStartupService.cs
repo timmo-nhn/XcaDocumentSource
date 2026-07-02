@@ -6,7 +6,7 @@ using XcaXds.Shared.Enums;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
-using XcaXds.WebService.Services.Policy;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
 

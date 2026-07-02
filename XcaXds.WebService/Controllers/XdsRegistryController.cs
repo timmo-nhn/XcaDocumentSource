@@ -27,16 +27,19 @@ public class XdsRegistryController : ControllerBase
     private readonly ILogger<XdsRegistryController> _logger;
     private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
+    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
     public XdsRegistryController(
         ILogger<XdsRegistryController> logger,
         XdsRegistryService registryService,
-        IVariantFeatureManager featureManager
+        IVariantFeatureManager featureManager,
+        RegistryMetadataTransformerService registryMetadataTransformerService
         )
     {
         _logger = logger;
         _registryService = registryService;
         _featureManager = featureManager;
+        _registryMetadataTransformerService = registryMetadataTransformerService;
     }
 
     [Consumes("application/soap+xml", "application/xml", "multipart/related")]
@@ -135,7 +138,7 @@ public class XdsRegistryController : ControllerBase
                     responseEnvelope.Body = deleteDocumentSetResponse.Value?.Body ?? new();
 
                     // Add to HttpContext so AtnaLogExporterService can access them for patient IDs
-                    var deletedDtoObjects = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(deletedObjects);
+                    var deletedDtoObjects = _registryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(deletedObjects);
                     HttpContext.Items.Add("deletedRegistryObjects", deletedDtoObjects);
                 }
 

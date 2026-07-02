@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using XcaXds.WebService.Services;
-using XcaXds.WebService.Services.Policy;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests.FakesAndDoubles;

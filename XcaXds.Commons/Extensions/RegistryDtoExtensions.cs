@@ -10,7 +10,7 @@ public static class RegistryDtoExtensions
     {
         foreach (var registryObjectDtos in documentReference.AsRegistryObjectDtos())
         {
-            var registryObject = RegistryMetadataTransformer.TransformRegistryObjectDtoToRegistryObject(registryObjectDtos);
+            var registryObject = RegistryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObject(registryObjectDtos);
             if (registryObject == null) continue;
 
             yield return registryObject;

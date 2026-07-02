@@ -138,15 +138,8 @@ Describes the methods and interfaces for access control.
 
 ## Other Functionality
 
-### [🖥️ XDS Admin Front-End](/Docs/XdsAdminFrontEnd.md)
-Documentation of the Admin-GUI which also serves as a practical tool for interacting with the document registry and repository
-
 ### [📄 CDA To Registry Metadata](/Docs/CdaRegistryMetadata.md)
 Describes the functionality for converting a CDA document to an ITI-41 message/Registry Metadata and vice-versa.
-
-### [🏥 HL7 Messaging and Patient identity](/Docs/Hl7MessagingPatientIds.md)
-Describes the lightweight but expandable implementation of HL7 messaging, allowing for Patient Demographics and Identity lookups and cross-referencing
-
 
 ## Coding Conventions
 

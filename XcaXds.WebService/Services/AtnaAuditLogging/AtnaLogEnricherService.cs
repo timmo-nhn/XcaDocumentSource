@@ -11,7 +11,7 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
-using XcaXds.WebService.Services.Policy;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy.RequestMappers;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;
 
@@ -22,14 +22,14 @@ namespace XcaXds.WebService.Services.AtnaAuditLogging;
 public class AtnaLogEnricherService
 {
     private readonly ILogger<AtnaLogEnricherService> _logger;
-    private readonly PolicyRequestMapperJsonWebTokenService _policyRequestMapperJwtService;
+    private readonly JsonWebTokenPolicyRequestMapper _policyRequestMapperJwtService;
     private readonly JwtToSamlTransformerService _jwtToSamlTransformerService;
     private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
     private readonly TerminologyService _terminologyService;
 
     public AtnaLogEnricherService(
         ILogger<AtnaLogEnricherService> logger,
-        PolicyRequestMapperJsonWebTokenService policyRequestMapperJwtService,
+        JsonWebTokenPolicyRequestMapper policyRequestMapperJwtService,
         JwtToSamlTransformerService jwtToSamlTransformerService,
         FhirToXdsTransformerService fhirToXdsTransformerService,
         TerminologyService terminologyService)

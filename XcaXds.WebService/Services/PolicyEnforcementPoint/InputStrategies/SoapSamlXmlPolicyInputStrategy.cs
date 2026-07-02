@@ -7,16 +7,16 @@ using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint.InputBuilder;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
-using XcaXds.WebService.Services.Policy;
+using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy.RequestMappers;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
 
 public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 {
-    private readonly PolicyRequestMapperSamlService _policyRequestMapperSamlService;
+    private readonly SamlPolicyRequestMapper _policyRequestMapperSamlService;
     private readonly ILogger<SoapSamlXmlPolicyInputStrategy> _logger;
     private readonly SamlValidatorService _samlValidator;
-    public SoapSamlXmlPolicyInputStrategy(ILogger<SoapSamlXmlPolicyInputStrategy> logger, PolicyRequestMapperSamlService policyRequestMapperSamlService, SamlValidatorService samlValidator)
+    public SoapSamlXmlPolicyInputStrategy(ILogger<SoapSamlXmlPolicyInputStrategy> logger, SamlPolicyRequestMapper policyRequestMapperSamlService, SamlValidatorService samlValidator)
     {
         _logger = logger;
         _policyRequestMapperSamlService = policyRequestMapperSamlService;
@@ -108,7 +108,7 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
             return PolicyInputResult.Fail($"No SAML-token in request!");
         }
         
-        var abacRequest = _policyRequestMapperSamlService.GetAbacRequestFromSoapEnvelope(soapEnvelope);
+        var abacRequest = _policyRequestMapperSamlService.MapToAbacRequest(soapEnvelope);
 
         _logger.LogDebug($"{context.TraceIdentifier} - Generated ABAC Request - JSON representation: {JsonSerializer.Serialize(abacRequest)}");
 

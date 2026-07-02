@@ -13,20 +13,20 @@ using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services.XdsRegistry;
 
-namespace XcaXds.WebService.Services.Policy;
+namespace XcaXds.WebService.Services.PolicyEnforcementPoint.Policy.RequestMappers;
 
 /// <summary>
 /// Parse incoming requests (i.e. SOAP-requests with SAML-token) and generate Access requests from the request assertions
 /// </summary
 // HAYO! Maybe refactor into Interface!!!
-public class PolicyRequestMapperSamlService
+public class SamlPolicyRequestMapper : IPolicyRequestMapper<SoapEnvelope>
 {
-    private readonly ILogger<PolicyRequestMapperSamlService> _logger;
+    private readonly ILogger<SamlPolicyRequestMapper> _logger;
     private readonly RegistryWrapper _registryWrapper;
     private readonly TerminologyService _terminologyService;
 
-    public PolicyRequestMapperSamlService(
-        ILogger<PolicyRequestMapperSamlService> logger,
+    public SamlPolicyRequestMapper(
+        ILogger<SamlPolicyRequestMapper> logger,
         RegistryWrapper registryWrapper,
         TerminologyService terminologyService)
     {
@@ -35,22 +35,14 @@ public class PolicyRequestMapperSamlService
         _terminologyService = terminologyService;
     }
 
-    public AbacRequest? GetAbacRequestFromSoapEnvelope(SoapEnvelope soapEnvelope)
+    public AbacRequest? MapToAbacRequest(SoapEnvelope? soapEnvelope)
     {
+        if (soapEnvelope == null) return null;
         var samlToken = SamlExtensions.ReadSamlToken(soapEnvelope.Header.Security?.Assertion?.OuterXml);
         return GetAbacRequestFromSoapEnvelope(soapEnvelope, samlToken);
     }
 
-    public AbacRequest? GetAbacRequestFromSoapEnvelope(string soapEnvelope)
-    {
-        var sxmls = new SoapXmlSerializer();
-        var soapEnvelopeObject = sxmls.DeserializeXmlString<SoapEnvelope>(soapEnvelope);
-
-        var samlToken = SamlExtensions.ReadSamlToken(soapEnvelopeObject.Header.Security?.Assertion?.OuterXml);
-        return GetAbacRequestFromSoapEnvelope(soapEnvelopeObject, samlToken);
-    }
-
-    public AbacRequest? GetAbacRequestFromSoapEnvelope(SoapEnvelope soapEnvelope, Saml2SecurityToken? samlToken)
+    private AbacRequest? GetAbacRequestFromSoapEnvelope(SoapEnvelope soapEnvelope, Saml2SecurityToken? samlToken)
     {
         var abacRequest = new AbacRequest();
 

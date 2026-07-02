@@ -8,7 +8,7 @@ namespace XcaXds.Terminology.ValueSetMappers.Hl7;
 
 public class Hl7FhirCodeSystemMapper : ICodeSystemMapper
 {
-    private string _displayDiscriminator;
+    private string? _displayDiscriminator;
 
     /// <summary>
     /// The HL7 FHIR CodeSystem resource can contain multiple code systems within the same resource, differentiated by the "display" property of the concepts.

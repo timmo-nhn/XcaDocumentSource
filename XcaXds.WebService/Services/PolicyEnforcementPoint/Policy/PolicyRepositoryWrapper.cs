@@ -4,7 +4,7 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
-namespace XcaXds.WebService.Services.Policy;
+namespace XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 
 public class PolicyRepositoryWrapper
 {

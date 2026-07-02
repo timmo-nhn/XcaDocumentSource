@@ -32,6 +32,7 @@ public partial class XdsRegistryService
     private readonly BusinessLogicFiltersRegistry _businessLogicFiltersService;
     private readonly DocumentListFiltererService _businessLogicFiltererService;
     private readonly BusinessLogicMapperService _businessLogicMapperService;
+    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
     private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));
 
@@ -43,7 +44,8 @@ public partial class XdsRegistryService
         DocumentObfuscationService documentObfuscationService,
         BusinessLogicFiltersRegistry businessLogicFiltersService,
         DocumentListFiltererService businessLogicFiltererService,
-        BusinessLogicMapperService businessLogicMapperService)
+        BusinessLogicMapperService businessLogicMapperService,
+        RegistryMetadataTransformerService registryMetadataTransformerService)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
@@ -53,6 +55,7 @@ public partial class XdsRegistryService
         _businessLogicFiltersService = businessLogicFiltersService;
         _businessLogicFiltererService = businessLogicFiltererService;
         _businessLogicMapperService = businessLogicMapperService;
+        _registryMetadataTransformerService = registryMetadataTransformerService;
     }
 
     public static void ValidateRecursive(object? obj, List<ValidationResult> results)
@@ -192,9 +195,9 @@ public partial class XdsRegistryService
         {
             var sxmls = new SoapXmlSerializer();
             var gobb = sxmls.SerializeSoapMessageToXmlString(submissionRegistryObjects).Content;
-            var submissionElementsToUpdate = RegistryMetadataTransformer.TransformRegistryObjectsToRegistryObjectDtos(submissionRegistryObjects).ToList();
+            var submissionElementsToUpdate = _registryMetadataTransformerService.TransformRegistryObjectsToRegistryObjectDtos(submissionRegistryObjects).ToList();
 
-            RegistryMetadataTransformer.TransformFhirConceptsToXdsConcepts(submissionElementsToUpdate);
+            _registryMetadataTransformerService.TransformFhirConceptsToXdsConcepts(submissionElementsToUpdate);
 
             registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(submissionElementsToUpdate);
             if (registryUpdateResult)
@@ -241,7 +244,7 @@ public partial class XdsRegistryService
 
                 var registryFindDocumentEntriesResult = prefilteredDocumentRegistry?
                     .OfType<DocumentEntryDto>()
-                    .Select(RegistryMetadataTransformer.TransformRegistryObjectDtoToRegistryObject)
+                    .Select(RegistryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObject)
                     .OfType<ExtrinsicObjectType>() ?? [];
 
                 _logger.LogDebug($"{soapEnvelope.Header.MessageId} - FindDocuments parameters:\n" + JsonSerializer.Serialize(findDocumentsSearchParameters, Constants.JsonDefaultOptions.DefaultSettings));
@@ -514,7 +517,7 @@ public partial class XdsRegistryService
             .Where(ro => objectRefIds.Contains(ro.Id))
             .ToList();
 
-        deletedObjects = RegistryMetadataTransformer.TransformRegistryObjectDtosToRegistryObjects(toRemove);
+        deletedObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(toRemove);
 
         foreach (var ro in toRemove)
         {
@@ -644,7 +647,7 @@ public partial class XdsRegistryService
     {
         try
         {
-            var dtoList = RegistryMetadataTransformer
+            var dtoList = _registryMetadataTransformerService
                 .TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
 
             _registryWrapper.SetDocumentRegistryContentWithDtos([.. dtoList]);

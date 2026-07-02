@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using XcaXds.Commons.Interfaces;
 
-namespace XcaXds.Commons.Helpers;
+namespace XcaXds.Commons.Extensions.NinParsers;
 
 public class NinParserFactory
 {
