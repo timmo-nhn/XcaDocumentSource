@@ -118,6 +118,34 @@ public class PolicyRepositoryWrapper
 
     private void OnFileChanged(object sender, FileSystemEventArgs e)
     {
+        ExecuteWithRetry(() => ReloadPolicies());
+    }
+
+    private void ExecuteWithRetry(Action action, int retries = 3)
+    {
+        for (int i = 1; i <= retries; i++)
+        {
+            try
+            {
+                _logger.LogInformation("Attempt {att}/{max}", i, retries);
+                action();
+                return;
+            }
+            catch (IOException ioEx)
+            {
+                _logger.LogError(ioEx.ToString());
+                continue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                throw;
+            }
+        }
+    }
+
+    private void ReloadPolicies()
+    {
         Task.Delay(500).ContinueWith(_ =>
         {
             try

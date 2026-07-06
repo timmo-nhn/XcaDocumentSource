@@ -5,13 +5,10 @@ namespace XcaXds.WebService.Services;
 
 public class EvaluatedPolicy
 {
-    public EvaluatedPolicy()
-    {
-        Conditions ??= [];
-    }
+    public EvaluatedPolicy() { }
     
-    public string PolicyId { get; set; }
-    public List<ConditionResult> Conditions { get; set; }
+    public string? PolicyId { get; set; }
+    public List<ConditionResult> Conditions { get; set; } = [];
     public Decision Decision { get; set; }
-    public string Reason { get; set; }
+    public string? Reason { get; set; }
 }

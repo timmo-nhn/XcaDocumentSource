@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Web;
+using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
@@ -38,7 +39,7 @@ namespace XcaXds.WebService.Controllers;
 public class FhirMobileAccessToHealthDocumentsController : Controller
 {
     private readonly ILogger<FhirMobileAccessToHealthDocumentsController> _logger;
-    private readonly XdsRegistryService _xdsRegistryService;
+    private readonly DocumentListFiltererService _documentListFiltererService;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
@@ -47,6 +48,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     private readonly AtnaLogEnricherService _atnaLogEnricherService;
     private readonly FhirResourceValidatorService _fhirValidator;
     private readonly XdsOnFhirTransformerService _xdsOnFhirTransformerService;
+    private readonly XdsRegistryService _xdsRegistryService;
     private readonly IVariantFeatureManager _featureManager;
 
 
@@ -63,18 +65,20 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         FhirService fhirService,
         FhirResourceValidatorService fhirValidator,
         XdsOnFhirTransformerService xdsOnFhirTransformerService,
-        IVariantFeatureManager featureManager)
+        IVariantFeatureManager featureManager,
+        DocumentListFiltererService documentListFiltererService)
     {
         _logger = logger;
-        _xdsRegistryService = xdsRegistryService;
-        _registryWrapper = registryWrapper;
-        _repositoryWrapper = repositoryWrapper;
-        _atnaLoggingService = atnaLoggingService;
-        _atnaLogEnricherService = atnaLogEnricherService;
-        _restfulRegistryService = restfulRegistryService;
         _fhirService = fhirService;
         _fhirValidator = fhirValidator;
         _featureManager = featureManager;
+        _registryWrapper = registryWrapper;
+        _repositoryWrapper = repositoryWrapper;
+        _xdsRegistryService = xdsRegistryService;
+        _atnaLoggingService = atnaLoggingService;
+        _atnaLogEnricherService = atnaLogEnricherService;
+        _restfulRegistryService = restfulRegistryService;
+        _documentListFiltererService = documentListFiltererService;
         _xdsOnFhirTransformerService = xdsOnFhirTransformerService;
     }
 
@@ -180,7 +184,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var abacRequest = HttpContext.Items.TryGetValue("accessRequest", out var accessRequest) ? accessRequest as AbacRequest : null;
 
         var registryQueryResponse = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
-        var filteredDocumentList = _xdsRegistryService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, registryQueryResponse.Value, abacRequest, out var businessLogicResults);
+        var filteredDocumentList = _documentListFiltererService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, registryQueryResponse.Value, abacRequest, out var businessLogicResults);
         HttpContext.Items.Add("businessLogicResult", businessLogicResults);
 
         var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle(registryQueryResponse.Value?.Body.AdhocQueryResponse?.RegistryObjectList, _registryWrapper.GetDocumentRegistryContentAsDtos());
@@ -546,7 +550,12 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Validation Errors: {string.Join(' ', results.Select(res => res.ErrorMessage))}", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Error));
         }
 
-        _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
+        var response = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
+
+        if (!response.IsSuccess)
+        {
+            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Failed to update DocumentReference/{id}: {response.Message}", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Error));
+        }
 
         // Atna log generation
         HttpContext.Items.Add("oldSecurityLabel", oldSecurityLabel);

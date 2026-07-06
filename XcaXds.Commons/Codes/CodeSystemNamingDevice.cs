@@ -19,7 +19,7 @@ public static class CodeSystemNamingDevice
         { "1.0.14265.1", "ISO 14265 Classification of Purposes for processing personal health information" },
     };
 
-    public static string GetNameFromCodeOrDefault(string? code)
+    public static string? GetNameFromCodeOrDefault(string? code)
     {
         if (string.IsNullOrEmpty(code))
         {
@@ -31,6 +31,6 @@ public static class CodeSystemNamingDevice
             return result;
         }
 
-        throw new Exception($"Invalid code system '{code}' encountered.");
+        return default;
     }
 }

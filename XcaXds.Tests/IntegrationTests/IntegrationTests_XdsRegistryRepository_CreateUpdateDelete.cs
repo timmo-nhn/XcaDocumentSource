@@ -62,7 +62,6 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
         // Explicitly add KjernejournalForskriften rule for this test
-        //BusinessLogicFilterer.AddRule(BusinessLogicFiltersService.HealthcarePersonellKjernejournalForskriften);
         _documentListFiltererService.AddRule(
             "HealthcarePersonellKjernejournalForskriften", new()
             {

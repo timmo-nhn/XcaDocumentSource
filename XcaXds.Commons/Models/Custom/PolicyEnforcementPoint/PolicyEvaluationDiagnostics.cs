@@ -5,8 +5,8 @@ namespace XcaXds.WebService.Services;
 
 public class PolicyEvaluationDiagnostics
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
     public Decision Decision { get; set; }
-    public List<ConditionResult> FailedConditions { get; set; }
-    public List<ConditionResult> MatchedConditions { get; set; }
+    public List<ConditionResult>? FailedConditions { get; set; }
+    public List<ConditionResult>? MatchedConditions { get; set; }
 }

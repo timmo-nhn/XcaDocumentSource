@@ -1,4 +1,5 @@
 ﻿using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Tests.FakesAndDoubles;
@@ -7,11 +8,11 @@ public class InMemoryRegistry : IRegistry
 {
     public List<RegistryObjectDto> DocumentRegistry = new();
 
-    public bool DeleteRegistryItem(string id)
+    public OperationResponse DeleteRegistryItem(string id)
     {
         var removedCount = DocumentRegistry.RemoveAll(ro => ro.Id == id);
 
-        return removedCount > 0;
+        return removedCount > 0 ? OperationResponse.Success($"{id} successfully removed") : OperationResponse.Failure($"{id} not found");
     }
 
     public IEnumerable<RegistryObjectDto> GetRegistryItemsForPatient(PatientId patientIdentifier)
@@ -29,15 +30,15 @@ public class InMemoryRegistry : IRegistry
         return GetRegistryItemsForPatient(new PatientId()).ToAsyncEnumerable();
     }
 
-    public bool UpdateRegistry(List<RegistryObjectDto> dtos)
+    public OperationResponse UpdateRegistry(List<RegistryObjectDto> dtos)
     {
         DocumentRegistry.AddRange(dtos);
-        return true;
+        return OperationResponse.Success("Updated OK");
     }
 
-    public bool WriteRegistry(List<RegistryObjectDto> dtos)
+    public OperationResponse WriteRegistry(List<RegistryObjectDto> dtos)
     {
         DocumentRegistry = dtos;
-        return true;
+        return OperationResponse.Success("Write OK");
     }
 }

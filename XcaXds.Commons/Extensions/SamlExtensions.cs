@@ -102,7 +102,7 @@ public static partial class SamlExtensions
             codeSystem = attributes?.GetNamedItem("codeSystem")?.Value ?? attributes?.GetNamedItem("root")?.Value;
             displayName = attributes?.GetNamedItem("displayName")?.Value;
         }
-        catch (Exception)
+        catch (XmlException)
         {
             var hl7Value = Hl7Object.Parse<CX>(attributeValue);
             if (hl7Value?.AssigningAuthority?.UniversalId == null)

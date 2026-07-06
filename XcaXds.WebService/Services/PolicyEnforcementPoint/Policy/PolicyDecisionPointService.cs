@@ -29,7 +29,7 @@ public class PolicyDecisionPointService
         Interlocked.Exchange(ref _compiledPolicies, compiled);
     }
 
-    private Dictionary<string, CompiledPolicy> CompilePolicies()
+    private Dictionary<string, CompiledPolicy>? CompilePolicies()
     {
         return _policyRepositoryWrapper.GetPoliciesAsPolicySet().Policies?.ToDictionary(p => p.Id, CompiledPolicy.CompilePolicy);
     }
@@ -100,13 +100,13 @@ public class PolicyDecisionPointService
             };
         }
 
-        return new AccessControlResponse
+        return new AccessControlResponse()
         {
             Decision = Decision.NotApplicable,
             Reason = anyApplicable
                 ? "Applicable policies evaluated but none permitted access."
                 : "No applicable policy matched.",
-            Diagnostics = diagnostics
+            Diagnostics = diagnostics,
         };
     }
 
@@ -132,11 +132,11 @@ public class PolicyDecisionPointService
 
 public class CompiledPolicy
 {
-    public string Id { get; init; }
-    public string Effect { get; init; }
+    public string Id { get; init; } = Guid.NewGuid().ToString();
+    public string Effect { get; init; } = "Deny";
     public List<AppliesTo> AppliesTo { get; init; } = [];
     public List<string> Actions { get; init; } = [];
-    public Func<Dictionary<string, List<string>>, EvaluatedPolicy> Evaluate { get; init; }
+    public required Func<Dictionary<string, List<string>>, EvaluatedPolicy> Evaluate { get; init; }
 
     public static CompiledPolicy CompilePolicy(AbacPolicy policy)
     {
@@ -168,12 +168,12 @@ public class CompiledPolicy
         foreach (var ruleGroup in compiledRuleGroups ?? [])
         {
             var groupResult = ruleGroup(attributes);
-            groupResult.Diagnostics.ForEach(gr => gr.RelatedPolicyId = policy.Id);
+            groupResult.Diagnostics?.ForEach(gr => gr.RelatedPolicyId = policy.Id);
             
-            result.Conditions.AddRange(groupResult.Diagnostics);
+            result.Conditions.AddRange(groupResult.Diagnostics ?? []);
 
             // Partial applicability
-            if (groupResult.Diagnostics.Any(d => d.Matches))
+            if (groupResult.Diagnostics?.Any(d => d.Matches) == true)
             {
                 anyConditionMatched = true;
             }
@@ -250,16 +250,16 @@ public class CompiledPolicy
 
         if (condition.CompareAttributes == true)
         {
-            valuesParts = valuesParts?.SelectMany(att => attributes.TryGetValue(att ?? "", out var value) ? value : null).ToArray();
+            valuesParts = valuesParts?.SelectMany(att => attributes.TryGetValue(att, out var value) ? value : []).ToArray();
         }
 
         return condition.CompareRule switch
         {
             AttributeCompareRule.Equals =>
-                new(condition.AttributeId, valuesParts?.Any(val => values.Contains(val)) == true),
+                new(condition.AttributeId, valuesParts != null && valuesParts.Any(val => values.Contains(val) == true)),
 
             AttributeCompareRule.NotEquals =>
-                new(condition.AttributeId, valuesParts?.Any(val => !values.Contains(val)) == false),
+                new(condition.AttributeId, valuesParts != null && !valuesParts.Any(val => values.Contains(val) == false)),
 
             _ => throw new NotSupportedException(condition.CompareRule.ToString())
         };

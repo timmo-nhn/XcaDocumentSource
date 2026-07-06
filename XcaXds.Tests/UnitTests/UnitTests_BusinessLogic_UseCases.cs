@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text.Json;
-using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Models.Custom;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -16,13 +14,8 @@ namespace XcaXds.Tests.UnitTests;
 public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     private List<IdentifiableType> DocumentReferences = new();
-    internal readonly ITestOutputHelper _output;
 
-    public UnitTests_BusinessLogic_UseCases(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
-    {
-        _output = output;
-    }
-
+    public UnitTests_BusinessLogic_UseCases(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output) { }
 
     [Fact]
     public async Task Citizen_1_ShouldOpenDocumentsOnThemself()

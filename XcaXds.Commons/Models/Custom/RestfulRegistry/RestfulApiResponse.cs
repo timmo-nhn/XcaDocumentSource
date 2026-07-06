@@ -39,9 +39,10 @@ public class RestfulApiResponse
         return this;
     }
 
-    public void SetMessage(string message)
+    public RestfulApiResponse SetMessage(string message)
     {
         Message = message;
+        return this;
     }
 }
 

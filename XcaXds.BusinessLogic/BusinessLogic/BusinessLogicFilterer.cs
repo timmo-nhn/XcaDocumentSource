@@ -2,11 +2,14 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
+using System.Text.Json;
 using XcaXds.BusinessLogic.Models.Custom;
 using XcaXds.BusinessLogic.Models.Custom.BusinessLogic;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
+using XcaXds.Commons.Serializers;
+using XcaXds.Shared;
 
 namespace XcaXds.BusinessLogic.BusinessLogic;
 
@@ -17,11 +20,20 @@ public class DocumentListFiltererService
 {
     private readonly ILogger<DocumentListFiltererService> _logger;
     private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
+    private readonly BusinessLogicMapperService _businessLogicMapperService;
+    private readonly DocumentObfuscationService _documentObfuscationService;
 
-    public DocumentListFiltererService(ILogger<DocumentListFiltererService> logger, BusinessLogicFiltersRegistry businessLogicFiltersRegistry)
+    public DocumentListFiltererService(
+        ILogger<DocumentListFiltererService> logger,
+        BusinessLogicFiltersRegistry businessLogicFiltersRegistry,
+        BusinessLogicMapperService businessLogicMapperService,
+        DocumentObfuscationService documentObfuscationService)
     {
         _logger = logger;
         _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
+        _businessLogicMapperService = businessLogicMapperService;
+        _documentObfuscationService = documentObfuscationService;
+
         BusinessLogicRules = _businessLogicFiltersRegistry.AllBusinessRules;
     }
 
@@ -78,6 +90,47 @@ public class DocumentListFiltererService
 
         appliedRules = resultCounts;
         return current ?? [];
+    }
+
+    public SoapEnvelope FilterAdhocQueryResponseBasedOnBusinessLogic(SoapEnvelope requestEnvelope, SoapEnvelope soapEnvelope, AbacRequest? abacRequest, out Dictionary<string, int>? filterResults)
+    {
+        filterResults = null;
+
+        // Apply business-logic filtering
+        var requestType = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery.Id;
+
+        if (requestType == Constants.Xds.StoredQueries.FindDocuments)
+        {
+            List<IdentifiableType> enumeratedEntriesResult = soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList?.ToList() ?? [];
+
+            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {enumeratedEntriesResult.Count}");
+
+            var businessLogic = _businessLogicMapperService.MapFromAbacRequestToBusinessLogic(abacRequest);
+
+            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
+
+            enumeratedEntriesResult = FilterRegistryObjectListBasedOnBusinessLogic(enumeratedEntriesResult, businessLogic, out filterResults).ToList();
+
+            var gobb = JsonSerializer.Serialize(businessLogic);
+
+            if (filterResults.Count > 0)
+            {
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic applied: {JsonSerializer.Serialize(filterResults)}");
+            }
+            else
+            {
+                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {enumeratedEntriesResult.Count}");
+            }
+
+            enumeratedEntriesResult = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
+            var sxmls = new SoapXmlSerializer();
+            var content = sxmls.SerializeSoapMessageToXmlString(enumeratedEntriesResult).Content;
+            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
+
+            soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = [.. enumeratedEntriesResult];
+        }
+
+        return soapEnvelope;
     }
 
     public static BusinessLogicResult<T> ExecuteRule<T>(KeyValuePair<string, BusinessRule<T>> rule, IEnumerable<T> objects, BusinessLogicParameters logic)

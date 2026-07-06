@@ -60,7 +60,6 @@ public static class MultipartExtensions
             var section = await multipartReaderTest.ReadNextSectionAsync();
             if (!(section?.Section?.Length > 0)) throw new InvalidOperationException("Response body is null");
 
-            // FIXME! 
             sb.Append(Encoding.Default.GetString(section.Section));
         }
 

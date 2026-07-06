@@ -47,7 +47,7 @@ public class ApplicationMetaService
         }
 
         documentIds.ForEach(docid => _repositoryWrapper.DeleteSingleDocument(docid));
-        _registryWrapper.SetDocumentRegistryContentWithDtos(new List<RegistryObjectDto>());
+        _registryWrapper.SetDocumentRegistryContentWithDtos([]);
 
         apiResponse.SetMessage($"Nuked {amount} documents from registry and repository");
         return apiResponse;

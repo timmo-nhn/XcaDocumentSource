@@ -1,9 +1,7 @@
 ﻿using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
-using XcaXds.Commons.Extensions.No;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Tests.Helpers;
 using Xunit.Abstractions;
@@ -13,12 +11,8 @@ namespace XcaXds.Tests.UnitTests;
 public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     private List<IdentifiableType> DocumentReferences = new();
-    internal readonly ITestOutputHelper _output;
 
-    public UnitTests_Functionalities(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output)
-    {
-        _output = output;
-    }
+    public UnitTests_Functionalities(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output) { }
 
     [Fact]
     public async Task ParseNorwegianNationalIdentifiers()
@@ -581,28 +575,6 @@ public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClass
             secondGuidFirstPart = secondGuid.Substring(0, 6);
             counter++;
         }
-    }
-
-    [Fact]
-    public async Task AsyncTest()
-    {
-        var result = DoAsyncWork("test");
-
-        while (result.IsCompleted == false)
-        {
-            Console.WriteLine("waiting...");
-        }
-        Console.WriteLine("testing");
-        Console.WriteLine("testing");
-        Console.WriteLine("testing");
-
-        var stridng = await result;
-    }
-
-    private async Task<string> DoAsyncWork(string input)
-    {
-        await Task.Delay(2000);
-        return $"This is {input}";
     }
 
     [Fact]

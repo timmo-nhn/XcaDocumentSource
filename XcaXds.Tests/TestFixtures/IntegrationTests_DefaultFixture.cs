@@ -100,9 +100,10 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 services.AddHostedService<MockStatisticsProcessorService>();
                 services.AddHostedService<AppStartupService>();
 
-                services.RemoveAll<IClamAvFileScanner>();
-                services.AddSingleton<IClamAvFileScanner, FakeClamAvFileScanner>();
+                services.RemoveAll<IVirusScanner>();
+                services.AddSingleton<IVirusScanner, FakeClamAvFileScanner>();
                 services.AddSingleton<AtnaLogExportedChecker>();
+
                 builder.Configure(app =>
                 {
                     app.UseRouting();

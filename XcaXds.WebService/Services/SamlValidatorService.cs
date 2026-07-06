@@ -54,9 +54,9 @@ public class SamlValidatorService
         return this;
     }
 
-    public bool ValidateSamlToken(string samlXml, out string? validationMessage)
+    public string ValidateSamlToken(string samlXml, out bool success)
     {
-        validationMessage = string.Empty;
+        var validationMessage = string.Empty;
         var token = _saml2Handler.ReadSaml2Token(samlXml);
 
         try
@@ -83,12 +83,14 @@ public class SamlValidatorService
                 results.Add(true);
             }
 
-            return results.Any(res => res == true);
+            success = results.Any(res => res == true);
+            return validationMessage;
         }
         catch (Exception ex)
         {
             validationMessage = ex.Message;
-            return false;
+            success = false;
+            return validationMessage;
         }
     }
 }

@@ -1,9 +1,7 @@
-﻿using nClam;
-using PdfSharp.Pdf;
+﻿using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Buffers.Text;
 using System.Text;
-using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -29,23 +27,23 @@ public class XdsRepositoryService
     private readonly ILogger<XdsRepositoryService> _logger;
     private readonly ApplicationConfig _xdsConfig;
     private readonly RepositoryWrapper _repositoryWrapper;
-    private readonly RegistryWrapper _registry;
+    private readonly RegistryWrapper _registryWrapper;
     private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
-    private readonly IClamAvFileScanner _fileScanner;
+    private readonly IVirusScanner _fileScanner;
     private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
     private readonly TerminologyService _terminologyService;
     private readonly BusinessLogicMapperService _businessLogicMapperService;
 
-    private ValueTuple<string,string>[] HealthcarePersonellCodesToRestrict { get; set; }
-    private ValueTuple<string,string>[] CitizenCodesToRestrict { get; set; }
+    private ValueTuple<string, string>[] HealthcarePersonellCodesToRestrict { get; set; }
+    private ValueTuple<string, string>[] CitizenCodesToRestrict { get; set; }
 
     public XdsRepositoryService(
         ApplicationConfig xdsConfig,
         RepositoryWrapper repositoryWrapper,
-        RegistryWrapper registry,
+        RegistryWrapper registryWrapper,
         ILogger<XdsRepositoryService> logger,
         XdsSubmitObjectsValidator submitObjectsValidator,
-        IClamAvFileScanner fileScanner,
+        IVirusScanner fileScanner,
         BusinessLogicFiltersRegistry businessLogicFiltersRegistry,
         TerminologyService terminologyService,
         BusinessLogicMapperService businessLogicMapperService)
@@ -53,7 +51,7 @@ public class XdsRepositoryService
         _submitObjectsValidator = submitObjectsValidator;
         _repositoryWrapper = repositoryWrapper;
         _xdsConfig = xdsConfig;
-        _registry = registry;
+        _registryWrapper = registryWrapper;
         _logger = logger;
         _fileScanner = fileScanner;
         _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
@@ -117,14 +115,14 @@ public class XdsRepositoryService
                 registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Patient ID missing", "ExtrinsicObject");
             }
 
-            if (_xdsConfig.ClamAvEnabled)
+            if (_xdsConfig.VirusScannerEnabled)
             {
                 var scanResult = await _fileScanner.ScanFile(assocDocument?.Value ?? []);
 
-                if (scanResult?.Result != ClamScanResults.Clean)
+                if (!scanResult.IsSuccess)
                 {
-                    var errorMessage = scanResult?.Result == ClamScanResults.VirusDetected ? $"Document contains virus: {scanResult.RawResult}" : "Error while scanning for virus";
-                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError, errorMessage, "ExtrinsicObject");
+                    _logger.LogWarning(scanResult.Message);
+                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError, scanResult.Message!, $"Document ({assocDocument?.Id})");
                 }
             }
 
@@ -184,9 +182,9 @@ public class XdsRepositoryService
                 {
                     var storeDocumentsResult = _repositoryWrapper.StoreDocument(assocDocument.Id, assocDocument.Value, patientIdPart);
 
-                    if (!storeDocumentsResult)
+                    if (storeDocumentsResult.IsSuccess == false)
                     {
-                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document {assocDocument.Id}. Document name and patient ID must match Regex ^[a-zA-Z0-9\\-_\\.^]+$", $"XDS Repository");
+                        registryResponse.AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating repository with document with ID '{assocDocument.Id}'. Message: {storeDocumentsResult.Message}", $"XDS Repository");
                     }
                 }
             }
@@ -309,24 +307,17 @@ public class XdsRepositoryService
                 // If documentKind is unknown and the detected MimeType is pdf, then we actually have a proper PDF (Not CDA Wrapped) here.
                 if (documentKind == DocumentSniffer.DocumentKind.Unknown && mimeType == "application/pdf")
                 {
-                    try
-                    {
-                        using MemoryStream ms = new(file);
+                    using MemoryStream ms = new(file);
 
-                        PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
+                    PdfDocument pdfDoc = PdfReader.Open(ms, PdfDocumentOpenMode.Modify);
 
-                        pdfDoc.Info.Title = documentUniqueId;
+                    pdfDoc.Info.Title = documentUniqueId;
 
-                        using MemoryStream outputStream = new();
-                        pdfDoc.Save(outputStream);
-                        pdfDoc.Close();
+                    using MemoryStream outputStream = new();
+                    pdfDoc.Save(outputStream);
+                    pdfDoc.Close();
 
-                        file = outputStream.ToArray();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"{iti43Envelope.Header.MessageId} \n" + ex);
-                    }
+                    file = outputStream.ToArray();
                 }
                 retrieveResponse.AddDocument(file, homeCommunityId, repositoryUniqueId, documentUniqueId, mimeType);
             }
@@ -369,7 +360,7 @@ public class XdsRepositoryService
 
         var requestAppliesTo = businessLogicParameters.AppliesTo;
 
-        var extrinsicObject = _registry.GetSingleRegistryObjectAsDto(document.DocumentUniqueId) as DocumentEntryDto;
+        var extrinsicObject = _registryWrapper.GetSingleRegistryObjectAsDto(document.DocumentUniqueId) as DocumentEntryDto;
 
         var confCodes = extrinsicObject?.ConfidentialityCode;
 
@@ -411,22 +402,22 @@ public class XdsRepositoryService
             {
                 if (document.DocumentUniqueId == null)
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document Id: {document.DocumentUniqueId}".Trim());
+                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Missing document ID '{document.DocumentUniqueId}'".Trim());
                     continue;
                 }
 
                 // Try to remove current document
                 var removeResult = _repositoryWrapper.DeleteSingleDocument(document.DocumentUniqueId);
 
-                if (removeResult == false)
+                if (removeResult.IsSuccess == false)
                 {
-                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, $"Document not found. Id: {document.DocumentUniqueId}".Trim());
+                    registryResponse.AddError(XdsErrorCodes.XDSDocumentUniqueIdError, removeResult.Message ?? $"Error while trying to remove document with ID '{document.DocumentUniqueId}'".Trim());
                     continue;
                 }
             }
             else
             {
-                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing RepositoryId or HomeCommunityId {document.RepositoryUniqueId}".Trim());
+                registryResponse.AddError(XdsErrorCodes.XDSUnknownRepositoryId, $"Unknown or missing RepositoryId or HomeCommunityId '{document.RepositoryUniqueId}'".Trim());
                 continue;
             }
         }

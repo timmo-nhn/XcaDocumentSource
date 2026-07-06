@@ -21,7 +21,8 @@ public static class ConfigBinder
         appConfig.SamlValidationValidAudiences = xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__ValidAudiences")?.Split(";") ?? [];
         appConfig.SamlValidationValidIssuers = xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__ValidIssuers")?.Split(";") ?? [];
         appConfig.AtnaLogExporterEndpoint = xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__AtnaLogExporterEndpoint");
-        appConfig.ClamAvEndpoint = xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__ClamavEndpoint");
+        appConfig.VirusScannerEndpoint = xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__VirusScannerEndpoint");
+        appConfig.VirusScannerEnabled = bool.Parse(xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__VirusScannerEnabled") ?? "false");
         appConfig.HostName = xdsConfigEnvVars.GetValueOrDefault("HOSTNAME");
         appConfig.ApiKey = xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__ApiKey");
         appConfig.ApiKeyEnabled = bool.Parse(xdsConfigEnvVars.GetValueOrDefault("XdsConfiguration__ApiKeyEnabled") ?? "true");

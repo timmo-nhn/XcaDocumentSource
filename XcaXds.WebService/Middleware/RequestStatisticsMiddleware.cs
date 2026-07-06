@@ -158,7 +158,7 @@ public class RequestStatisticsMiddleware
             .OfType<Patient>()
             .FirstOrDefault();
 
-        var documentReferences = fhirBundle.Entry
+        var documentReference = fhirBundle.Entry
             .Select(e => e.Resource)
             .OfType<DocumentReference>()
             .FirstOrDefault();
@@ -168,7 +168,10 @@ public class RequestStatisticsMiddleware
             .OfType<Binary>()
             .FirstOrDefault();
 
-        var extrinsicObject = _fhirToXdsTransformerService.ConvertDocumentReferenceToExtrinsicObject(patient, documentReferences, fhirBinaries);
+        if(documentReference == null || patient == null)
+            return null;
+
+        var extrinsicObject = _fhirToXdsTransformerService.ConvertDocumentReferenceToExtrinsicObject(patient, documentReference, fhirBinaries);
         var sxmls = new SoapXmlSerializer();
         var eo = sxmls.SerializeSoapMessageToXmlString(extrinsicObject.Value).Content;
         var documentEntry = _registryMetadataTransformerService.TransformRegistryObjectToRegistryObjectDto(extrinsicObject.Value) as DocumentEntryDto;

@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared;
@@ -41,8 +40,8 @@ public partial class XdsSubmitObjectsValidator
         foreach (var submissionSet in registryPackages)
         {
             ValidateTitle(validationResults, submissionSet.Name?.LocalizedString, $"SubmissionSet ({submissionSet.Id})");
-            ValidateClassifications(validationResults, submissionSet.Classification, $"DocumentEntry ({submissionSet.Id}).Classification");
-            ValidateExternalIdentifiers(validationResults, submissionSet.ExternalIdentifier, $"DocumentEntry ({submissionSet.Id}).ExternalIdentifier");
+            ValidateClassifications(validationResults, submissionSet.Classification, $"SubmissionSet ({submissionSet.Id}).Classification");
+            ValidateExternalIdentifiers(validationResults, submissionSet.ExternalIdentifier, $"SubmissionSet ({submissionSet.Id}).ExternalIdentifier");
         }
 
         return [.. validationResults];
@@ -60,7 +59,7 @@ public partial class XdsSubmitObjectsValidator
             {
                 MatchString(validationResults, externalIdentifier.Value, location);
             }
-            
+
             ValidateSlots(validationResults, externalIdentifier.Slot);
         }
     }
@@ -74,7 +73,7 @@ public partial class XdsSubmitObjectsValidator
         }
     }
 
-    private void MatchOid(List<XdsValidationResponse> validationResults, string value, string location)
+    private void MatchOid(List<XdsValidationResponse> validationResults, string? value, string location)
     {
         if (RegexOid().Count(value ?? "") == 0)
         {

@@ -27,6 +27,7 @@ using XcaXds.Terminology.Services;
 using XcaXds.Terminology.Sources;
 using XcaXds.Terminology.TerminologySources;
 using XcaXds.WebService.AuthenticationHandler;
+using XcaXds.WebService.Extensions;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
@@ -161,7 +162,7 @@ public class Program
         Console.WriteLine($"Running in container: {RunningInContainer}");
         if (!RunningInContainer)
         {
-            builder.WebHost.UseUrls(["https://localhost:7176"]);
+            builder.WebHost.UseUrls("https://localhost:7176");
             //app.UseHttpsRedirection();
         }
     }
@@ -177,7 +178,6 @@ public class Program
             {
                 options.ModelBinderProviders.Insert(0, new DocumentEntryDtoModelBinderProvider());
                 options.ModelBinderProviders.Insert(0, new SoapEnvelopeModelBinderProvider());
-                options.InputFormatters.Insert(0, new Hl7InputFormatter());
             })
             .AddXmlSerializerFormatters()
             .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -195,97 +195,20 @@ public class Program
 
     private static void RegisterDependencyInjectionServices(WebApplicationBuilder builder)
     {
-        // Scoped services
-        builder.Services.AddScoped<XdsRegistryService>();
-        builder.Services.AddScoped<XdsRepositoryService>();
-        builder.Services.AddScoped<AtnaLogGeneratorService>();
+        builder.RegisterAuditLoggingServices();
+        builder.RegisterBusinessLogicServices();
+        builder.RegisterMetaAndStatusServices();
+        builder.RegisterFhirServices();
+        builder.RegisterNinServices();
+        builder.RegisterPolicyEnforcementPointServices();
+        builder.RegisterStatisticsServices();
+        builder.RegisterTerminologyServices();
+        builder.RegisterTransformerServices();
+        builder.RegisterXdsRegistryRepositoryServices();
 
-        // Policy input builder and strategies
-        builder.Services.AddScoped<PolicyInputBuilder>();
-        builder.Services.AddScoped<IPolicyInputStrategy, FhirJsonPolicyInputStrategy>();
-        builder.Services.AddScoped<IPolicyInputStrategy, SoapSamlXmlPolicyInputStrategy>();
-        builder.Services.AddScoped<IPolicyInputStrategy, JsonPolicyInputStrategy>();
-        builder.Services.AddScoped<IPolicyInputStrategy, GenericPolicyInputStrategy>();
-
-        // Policy deny response builder and strategies
-        builder.Services.AddScoped<PolicyDenyResponseBuilder>();
-        builder.Services.AddScoped<IPepDenyResponseStrategy, SoapDenyResponseStrategy>();
-        builder.Services.AddScoped<IPepDenyResponseStrategy, FhirDenyResponseStrategy>();
-        builder.Services.AddScoped<IPepDenyResponseStrategy, JsonDenyResponseStrategy>();
-
-        // Atna log builder and strategies
-        builder.Services.AddScoped<AtnaLogBuilder>();
-        builder.Services.AddScoped<IAtnaLogStrategy, SoapEnvelopeAtnaLogStrategy>();
-        builder.Services.AddScoped<IAtnaLogStrategy, FhirPatchDocumentAtnaLogStrategy>();
-        builder.Services.AddScoped<IAtnaLogStrategy, FhirDeleteDocumentsAtnaLogStrategy>();
-        builder.Services.AddScoped<IAtnaLogStrategy, FhirValidateBundleAtnaLogStrategy>();
-        builder.Services.AddScoped<IAtnaLogStrategy, FhirProvideBundleAtnaLogStrategy>();
-
-        // Singleton services
-        builder.Services.AddSingleton<AtnaLogEnricherService>();
-        builder.Services.AddSingleton<SamlPolicyRequestMapper>();
-        builder.Services.AddSingleton<JsonWebTokenPolicyRequestMapper>();
-        builder.Services.AddSingleton<PolicyRepositoryService>();
-        builder.Services.AddSingleton<PolicyRepositoryWrapper>();
-        builder.Services.AddSingleton<PolicyDecisionPointService>();
-        builder.Services.AddSingleton<RepositoryWrapper>();
-        builder.Services.AddSingleton<SourceHealthCheckService>();
-        builder.Services.AddSingleton<RegistryWrapper>();
-        builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
-        builder.Services.AddSingleton<IRepository, FileBasedRepository>();
-        builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
-
-        // Terminology services
-        builder.Services.AddSingleton<HttpTerminologySource>();
-        builder.Services.AddSingleton<FileTerminologySource>();
-        builder.Services.AddSingleton<StringTerminologySource>();
-        builder.Services.AddSingleton<TerminologyService>();
-        builder.Services.AddSingleton<TerminologyUpdaterService>();
-        builder.Services.AddSingleton<TerminologySourcesRegistryService>();
-
-        // Validation and certificate services
-        builder.Services.AddSingleton<SamlValidatorService>();
-        builder.Services.AddSingleton<SigningCertificateFetcherService>();
-
-        // "Meta" and status related services
-        builder.Services.AddSingleton<ApplicationMetaService>();
-        builder.Services.AddSingleton<MonitoringStatusService>();
-        builder.Services.AddSingleton<StatisticsTransformerService>();
-        builder.Services.AddSingleton<XdsSubmitObjectsValidator>();
-        builder.Services.AddSingleton<RequestThrottlingService>();
-        builder.Services.AddSingleton<IClamAvFileScanner, ClamAvFileScanner>();
-
-        // Queues
-        builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
-        builder.Services.AddSingleton<IStatisticsQueue, StatisticsQueue>();
 
         // Custom REST services
         builder.Services.AddScoped<RestfulRegistryRepositoryService>();
-
-        // FHIR
-        builder.Services.AddScoped<FhirService>();
-        builder.Services.AddSingleton<FhirResourceValidatorService>();
-        builder.Services.AddSingleton<XdsOnFhirTransformerService>();
-        builder.Services.AddSingleton<FhirToXdsTransformerService>();
-
-        // Transformer services
-        builder.Services.AddSingleton<RegistryMetadataTransformerService>();
-        builder.Services.AddSingleton<JwtToSamlTransformerService>();
-        builder.Services.AddSingleton<BusinessLogicMapperService>();
-        builder.Services.AddSingleton<SamlPolicyRequestMapper>();
-        builder.Services.AddSingleton<JsonWebTokenPolicyRequestMapper>();
-
-        // Business logic
-        builder.Services.AddSingleton<DocumentListFiltererService>();
-        builder.Services.AddSingleton<BusinessLogicFiltersRegistry>();
-        builder.Services.AddSingleton<BusinessRulesDescriptorService>();
-
-        // Obfuscation of document lists
-        builder.Services.AddSingleton<DocumentObfuscationService>();
-
-        // Nin parsers        
-        builder.Services.AddSingleton<INinParser, NorwegianNinParser>();
-        builder.Services.AddSingleton<NinParserFactory>();
 
 
         // Health check
@@ -322,9 +245,7 @@ public class Program
             builder.Configuration.GetSection("XdsConfiguration").Bind(xdsConfig);
             builder.Configuration.GetSection("XdsConfiguration").Bind(apiKey);
         }
-
         NormalizeDelimitedArrayConfig(builder, xdsConfig);
-
         builder.Services.AddSingleton(xdsConfig);
         builder.Services.AddSingleton(apiKey);
     }

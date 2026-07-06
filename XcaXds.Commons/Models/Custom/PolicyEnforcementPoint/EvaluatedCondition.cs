@@ -4,6 +4,9 @@ namespace XcaXds.WebService.Services;
 
 public class EvaluatedCondition
 {
+    public bool Matches { get; set; }
+    public List<ConditionResult>? Diagnostics { get; set; }
+
     public EvaluatedCondition()
     {
     }
@@ -13,7 +16,4 @@ public class EvaluatedCondition
         Matches = matches;
         Diagnostics = diagnostics;
     }
-
-    public bool Matches { get; set; }
-    public List<ConditionResult> Diagnostics { get; set; }
 }

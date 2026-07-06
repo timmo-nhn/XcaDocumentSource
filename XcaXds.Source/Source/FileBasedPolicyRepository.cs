@@ -133,7 +133,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
     public bool UpdatePolicy(AbacPolicy? policyDto, string? policyId = null)
     {
         if (policyDto == null) return false;
-        // FIXME add better update handling stuff?
+        
         DeletePolicy(policyDto.Id);
         AddPolicy(policyDto);
         if (policyId != policyDto.Id)

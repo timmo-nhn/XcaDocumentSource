@@ -1,5 +1,6 @@
 ﻿using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 
@@ -75,23 +76,23 @@ public class RegistryWrapper
         return _registryObjectList;
     }
 
-    public bool SetDocumentRegistryContentWithDtos(List<RegistryObjectDto>? registryObjectDtos)
+    public OperationResponse SetDocumentRegistryContentWithDtos(List<RegistryObjectDto>? registryObjectDtos)
     {
-        if (registryObjectDtos == null) return false;
+        if (registryObjectDtos == null) return OperationResponse.Failure("No registry objects provided");
 
-        _registry.WriteRegistry(registryObjectDtos);
+        var response = _registry.WriteRegistry(registryObjectDtos);
         _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
-        return true;
+        return response;
     }
 
-    public bool InsertOrUpdateDocumentRegistryContentWithDtos(RegistryObjectDto registryObjectDto)
+    public OperationResponse InsertOrUpdateDocumentRegistryContentWithDtos(RegistryObjectDto registryObjectDto)
     {
         return InsertOrUpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
     }
 
-    public bool DeleteDocumentEntryFromRegistry(string id)
+    public OperationResponse DeleteDocumentEntryFromRegistry(string id)
     {
-        if (string.IsNullOrWhiteSpace(id)) return false;
+        if (string.IsNullOrWhiteSpace(id)) return OperationResponse.Failure("No ID provided");
 
         var deleteResponse = _registry.DeleteRegistryItem(id);
         _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
@@ -99,30 +100,30 @@ public class RegistryWrapper
         return deleteResponse;
     }
 
-    public bool DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
+    public OperationResponse DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
     {
         return DeleteDocumentEntryFromRegistry(registryObjectDto.Id);
     }
 
-    public bool UpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
+    public OperationResponse UpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
     {
-        if (registryObjectDtos.Count == 0) return false;
+        if (registryObjectDtos.Count == 0) return OperationResponse.Failure("No registry objects provided");
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
-        _registry.UpdateRegistry(registryObjectDtos);
+        var response = _registry.UpdateRegistry(registryObjectDtos);
         _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
 
-        return true;
+        return response;
     }
 
-    public bool InsertOrUpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
+    public OperationResponse InsertOrUpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
     {
-        if (registryObjectDtos.Count == 0) return false;
+        if (registryObjectDtos.Count == 0) return OperationResponse.Failure("No registry objects provided");
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
-        _registry.InsertOrUpdateRegistry(registryObjectDtos);
+        var response = _registry.InsertOrUpdateRegistry(registryObjectDtos);
         _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
 
-        return true;
+        return response;
     }
 }

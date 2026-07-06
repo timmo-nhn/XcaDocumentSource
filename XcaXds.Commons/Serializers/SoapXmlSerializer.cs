@@ -31,6 +31,8 @@ public class SoapXmlSerializer
 
     public T DeserializeXmlString<T>(string? xmlString)
     {
+        if(string.IsNullOrWhiteSpace(xmlString)) throw new ArgumentNullException(nameof(xmlString));
+
         var serializer = new XmlSerializer(typeof(T));
 
         var xmlDoc = new XmlDocument();

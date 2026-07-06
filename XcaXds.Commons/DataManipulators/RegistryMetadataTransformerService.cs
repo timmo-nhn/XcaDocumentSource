@@ -84,7 +84,7 @@ public class RegistryMetadataTransformerService
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {registryObjectDto?.Id}\n\tType: {registryObjectDto?.GetType().Name}\n\tError: {ex.Message}");
+            throw new RegistryTransformException($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {registryObjectDto?.Id}\n\tType: {registryObjectDto?.GetType().Name}", ex);
         }
     }
 
@@ -128,7 +128,7 @@ public class RegistryMetadataTransformerService
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {registryObject?.Id}\n\tType: {registryObject?.GetType().Name}\n\tError: {ex.Message}");
+            throw new Exception($"Error while Transforming RegistryObject to DTO.\n\tObject Id: {registryObject?.Id}\n\tType: {registryObject?.GetType().Name}",ex);
         }
     }
 

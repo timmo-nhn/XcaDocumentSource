@@ -9,7 +9,7 @@ public class AbacPolicy
     public required string Id { get; init; }
     public List<AbacRuleGroup>? Rules { get; set; }
     public string? Description { get; set; }
-    public string? Effect { get; set; }
+    public string Effect { get; set; } = "Deny";
     public List<string>? Actions { get; set; }
 }
 

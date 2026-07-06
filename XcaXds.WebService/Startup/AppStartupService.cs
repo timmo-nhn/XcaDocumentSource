@@ -142,7 +142,7 @@ public class AppStartupService : IHostedService
             [
                 new(
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue)
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue!)
                 )
             ],
             Actions = ["ReadDocumentList"],
@@ -166,7 +166,7 @@ public class AppStartupService : IHostedService
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue)
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue!)
                 )
             ],
             Actions = ["ReadDocumentList", "ReadDocuments"],
@@ -342,7 +342,16 @@ public class AppStartupService : IHostedService
             }
         }
 
-        _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent.ToList());
+        var response = _registryWrapper.SetDocumentRegistryContentWithDtos(registryContent.ToList());
+
+        if (response.IsSuccess)
+        {
+            _logger.LogInformation($"Normalized {registryContent.Count} registry entries");
+        }
+        else
+        {
+            _logger.LogError($"Failed to normalize registry entries. Error: {response.Message}");
+        }
 
         var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
 

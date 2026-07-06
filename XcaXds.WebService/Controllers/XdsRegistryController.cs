@@ -25,18 +25,21 @@ namespace XcaXds.WebService.Controllers;
 public class XdsRegistryController : ControllerBase
 {
     private readonly ILogger<XdsRegistryController> _logger;
+    private readonly DocumentListFiltererService _documentListFiltererService;
     private readonly XdsRegistryService _registryService;
     private readonly IVariantFeatureManager _featureManager;
     private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
     public XdsRegistryController(
         ILogger<XdsRegistryController> logger,
+        DocumentListFiltererService documentListFiltererService,
         XdsRegistryService registryService,
         IVariantFeatureManager featureManager,
         RegistryMetadataTransformerService registryMetadataTransformerService
         )
     {
         _logger = logger;
+        _documentListFiltererService = documentListFiltererService;
         _registryService = registryService;
         _featureManager = featureManager;
         _registryMetadataTransformerService = registryMetadataTransformerService;
@@ -70,7 +73,7 @@ public class XdsRegistryController : ControllerBase
                 }
 
                 var registryQueryResponse = _registryService.RegistryStoredQuery(requestEnvelope);
-                var filteredDocumentList = _registryService.FilterAdhocQueryResponseBasedOnBusinessLogic(requestEnvelope, registryQueryResponse.Value, abacRequest, out var filterResults);
+                var filteredDocumentList = _documentListFiltererService.FilterAdhocQueryResponseBasedOnBusinessLogic(requestEnvelope, registryQueryResponse.Value, abacRequest, out var filterResults);
                 HttpContext.Items.Add("businessLogicResult", filterResults);
 
                 responseEnvelope = filteredDocumentList;

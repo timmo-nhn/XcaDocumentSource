@@ -76,14 +76,7 @@ public partial class IdentifiableType
     public SlotType[] GetSlots(string slotName = "CodingScheme")
     {
         if (Slot == null) return [new SlotType()];
-        try
-        {
-            return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.Ordinal)).ToArray();
-        }
-        catch (Exception)
-        {
-            throw;
-        }
+        return Slot.Where(s => string.Equals(s.Name, slotName, StringComparison.Ordinal)).ToArray();
     }
 
     public SlotType? GetFirstSlot(string slotName)

@@ -14,5 +14,5 @@ public class TerminologySourceDefinition
 
     public string Name { get; set; } = string.Empty;
 
-    public TerminologySource<ITerminologySource, ICodeSystemMapper>[] TerminologySources { get; set; }
+    public TerminologySource<ITerminologySource, ICodeSystemMapper>[] TerminologySources { get; set; } = [];
 }

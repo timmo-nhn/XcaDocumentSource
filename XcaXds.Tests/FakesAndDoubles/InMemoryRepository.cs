@@ -1,4 +1,6 @@
-﻿using XcaXds.Commons.Interfaces;
+﻿using Hl7.Fhir.Model;
+using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 
 namespace XcaXds.Tests.FakesAndDoubles;
@@ -7,10 +9,10 @@ public sealed class InMemoryRepository : IRepository
 {
     public List<DocumentDto> DocumentRepository = new();
 
-    public bool Delete(string? documentId)
+    public OperationResponse Delete(string? documentId)
     {
         var removeCount = DocumentRepository.RemoveAll(doc => doc.DocumentId == documentId);
-        return removeCount > 0;
+        return removeCount > 0 ? OperationResponse.Success($"{documentId} successfully removed") : OperationResponse.Failure($"{documentId} not found");
     }
 
     public byte[]? Read(string documentUniqueId)
@@ -18,14 +20,9 @@ public sealed class InMemoryRepository : IRepository
         return DocumentRepository.FirstOrDefault(doc => doc.DocumentId == documentUniqueId)?.Data;
     }
 
-    public bool SetNewOid(string repositoryUniqueId, out string oldId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool Write(string documentId, byte[] data, string? patientId = null)
+    public OperationResponse Write(string documentId, byte[] data, string? patientId = null)
     {
         DocumentRepository.Add(new() { DocumentId = documentId, Data = data });
-        return true;
+        return OperationResponse.Success("Write OK");
     }
 }

@@ -62,8 +62,7 @@ public class AtnaLogGeneratorService
     public void CreateAuditLogForFhirDeleteDocumentsRequest(AdditionalParameters additionalParameters,
         OperationOutcome operationOutcome, JwtSecurityToken? token)
     {
-        _queue.Enqueue(() =>
-            GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(additionalParameters, operationOutcome, token));
+        _queue.Enqueue(() => GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(additionalParameters, operationOutcome, token));
     }
 
     public void CreateAuditLogForFhirPatchDocumentSecurityLabelRequest(AdditionalParameters httpContext,
@@ -75,9 +74,7 @@ public class AtnaLogGeneratorService
         var newCopy = CloneCodedValues(newSecurityLabel);
         var updatedCopy = CloneDocumentEntryDto(updatedEntry);
 
-        _queue.Enqueue(() =>
-            GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedCopy, token, updatedEntry?.Id, oldCopy,
-                newCopy));
+        _queue.Enqueue(() => GetAuditEventFromPatchedDocumentEntryAndJwt(httpContext, updatedCopy, token, updatedEntry?.Id, oldCopy, newCopy));
     }
 
     private AuditEvent GetAuditEventFromDocumentEntryOperationOutcomeAndJwt(AdditionalParameters additionalParameters,
@@ -806,7 +803,7 @@ public class AtnaLogGeneratorService
 
         var failedConditions = accessControlresponse?.Diagnostics
             .Where(d => d.Decision == Decision.Deny)
-            .SelectMany(d => d.FailedConditions)
+            .SelectMany(d => d.FailedConditions ?? [])
             .Select(d => "Invalid Parameter: " + d.AttributeId)
             .ToArray();
 

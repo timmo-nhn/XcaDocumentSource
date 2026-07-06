@@ -2,6 +2,7 @@
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Helpers;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
@@ -16,15 +17,13 @@ public partial class RepositoryWrapper
     private readonly RegistryWrapper _registryWrapper;
     private readonly IRepository _repository;
     private readonly ILogger<RepositoryWrapper> _logger;
-    private readonly IClamAvFileScanner _fileScanner;
 
-    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger, IClamAvFileScanner fileScanner)
+    public RepositoryWrapper(ApplicationConfig appConfig, IRepository repository, RegistryWrapper registryWrapper, ILogger<RepositoryWrapper> logger)
     {
         _repository = repository;
         _appConfig = appConfig;
         _registryWrapper = registryWrapper;
         _logger = logger;
-        _fileScanner = fileScanner;
     }
 
     public byte[]? GetDocumentFromRepository(string? homeCommunityId, string? repositoryUniqueId, string? documentUniqueId, string? messageId = null)
@@ -98,17 +97,16 @@ public partial class RepositoryWrapper
             documentKind = DocumentSniffer.DocumentKind.ClinicalDocumentXml;
         }
 
-
         return Encoding.UTF8.GetBytes(cdaXml);
     }
 
-    public bool StoreDocument(string documentId, byte[] documentContent, string patientIdPart)
+    public OperationResponse StoreDocument(string documentId, byte[] documentContent, string patientIdPart)
     {
         var result = _repository.Write(documentId, documentContent, patientIdPart);
         return result;
     }
 
-    public bool DeleteSingleDocument(string? documentUniqueId)
+    public OperationResponse DeleteSingleDocument(string? documentUniqueId)
     {
         return _repository.Delete(documentUniqueId);
     }

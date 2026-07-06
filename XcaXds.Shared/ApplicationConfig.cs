@@ -5,8 +5,8 @@ public class ApplicationConfig
     public bool ApiKeyEnabled { get; set; }
     public string? AtnaLogExporterEndpoint { get; set; } = string.Empty;
     public bool BypassPolicyEnforcementPoint { get; set; }
-    public bool ClamAvEnabled { get; set; }
-    public string? ClamAvEndpoint { get; set; } = string.Empty;
+    public bool VirusScannerEnabled { get; set; }
+    public string? VirusScannerEndpoint { get; set; } = string.Empty;
     public bool CanOverrideValidateSamlTokenIntegrityWithQueryParameter { get; set; }
     public int DocumentUploadSizeLimitKb { get; set; }
     public string? FriendlyName { get; set; }

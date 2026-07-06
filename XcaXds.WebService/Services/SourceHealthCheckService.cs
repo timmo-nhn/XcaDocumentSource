@@ -1,6 +1,4 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using XcaXds.Commons.DataManipulators.Tests;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
@@ -33,7 +31,7 @@ public class SourceHealthCheckService
     {
         var registryOk = false;
         var repositoryOk = false;
-        
+
         try
         {
             var documentEntry = new DocumentEntryDto()
@@ -43,16 +41,30 @@ public class SourceHealthCheckService
                 RepositoryUniqueId = _appConfig.RepositoryUniqueId,
                 SourcePatientInfo = new()
                 {
-                    PatientId = new("test","1.2.3.4")
+                    PatientId = new("test", "1.2.3.4")
                 }
             };
-            
-            _registryWrapper.UpdateDocumentRegistryContentWithDtos([documentEntry]);
-            _repositoryWrapper.StoreDocument(documentEntry.UniqueId,[0x00],"test");
-            
+
+            var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos([documentEntry]);
+            if (!updateResponse.IsSuccess)
+            {
+                _logger.LogError($"Failed to update document registry content. Error: {updateResponse.Message}");
+            }
+
+            var storeResponse = _repositoryWrapper.StoreDocument(documentEntry.UniqueId, [0x00], "test");
+            if (!storeResponse.IsSuccess)
+            {
+                _logger.LogError($"Failed to store document in repository. Error: {storeResponse.Message}");
+            }
+
+            if (!storeResponse.IsSuccess || !updateResponse.IsSuccess)
+            {
+                return new SourceStatus(storeResponse.IsSuccess, updateResponse.IsSuccess);
+            }
+
             var randomEntry = _registryWrapper.GetRegistryItemAndRelated(documentEntry.Id)?.OfType<DocumentEntryDto>().FirstOrDefault();
             var document = _repositoryWrapper.GetDocumentFromRepository(randomEntry?.HomeCommunityId, randomEntry?.RepositoryUniqueId, randomEntry?.UniqueId);
-            
+
             registryOk = randomEntry != null;
             repositoryOk = document != null;
 
@@ -63,17 +75,19 @@ public class SourceHealthCheckService
         {
             _logger.LogError(e.ToString());
         }
-        
-        return new SourceStatus()
-        {
-            RepositoryOk = repositoryOk,
-            RegistryOk = registryOk,
-        };
+
+        return new SourceStatus(registryOk, repositoryOk);
     }
 }
 
 public class SourceStatus
 {
+    public SourceStatus(bool registryOk, bool repositoryOk)
+    {
+        RegistryOk = registryOk;
+        RepositoryOk = repositoryOk;
+    }
+
     public bool RegistryOk { get; set; }
     public bool RepositoryOk { get; set; }
 }

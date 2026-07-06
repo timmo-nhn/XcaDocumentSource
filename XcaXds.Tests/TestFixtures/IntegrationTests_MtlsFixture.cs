@@ -64,8 +64,7 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
     private X509Certificate2 CreateX509Certificate()
     {
         GetTestDataFile("client.pfx", out var path);
-        return new X509Certificate2(path, "", X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable
-);
+        return X509CertificateLoader.LoadCertificate(File.ReadAllBytes(path));
     }
 
     private string GetTestDataFile(string v, out string? path)

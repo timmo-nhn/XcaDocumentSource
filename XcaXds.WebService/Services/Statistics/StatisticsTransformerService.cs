@@ -132,7 +132,7 @@ public class StatisticsTransformerService
 
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,
-            SourceHostName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
+            SourceHostName = _appConfig.HostName?.Split("-xcadocumentsource").FirstOrDefault(),
 
             DocumentConfidentialityCodes = inputFields.RelatedDocumentEntries?.SelectMany(d => d.ConfidentialityCode ?? []).ToArray(),
             Endpoint = inputFields.Path,

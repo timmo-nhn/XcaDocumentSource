@@ -1,6 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Xml;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
@@ -119,7 +118,7 @@ public class SamlPolicyRequestMapper : IPolicyRequestMapper<SoapEnvelope>
     {
         foreach (var removeObject in removeObjectsRequest ?? [])
         {
-            if(removeObject.Id != null)
+            if (removeObject.Id != null)
                 abacRequestAttributes.AddOrUpdate(Constants.Urn.Custom.DocumentUniqueId, [removeObject.Id]);
         }
     }
@@ -282,15 +281,8 @@ public class SamlPolicyRequestMapper : IPolicyRequestMapper<SoapEnvelope>
     public string? GetSamlTokenFromSoapEnvelope(string inputSoapEnvelope)
     {
         var soapEnvelopeXmlDocument = new XmlDocument();
-        try
-        {
-            soapEnvelopeXmlDocument.LoadXml(inputSoapEnvelope);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
 
+        soapEnvelopeXmlDocument.LoadXml(inputSoapEnvelope);
 
         var assertion = soapEnvelopeXmlDocument.GetElementsByTagName("saml:Assertion");
 

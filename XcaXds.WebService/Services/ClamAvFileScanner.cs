@@ -3,7 +3,7 @@ using XcaXds.Commons.Interfaces;
 
 namespace XcaXds.WebService.Services;
 
-public class ClamAvFileScanner : IClamAvFileScanner
+public class ClamAvFileScanner : IVirusScanner
 {
     private readonly ILogger<ClamAvFileScanner> _logger;
     private readonly ApplicationConfig _config;
@@ -13,22 +13,31 @@ public class ClamAvFileScanner : IClamAvFileScanner
     {
         _logger = logger;
         _config = config;
-        _scanClient = new ClamClient(_config.ClamAvEndpoint);
+        _scanClient = new ClamClient(_config.VirusScannerEndpoint ?? throw new InvalidOperationException("ClamAV server endpoint is not configured."));
     }
 
-    public async Task<ClamScanResult?> ScanFile(byte[] fileContent)
+    public async Task<VirusScanResult> ScanFile(byte[] fileContent)
     {
-        ClamScanResult? scanResult = null;
+        ClamScanResult? clamResult = null;
         try
         {
-            scanResult = await _scanClient.SendAndScanFileAsync(fileContent);
-            _logger.LogInformation($"File scanned with result: {scanResult.Result}");
+            clamResult = await _scanClient.SendAndScanFileAsync(fileContent);
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Error while trying send file to ClamAv server: \"{_scanClient.Server?.ToString() + ":" + _scanClient.Port}\": {ex.ToString()}");
+            var failure = VirusScanResult<ClamScanResult>.Failure($"Error while trying to send file to ClamAV server \"{_scanClient.Server}:{_scanClient.Port}\": {ex}");
+            _logger.LogError(failure.Message);
+            return failure;
         }
 
-        return scanResult;
+        VirusScanResult<ClamScanResult> result = clamResult.Result switch
+        {
+            ClamScanResults.Clean         => VirusScanResult<ClamScanResult>.Success("Document is clean", clamResult),
+            ClamScanResults.VirusDetected => VirusScanResult<ClamScanResult>.Failure($"Document contains virus: {clamResult.RawResult}", clamResult),
+            _                             => VirusScanResult<ClamScanResult>.Failure("Error while scanning for virus", clamResult)
+        };
+
+        _logger.LogInformation(result.Message);
+        return result;
     }
 }

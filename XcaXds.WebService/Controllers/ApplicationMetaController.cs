@@ -165,7 +165,7 @@ public class ApplicationMetaController : ControllerBase
         {
             Enabled = true,
             Async = false,
-            FriendlyName = _appConfig.HostName.Split("-xcadocumentsource").FirstOrDefault(),
+            FriendlyName = _appConfig.HostName?.Split("-xcadocumentsource").FirstOrDefault(),
             HomeCommunityId = _appConfig.HomeCommunityId,
             PatientResolverType = PatientResolverType.IDENTITY,
             Return = DomainReturn.DocumentList,
@@ -205,6 +205,8 @@ public class ApplicationMetaController : ControllerBase
     {
         if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
 
+        var response = new RestfulApiResponse();
+
         var jsonTestData = RegistryJsonSerializer.Deserialize<Test_DocumentReference>(resourceJson.GetRawText());
         if (jsonTestData == null) return BadRequest("No content provided");
 
@@ -214,10 +216,15 @@ public class ApplicationMetaController : ControllerBase
         _logger.LogInformation("Generated {count} registry objects", generatedRegistryObjects.Count());
         _logger.LogInformation("Updating registry with generated objects...");
 
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos()
+        var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos()
             .ToList());
 
-        return Ok("Metadata generated");
+        if (!updateResponse.IsSuccess)
+        {
+            return BadRequest(response.AddError("UpdateError", $"Error while generating test data {updateResponse.Message}"));
+        }
+
+        return Ok(response.SetMessage("Metadata generated"));
     }
 
     [RequiresApiKey]

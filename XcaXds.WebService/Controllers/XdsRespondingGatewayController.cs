@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net;
 using System.Text;
+using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
@@ -22,35 +23,35 @@ namespace XcaXds.WebService.Controllers;
 public class XdsRespondingGatewayController : ControllerBase
 {
     private readonly ILogger<XdsRespondingGatewayController> _logger;
-    private readonly ApplicationConfig _xdsConfig;
+    private readonly IVariantFeatureManager _featureManager;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ApplicationConfig _xdsConfig;
+    private readonly DocumentListFiltererService _documentListFiltererService;
     private readonly XdsRegistryService _xdsRegistryService;
     private readonly XdsRepositoryService _xdsRepositoryService;
-    private readonly IVariantFeatureManager _featureManager;
     private readonly MonitoringStatusService _monitoringService;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads");
     private static readonly Meter Meter = new("nhn.Xcads.RespondingGateway", "1.0.0");
 
-    private static readonly Counter<int> QueryCounter =
-        Meter.CreateCounter<int>("RespondingGateway.Query.count", description: "Requests to Query from registry or repository");
-    private static readonly Counter<int> RetrieveCounter =
-        Meter.CreateCounter<int>("RespondingGateway.Retrieve.count", description: "Requests to Retrieve from registry or repository");
+    private static readonly Counter<int> QueryCounter = Meter.CreateCounter<int>("RespondingGateway.Query.count", description: "Requests to Query from registry or repository");
+    private static readonly Counter<int> RetrieveCounter = Meter.CreateCounter<int>("RespondingGateway.Retrieve.count", description: "Requests to Retrieve from registry or repository");
 
 
     public XdsRespondingGatewayController(
         ILogger<XdsRespondingGatewayController> logger,
+        IVariantFeatureManager featureManager,
+        IHttpClientFactory httpClientFactory,
+        DocumentListFiltererService documentListFiltererService,
         ApplicationConfig xdsConfig,
         XdsRegistryService xdsRegistryService,
         XdsRepositoryService xdsRepositoryService,
-        IVariantFeatureManager featureManager,
-        IHttpClientFactory httpClientFactory,
-        MonitoringStatusService monitoringService
-        )
+        MonitoringStatusService monitoringService)
     {
         _logger = logger;
         _xdsConfig = xdsConfig;
         _xdsRepositoryService = xdsRepositoryService;
+        _documentListFiltererService = documentListFiltererService;
         _featureManager = featureManager;
         _xdsRegistryService = xdsRegistryService;
         _httpClientFactory = httpClientFactory;
@@ -95,7 +96,7 @@ public class XdsRespondingGatewayController : ControllerBase
                 soapEnvelope.SetAction(Constants.Xds.OperationContract.Iti18Action);
 
                 var iti38Response = _xdsRegistryService.RegistryStoredQuery(soapEnvelope);
-                var filteredDocumentList = _xdsRegistryService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, iti38Response.Value, accessControlRequest, out var businessLogicResults);
+                var filteredDocumentList = _documentListFiltererService.FilterAdhocQueryResponseBasedOnBusinessLogic(soapEnvelope, iti38Response.Value, accessControlRequest, out var businessLogicResults);
                 HttpContext.Items.Add("businessLogicResult", businessLogicResults);
                 iti38Response.Value?.SetAction(Constants.Xds.OperationContract.Iti38Reply);
                 responseEnvelope = filteredDocumentList;

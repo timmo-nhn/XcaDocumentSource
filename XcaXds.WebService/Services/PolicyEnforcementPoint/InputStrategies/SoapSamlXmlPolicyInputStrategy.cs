@@ -89,12 +89,12 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
             }
 
             var validator = await _samlValidator.CreateSamlValidator();
-            var tokenIsValid = validator.ValidateSamlToken(samlTokenString, out var message);
+            var validationMessage = validator.ValidateSamlToken(samlTokenString, out var success);
 
-            if (tokenIsValid == false)
+            if (success == false)
             {
-                _logger.LogInformation($"{context.TraceIdentifier} - Fail! Invalid SAML-token!\nError: {message}!");
-                return PolicyInputResult.Fail($"Invalid SAML-token!\nError: {message}");
+                _logger.LogInformation($"{context.TraceIdentifier} - Fail! Invalid SAML-token!\nError: {validationMessage}!");
+                return PolicyInputResult.Fail($"Invalid SAML-token!\nError: {validationMessage}");
             }
 
             _logger.LogInformation($"{context.TraceIdentifier} - SAML-token is valid");

@@ -34,11 +34,6 @@ public class BoundedDictionary<TKey, TValue> where TKey : notnull
                 }
             }
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
         finally
         {
             mutex.ReleaseMutex();

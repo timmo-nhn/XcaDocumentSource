@@ -32,7 +32,7 @@ public class AbacCondition
     {
     }
 
-    public string? AttributeId { get; set; }
+    public string AttributeId { get; set; } = string.Empty;
     public bool? CompareAttributes { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

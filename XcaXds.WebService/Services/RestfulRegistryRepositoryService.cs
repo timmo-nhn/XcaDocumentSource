@@ -1,10 +1,10 @@
 ﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Model.CdsHooks;
 using Hl7.Fhir.Rest;
 using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Extensions.NinParsers;
-using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -241,12 +241,23 @@ public class RestfulRegistryRepositoryService
 
         if (doc?.DocumentId == null || doc.Data == null || patientId == null)
         {
-            uploadResponse.AddError("MissingValue", "Document, DocumentId, Document Data and PatientId are required for upload");
+            uploadResponse.AddError("MissingValue", "'DocumentId', 'Data' and 'PatientId' are required for upload");
             return uploadResponse;
         }
 
-        _repositoryWrapper.StoreDocument(doc.DocumentId, doc.Data, patientId);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(elementsToBeUploaded);
+        var storeResult = _repositoryWrapper.StoreDocument(doc.DocumentId, doc.Data, patientId);
+
+        if (!storeResult.IsSuccess)
+        {
+            return uploadResponse.AddError("UpdateError", $"Error while updating Repository. Error: {storeResult.Message}");
+        }
+
+        var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos(elementsToBeUploaded);
+
+        if (!updateResponse.IsSuccess)
+        {
+            return uploadResponse.AddError("UpdateError", $"Error while updating Registry. Error: {updateResponse.Message}");
+        }
 
         return uploadResponse;
     }
@@ -292,19 +303,24 @@ public class RestfulRegistryRepositoryService
                 documentRegistry = documentRegistry.Replace(submissionSetToBeReplaced, inputDocumentReference.SubmissionSet).ToList();
             }
 
-            _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry.ToList());
+            var response = _registryWrapper.SetDocumentRegistryContentWithDtos(documentRegistry.ToList());
+
+            if (response.IsSuccess == false)
+            {
+                updateResponse.AddError("UploadError", $"Error while updating document registry {response.Message}");
+                return updateResponse;
+            }
 
             if (inputDocumentReference.Document != null && inputDocumentReference.Document.DocumentId != null && inputDocumentReference.Document.Data?.Length > 0 && inputDocumentReference.DocumentEntry?.SourcePatientInfo?.PatientId?.Id != null)
             {
                 var storeResult = _repositoryWrapper.StoreDocument(inputDocumentReference.Document.DocumentId, inputDocumentReference.Document.Data, inputDocumentReference.DocumentEntry.SourcePatientInfo.PatientId.Id);
-                if (storeResult == false)
+                if (storeResult.IsSuccess == false)
                 {
                     updateResponse.AddError("UploadError", "Error while uploading document");
                 }
             }
 
             updateResponse.SetMessage($"DocumentEntry {documentEntryToBeReplaced.Id} updated with new DocumentEntry");
-
         }
         else
         {
@@ -412,15 +428,16 @@ public class RestfulRegistryRepositoryService
         {
             var documentDeleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.Id);
 
-            if (documentDeleteResponse == false)
+            if (documentDeleteResponse.IsSuccess == false)
             {
                 documentDeleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.UniqueId);
             }
 
-            if (documentDeleteResponse == false)
+            if (documentDeleteResponse.IsSuccess == false)
             {
-                _logger.LogWarning($"Error while deleting document");
-                apiResponse.AddError("DeleteError", $"Error while deleting document {id}");
+                apiResponse.AddError("DeleteError", documentDeleteResponse.Message ?? $"Error while deleting document {id}");
+                _logger.LogWarning(apiResponse.Errors?.FirstOrDefault()?.Message);
+
                 return apiResponse;
             }
         }

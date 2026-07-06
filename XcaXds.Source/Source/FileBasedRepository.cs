@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Shared.Extensions;
 
 namespace XcaXds.Source.Source;
@@ -34,7 +35,7 @@ public class FileBasedRepository : IRepository
 
     public byte[]? Read(string documentUniqueId)
     {
-        if (!IsValidIdentifier(documentUniqueId)) return null;
+        if (!IsValidIdentifier(documentUniqueId, out _)) return null;
 
         lock (_lock)
         {
@@ -57,12 +58,16 @@ public class FileBasedRepository : IRepository
         }
     }
 
-    public bool Write(string documentId, byte[] documentContent, string? patientIdPart)
+    public OperationResponse Write(string documentId, byte[] documentContent, string? patientIdPart)
     {
         documentId = SafeCharacters.Replace(documentId, "");
         patientIdPart = SafeCharacters.Replace(patientIdPart ?? "", "");
 
-        if (!IsValidIdentifier(documentId) || !IsValidIdentifier(patientIdPart)) return false;
+        if (!IsValidIdentifier(documentId, out var invalidCharacters))
+            return OperationResponse.Failure($"Invalid Document ID {documentId}, Invalid characters {invalidCharacters}");
+
+        if (!IsValidIdentifier(patientIdPart, out var invalidPatientIdCharacters))
+            return OperationResponse.Failure($"Invalid Patient ID {patientIdPart}, Invalid characters {invalidPatientIdCharacters}");
 
         lock (_lock)
         {
@@ -75,19 +80,19 @@ public class FileBasedRepository : IRepository
 
             string filePath = Path.Combine(documentPath, documentId.NoUrn());
             File.WriteAllBytes(filePath, documentContent);
-            return true;
+            return OperationResponse.Success($"Document written to {filePath}");
         }
     }
 
-    public bool Delete(string? documentUniqueId)
+    public OperationResponse Delete(string? documentUniqueId)
     {
-        if (string.IsNullOrWhiteSpace(documentUniqueId)) return false;
+        if (string.IsNullOrWhiteSpace(documentUniqueId)) return OperationResponse.Failure("No Document ID provided");
 
         documentUniqueId = SafeCharacters.Replace(documentUniqueId, "");
 
         lock (_lock)
         {
-            if (!Directory.Exists(_repositoryPath)) return false;
+            if (!Directory.Exists(_repositoryPath)) return OperationResponse.Failure("Repository path does not exist");
 
             var repositoryDirectories = Directory.GetDirectories(_repositoryPath).SelectMany(f => Directory.GetFiles(f)).ToArray();
 
@@ -95,11 +100,22 @@ public class FileBasedRepository : IRepository
 
             if (string.IsNullOrWhiteSpace(documentToDelete))
             {
-                return false;
+                return OperationResponse.Failure("Document not found");
             }
 
-            File.Delete(documentToDelete);
-            return true;
+            try
+            {
+                File.Delete(documentToDelete);
+                return OperationResponse.Success($"Document {documentUniqueId} deleted successfully");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return OperationResponse.Failure($"Access denied when deleting document '{documentUniqueId}': {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                return OperationResponse.Failure($"Document '{documentUniqueId}' could not be deleted, it may be in use: {ex.Message}");
+            }
         }
     }
 
@@ -107,9 +123,21 @@ public class FileBasedRepository : IRepository
     /// <summary>
     /// Ensures that file and directory names are safe by allowing only alphanumeric characters, dashes, and underscores.
     /// </summary>
-    private static bool IsValidIdentifier(string input)
+    private static bool IsValidIdentifier(string input, out string invalidCharacters)
     {
-        return !string.IsNullOrEmpty(input) && SafeFileNameRegex.IsMatch(input);
+        invalidCharacters = string.Empty;
+        if (string.IsNullOrEmpty(input)) return false;
+
+        var matches = SafeFileNameRegex.Matches(input);
+        foreach (Match match in matches)
+        {
+            if (!match.Success)
+            {
+                invalidCharacters += match.Value;
+            }
+        }
+
+        return string.IsNullOrEmpty(invalidCharacters);
     }
 
     public bool SetNewOid(string repositoryOid, out string? oldId)

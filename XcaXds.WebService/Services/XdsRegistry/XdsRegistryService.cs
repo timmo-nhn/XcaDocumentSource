@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text.Json;
 using XcaXds.BusinessLogic.BusinessLogic;
-using XcaXds.BusinessLogic.Extensions;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
@@ -29,21 +28,19 @@ public partial class XdsRegistryService
     private readonly RegistryWrapper _registryWrapper;
     private readonly XdsSubmitObjectsValidator _submitObjectsValidator;
     private readonly DocumentObfuscationService _documentObfuscationService;
-    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersService;
-    private readonly DocumentListFiltererService _businessLogicFiltererService;
+    private readonly BusinessLogicFiltersRegistry _businessLogicFiltersRegistry;
     private readonly BusinessLogicMapperService _businessLogicMapperService;
     private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
 
     private static Dictionary<string, string> AdhocQueries = ConstantsExtensions.GetAsDictionary(typeof(Constants.Xds.StoredQueries));
 
     public XdsRegistryService(
-        ILogger<XdsRegistryService> logger, 
-        ApplicationConfig xdsConfig, 
-        RegistryWrapper registryWrapper, 
+        ILogger<XdsRegistryService> logger,
+        ApplicationConfig xdsConfig,
+        RegistryWrapper registryWrapper,
         XdsSubmitObjectsValidator submitObjectsValidator,
         DocumentObfuscationService documentObfuscationService,
-        BusinessLogicFiltersRegistry businessLogicFiltersService,
-        DocumentListFiltererService businessLogicFiltererService,
+        BusinessLogicFiltersRegistry businessLogicFiltersRegistry,
         BusinessLogicMapperService businessLogicMapperService,
         RegistryMetadataTransformerService registryMetadataTransformerService)
     {
@@ -52,8 +49,7 @@ public partial class XdsRegistryService
         _registryWrapper = registryWrapper;
         _submitObjectsValidator = submitObjectsValidator;
         _documentObfuscationService = documentObfuscationService;
-        _businessLogicFiltersService = businessLogicFiltersService;
-        _businessLogicFiltererService = businessLogicFiltererService;
+        _businessLogicFiltersRegistry = businessLogicFiltersRegistry;
         _businessLogicMapperService = businessLogicMapperService;
         _registryMetadataTransformerService = registryMetadataTransformerService;
     }
@@ -130,7 +126,7 @@ public partial class XdsRegistryService
             return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);
         }
 
-        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(_businessLogicFiltersService.GetAllowedMimeTypes()) == false).ToArray();
+        var invalidMimetypes = submissionRegistryObjects?.OfType<ExtrinsicObjectType>().Where(sro => sro.MimeType.IsAnyOf(_businessLogicFiltersRegistry.GetAllowedMimeTypes()) == false).ToArray();
 
         if (invalidMimetypes?.Length > 0)
         {
@@ -188,8 +184,6 @@ public partial class XdsRegistryService
             var deprecatedEntriesSoFar = submissionRegistryObjects.OfType<ExtrinsicObjectType>().Where(ro => ro.Status == Constants.Xds.StatusValues.Deprecated).ToArray();
         }
 
-        bool registryUpdateResult = false;
-
         registryResponse.EvaluateStatusCode();
         if (validateOnly == false)
         {
@@ -199,20 +193,20 @@ public partial class XdsRegistryService
 
             _registryMetadataTransformerService.TransformFhirConceptsToXdsConcepts(submissionElementsToUpdate);
 
-            registryUpdateResult = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(submissionElementsToUpdate);
-            if (registryUpdateResult)
+            var response = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(submissionElementsToUpdate);
+            if (response.IsSuccess)
             {
                 return registryResponse.CreateSoapResult();
             }
-        }
-        else
-        {
-            return registryResponse.CreateSoapResult();
+            else
+            {
+                return registryResponse
+                    .AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry\n {response.Message}", _xdsConfig.HomeCommunityId)
+                    .CreateSoapResult();
+            }
         }
 
-        return registryResponse
-            .AddError(XdsErrorCodes.XDSRepositoryError, $"Error while updating registry", _xdsConfig.HomeCommunityId)
-            .CreateSoapResult();
+        return registryResponse.CreateSoapResult();
     }
 
     public SoapRequestResult<SoapEnvelope> RegistryStoredQuery(SoapEnvelope soapEnvelope)
@@ -414,32 +408,32 @@ public partial class XdsRegistryService
                 break;
 
 
-                //case Constants.Xds.StoredQueries.GetFolderAndContents:
-                //    var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
+            case Constants.Xds.StoredQueries.GetFolderAndContents:
+                var getFoldersAndContentsParameters = RegistryStoredQueryParameters.GetFolderAndContentsParameters(adhocQueryRequest.AdhocQuery);
 
-                //    var registryGetFoldersAndDocumentsResult = documentRegistry.RegistryObjectList.OfType<IdentifiableType>();
+                var registryGetFoldersAndDocumentsResult = documentRegistry.OfType<IdentifiableType>();
 
-                //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-                //        .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
+                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                    .ByXdsFolderUniqueId(getFoldersAndContentsParameters.XdsFolderUniqueId);
 
-                //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-                //        .ByXdsFolderEntryUuid(getFoldersAndContentsParameters.XdsFolderEntryUuid);
+                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                    .ByXdsFolderEntryUuid(getFoldersAndContentsParameters.XdsFolderEntryUuid);
 
-                //    registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
-                //        .ByXdsDocumentEntryFormatCode(getFoldersAndContentsParameters.XdsDocumentEntryFormatCode);
+                registryGetFoldersAndDocumentsResult = registryGetFoldersAndDocumentsResult
+                    .ByXdsDocumentEntryFormatCode(getFoldersAndContentsParameters.XdsDocumentEntryFormatCode);
 
 
-                //    // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
-                //    // Return an XDSStoredQueryParamNumber error if both parameters are specified
-                //    if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
-                //    {
-                //        _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
-                //        registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
-                //    }
+                // https://profiles.ihe.net/ITI/TF/Volume2/ITI-18.html#3.18.4.1.2.3.7.11
+                // Return an XDSStoredQueryParamNumber error if both parameters are specified
+                if (getFoldersAndContentsParameters.XdsFolderUniqueId != null && getFoldersAndContentsParameters.XdsFolderEntryUuid != null)
+                {
+                    _logger.LogError($"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified");
+                    registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"Either $XDSFolderEntryUUID or $XDSFolderUniqueId shall be specified".Trim(), "XDS Registry");
+                }
 
-                //    filteredElements = [.. registryGetFoldersAndDocumentsResult];
+                enumeratedEntriesResult = [.. registryGetFoldersAndDocumentsResult];
 
-                //    break;
+                break;
         }
 
         if (adhocQueryRequest?.ResponseOption != null)
@@ -469,7 +463,6 @@ public partial class XdsRegistryService
             registryResponse.AddError(XdsErrorCodes.XDSStoredQueryParamNumber, $"ResponseOption was not specified".Trim(), "XDS Registry");
         }
 
-
         registryResponse.EvaluateStatusCode();
 
         var responseEnvelope = new SoapEnvelope()
@@ -494,7 +487,6 @@ public partial class XdsRegistryService
             responseEnvelope.Body.AdhocQueryResponse.RegistryObjectList = [.. enumeratedEntriesResult];
         }
 
-
         var adhocQuery = AdhocQueries.FirstOrDefault(id => id.Value == adhocQueryRequest?.AdhocQuery.Id);
 
         _logger.LogInformation($"{soapEnvelope?.Header.MessageId} - Registry Stored Query Complete, returned {enumeratedEntriesResult?.Count ?? 0} XDSEntries for AdhocQuery Type {adhocQuery.Key} ({adhocQuery.Value})");
@@ -513,18 +505,21 @@ public partial class XdsRegistryService
 
         int removedDocumentsCount = 0;
 
-        var toRemove = registryDtoContent
+        var objectsToRemove = registryDtoContent
             .Where(ro => objectRefIds.Contains(ro.Id))
             .ToList();
 
-        deletedObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(toRemove);
+        deletedObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(objectsToRemove);
 
-        foreach (var ro in toRemove)
+        foreach (var registryObject in objectsToRemove)
         {
-            if (objectRefIds.Contains(ro.Id))
+            if (objectRefIds.Contains(registryObject.Id))
             {
-                if (_registryWrapper.DeleteDocumentEntryFromRegistry(ro))
+                var response = _registryWrapper.DeleteDocumentEntryFromRegistry(registryObject);
+                if (response.IsSuccess)
                     removedDocumentsCount++;
+                else
+                    registryResponse.AddError(XdsErrorCodes.XDSRegistryError, $"Error while deleting document with Id '{registryObject.Id}'\n {response.Message}", "XDS Registry");
             }
         }
 
@@ -643,24 +638,7 @@ public partial class XdsRegistryService
         return SoapExtensions.CreateSoapResultResponse(iti42Message);
     }
 
-    public SoapRequestResult<string> UpdateDocumentRegistryFromRegistryObjects(IdentifiableType[] registryObjects)
-    {
-        try
-        {
-            var dtoList = _registryMetadataTransformerService
-                .TransformRegistryObjectsToRegistryObjectDtos(registryObjects);
-
-            _registryWrapper.SetDocumentRegistryContentWithDtos([.. dtoList]);
-
-            return new SoapRequestResult<string>().Success("Updated OK");
-        }
-        catch (Exception ex)
-        {
-            return new SoapRequestResult<string>().Fault($"Error updating registry: {ex.Message}");
-        }
-    }
-
-    private bool DuplicateUuidsExist(IEnumerable<IdentifiableType> registryObjectList, IEnumerable<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
+    private static bool DuplicateUuidsExist(IEnumerable<IdentifiableType> registryObjectList, IEnumerable<IdentifiableType> submissionRegistryObjects, out string[] duplicateIds)
     {
         var allObjects = registryObjectList.Concat(submissionRegistryObjects);
 
@@ -674,46 +652,5 @@ public partial class XdsRegistryService
         duplicateIds = duplicates.OfType<string>().ToArray();
 
         return duplicateIds.Length > 0;
-    }
-
-    public SoapEnvelope FilterAdhocQueryResponseBasedOnBusinessLogic(SoapEnvelope requestEnvelope, SoapEnvelope soapEnvelope, AbacRequest? abacRequest, out Dictionary<string, int>? filterResults)
-    {
-        filterResults = null;
-
-        // Apply business-logic filtering
-        var requestType = requestEnvelope.Body.AdhocQueryRequest?.AdhocQuery.Id;
-
-        if (requestType == Constants.Xds.StoredQueries.FindDocuments)
-        {
-            List<IdentifiableType> enumeratedEntriesResult = soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList?.ToList() ?? [];
-
-            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {enumeratedEntriesResult.Count}");
-
-            var businessLogic = _businessLogicMapperService.MapFromAbacRequestToBusinessLogic(abacRequest);
-
-            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
-
-            enumeratedEntriesResult = _businessLogicFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(enumeratedEntriesResult, businessLogic, out filterResults).ToList();
-
-            var gobb = JsonSerializer.Serialize(businessLogic);
-
-            if (filterResults.Count > 0)
-            {
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic applied: {JsonSerializer.Serialize(filterResults)}");
-            }
-            else
-            {
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {enumeratedEntriesResult.Count}");
-            }
-
-            enumeratedEntriesResult = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
-            var sxmls = new SoapXmlSerializer();
-            var content = sxmls.SerializeSoapMessageToXmlString(enumeratedEntriesResult).Content;
-            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
-
-            soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = [.. enumeratedEntriesResult];
-        }
-
-        return soapEnvelope;
     }
 }

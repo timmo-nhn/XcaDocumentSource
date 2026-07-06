@@ -5,11 +5,11 @@ namespace XcaXds.WebService.Services.PolicyEnforcementPoint;
 public class AccessControlResponse
 {
     public bool Permit => Decision == Decision.Permit;
-    public string PolicyId { get; set; }
+    public string? PolicyId { get; set; }
     public List<PolicyEvaluationDiagnostics> Diagnostics { get; set; } = new();
 
-    public string Reason { get; set; }
-    public Decision Decision { get; set; }
+    public required string Reason { get; set; }
+    public required Decision Decision { get; set; }
 
     public AccessControlResponse()
     {

@@ -1,10 +1,10 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Hl7.Fhir.Model;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
+using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Source.Models.DatabaseDtos;
 
@@ -40,7 +40,6 @@ public class SqliteBasedRegistry : IRegistry
     {
         return _databaseFile;
     }
-
 
     public async IAsyncEnumerable<RegistryObjectDto> ReadRegistry()
     {
@@ -106,7 +105,7 @@ public class SqliteBasedRegistry : IRegistry
     {
         RegistryObjectDto? registryObjectToReturn = null;
 
-        ExecuteWithRetry(() =>
+        var response = ExecuteWithRetry(() =>
         {
             using var db = _contextFactory.CreateDbContext();
 
@@ -122,10 +121,9 @@ public class SqliteBasedRegistry : IRegistry
         return registryObjectToReturn;
     }
 
-
-    public bool UpdateRegistry(List<RegistryObjectDto> dtos)
+    public OperationResponse UpdateRegistry(List<RegistryObjectDto> dtos)
     {
-        ExecuteWithRetry(() =>
+        return ExecuteWithRetry(() =>
         {
             using var db = _contextFactory.CreateDbContext();
 
@@ -158,22 +156,11 @@ public class SqliteBasedRegistry : IRegistry
 
             transaction.Commit();
         });
-
-        return true;
     }
 
-    private static void InsertInBatches<T>(DbContext db, List<T> items) where T : class
+    public OperationResponse InsertOrUpdateRegistry(List<RegistryObjectDto> dtos)
     {
-        if (items.Count == 0) return;
-
-        db.Set<T>().AddRange(items);
-        db.SaveChanges();
-        db.ChangeTracker.Clear();
-    }
-
-    public bool InsertOrUpdateRegistry(List<RegistryObjectDto> dtos)
-    {
-        ExecuteWithRetry(() =>
+        var response = ExecuteWithRetry(() =>
         {
             using var db = _contextFactory.CreateDbContext();
             var incomingDbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos).ToList();
@@ -193,11 +180,107 @@ public class SqliteBasedRegistry : IRegistry
             DeleteThenInsert(db, db.Associations, associationsToUpload);
         });
 
-        return true;
+        return response;
     }
 
-    private void DeleteThenInsert<TEntity>(DbContext db, DbSet<TEntity> existingDbSet, List<TEntity> toUpload)
-        where TEntity : DbRegistryObject
+    public OperationResponse WriteRegistry(List<RegistryObjectDto> dtos)
+    {
+        var response = new OperationResponse();
+
+        ExecuteWithRetry(() =>
+        {
+            using var db = _contextFactory.CreateDbContext();
+            var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
+            db.RegistryObjects.RemoveRange(db.RegistryObjects);
+            db.RegistryObjects.AddRange(dbEntities);
+            try
+            {
+                db.SaveChanges();
+                response = OperationResponse.Success("Registry written successfully");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Ignore — row already gone
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
+            {
+                _logger.LogError(ex,
+                    "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
+                    sqlEx.SqliteErrorCode,
+                    sqlEx.SqliteExtendedErrorCode);
+                response = OperationResponse.Failure("SQLite failure");
+            }
+        });
+
+        return response;
+    }
+
+    public OperationResponse DeleteRegistryItem(string id)
+    {
+        return ExecuteWithRetry(() =>
+        {
+            using var db = _contextFactory.CreateDbContext();
+            var registryObjectToDelete = db.RegistryObjects.FirstOrDefault(ro => ro.Id == id);
+
+            if (registryObjectToDelete != null)
+            {
+                db.RegistryObjects.Remove(registryObjectToDelete);
+                db.SaveChanges();
+            }
+        });
+    }
+
+    public OperationResponse ExecuteWithRetry(Action action, int maxRetries = 3)
+    {
+        var error = string.Empty;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                action();
+                return OperationResponse.Success($"Operation completed successfully after {attempt} attempt(s)");
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx && IsTransient(sqlEx))
+            {
+                if (attempt == maxRetries)
+                    throw;
+
+                // Jitter delay
+                var random = Random.Shared.Next(0, 50);
+                var delay = TimeSpan.FromMilliseconds(50 * Math.Pow(2, attempt) + random);
+                error = ex.ToString();
+                _logger.LogWarning(ex,
+                    "SQLite transient failure (attempt {Attempt}/{Max}). Retrying in {Delay}ms. Code={Code}, Extended={Extended}, HRESULT={Hresult}",
+                    attempt, maxRetries, delay.TotalMilliseconds,
+                    sqlEx.SqliteErrorCode,
+                    sqlEx.SqliteExtendedErrorCode,
+                    sqlEx.ErrorCode);
+
+                _logger.LogWarning("Exception JSON representation\n{ex}", JsonSerializer.Serialize(sqlEx));
+
+                Thread.Sleep(delay);
+            }
+        }
+
+        return OperationResponse.Failure($"Operation failed after maximum retry attempts {error}");
+
+        static bool IsTransient(SqliteException ex)
+        {
+            return ex.SqliteErrorCode is 5 or 6 or 10;
+        }
+    }
+
+    private static void InsertInBatches<T>(DbContext db, List<T> items) where T : class
+    {
+        if (items.Count == 0) return;
+
+        db.Set<T>().AddRange(items);
+        db.SaveChanges();
+        db.ChangeTracker.Clear();
+    }
+
+    private void DeleteThenInsert<TEntity>(DbContext db, DbSet<TEntity> existingDbSet, List<TEntity> toUpload) where TEntity : DbRegistryObject
     {
         if (toUpload.Count == 0) return;
 
@@ -248,101 +331,5 @@ public class SqliteBasedRegistry : IRegistry
         }
 
         db.ChangeTracker.Clear();
-    }
-
-    public bool WriteRegistry(List<RegistryObjectDto> dtos)
-    {
-        var result = false;
-
-        ExecuteWithRetry(() =>
-        {
-            using var db = _contextFactory.CreateDbContext();
-            var dbEntities = DatabaseMapper.MapFromDtoToDatabaseEntity(dtos);
-            db.RegistryObjects.RemoveRange(db.RegistryObjects);
-            db.RegistryObjects.AddRange(dbEntities);
-            try
-            {
-                db.SaveChanges();
-                result = true;
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Ignore — row already gone
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx)
-            {
-                _logger.LogError(ex,
-                    "SQLite failure. ErrorCode={ErrorCode}, ExtendedErrorCode={ExtendedErrorCode}",
-                    sqlEx.SqliteErrorCode,
-                    sqlEx.SqliteExtendedErrorCode);
-                throw;
-            }
-        });
-        return result;
-    }
-
-    public bool DeleteRegistryItem(string id)
-    {
-        var result = false;
-        ExecuteWithRetry(() =>
-        {
-            using var db = _contextFactory.CreateDbContext();
-            var registryObjectToDelete = db.RegistryObjects.FirstOrDefault(ro => ro.Id == id);
-
-            if (registryObjectToDelete != null)
-            {
-                db.RegistryObjects.Remove(registryObjectToDelete);
-                db.SaveChanges();
-                result = true;
-            }
-        });
-
-        return result;
-    }
-
-    public void ExecuteWithRetry(Action action, int maxRetries = 3)
-    {
-        using var mutex = new Mutex(false, "Global\\DatabaseWriteMutex");
-        for (int attempt = 1; attempt <= maxRetries; attempt++)
-        {
-            try
-            {
-                if (mutex.WaitOne(TimeSpan.FromSeconds(5)))
-                {
-                    action();
-                }
-
-                return;
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is SqliteException sqlEx && IsTransient(sqlEx))
-            {
-                if (attempt == maxRetries)
-                    throw;
-
-                // Jitter delay
-                var random = Random.Shared.Next(0, 50);
-                var delay = TimeSpan.FromMilliseconds(50 * Math.Pow(2, attempt) + random);
-
-                _logger.LogWarning(ex,
-                    "SQLite transient failure (attempt {Attempt}/{Max}). Retrying in {Delay}ms. Code={Code}, Extended={Extended}, HRESULT={Hresult}",
-                    attempt, maxRetries, delay.TotalMilliseconds,
-                    sqlEx.SqliteErrorCode,
-                    sqlEx.SqliteExtendedErrorCode,
-                    sqlEx.ErrorCode);
-
-                _logger.LogWarning("Exception JSON representation\n{ex}", JsonSerializer.Serialize(sqlEx));
-
-                Thread.Sleep(delay);
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
-            }
-        }
-    }
-
-    private static bool IsTransient(SqliteException ex)
-    {
-        return ex.SqliteErrorCode is 5 or 6 or 10;
     }
 }
