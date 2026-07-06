@@ -11,6 +11,11 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Source.Source;
+using XcaXds.Source.Source.PolicyRepository;
+using XcaXds.Source.Source.PolicyRepository.FileBased;
+using XcaXds.Source.Source.RegistryRepository.FileBased;
+using XcaXds.Source.Source.RegistryRepository.PostGreSql;
+using XcaXds.Source.Source.RegistryRepository.SqLite;
 using XcaXds.Terminology.Services;
 using XcaXds.Terminology.Sources;
 using XcaXds.Terminology.TerminologySources;
@@ -134,15 +139,32 @@ public static class WebApplicationBuilderExtensions
 
     public static void RegisterXdsRegistryRepositoryServices(this WebApplicationBuilder builder)
     {
+        var postgreSqlConnectionString = GetPostgreSqlConnectionString(builder.Configuration);
+        var usePostgreSql = string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
+
         // Registry
         builder.Services.AddScoped<XdsRegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
-        builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
+        if (usePostgreSql)
+        {
+            builder.Services.AddSingleton<IRegistry, PostGreSqlBasedRegistry>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IRegistry, SqliteBasedRegistry>();
+        }
 
         // Repository
         builder.Services.AddScoped<XdsRepositoryService>();
         builder.Services.AddSingleton<RepositoryWrapper>();
-        builder.Services.AddSingleton<IRepository, FileBasedRepository>();
+        if (usePostgreSql)
+        {
+            builder.Services.AddSingleton<IRepository, PostGreSqlBasedRepository>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IRepository, FileBasedRepository>();
+        }
 
         // Miscellaneous services
         builder.Services.AddSingleton<IVirusScanner, ClamAvFileScanner>();
@@ -151,5 +173,12 @@ public static class WebApplicationBuilderExtensions
         // Obfuscation of document lists
         builder.Services.AddSingleton<DocumentObfuscationService>();
         builder.Services.AddSingleton<DocumentListFiltererService>();
+    }
+
+    private static string? GetPostgreSqlConnectionString(IConfiguration configuration)
+    {
+        return configuration.GetConnectionString("PostgreSql")
+               ?? configuration["PostgreSql:ConnectionString"]
+               ?? Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING");
     }
 }

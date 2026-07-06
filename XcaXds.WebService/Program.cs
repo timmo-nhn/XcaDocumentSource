@@ -22,6 +22,8 @@ using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Shared;
 using XcaXds.Shared.ConfigBinder;
 using XcaXds.Source.Source;
+using XcaXds.Source.Source.RegistryRepository.PostGreSql;
+using XcaXds.Source.Source.RegistryRepository.SqLite;
 using XcaXds.Terminology.Interfaces;
 using XcaXds.Terminology.Services;
 using XcaXds.Terminology.Sources;
@@ -143,6 +145,19 @@ public class Program
         builder.Services.AddDbContextFactory<SqliteRegistryDbContext>(options =>
             options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\"",
                 sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
+        var postgreSqlConnectionString = GetPostgreSqlConnectionString(builder.Configuration);
+        if (string.IsNullOrWhiteSpace(postgreSqlConnectionString))
+        {
+            return;
+        }
+
+        builder.Services.AddDbContextFactory<PostGreSqlRegistryDbContext>(options =>
+            options.UseNpgsql(postgreSqlConnectionString,
+                npgsqlOptions => npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
+        builder.Services.AddDbContextFactory<PostGreSqlRepositoryDbContext>(options =>
+            options.UseNpgsql(postgreSqlConnectionString));
     }
 
     private static void RegisterHostedServices(WebApplicationBuilder builder)
@@ -302,5 +317,12 @@ public class Program
             .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", null);
 
         builder.Services.AddAuthorization();
+    }
+
+    private static string? GetPostgreSqlConnectionString(IConfiguration configuration)
+    {
+        return configuration.GetConnectionString("PostgreSql")
+               ?? configuration["PostgreSql:ConnectionString"]
+               ?? Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING");
     }
 }

@@ -7,19 +7,19 @@ namespace XcaXds.Commons.Interfaces;
 public interface IRegistry
 {
     /// <summary>
-    /// (Optional) Read items and related items (Associations/Submissionset) from the Registry 
+    /// Read items and related items (Associations/Submissionset) from the Registry 
     /// </summary>
-    IEnumerable<RegistryObjectDto>? GetRegistryItemsAndRelated(string identifier) { throw new NotSupportedException(); }
+    IEnumerable<RegistryObjectDto>? GetRegistryItemsAndRelated(string identifier);
 
     /// <summary>
-    /// (Optional) Read a single item from the registry by its unique identifier
+    /// Read a single item from the registry by its unique identifier
     /// </summary>
-    RegistryObjectDto? GetSingleRegistryItem(string identifier) { throw new NotSupportedException(); }
+    RegistryObjectDto? GetSingleRegistryItem(string identifier);
 
     /// <summary>
-    /// (Optional) Read data for a specific patient from the registry
+    /// Read data for a specific patient from the registry
     /// </summary>
-    IEnumerable<RegistryObjectDto> GetRegistryItemsForPatient(PatientId patientIdentifier) { throw new NotSupportedException(); }
+    IEnumerable<RegistryObjectDto> GetRegistryItemsForPatient(PatientId patientIdentifier);
 
     /// <summary>
     /// Read everything from the registry

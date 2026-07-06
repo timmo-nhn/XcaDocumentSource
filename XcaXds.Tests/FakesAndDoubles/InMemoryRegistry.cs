@@ -41,4 +41,14 @@ public class InMemoryRegistry : IRegistry
         DocumentRegistry = dtos;
         return OperationResponse.Success("Write OK");
     }
+
+    IEnumerable<RegistryObjectDto>? IRegistry.GetRegistryItemsAndRelated(string identifier)
+    {
+        throw new NotImplementedException();
+    }
+
+    public RegistryObjectDto? GetSingleRegistryItem(string identifier)
+    {
+        throw new NotImplementedException();
+    }
 }

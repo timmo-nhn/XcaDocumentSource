@@ -254,7 +254,7 @@ public static class DatabaseMapper
                     CodeSystem = c.CodeSystem,
                     DisplayName = c.DisplayName,
                 }).ToList() ?? [],
-                DE_CreationTime = documentEntryDto.CreationTime,
+                DE_CreationTime = EnsureUtc(documentEntryDto.CreationTime),
                 DE_EventCodeList = new()
                 {
                     Code = documentEntryDto.EventCodeList?.Code,
@@ -293,14 +293,14 @@ public static class DatabaseMapper
                     DisplayName = documentEntryDto.PracticeSettingCode?.DisplayName
                 },
                 DE_RepositoryUniqueId = documentEntryDto.RepositoryUniqueId,
-                DE_ServiceStartTime = documentEntryDto.ServiceStartTime,
-                DE_ServiceStopTime = documentEntryDto.ServiceStopTime,
+                DE_ServiceStartTime = EnsureUtc(documentEntryDto.ServiceStartTime),
+                DE_ServiceStopTime = EnsureUtc(documentEntryDto.ServiceStopTime),
                 DE_Size = documentEntryDto.Size,
                 DE_SourcePatientInfoPatientId = documentEntryDto.SourcePatientInfo.PatientId.Id,
                 DE_SourcePatientInfoPatientSystem = documentEntryDto.SourcePatientInfo.PatientId.System,
                 DE_SourcePatientInfoFirstName = documentEntryDto.SourcePatientInfo?.FirstName,
                 DE_SourcePatientInfoLastName = documentEntryDto.SourcePatientInfo?.LastName,
-                DE_SourcePatientInfoBirthTime = documentEntryDto.SourcePatientInfo?.BirthTime,
+                DE_SourcePatientInfoBirthTime = EnsureUtc(documentEntryDto.SourcePatientInfo?.BirthTime),
                 DE_SourcePatientInfoGender = documentEntryDto.SourcePatientInfo?.Gender,
                 DE_Title = documentEntryDto.Title,
                 DE_TypeCode = new()
@@ -347,7 +347,7 @@ public static class DatabaseMapper
                 SS_Title = submissionSetDto.Title,
                 SS_UniqueId = submissionSetDto.UniqueId,
                 SS_SourceId = submissionSetDto.SourceId,
-                SS_SubmissionTime = submissionSetDto.SubmissionTime
+                SS_SubmissionTime = EnsureUtc(submissionSetDto.SubmissionTime)
             };
         }
 
@@ -379,5 +379,17 @@ public static class DatabaseMapper
 
             yield return databaseEntity;
         }
+    }
+
+    private static DateTime? EnsureUtc(DateTime? value)
+    {
+        if (value == null) return null;
+
+        return value.Value.Kind switch
+        {
+            DateTimeKind.Utc => value.Value,
+            DateTimeKind.Local => value.Value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+        };
     }
 }

@@ -3,7 +3,7 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Shared.Extensions;
 
-namespace XcaXds.Source.Source;
+namespace XcaXds.Source.Source.RegistryRepository.FileBased;
 
 public class FileBasedRepository : IRepository
 {

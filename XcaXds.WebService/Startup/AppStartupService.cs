@@ -1,8 +1,11 @@
-﻿using XcaXds.Commons.Models.Custom.PolicyDtos;
+﻿using Microsoft.EntityFrameworkCore;
+using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Shared;
 using XcaXds.Shared.Enums;
+using XcaXds.Source.Source;
+using XcaXds.Source.Source.RegistryRepository.SqLite;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
@@ -24,6 +27,7 @@ public class AppStartupService : IHostedService
     private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
     private readonly TerminologyService _terminologyService;
     private readonly TerminologyUpdaterService _terminologyUpdaterService;
+    private readonly IDbContextFactory<SqliteRegistryDbContext> _sqliteRegistryContextFactory;
 
     public AppStartupService(
         ILogger<AppStartupService> logger,
@@ -35,7 +39,8 @@ public class AppStartupService : IHostedService
         RepositoryWrapper repositoryWrapper,
         PolicyRepositoryWrapper policyRepositoryWrapper,
         TerminologyService terminologyService,
-        TerminologyUpdaterService terminologyUpdaterService
+        TerminologyUpdaterService terminologyUpdaterService,
+        IDbContextFactory<SqliteRegistryDbContext> sqliteRegistryContextFactory
         )
     {
         _logger = logger;
@@ -48,6 +53,7 @@ public class AppStartupService : IHostedService
         _policyRepositoryWrapper = policyRepositoryWrapper;
         _terminologyService = terminologyService;
         _terminologyUpdaterService = terminologyUpdaterService;
+        _sqliteRegistryContextFactory = sqliteRegistryContextFactory;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -83,6 +89,8 @@ public class AppStartupService : IHostedService
         {
             _logger.LogWarning($"\n\n========  Warning! Default RepositoryUniqueId =======\nUsing default Repository Unique Id {_appConfig.RepositoryUniqueId}!\nWhen deploying the application, please change this to an unique OID\n\n");
         }
+
+        await MigrateSqliteRegistryDbToPostgreSqlIfPresent(cancellationToken);
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
@@ -120,6 +128,51 @@ public class AppStartupService : IHostedService
         }
 
         _logger.LogInformation($"Removed {duds.Count} stale entries from Registry");
+    }
+
+    private async Task MigrateSqliteRegistryDbToPostgreSqlIfPresent(CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(GetPostgreSqlConnectionString()))
+        {
+            return;
+        }
+
+        var sqliteRegistryPath = DatabasePathFinder.FindDatabasePath();
+        if (File.Exists(sqliteRegistryPath) == false)
+        {
+            return;
+        }
+
+        await using var sqliteDb = await _sqliteRegistryContextFactory.CreateDbContextAsync(cancellationToken);
+        var sqliteRegistryObjects = await sqliteDb.RegistryObjects.AsNoTracking().ToListAsync(cancellationToken);
+
+        if (sqliteRegistryObjects.Count == 0)
+        {
+            return;
+        }
+
+        var existingPostgreSqlItems = _registryWrapper.GetDocumentRegistryContentAsDtos().ToList();
+        if (existingPostgreSqlItems.Count > 0)
+        {
+            _logger.LogInformation(
+                "Skipping SQLite registry migration to PostgreSQL because PostgreSQL already contains {Count} registry object(s)",
+                existingPostgreSqlItems.Count);
+            return;
+        }
+
+        _logger.LogInformation("Migrating {Count} registry object(s) from SQLite registry file '{RegistryPath}' to PostgreSQL",
+            sqliteRegistryObjects.Count, sqliteRegistryPath);
+
+        var registryDtos = DatabaseMapper.MapFromDatabaseEntityToDto(sqliteRegistryObjects).ToList();
+        var writeResponse = _registryWrapper.SetDocumentRegistryContentWithDtos(registryDtos);
+
+        if (!writeResponse.IsSuccess)
+        {
+            throw new InvalidOperationException(
+                $"Failed to migrate SQLite registry data to PostgreSQL. Error: {writeResponse.Message}");
+        }
+
+        _logger.LogInformation("Migrated {Count} registry object(s) from SQLite to PostgreSQL", registryDtos.Count);
     }
 
     private async Task AddDefaultAccessControlPolicies()
@@ -378,4 +431,11 @@ public class AppStartupService : IHostedService
     //    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
     //    fileBasedRegistry.MarkFileRegistryAsMigrated();
     //}
+
+    private string? GetPostgreSqlConnectionString()
+    {
+        return _config.GetConnectionString("PostgreSql")
+               ?? _config["PostgreSql:ConnectionString"]
+               ?? Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING");
+    }
 }

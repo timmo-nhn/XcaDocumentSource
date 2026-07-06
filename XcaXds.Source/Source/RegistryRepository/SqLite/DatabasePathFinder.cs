@@ -1,4 +1,4 @@
-﻿namespace XcaXds.Source.Source;
+﻿namespace XcaXds.Source.Source.RegistryRepository.SqLite;
 
 public static class DatabasePathFinder
 {

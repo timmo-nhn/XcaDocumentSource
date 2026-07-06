@@ -1,12 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Shared;
 
-namespace XcaXds.Source.Source;
+namespace XcaXds.Source.Source.PolicyRepository.FileBased;
 
 public class FileBasedPolicyRepository : IPolicyRepository
 {
@@ -133,7 +131,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
     public bool UpdatePolicy(AbacPolicy? policyDto, string? policyId = null)
     {
         if (policyDto == null) return false;
-        
+
         DeletePolicy(policyDto.Id);
         AddPolicy(policyDto);
         if (policyId != policyDto.Id)
