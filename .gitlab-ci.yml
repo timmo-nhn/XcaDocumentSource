@@ -38,6 +38,25 @@ tag manifest:
     SRC_FOLDER: "."
     DEPLOY_ENVIRONMENTS: "test"
     NHN_DEFAULT_FILTER_EXTRA_PATH: ".gitlab-ci.yml"
+  when: manual
+  
+tag manifest dev:
+  tags:
+    - 2026-03-standard
+  extends:
+    - tag manifest
+  variables:
+    DEPLOY_ENVIRONMENTS: "dev"
+  when: manual  
+    
+tag manifest qa:
+  tags:
+    - 2026-03-standard
+  extends:
+    - tag manifest
+  variables:
+    DEPLOY_ENVIRONMENTS: "qa"
+  when: manual
 
 tag manifest prod:
   tags:
