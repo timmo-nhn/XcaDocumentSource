@@ -10,7 +10,6 @@ using XcaXds.Shared;
 using XcaXds.Shared.Extensions;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
-using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests.UnitTests;
@@ -65,7 +64,7 @@ public class UnitTests_Fhir(WebApplicationFactory<WebService.Program> factory, I
         var mockRegistry = new InMemoryRegistry();
         mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectDtos().ToList());
 
-        var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects((await mockRegistry.ReadRegistry().ToListAsync())!);
+        var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects((await mockRegistry.ReadRegistry().ToListAsync(TestContext.Current.CancellationToken))!);
 
         var rng = new Random();
 
@@ -74,7 +73,7 @@ public class UnitTests_Fhir(WebApplicationFactory<WebService.Program> factory, I
         var registryPackages = randomAssociation.Select(ra => registryObjects.GetById(ra?.SourceObject ?? "")).OfType<RegistryPackageType>().ToList();
         var extrinsicObjects = randomAssociation.Select(ra => registryObjects.GetById(ra?.TargetObject ?? "")).OfType<ExtrinsicObjectType>().ToList();
 
-        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry().ToBlockingEnumerable());
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle([.. randomAssociation, .. registryPackages, .. extrinsicObjects], mockRegistry.ReadRegistry().ToBlockingEnumerable(TestContext.Current.CancellationToken));
         var fhirJsonSerializer = new FhirJsonSerializer();
         if (bundle != null)
         {

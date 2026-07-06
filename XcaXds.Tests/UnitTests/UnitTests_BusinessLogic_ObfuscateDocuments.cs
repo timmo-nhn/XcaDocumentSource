@@ -6,7 +6,6 @@ using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Models.Custom;
-using Xunit.Abstractions;
 using static XcaXds.Tests.TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 
 using Task = System.Threading.Tasks.Task;

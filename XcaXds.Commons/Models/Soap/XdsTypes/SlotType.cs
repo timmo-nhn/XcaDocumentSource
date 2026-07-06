@@ -29,6 +29,12 @@ public partial class SlotType
         }
     }
 
+    public SlotType(string name, params string?[] values)
+    {
+        Name = name;
+        ValueList = new() { Value = [.. values.OfType<string>()] };
+    }
+
     public SlotType(string name, string value)
     {
         Name = name;

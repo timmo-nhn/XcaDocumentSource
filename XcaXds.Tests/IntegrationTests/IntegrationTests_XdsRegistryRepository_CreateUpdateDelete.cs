@@ -22,7 +22,6 @@ using XcaXds.Shared.Extensions;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
-using Xunit.Abstractions;
 using static XcaXds.Tests.TestConstants.CodeSystems.Hl7.ConfidentialityCode;
 using Task = System.Threading.Tasks.Task;
 
@@ -85,13 +84,13 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalForskriftenSamlToken(iti38SoapEnvelope);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
         var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByKjernejournalForskriften(RegistryContent.AsRegistryObjectList()).ToArray();
@@ -142,12 +141,12 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalSamlToken(iti38SoapEnvelope);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream(TestContext.Current.CancellationToken));
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
         var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
@@ -200,10 +199,10 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var crossGatewayQuery = GetSoapEnvelopeWithHelsenorgeSamlToken(iti38SoapEnvelope);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync());
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
 
         var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>().Count() ?? 0;
 
@@ -271,9 +270,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         iti38SoapEnvelope = sxmls.SerializeSoapMessageToXmlString(iti38SoapObject).Content;
         var crossGatewayQuery = GetSoapEnvelopeWithHelsenorgeSamlToken(iti38SoapEnvelope);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
 
@@ -344,9 +343,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent, TestContext.Current.CancellationToken);
 
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
@@ -413,9 +412,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent, TestContext.Current.CancellationToken);
 
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
@@ -500,9 +499,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent, TestContext.Current.CancellationToken);
 
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var retrieveDocumentSetResponse = await MultipartExtensions.ReadMultipartSoapMessage(firstResponse.Content.Headers.ContentType?.ToString(), firstContent);
 
@@ -568,9 +567,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var multipartContent = MultipartExtensions.ConvertRetrieveDocumentSetRequestToMultipartRequest(sxmls.DeserializeXmlString<SoapEnvelope>(crossGatewayRetrieve?.OuterXml), out _);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent);
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", multipartContent, TestContext.Current.CancellationToken);
 
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         // Cleanup
         await NukeRegistryRepository();
@@ -635,9 +634,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var crossGatewayRetrieve = GetSoapEnvelopeWithHelsenorgeSamlToken(iti39SoapEnvelope);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var retrieveDocumentSetResponse = new SoapEnvelope();
 
@@ -701,9 +700,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var crossGatewayRetrieve = GetSoapEnvelopeWithHelsenorgeSamlToken(iti39SoapEnvelope);
 
-        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayRetrieve.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var firstContent = await firstResponse.Content.ReadAsStringAsync();
+        var firstContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var retrieveDocumentSetResponse = sxmls.DeserializeXmlString<SoapEnvelope>(firstContent);
 
@@ -749,7 +748,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
 
-        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
@@ -764,9 +763,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var expectedCountAfterPnR = RegistryItemCount + itemsToUploadCount;
 
         var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
-        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
         var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
@@ -844,13 +843,13 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var expectedCount = RegistryContent.Count + 1;
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
-        var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
+        var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken);
         var documentFromProvideBundle = _repository.Read(provideBundleDocumentUniqueId);
 
         Assert.NotNull(documentFromProvideBundle);
@@ -869,13 +868,13 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
             action: "ReadDocumentList");
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-        
+
         integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
         var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
 
         var bundlePatientIdCx = new CX(provideBundlePatient.Value, provideBundlePatient.System.NoUrn()).Serialize();
 
-        var documentEntryDto = _restfulRegistryService.GetDocumentListForPatient(bundlePatientIdCx,"approved").DocumentListEntries?.FirstOrDefault()?.DocumentReference;
+        var documentEntryDto = _restfulRegistryService.GetDocumentListForPatient(bundlePatientIdCx, "approved").DocumentListEntries?.FirstOrDefault()?.DocumentReference;
         var documentEntryDtoJson = RegistryJsonSerializer.Serialize(documentEntryDto);
         var iti38Object = sxmls.DeserializeXmlString<SoapEnvelope>(iti38SoapEnvelope);
 
@@ -885,14 +884,14 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalSamlToken(iti38SoapEnvelope);
 
-        var secondResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
-        var secondContent = await secondResponse.Content.ReadAsStringAsync();
-        
+        var secondResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
+        var secondContent = await secondResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
         var secondResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(secondContent);
 
         var count = secondResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
-        _output.WriteLine($"================DocumentEntry (JSON)================\n {documentEntryDtoJson}\n\n================SOAP response================\n {sxmls.SerializeSoapMessageToXmlString(secondResponseSoap, Constants.XmlDefaultOptions.DefaultXmlWriterSettings).Content}\n\n================Bundle================\n {Regex.Replace(fhirProvideBundle, "PD94bW.*?\"","<base64>\"")}");
+        _output.WriteLine($"================DocumentEntry (JSON)================\n {documentEntryDtoJson}\n\n================SOAP response================\n {sxmls.SerializeSoapMessageToXmlString(secondResponseSoap, Constants.XmlDefaultOptions.DefaultXmlWriterSettings).Content}\n\n================Bundle================\n {Regex.Replace(fhirProvideBundle, "PD94bW.*?\"", "<base64>\"")}");
     }
 
     [Fact]
@@ -932,7 +931,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
-        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
         var randomAmountOfSoapMessages = GenerateRandomSoapEnvelopesThatInteractWithRegistryRepository(10, out var generatedDeletedEntries);
 
@@ -942,14 +941,14 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         foreach (var (message, path) in randomAmountOfSoapMessages)
         {
-            tasks.Add(_client.PostAsync(path, new StringContent(message.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml)));
+            tasks.Add(_client.PostAsync(path, new StringContent(message.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken));
         }
 
         var result = await Task.WhenAll(tasks);
 
         foreach (var response in result)
         {
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
             var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
             Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
@@ -993,7 +992,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
         var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
-        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom();
 
@@ -1008,9 +1007,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var expectedCountAfterPnR = RegistryItemCount; // No change should happen due to invalid content
 
         var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
-        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
         var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
@@ -1051,7 +1050,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
         var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
-        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom();
 
@@ -1067,9 +1066,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var expectedCountAfterPnR = RegistryItemCount; // No change should happen due to invalid content
 
         var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
-        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
         var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
@@ -1112,7 +1111,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
         var countFirst = RegistryContent.AsRegistryObjectDtos().Count();
 
-        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.AsRegistryObjectDtos();
@@ -1143,9 +1142,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var expectedCountAfterPnR = RegistryItemCount; // Nothing should be updated
 
         var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
-        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
         var registryCountAfterPnr = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().Count();
@@ -1231,23 +1230,23 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
             .Where(robj => docEntIds.Any(id => id == robj.TargetObject)).ToArray();
 
         var registryContentBeforePnR = _registry.ReadRegistry();
-        var actualRegistryCountBeforePnR = await registryContentBeforePnR.CountAsync();
+        var actualRegistryCountBeforePnR = await registryContentBeforePnR.CountAsync(TestContext.Current.CancellationToken);
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.Length;
         var expectedCountAfterPnrUpdate = actualRegistryCountBeforePnR + itemsToUploadCount;
 
         var iti41RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti41SoapRequestObject).Content);
-        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti41RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(responseContent);
 
 
-        var deprecatedDocuments = (await _registry.ReadRegistry().OfType<DocumentEntryDto>().ToArrayAsync()).Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
+        var deprecatedDocuments = (await _registry.ReadRegistry().OfType<DocumentEntryDto>().ToArrayAsync(TestContext.Current.CancellationToken)).Where(ro => ro.AvailabilityStatus == Constants.Xds.StatusValues.Deprecated).ToArray();
 
         var registryContentAfterPnR = _registry.ReadRegistry();
-        var actualRegistryCountAfterPnR = await registryContentAfterPnR.CountAsync();
+        var actualRegistryCountAfterPnR = await registryContentAfterPnR.CountAsync(TestContext.Current.CancellationToken);
 
         var randomDocument = _repository.Read(documentUpdate.PickRandom().Id);
 
@@ -1299,7 +1298,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
         var registryContent = _registry.ReadRegistry();
-        var countFirst = await registryContent.CountAsync();
+        var countFirst = await registryContent.CountAsync(TestContext.Current.CancellationToken);
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
         var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
@@ -1314,15 +1313,13 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var expectedCountAfterRds = countFirst + itemsToUploadCount;
 
         var iti42RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(sxmls.SerializeSoapMessageToXmlString(iti42SoapRequestObject).Content);
-        var firstResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti42RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var firstResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti42RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream());
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstResponse.Content.ReadAsStream(TestContext.Current.CancellationToken));
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
-
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         registryContent = _registry.ReadRegistry();
-        var registryCount = await registryContent.CountAsync();
-
+        var registryCount = await registryContent.CountAsync(TestContext.Current.CancellationToken);
         // Cleanup
         await NukeRegistryRepository();
         _policyRepositoryService.DeleteAllPolicies();
@@ -1392,7 +1389,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var documentEntryToRemove = RegistryContent.PickRandom(amountOfItemsToReplace).Select(rc => rc.DocumentEntry).ToArray();
 
         // Step 0: Check if Registry and Repository content is present
-        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+        Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
         // Step 1: Get the unique id for the DocumentEntry in the Registry...
         var iti18RmdRequest = new SoapEnvelope();
@@ -1412,9 +1409,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var iti18RmdRequestSoapString = sxmls.SerializeSoapMessageToXmlString(iti18RmdRequest).Content;
         var iti18RmdRequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(iti18RmdRequestSoapString);
 
-        var iti18RmdRequestResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti18RmdRequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var iti18RmdRequestResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti18RmdRequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var iti18RmdRequestResponseContent = await iti18RmdRequestResponse.Content.ReadAsStringAsync();
+        var iti18RmdRequestResponseContent = await iti18RmdRequestResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, iti18RmdRequestResponse.StatusCode);
 
@@ -1441,17 +1438,17 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var iti62RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(iti62RequestString);
 
-        var iti62RequestResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti62RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var iti62RequestResponse = await _client.PostAsync("/Registry/services/RegistryService", new StringContent(iti62RequestXmlDoc.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
         Assert.Equal(System.Net.HttpStatusCode.OK, iti62RequestResponse.StatusCode);
 
-        var iti62ResponseContent = await iti62RequestResponse.Content.ReadAsStringAsync();
+        var iti62ResponseContent = await iti62RequestResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var iti62ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti62ResponseContent);
         Assert.Null(iti62ResponseSoapObject.Body.Fault);
 
         Assert.Equal(Constants.Xds.ResponseStatusTypes.Success, iti62ResponseSoapObject.Body.RegistryResponse?.Status);
 
-        Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync());
+        Assert.Equal(RegistryItemCount - documentEntriesToRemove.Count, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
 
         // Step 3: Use the DocumentUniqueId in the DocumentEntry to remove the Document
@@ -1470,13 +1467,13 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var iti86RequestString = sxmls.SerializeSoapMessageToXmlString(iti86DeleteDocumentSet).Content;
 
         var iti86RequestXmlDoc = GetSoapEnvelopeWithKjernejournalSamlToken(iti86RequestString);
-        var iti86RequestResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti86RequestXmlDoc?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+        var iti86RequestResponse = await _client.PostAsync("/Repository/services/RepositoryService", new StringContent(iti86RequestXmlDoc?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-        var iti86RequestResponseContent = await iti86RequestResponse.Content.ReadAsStringAsync();
+        var iti86RequestResponseContent = await iti86RequestResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var iti86ResponseSoapObject = sxmls.DeserializeXmlString<SoapEnvelope>(iti86RequestResponseContent);
 
-        var registryCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
+        var registryCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken);
 
         // Cleanup
         await NukeRegistryRepository();
@@ -1555,9 +1552,9 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         {
             var soapRequestString = sxmls.SerializeSoapMessageToXmlString(request.Request).Content;
             var soapRequestResponse = await _client.PostAsync(request.Endpoint,
-                new StringContent(GetSoapEnvelopeWithKjernejournalSamlToken(soapRequestString)?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
+                new StringContent(GetSoapEnvelopeWithKjernejournalSamlToken(soapRequestString)?.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml), TestContext.Current.CancellationToken);
 
-            var responseEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(await soapRequestResponse.Content.ReadAsStringAsync());
+            var responseEnvelope = sxmls.DeserializeXmlString<SoapEnvelope>(await soapRequestResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
             Assert.NotNull(responseEnvelope.Body.Fault);
         }
 

@@ -22,7 +22,6 @@ using XcaXds.WebService.Services.Fhir;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Startup;
-using Xunit.Abstractions;
 
 namespace XcaXds.Tests;
 

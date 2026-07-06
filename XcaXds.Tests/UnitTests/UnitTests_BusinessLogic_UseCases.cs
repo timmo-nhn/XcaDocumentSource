@@ -5,7 +5,6 @@ using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Enums;
-using Xunit.Abstractions;
 using static XcaXds.Tests.TestConstants.CodeSystems.Hl7.PurposeOfUse;
 using static XcaXds.Tests.TestConstants.CodeSystems.OtherIsoDerived.PurposeOfUse;
 
@@ -274,7 +273,7 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+        DocumentReferences = [.. _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied)];
 
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
@@ -330,7 +329,7 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             SubjectOrganization = new() { Code = "Norsk Helsenett" }
         };
 
-        DocumentReferences = _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied).ToList();
+        DocumentReferences = [.. _documentListFiltererService.FilterRegistryObjectListBasedOnBusinessLogic(DocumentReferences, businessLogic, out var applied)];
 
 
         _output.WriteLine("Rules applied: " + JsonSerializer.Serialize(applied));
@@ -408,6 +407,6 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
             ],
         };
 
-        DocumentReferences = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects([documentEntry1, documentEntry2, documentEntry3]).ToList();
+        DocumentReferences = [.. RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects([documentEntry1, documentEntry2, documentEntry3])];
     }
 }

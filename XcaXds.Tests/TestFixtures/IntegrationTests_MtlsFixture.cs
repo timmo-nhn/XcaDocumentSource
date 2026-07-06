@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Cryptography.X509Certificates;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.WebService;
 
 
@@ -14,7 +15,7 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
     internal HttpClient Client { get; private set; } = default!;
     private WebApplication _app = default!;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var builder = WebApplication.CreateBuilder();
 
@@ -55,7 +56,7 @@ public class IntegrationTests_MtlsFixture : IAsyncLifetime
         Console.WriteLine(_app.Urls.First());
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await _app.StopAsync();
         await _app.DisposeAsync();

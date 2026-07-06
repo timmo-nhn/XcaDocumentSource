@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Support;
-using Microsoft.Extensions.Logging;
 using System.Globalization;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -114,8 +112,7 @@ public class FhirToXdsTransformerService
             }
 
             // Map relatesTo → XDS associations (0 ... N)
-            var relationAssociations =
-                MapRelationsToXdsAssociations(documentReference, sourceExtrinsicId);
+            var relationAssociations = MapRelationsToXdsAssociations(documentReference, sourceExtrinsicId);
 
             if (relationAssociations != null)
             {
@@ -129,9 +126,9 @@ public class FhirToXdsTransformerService
             combinedRegistryObjects.Add(registryPackage);
         }
 
-        var request = new ProvideAndRegisterDocumentSetRequestType
+        var request = new ProvideAndRegisterDocumentSetRequestType()
         {
-            SubmitObjectsRequest = new SubmitObjectsRequest
+            SubmitObjectsRequest = new SubmitObjectsRequest()
             {
                 RegistryObjectList = combinedRegistryObjects.ToArray()
             },
@@ -156,1041 +153,445 @@ public class FhirToXdsTransformerService
     {
         var operationOutcome = new OperationOutcome();
 
-        var registryPackage = new RegistryPackageType
+
+        if (submissionSetList == null)
         {
-            Id = submissionSetList?.Id,
-            Name = string.IsNullOrWhiteSpace(submissionSetList?.Title) ? null : new InternationalStringType($"{submissionSetList?.Title}"),
-            ObjectType = Constants.Xds.ObjectTypes.RegistryPackage,
-            Classification = [],
-            ExternalIdentifier = [],
-        };
-
-        if (submissionSetList != null)
-        {
-            // property note.Text is nullable, so we need to filter out null values before adding to comments slot
-            var comment = submissionSetList.Note.Select(note => note.Text).OfType<string>().Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
-
-            // Comment from submission
-            if (comment?.Length > 0)
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
             {
-                registryPackage.AddSlot(new SlotType
-                {
-                    Name = "comments",
-                    ValueList = new ValueListType
-                    {
-                        Value = comment
-                    }
-                });
-            }
-
-            //SubmissionTime
-            if (submissionSetList.Date != null && DateTime.TryParse(submissionSetList.Date, out var submissionTime))
-            {
-                registryPackage.AddSlot(new SlotType
-                {
-                    Name = "submissionTime",
-                    ValueList = new ValueListType
-                    {
-                        Value = [submissionTime.ToUniversalTime().ToString(Constants.Hl7.Dtm.DtmFormat)]
-                    }
-                });
-            }
-            else
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "submissiontime not found or format is invalid.",
-                    Location = ["SubmissionsetList.Date"]
-                });
-            }
-
-            // Classify the registryPackage as a submissionSet
-            if (!string.IsNullOrWhiteSpace(submissionSetList.Id))
-            {
-                registryPackage.AddClassification(new ClassificationType()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ClassificationNode = Constants.Xds.Uuids.SubmissionSet.SubmissionSetClassificationNode,
-                    ClassifiedObject = submissionSetList.Id,
-                    ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
-
-                });
-            }
-            else
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No unique id found.",
-                    Location = ["SubmissionsetList.identifier"]
-                });
-            }
-
-            // XDS SubmAuthor - Legal entity
-            var submAuthorOrg = GetAuthorOrganization(submissionSetList);
-
-            if (submAuthorOrg == null)
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-                {
-                    Severity = OperationOutcome.IssueSeverity.Warning,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No author organizations for submission was found",
-                    Location = ["List.identifier"]
-                });
-            }
-
-            // XDS SubmAuthor - Department
-            var submAuthorDept = GetAuthorDepartment(submissionSetList);
-
-            if (submAuthorDept == null)
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Warning,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No author departments for submission was found.",
-                    Location = ["List.identifier"]
-                });
-            }
-
-            var submAuthorPerson = GetAuthorPerson(submissionSetList);
-            if (submAuthorPerson == null)
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Warning,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No author person for submission was found",
-                    Location = ["List.identifier"]
-                });
-
-            }
-            if (submAuthorOrg != null && submAuthorPerson != null)
-            {
-                var authorClassification = new ClassificationType()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = submissionSetList.Id!.Replace("urn:uuid:", ""),
-                    ClassificationScheme = Constants.Xds.Uuids.SubmissionSet.Author,
-                    ObjectType = Constants.Xds.ObjectTypes.Classification,
-                    Name = new InternationalStringType(Constants.Xds.ClassificationNames.SubmissionSetAuthor),
-                    NodeRepresentation = string.Empty,
-                    Slot = []
-                };
-
-
-                var submAuthorOrgNameOnly = new XON()
-                {
-                    OrganizationName = submAuthorOrg.OrganizationName
-                };
-
-                var submAuthorOrgNameOnlyString = submAuthorOrgNameOnly.Serialize();
-                var submAuthorOrgString = submAuthorOrg.Serialize();
-
-                var authorDepartmentSlot = new SlotType()
-                {
-                    Name = "authorInstitution",
-                    ValueList = new ValueListType()
-                    {
-                        Value = [.. new[]
-                        {
-                            submAuthorOrgNameOnlyString,
-                            submAuthorOrgString
-                        }.OfType<string>()]
-                    }
-                };
-
-                //var slotPreview = string.Join(", ", authorDepartmentSlot.ValueList.Value.Select(val => val.Substring(0, 5).Trim() + "...")).ToArray();
-
-                var submAuthorDepartmentString = submAuthorDept?.Serialize();
-
-                if (!string.IsNullOrWhiteSpace(submAuthorDepartmentString))
-                {
-                    authorDepartmentSlot.AddValue(submAuthorDepartmentString);
-                }
-
-                authorClassification.AddSlot(authorDepartmentSlot);
-
-                var submAuthorPersonString = submAuthorPerson.Serialize()?.Replace("&&", "");
-                if (submAuthorPersonString != null)
-                {
-                    var authorPersonSlot = new SlotType()
-                    {
-                        Name = "authorPerson",
-                        ValueList = new ValueListType()
-                        {
-                            Value = []
-                        }
-                    };
-                    authorClassification.AddSlot(authorPersonSlot);
-                }
-
-                registryPackage.AddClassification(authorClassification);
-            }
-
-            // XdsSubmissionset.ContentTypeCode (Document type)
-            var submissionConfCode = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType");
-            if (submissionConfCode.Value is CodeableConcept valueCodeableConcept)
-            {
-                var submissionConcept = valueCodeableConcept.Coding.FirstOrDefault();
-
-                var submissionConfClassification = new ClassificationType()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = submissionSetList.Id ?? "Unknown",
-                    ObjectType = Constants.Xds.ObjectTypes.Classification,
-                    ClassificationScheme = Constants.Xds.Uuids.SubmissionSet.ContentTypeCode,
-                    NodeRepresentation = submissionConcept?.Code ?? "Unknown",
-                    Slot = []
-                };
-
-                if (!string.IsNullOrWhiteSpace(submissionConcept?.System))
-                {
-                    submissionConfClassification.AddSlot(new SlotType()
-                    {
-                        Name = "codingScheme",
-                        ValueList = new()
-                        {
-                            Value = [submissionConcept.System.NoUrn()]
-                        }
-                    });
-                }
-
-                if (!string.IsNullOrWhiteSpace(submissionConcept?.Display))
-                {
-                    submissionConfClassification.Name = new InternationalStringType(submissionConcept.Display);
-                }
-
-                registryPackage.AddClassification(submissionConfClassification);
-            }
-            else
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No document type found.\n should be defined in Bundle with extension https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType",
-                    Location = ["SubmissionsetList.extension"]
-                });
-            }
-
-            // XDSSubmissionSet.uniqueId
-            if (!string.IsNullOrWhiteSpace(submissionSetList.Id))
-            {
-                registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
-                {
-                    Id = submissionSetList.Id,
-                    IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.UniqueId,
-                    RegistryObject = submissionSetList.Id,
-                    ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
-                    Value = GenerateRandomOid(),                                                // ?TBD func(UUID -> OID) => 2.25.XXXXX
-                    Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetUniqueId)
-                });
-            }
-            else
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No unique id found.",
-                    Location = ["SubmissionsetList.identifier"]
-                });
-            }
-
-            // XDSSubmissionSet.sourceId
-            var documentOrganization = submissionSetList!.Contained!
-                .OfType<Organization>()
-                .FirstOrDefault(dpt => dpt?.PartOf == null);
-
-            //Get Extension for SourceId
-            string? sourceId = null;
-
-            try
-            {
-                //Get Extension for SourceId
-                var extSourceId = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
-                var extResReference = extSourceId!.Value as Identifier; // Changed from reference to identifier
-                sourceId = extResReference!.Value?.NoUrn();
-            }
-            catch
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No extension for sourceId was found.",
-                    Location = ["List.Source.Extension"]
-                });
-            }
-
-            if (documentOrganization != null)
-            {
-                // If extension is not missing this will be default value
-                var value = $"{Organization}.{documentOrganization?.Identifier?.FirstOrDefault()?.Value}";
-
-                // Replace default value
-                if (!string.IsNullOrEmpty(sourceId))
-                {
-                    value = sourceId.NoUrn();
-                }
-
-                registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.SourceId,
-                    RegistryObject = submissionSetList.Id ?? "Unknown",
-                    ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
-                    Value = value,
-                    Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetSourceId)
-                });
-            }
-            else
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No organization found.",
-                    Location = ["SubmissionSetList.contained.Organization"]
-                });
-            }
-
-            // XDSSubmissionSet.patientId
-            //var patientIdFromPix = GetPatient(patientId, GpiOid);
-            //var patientIdFromPix = GetPatient(patientId, sourceId);
-            var patientId = bundlePatient?.Identifier.FirstOrDefault();
-            var patientIdFromPix = GetPatient(patientId, homeCommunityId)?.Serialize();
-
-            if (!string.IsNullOrWhiteSpace(submissionSetList.Id) && !string.IsNullOrWhiteSpace(patientIdFromPix))
-            {
-                registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.PatientId,
-                    RegistryObject = submissionSetList.Id ?? "Unknown",
-                    ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
-                    Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetPatientId),
-                    Value = patientIdFromPix
-                });
-            }
-            else
-            {
-                operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-                {
-                    Severity = OperationOutcome.IssueSeverity.Error,
-                    Code = OperationOutcome.IssueType.NotFound,
-                    Diagnostics = "No patient id found.",
-                    Location = ["SubmissionsetList.identifier"]
-                });
-            }
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "Missing SubmissionSet List"
+            });
 
             return new ServiceResultDto<RegistryPackageType>()
             {
-                OperationOutcome = operationOutcome,
-                Value = registryPackage
+                OperationOutcome = operationOutcome
             };
+        }
+
+        var registryPackage = new RegistryPackageType()
+        {
+            Id = submissionSetList.Id,
+            Name = string.IsNullOrWhiteSpace(submissionSetList.Title) ? null : new InternationalStringType($"{submissionSetList.Title}"),
+            ObjectType = Constants.Xds.ObjectTypes.RegistryPackage,
+        };
+
+        HandleSubmissionSetClassification(submissionSetList, operationOutcome, registryPackage);
+        HandleSubmissionSetComment(submissionSetList, registryPackage);
+        HandleSubmissionSetSubmissionTime(submissionSetList, operationOutcome, registryPackage);
+        HandleSubmissionSetAuthor(submissionSetList, operationOutcome, registryPackage);
+        HandleSubmissionSetContentTypeCode(submissionSetList, operationOutcome, registryPackage);
+        HandleSubmissionSetUniqueId(submissionSetList, operationOutcome, registryPackage);
+        HandleSubmissionSetSourceId(submissionSetList, operationOutcome, registryPackage);
+        HandleSubmissionSetPatientId(bundlePatient, submissionSetList, homeCommunityId, operationOutcome, registryPackage);
+
+        return new ServiceResultDto<RegistryPackageType>()
+        {
+            OperationOutcome = operationOutcome,
+            Value = registryPackage
+        };
+    }
+
+    private static void HandleSubmissionSetClassification(List submissionSetList, OperationOutcome operationOutcome, RegistryPackageType registryPackage)
+    {
+        // Classify the registryPackage as a submissionSet
+        if (!string.IsNullOrWhiteSpace(submissionSetList.Id))
+        {
+            registryPackage.AddClassification(new ClassificationType()
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassificationNode = Constants.Xds.Uuids.SubmissionSet.SubmissionSetClassificationNode,
+                ClassifiedObject = submissionSetList.Id,
+                ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
+
+            });
         }
         else
         {
-            return null!;
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No unique id found.",
+                Location = ["SubmissionsetList.identifier"]
+            });
+        }
+    }
+
+    private static void HandleSubmissionSetComment(List submissionSetList, RegistryPackageType registryPackage)
+    {
+        var comment = submissionSetList.Note.Select(note => note.Text).OfType<string>().Where(text => !string.IsNullOrWhiteSpace(text)).ToArray();
+
+        // Comment from submission
+        if (comment?.Length > 0)
+        {
+            registryPackage.AddSlot(new SlotType(Constants.Xds.SlotNames.Comments, comment));
+        }
+    }
+
+    private static void HandleSubmissionSetSubmissionTime(List submissionSetList, OperationOutcome operationOutcome, RegistryPackageType registryPackage)
+    {
+        //SubmissionTime
+        if (submissionSetList.Date != null && DateTime.TryParse(submissionSetList.Date, out var submissionTime))
+        {
+            registryPackage.AddSlot(new SlotType(Constants.Xds.SlotNames.SubmissionTime, submissionTime.ToUniversalTime().ToString(Constants.Hl7.Dtm.DtmFormat)));
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "submissiontime not found or format is invalid.",
+                Location = ["SubmissionsetList.Date"]
+            });
+        }
+    }
+
+    private static void HandleSubmissionSetPatientId(Patient? bundlePatient, List submissionSetList, string? homeCommunityId, OperationOutcome operationOutcome, RegistryPackageType registryPackage)
+    {
+        // XDSSubmissionSet.patientId
+        //var patientIdFromPix = GetPatient(patientId, GpiOid);
+        //var patientIdFromPix = GetPatient(patientId, sourceId);
+        var patientId = bundlePatient?.Identifier.FirstOrDefault();
+        var patientIdFromPix = GetPatient(patientId, homeCommunityId)?.Serialize();
+
+        if (!string.IsNullOrWhiteSpace(submissionSetList.Id) && !string.IsNullOrWhiteSpace(patientIdFromPix))
+        {
+            registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
+            {
+                Id = Guid.NewGuid().ToString(),
+                IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.PatientId,
+                RegistryObject = submissionSetList.Id ?? "Unknown",
+                ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
+                Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetPatientId),
+                Value = patientIdFromPix
+            });
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No patient id found.",
+                Location = ["SubmissionsetList.identifier"]
+            });
+        }
+    }
+
+    private static void HandleSubmissionSetSourceId(List submissionSetList, OperationOutcome operationOutcome, RegistryPackageType registryPackage)
+    {
+        // XDSSubmissionSet.sourceId
+        var documentOrganization = submissionSetList!.Contained!
+            .OfType<Organization>()
+            .FirstOrDefault(dpt => dpt?.PartOf == null);
+
+        //Get Extension for SourceId
+        string? sourceId = null;
+
+        try
+        {
+            //Get Extension for SourceId
+            var extSourceId = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId");
+            var extResReference = extSourceId!.Value as Identifier; // Changed from reference to identifier
+            sourceId = extResReference!.Value?.NoUrn();
+        }
+        catch
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No extension for sourceId was found.",
+                Location = ["List.Source.Extension"]
+            });
+        }
+
+        if (documentOrganization != null)
+        {
+            // If extension is not missing this will be default value
+            var value = $"{Organization}.{documentOrganization?.Identifier?.FirstOrDefault()?.Value}";
+
+            // Replace default value
+            if (!string.IsNullOrEmpty(sourceId))
+            {
+                value = sourceId.NoUrn();
+            }
+
+            registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
+            {
+                Id = Guid.NewGuid().ToString(),
+                IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.SourceId,
+                RegistryObject = submissionSetList.Id ?? "Unknown",
+                ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
+                Value = value,
+                Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetSourceId)
+            });
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No organization found.",
+                Location = ["SubmissionSetList.contained.Organization"]
+            });
+        }
+    }
+
+    private void HandleSubmissionSetUniqueId(List submissionSetList, OperationOutcome operationOutcome, RegistryPackageType registryPackage)
+    {
+        // XDSSubmissionSet.uniqueId
+        if (!string.IsNullOrWhiteSpace(submissionSetList.Id))
+        {
+            registryPackage.AddExternalIdentifier(new ExternalIdentifierType()
+            {
+                Id = submissionSetList.Id,
+                IdentificationScheme = Constants.Xds.Uuids.SubmissionSet.UniqueId,
+                RegistryObject = submissionSetList.Id,
+                ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
+                Value = GenerateRandomOid(),                                                // ?TBD func(UUID -> OID) => 2.25.XXXXX
+                Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.SubmissionSetUniqueId)
+            });
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No unique id found.",
+                Location = ["SubmissionsetList.identifier"]
+            });
+        }
+    }
+
+    private static void HandleSubmissionSetContentTypeCode(List submissionSetList, OperationOutcome operationOutcome, RegistryPackageType registryPackage)
+    {
+        // XdsSubmissionset.ContentTypeCode (Document type)
+        var submissionConfCode = submissionSetList.GetExtension("https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType");
+        if (submissionConfCode.Value is CodeableConcept valueCodeableConcept)
+        {
+            var submissionConcept = valueCodeableConcept.Coding.FirstOrDefault();
+
+            var submissionConfClassification = new ClassificationType()
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = submissionSetList.Id ?? "Unknown",
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                ClassificationScheme = Constants.Xds.Uuids.SubmissionSet.ContentTypeCode,
+                NodeRepresentation = submissionConcept?.Code ?? "Unknown",
+                Slot = []
+            };
+
+            if (!string.IsNullOrWhiteSpace(submissionConcept?.System))
+            {
+                submissionConfClassification.AddSlot(new SlotType(Constants.Xds.SlotNames.CodingScheme, submissionConcept.System.NoUrn()));
+            }
+
+            if (!string.IsNullOrWhiteSpace(submissionConcept?.Display))
+            {
+                submissionConfClassification.Name = new InternationalStringType(submissionConcept.Display);
+            }
+
+            registryPackage.AddClassification(submissionConfClassification);
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No document type found.\n should be defined in Bundle with extension https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType",
+                Location = ["SubmissionsetList.extension"]
+            });
+        }
+    }
+
+    private void HandleSubmissionSetAuthor(List submissionSetList, OperationOutcome operationOutcome, RegistryPackageType registryPackage)
+    {
+        // XDS SubmissionSet - Legal entity
+        var submAuthorOrg = GetAuthorOrganization(submissionSetList);
+
+        if (submAuthorOrg == null)
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Warning,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No author organizations for submission was found",
+                Location = ["List.identifier"]
+            });
+        }
+
+        // XDS SubmissionSet.Author - Department
+        var submAuthorDept = GetAuthorDepartment(submissionSetList);
+
+        if (submAuthorDept == null)
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Warning,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No author departments for submission was found.",
+                Location = ["List.identifier"]
+            });
+        }
+
+        var submAuthorPerson = GetAuthorPerson(submissionSetList);
+        if (submAuthorPerson == null)
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Warning,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No author person for submission was found",
+                Location = ["List.identifier"]
+            });
+
+        }
+        if (submAuthorOrg != null && submAuthorPerson != null)
+        {
+            var authorClassification = new ClassificationType()
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = submissionSetList.Id!.Replace("urn:uuid:", ""),
+                ClassificationScheme = Constants.Xds.Uuids.SubmissionSet.Author,
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                Name = new InternationalStringType(Constants.Xds.ClassificationNames.SubmissionSetAuthor),
+                NodeRepresentation = string.Empty,
+                Slot = []
+            };
+
+            var submAuthorOrgNameOnly = new XON()
+            {
+                OrganizationName = submAuthorOrg.OrganizationName
+            };
+
+            var submAuthorOrgNameOnlyString = submAuthorOrgNameOnly.Serialize();
+            var submAuthorOrgString = submAuthorOrg.Serialize();
+
+            var authorDepartmentSlot = new SlotType(Constants.Xds.SlotNames.AuthorInstitution, submAuthorOrgNameOnlyString, submAuthorOrgString);
+
+            var submAuthorDepartmentString = submAuthorDept?.Serialize();
+
+            if (!string.IsNullOrWhiteSpace(submAuthorDepartmentString))
+            {
+                authorDepartmentSlot.AddValue(submAuthorDepartmentString);
+            }
+
+            authorClassification.AddSlot(authorDepartmentSlot);
+
+            var submAuthorPersonString = submAuthorPerson.Serialize()?.Replace("&&", "");
+            if (submAuthorPersonString != null)
+            {
+                var authorPersonSlot = new SlotType(Constants.Xds.SlotNames.AuthorPerson, submAuthorPersonString);
+                authorClassification.AddSlot(authorPersonSlot);
+            }
+
+            registryPackage.AddClassification(authorClassification);
         }
     }
 
     public ServiceResultDto<ExtrinsicObjectType> ConvertDocumentReferenceToExtrinsicObject(Patient? bundlePatient, DocumentReference documentReference, Binary? fhirBinary)
     {
         var operationOutcome = new OperationOutcome();
-
-        var statusType = documentReference.Status switch
-        {
-            DocumentReferenceStatus.Current => "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
-            DocumentReferenceStatus.Superseded => "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
-            _ => "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"
-        };
+        var statusType = GetDocumentReferenceStatus(documentReference);
 
         var attachment = documentReference.Content.FirstOrDefault()?.Attachment;
-        var documentCreationTime = DateTime.Parse(attachment?.Creation ?? DateTime.MinValue.ToString(CultureInfo.InvariantCulture)).ToUniversalTime();
         var patientId = bundlePatient?.Identifier.FirstOrDefault();
         var gpiOid = patientId?.System?.NoUrn();
-        var patient = new CX()
-        {
-            IdNumber = patientId?.Value ?? "Unknown",
-            AssigningAuthority = new HD()
-            {
-                UniversalId = gpiOid,
-                UniversalIdType = Constants.Hl7.UniversalIdType.Iso
-            },
-        };
 
-        var extrinsicObject = new ExtrinsicObjectType
+        var extrinsicObject = new ExtrinsicObjectType()
         {
             MimeType = attachment?.ContentType ?? "Unknown",
             Id = documentReference.Id?.NoUrn(),
             Status = statusType.ToString(),
             Name = new InternationalStringType(attachment?.Title ?? "Unknown"),
             ObjectType = Constants.Xds.Uuids.DocumentEntry.StableDocumentEntries,
-            Slot =
-            [
-                /* XDSDocumentEntry.creationTime - mandatory */
-                new SlotType
-                {
-                    Name = "creationTime",
-                    ValueList = new ValueListType
-                    {
-                        Value = [documentCreationTime.ToString(Constants.Hl7.Dtm.DtmFormat) ?? throw new ArgumentNullException("Creation time not set", "ExtrinsicObject.Slot(creationTime)")]
-                    }
-                },
-                /* XDSDocumentEntry.languageCode - mandatory */
-                new SlotType
-                {
-                    Name = "languageCode",
-                    ValueList = new ValueListType
-                    {
-                        Value = [attachment?.Language ?? "Unknown"]
-                    }
-
-                },
-                /* XDSDocumentEntry.sourcePatientId - mandatory */
-                new SlotType
-                {
-                    Name = "sourcePatientId",
-                    ValueList = new ValueListType
-                    {
-                        Value = [patient.Serialize()?.Replace("&&", "") ?? throw new ArgumentNullException("Patient Identifier cannot be null", "ExtrinsicObject.Slot(sourcePatientId)")]
-                    }
-                }
-            ]
         };
 
-        // serviceTime elements - optional, but required if known
-        /* XDSDocumentEntry.serviceStartTime */
-        if (!string.IsNullOrEmpty(documentReference.Context?.Period?.Start))
+        HandleDocumentEntryCreationTime(attachment, extrinsicObject);
+        HandleDocumentEntryLanguageCode(attachment, extrinsicObject);
+        HandleDocumentEntrySourcePatientId(patientId, gpiOid, extrinsicObject);
+        HandleDocumentEntryServiceStartTime(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryServiceStopTime(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryAuthors(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryFormatCode(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryHealthcareFacilityTypeCode(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryPracticeSettingCode(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryClassCode(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryTypeCode(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryConfidentialityCode(documentReference, operationOutcome, extrinsicObject);
+        HandleDocumentEntryUniqueId(documentReference, fhirBinary, operationOutcome, extrinsicObject);
+        HandleDocumentEntryPatientId(bundlePatient, documentReference, operationOutcome, patientId, gpiOid, extrinsicObject);
+        HandleDocumentEntryEventCode(documentReference, extrinsicObject);
+        HandleDocumentEntryComment(documentReference, extrinsicObject);
+
+        return new ServiceResultDto<ExtrinsicObjectType>()
         {
-            var datePeriodFrom = DateTime.Parse(documentReference.Context.Period.Start);
-            extrinsicObject.AddSlot(new SlotType
-            {
-                Name = "serviceStartTime",
-                ValueList = new ValueListType
-                {
-                    Value = [datePeriodFrom.ToString(Constants.Hl7.Dtm.DtmFormat)]
-                }
-            });
+            OperationOutcome = operationOutcome,
+            Value = extrinsicObject
+        };
+    }
+
+    private static void HandleDocumentEntryComment(DocumentReference documentReference, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.Comment */
+        if (!string.IsNullOrEmpty(documentReference.Description))
+        {
+            var comment = documentReference.Description.Trim();
+
+            extrinsicObject.Description = new InternationalStringType(comment);
         }
-        else
+    }
+
+    private static void HandleDocumentEntryEventCode(DocumentReference documentReference, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.EventCodes */
+        var eventCodeList = documentReference.Context?.Event.ToCodings();
+
+        if (eventCodeList != null)
         {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            foreach (var e in eventCodeList)
             {
-                Severity = OperationOutcome.IssueSeverity.Warning,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No serviceStartTime found. (optional, but required if known)",
-                Location = ["DocumentReference.Context.Period.Start"]
-            });
-        }
-
-        /* XDSDocumentEntry.serviceStopTime */
-        if (!string.IsNullOrEmpty(documentReference.Context?.Period?.End))
-        {
-            var datePeriodTo = DateTime.Parse(documentReference.Context.Period.End);
-            extrinsicObject.AddSlot(new SlotType
-            {
-                Name = "serviceStopTime",
-                ValueList = new ValueListType
+                if (string.IsNullOrEmpty(e.Display))
                 {
-                    Value = [datePeriodTo.ToString(Constants.Hl7.Dtm.DtmFormat)]
-                }
-            });
-        }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
-            {
-                Severity = OperationOutcome.IssueSeverity.Warning,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No serviceStopTime found. (optional, but required if known)",
-                Location = ["DocumentReference.Context.Period.Start"]
-            });
-        }
-
-
-        /* XDSDocumentEntry.author */
-
-        // Build list of resource references for each category 
-        var listOrganization = new List<ResourceReference>();
-        var listPractitioner = new List<ResourceReference>();
-        var listPractitionerRole = new List<ResourceReference>();
-
-        foreach (var authorReference in documentReference.Author)
-        {
-            switch (GetAuthorReferenceTarget(documentReference, authorReference))
-            {
-                case "Organization":
-                    listOrganization.Add(authorReference);
-                    break;
-                case "Practitioner":
-                    listPractitioner.Add(authorReference);
-                    break;
-                case "PractitionerRole":
-                    listPractitionerRole.Add(authorReference);
-                    break;
-                default:
-                    operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-                    {
-                        Severity = OperationOutcome.IssueSeverity.Error,
-                        Code = OperationOutcome.IssueType.Unknown,
-                        Diagnostics = "Unexpected identifier type found. Not any of Organization, Practitioner or PractitionerRole",
-                        Location = ["DocumentReference.Author"]
-                    });
-                    break;
-            }
-        }
-
-        /*- Special case => just 1 practitioner and 1 organization provided in DocumentReference - without any practitionerRole -*/
-        if (listPractitioner.Count == 1 && listOrganization.Count == 1 && listPractitionerRole.Count == 0)
-        {
-            var listAuthorSlots = new List<SlotType>();
-            var practitionerReference = listPractitioner.FirstOrDefault();
-            var orgReference = listOrganization.FirstOrDefault();
-
-            var listProcessedOrganization = new List<ResourceReference>();
-
-            // Practitioner
-            AddAuthorPersonSlot(documentReference, practitionerReference, ref listAuthorSlots, ref operationOutcome);
-
-            if (practitionerReference != null)
-                listPractitioner.Remove(practitionerReference);
-
-            // Organization
-            AddAuthorInstitutionSlot(documentReference, orgReference, ref listOrganization, ref listProcessedOrganization, ref listAuthorSlots, ref operationOutcome);
-
-            if (orgReference != null)
-                listOrganization.Remove(orgReference);
-
-            extrinsicObject.AddClassification(new ClassificationType()
-            {
-                Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
-                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
-                ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = string.Empty,
-                Slot = [.. listAuthorSlots]
-            });
-        }
-
-        // Each practitioner has its own classification
-        if (listPractitioner.Count > 0)
-        {
-            var listProcessedPractitionerRole = new List<ResourceReference>();
-            var listProcessedPractitioner = new List<ResourceReference>();
-            var listProcessedOrganization = new List<ResourceReference>();
-            foreach (var practitionerReference in listPractitioner)
-            {
-                // Slots for each author
-                var listAuthorSlots = new List<SlotType>();
-
-                // Practitioner
-                AddAuthorPersonSlot(documentReference, practitionerReference, ref listAuthorSlots, ref operationOutcome);
-
-                foreach (var roleReference in listPractitionerRole)
-                {
-                    GetAuthorRefsAndRoleAndSpecialty(documentReference, roleReference, practitionerReference,
-                        out var orgReference,
-                        out var authorRole,
-                        out var authorSpecialty);
-
-                    // Process just in case that there is an organization-reference, otherwise just jump over
-                    // Neccessary for author.count > 1
-
-                    // Organization
-                    AddAuthorInstitutionSlot(documentReference, orgReference,
-                        ref listOrganization,
-                        ref listProcessedOrganization,
-                        ref listAuthorSlots,
-                        ref operationOutcome);
-                    if (orgReference != null)
-                    {
-                        listProcessedOrganization.Add(orgReference);
-                    }
-
-                    // Role
-                    AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
-
-                    // Specialty
-                    AddAuthorSpecialtySlot(authorSpecialty, ref listAuthorSlots, ref operationOutcome);
-
-                    // Add processed reference of PractitionerRole to processed list
-                    listProcessedPractitionerRole.Add(roleReference);
-
-                    extrinsicObject.AddClassification(new ClassificationType()
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
-                        ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
-                        ObjectType = Constants.Xds.ObjectTypes.Classification,
-                        NodeRepresentation = string.Empty,
-                        Slot = [.. listAuthorSlots]
-                    });
-                }
-                // Remove processed PractitionerRole from main list
-                foreach (var processedRole in listProcessedPractitionerRole)
-                {
-                    listPractitionerRole.Remove(processedRole);
-                }
-                listProcessedPractitionerRole.Clear();
-
-                // Add processed reference of PractitionerRole
-                listProcessedPractitioner.Add(practitionerReference);
-            }
-
-            // Remove processed Practitioner from main processing list
-            foreach (var processedPractitioner in listProcessedPractitioner)
-            {
-                listPractitioner.Remove(processedPractitioner);
-            }
-            listProcessedPractitioner.Clear();
-
-            // Remove processed Organization from main processing list
-            foreach (var processedOrganization in listProcessedOrganization)
-            {
-                if (processedOrganization == null)
-                {
-                    continue;
+                    e.Display = "Missing display value";
                 }
 
-                var processedOrg = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
-                if (processedOrg != null)
-                {
-                    listOrganization.Remove(processedOrg);
-                }
-            }
-            listProcessedOrganization.Clear();
-
-            // Just in case there is no Practitioner present at all
-            if (listPractitionerRole.Count > 0)
-            {
-                // Slots for each author
-                var listAuthorSlots = new List<SlotType>();
-
-                foreach (var roleReference in listPractitionerRole)
-                {
-                    // Build organization slots for PractitionerRole
-                    GetAuthorRefsAndRoleAndSpecialty(documentReference, roleReference,
-                            out var orgReference,
-                            out var authorRole,
-                            out var authorSpecialty);
-
-                    // Organization
-                    AddAuthorInstitutionSlot(documentReference, orgReference, ref listOrganization, ref listProcessedOrganization, ref listAuthorSlots, ref operationOutcome);
-                    if (orgReference != null)
-                    {
-                        listProcessedOrganization.Add(orgReference);
-                    }
-
-                    // Role
-                    AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
-
-                    // Specialty
-                    AddAuthorSpecialtySlot(authorSpecialty, ref listAuthorSlots, ref operationOutcome);
-
-                    extrinsicObject.AddClassification(new ClassificationType()
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
-                        ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
-                        ObjectType = Constants.Xds.ObjectTypes.Classification,
-                        NodeRepresentation = string.Empty,
-                        Slot = [.. listAuthorSlots]
-                    });
-
-                    listProcessedPractitionerRole.Add(roleReference);
-                }
-
-                // Remove processed PractitionerRole from main list
-                foreach (var processedRole in listProcessedPractitionerRole)
-                {
-                    listPractitionerRole.Remove(processedRole);
-                }
-                listProcessedPractitionerRole.Clear();
-
-                // Remove processed Organization from main list
-                foreach (var processedOrganization in listProcessedOrganization)
-                {
-                    if (processedOrganization == null)
-                    {
-                        continue;
-                    }
-
-                    var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
-
-                    if (processedOrganizations != null)
-                    {
-                        listOrganization.Remove(processedOrganizations);
-                    }
-                }
-                listProcessedOrganization.Clear();
-            }
-
-            // If there are only organization's details left
-            if (listOrganization.Count > 0)
-            {
-                // Slots for each author
-                var listAuthorSlots = new List<SlotType>();
-
-                foreach (var orgReference in listOrganization)
-                {
-                    // Organization
-                    AddAuthorInstitutionSlot(documentReference, orgReference, ref listOrganization, ref listProcessedOrganization, ref listAuthorSlots, ref operationOutcome);
-                    listProcessedOrganization.Add(orgReference);
-                }
-
-                extrinsicObject.AddClassification(new ClassificationType()
+                var classEventCodeList = new ClassificationType
                 {
                     Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
-                    ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
+                    ClassifiedObject = documentReference.Id ?? "Unknown",
+                    Name = new InternationalStringType(e.Display),
+                    ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.EventCodeList,
                     ObjectType = Constants.Xds.ObjectTypes.Classification,
-                    NodeRepresentation = string.Empty,
-                    Slot = [.. listAuthorSlots]
-                });
+                    NodeRepresentation = e.Code ?? "Unknown",
+                    Slot = []
+                };
 
-                // Remove processed Organization from main list
-                foreach (var processedOrganization in listProcessedOrganization)
+                if (!string.IsNullOrWhiteSpace(e.System))
                 {
-                    if (processedOrganization == null)
+                    classEventCodeList.AddSlot(new SlotType
                     {
-                        continue;
-                    }
-
-                    var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
-
-                    if (processedOrganizations != null)
-                    {
-                        listOrganization.Remove(processedOrganizations);
-                    }
-                }
-                listProcessedOrganization.Clear();
-            }
-        }
-
-        /* XDSDocumentEntry.formatCode */
-        var contentType = documentReference.Content.FirstOrDefault()?.Format;
-        if (contentType != null || contentType?.Code != null)
-        {
-            var contentTypeClassification = new ClassificationType()
-            {
-                Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
-                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.FormatCode,
-                ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = contentType.Code ?? "Unknown",
-                Slot = []
-            };
-
-            var name = contentType.Display ?? contentType.Code;
-            if (!string.IsNullOrEmpty(name))
-            {
-                contentTypeClassification.Name = new InternationalStringType(name);
-            }
-
-            if (!string.IsNullOrWhiteSpace(contentType.System))
-            {
-                contentTypeClassification.AddSlot(new SlotType()
-                {
-                    Name = "codingScheme",
-                    ValueList = new ValueListType()
-                    {
-                        Value =
-                        [contentType.System]
-                    }
-                });
-            }
-
-            extrinsicObject.AddClassification(contentTypeClassification);
-        }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No content type code found",
-                Location = ["DocumentReference.content[].Format"]
-            });
-
-        }
-
-        /* XDSDocumentEntry.HealthcareFacilityTypeCode */
-        var healthcareFacilityType = documentReference.Context?.FacilityType?.Coding.FirstOrDefault();
-
-        if (healthcareFacilityType != null)
-        {
-            var healthcareFacilityTypeClassification = new ClassificationType
-            {
-                Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id ?? "Unknown",
-                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode,
-                ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = healthcareFacilityType.Code ?? "Unknown",
-                Slot = []
-            };
-
-            var name = healthcareFacilityType.Display ?? healthcareFacilityType.Code;
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                healthcareFacilityTypeClassification.Name = new InternationalStringType(name);
-            }
-
-            if (!string.IsNullOrWhiteSpace(healthcareFacilityType.System))
-            {
-                healthcareFacilityTypeClassification.AddSlot(new SlotType
-                {
-                    Name = "codingScheme",
-                    ValueList = new ValueListType
-                    {
-                        Value = [healthcareFacilityType.System.NoUrn()]
-                    }
-                });
-            }
-
-            extrinsicObject.AddClassification(healthcareFacilityTypeClassification);
-
-        }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No facilityType code found",
-                Location = ["DocumentReference.context"]
-            });
-        }
-
-
-        /* XDSDocumentEntry.PracticeSettingCode */
-        var practiceSetting = documentReference.Context?.PracticeSetting?.Coding.FirstOrDefault();
-
-        if (practiceSetting != null)
-        {
-            var practiceSettingClassification = new ClassificationType
-            {
-                Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id ?? "Unknown",
-                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode,
-                ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = practiceSetting.Code ?? "Unknown",
-                Slot = []
-            };
-
-            var name = practiceSetting.Display ?? practiceSetting.Code;
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                practiceSettingClassification.Name = new InternationalStringType(name);
-            }
-
-            if (!string.IsNullOrWhiteSpace(practiceSetting.System))
-            {
-                practiceSettingClassification.AddSlot(new SlotType
-                {
-                    Name = "codingScheme",
-                    ValueList = new ValueListType
-                    {
-                        Value = [practiceSetting.System.NoUrn()]
-                    }
-                });
-            }
-
-            extrinsicObject.AddClassification(practiceSettingClassification);
-        }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No practiceSetting found",
-                Location = ["DocumentReference.context"]
-            });
-        }
-
-
-        /* XDSDocumentEntry.classCode */
-        var classCode = documentReference.Category.FirstOrDefault()?.Coding.FirstOrDefault();
-        if (classCode != null)
-        {
-            var classCodeClassification = new ClassificationType
-            {
-                Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
-                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.ClassCode,
-                ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = classCode.Code ?? "Unknown",
-                Slot = []
-            };
-
-            var name = classCode.Display ?? classCode.Code;
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                classCodeClassification.Name = new InternationalStringType(name);
-            }
-
-            if (!string.IsNullOrWhiteSpace(classCode.System))
-            {
-                classCodeClassification.AddSlot(new SlotType
-                {
-                    Name = "codingScheme",
-                    ValueList = new ValueListType
-                    {
-                        Value = [classCode.System.NoUrn()]
-                    }
-                });
-            }
-
-            extrinsicObject.AddClassification(classCodeClassification);
-        }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No class code found",
-                Location = ["DocumentReference.category"]
-            });
-
-        }
-
-        /* XDSDocumentEntry.typeCode */
-        var typeCode = documentReference!.Type?.Coding.FirstOrDefault();
-        if (typeCode != null)
-        {
-            var typeCodeClassification = new ClassificationType
-            {
-                Id = Guid.NewGuid().ToString(),
-                ClassifiedObject = documentReference?.Id?.NoUrn() ?? "Unknown",
-                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.TypeCode,
-                ObjectType = Constants.Xds.ObjectTypes.Classification,
-                NodeRepresentation = typeCode.Code ?? "Unknown",
-                Slot = []
-            };
-
-            var name = typeCode.Display ?? typeCode.Code;
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                typeCodeClassification.Name = new InternationalStringType(name);
-            }
-
-            if (!string.IsNullOrWhiteSpace(typeCode.System))
-            {
-                typeCodeClassification.AddSlot(new SlotType
-                {
-                    Name = "codingScheme",
-                    ValueList = new ValueListType
-                    {
-                        Value = [typeCode.System.Replace("urn:oid:", "")]
-                    }
-                });
-            }
-
-            extrinsicObject.AddClassification(typeCodeClassification);
-        }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No type code found",
-                Location = ["DocumentReference.type.coding"]
-            });
-
-        }
-
-        /* XDSDocumentEntry.ConfidentialityCode (1..*) - required */
-
-        if (documentReference!.SecurityLabel.Count > 0 ||
-            documentReference!.SecurityLabel.FirstOrDefault()?.Coding.Count > 0)
-        {
-            foreach (var securityLabelConcept in documentReference.SecurityLabel)
-            {
-                foreach (var securityLabelConceptCoding in securityLabelConcept.Coding)
-                {
-                    var securityLabelConceptClassification = new ClassificationType
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        ClassifiedObject = documentReference.Id ?? "Unknown",
-                        ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode,
-                        ObjectType = Constants.Xds.ObjectTypes.Classification,
-                        NodeRepresentation = securityLabelConceptCoding.Code ?? "Unknown",
-                        Slot = []
-                    };
-
-                    var name = securityLabelConceptCoding.Display ?? securityLabelConceptCoding.Code;
-
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        securityLabelConceptClassification.Name = new InternationalStringType(name);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(securityLabelConceptCoding.System))
-                    {
-                        securityLabelConceptClassification.AddSlot(new SlotType
+                        Name = "codingScheme",
+                        ValueList = new ValueListType
                         {
-                            Name = "codingScheme",
-                            ValueList = new ValueListType
-                            {
-                                Value = [securityLabelConceptCoding.System.NoUrn()]
-                            }
-                        });
-                    }
-
-                    extrinsicObject.AddClassification(securityLabelConceptClassification);
+                            Value = [e.System]
+                        }
+                    });
                 }
+
+                extrinsicObject.AddClassification(classEventCodeList);
             }
         }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No ConfidentialityCode found",
-                Location = ["DocumentReference.ConfidentialityCode"]
-            });
+    }
 
-        }
-
-        /* XDSDocumentEntry.uniqueId */
-        if (!string.IsNullOrWhiteSpace(documentReference.Id) || !string.IsNullOrWhiteSpace(fhirBinary?.Id))
-        {
-            extrinsicObject.AddExternalIdentifier(new ExternalIdentifierType()
-            {
-                Id = Guid.NewGuid().ToString(),
-                ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
-                RegistryObject = documentReference.Id,
-                IdentificationScheme = Constants.Xds.Uuids.DocumentEntry.UniqueId,
-                Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.DocumentEntryUniqueId),
-                Value = fhirBinary?.Id?.NoUrn() ?? documentReference.Id,
-            });
-        }
-        else
-        {
-            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-            {
-                Severity = OperationOutcome.IssueSeverity.Error,
-                Code = OperationOutcome.IssueType.NotFound,
-                Diagnostics = "No unique id found",
-                Location = ["DocumentReference"]
-            });
-
-        }
-
+    private static void HandleDocumentEntryPatientId(Patient? bundlePatient, DocumentReference documentReference, OperationOutcome operationOutcome, Identifier? patientId, string? gpiOid, ExtrinsicObjectType extrinsicObject)
+    {
         /* XDSDocumentEntry.patientId */
         var patientIdentifierFromDocRef = GetPatient(bundlePatient, documentReference, gpiOid);
         var patientIdentifierFromPix = GetPatient(patientId, gpiOid);
@@ -1272,65 +673,709 @@ public class FhirToXdsTransformerService
             });
 
         }
+    }
 
-        /* XDSDocumentEntry.EventCodes */
-        var eventCodeList = documentReference.Context?.Event.ToCodings();
-
-        if (eventCodeList != null)
+    private static void HandleDocumentEntryUniqueId(DocumentReference documentReference, Binary? fhirBinary, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.uniqueId */
+        if (!string.IsNullOrWhiteSpace(documentReference.Id) || !string.IsNullOrWhiteSpace(fhirBinary?.Id))
         {
-            foreach (var e in eventCodeList)
+            extrinsicObject.AddExternalIdentifier(new ExternalIdentifierType()
             {
-                if (string.IsNullOrEmpty(e.Display))
-                {
-                    e.Display = "Missing display value";
-                }
+                Id = Guid.NewGuid().ToString(),
+                ObjectType = Constants.Xds.ObjectTypes.ExternalIdentifier,
+                RegistryObject = documentReference.Id,
+                IdentificationScheme = Constants.Xds.Uuids.DocumentEntry.UniqueId,
+                Name = new InternationalStringType(Constants.Xds.ExternalIdentifierNames.DocumentEntryUniqueId),
+                Value = fhirBinary?.Id?.NoUrn() ?? documentReference.Id,
+            });
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No unique id found",
+                Location = ["DocumentReference"]
+            });
+        }
+    }
 
-                var classEventCodeList = new ClassificationType
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    ClassifiedObject = documentReference.Id ?? "Unknown",
-                    Name = new InternationalStringType(e.Display),
-                    ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.EventCodeList,
-                    ObjectType = Constants.Xds.ObjectTypes.Classification,
-                    NodeRepresentation = e.Code ?? "Unknown",
-                    Slot = []
-                };
+    private static void HandleDocumentEntryConfidentialityCode(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.ConfidentialityCode (1..*) - required */
 
-                if (!string.IsNullOrWhiteSpace(e.System))
+        if (documentReference!.SecurityLabel.Count > 0 ||
+            documentReference!.SecurityLabel.FirstOrDefault()?.Coding.Count > 0)
+        {
+            foreach (var securityLabelConcept in documentReference.SecurityLabel)
+            {
+                foreach (var securityLabelConceptCoding in securityLabelConcept.Coding)
                 {
-                    classEventCodeList.AddSlot(new SlotType
+                    var securityLabelConceptClassification = new ClassificationType
                     {
-                        Name = "codingScheme",
-                        ValueList = new ValueListType
-                        {
-                            Value = [e.System]
-                        }
-                    });
-                }
+                        Id = Guid.NewGuid().ToString(),
+                        ClassifiedObject = documentReference.Id ?? "Unknown",
+                        ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.ConfidentialityCode,
+                        ObjectType = Constants.Xds.ObjectTypes.Classification,
+                        NodeRepresentation = securityLabelConceptCoding.Code ?? "Unknown",
+                        Slot = []
+                    };
 
-                extrinsicObject.AddClassification(classEventCodeList);
+                    var name = securityLabelConceptCoding.Display ?? securityLabelConceptCoding.Code;
+
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        securityLabelConceptClassification.Name = new InternationalStringType(name);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(securityLabelConceptCoding.System))
+                    {
+                        securityLabelConceptClassification.AddSlot(new SlotType
+                        {
+                            Name = "codingScheme",
+                            ValueList = new ValueListType
+                            {
+                                Value = [securityLabelConceptCoding.System.NoUrn()]
+                            }
+                        });
+                    }
+
+                    extrinsicObject.AddClassification(securityLabelConceptClassification);
+                }
             }
         }
-
-        /* XDSDocumentEntry.Comment */
-        if (!string.IsNullOrEmpty(documentReference.Description))
+        else
         {
-            var comment = documentReference.Description.Trim();
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No ConfidentialityCode found",
+                Location = ["DocumentReference.ConfidentialityCode"]
+            });
 
-            extrinsicObject.Description = new InternationalStringType(comment);
         }
+    }
 
-        return new ServiceResultDto<ExtrinsicObjectType>()
+    private static void HandleDocumentEntryTypeCode(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.typeCode */
+        var typeCode = documentReference!.Type?.Coding.FirstOrDefault();
+        if (typeCode != null)
         {
-            OperationOutcome = operationOutcome,
-            Value = extrinsicObject
+            var typeCodeClassification = new ClassificationType
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = documentReference?.Id?.NoUrn() ?? "Unknown",
+                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.TypeCode,
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                NodeRepresentation = typeCode.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = typeCode.Display ?? typeCode.Code;
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                typeCodeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(typeCode.System))
+            {
+                typeCodeClassification.AddSlot(new SlotType
+                {
+                    Name = "codingScheme",
+                    ValueList = new ValueListType
+                    {
+                        Value = [typeCode.System.Replace("urn:oid:", "")]
+                    }
+                });
+            }
+
+            extrinsicObject.AddClassification(typeCodeClassification);
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No type code found",
+                Location = ["DocumentReference.type.coding"]
+            });
+
+        }
+    }
+
+    private static void HandleDocumentEntryClassCode(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.classCode */
+        var classCode = documentReference.Category.FirstOrDefault()?.Coding.FirstOrDefault();
+        if (classCode != null)
+        {
+            var classCodeClassification = new ClassificationType
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
+                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.ClassCode,
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                NodeRepresentation = classCode.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = classCode.Display ?? classCode.Code;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                classCodeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(classCode.System))
+            {
+                classCodeClassification.AddSlot(new SlotType
+                {
+                    Name = "codingScheme",
+                    ValueList = new ValueListType
+                    {
+                        Value = [classCode.System.NoUrn()]
+                    }
+                });
+            }
+
+            extrinsicObject.AddClassification(classCodeClassification);
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No class code found",
+                Location = ["DocumentReference.category"]
+            });
+
+        }
+    }
+
+    private static void HandleDocumentEntryCreationTime(Attachment? attachment, ExtrinsicObjectType extrinsicObject)
+    {
+        if (!string.IsNullOrWhiteSpace(attachment?.Creation))
+        {
+            var documentCreationTime = DateTime.Parse(attachment.Creation ?? DateTime.MinValue.ToString(CultureInfo.InvariantCulture)).ToUniversalTime();
+            /* XDSDocumentEntry.creationTime - mandatory */
+            extrinsicObject.AddSlot(new(Constants.Xds.SlotNames.CreationTime, documentCreationTime.ToString(Constants.Hl7.Dtm.DtmFormat)));
+        }
+        else
+        {
+            throw new ArgumentNullException(nameof(attachment), "Creation time not set. 'attachment.Creation' (ExtrinsicObject.Slot(creationTime))");
+        }
+    }
+
+    private static void HandleDocumentEntryLanguageCode(Attachment? attachment, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.languageCode - mandatory */
+        extrinsicObject.AddSlot(new(Constants.Xds.SlotNames.LanguageCode, attachment?.Language ?? "Unknown"));
+    }
+
+    private static void HandleDocumentEntrySourcePatientId(Identifier? patientId, string? gpiOid, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.sourcePatientId - mandatory */
+        var patientCx = new CX(patientId?.Value ?? "Unknown", gpiOid);
+        extrinsicObject.AddSlot(new(Constants.Xds.SlotNames.SourcePatientId, patientCx.Serialize()?.Replace("&&", "") ?? throw new ArgumentNullException("Patient Identifier cannot be null", "ExtrinsicObject.Slot(sourcePatientId)")));
+    }
+
+    private static void HandleDocumentEntryPracticeSettingCode(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.PracticeSettingCode */
+        var practiceSetting = documentReference.Context?.PracticeSetting?.Coding.FirstOrDefault();
+
+        if (practiceSetting != null)
+        {
+            var practiceSettingClassification = new ClassificationType
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = documentReference.Id ?? "Unknown",
+                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.PracticeSettingCode,
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                NodeRepresentation = practiceSetting.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = practiceSetting.Display ?? practiceSetting.Code;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                practiceSettingClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(practiceSetting.System))
+            {
+                practiceSettingClassification.AddSlot(new SlotType
+                {
+                    Name = "codingScheme",
+                    ValueList = new ValueListType
+                    {
+                        Value = [practiceSetting.System.NoUrn()]
+                    }
+                });
+            }
+
+            extrinsicObject.AddClassification(practiceSettingClassification);
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No practiceSetting found",
+                Location = ["DocumentReference.context"]
+            });
+        }
+    }
+
+    private static void HandleDocumentEntryHealthcareFacilityTypeCode(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.HealthcareFacilityTypeCode */
+        var healthcareFacilityType = documentReference.Context?.FacilityType?.Coding.FirstOrDefault();
+
+        if (healthcareFacilityType != null)
+        {
+            var healthcareFacilityTypeClassification = new ClassificationType
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = documentReference.Id ?? "Unknown",
+                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.HealthCareFacilityTypeCode,
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                NodeRepresentation = healthcareFacilityType.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = healthcareFacilityType.Display ?? healthcareFacilityType.Code;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                healthcareFacilityTypeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(healthcareFacilityType.System))
+            {
+                healthcareFacilityTypeClassification.AddSlot(new SlotType
+                {
+                    Name = "codingScheme",
+                    ValueList = new ValueListType
+                    {
+                        Value = [healthcareFacilityType.System.NoUrn()]
+                    }
+                });
+            }
+
+            extrinsicObject.AddClassification(healthcareFacilityTypeClassification);
+
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No facilityType code found",
+                Location = ["DocumentReference.context"]
+            });
+        }
+    }
+
+    private static void HandleDocumentEntryFormatCode(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.formatCode */
+        var contentType = documentReference.Content.FirstOrDefault()?.Format;
+        if (contentType != null || contentType?.Code != null)
+        {
+            var contentTypeClassification = new ClassificationType()
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
+                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.FormatCode,
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                NodeRepresentation = contentType.Code ?? "Unknown",
+                Slot = []
+            };
+
+            var name = contentType.Display ?? contentType.Code;
+            if (!string.IsNullOrEmpty(name))
+            {
+                contentTypeClassification.Name = new InternationalStringType(name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(contentType.System))
+            {
+                contentTypeClassification.AddSlot(new SlotType()
+                {
+                    Name = "codingScheme",
+                    ValueList = new ValueListType()
+                    {
+                        Value =
+                        [contentType.System]
+                    }
+                });
+            }
+
+            extrinsicObject.AddClassification(contentTypeClassification);
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No content type code found",
+                Location = ["DocumentReference.content[].Format"]
+            });
+
+        }
+    }
+
+    private static string GetDocumentReferenceStatus(DocumentReference documentReference)
+    {
+        return documentReference.Status switch
+        {
+            DocumentReferenceStatus.Current => "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved",
+            DocumentReferenceStatus.Superseded => "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated",
+            _ => "urn:oasis:names:tc:ebxml-regrep:StatusType:Deprecated"
         };
     }
 
+    private void HandleDocumentEntryAuthors(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.author */
+        var authorClassifications = GetDocumentReferenceAuthors(documentReference, out var outcome);
+        if (authorClassifications != null)
+        {
+            extrinsicObject.AddClassificationRange(authorClassifications);
+        }
+
+        operationOutcome.Issue.AddRange(outcome.Issue);
+    }
+
+    private static void HandleDocumentEntryServiceStopTime(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.serviceStopTime */
+        if (!string.IsNullOrEmpty(documentReference.Context?.Period?.End))
+        {
+            var datePeriodTo = DateTime.Parse(documentReference.Context.Period.End);
+            extrinsicObject.AddSlot(new SlotType(Constants.Xds.SlotNames.ServiceStopTime, datePeriodTo.ToString(Constants.Hl7.Dtm.DtmFormat)));
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Warning,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No serviceStopTime found. (optional, but required if known)",
+                Location = ["DocumentReference.Context.Period.Start"]
+            });
+        }
+    }
+
+    private static void HandleDocumentEntryServiceStartTime(DocumentReference documentReference, OperationOutcome operationOutcome, ExtrinsicObjectType extrinsicObject)
+    {
+        /* XDSDocumentEntry.serviceStartTime */
+        if (!string.IsNullOrEmpty(documentReference.Context?.Period?.Start))
+        {
+            var datePeriodFrom = DateTime.Parse(documentReference.Context.Period.Start);
+            extrinsicObject.AddSlot(new SlotType(Constants.Xds.SlotNames.ServiceStartTime, datePeriodFrom.ToString(Constants.Hl7.Dtm.DtmFormat)));
+        }
+        else
+        {
+            operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Warning,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = "No serviceStartTime found. (optional, but required if known)",
+                Location = ["DocumentReference.Context.Period.Start"]
+            });
+        }
+    }
+
+    private ClassificationType[] GetDocumentReferenceAuthors(DocumentReference documentReference, out OperationOutcome operationOutcome)
+    {
+        operationOutcome = new();
+        var classificationList = new List<ClassificationType>();
+
+        // Build list of resource references for each category 
+        var listOrganization = new List<ResourceReference>();
+        var listPractitioner = new List<ResourceReference>();
+        var listPractitionerRole = new List<ResourceReference>();
+
+        foreach (var authorReference in documentReference.Author)
+        {
+            switch (GetAuthorReferenceTarget(documentReference, authorReference))
+            {
+                case "Organization":
+                    listOrganization.Add(authorReference);
+                    break;
+                case "Practitioner":
+                    listPractitioner.Add(authorReference);
+                    break;
+                case "PractitionerRole":
+                    listPractitionerRole.Add(authorReference);
+                    break;
+                default:
+                    operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+                    {
+                        Severity = OperationOutcome.IssueSeverity.Error,
+                        Code = OperationOutcome.IssueType.Unknown,
+                        Diagnostics = "Unexpected identifier type found. Not any of Organization, Practitioner or PractitionerRole",
+                        Location = ["DocumentReference.Author"]
+                    });
+                    break;
+            }
+        }
+
+        /*- Special case => just 1 practitioner and 1 organization provided in DocumentReference - without any practitionerRole -*/
+        if (listPractitioner.Count == 1 && listOrganization.Count == 1 && listPractitionerRole.Count == 0)
+        {
+            var listAuthorSlots = new List<SlotType>();
+            var practitionerReference = listPractitioner.FirstOrDefault();
+            var orgReference = listOrganization.FirstOrDefault();
+
+            var listProcessedOrganization = new List<ResourceReference>();
+
+            // Practitioner
+            AddAuthorPersonSlot(documentReference, practitionerReference, ref listAuthorSlots, ref operationOutcome);
+
+            if (practitionerReference != null)
+                listPractitioner.Remove(practitionerReference);
+
+            // Organization
+            AddAuthorInstitutionSlot(documentReference, orgReference, ref listOrganization, ref listProcessedOrganization, ref listAuthorSlots, ref operationOutcome);
+
+            if (orgReference != null)
+                listOrganization.Remove(orgReference);
+
+            classificationList.Add(new ClassificationType()
+            {
+                Id = Guid.NewGuid().ToString(),
+                ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
+                ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
+                ObjectType = Constants.Xds.ObjectTypes.Classification,
+                NodeRepresentation = string.Empty,
+                Slot = [.. listAuthorSlots]
+            });
+        }
+
+        // Each practitioner has its own classification
+        if (listPractitioner.Count > 0)
+        {
+            var listProcessedPractitionerRole = new List<ResourceReference>();
+            var listProcessedPractitioner = new List<ResourceReference>();
+            var listProcessedOrganization = new List<ResourceReference>();
+            foreach (var practitionerReference in listPractitioner)
+            {
+                // Slots for each author
+                var listAuthorSlots = new List<SlotType>();
+
+                // Practitioner
+                AddAuthorPersonSlot(documentReference, practitionerReference, ref listAuthorSlots, ref operationOutcome);
+
+                foreach (var roleReference in listPractitionerRole)
+                {
+                    GetAuthorRefsAndRoleAndSpecialty(documentReference, roleReference, practitionerReference,
+                        out var orgReference,
+                        out var authorRole,
+                        out var authorSpecialty);
+
+                    // Process just in case that there is an organization-reference, otherwise just jump over
+                    // Neccessary for author.count > 1
+
+                    // Organization
+                    AddAuthorInstitutionSlot(documentReference, orgReference,
+                        ref listOrganization,
+                        ref listProcessedOrganization,
+                        ref listAuthorSlots,
+                        ref operationOutcome);
+                    if (orgReference != null)
+                    {
+                        listProcessedOrganization.Add(orgReference);
+                    }
+
+                    // Role
+                    AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
+
+                    // Specialty
+                    AddAuthorSpecialtySlot(authorSpecialty, ref listAuthorSlots, ref operationOutcome);
+
+                    // Add processed reference of PractitionerRole to processed list
+                    listProcessedPractitionerRole.Add(roleReference);
+
+                    classificationList.Add(new ClassificationType()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
+                        ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
+                        ObjectType = Constants.Xds.ObjectTypes.Classification,
+                        NodeRepresentation = string.Empty,
+                        Slot = [.. listAuthorSlots]
+                    });
+                }
+                // Remove processed PractitionerRole from main list
+                foreach (var processedRole in listProcessedPractitionerRole)
+                {
+                    listPractitionerRole.Remove(processedRole);
+                }
+                listProcessedPractitionerRole.Clear();
+
+                // Add processed reference of PractitionerRole
+                listProcessedPractitioner.Add(practitionerReference);
+            }
+
+            // Remove processed Practitioner from main processing list
+            foreach (var processedPractitioner in listProcessedPractitioner)
+            {
+                listPractitioner.Remove(processedPractitioner);
+            }
+            listProcessedPractitioner.Clear();
+
+            // Remove processed Organization from main processing list
+            foreach (var processedOrganization in listProcessedOrganization)
+            {
+                if (processedOrganization == null)
+                {
+                    continue;
+                }
+
+                var processedOrg = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
+                if (processedOrg != null)
+                {
+                    listOrganization.Remove(processedOrg);
+                }
+            }
+            listProcessedOrganization.Clear();
+
+            // Just in case there is no Practitioner present at all
+            if (listPractitionerRole.Count > 0)
+            {
+                // Slots for each author
+                var listAuthorSlots = new List<SlotType>();
+
+                foreach (var roleReference in listPractitionerRole)
+                {
+                    // Build organization slots for PractitionerRole
+                    GetAuthorRefsAndRoleAndSpecialty(documentReference, roleReference,
+                            out var orgReference,
+                            out var authorRole,
+                            out var authorSpecialty);
+
+                    // Organization
+                    AddAuthorInstitutionSlot(documentReference, orgReference, ref listOrganization, ref listProcessedOrganization, ref listAuthorSlots, ref operationOutcome);
+                    if (orgReference != null)
+                    {
+                        listProcessedOrganization.Add(orgReference);
+                    }
+
+                    // Role
+                    AddAuthorRoleSlot(authorRole, ref listAuthorSlots, ref operationOutcome);
+
+                    // Specialty
+                    AddAuthorSpecialtySlot(authorSpecialty, ref listAuthorSlots, ref operationOutcome);
+
+                    classificationList.Add(new ClassificationType()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
+                        ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
+                        ObjectType = Constants.Xds.ObjectTypes.Classification,
+                        NodeRepresentation = string.Empty,
+                        Slot = [.. listAuthorSlots]
+                    });
+
+                    listProcessedPractitionerRole.Add(roleReference);
+                }
+
+                // Remove processed PractitionerRole from main list
+                foreach (var processedRole in listProcessedPractitionerRole)
+                {
+                    listPractitionerRole.Remove(processedRole);
+                }
+                listProcessedPractitionerRole.Clear();
+
+                // Remove processed Organization from main list
+                foreach (var processedOrganization in listProcessedOrganization)
+                {
+                    if (processedOrganization == null)
+                    {
+                        continue;
+                    }
+
+                    var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
+
+                    if (processedOrganizations != null)
+                    {
+                        listOrganization.Remove(processedOrganizations);
+                    }
+                }
+                listProcessedOrganization.Clear();
+            }
+
+            // If there are only organization's details left
+            if (listOrganization.Count > 0)
+            {
+                // Slots for each author
+                var listAuthorSlots = new List<SlotType>();
+
+                foreach (var orgReference in listOrganization)
+                {
+                    // Organization
+                    AddAuthorInstitutionSlot(documentReference, orgReference, ref listOrganization, ref listProcessedOrganization, ref listAuthorSlots, ref operationOutcome);
+                    listProcessedOrganization.Add(orgReference);
+                }
+
+                classificationList.Add(new ClassificationType()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ClassifiedObject = documentReference.Id?.NoUrn() ?? "Unknown",
+                    ClassificationScheme = Constants.Xds.Uuids.DocumentEntry.Author,
+                    ObjectType = Constants.Xds.ObjectTypes.Classification,
+                    NodeRepresentation = string.Empty,
+                    Slot = [.. listAuthorSlots]
+                });
+
+                // Remove processed Organization from main list
+                foreach (var processedOrganization in listProcessedOrganization)
+                {
+                    if (processedOrganization == null)
+                    {
+                        continue;
+                    }
+
+                    var processedOrganizations = listOrganization.FirstOrDefault(x => x.Reference == processedOrganization.Reference);
+
+                    if (processedOrganizations != null)
+                    {
+                        listOrganization.Remove(processedOrganizations);
+                    }
+                }
+                listProcessedOrganization.Clear();
+            }
+        }
+
+        return classificationList.ToArray();
+    }
+        
     private static void AddAuthorPersonSlot(DocumentReference documentReference, ResourceReference? practitionerReference, ref List<SlotType> listAuthorSlots, ref OperationOutcome operationOutcome)
     {
         var refAuthorPerson = GetAuthorPerson(documentReference, practitionerReference);
-        if (refAuthorPerson == null)
+        if (refAuthorPerson != null)
+        {
+            var refAuthorPersonString = refAuthorPerson.Serialize()?.Replace("&&", "");
+
+            if (!string.IsNullOrWhiteSpace(refAuthorPersonString))
+            {
+                listAuthorSlots.Add(new SlotType(Constants.Xds.SlotNames.AuthorPerson, refAuthorPersonString));
+            }
+        }
+        else
         {
             operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
             {
@@ -1339,24 +1384,6 @@ public class FhirToXdsTransformerService
                 Diagnostics = "No author person found.",
                 Location = ["DocumentReference.Author.authorPerson"]
             });
-        }
-        else
-        {
-            var refAuthorPersonString = refAuthorPerson.Serialize()?.Replace("&&", "");
-
-            if (!string.IsNullOrWhiteSpace(refAuthorPersonString))
-            {
-
-                listAuthorSlots.Add(
-                    new SlotType()
-                    {
-                        Name = "authorPerson",
-                        ValueList = new ValueListType()
-                        {
-                            Value = [refAuthorPersonString]
-                        }
-                    });
-            }
         }
     }
 
@@ -1431,7 +1458,11 @@ public class FhirToXdsTransformerService
         ref List<SlotType> listAuthorSlots,
         ref OperationOutcome operationOutcome)
     {
-        if (authorSpecialty == null)
+        if (authorSpecialty != null)
+        {
+            listAuthorSlots.Add(new SlotType(Constants.Xds.SlotNames.AuthorSpecialty, [.. authorSpecialty]));
+        }
+        else
         {
             operationOutcome!.AddIssue(new OperationOutcome.IssueComponent()
             {
@@ -1441,23 +1472,15 @@ public class FhirToXdsTransformerService
                 Location = ["DocumentReference.Author.authorSpecialty"]
             });
         }
-        else
-        {
-            listAuthorSlots.Add(
-            new SlotType()
-            {
-                Name = "authorSpecialty",
-                ValueList = new ValueListType()
-                {
-                    Value = [.. authorSpecialty]
-                }
-            });
-        }
     }
 
     private static void AddAuthorRoleSlot(List<string>? authorRole, ref List<SlotType> listAuthorSlots, ref OperationOutcome operationOutcome)
     {
-        if (authorRole == null)
+        if (authorRole != null)
+        {
+            listAuthorSlots.Add(new SlotType(Constants.Xds.SlotNames.AuthorRole, [.. authorRole]));
+        }
+        else
         {
             operationOutcome.AddIssue(new OperationOutcome.IssueComponent()
             {
@@ -1465,18 +1488,6 @@ public class FhirToXdsTransformerService
                 Code = OperationOutcome.IssueType.NotFound,
                 Diagnostics = "No author role found.",
                 Location = ["DocumentReference.Author.PractitionerRole"]
-            });
-        }
-        else
-        {
-            listAuthorSlots.Add(
-            new SlotType()
-            {
-                Name = "authorRole",
-                ValueList = new ValueListType()
-                {
-                    Value = [.. authorRole]
-                }
             });
         }
     }
@@ -1496,17 +1507,7 @@ public class FhirToXdsTransformerService
             Id = Guid.NewGuid().ToString(),
             ObjectType = Constants.Xds.ObjectTypes.Association,
             AssociationTypeData = Constants.Xds.AssociationType.HasMember,
-            Slot =
-            [
-                new SlotType()
-            {
-                Name = Constants.Xds.SlotNames.SubmissionSetStatus,
-                ValueList = new()
-                {
-                    Value = ["Original"]  // <== hardcoded, TBD
-                }
-            }
-            ]
+            Slot = [new SlotType(Constants.Xds.SlotNames.SubmissionSetStatus, "Original")]
         };
 
         if (extrinsicObject?.Id != null && registryPackage?.Id != null)
@@ -1607,7 +1608,7 @@ public class FhirToXdsTransformerService
 
         var deptIdentifier = authorDept.Identifier.FirstOrDefault();
 
-        if (deptIdentifier?.System.IsAnyOf(department,departmentAlternate) == true)
+        if (deptIdentifier?.System.IsAnyOf(department, departmentAlternate) == true)
         {
             deptOid = deptIdentifier.System;
             deptName = deptIdentifier.Value;
@@ -1641,7 +1642,7 @@ public class FhirToXdsTransformerService
 
         // Define if department is RESH-type (urn:oid:***.102) or evt. defined with nhn-oid for department (urn:oid:***.390)
         // potentionally can be expressed as HL7-code "dept" which should be also accepted
-        
+
         var deptType = authorDept.Type.FirstOrDefault()?.Coding.FirstOrDefault();
 
         var deptOid = "";
@@ -1649,7 +1650,7 @@ public class FhirToXdsTransformerService
 
         var departmentAlternate = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities).GetFirstValueByName("DepartmentAlternate");
         var department = _terminologyService.GetCodeSystemByKey(CodeSystemNames.Other.OrganizationAssigningAuthorities).GetFirstValueByName("Department");
-        
+
         if (deptType is { System: "http://terminology.hl7.org/CodeSystem/organization-type", Code: "dept" })
         {
             deptOid = departmentAlternate;
@@ -1658,7 +1659,7 @@ public class FhirToXdsTransformerService
 
         var deptIdentifier = authorDept.Identifier.FirstOrDefault();
 
-        if (deptIdentifier?.System.IsAnyOf(department,departmentAlternate) == true)
+        if (deptIdentifier?.System.IsAnyOf(department, departmentAlternate) == true)
         {
             deptOid = deptIdentifier.System;
             deptName = deptIdentifier.Value;
@@ -1674,7 +1675,7 @@ public class FhirToXdsTransformerService
             },
             OrganizationIdentifier = authorDept.Identifier.FirstOrDefault()?.Value ?? $"name-only:{deptName}"
         };
-        
+
         return authorDepartment;
     }
 
@@ -2008,10 +2009,9 @@ public class FhirToXdsTransformerService
 
         if (!string.IsNullOrWhiteSpace(attachmentUrl))
         {
-            // Normalize reference (strip resource prefix if present)
-            var normalizedRef = attachmentUrl.StartsWith("Binary/", StringComparison.OrdinalIgnoreCase)
-                ? attachmentUrl
-                : attachmentUrl;
+            //// Normalize reference (strip resource prefix if present)
+            //var normalizedRef = attachmentUrl.StartsWith("Binary/", StringComparison.OrdinalIgnoreCase) ? attachmentUrl : attachmentUrl;
+            var normalizedRef = attachmentUrl;
 
             var matchedEntry = bundle.Entry.FirstOrDefault(e =>
                 string.Equals(e.FullUrl, normalizedRef, StringComparison.OrdinalIgnoreCase));
@@ -2044,13 +2044,9 @@ public class FhirToXdsTransformerService
             {
                 Severity = OperationOutcome.IssueSeverity.Warning,
                 Code = OperationOutcome.IssueType.Informational,
-                Diagnostics =
-                    $"Binary matched to DocumentReference '{documentReference.Id}' using index fallback. " +
-                    $"Consider using DocumentReference.content.attachment.url referencing Bundle.entry.fullUrl.",
-                Location = new[]
-                {
-                "DocumentReference.content.attachment.url"
-            }
+                Diagnostics = $"Binary matched to DocumentReference '{documentReference.Id}' using index fallback. " +
+                $"Consider using DocumentReference.content.attachment.url referencing Bundle.entry.fullUrl.",
+                Location = ["DocumentReference.content.attachment.url"]
             });
         }
 
@@ -2200,10 +2196,5 @@ public class FhirToXdsTransformerService
             Error("All non-sign relationships must reference the same target document.");
 
         return operationOutcome;
-    }
-
-    public object CreateSoapObjectFromComprehensiveBundle(Bundle fhirBundle, Patient? patient, List<DocumentReference> documentReferences, List? submissionSetList, List<Binary> fhirBinaries, object value)
-    {
-        throw new NotImplementedException();
     }
 }

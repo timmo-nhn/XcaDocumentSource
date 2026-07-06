@@ -3,7 +3,6 @@ using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Tests.Helpers;
-using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests.UnitTests;

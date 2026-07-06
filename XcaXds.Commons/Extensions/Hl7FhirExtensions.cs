@@ -81,4 +81,9 @@ public static class Hl7FhirExtensions
     {
         return resource.Select(res => GetAsResourceReference(res)).ToList();
     }
+
+    public static bool IssuesOfSeverity(this OperationOutcome outcome, params OperationOutcome.IssueSeverity[] severities)
+    {
+        return severities.Any(sev => outcome.Issue.Any(issue => sev.Equals(issue.Severity)));
+    }
 }

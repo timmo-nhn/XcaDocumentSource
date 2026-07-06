@@ -15,7 +15,6 @@ using XcaXds.Shared.Extensions;
 using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
-using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests.IntegrationTests;
@@ -64,11 +63,11 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
-        var content = await firstResponse.Content.ReadAsStringAsync();
+        var content = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();
@@ -119,7 +118,105 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         var fhirParser = new FhirJsonDeserializer();
         var fhirBundle = fhirParser.DeserializeResource(fhirProvideBundle);
 
-        var provideBundleDocumentUniqueId = fhirBundle is Bundle bundle 
+        var provideBundleDocumentUniqueId = fhirBundle is Bundle bundle
+            ? bundle.Entry
+                .Select(e => e.Resource)
+                .OfType<Binary>()
+                .FirstOrDefault().Id
+            : null;
+
+        var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
+
+        var uploadHttpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle")
+        {
+            Content = stringContent
+        };
+
+        uploadHttpRequest.Headers.Add("Authorization", jsonWebToken);
+        var expectedCount = RegistryContent.Count + 1;
+        var firstResponse = await _client.SendAsync(uploadHttpRequest, TestContext.Current.CancellationToken);
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/R4/fhir/DocumentReference/{provideBundleDocumentUniqueId}");
+        httpRequest.Headers.Add("Authorization", jsonWebToken);
+        var secondResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, secondResponse.StatusCode);
+
+        var content = await secondResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
+
+        _output.WriteLine("DocumentReference: " + content);
+    }
+
+    [Fact]
+    [Trait("Fetch", "Provide bundle with department then cross gateway query")]
+    public async Task ProvideBundle_With_Department_Then_CrossGatewayQuery()
+    {
+        await ProvideBundle_With_Department_Then_CrossGatewayQuery_Core("ProvideBundle02_dept_with_reference_in_authors.json");
+    }
+
+    [Fact]
+    [Trait("Fetch", "Provide bundle with department without direct child author reference then cross gateway query")]
+    public async Task ProvideBundle_With_Department_Without_Child_Organization_Author_Reference_Then_CrossGatewayQuery()
+    {
+        await ProvideBundle_With_Department_Then_CrossGatewayQuery_Core("ProvideBundle02_dept_without_reference_in_authors.json");
+    }
+
+    private async Task ProvideBundle_With_Department_Then_CrossGatewayQuery_Core(string bundleFileName)
+    {
+        await NukeRegistryRepository();
+
+        _atnaLogExportedChecker.AtnaLogExported = false;
+        _atnaLogExportedChecker.AtnaMessageString = null;
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_machine_providebundle",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "Create",
+            noCode: true);
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_machine_getdocumentreference",
+            attributeId: Constants.Saml.Attribute.EhelseScope,
+            codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
+            action: "ReadDocumentList",
+            noCode: true);
+
+        TestHelpers.AddAccessControlPolicyForIntegrationTest(
+            _policyRepositoryService,
+            policyName: "IT_CrossGatewayQuery",
+            attributeId: Constants.Saml.Attribute.Role,
+            codeValue: "LE;SP;PS",
+            codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
+            action: "ReadDocumentList");
+
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
+
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
+
+        //RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
+
+        //var registryObjects = RegistryContent.AsRegistryObjectDtos();
+
+        //var registryContentCount = registryObjects.Count();
+
+        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains(bundleFileName)));
+        var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
+
+        var fhirParser = new FhirJsonDeserializer();
+        var fhirBundle = fhirParser.DeserializeResource(fhirProvideBundle);
+
+        var provideBundleDocumentUniqueId = fhirBundle is Bundle bundle
             ? bundle.Entry
                 .Select(e => e.Resource)
                 .OfType<Binary>()
@@ -148,122 +245,24 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var content = await secondResponse.Content.ReadAsStringAsync();
 
-        _policyRepositoryService.DeleteAllPolicies();
-        await NukeRegistryRepository();
+        // Cross gateway query
 
-        _output.WriteLine("DocumentReference: " + content);
-    }
+        testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        testDataFiles = Directory.GetFiles(testDataPath);
 
-	[Fact]
-	[Trait("Fetch", "Provide bundle with department then cross gateway query")]
-	public async Task ProvideBundle_With_Department_Then_CrossGatewayQuery()
-    {
-        await ProvideBundle_With_Department_Then_CrossGatewayQuery_Core("ProvideBundle02_dept_with_reference_in_authors.json");
-    }
+        integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-    [Fact]
-    [Trait("Fetch", "Provide bundle with department without direct child author reference then cross gateway query")]
-    public async Task ProvideBundle_With_Department_Without_Child_Organization_Author_Reference_Then_CrossGatewayQuery()
-    {
-        await ProvideBundle_With_Department_Then_CrossGatewayQuery_Core("ProvideBundle02_dept_without_reference_in_authors.json");
-    }
+        var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
 
-    private async Task ProvideBundle_With_Department_Then_CrossGatewayQuery_Core(string bundleFileName)
-	{
-		await NukeRegistryRepository();
+        var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalSamlToken(iti38SoapEnvelope);
 
-		_atnaLogExportedChecker.AtnaLogExported = false;
-		_atnaLogExportedChecker.AtnaMessageString = null;
+        var firstGatewayResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
 
-		TestHelpers.AddAccessControlPolicyForIntegrationTest(
-			_policyRepositoryService,
-			policyName: "IT_machine_providebundle",
-			attributeId: Constants.Saml.Attribute.EhelseScope,
-			codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
-			action: "Create",
-			noCode: true);
+        var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
+        var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstGatewayResponse.Content.ReadAsStream());
 
-		TestHelpers.AddAccessControlPolicyForIntegrationTest(
-			_policyRepositoryService,
-			policyName: "IT_machine_getdocumentreference",
-			attributeId: Constants.Saml.Attribute.EhelseScope,
-			codeValue: Constants.Scopes.FhirMobileAccessToHealthDocuments.ScopeCreateDocuments,
-			action: "ReadDocumentList",
-			noCode: true);
-
-		TestHelpers.AddAccessControlPolicyForIntegrationTest(
-			_policyRepositoryService,
-			policyName: "IT_CrossGatewayQuery",
-			attributeId: Constants.Saml.Attribute.Role,
-			codeValue: "LE;SP;PS",
-			codeSystemValue: "urn:oid:2.16.578.1.12.4.1.1.9060;2.16.578.1.12.4.1.1.9060",
-			action: "ReadDocumentList");
-
-		var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-		var testDataFiles = Directory.GetFiles(testDataPath);
-
-		var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
-		var jsonWebTokenfiles = Directory.GetFiles(Path.Combine(testDataPath, "Jwt"));
-
-		//RegistryContent = await EnsureRegistryAndRepositoryHasContent(registryObjectsCount: RegistryItemCount, patientIdentifier: PatientIdentifier.IdNumber);
-
-		//var registryObjects = RegistryContent.AsRegistryObjectDtos();
-
-		//var registryContentCount = registryObjects.Count();
-
-        var fhirProvideBundle = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains(bundleFileName)));
-		var jsonWebToken = File.ReadAllText(jsonWebTokenfiles.FirstOrDefault(f => f.Contains("JsonWebToken01")));
-
-		var fhirParser = new FhirJsonDeserializer();
-		var fhirBundle = fhirParser.DeserializeResource(fhirProvideBundle);
-
-		var provideBundleDocumentUniqueId = fhirBundle is Bundle bundle
-			? bundle.Entry
-				.Select(e => e.Resource)
-				.OfType<Binary>()
-				.FirstOrDefault().Id
-			: null;
-
-		var stringContent = new StringContent(fhirProvideBundle, Encoding.UTF8, Constants.MimeTypes.FhirJson);
-
-		var uploadHttpRequest = new HttpRequestMessage(HttpMethod.Post, "/R4/fhir/Bundle")
-		{
-			Content = stringContent
-		};
-
-		uploadHttpRequest.Headers.Add("Authorization", jsonWebToken);
-		var expectedCount = RegistryContent.Count + 1;
-		var firstResponse = await _client.SendAsync(uploadHttpRequest);
-		var responseContent = await firstResponse.Content.ReadAsStringAsync();
-
-		Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
-
-		var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/R4/fhir/DocumentReference/{provideBundleDocumentUniqueId}");
-		httpRequest.Headers.Add("Authorization", jsonWebToken);
-		var secondResponse = await _client.SendAsync(httpRequest);
-
-		Assert.Equal(HttpStatusCode.OK, secondResponse.StatusCode);
-
-		var content = await secondResponse.Content.ReadAsStringAsync();
-
-		// Cross gateway query
-
-		testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-		testDataFiles = Directory.GetFiles(testDataPath);
-
-		integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
-
-		var iti38SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-38_request.xml")));
-
-		var crossGatewayQuery = GetSoapEnvelopeWithKjernejournalSamlToken(iti38SoapEnvelope);
-
-		var firstGatewayResponse = await _client.PostAsync("/XCA/services/RespondingGatewayService", new StringContent(crossGatewayQuery.OuterXml, Encoding.UTF8, Constants.MimeTypes.SoapXml));
-
-		var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
-		var firstResponseSoap = sxmls.DeserializeXmlString<SoapEnvelope>(firstGatewayResponse.Content.ReadAsStream());
-
-		var responseGatewayContent = await firstGatewayResponse.Content.ReadAsStringAsync();
-		var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
+        var responseGatewayContent = await firstGatewayResponse.Content.ReadAsStringAsync();
+        var count = firstResponseSoap?.Body.AdhocQueryResponse?.RegistryObjectList?.OfType<ExtrinsicObjectType>()?.Count() ?? 0;
 
         _output.WriteLine("ResponseGatewayContent: " + responseGatewayContent);
 
@@ -275,15 +274,15 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.Contains("OSLO KOMMUNE HELSEETATEN LEGEVAKTEN I", responseGatewayContent);
         Assert.Contains("Allmenlegevakten", responseGatewayContent);
 
-		//var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
+        //var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
 
-		// Cleanup
+        // Cleanup
 
-		_policyRepositoryService.DeleteAllPolicies();
-		await NukeRegistryRepository();
+        _policyRepositoryService.DeleteAllPolicies();
+        await NukeRegistryRepository();
 
-		_output.WriteLine("DocumentReference: " + content);
-	}
+        _output.WriteLine("DocumentReference: " + content);
+    }
 
     private static int CountOccurrences(string value, string substring)
     {
@@ -304,40 +303,40 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         return count;
     }
 
-	private static XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(string soapEnvelope)
-	{
-		var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
-		var testDataFiles = Directory.GetFiles(testDataPath);
+    private static XmlDocument? GetSoapEnvelopeWithKjernejournalSamlToken(string soapEnvelope)
+    {
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var testDataFiles = Directory.GetFiles(testDataPath);
 
-		var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
+        var integrationTestFiles = Directory.GetFiles(Path.Combine(testDataPath, "IntegrationTests"));
 
-		var kjSamlTokenString = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_KJ01")));
+        var kjSamlTokenString = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_SamlToken_KJ01")));
 
-		var kjSamlToken = TestHelpers.LoadNewXmlDocument(kjSamlTokenString);
-		var soapEnvelopeDocument = TestHelpers.LoadNewXmlDocument(soapEnvelope);
+        var kjSamlToken = TestHelpers.LoadNewXmlDocument(kjSamlTokenString);
+        var soapEnvelopeDocument = TestHelpers.LoadNewXmlDocument(soapEnvelope);
 
-		return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
-	}
+        return GetSoapEnvelopeWithSamlToken(soapEnvelopeDocument, kjSamlToken);
+    }
 
-	private static XmlDocument? GetSoapEnvelopeWithSamlToken(XmlDocument? soapEnvelopeDocument, XmlDocument? kjSamlToken)
-	{
-		var nsmgr = new XmlNamespaceManager(soapEnvelopeDocument.NameTable);
-		nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
-		nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
+    private static XmlDocument? GetSoapEnvelopeWithSamlToken(XmlDocument? soapEnvelopeDocument, XmlDocument? kjSamlToken)
+    {
+        var nsmgr = new XmlNamespaceManager(soapEnvelopeDocument.NameTable);
+        nsmgr.AddNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
+        nsmgr.AddNamespace("wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
 
-		var securityNode = soapEnvelopeDocument.SelectSingleNode("//wsse:Security", nsmgr);
+        var securityNode = soapEnvelopeDocument.SelectSingleNode("//wsse:Security", nsmgr);
 
-		if (securityNode != null)
-		{
-			var importedKjToken = soapEnvelopeDocument.ImportNode(kjSamlToken.DocumentElement, true);
+        if (securityNode != null)
+        {
+            var importedKjToken = soapEnvelopeDocument.ImportNode(kjSamlToken.DocumentElement, true);
 
-			securityNode.AppendChild(importedKjToken);
-		}
+            securityNode.AppendChild(importedKjToken);
+        }
 
-		return soapEnvelopeDocument;
-	}
+        return soapEnvelopeDocument;
+    }
 
-	[Fact]
+    [Fact]
     [Trait("Delete", "Delete DocumentReference")]
     public async Task DeleteDocumentsAndMetadata_ExportsAtnaLog_IAC()
     {
@@ -383,12 +382,12 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
         var currentRegistry = _registry.ReadRegistry();
-        var currentCount = await currentRegistry.CountAsync();
+        var currentCount = await currentRegistry.CountAsync(TestContext.Current.CancellationToken);
 
         var expectedCount = registryContentCount - 3;
 
@@ -448,12 +447,12 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
         var currentRegistry = _registry.ReadRegistry();
-        var currentCount = await currentRegistry.CountAsync();
+        var currentCount = await currentRegistry.CountAsync(TestContext.Current.CancellationToken);
 
         var expectedCount = registryContentCount;
 
@@ -523,7 +522,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var response = await _client.SendAsync(httpRequest);
+        var response = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -584,7 +583,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var response = await _client.SendAsync(httpRequest);
+        var response = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -638,13 +637,13 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Content = stringContent;
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var fhirparser = new FhirJsonDeserializer();
 
-         var operationOutcome = fhirparser.Deserialize<OperationOutcome>(responseContent);
+        var operationOutcome = fhirparser.Deserialize<OperationOutcome>(responseContent);
 
         _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();
@@ -710,13 +709,13 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
 
         var expectedCount = RegistryContent.Count + 1;
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
 
-        var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync();
+        var actualCount = await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken);
         var documentFromProvideBundle = _repository.Read(provideBundleDocumentUniqueId);
 
         _policyRepositoryService.DeleteAllPolicies();
@@ -774,11 +773,11 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Content = stringContent;
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, firstResponse.StatusCode);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         _policyRepositoryService.DeleteAllPolicies();
         await NukeRegistryRepository();
@@ -836,9 +835,9 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         httpRequest.Content = stringContent;
         httpRequest.Headers.Add("Authorization", jsonWebToken);
 
-        var firstResponse = await _client.SendAsync(httpRequest);
+        var firstResponse = await _client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        var responseContent = await firstResponse.Content.ReadAsStringAsync();
+        var responseContent = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         var fhirparser = new FhirJsonDeserializer();
 

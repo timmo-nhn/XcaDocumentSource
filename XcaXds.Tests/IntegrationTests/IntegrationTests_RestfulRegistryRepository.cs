@@ -4,12 +4,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Net;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
-using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
-using Xunit.Abstractions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.Tests.IntegrationTests;
@@ -32,9 +30,9 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.Now.AddDays(-days)).ToArray();
 
         var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days);
-        var firstResponse = await _client.DeleteAsync(url);
+        var firstResponse = await _client.DeleteAsync(url, TestContext.Current.CancellationToken);
 
-        Assert.Equal(await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(), documentEntries.Length - oldDocumentEntries.Length);
+        Assert.Equal(await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken), documentEntries.Length - oldDocumentEntries.Length);
     }
 
     [Fact]
@@ -48,7 +46,7 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         _client.DefaultRequestHeaders.Remove("X-API-KEY");
 
         var url = QueryHelpers.AddQueryString("/api/rest/document-list", "id", randomEntry.SourcePatientInfo?.PatientId?.Id!);
-        var firstResponse = await _client.GetAsync(url);
+        var firstResponse = await _client.GetAsync(url, TestContext.Current.CancellationToken);
 
     }
 
@@ -59,15 +57,15 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         var documentEntries = (await EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber)).AsRegistryObjectDtos().OfType<DocumentEntryDto>().ToArray();
         var randomEntry = documentEntries.PickRandom();
 
-        var url = QueryHelpers.AddQueryString("/api/rest/document-entry", 
-        [ 
+        var url = QueryHelpers.AddQueryString("/api/rest/document-entry",
+        [
             new KeyValuePair<string,string>("id", randomEntry.Id!)!,
             new KeyValuePair<string,string>("returnType", RestfulDocumentEntryReturnType.Fhir.ToString())!,
 
         ]);
 
-        var firstResponse = await _client.GetAsync(url);
-        var content = await firstResponse.Content.ReadAsStringAsync();
+        var firstResponse = await _client.GetAsync(url, TestContext.Current.CancellationToken);
+        var content = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(Constants.MimeTypes.FhirJson, firstResponse.Content.Headers.ContentType?.MediaType);
@@ -89,9 +87,9 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
         };
 
         var url = QueryHelpers.AddQueryString("/api/rest/by-parameters", parameters);
-        var firstResponse = await _client.DeleteAsync(url);
+        var firstResponse = await _client.DeleteAsync(url, TestContext.Current.CancellationToken);
 
-        var content = await firstResponse.Content.ReadAsStringAsync();
+        var content = await firstResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
     }
 
     private List<RegistryObjectDto> SetDocumentRegistryContent()

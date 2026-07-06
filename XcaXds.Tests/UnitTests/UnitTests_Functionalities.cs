@@ -4,13 +4,12 @@ using XcaXds.Commons.Commons;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Tests.Helpers;
-using Xunit.Abstractions;
 
 namespace XcaXds.Tests.UnitTests;
 
 public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
-    private List<IdentifiableType> DocumentReferences = new();
+    private readonly List<IdentifiableType> DocumentReferences = [];
 
     public UnitTests_Functionalities(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output) { }
 
@@ -544,6 +543,7 @@ public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClass
         foreach (var nin in nins2)
         {
             var parsedNin = _ninParserFactory.CreateNinParser(nin)?.ParseNinToCxWithAssigningAuthority(nin);
+            Assert.NotNull(parsedNin);
         }
 
         foreach (var nin in nins)
@@ -562,17 +562,17 @@ public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClass
     public async Task UniqueGuid()
     {
         var guid = Guid.NewGuid().ToString();
-        var guidFirstPart = guid.Substring(0, 6);
+        var guidFirstPart = guid[..6];
 
         var secondGuid = Guid.NewGuid().ToString();
-        var secondGuidFirstPart = secondGuid.Substring(0, 6);
+        var secondGuidFirstPart = secondGuid[..6];
 
         var counter = 0;
 
         while (!string.Equals(guidFirstPart, secondGuidFirstPart))
         {
             secondGuid = Guid.NewGuid().ToString();
-            secondGuidFirstPart = secondGuid.Substring(0, 6);
+            secondGuidFirstPart = secondGuid[..6];
             counter++;
         }
     }
@@ -588,7 +588,7 @@ public class UnitTests_Functionalities : IntegrationTests_DefaultFixture, IClass
 
         var documentReferences = _xdsOnFhirTransformerService.GetFhirDocumentReferencesFromRegistryObjects(registryObjectList);
 
-        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle(registryObjectList, _registry.ReadRegistry().ToBlockingEnumerable());
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle(registryObjectList, _registry.ReadRegistry().ToBlockingEnumerable(TestContext.Current.CancellationToken));
 
         var serializer = new FhirJsonSerializer();
 

@@ -10,7 +10,7 @@ public static class RegistryObjectTypeExtensions
         registryObject.Classification = [.. registryObject.Classification, classificationType];
     }
 
-    public static void AddClassificationRange(this RegistryObjectType registryObject, List<ClassificationType> classificationRange)
+    public static void AddClassificationRange(this RegistryObjectType registryObject, IEnumerable<ClassificationType> classificationRange)
     {
         registryObject.Classification ??= [];
         registryObject.Classification = [.. registryObject.Classification, .. classificationRange];
@@ -22,7 +22,7 @@ public static class RegistryObjectTypeExtensions
         registryObject.ExternalIdentifier = [.. registryObject.ExternalIdentifier, externalIdentifierType];
     }
 
-    public static void AddExternalIdentifierRange(this RegistryObjectType registryObjectType, List<ExternalIdentifierType> externalIdentifierRange)
+    public static void AddExternalIdentifierRange(this RegistryObjectType registryObjectType, IEnumerable<ExternalIdentifierType> externalIdentifierRange)
     {
         registryObjectType.ExternalIdentifier ??= [];
         registryObjectType.ExternalIdentifier = [.. registryObjectType.ExternalIdentifier, .. externalIdentifierRange];

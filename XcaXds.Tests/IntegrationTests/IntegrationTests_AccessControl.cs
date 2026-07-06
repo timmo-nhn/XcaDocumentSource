@@ -5,7 +5,6 @@ using XcaXds.Shared;
 using XcaXds.Shared.Enums;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Services.PolicyEnforcementPoint;
-using Xunit.Abstractions;
 
 namespace XcaXds.Tests.IntegrationTests;
 

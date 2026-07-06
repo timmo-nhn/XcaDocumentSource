@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Logging.Testing;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -7,10 +6,8 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Serializers;
-using XcaXds.Source.Source;
-using XcaXds.Tests.Helpers;
-using Xunit.Abstractions;
 using XcaXds.Shared;
+using XcaXds.Tests.Helpers;
 
 namespace XcaXds.Tests.IntegrationTests;
 
@@ -18,7 +15,7 @@ namespace XcaXds.Tests.IntegrationTests;
 public class IntegrationTests_Benchmark_ReadWriteRegistry : IntegrationTests_DefaultFixture, IClassFixture<WebApplicationFactory<WebService.Program>>
 {
     public IntegrationTests_Benchmark_ReadWriteRegistry(WebApplicationFactory<WebService.Program> factory, ITestOutputHelper output) : base(factory, output) { }
-    
+
     //[Fact]
     public async Task RegistryBenchmark()
     {
