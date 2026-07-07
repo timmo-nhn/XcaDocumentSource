@@ -435,9 +435,10 @@ public class AppStartupService : IHostedService
     private string? GetPostgreSqlConnectionString()
     {
         return _config.GetConnectionString("PostgreSql")
+               ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
                ?? _config.GetConnectionString("DefaultConnection")
                ?? _config["PostgreSql:ConnectionString"]
                ?? Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING")
-               ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+               ;
     }
 }

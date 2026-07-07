@@ -87,7 +87,7 @@ public class ApplicationMetaController : ControllerBase
             .GroupBy(itm => itm.Key)
             .Select(g => new
             {
-                Key = g.Key,
+                Action = g.Key,
                 Min = g.Min(x => x.Value),
                 Max = g.Max(x => x.Value),
                 Avg = g.Average(x => x.Value),
@@ -105,7 +105,7 @@ public class ApplicationMetaController : ControllerBase
         };
 
         var healthCheckJson = JsonSerializer.Serialize(healthCheck, Constants.JsonDefaultOptions.DefaultSettings);
-        if (regRepoReport.RegistryOk || regRepoReport.RepositoryOk)
+        if (!regRepoReport.RegistryOk || !regRepoReport.RepositoryOk)
         {
             return StatusCode(500, healthCheckJson);
         }

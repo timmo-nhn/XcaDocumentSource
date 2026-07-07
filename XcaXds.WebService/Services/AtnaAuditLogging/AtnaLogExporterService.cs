@@ -34,6 +34,10 @@ public class AtnaLogExporterService : BackgroundService
         {
             _logger.LogInformation("AuditLogExporterService is stopping.");
         }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogInformation(ex, "AuditLogExporterService is stopping.");
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception in AuditLogExporterService");

@@ -382,7 +382,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
         requestTimer.Stop();
 
-        _logger.LogInformation($"Completed action: ITI-65 ProvideBundle in {requestTimer.ElapsedMilliseconds} ms with {provideBundleResult.Outcome?.Issue?.Count ?? 0} issues");
+        _logger.LogInformation($"Completed action: ITI-65 ProvideBundle in {requestTimer.ElapsedMilliseconds}ms with {provideBundleResult.Outcome?.Issue?.Count ?? 0} issues");
 
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
