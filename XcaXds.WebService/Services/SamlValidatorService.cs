@@ -70,7 +70,8 @@ public class SamlValidatorService
             {
                 var x509Key = (X509SecurityKey)signingKey;
                 var chain = new X509Chain();
-                chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
+                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
 
                 if (!chain.Build(x509Key.Certificate))
                 {
