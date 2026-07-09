@@ -95,7 +95,7 @@ public class UnitTests_ClinicalDocument
 
             var documentReference = CdaTransformer.TransformClinicalDocumentToRegistryObjects(cdaDocument, "2.16.578.1.12.4.5.100.1", "2.16.578.1.12.4.5.100.1.2");
 
-            var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(documentReference);
+            var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjectsStateless(documentReference);
         }
     }
 }

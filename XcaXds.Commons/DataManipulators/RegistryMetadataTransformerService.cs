@@ -43,13 +43,13 @@ public class RegistryMetadataTransformerService
         return documentEntryDto;
     }
 
-    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjects(IEnumerable<RegistryObjectDto>? registryObjectDtos)
+    public static IEnumerable<IdentifiableType> TransformRegistryObjectDtosToRegistryObjectsStateless(IEnumerable<RegistryObjectDto>? registryObjectDtos)
     {
         if (registryObjectDtos == null) yield break;
 
         foreach (var registryObjectDto in registryObjectDtos)
         {
-            var registryObject = TransformRegistryObjectDtoToRegistryObject(registryObjectDto);
+            var registryObject = TransformRegistryObjectDtoToRegistryObjectStateless(registryObjectDto);
 
             if (registryObject == null) continue;
 
@@ -57,7 +57,12 @@ public class RegistryMetadataTransformerService
         }
     }
 
-    public static IdentifiableType? TransformRegistryObjectDtoToRegistryObject(RegistryObjectDto? registryObjectDto)
+    public IdentifiableType? TransformRegistryObjectDtoToRegistryObject(RegistryObjectDto? registryObjectDto)
+    {
+        return TransformRegistryObjectDtoToRegistryObjectStateless(registryObjectDto);
+    }
+
+    public static IdentifiableType? TransformRegistryObjectDtoToRegistryObjectStateless(RegistryObjectDto? registryObjectDto)
     {
         try
         {
@@ -652,20 +657,20 @@ public class RegistryMetadataTransformerService
         return null;
     }
 
-    public static IdentifiableType[] TransformDocumentReferenceDtoListToRegistryObjects(IEnumerable<RegistryObjectDto?>? documentReferences)
+    public static IdentifiableType[] TransformDocumentReferenceDtoListToRegistryObjectsStateless(IEnumerable<RegistryObjectDto?>? documentReferences)
     {
         var registryObjectList = new List<IdentifiableType>();
 
         if (documentReferences?.Any() == true)
         {
-            registryObjectList.AddRange(TransformRegistryObjectDtosToRegistryObjects(documentReferences.OfType<RegistryObjectDto>()));
+            registryObjectList.AddRange(TransformRegistryObjectDtosToRegistryObjectsStateless(documentReferences.OfType<RegistryObjectDto>()));
         }
 
         return registryObjectList.ToArray();
     }
 
 
-    public static IdentifiableType[] TransformDocumentReferenceDtoToRegistryObjects(DocumentReferenceDto documentReference)
+    public static IdentifiableType[] TransformDocumentReferenceDtoToRegistryObjectsStateless(DocumentReferenceDto documentReference)
     {
         var registryObjectList = new List<IdentifiableType>();
 

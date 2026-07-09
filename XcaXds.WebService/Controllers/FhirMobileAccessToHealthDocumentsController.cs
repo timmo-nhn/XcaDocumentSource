@@ -1,6 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Hl7.Fhir.Support;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Web;
 using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.Commons.Attributes;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -25,7 +24,6 @@ using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.Fhir;
-using XcaXds.WebService.Services.PolicyEnforcementPoint;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
 
@@ -39,9 +37,11 @@ namespace XcaXds.WebService.Controllers;
 public class FhirMobileAccessToHealthDocumentsController : Controller
 {
     private readonly ILogger<FhirMobileAccessToHealthDocumentsController> _logger;
+    private readonly MonitoringStatusService _monitoringStatusService;
     private readonly DocumentListFiltererService _documentListFiltererService;
     private readonly RestfulRegistryRepositoryService _restfulRegistryService;
     private readonly RegistryWrapper _registryWrapper;
+    private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly FhirService _fhirService;
     private readonly AtnaLogGeneratorService _atnaLoggingService;
@@ -54,7 +54,9 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
     public FhirMobileAccessToHealthDocumentsController(
         ILogger<FhirMobileAccessToHealthDocumentsController> logger,
+        MonitoringStatusService monitoringStatusService,
         XdsRegistryService xdsRegistryService,
+        RegistryMetadataTransformerService registryMetadataTransformerService,
         XdsRepositoryService xdsRepositoryService,
         RestfulRegistryRepositoryService restfulRegistryService,
         RegistryWrapper registryWrapper,
@@ -69,6 +71,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         DocumentListFiltererService documentListFiltererService)
     {
         _logger = logger;
+        _monitoringStatusService = monitoringStatusService;
+        _registryMetadataTransformerService = registryMetadataTransformerService;
         _fhirService = fhirService;
         _fhirValidator = fhirValidator;
         _featureManager = featureManager;
@@ -205,6 +209,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         return BadRequestOperationOutcome.Create(operationOutcome);
     }
 
+    [RequiresApiKey]
     [HttpGet("mhd/document")]
     public async Task<IActionResult> Document(
         [FromQuery] string homeCommunityId,
@@ -250,16 +255,21 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     {
         if (!await _featureManager.IsEnabledAsync("Fhir_GetDocumentReference")) return NotFound();
 
+        var requestTimer = Stopwatch.StartNew();
+
         var registryItems = _registryWrapper.GetRegistryItemAndRelated(id);
-        var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(registryItems).ToArray();
+        var registryObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjectsStateless(registryItems).ToArray();
 
         var documentReference = _xdsOnFhirTransformerService.GetFhirDocumentReferencesFromRegistryObjects(registryObjects).FirstOrDefault();
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
         var jsonResult = JsonSerializer.Serialize(documentReference, options);
 
+        requestTimer.Stop();
+
+        _logger.LogInformation($"Completed action: GetDocumentReference in {requestTimer.ElapsedMilliseconds}ms");
+
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
-
 
     [RequiresApiKey]
     [ExportsAtnaAuditLog]
@@ -269,6 +279,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     public async Task<IActionResult> DeleteDocument(string id)
     {
         if (!await _featureManager.IsEnabledAsync("Fhir_DeleteDocuments")) return NotFound();
+
+        var requestTimer = Stopwatch.StartNew();
 
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
         var operationOutcome = new OperationOutcome();
@@ -303,7 +315,15 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
             }
         }
 
-        if (operationOutcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error))
+        requestTimer.Stop();
+
+        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.DocumentReferenceDelete, requestTimer.ElapsedMilliseconds);
+
+        _logger.LogInformation($"Completed action: Delete DocumentReference in {requestTimer.ElapsedMilliseconds}ms with {operationOutcome.Issue.Count} issues");
+
+        var anyErrors = operationOutcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal);
+
+        if (anyErrors)
         {
             return BadRequestOperationOutcome.Create(operationOutcome);
         }
@@ -337,6 +357,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         if (resource is not Bundle fhirBundle)
         {
+            requestTimer.Stop();
+
+            _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
+
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Request body does not contain a well formatted FHIR bundle",
                 OperationOutcome.IssueType.Invalid,
                 OperationOutcome.IssueSeverity.Fatal));
@@ -344,7 +368,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         // Validate bundle first
         var validationResult = _fhirValidator.ValidateFhirResource(fhirBundle);
-        var anyValidationErrors = validationResult.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error) == true;
+        var anyValidationErrors = validationResult.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal);
 
         bool effectiveValidate = false;
 
@@ -360,14 +384,18 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         provideBundleResult.Outcome.Issue.AddRange(validationResult.Issue);
 
         // ATNA Audit Log generation
-        
+
         HttpContext.Items.Add("uploadedEntries", provideBundleResult.ProvideAndRegisterRequest?.SubmitObjectsRequest?.RegistryObjectList);
         HttpContext.Items.Add("uploadedEntriesRegistryResponse", provideBundleResult.RegistryResponse);
 
-        var anyProvideErrors = provideBundleResult.Outcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
+        var anyProvideErrors = provideBundleResult.Outcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal);
 
         if (anyProvideErrors)
         {
+            requestTimer.Stop();
+
+            _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
+
             return BadRequestOperationOutcome.Create(provideBundleResult.Outcome);
         }
 
@@ -382,6 +410,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
         requestTimer.Stop();
 
+        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
+
         _logger.LogInformation($"Completed action: ITI-65 ProvideBundle in {requestTimer.ElapsedMilliseconds}ms with {provideBundleResult.Outcome?.Issue?.Count ?? 0} issues");
 
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
@@ -394,6 +424,8 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     [HttpPost("{resource}/$validate")]
     public async Task<IActionResult> ValidateResource([FromRoute] string? resource, [FromBody] JsonElement json)
     {
+        var requestTimer = Stopwatch.StartNew();
+
         if (!await _featureManager.IsEnabledAsync("Fhir_ValidateResource")) return NotFound();
 
         var operationOutcome = new OperationOutcome();
@@ -407,6 +439,10 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         if (fhirResource is not Bundle fhirBundle)
         {
+            requestTimer.Stop();
+
+            _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
+
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Endpoint only supports validating FHIR bundles for now",
                 OperationOutcome.IssueType.Invalid,
                 OperationOutcome.IssueSeverity.Fatal));
@@ -421,7 +457,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var fhirSerializer = new FhirJsonSerializer();
 
-        var anyErrors = operationOutcome.Issue.Any(iss => iss.Severity == OperationOutcome.IssueSeverity.Error);
+        var anyErrors = operationOutcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal);
 
         if (!anyErrors)
         {
@@ -432,6 +468,12 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 Diagnostics = $"Bundle validated with 0 errors or warnings"
             });
         }
+
+        requestTimer.Stop();
+
+        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65ValidateAction, requestTimer.ElapsedMilliseconds);
+
+        _logger.LogInformation($"Completed action: ITI-65 ValidateBundle in {requestTimer.ElapsedMilliseconds}ms with {provideBundleResult.Outcome?.Issue?.Count ?? 0} issues{((provideBundleResult.Outcome?.Issue?.Count ?? 0) == 0 ? ". Bundle is good to go!" : "")}");
 
         return new CustomContentResult(
             fhirSerializer.SerializeToString(operationOutcome),
@@ -506,89 +548,33 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
     {
         if (!await _featureManager.IsEnabledAsync("Fhir_PatchBundle")) return NotFound();
 
+        var requestTimer = Stopwatch.StartNew();
+
         _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to patch DocumentReference.securityLabel for id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
-
-        if (string.IsNullOrWhiteSpace(id))
-        {
-            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage("Missing id", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-        }
-
-        if (!TryExtractSecurityLabelElement(json, out var securityLabelElement, out var errorMessage))
-        {
-            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(errorMessage ?? "Missing securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-        }
-
-        var codings = ParseSecurityLabelToCodedValues(securityLabelElement, out var parseError);
-        if (codings == null)
-        {
-            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage(parseError ?? "Invalid securityLabel", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Fatal));
-        }
-
-        var documentEntry = _registryWrapper.GetSingleRegistryObjectAsDto(id) as DocumentEntryDto;
-
-        if (documentEntry == null)
-        {
-            return NotFoundOperationOutcome.Create(OperationOutcome.ForMessage($"DocumentReference/{id} not found", OperationOutcome.IssueType.NotFound, OperationOutcome.IssueSeverity.Error));
-        }
-
-        var oldSecurityLabel = documentEntry.ConfidentialityCode == null
-            ? null
-            : documentEntry.ConfidentialityCode.Select(c => new CodedValue
-            {
-                Code = c.Code,
-                CodeSystem = c.CodeSystem,
-                DisplayName = c.DisplayName
-            }).ToList();
-
-
-        documentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
-
-        var results = ValidateIncomingPatchBundleCodings(codings);
-
-        if (results.Count > 0)
-        {
-            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Validation Errors: {string.Join(' ', results.Select(res => res.ErrorMessage))}", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Error));
-        }
-
-        var response = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(documentEntry);
-
-        if (!response.IsSuccess)
-        {
-            return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Failed to update DocumentReference/{id}: {response.Message}", OperationOutcome.IssueType.Invalid, OperationOutcome.IssueSeverity.Error));
-        }
+        var operationOutcome = _fhirService.PatchBundle(id, json, out var documentEntry, out var oldSecurityLabel);
 
         // Atna log generation
         HttpContext.Items.Add("oldSecurityLabel", oldSecurityLabel);
         HttpContext.Items.Add("patchedDocumentEntry", documentEntry);
 
         // Return the updated DocumentReference
-        var registryObjects = _registryWrapper.GetDocumentRegistryContentAsRegistryObjects();
-        var extrinsic = registryObjects
-            .OfType<ExtrinsicObjectType>()
-            .FirstOrDefault(eo => string.Equals(eo.Id?.NoUrn(), id, StringComparison.OrdinalIgnoreCase));
 
-        if (extrinsic == null)
-        {
-            return OkOperationOutcome.Create(OperationOutcome.ForMessage($"Updated securityLabel for DocumentReference/{id}", OperationOutcome.IssueType.Success, OperationOutcome.IssueSeverity.Information));
-        }
+        requestTimer.Stop();
 
-        var associations = registryObjects
-            .OfType<AssociationType>()
-            .Where(a => a.AssociationTypeData == Constants.Xds.AssociationType.HasMember && string.Equals(a.TargetObject?.NoUrn(), id, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65PatchAction, requestTimer.ElapsedMilliseconds);
 
-        var registryPackages = associations
-            .Select(a => registryObjects.GetById(a.SourceObject))
-            .OfType<RegistryPackageType>()
-            .ToList();
+        _logger.LogInformation($"Completed action: ITI-65 PatchBundle in {requestTimer.ElapsedMilliseconds}ms with {operationOutcome.Issue.Count} issues");
 
-        var related = new List<IdentifiableType> { extrinsic };
-        related.AddRange(associations);
-        related.AddRange(registryPackages);
+        var extrinsicObject = _registryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObject(documentEntry);
 
-        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle(related.ToArray(), _registryWrapper.GetDocumentRegistryContentAsDtos());
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle([extrinsicObject]);
         var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
                             ?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
+
+        if (operationOutcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal))
+        {
+            return BadRequestOperationOutcome.Create(operationOutcome);
+        }
 
         if (updatedDocRef == null)
         {
@@ -597,183 +583,5 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var serializer = new FhirJsonSerializer();
         return new CustomContentResult(serializer.SerializeToString(updatedDocRef), StatusCodes.Status200OK, Constants.MimeTypes.FhirJson);
-    }
-
-    private List<ValidationResult> ValidateIncomingPatchBundleCodings(List<CodedValue> codings)
-    {
-        var results = new List<ValidationResult>();
-        foreach (var coding in codings)
-        {
-            var context = new ValidationContext(coding);
-            Validator.TryValidateObject(coding, context, results, true);
-        }
-
-        return results;
-    }
-
-    private static bool TryExtractSecurityLabelElement(JsonElement json, out JsonElement securityLabelElement, out string? errorMessage)
-    {
-        securityLabelElement = default;
-        errorMessage = null;
-
-        if (json.ValueKind == JsonValueKind.Array)
-        {
-            // JSON Patch (RFC 6902): [{"op":"replace","path":"/securityLabel","value":[...]}]
-            foreach (var op in json.EnumerateArray())
-            {
-                if (op.ValueKind != JsonValueKind.Object) continue;
-                var hasOp = TryGetPropertyCaseInsensitive(op, "op", out var opName);
-                var hasPath = TryGetPropertyCaseInsensitive(op, "path", out var path);
-                if (!hasOp || !hasPath) continue;
-
-                var opNameValue = opName.GetString();
-                var pathValue = path.GetString();
-                if (string.IsNullOrWhiteSpace(opNameValue) || string.IsNullOrWhiteSpace(pathValue)) continue;
-
-                if (!pathValue.Equals("/securityLabel", StringComparison.OrdinalIgnoreCase))
-                {
-                    errorMessage = "Only /securityLabel can be patched";
-                    return false;
-                }
-
-                if (!string.Equals(opNameValue, "add", StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(opNameValue, "replace", StringComparison.OrdinalIgnoreCase))
-                {
-                    errorMessage = "Only add/replace operations are supported";
-                    return false;
-                }
-
-                if (!TryGetPropertyCaseInsensitive(op, "value", out var value))
-                {
-                    errorMessage = "Patch operation is missing value";
-                    return false;
-                }
-
-                securityLabelElement = value;
-                return true;
-            }
-
-            errorMessage = "Invalid JSON Patch payload";
-            return false;
-        }
-
-        if (json.ValueKind != JsonValueKind.Object)
-        {
-            errorMessage = "Body must be a JSON object or JSON Patch array";
-            return false;
-        }
-
-        // Partial resource style: { "securityLabel": [ ... ] }
-        if (!TryGetPropertyCaseInsensitive(json, "securityLabel", out securityLabelElement))
-        {
-            errorMessage = "Body must include securityLabel";
-            return false;
-        }
-
-        // Whitelist (for future expansion, add more here)
-        foreach (var prop in json.EnumerateObject())
-        {
-            if (prop.NameEquals("securityLabel") || prop.NameEquals("resourceType") || prop.NameEquals("id"))
-                continue;
-            errorMessage = $"Property '{prop.Name}' is not allowed to be patched";
-            return false;
-        }
-
-        return true;
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement obj, string name, out JsonElement value)
-    {
-        if (obj.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var prop in obj.EnumerateObject())
-            {
-                if (string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = prop.Value;
-                    return true;
-                }
-            }
-        }
-
-        value = default;
-        return false;
-    }
-
-    private static List<CodedValue>? ParseSecurityLabelToCodedValues(JsonElement securityLabelElement, out string? errorMessage)
-    {
-        errorMessage = null;
-        if (securityLabelElement.ValueKind != JsonValueKind.Array)
-        {
-            errorMessage = "securityLabel must be an array";
-            return null;
-        }
-
-        var result = new List<CodedValue>();
-        foreach (var label in securityLabelElement.EnumerateArray())
-        {
-            if (label.ValueKind != JsonValueKind.Object)
-            {
-                errorMessage = "Each securityLabel entry must be an object";
-                return null;
-            }
-
-            if (!TryGetPropertyCaseInsensitive(label, "coding", out var codingElement) || codingElement.ValueKind != JsonValueKind.Array)
-            {
-                errorMessage = "Each securityLabel entry must include coding[]";
-                return null;
-            }
-
-            var addedAny = false;
-            foreach (var coding in codingElement.EnumerateArray())
-            {
-                if (coding.ValueKind != JsonValueKind.Object)
-                {
-                    errorMessage = "securityLabel.coding must contain objects";
-                    return null;
-                }
-
-                string? code = null;
-                string? system = null;
-                string? display = null;
-
-                if (TryGetPropertyCaseInsensitive(coding, "code", out var codeEl))
-                {
-                    code = codeEl.GetString();
-                }
-
-                if (TryGetPropertyCaseInsensitive(coding, "system", out var sysEl))
-                {
-                    system = sysEl.GetString();
-                }
-
-                if (TryGetPropertyCaseInsensitive(coding, "display", out var dispEl))
-                {
-                    display = dispEl.GetString();
-                }
-
-                if (string.IsNullOrWhiteSpace(code))
-                {
-                    errorMessage = "securityLabel.coding.code is required";
-                    return null;
-                }
-
-                result.Add(new CodedValue
-                {
-                    Code = code,
-                    CodeSystem = string.IsNullOrWhiteSpace(system) ? null : system.NoUrn(),
-                    DisplayName = display
-                });
-                addedAny = true;
-            }
-
-            if (!addedAny)
-            {
-                errorMessage = "securityLabel.coding must contain at least one object";
-                return null;
-            }
-        }
-
-        return result;
     }
 }

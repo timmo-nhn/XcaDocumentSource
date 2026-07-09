@@ -238,7 +238,7 @@ public partial class XdsRegistryService
 
                 var registryFindDocumentEntriesResult = prefilteredDocumentRegistry?
                     .OfType<DocumentEntryDto>()
-                    .Select(RegistryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObject)
+                    .Select(RegistryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObjectStateless)
                     .OfType<ExtrinsicObjectType>() ?? [];
 
                 _logger.LogDebug($"{soapEnvelope.Header.MessageId} - FindDocuments parameters:\n" + JsonSerializer.Serialize(findDocumentsSearchParameters, Constants.JsonDefaultOptions.DefaultSettings));
@@ -509,7 +509,7 @@ public partial class XdsRegistryService
             .Where(ro => objectRefIds.Contains(ro.Id))
             .ToList();
 
-        deletedObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(objectsToRemove);
+        deletedObjects = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjectsStateless(objectsToRemove);
 
         foreach (var registryObject in objectsToRemove)
         {

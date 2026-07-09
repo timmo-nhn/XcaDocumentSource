@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared;
 
@@ -62,15 +63,12 @@ public static class XdsErrorToOperationOutcomeMapper
 
     private static string MapResponseStatus(OperationOutcome outcome)
     {
-        if (outcome.Issue.Any(i =>
-            i.Severity == OperationOutcome.IssueSeverity.Fatal ||
-            i.Severity == OperationOutcome.IssueSeverity.Error))
+        if (outcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Fatal, OperationOutcome.IssueSeverity.Error))
         {
             return Constants.Xds.ResponseStatusTypes.Failure;
         }
 
-        if (outcome.Issue.Any(i =>
-            i.Severity == OperationOutcome.IssueSeverity.Warning))
+        if (outcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Warning))
         {
             return Constants.Xds.ResponseStatusTypes.PartialSuccess;
         }

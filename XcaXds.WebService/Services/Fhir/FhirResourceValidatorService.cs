@@ -9,10 +9,14 @@ using Hl7.Fhir.Specification.Source;
 using Hl7.Fhir.Specification.Terminology;
 using Hl7.Fhir.Support;
 using Hl7.FhirPath;
+using System.Text.Json;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
+using XcaXds.WebService.Models.Custom;
+using XcaXds.WebService.Services.XdsRegistry;
 
 namespace XcaXds.WebService.Services.Fhir;
 

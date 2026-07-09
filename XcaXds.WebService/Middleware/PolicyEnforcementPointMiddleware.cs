@@ -124,7 +124,7 @@ public class PolicyEnforcementPointMiddleware
             sw.Stop();
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
 
-            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:tokeninvalid", sw.ElapsedMilliseconds);
+            _monitoringService.ResponseTimes.Add(Constants.Urn.Custom.PepTokenInvalid, sw.ElapsedMilliseconds);
             await policyDenyResponseBuilder.WriteAsync(httpContext, policyInput, _xdsConfig, policyInput.ErrorMessage);
             return;
         }
@@ -141,7 +141,7 @@ public class PolicyEnforcementPointMiddleware
             sw.Stop();
             _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
 
-            _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:permit", sw.ElapsedMilliseconds);
+            _monitoringService.ResponseTimes.Add(Constants.Urn.Custom.PepPermit, sw.ElapsedMilliseconds);
             activity?.SetTag("PolicyEnforcementPoint.Status", "permit");
 
             await _next(httpContext);
@@ -153,7 +153,7 @@ public class PolicyEnforcementPointMiddleware
 
         _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
         await policyDenyResponseBuilder.WriteAsync(httpContext, policyInput, _xdsConfig, "Access denied");
-        _monitoringService.ResponseTimes.Add("urn:no:nhn:xcads:pep:deny", sw.ElapsedMilliseconds);
+        _monitoringService.ResponseTimes.Add(Constants.Urn.Custom.PepDeny, sw.ElapsedMilliseconds);
         activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
     }
 

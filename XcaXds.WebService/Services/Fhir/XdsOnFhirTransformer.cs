@@ -17,6 +17,7 @@ using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
+using XcaXds.WebService.Services.XdsRegistry;
 
 namespace XcaXds.WebService.Services.Fhir;
 
@@ -27,15 +28,18 @@ namespace XcaXds.WebService.Services.Fhir;
 public class XdsOnFhirTransformerService
 {
     private readonly ILogger<XdsOnFhirTransformerService> _logger;
+    private readonly RegistryWrapper _registryWrapper;
     private readonly TerminologyService _terminologyService;
     private readonly NinParserFactory _ninParserFactory;
 
     public XdsOnFhirTransformerService(
         ILogger<XdsOnFhirTransformerService> logger,
+        RegistryWrapper registryWrapper,
         TerminologyService terminologyService,
         NinParserFactory ninParserFactory)
     {
         _logger = logger;
+        _registryWrapper = registryWrapper;
         _terminologyService = terminologyService;
         _ninParserFactory = ninParserFactory;
 
@@ -160,8 +164,9 @@ public class XdsOnFhirTransformerService
         return adhocQueryRequest;
     }
 
-    public Bundle? TransformRegistryObjectsToFhirBundle(IdentifiableType[]? registryObjectList, IEnumerable<RegistryObjectDto> registryObjects)
+    public Bundle? TransformRegistryObjectsToFhirBundle(IdentifiableType[]? registryObjectList, IEnumerable<RegistryObjectDto>? registryObjects = null)
     {
+        registryObjects ??= _registryWrapper.GetDocumentRegistryContentAsDtos();
         // Create a Bundle with DocumentReference resources and return it as the response
         // See example here https://profiles.ihe.net/ITI/MHD/Bundle-Bundle-FindDocumentReferences.json
         var bundle = new Bundle
@@ -184,7 +189,7 @@ public class XdsOnFhirTransformerService
         // we need to fetch the registry and get the missing registry objects to properly map this to a FHIR resource
         if (registryObjectList != null && registryObjectList.Length == registryObjectList?.OfType<ExtrinsicObjectType>().ToArray().Length)
         {
-            var registryContent = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(registryObjects);
+            var registryContent = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjectsStateless(registryObjects);
 
             var eos = registryObjectList.OfType<ExtrinsicObjectType>().ToArray();
             var eoIds = eos.Select(e => e.Id?.NoUrn()).Where(id => !string.IsNullOrWhiteSpace(id)).ToHashSet(StringComparer.OrdinalIgnoreCase);

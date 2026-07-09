@@ -102,6 +102,9 @@ public class ApplicationMetaController : ControllerBase
             usageStatistics,
             uptimeInSeconds,
             _monitoringService.StartupTime,
+            _monitoringService.LastRequest,
+            _monitoringService.LastAtnaLogExported,
+
             RegistryRepository = regRepoReport
         };
 

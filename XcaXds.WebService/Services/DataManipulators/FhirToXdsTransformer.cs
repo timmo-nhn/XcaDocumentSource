@@ -93,7 +93,7 @@ public class FhirToXdsTransformerService
             }
 
             var validationOutcome = ValidateDocumentRelations(documentReference);
-            if (validationOutcome.Issue.Any(issue => issue.Severity == OperationOutcome.IssueSeverity.Error))
+            if (validationOutcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal))
             {
                 operationOutcome.AddIssue(validationOutcome.Issue);
                 continue; // or fail fast
@@ -2129,7 +2129,7 @@ public class FhirToXdsTransformerService
         }
 
         // If we already have target/code errors, stop early (avoid misleading combo errors)
-        if (operationOutcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error))
+        if (operationOutcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal))
             return operationOutcome;
 
         // --- 2) Prevent "document relates to itself" ---

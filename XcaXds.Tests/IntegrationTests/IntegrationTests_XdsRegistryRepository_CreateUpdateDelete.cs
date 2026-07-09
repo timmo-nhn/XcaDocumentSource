@@ -751,7 +751,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         Assert.Equal(RegistryItemCount, await _registry.ReadRegistry().OfType<DocumentEntryDto>().CountAsync(TestContext.Current.CancellationToken));
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
-        var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
+        var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjectsStateless(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
         var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
@@ -1000,7 +1000,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         metadata.DocumentEntry.Author.FirstOrDefault().Department.OrganizationName = "Lang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåøLang tekst som overgår 256 bokstaver æøåøæøåøæøåø";
 
-        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjectsStateless([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [new() { Id = metadata.Document.DocumentId, Value = metadata.Document.Data }];
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
@@ -1059,7 +1059,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         metadata.DocumentEntry.MimeType = null;
         metadata.DocumentEntry.Title = "<script>alert('bø!');</script>";
 
-        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjectsStateless([metadata.DocumentEntry, metadata.SubmissionSet, metadata.Association])];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = [new() { Id = metadata.Document.DocumentId, Value = metadata.Document.Data }];
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
@@ -1134,7 +1134,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
 
         var iti41SoapRequestObject = sxmls.DeserializeXmlString<SoapEnvelope>(File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-41_request.xml"))));
 
-        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects(registryObjects)];
+        iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList = [.. RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjectsStateless(registryObjects)];
         iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.Document = documents;
 
         var itemsToUploadCount = iti41SoapRequestObject.Body.ProvideAndRegisterDocumentSetRequest?.SubmitObjectsRequest.RegistryObjectList.OfType<ExtrinsicObjectType>().Count();
@@ -1216,7 +1216,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         Assert.All(randomDocumentEntriesToDeprecate, d => Assert.Contains(d.DocumentEntry?.Id, targets));
 
 
-        var submitObjectsUpdate = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjects([.. assocDtos, .. newDocumentEntries.Select(dto => dto.DocumentEntry), .. newDocumentEntries.Select(dto => dto.Association), .. newDocumentEntries.Select(dto => dto.SubmissionSet)]).ToArray();
+        var submitObjectsUpdate = RegistryMetadataTransformerService.TransformRegistryObjectDtosToRegistryObjectsStateless([.. assocDtos, .. newDocumentEntries.Select(dto => dto.DocumentEntry), .. newDocumentEntries.Select(dto => dto.Association), .. newDocumentEntries.Select(dto => dto.SubmissionSet)]).ToArray();
 
         var documentUpdate = newDocumentEntries.Select(nde => new DocumentType { Id = nde.Document.DocumentId, Value = nde.Document.Data }).ToArray();
 
@@ -1301,7 +1301,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var countFirst = await registryContent.CountAsync(TestContext.Current.CancellationToken);
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, RegistryItemCount)).ToArray();
-        var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
+        var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjectsStateless(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
 
@@ -1708,7 +1708,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
     {
         generatedEntries = [];
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(RegistryItemCount, PatientIdentifier.IdNumber, true).PickRandom(Random.Shared.Next(1, ((RegistryItemCount + 1) / 10 + 1))).ToArray();
-        var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(dedto)).ToArray();
+        var registryObjects = metadata.SelectMany(dedto => RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjectsStateless(dedto)).ToArray();
         var documents = metadata.Select(dedto => new DocumentType { Id = dedto.Document.DocumentId, Value = dedto.Document.Data }).ToArray();
 
         var iti41SoapRequestObject = GetSoapEnvelopeFromIntegrationTestFiles("iti-41");

@@ -172,7 +172,7 @@ public class UnitTests_BusinessLogic_ObfuscateDocuments(WebApplicationFactory<We
             },
         };
 
-        DocumentReferences = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(
+        DocumentReferences = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjectsStateless(
         [
             new DocumentEntryDto()
             {

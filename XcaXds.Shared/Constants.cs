@@ -135,6 +135,15 @@ public static class Constants
             /// </summary>
             public const string System = "urn:ihe:event-type-code";
 
+            // Custom actions used by monitoringstatusservice
+            public const string DocumentReferenceGet = "FHIR_GetDocumentReference";
+            public const string DocumentReferenceDelete = "FHIR_DeleteDocumentReference";
+            public const string Iti65ValidateAction = "FHIR_ProvideBundleValidate";
+            public const string Iti65PatchAction = "FHIR_ProvideBundlePatch";
+            public const string Iti65Action = "FHIR_ProvideBundle";
+            public const string Iti67Action = "FHIR_FindDocumentReferences";
+            public const string Iti68Action = "FHIR_RetrieveDocument";
+
             public const string Iti18Action = "urn:ihe:iti:2007:RegistryStoredQuery";
             public const string Iti18ActionAsync = "urn:ihe:iti:2007:RegistryStoredQueryAsync";
             public const string Iti18Reply = "urn:ihe:iti:2007:RegistryStoredQueryResponse";
@@ -411,19 +420,6 @@ public static class Constants
             public const string ServiceStopTime = "serviceStopTime";
             public const string SourcePatientId = "sourcePatientId";
         }
-
-        public static class ErrorCodes
-        {
-            public const string XdsUnavailableCommunity = "XDSUnavailableCommunity";
-            public const string XdsRepositoryError = "XDSRepositoryError";
-            public const string XdsRegistryError = "XDSRegistryError";
-            public const string XdsRepositoryBusy = "XDSRepositoryBusy";
-            public const string XdsRegistryBusy = "XDSRegistryBusy";
-            public const string XdsDocumentUniqueIdError = "XDSDocumentUniqueIdError";
-            public const string XdsMetadataUpdateError = "XDSMetadataUpdateError";
-
-            public const string XdsRepresentationBelowMinimumAgeError = "XDSRepresentationBelowMinimumAgeError";
-        }
     }
 
     public static class Hl7
@@ -671,6 +667,10 @@ public static class Constants
             public const string AppliesTo = BaseUrn + ":xacml:appliesto";
             public const string UnknownAttribute = BaseUrn + ":xacml:unknownattribute";
             public const string UnknownPatientIdentifier = BaseUrn + ":unknown-patient-identifier";
+
+            public const string PepPermit= BaseUrn + ":pep:permit";
+            public const string PepDeny= BaseUrn + ":pep:deny";
+            public const string PepTokenInvalid= BaseUrn + ":pep:tokeninvalid";
         }
     }
 }

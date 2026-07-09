@@ -91,7 +91,7 @@ public class AtnaLogGeneratorService
         }
 
         var deletedRegistryObjects = RegistryMetadataTransformerService
-            .TransformDocumentReferenceDtoListToRegistryObjects(deletedEntry);
+            .TransformDocumentReferenceDtoListToRegistryObjectsStateless(deletedEntry);
 
         var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
             additionalParameters, 
@@ -129,7 +129,7 @@ public class AtnaLogGeneratorService
         List<CodedValue>? newSecurityLabel)
     {
         var extrinsicObject = RegistryMetadataTransformerService
-            .TransformDocumentReferenceDtoListToRegistryObjects([updatedEntry])
+            .TransformDocumentReferenceDtoListToRegistryObjectsStateless([updatedEntry])
             .OfType<ExtrinsicObjectType>()
             .FirstOrDefault();
 
@@ -303,7 +303,7 @@ public class AtnaLogGeneratorService
         var adhocQueryType = requestEnvelope?.Body.AdhocQueryRequest?.AdhocQuery?.Id;
         var docRequest = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest;
         var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList ?? 
-            RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects(additionalParameters.DeletedRegistryObjects);
+            RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjectsStateless(additionalParameters.DeletedRegistryObjects);
         var soapAction = requestEnvelope?.Header.Action;
 
         var documentEntry = (DocumentEntryDto?)_registryMetadataTransformerService

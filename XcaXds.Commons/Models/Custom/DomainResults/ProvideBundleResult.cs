@@ -16,6 +16,6 @@ public sealed class ProvideBundleResult
     public List<RegistryErrorType>? Errors { get; set; }
 
     public bool Success =>
-        !Outcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error);
+        !Outcome.Issue.Any(i => i.Severity == OperationOutcome.IssueSeverity.Error || i.Severity == OperationOutcome.IssueSeverity.Fatal);
 
 }

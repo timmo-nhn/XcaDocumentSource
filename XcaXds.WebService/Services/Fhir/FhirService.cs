@@ -1,11 +1,16 @@
 ﻿using Hl7.Fhir.Model;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.DomainResults;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Extensions;
+using XcaXds.Shared.Models.Custom;
+using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
 
@@ -14,6 +19,7 @@ namespace XcaXds.WebService.Services.Fhir;
 public class FhirService
 {
     private readonly ILogger<FhirService> _logger;
+    private readonly RegistryWrapper _registryWrapper;
     private readonly XdsRegistryService _registry;
     private readonly XdsRepositoryService _repository;
     private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
@@ -23,11 +29,13 @@ public class FhirService
 
     public FhirService(
         ILogger<FhirService> logger,
-        XdsRegistryService registry, 
+        RegistryWrapper registryWrapper,
+        XdsRegistryService registry,
         XdsRepositoryService repository,
         FhirToXdsTransformerService fhirToXdsTransformerService)
     {
         _logger = logger;
+        _registryWrapper = registryWrapper;
         _registry = registry;
         _repository = repository;
         _fhirToXdsTransformerService = fhirToXdsTransformerService;
@@ -211,5 +219,283 @@ public class FhirService
             ProvideAndRegisterRequest = provideAndRegisterRequest,
             RegistryResponse = registerDocumentSetResponse?.Value
         };
+    }
+
+
+    public OperationOutcome PatchBundle(string id, JsonElement json, out DocumentEntryDto documentEntry, out CodedValue[] oldCodes)
+    {
+        documentEntry = null!;
+        oldCodes = null!;
+
+        var operationOutcome = new OperationOutcome();
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = "Missing id"
+            });
+        }
+
+        if (!TryExtractSecurityLabelElement(json, out var securityLabelElement, out var errorMessage))
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = errorMessage ?? "Missing securityLabel"
+            });
+        }
+
+        var fetchedDocumentEntry = _registryWrapper.GetSingleRegistryObjectAsDto(id) as DocumentEntryDto;
+
+        if (fetchedDocumentEntry == null)
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.NotFound,
+                Diagnostics = $"DocumentReference/{id} not found"
+            });
+        }
+
+        var codings = ParseSecurityLabelToCodedValues(securityLabelElement, out var parseError);
+        if (codings == null)
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
+            {
+                Severity = OperationOutcome.IssueSeverity.Fatal,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = parseError ?? "Invalid securityLabel"
+            });
+        }
+        if (codings != null)
+        {
+
+            var results = ValidateIncomingPatchBundleCodings(codings);
+
+            if (results.Count > 0)
+            {
+                operationOutcome.Issue.AddRange(results.Select(res => new OperationOutcome.IssueComponent
+                {
+                    Severity = OperationOutcome.IssueSeverity.Error,
+                    Code = OperationOutcome.IssueType.Invalid,
+                    Diagnostics = res.ErrorMessage
+                }));
+            }
+        }
+
+        var anyErrors = operationOutcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal);
+
+        if (anyErrors)
+            return operationOutcome;
+
+        var oldSecurityLabel = fetchedDocumentEntry!.ConfidentialityCode == null
+            ? null
+            : fetchedDocumentEntry.ConfidentialityCode.Select(c => new CodedValue
+            {
+                Code = c.Code,
+                CodeSystem = c.CodeSystem,
+                DisplayName = c.DisplayName
+            }).ToList();
+
+
+        fetchedDocumentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
+
+        var response = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(fetchedDocumentEntry);
+        
+        documentEntry = fetchedDocumentEntry;
+        oldCodes = [.. oldSecurityLabel ?? []];
+
+        if (!response.IsSuccess)
+        {
+            operationOutcome.Issue.Add(new OperationOutcome.IssueComponent()
+            {
+                Severity = OperationOutcome.IssueSeverity.Error,
+                Code = OperationOutcome.IssueType.Invalid,
+                Diagnostics = $"Failed to update DocumentReference/{id}: {response.Message}",
+            });
+        }
+
+        return operationOutcome;
+    }
+
+    private static bool TryExtractSecurityLabelElement(JsonElement json, out JsonElement securityLabelElement, out string? errorMessage)
+    {
+        securityLabelElement = default;
+        errorMessage = null;
+
+        if (json.ValueKind == JsonValueKind.Array)
+        {
+            // JSON Patch (RFC 6902): [{"op":"replace","path":"/securityLabel","value":[...]}]
+            foreach (var op in json.EnumerateArray())
+            {
+                if (op.ValueKind != JsonValueKind.Object) continue;
+                var hasOp = TryGetPropertyCaseInsensitive(op, "op", out var opName);
+                var hasPath = TryGetPropertyCaseInsensitive(op, "path", out var path);
+                if (!hasOp || !hasPath) continue;
+
+                var opNameValue = opName.GetString();
+                var pathValue = path.GetString();
+                if (string.IsNullOrWhiteSpace(opNameValue) || string.IsNullOrWhiteSpace(pathValue)) continue;
+
+                if (!pathValue.Equals("/securityLabel", StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMessage = "Only /securityLabel can be patched";
+                    return false;
+                }
+
+                if (!string.Equals(opNameValue, "add", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(opNameValue, "replace", StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMessage = "Only add/replace operations are supported";
+                    return false;
+                }
+
+                if (!TryGetPropertyCaseInsensitive(op, "value", out var value))
+                {
+                    errorMessage = "Patch operation is missing value";
+                    return false;
+                }
+
+                securityLabelElement = value;
+                return true;
+            }
+
+            errorMessage = "Invalid JSON Patch payload";
+            return false;
+        }
+
+        if (json.ValueKind != JsonValueKind.Object)
+        {
+            errorMessage = "Body must be a JSON object or JSON Patch array";
+            return false;
+        }
+
+        // Partial resource style: { "securityLabel": [ ... ] }
+        if (!TryGetPropertyCaseInsensitive(json, "securityLabel", out securityLabelElement))
+        {
+            errorMessage = "Body must include securityLabel";
+            return false;
+        }
+
+        // Whitelist (for future expansion, add more here)
+        foreach (var prop in json.EnumerateObject())
+        {
+            if (prop.NameEquals("securityLabel") || prop.NameEquals("resourceType") || prop.NameEquals("id"))
+                continue;
+            errorMessage = $"Property '{prop.Name}' is not allowed to be patched";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement obj, string name, out JsonElement value)
+    {
+        if (obj.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var prop in obj.EnumerateObject())
+            {
+                if (string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = prop.Value;
+                    return true;
+                }
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
+    private static List<CodedValue>? ParseSecurityLabelToCodedValues(JsonElement securityLabelElement, out string? errorMessage)
+    {
+        errorMessage = null;
+        if (securityLabelElement.ValueKind != JsonValueKind.Array)
+        {
+            errorMessage = "securityLabel must be an array";
+            return null;
+        }
+
+        var result = new List<CodedValue>();
+        foreach (var label in securityLabelElement.EnumerateArray())
+        {
+            if (label.ValueKind != JsonValueKind.Object)
+            {
+                errorMessage = "Each securityLabel entry must be an object";
+                return null;
+            }
+
+            if (!TryGetPropertyCaseInsensitive(label, "coding", out var codingElement) || codingElement.ValueKind != JsonValueKind.Array)
+            {
+                errorMessage = "Each securityLabel entry must include coding[]";
+                return null;
+            }
+
+            var addedAny = false;
+            foreach (var coding in codingElement.EnumerateArray())
+            {
+                if (coding.ValueKind != JsonValueKind.Object)
+                {
+                    errorMessage = "securityLabel.coding must contain objects";
+                    return null;
+                }
+
+                string? code = null;
+                string? system = null;
+                string? display = null;
+
+                if (TryGetPropertyCaseInsensitive(coding, "code", out var codeEl))
+                {
+                    code = codeEl.GetString();
+                }
+
+                if (TryGetPropertyCaseInsensitive(coding, "system", out var sysEl))
+                {
+                    system = sysEl.GetString();
+                }
+
+                if (TryGetPropertyCaseInsensitive(coding, "display", out var dispEl))
+                {
+                    display = dispEl.GetString();
+                }
+
+                if (string.IsNullOrWhiteSpace(code))
+                {
+                    errorMessage = "securityLabel.coding.code is required";
+                    return null;
+                }
+
+                result.Add(new CodedValue
+                {
+                    Code = code,
+                    CodeSystem = string.IsNullOrWhiteSpace(system) ? null : system.NoUrn(),
+                    DisplayName = display
+                });
+                addedAny = true;
+            }
+
+            if (!addedAny)
+            {
+                errorMessage = "securityLabel.coding must contain at least one object";
+                return null;
+            }
+        }
+
+        return result;
+    }
+
+    private List<ValidationResult> ValidateIncomingPatchBundleCodings(List<CodedValue> codings)
+    {
+        var results = new List<ValidationResult>();
+        foreach (var coding in codings)
+        {
+            var context = new ValidationContext(coding);
+            Validator.TryValidateObject(coding, context, results, true);
+        }
+
+        return results;
     }
 }

@@ -9,15 +9,23 @@ public class AtnaLogExporterService : BackgroundService
 {
     private readonly ILogger<AtnaLogExporterService> _logger;
     private readonly ApplicationConfig _appConfig;
+    private readonly MonitoringStatusService _monitoringStatusService;
     private readonly IAtnaLogQueue _atnaLogQueue;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public AtnaLogExporterService(ILogger<AtnaLogExporterService> logger, ApplicationConfig appConfig, IAtnaLogQueue atnaLogQueue, IHttpClientFactory httpClientFactory)
+    public AtnaLogExporterService(
+        ILogger<AtnaLogExporterService> logger,
+        IAtnaLogQueue atnaLogQueue,
+        IHttpClientFactory httpClientFactory,
+        ApplicationConfig appConfig,
+        MonitoringStatusService monitoringStatusService
+        )
     {
         _logger = logger;
-        _appConfig = appConfig;
         _atnaLogQueue = atnaLogQueue;
         _httpClientFactory = httpClientFactory;
+        _appConfig = appConfig;
+        _monitoringStatusService = monitoringStatusService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -67,6 +75,7 @@ public class AtnaLogExporterService : BackgroundService
         if (response.IsSuccessStatusCode)
         {
             _logger.LogInformation($"Successfully exported AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}");
+            _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
         }
         else
         {

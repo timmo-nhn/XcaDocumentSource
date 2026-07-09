@@ -9,22 +9,36 @@ public class SourceHealthCheckService
 {
     private readonly ILogger<SourceHealthCheckService> _logger;
     private readonly ApplicationConfig _appConfig;
+    private readonly MonitoringStatusService _monitoringStatusService;
     private readonly HealthCheckService _healthCheckService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
 
-    public SourceHealthCheckService(ILogger<SourceHealthCheckService> logger, ApplicationConfig appConfig, HealthCheckService healthCheckService, RegistryWrapper registryWrapper, RepositoryWrapper repositoryWrapper)
+    public SourceHealthCheckService(
+        ILogger<SourceHealthCheckService> logger,
+        ApplicationConfig appConfig,
+        MonitoringStatusService monitoringStatusService,
+        HealthCheckService healthCheckService,
+        RegistryWrapper registryWrapper,
+        RepositoryWrapper repositoryWrapper)
     {
         _logger = logger;
+        _appConfig = appConfig;
+        _monitoringStatusService = monitoringStatusService;
         _healthCheckService = healthCheckService;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
-        _appConfig = appConfig;
     }
 
     public async Task<HealthReport> CheckHealthAsync()
     {
         return await _healthCheckService.CheckHealthAsync();
+    }
+
+    public async Task CheckAtnaLogExport()
+    {
+        var lastRequest = _monitoringStatusService.LastRequest;
+        var lastAtnalogExport = _monitoringStatusService.LastAtnaLogExported;
     }
 
     public async Task<SourceStatus> GetRegistryRepositoryStatus()

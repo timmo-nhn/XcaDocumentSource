@@ -255,7 +255,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
                 DocumentId = documentEntry?.UniqueId
             }
         };
-        var registryObjectList = RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjects(documentReference);
+        var registryObjectList = RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjectsStateless(documentReference);
 
         switch (returnType)
         {

@@ -64,7 +64,7 @@ public class UnitTests_Fhir(WebApplicationFactory<WebService.Program> factory, I
         var mockRegistry = new InMemoryRegistry();
         mockRegistry.WriteRegistry(TestHelpers.GeneratePotentiallyFaultyComprehensiveRegistryMetadata(10, "13116900216", noDeprecatedDocuments: true).AsRegistryObjectDtos().ToList());
 
-        var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjects((await mockRegistry.ReadRegistry().ToListAsync(TestContext.Current.CancellationToken))!);
+        var registryObjects = RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjectsStateless((await mockRegistry.ReadRegistry().ToListAsync(TestContext.Current.CancellationToken))!);
 
         var rng = new Random();
 

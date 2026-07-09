@@ -5,6 +5,7 @@ public class BoundedDictionary<TKey, TValue> where TKey : notnull
     private readonly int _maxSize;
     private readonly Dictionary<TKey, LinkedListNode<(TKey Key, TValue Value)>> _dict;
     private readonly LinkedList<(TKey Key, TValue Value)> _order;
+    public event EventHandler<BoundedDictionaryItemAddedEventArgs<TKey, TValue>>? Updated;
 
     public BoundedDictionary(int maxSize = 1000)
     {
@@ -17,10 +18,13 @@ public class BoundedDictionary<TKey, TValue> where TKey : notnull
     public void Add(TKey key, TValue value)
     {
         using var mutex = new Mutex(false, "Global\\AddMutex");
+        var mutexAcquired = false;
+        BoundedDictionaryItemAddedEventArgs<TKey, TValue>? eventArgs = null;
 
         try
         {
-            if (mutex.WaitOne(TimeSpan.FromSeconds(5)))
+            mutexAcquired = mutex.WaitOne(TimeSpan.FromSeconds(5));
+            if (mutexAcquired)
             {
                 var node = new LinkedListNode<(TKey, TValue)>((key, value));
                 _order.AddLast(node);
@@ -32,11 +36,21 @@ public class BoundedDictionary<TKey, TValue> where TKey : notnull
                     _order.RemoveFirst();
                     _dict.Remove(oldest.Value.Key);
                 }
+
+                eventArgs = new BoundedDictionaryItemAddedEventArgs<TKey, TValue>(key, value);
             }
         }
         finally
         {
-            mutex.ReleaseMutex();
+            if (mutexAcquired)
+            {
+                mutex.ReleaseMutex();
+            }
+        }
+
+        if (eventArgs != null)
+        {
+            Updated?.Invoke(this, eventArgs);
         }
     }
 
@@ -54,4 +68,11 @@ public class BoundedDictionary<TKey, TValue> where TKey : notnull
 
     public IEnumerable<KeyValuePair<TKey, TValue>> Items =>
         _order.Select(n => new KeyValuePair<TKey, TValue>(n.Key, n.Value));
+}
+
+public sealed class BoundedDictionaryItemAddedEventArgs<TKey, TValue>(TKey key, TValue value) : EventArgs
+{
+    public TKey Key { get; } = key;
+    public TValue Value { get; } = value;
+    public KeyValuePair<TKey, TValue> Item => new(Key, Value);
 }
