@@ -163,8 +163,6 @@ public class XdsRespondingGatewayController : ControllerBase
         requestTimer.Stop();
         _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Exporting AuditEvent for {action} request");
-
         _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 
         // multipart RetrieveDocumentSet needs to be returned as its own object

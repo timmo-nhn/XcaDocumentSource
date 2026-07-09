@@ -38,9 +38,13 @@ public class AtnaLogExporterService : BackgroundService
         {
             _logger.LogInformation(ex, "AuditLogExporterService is stopping.");
         }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, $"Unable to connect to ATNA log exporter endpoint {_appConfig.AtnaLogExporterEndpoint}. Audit log is not being exported!");
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception in AuditLogExporterService");
+            _logger.LogError(ex, "Unhandled exception in AuditLogExporterService. Audit log is not being exported!");
             throw;
         }
     }

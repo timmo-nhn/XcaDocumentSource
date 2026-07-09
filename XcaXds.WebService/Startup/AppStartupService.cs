@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NHN.OpenTelemetryExtensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
@@ -132,7 +133,7 @@ public class AppStartupService : IHostedService
 
     private async Task MigrateSqliteRegistryDbToPostgreSqlIfPresent(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(GetPostgreSqlConnectionString()))
+        if (string.IsNullOrWhiteSpace(Extensions.WebApplicationBuilderExtensions.GetPostgreSqlConnectionString()))
         {
             return;
         }
@@ -431,14 +432,4 @@ public class AppStartupService : IHostedService
     //    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
     //    fileBasedRegistry.MarkFileRegistryAsMigrated();
     //}
-
-    private string? GetPostgreSqlConnectionString()
-    {
-        return _config.GetConnectionString("PostgreSql")
-               ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-               ?? _config.GetConnectionString("DefaultConnection")
-               ?? _config["PostgreSql:ConnectionString"]
-               ?? Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING")
-               ;
-    }
 }

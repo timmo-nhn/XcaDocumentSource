@@ -11,7 +11,6 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Source.Source;
-using XcaXds.Source.Source.PolicyRepository;
 using XcaXds.Source.Source.PolicyRepository.FileBased;
 using XcaXds.Source.Source.RegistryRepository.FileBased;
 using XcaXds.Source.Source.RegistryRepository.PostGreSql;
@@ -139,7 +138,7 @@ public static class WebApplicationBuilderExtensions
 
     public static void RegisterXdsRegistryRepositoryServices(this WebApplicationBuilder builder)
     {
-        var postgreSqlConnectionString = GetPostgreSqlConnectionString(builder.Configuration);
+        var postgreSqlConnectionString = builder.Configuration.GetPostgreSqlConnectionString();
         var usePostgreSql = string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
 
         // Registry
@@ -175,10 +174,13 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddSingleton<DocumentListFiltererService>();
     }
 
-    private static string? GetPostgreSqlConnectionString(IConfiguration configuration)
+    public static string? GetPostgreSqlConnectionString(this IConfiguration configuration)
     {
-        return configuration.GetConnectionString("PostgreSql")
-               ?? configuration["PostgreSql:ConnectionString"]
-               ?? Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING");
+        return configuration.GetConnectionString("DefaultConnection") ?? GetPostgreSqlConnectionString();
+    }
+
+    public static string? GetPostgreSqlConnectionString()
+    {
+        return Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
     }
 }

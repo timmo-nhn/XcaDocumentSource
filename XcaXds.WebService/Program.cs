@@ -6,46 +6,19 @@ using Microsoft.OpenApi;
 using NHN.OpenTelemetryExtensions;
 using System.Collections;
 using System.Text.Json.Serialization;
-using XcaXds.BusinessLogic.BusinessLogic;
-using XcaXds.BusinessLogic.Services;
-using XcaXds.Commons.DataManipulators;
-using XcaXds.Commons.DataManipulators.Fhir;
-using XcaXds.Commons.Extensions.NinParsers;
-using XcaXds.Commons.Extensions.No;
-using XcaXds.Commons.Interfaces;
-using XcaXds.Commons.Interfaces.PolicyEnforcementPoint.InputStrategies;
-using XcaXds.Commons.Interfaces.Statistics;
-using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.ApiKey;
-using XcaXds.Commons.Models.Custom.Statistics;
-using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Shared;
 using XcaXds.Shared.ConfigBinder;
-using XcaXds.Source.Source;
 using XcaXds.Source.Source.RegistryRepository.PostGreSql;
 using XcaXds.Source.Source.RegistryRepository.SqLite;
-using XcaXds.Terminology.Interfaces;
 using XcaXds.Terminology.Services;
-using XcaXds.Terminology.Sources;
-using XcaXds.Terminology.TerminologySources;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.Extensions;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
-using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogBuilder;
-using XcaXds.WebService.Services.AtnaAuditLogging.AtnaLogStrategies;
-using XcaXds.WebService.Services.Fhir;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyBuilder;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.DenyStrategies;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.InputBuilder;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.InputStrategies;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
-using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy.RequestMappers;
 using XcaXds.WebService.Services.Statistics;
-using XcaXds.WebService.Services.XdsRegistry;
-using XcaXds.WebService.Services.XdsRepository;
 using XcaXds.WebService.Startup;
 
 namespace XcaXds.WebService;
@@ -146,7 +119,7 @@ public class Program
             options.UseSqlite($"Data Source=\"{DatabasePathFinder.FindDatabasePath()}\"",
                 sqliteOptions => sqliteOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
-        var postgreSqlConnectionString = GetPostgreSqlConnectionString(builder.Configuration);
+        var postgreSqlConnectionString = builder.Configuration.GetPostgreSqlConnectionString();
         if (string.IsNullOrWhiteSpace(postgreSqlConnectionString))
         {
             return;
@@ -317,12 +290,5 @@ public class Program
             .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", null);
 
         builder.Services.AddAuthorization();
-    }
-
-    private static string? GetPostgreSqlConnectionString(IConfiguration configuration)
-    {
-        return configuration.GetConnectionString("PostgreSql")
-               ?? configuration["PostgreSql:ConnectionString"]
-               ?? Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING");
     }
 }

@@ -14,6 +14,7 @@ using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
+using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Shared;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
@@ -216,13 +217,29 @@ public class ApplicationMetaController : ControllerBase
         _logger.LogInformation("Generated {count} registry objects", generatedRegistryObjects.Count());
         _logger.LogInformation("Updating registry with generated objects...");
 
-        var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos(generatedRegistryObjects.AsRegistryObjectDtos()
-            .ToList());
+        var registryObjects = generatedRegistryObjects.AsRegistryObjectDtos().ToList();
+
+        var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos(registryObjects);
+
+        foreach (var document in generatedRegistryObjects.Select(d => d.Document).OfType<DocumentDto>())
+        {
+            var documentEntry = registryObjects.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.UniqueId == document.DocumentId);
+            var pidCx = documentEntry?.SourcePatientInfo?.PatientId is { } pid ?  new CX()
+            {
+               IdNumber = pid.Id,
+               AssigningAuthority = new(pid.System)
+            }: null;
+            var documentResponse = _repositoryWrapper.StoreDocument(document.DocumentId!, document.Data!, pidCx!.Serialize()!);
+        }
 
         if (!updateResponse.IsSuccess)
         {
+            var documentReference = generatedRegistryObjects.Select(d => d.Document).OfType<DocumentDto>().FirstOrDefault();
+
             return BadRequest(response.AddError("UpdateError", $"Error while generating test data {updateResponse.Message}"));
         }
+
+        _logger.LogInformation("Metadata generated");
 
         return Ok(response.SetMessage("Metadata generated"));
     }
