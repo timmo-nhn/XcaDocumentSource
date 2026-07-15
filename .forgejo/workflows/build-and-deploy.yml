@@ -33,9 +33,29 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
 
-  update-mani-viti-dev:
+  scan:
     runs-on: docker
     needs: build
+    container:
+      image: aquasec/trivy:0.71.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan image for vulnerabilities
+        env:
+          TRIVY_USERNAME: ${{ secrets.HARBOR_USER }}
+          TRIVY_PASSWORD: ${{ secrets.HARBOR_TOKEN }}
+        run: |
+          trivy image \
+            --severity CRITICAL \
+            --exit-code 1 \
+            --scanners vuln,secret \
+            --ignorefile .trivyignore \
+            ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+  update-mani-viti-dev:
+    runs-on: docker
+    needs: [build, scan]
     steps:
       - name: Update image tag in xcads-mani-viti (dev)
         env:
@@ -65,7 +85,7 @@ jobs:
 
   update-mani-viti-test:
     runs-on: docker
-    needs: build
+    needs: [build, scan]
     if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Update image tag in xcads-mani-viti (test)
@@ -93,7 +113,7 @@ jobs:
 
   update-mani-viti-qa:
     runs-on: docker
-    needs: build
+    needs: [build, scan]
     if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Update image tag in xcads-mani-viti (qa)
@@ -121,7 +141,7 @@ jobs:
 
   update-mani-viti-prod:
     runs-on: docker
-    needs: build
+    needs: [build, scan]
     if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Update image tag in xcads-mani-viti (prod)
