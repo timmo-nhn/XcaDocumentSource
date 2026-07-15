@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Update image tag in xcads-mani-viti (dev)
         env:
-          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+          FORGEJO_TOKEN: ${{ secrets.TOKEN_FORGEJO }}
         run: |
           set -e
           IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-8)
@@ -76,90 +76,6 @@ jobs:
           NEW_CONTENT_B64=$(echo "$NEW_CONTENT" | base64 -w 0)
 
           # Push updated file
-          curl -sS --fail-with-body -X PUT -H "Authorization: token ${FORGEJO_TOKEN}" \
-            -H "Content-Type: application/json" \
-            "${FORGEJO_API}/repos/${REPO}/contents/${FILE_PATH}" \
-            -d "{\"message\":\"ci: update xcadocumentsource image tag to ${IMAGE_TAG}\",\"content\":\"${NEW_CONTENT_B64}\",\"sha\":\"${FILE_SHA}\",\"branch\":\"main\"}"
-
-  update-mani-viti-test:
-    runs-on: docker
-    needs: [build, scan]
-    if: github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Update image tag in xcads-mani-viti (test)
-        env:
-          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
-        run: |
-          set -e
-          IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-8)
-          FORGEJO_API="https://code.nhn.no/api/v1"
-          REPO="Team_Dokumentdeling/xcads-mani-viti"
-          FILE_PATH="xcadocumentstore/values.test.yaml"
-
-          RESPONSE=$(curl -sS --fail-with-body -H "Authorization: token ${FORGEJO_TOKEN}" \
-            "${FORGEJO_API}/repos/${REPO}/contents/${FILE_PATH}?ref=main")
-          FILE_SHA=$(echo "$RESPONSE" | jq -r '.sha')
-          CURRENT_CONTENT=$(echo "$RESPONSE" | jq -r '.content' | base64 -d)
-
-          NEW_CONTENT=$(echo "$CURRENT_CONTENT" | sed "s/tag:.*/tag: \"${IMAGE_TAG}\"/")
-          NEW_CONTENT_B64=$(echo "$NEW_CONTENT" | base64 -w 0)
-
-          curl -sS --fail-with-body -X PUT -H "Authorization: token ${FORGEJO_TOKEN}" \
-            -H "Content-Type: application/json" \
-            "${FORGEJO_API}/repos/${REPO}/contents/${FILE_PATH}" \
-            -d "{\"message\":\"ci: update xcadocumentsource image tag to ${IMAGE_TAG}\",\"content\":\"${NEW_CONTENT_B64}\",\"sha\":\"${FILE_SHA}\",\"branch\":\"main\"}"
-
-  update-mani-viti-qa:
-    runs-on: docker
-    needs: [build, scan]
-    if: github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Update image tag in xcads-mani-viti (qa)
-        env:
-          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
-        run: |
-          set -e
-          IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-8)
-          FORGEJO_API="https://code.nhn.no/api/v1"
-          REPO="Team_Dokumentdeling/xcads-mani-viti"
-          FILE_PATH="xcadocumentstore/values.qa.yaml"
-
-          RESPONSE=$(curl -sS --fail-with-body -H "Authorization: token ${FORGEJO_TOKEN}" \
-            "${FORGEJO_API}/repos/${REPO}/contents/${FILE_PATH}?ref=main")
-          FILE_SHA=$(echo "$RESPONSE" | jq -r '.sha')
-          CURRENT_CONTENT=$(echo "$RESPONSE" | jq -r '.content' | base64 -d)
-
-          NEW_CONTENT=$(echo "$CURRENT_CONTENT" | sed "s/tag:.*/tag: \"${IMAGE_TAG}\"/")
-          NEW_CONTENT_B64=$(echo "$NEW_CONTENT" | base64 -w 0)
-
-          curl -sS --fail-with-body -X PUT -H "Authorization: token ${FORGEJO_TOKEN}" \
-            -H "Content-Type: application/json" \
-            "${FORGEJO_API}/repos/${REPO}/contents/${FILE_PATH}" \
-            -d "{\"message\":\"ci: update xcadocumentsource image tag to ${IMAGE_TAG}\",\"content\":\"${NEW_CONTENT_B64}\",\"sha\":\"${FILE_SHA}\",\"branch\":\"main\"}"
-
-  update-mani-viti-prod:
-    runs-on: docker
-    needs: [build, scan]
-    if: github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Update image tag in xcads-mani-viti (prod)
-        env:
-          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
-        run: |
-          set -e
-          IMAGE_TAG=$(echo "${{ github.sha }}" | cut -c1-8)
-          FORGEJO_API="https://code.nhn.no/api/v1"
-          REPO="Team_Dokumentdeling/xcads-mani-viti"
-          FILE_PATH="xcadocumentstore/values.prod.yaml"
-
-          RESPONSE=$(curl -sS --fail-with-body -H "Authorization: token ${FORGEJO_TOKEN}" \
-            "${FORGEJO_API}/repos/${REPO}/contents/${FILE_PATH}?ref=main")
-          FILE_SHA=$(echo "$RESPONSE" | jq -r '.sha')
-          CURRENT_CONTENT=$(echo "$RESPONSE" | jq -r '.content' | base64 -d)
-
-          NEW_CONTENT=$(echo "$CURRENT_CONTENT" | sed "s/tag:.*/tag: \"${IMAGE_TAG}\"/")
-          NEW_CONTENT_B64=$(echo "$NEW_CONTENT" | base64 -w 0)
-
           curl -sS --fail-with-body -X PUT -H "Authorization: token ${FORGEJO_TOKEN}" \
             -H "Content-Type: application/json" \
             "${FORGEJO_API}/repos/${REPO}/contents/${FILE_PATH}" \
