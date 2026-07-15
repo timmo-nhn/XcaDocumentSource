@@ -39,8 +39,6 @@ jobs:
     container:
       image: aquasec/trivy:0.71.0
     steps:
-      - uses: actions/checkout@v4
-
       - name: Scan image for vulnerabilities
         env:
           TRIVY_USERNAME: ${{ secrets.HARBOR_USER }}
@@ -50,7 +48,6 @@ jobs:
             --severity CRITICAL \
             --exit-code 1 \
             --scanners vuln,secret \
-            --ignorefile .trivyignore \
             ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
   update-mani-viti-dev:
