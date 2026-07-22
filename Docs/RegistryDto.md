@@ -7,7 +7,7 @@ The RegistryObjectDto and its inheritants are used to store the registry metadat
 * **Submission Set** - Metadata about the submission of the document (Who uploaded the document, what system/facility)
 * **Association** - Binds the DocumentReference to the Submission Set, creating a document reference.
 
-For more info on ebRIM types, see [SOAP-Message and SOAP-message formats](/Docs/XdsAndSoap.md)
+For more info on ebRIM types, see [SOAP-Message and SOAP-message formats](./XdsAndSoap.md)
 
 The classes defining the structure are found in `<Solution>/XcaXds.Commons/Models/RegistryDtos`. 
 

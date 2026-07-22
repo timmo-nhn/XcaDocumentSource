@@ -102,43 +102,43 @@ document <--> docstore
 The **Dockerfile** supports overriding the upstream container registry via `UPSTREAM_REGISTRY` (default: `mcr.microsoft.com`).
 In GitLab CI this is set through build args so base images are pulled via `CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX`.
 
-### [🌐 Document Sharing overiew - Actors and Components](/Docs/Overview.md)
+### [🌐 Document Sharing overiew - Actors and Components](Docs/Overview.md)
 Describes the high-level principles of document sharing, and the components involved in the process.
 
-### [📝 Use case scenarios - XcaDocumentSource](/Docs/UseCases.md)
+### [📝 Use case scenarios - XcaDocumentSource](Docs/UseCases.md)
 Scenarios of XcaDocumentSource in a source system.
 
-### [⚙️ Solution Overview/Technical implementation details](/Docs/TechnicalImplementation.md)
+### [⚙️ Solution Overview/Technical implementation details](Docs/TechnicalImplementation.md)
 How **XcaDocumentSource** solution is structured, and how it can be implemented in a source system, taking in account existing document registries/repositories, and PAP/PDP/PR systems.
 
-### [📜 Custom Registry Format](/Docs/RegistryDto.md)
+### [📜 Custom Registry Format](Docs/RegistryDto.md)
 Describes the custom Registry format which is used to store document entries.
 
-### [🧾 (ebRIM) Metadata, XDS and SOAP-message formats and standards](/Docs/XdsAndSoap.md)
+### [🧾 (ebRIM) Metadata, XDS and SOAP-message formats and standards](Docs/XdsAndSoap.md)
 Covering the SOAP-message format and the XDS profile and transactions involved in uploading, downloading and sharing documents and document metadata.
 
 ## Interacting With the Document Registry/Repository
 
-### [📨 SOAP-endpoints/ITI-messages (SOAP-transactions) and Multipart](/Docs/XdsTransactions.md)
+### [📨 SOAP-endpoints/ITI-messages (SOAP-transactions) and Multipart](Docs/XdsTransactions.md)
 Overviews the ITI-messages supported by **XcaDocumentSource** and their endpoints, as well as examples. Also describes MTOM/multipart request handling in **XcaDocumentSource**
 
-### [👩‍💻 REST-endpoints (CRUD-transactions)](/Docs/RestTransactions.md)
+### [👩‍💻 REST-endpoints (CRUD-transactions)](Docs/RestTransactions.md)
 Describes the REST-endpoints of the solution, allowing for quick and easy CRUD-operations on the Document Registry and Repository.
 
-### [🔥 FHIR/MHD-endpoints](/Docs/MhdTransactions.md)
+### [🔥 FHIR/MHD-endpoints](Docs/MhdTransactions.md)
 Describes the RESTful FHIR and MHD-endpoints (Mobile access to Health Documents) of the solution, accesing the registry and repository in a standards-based format (XDS on FHIR).
 
 ## Governing the solution
 
-### [💠 OIDs (Object Identifiers)](/Docs/Oids.md)
+### [💠 OIDs (Object Identifiers)](Docs/Oids.md)
 OIDs are important in identifying the different components in the systems involved in the document sharing exchange. Effective governing and managing of OIDs are crucial in efficiently identifying systems.
 
-### [🏛 Authorization and Access Control](/Docs/AccessControl.md)
+### [🏛 Authorization and Access Control](Docs/AccessControl.md)
 Describes the methods and interfaces for access control.
 
 ## Other Functionality
 
-### [📄 CDA To Registry Metadata](/Docs/CdaRegistryMetadata.md)
+### [📄 CDA To Registry Metadata](Docs/CdaRegistryMetadata.md)
 Describes the functionality for converting a CDA document to an ITI-41 message/Registry Metadata and vice-versa.
 
 ## Coding Conventions

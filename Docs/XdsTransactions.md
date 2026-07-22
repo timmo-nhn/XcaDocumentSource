@@ -1,6 +1,6 @@
 # SOAP-transactions In IHE XDS/XCA  
 Below are the transactions supported by default by **XcaDocumentSource**. Each transaction section contains a table defining the properties of the transaction.  
-> It is reccomended to read [Xds And Soap](/Docs/XdsAndSoap.md) first, as it gives an introduction to SOAP/ITI messages and the components 
+> It is recommended to read [Xds And Soap](./XdsAndSoap.md) first, as it gives an introduction to SOAP/ITI messages and the components 
 
 ## ITI-Transactions
 
