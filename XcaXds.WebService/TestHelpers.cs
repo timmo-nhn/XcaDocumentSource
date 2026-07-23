@@ -48,12 +48,8 @@ public static class TestHelpers
 
     private static List<DocumentReferenceDto> GenerateRegistryMetadata(string fileName, int amount = 10, string? patientId = null, bool noDeprecatedDocuments = false)
     {
-        Console.WriteLine("Base directory: " + AppContext.BaseDirectory);
-
-        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData");
-        var testDataFiles = Directory.GetFiles(testDataPath);
-
-        var data = File.ReadAllText(testDataFiles.FirstOrDefault(f => f.Contains(fileName)) ?? "");
+        var dataFilePath = ResolveTestDataFilePath(fileName);
+        var data = File.ReadAllText(dataFilePath);
 
         return RegistryMetadataGenerator.GenerateRandomizedTestData(
             homeCommunityId: "2.16.578.1.12.4.5.100.1.1",
@@ -62,6 +58,27 @@ public static class TestHelpers
             entriesToGenerate: amount,
             patientIdentifier: patientId,
             noDeprecatedDocuments: noDeprecatedDocuments);
+    }
+
+    private static string ResolveTestDataFilePath(string fileName)
+    {
+        var candidatePaths = new[]
+        {
+            Path.Combine(AppContext.BaseDirectory, "TestData", fileName),
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData", fileName),
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "XcaXds.Tests", "TestData", fileName)
+        };
+
+        foreach (var candidatePath in candidatePaths)
+        {
+            var fullPath = Path.GetFullPath(candidatePath);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+        }
+
+        throw new FileNotFoundException($"Could not locate test data file '{fileName}'. Checked paths: {string.Join(", ", candidatePaths.Select(Path.GetFullPath))}");
     }
 
     public static void AddAccessControlPolicyForIntegrationTest(PolicyRepositoryService policyRepositoryService, string policyName, string attributeId, string codeValue, string action, string? codeSystemValue = null, bool noCode = false)
