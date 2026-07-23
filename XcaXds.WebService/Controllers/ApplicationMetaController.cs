@@ -15,9 +15,11 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
+using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
@@ -203,6 +205,36 @@ public class ApplicationMetaController : ControllerBase
     }
 
     [RequiresApiKey]
+    [HttpGet("generate-random-test-data")]
+    public async Task<IActionResult> GenerateRandomTestData([FromQuery] int entriesToGenerate, [FromQuery] string? patientIdentifier, [FromQuery] bool association = true, [FromQuery] bool submissionSet = true, [FromQuery] bool documentEntry = true, [FromQuery] bool document = true)
+    {
+        if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
+        var response = new RestfulApiResponse();
+
+        var patientIdentifierCx = Hl7Object.Parse<CX>(patientIdentifier);
+
+        var existingPatientPidObject = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>()
+            .Select(de => de.SourcePatientInfo).DistinctBy(pid => new { pid?.PatientId?.Id, pid?.PatientId?.System })
+            .OfType<SourcePatientInfo>()
+            .FirstOrDefault(pid => pid.PatientId?.Id == patientIdentifierCx?.IdNumber && pid.PatientId?.System == patientIdentifierCx?.AssigningAuthority?.UniversalId)?
+            .AsHl7Pid().Serialize();
+
+        var generatedRegistryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata(entriesToGenerate, existingPatientPidObject ?? patientIdentifierCx?.Serialize(), false);
+        _logger.LogInformation("Generated {count} registry objects", generatedRegistryObjects.Count());
+
+        generatedRegistryObjects = generatedRegistryObjects.Select(ro =>
+        new DocumentReferenceDto()
+        {
+            Association = association ? ro.Association : null,
+            DocumentEntry = documentEntry ? ro.DocumentEntry : null,
+            Document = document ? ro.Document : null,
+            SubmissionSet = submissionSet ? ro.SubmissionSet : null
+        }).ToList();
+
+        return Ok(RegistryJsonSerializer.Serialize(generatedRegistryObjects));
+    }
+
+    [RequiresApiKey]
     [HttpPost("generate-test-data")]
     public async Task<IActionResult> GenerateTestData([FromBody] JsonElement resourceJson,
         [FromQuery] int entriesToGenerate, [FromQuery] string? patientIdentifier)
@@ -227,11 +259,11 @@ public class ApplicationMetaController : ControllerBase
         foreach (var document in generatedRegistryObjects.Select(d => d.Document).OfType<DocumentDto>())
         {
             var documentEntry = registryObjects.OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.UniqueId == document.DocumentId);
-            var pidCx = documentEntry?.SourcePatientInfo?.PatientId is { } pid ?  new CX()
+            var pidCx = documentEntry?.SourcePatientInfo?.PatientId is { } pid ? new CX()
             {
-               IdNumber = pid.Id,
-               AssigningAuthority = new(pid.System)
-            }: null;
+                IdNumber = pid.Id,
+                AssigningAuthority = new(pid.System)
+            } : null;
             var documentResponse = _repositoryWrapper.StoreDocument(document.DocumentId!, document.Data!, pidCx!.Serialize()!);
         }
 

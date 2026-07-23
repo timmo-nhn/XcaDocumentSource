@@ -1,7 +1,8 @@
 ﻿using System.Security.Cryptography;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
+using XcaXds.Commons.Models.Hl7.DataType;
+using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
 
 namespace XcaXds.Commons.DataManipulators.Tests;
@@ -17,7 +18,7 @@ public static class RegistryMetadataGenerator
         bool noDeprecatedDocuments = false
         )
     {
-        if (jsonTestData?.PossibleDocumentEntryValues == null) return new();
+        if (jsonTestData?.PossibleDocumentEntryValues == null) return [];
 
         if (noDeprecatedDocuments == true)
         {
@@ -26,7 +27,17 @@ public static class RegistryMetadataGenerator
 
         jsonTestData.PossibleSubmissionSetValues?.Authors ??= jsonTestData.PossibleDocumentEntryValues.Authors;
 
-        var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos?.FirstOrDefault(spi => spi?.PatientId?.Id == patientIdentifier);
+        var patientIdentifierPid = Hl7Object.Parse<PID>(patientIdentifier) is { PatientIdentifier: not null } pidPid ? pidPid : null;
+        var patientIdentifierCx = Hl7Object.Parse<CX>(patientIdentifier);
+
+        var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos?.FirstOrDefault(spi =>
+        (spi?.PatientId?.Id == patientIdentifierPid?.PatientId?.IdNumber && 
+        spi?.PatientId?.System == patientIdentifierPid?.PatientId?.AssigningAuthority?.UniversalId) 
+        ||
+        (spi?.PatientId?.Id == patientIdentifierCx?.IdNumber &&
+        spi?.PatientId?.System == patientIdentifierCx?.AssigningAuthority?.UniversalId)
+        ||
+        (spi?.PatientId?.Id == patientIdentifier));
 
         if (sourcePatientInfoForPatient != null)
         {
@@ -47,9 +58,8 @@ public static class RegistryMetadataGenerator
                 generatedTestObject.DocumentEntry.HomeCommunityId = homeCommunityId;
                 generatedTestObject.DocumentEntry.RepositoryUniqueId = repositoryUniqueId;
             }
-
-
         }
+
         return generatedTestRegistryObjects;
     }
 }

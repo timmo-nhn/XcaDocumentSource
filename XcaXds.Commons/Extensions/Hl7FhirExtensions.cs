@@ -1,6 +1,8 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.Commons.Models.Hl7.DataType;
 
 namespace XcaXds.Commons.Extensions;
 
@@ -85,5 +87,19 @@ public static class Hl7FhirExtensions
     public static bool IssuesOfSeverity(this OperationOutcome outcome, params OperationOutcome.IssueSeverity[] severities)
     {
         return severities.Any(sev => outcome.Issue.Any(issue => sev.Equals(issue.Severity)));
+    }
+    public static PID AsHl7Pid(this SourcePatientInfo patientInfo)
+    {
+        return new PID()
+        {
+            PatientId = new(patientInfo.PatientId?.Id, patientInfo.PatientId?.System),
+            PatientName =
+                new XPN
+                {
+                    FamilyName = patientInfo.LastName,
+                    GivenName = patientInfo.FirstName
+                },
+            BirthDate = patientInfo.BirthTime.HasValue ? patientInfo.BirthTime.Value : DateTime.MinValue,
+        };
     }
 }
