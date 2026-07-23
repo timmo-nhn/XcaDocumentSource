@@ -30,18 +30,32 @@ public static class RegistryMetadataGenerator
         var patientIdentifierPid = Hl7Object.Parse<PID>(patientIdentifier) is { PatientId: not null } pidPid ? pidPid : null;
         var patientIdentifierCx = Hl7Object.Parse<CX>(patientIdentifier) is { IdNumber: not null } pidCx ? pidCx : null;
 
-        var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos?.FirstOrDefault(spi =>
-        (spi?.PatientId?.Id == patientIdentifierPid?.PatientId?.IdNumber && 
-        spi?.PatientId?.System == patientIdentifierPid?.PatientId?.AssigningAuthority?.UniversalId) 
+        // Try to find the matching patient in the JSON test data values
+        var existingJsonSourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos?.FirstOrDefault(spi =>
+        (spi?.PatientId?.Id == patientIdentifierPid?.PatientId?.IdNumber &&
+        spi?.PatientId?.System == patientIdentifierPid?.PatientId?.AssigningAuthority?.UniversalId)
         ||
         (spi?.PatientId?.Id == patientIdentifierCx?.IdNumber &&
         spi?.PatientId?.System == patientIdentifierCx?.AssigningAuthority?.UniversalId)
         ||
         (spi?.PatientId?.Id == patientIdentifier));
 
-        if (sourcePatientInfoForPatient != null)
+        if (existingJsonSourcePatientInfoForPatient != null)
         {
-            jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [sourcePatientInfoForPatient];
+            jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [existingJsonSourcePatientInfoForPatient];
+        }
+        else if (patientIdentifierCx != null || patientIdentifierPid != null)
+        {
+            jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [new SourcePatientInfo()
+            {
+                PatientId = new(
+                    patientIdentifierCx?.IdNumber ?? patientIdentifierPid?.PatientId?.IdNumber,
+                    patientIdentifierCx?.AssigningAuthority?.UniversalId ?? patientIdentifierPid?.PatientId?.IdNumber
+                ),
+                FirstName = "Generated",
+                LastName = "Patient",
+                BirthTime = DateTime.UtcNow
+            }];
         }
 
         var generatedTestRegistryObjects = TestDataGenerator.GenerateRegistryObjectsFromTestData(jsonTestData, (int)entriesToGenerate!);

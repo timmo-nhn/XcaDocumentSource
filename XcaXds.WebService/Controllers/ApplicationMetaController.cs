@@ -219,7 +219,7 @@ public class ApplicationMetaController : ControllerBase
             .FirstOrDefault(pid => pid.PatientId?.Id == patientIdentifierCx?.IdNumber && pid.PatientId?.System == patientIdentifierCx?.AssigningAuthority?.UniversalId)?
             .AsHl7Pid().Serialize();
 
-        var generatedRegistryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata(entriesToGenerate, existingPatientPidObject ?? patientIdentifierCx?.Serialize(), false);
+        var generatedRegistryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata(entriesToGenerate, existingPatientPidObject ?? patientIdentifierCx?.Serialize() ?? patientIdentifier, false);
         _logger.LogInformation("Generated {count} registry objects", generatedRegistryObjects.Count());
 
         generatedRegistryObjects = generatedRegistryObjects.Select(ro =>

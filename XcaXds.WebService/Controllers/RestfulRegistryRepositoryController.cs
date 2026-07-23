@@ -430,13 +430,13 @@ public class RestfulRegistryRepositoryController : ControllerBase
     [Produces("application/json")]
     [Consumes("application/json")]
     [HttpDelete("all-data-for-patient")]
-    public async Task<IActionResult> DeleteAllDataForPatient(string patientIdentifier)
+    public async Task<IActionResult> DeleteAllDataForPatient(string patientIdentifier, string patientSystem)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Delete")) return NotFound();
 
         var requestTimer = Stopwatch.StartNew();
 
-        var deleteResponse = _restfulRegistryService.DeleteAllDataForPatient(patientIdentifier);
+        var deleteResponse = _restfulRegistryService.DeleteAllDataForPatient(patientIdentifier, patientSystem);
 
         requestTimer.Stop();
 

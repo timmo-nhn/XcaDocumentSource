@@ -530,22 +530,30 @@ public class RestfulRegistryRepositoryService
         return patientIdentifiers;
     }
 
-    public RestfulApiResponse DeleteAllDataForPatient(string patientIdentifier)
+    public RestfulApiResponse DeleteAllDataForPatient(string patientIdentifier, string patientSystem)
     {
         var response = new RestfulApiResponse();
 
-        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
+        var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtosByPatientId(new(patientIdentifier, patientSystem));
+        
+        var patientIdentifierCx = Hl7Object.Parse<CX>(patientIdentifier) is { IdNumber: not null } pidCx ? pidCx : null;
 
-        var documentEntries = documentRegistry.OfType<DocumentEntryDto>().Where(de => de.SourcePatientInfo?.PatientId?.Id == patientIdentifier).ToList();
+        var documentEntries = documentRegistry?.OfType<DocumentEntryDto>().Where(de => 
+        (de.SourcePatientInfo?.PatientId?.Id == patientIdentifierCx?.IdNumber &&
+        de.SourcePatientInfo?.PatientId?.System == patientIdentifierCx?.AssigningAuthority?.UniversalId) 
+        ||
+        (de.SourcePatientInfo?.PatientId?.Id == patientIdentifier && 
+        de.SourcePatientInfo?.PatientId?.System == patientSystem))
+        .ToList();
 
-        if (documentEntries.Count == 0)
+        if (documentEntries?.Count.IsNullOrZero() == true)
         {
             response.SetMessage($"No Metadata found for patient {patientIdentifier}");
             response.Success = false;
             return response;
         }
 
-        foreach (var documentEntry in documentEntries)
+        foreach (var documentEntry in documentEntries!)
         {
             DeleteDocumentAndMetadata(documentEntry.Id);
         }
