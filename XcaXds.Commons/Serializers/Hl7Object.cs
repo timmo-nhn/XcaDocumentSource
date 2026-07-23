@@ -12,6 +12,9 @@ namespace XcaXds.Commons.Serializers;
 
 public abstract class Hl7Object
 {
+    private const char PipeSeparator = '|';
+    private static readonly char[] SeparatorCandidates = [Constants.Hl7.Separator.Caret, Constants.Hl7.Separator.Ampersand, PipeSeparator];
+
     internal class PropertyAndAttribute
     {
         public PropertyInfo? Property;
@@ -25,24 +28,21 @@ public abstract class Hl7Object
 
     public string? Serialize(char separator)
     {
+        return Serialize(separator, []);
+    }
+
+    private string? Serialize(char separator, IReadOnlyCollection<char> ancestorSeparators)
+    {
         var stringBuilder = new StringBuilder();
+        var nestedAncestors = CreateNestedAncestors(ancestorSeparators, separator);
 
         foreach (var item in GetHl7Properties(this))
         {
-            if (item.Property?.PropertyType == typeof(HD))
+            if (item.Property?.PropertyType != null && typeof(Hl7Object).IsAssignableFrom(item.Property.PropertyType))
             {
-                var hd = (HD?)item.Property.GetGetMethod()?.Invoke(this, null);
-                stringBuilder.Append((hd != null ? hd.Serialize(Constants.Hl7.Separator.Ampersand) : string.Empty) + separator);
-            }
-            else if (item.Property?.PropertyType == typeof(CX))
-            {
-                var cx = (CX?)item.Property.GetGetMethod()?.Invoke(this, null);
-                stringBuilder.Append((cx != null ? cx.Serialize(Constants.Hl7.Separator.Caret) : string.Empty) + separator);
-            }
-            else if (item.Property?.PropertyType == typeof(XPN))
-            {
-                var xpn = (XPN?)item.Property.GetGetMethod()?.Invoke(this, null);
-                stringBuilder.Append((xpn != null ? xpn.Serialize(Constants.Hl7.Separator.Caret) : string.Empty) + separator);
+                var nestedHl7Object = (Hl7Object?)item.Property.GetGetMethod()?.Invoke(this, null);
+                var nestedSeparator = GetNestedSeparator(separator, nestedAncestors);
+                stringBuilder.Append((nestedHl7Object != null ? nestedHl7Object.Serialize(nestedSeparator, nestedAncestors) : string.Empty) + separator);
             }
             else if (item.Property?.PropertyType == typeof(DateTime))
             {
@@ -91,12 +91,18 @@ public abstract class Hl7Object
 
     public static T? Parse<T>(string? s, char separator) where T : Hl7Object, new()
     {
+        return Parse(typeof(T), s, separator, []) as T;
+    }
+
+    private static Hl7Object? Parse(Type hl7Type, string? s, char separator, IReadOnlyCollection<char> ancestorSeparators)
+    {
         if (s == null)
         {
             return null;
         }
 
-        var output = new T();
+        var output = Activator.CreateInstance(hl7Type) as Hl7Object;
+        ArgumentNullException.ThrowIfNull(output);
 
         if (separator == Constants.Hl7.Separator.Ampersand)
         {
@@ -104,9 +110,15 @@ public abstract class Hl7Object
         }
 
         var parts = s.Split(separator);
+        var nestedAncestors = CreateNestedAncestors(ancestorSeparators, separator);
 
         foreach (var item in GetHl7Properties(output))
         {
+            if (item.Property == null)
+            {
+                continue;
+            }
+
             string? value = null;
             if (item.Hl7Attribute?.Sequence - 1 <= parts.Length - 1)
             {
@@ -117,32 +129,60 @@ public abstract class Hl7Object
                 }
             }
 
-            object?[] objectValue;
-            if (value == null) continue;
+            if (value == null)
+            {
+                continue;
+            }
 
-            if (item.Property?.PropertyType == typeof(HD))
+            object?[] objectValue;
+            if (typeof(Hl7Object).IsAssignableFrom(item.Property.PropertyType))
             {
-                objectValue = new[] { Parse<HD>(value, Constants.Hl7.Separator.Ampersand) };
+                var nestedSeparator = GetNestedSeparator(separator, nestedAncestors);
+                objectValue = [Parse(item.Property.PropertyType, value, nestedSeparator, nestedAncestors)];
             }
-            else if (item.Property?.PropertyType == typeof(CX))
+            else if (item.Property.PropertyType == typeof(DateTime))
             {
-                objectValue = new[] { Parse<CX>(value, Constants.Hl7.Separator.Caret) };
-            }
-            else if (item.Property?.PropertyType == typeof(XPN))
-            {
-                objectValue = new[] { Parse<XPN>(value, Constants.Hl7.Separator.Caret) };
-            }
-            else if (item.Property?.PropertyType == typeof(DateTime))
-            {
-                objectValue = new object?[] { DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture) };
+                objectValue = [DateTime.ParseExact(value, Constants.Hl7.Dtm.AllFormats, CultureInfo.InvariantCulture)];
             }
             else
             {
-                objectValue = new[] { value };
+                objectValue = [value];
             }
 
-            item.Property?.GetSetMethod()?.Invoke(output, objectValue);
+            item.Property.GetSetMethod()?.Invoke(output, objectValue);
         }
+
         return output;
+    }
+
+    private static IReadOnlyCollection<char> CreateNestedAncestors(IReadOnlyCollection<char> ancestorSeparators, char currentSeparator)
+    {
+        var usedSeparators = new HashSet<char>(ancestorSeparators)
+        {
+            currentSeparator
+        };
+        return usedSeparators;
+    }
+
+    private static char GetNestedSeparator(char currentSeparator, IReadOnlyCollection<char> usedSeparators)
+    {
+        var preferredNestedSeparator = currentSeparator == Constants.Hl7.Separator.Ampersand
+            ? Constants.Hl7.Separator.Caret
+            : Constants.Hl7.Separator.Ampersand;
+
+        if (!usedSeparators.Contains(preferredNestedSeparator))
+        {
+            return preferredNestedSeparator;
+        }
+
+        foreach (var candidate in SeparatorCandidates)
+        {
+            if (!usedSeparators.Contains(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return preferredNestedSeparator;
     }
 }

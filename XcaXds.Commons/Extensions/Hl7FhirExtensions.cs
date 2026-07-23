@@ -93,12 +93,7 @@ public static class Hl7FhirExtensions
         return new PID()
         {
             PatientId = new(patientInfo.PatientId?.Id, patientInfo.PatientId?.System),
-            PatientName =
-                new XPN
-                {
-                    FamilyName = patientInfo.LastName,
-                    GivenName = patientInfo.FirstName
-                },
+            PatientName = new XPN(patientInfo.FirstName, patientInfo.LastName),
             BirthDate = patientInfo.BirthTime.HasValue ? patientInfo.BirthTime.Value : DateTime.MinValue,
         };
     }

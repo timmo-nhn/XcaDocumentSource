@@ -27,8 +27,8 @@ public static class RegistryMetadataGenerator
 
         jsonTestData.PossibleSubmissionSetValues?.Authors ??= jsonTestData.PossibleDocumentEntryValues.Authors;
 
-        var patientIdentifierPid = Hl7Object.Parse<PID>(patientIdentifier) is { PatientIdentifier: not null } pidPid ? pidPid : null;
-        var patientIdentifierCx = Hl7Object.Parse<CX>(patientIdentifier);
+        var patientIdentifierPid = Hl7Object.Parse<PID>(patientIdentifier) is { PatientId: not null } pidPid ? pidPid : null;
+        var patientIdentifierCx = Hl7Object.Parse<CX>(patientIdentifier) is { IdNumber: not null } pidCx ? pidCx : null;
 
         var sourcePatientInfoForPatient = jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos?.FirstOrDefault(spi =>
         (spi?.PatientId?.Id == patientIdentifierPid?.PatientId?.IdNumber && 
