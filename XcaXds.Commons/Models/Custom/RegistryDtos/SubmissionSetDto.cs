@@ -3,6 +3,7 @@ using XcaXds.Shared;
 
 namespace XcaXds.Commons.Models.Custom.RegistryDtos;
 
+// HAYO! Folders are actually not supported (No field in DTO for Registrypackage.Classification)...
 public class SubmissionSetDto : RegistryObjectDto
 {
     [MaxLength(Constants.Properties.MaxArrayLength)]

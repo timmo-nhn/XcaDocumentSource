@@ -252,7 +252,7 @@ public class RestfulRegistryRepositoryService
             return uploadResponse.AddError("UpdateError", $"Error while updating Repository. Error: {storeResult.Message}");
         }
 
-        var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos(elementsToBeUploaded);
+        var updateResponse = _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry(elementsToBeUploaded);
 
         if (!updateResponse.IsSuccess)
         {
@@ -353,7 +353,7 @@ public class RestfulRegistryRepositoryService
                 inputDocumentReference.SubmissionSet,
                 inputDocumentReference.DocumentEntry);
 
-            _registryWrapper.UpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto?>()
+            _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry(new List<RegistryObjectDto?>()
             {
                 inputDocumentReference.DocumentEntry,
                 inputDocumentReference.SubmissionSet,
@@ -399,32 +399,38 @@ public class RestfulRegistryRepositoryService
 
         var patchedResources = new List<RegistryObjectDto?>() { documentEntryToPatch, submissionSetToPatch, associationToPatch }.OfType<RegistryObjectDto>().ToList();
 
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(patchedResources);
+        var updateResponse = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(patchedResources);
+        if (updateResponse.IsSuccess == false)
+        {
+            partialUpdateResponse.AddError("UpdateError", $"Error while updating document registry. Error: {updateResponse.Message}");
+        }
 
         return partialUpdateResponse;
     }
 
-    public RestfulApiResponse DeleteDocumentAndMetadata(string id)
+    public RestfulApiResponse DeleteDocumentAndMetadata(string idOrUniqueId)
     {
-        return DeleteDocumentAndMetadata(id, out _);
+        return DeleteDocumentAndMetadata(idOrUniqueId, out _);
     }
 
-    public RestfulApiResponse DeleteDocumentAndMetadata(string id, out DocumentEntryDto? deletedEntry)
+    public RestfulApiResponse DeleteDocumentAndMetadata(string idOrUniqueId, out DocumentEntryDto? deletedEntry)
     {
         var apiResponse = new RestfulApiResponse();
+
         var documentRegistry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var documentEntryForDocument = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(de => de.Id == id);
+        var registryObjectsForDocument = _registryWrapper.GetRegistryItemAndRelated(idOrUniqueId);
+        var documentEntryForDocument = registryObjectsForDocument?.OfType<DocumentEntryDto>().FirstOrDefault();
 
         deletedEntry = documentEntryForDocument;
 
         if (documentEntryForDocument == null)
         {
             _logger.LogWarning($"Error while deleting document");
-            apiResponse.AddError("DeleteError", $"RegistryObject {id} not found");
+            apiResponse.AddError("DeleteError", $"RegistryObject {idOrUniqueId} not found");
         }
 
-        if (_repositoryWrapper.FileExistsInRepository(documentEntryForDocument?.Id ?? documentEntryForDocument?.UniqueId))
+        if (_repositoryWrapper.FileExistsInRepository(documentEntryForDocument?.UniqueId ?? documentEntryForDocument?.Id ))
         {
             var documentDeleteResponse = _repositoryWrapper.DeleteSingleDocument(documentEntryForDocument?.Id);
 
@@ -435,16 +441,18 @@ public class RestfulRegistryRepositoryService
 
             if (documentDeleteResponse.IsSuccess == false)
             {
-                apiResponse.AddError("DeleteError", documentDeleteResponse.Message ?? $"Error while deleting document {id}");
+                apiResponse.AddError("DeleteError", documentDeleteResponse.Message ?? $"Error while deleting document {idOrUniqueId}");
                 _logger.LogWarning(apiResponse.Errors?.FirstOrDefault()?.Message);
 
                 return apiResponse;
             }
         }
 
+        var documentEntryId = documentEntryForDocument?.Id;
+
         var associationsForEntry = documentRegistry
             .OfType<AssociationDto>()
-            .Where(assoc => assoc.TargetObject == id && assoc.AssociationType == Constants.Xds.AssociationType.HasMember)
+            .Where(assoc => assoc.TargetObject == documentEntryId && assoc.AssociationType == Constants.Xds.AssociationType.HasMember)
             .ToList();
 
         var docentryCount = 0;
@@ -453,28 +461,28 @@ public class RestfulRegistryRepositoryService
 
         foreach (var association in associationsForEntry)
         {
-            var documentEntry = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.TargetObject);
-            var submissionSet = documentRegistry.OfType<RegistryObjectDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
+            var documentEntry = documentRegistry.OfType<DocumentEntryDto>().FirstOrDefault(ss => ss.Id == association?.TargetObject);
+            var submissionSet = documentRegistry.OfType<SubmissionSetDto>().FirstOrDefault(ss => ss.Id == association?.SourceObject);
 
             if (documentEntry != null)
             {
-                _registryWrapper.DeleteDocumentEntryFromRegistry(documentEntry);
+                _registryWrapper.DeleteRegistryObjectFromRegistry(documentEntry);
                 docentryCount++;
             }
             if (submissionSet != null)
             {
-                _registryWrapper.DeleteDocumentEntryFromRegistry(submissionSet);
+                _registryWrapper.DeleteRegistryObjectFromRegistry(submissionSet);
                 submissionSetCount++;
             }
 
-            _registryWrapper.DeleteDocumentEntryFromRegistry(association);
+            _registryWrapper.DeleteRegistryObjectFromRegistry(association);
             associationCount++;
         }
 
         if ((associationsForEntry.Count > 0) == false && documentEntryForDocument != null)
         {
             docentryCount++;
-            _registryWrapper.DeleteDocumentEntryFromRegistry(documentEntryForDocument);
+            _registryWrapper.DeleteRegistryObjectFromRegistry(documentEntryForDocument);
             apiResponse.SetMessage($"Successfully removed {docentryCount} DocumentEntry");
         }
 

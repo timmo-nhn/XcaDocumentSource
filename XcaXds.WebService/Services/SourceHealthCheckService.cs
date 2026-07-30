@@ -59,7 +59,7 @@ public class SourceHealthCheckService
                 }
             };
 
-            var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos([documentEntry]);
+            var updateResponse = _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry([documentEntry]);
             if (!updateResponse.IsSuccess)
             {
                 _logger.LogError($"Failed to update document registry content. Error: {updateResponse.Message}");
@@ -82,7 +82,7 @@ public class SourceHealthCheckService
             registryOk = randomEntry != null;
             repositoryOk = document != null;
 
-            _registryWrapper.DeleteDocumentEntryFromRegistry(documentEntry);
+            _registryWrapper.DeleteRegistryObjectFromRegistry(documentEntry);
             _repositoryWrapper.DeleteSingleDocument(documentEntry.UniqueId);
         }
         catch (Exception e)

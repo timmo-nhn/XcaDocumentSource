@@ -3,7 +3,6 @@ using Hl7.FhirPath.Sprache;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 using System.Text.Json;
-using XcaXds.BusinessLogic.BusinessLogic;
 using XcaXds.BusinessLogic.Services;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
@@ -383,6 +382,7 @@ public partial class XdsRegistryService
 
                 break;
 
+            // HAYO! Folders are actually not supported...
             case Constants.Xds.StoredQueries.GetFolders:
                 var getFoldersParameters = RegistryStoredQueryParameters.GetFoldersParameters(adhocQueryRequest.AdhocQuery);
 
@@ -515,7 +515,7 @@ public partial class XdsRegistryService
         {
             if (objectRefIds.Contains(registryObject.Id))
             {
-                var response = _registryWrapper.DeleteDocumentEntryFromRegistry(registryObject);
+                var response = _registryWrapper.DeleteRegistryObjectFromRegistry(registryObject);
                 if (response.IsSuccess)
                     removedDocumentsCount++;
                 else

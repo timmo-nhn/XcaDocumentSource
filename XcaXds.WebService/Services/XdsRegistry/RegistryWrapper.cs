@@ -90,7 +90,7 @@ public class RegistryWrapper
         return InsertOrUpdateDocumentRegistryContentWithDtos(new List<RegistryObjectDto>() { registryObjectDto });
     }
 
-    public OperationResponse DeleteDocumentEntryFromRegistry(string id)
+    public OperationResponse DeleteRegistryObjectFromRegistry(string id)
     {
         if (string.IsNullOrWhiteSpace(id)) return OperationResponse.Failure("No ID provided");
 
@@ -100,17 +100,17 @@ public class RegistryWrapper
         return deleteResponse;
     }
 
-    public OperationResponse DeleteDocumentEntryFromRegistry(RegistryObjectDto registryObjectDto)
+    public OperationResponse DeleteRegistryObjectFromRegistry(RegistryObjectDto registryObjectDto)
     {
-        return DeleteDocumentEntryFromRegistry(registryObjectDto.Id);
+        return DeleteRegistryObjectFromRegistry(registryObjectDto.Id);
     }
 
-    public OperationResponse UpdateDocumentRegistryContentWithDtos(List<RegistryObjectDto> registryObjectDtos)
+    public OperationResponse AddDocumentReferenceDtosToDocumentRegistry(List<RegistryObjectDto> registryObjectDtos)
     {
         if (registryObjectDtos.Count == 0) return OperationResponse.Failure("No registry objects provided");
         _registryObjectList ??= GetDocumentRegistryContentAsDtos();
 
-        var response = _registry.UpdateRegistry(registryObjectDtos);
+        var response = _registry.AddItemsToRegistry(registryObjectDtos);
         _registryObjectList = _registry.ReadRegistry().ToBlockingEnumerable();
 
         return response;

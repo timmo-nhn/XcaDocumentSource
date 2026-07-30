@@ -124,7 +124,7 @@ public class AppStartupService : IHostedService
 
             foreach (var registryObjectDud in registryObjectsForDud)
             {
-                _registryWrapper.DeleteDocumentEntryFromRegistry(registryObjectDud);
+                _registryWrapper.DeleteRegistryObjectFromRegistry(registryObjectDud);
             }
         }
 

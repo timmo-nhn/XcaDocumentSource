@@ -252,7 +252,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
         var patientSystem = "1.2.3.4.5";
 
 
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos([
+        _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry([
             new DocumentEntryDto()
             {
                 AvailabilityStatus = Constants.Xds.StatusValues.Approved,
@@ -475,7 +475,7 @@ public class IntegrationTests_XcaXdsRegistryRepository_CRUD(
             DocumentId = restrictedDoc.UniqueId
         };
 
-        _registry.UpdateRegistry([restrictedDoc]);
+        _registry.AddItemsToRegistry([restrictedDoc]);
         _repository.Write(document.DocumentId, document.Data, restrictedDoc.SourcePatientInfo.PatientId.Id);
 
         var iti39SoapEnvelope = File.ReadAllText(integrationTestFiles.FirstOrDefault(f => f.Contains("IT_iti-39_request.xml")));

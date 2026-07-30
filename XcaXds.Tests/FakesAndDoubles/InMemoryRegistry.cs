@@ -30,7 +30,7 @@ public class InMemoryRegistry : IRegistry
         return GetRegistryItemsForPatient(new PatientId()).ToAsyncEnumerable();
     }
 
-    public OperationResponse UpdateRegistry(List<RegistryObjectDto> dtos)
+    public OperationResponse AddItemsToRegistry(List<RegistryObjectDto> dtos)
     {
         DocumentRegistry.AddRange(dtos);
         return OperationResponse.Success("Updated OK");

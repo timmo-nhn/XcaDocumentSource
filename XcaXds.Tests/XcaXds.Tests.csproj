@@ -54,7 +54,7 @@
     </ItemGroup>
 
 	<ItemGroup>
-		<Content Include="TestDataRegistryObjects.json" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="TestData/TestDataRegistryObjects.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ProjectExtensions>

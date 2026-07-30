@@ -34,7 +34,7 @@ public interface IRegistry
     /// <summary>
     /// Bulk inserts without checking for existing items
     /// </summary>
-    OperationResponse UpdateRegistry(List<RegistryObjectDto> dtos);
+    OperationResponse AddItemsToRegistry(List<RegistryObjectDto> dtos);
 
     /// <summary>
     /// Checks for existing items and updates them, otherwise inserts new items

@@ -11,14 +11,19 @@ public static class ObjectMerger
     {
         if (target == null) return;
 
-        var props = target.GetType().GetProperties().Where(prop => prop.GetValue(target) != null);
+        var props = target.GetType().GetProperties().ToList();
 
         foreach (var property in props)
         {
+            if (property.GetIndexParameters().Length > 0 || property.CanRead == false)
+            {
+                continue;
+            }
+
             var sourceValue = property.GetValue(source);
             var targetValue = property.GetValue(target);
 
-            if (sourceValue == targetValue)
+            if (sourceValue?.Equals(targetValue) == true)
                 continue;
 
             if (targetValue == null ||
@@ -27,11 +32,15 @@ public static class ObjectMerger
                 continue;
 
 
-            if (property.PropertyType.IsClass && property.PropertyType != typeof(string))
+            if (property.PropertyType.IsClass && property.PropertyType != typeof(string) && typeof(System.Collections.IEnumerable).IsAssignableFrom(property.PropertyType) == false)
             {
                 if (sourceValue == null)
                 {
                     sourceValue = Activator.CreateInstance(property.PropertyType);
+                    if (property.CanWrite == false)
+                    {
+                        continue;
+                    }
                     property.SetValue(source, sourceValue);
                 }
 
@@ -39,7 +48,7 @@ public static class ObjectMerger
             }
             else
             {
-                if (targetValue != null)
+                if (targetValue != null && property.CanWrite)
                 {
                     property.SetValue(source, targetValue);
                 }

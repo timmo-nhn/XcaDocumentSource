@@ -36,7 +36,7 @@ public class IntegrationTests_Benchmark_ReadWriteRegistry : IntegrationTests_Def
             var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(10_000, patientId: null, true).AsRegistryObjectDtos().ToList();
 
             var swWrite = Stopwatch.StartNew();
-            _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata);
+            _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry(metadata);
             swWrite.Stop();
 
             var swRead = Stopwatch.StartNew();

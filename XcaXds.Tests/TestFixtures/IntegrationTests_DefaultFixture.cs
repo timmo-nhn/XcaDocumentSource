@@ -188,7 +188,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         await NukeRegistryRepository();
 
         var metadata = TestHelpers.GenerateComprehensiveRegistryMetadata(registryObjectsCount, patientIdentifier, true);
-        _registryWrapper.UpdateDocumentRegistryContentWithDtos(metadata.AsRegistryObjectDtos().ToList());
+        _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry(metadata.AsRegistryObjectDtos().ToList());
 
         foreach (var document in metadata.Select(dto => dto.Document))
         {

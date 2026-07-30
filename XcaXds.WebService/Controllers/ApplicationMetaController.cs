@@ -254,7 +254,7 @@ public class ApplicationMetaController : ControllerBase
 
         var registryObjects = generatedRegistryObjects.AsRegistryObjectDtos().ToList();
 
-        var updateResponse = _registryWrapper.UpdateDocumentRegistryContentWithDtos(registryObjects);
+        var updateResponse = _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry(registryObjects);
 
         foreach (var document in generatedRegistryObjects.Select(d => d.Document).OfType<DocumentDto>())
         {
