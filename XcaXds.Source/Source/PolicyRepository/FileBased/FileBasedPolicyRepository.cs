@@ -32,7 +32,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         Directory.CreateDirectory(_policyRepositoryPath);
 
-        _logger.LogInformation($"Policy repository path: {_policyRepositoryPath}");
+        _logger.LogInformation("Policy repository path: {_policyRepositoryPath}", _policyRepositoryPath);
     }
 
     public string GetPolicyRepositoryPath()
@@ -67,7 +67,8 @@ public class FileBasedPolicyRepository : IPolicyRepository
                 }
             });
         }
-        _logger.LogInformation($"Successfully read {policySetDto.Policies?.Count ?? 0} policies from policy repository");
+
+        _logger.LogInformation("Successfully read {count} policies from policy repository", policySetDto.Policies?.Count ?? 0);
         return policySetDto;
     }
 

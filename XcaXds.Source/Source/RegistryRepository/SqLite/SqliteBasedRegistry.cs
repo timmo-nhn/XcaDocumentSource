@@ -28,10 +28,10 @@ public class SqliteBasedRegistry : IRegistry
 
         _connectionString = $"Data Source=\"{_databaseFile}\"";
 
-        _logger.LogDebug($"Database connection string: {_connectionString}");
+        _logger.LogDebug("Database connection string: {connectionString}", _connectionString);
         using var context = _contextFactory.CreateDbContext();
 
-        context.Database.EnsureCreated();
+        context.Database.Migrate();
         context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         context.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
     }
@@ -300,8 +300,7 @@ public class SqliteBasedRegistry : IRegistry
 
         if (existing.Count > 0)
         {
-            _logger.LogWarning(
-                $"Replace: Trying to delete existing {existing.GetType().Name}, count = {existing.Count}");
+            _logger.LogWarning("Replace: Trying to delete existing {typeName}, count = {count}", existing.GetType().Name, existing.Count);
 
             existingDbSet.RemoveRange(existing);
             db.SaveChanges();
@@ -311,7 +310,7 @@ public class SqliteBasedRegistry : IRegistry
 
         var sql = existingDbSet.ToQueryString(); // for debugging - shows the SQL EF will execute for this batch
 
-        _logger.LogDebug($"{sql}");
+        _logger.LogDebug("SQL query for batch operation: {sql}", sql);
 
         try
         {

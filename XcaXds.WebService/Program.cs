@@ -83,7 +83,7 @@ public class Program
                 policy =>
                 {
                     //policy.WithOrigins($"https://localhost:{ConfigurationValues.SampleApiPort}").AllowAnyHeader();
-                    policy.WithOrigins($"*").AllowAnyHeader();
+                    policy.AllowAnyOrigin().AllowAnyHeader();
                 });
         });
 
@@ -108,7 +108,7 @@ public class Program
         app.MapControllers();
 
         var terminologyUpdater = app.Services.GetRequiredService<TerminologyUpdaterService>();
-        await terminologyUpdater.InitializeTerminologyServiceAsync(CancellationToken.None);
+        await terminologyUpdater.InitializeAsync(CancellationToken.None);
 
         app.Run();
     }
@@ -128,9 +128,6 @@ public class Program
         builder.Services.AddDbContextFactory<PostGreSqlRegistryDbContext>(options =>
             options.UseNpgsql(postgreSqlConnectionString,
                 npgsqlOptions => npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
-
-        builder.Services.AddDbContextFactory<PostGreSqlRepositoryDbContext>(options =>
-            options.UseNpgsql(postgreSqlConnectionString));
     }
 
     private static void RegisterHostedServices(WebApplicationBuilder builder)
@@ -277,8 +274,6 @@ public class Program
                 logging.AddSimpleConsole(options => { options.TimestampFormat = "yyyy-MM-dd HH:mm:ss "; });
             }
         });
-
-        builder.Logging.SetMinimumLevel(LogLevel.Debug);
     }
 
     public static void ConfigureKestrelAuthenticationAuthorization(WebApplicationBuilder builder)

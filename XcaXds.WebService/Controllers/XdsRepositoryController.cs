@@ -54,7 +54,7 @@ public class XdsRepositoryController : ControllerBase
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("{traceIdentifier} - Received request for action: {action} from {remoteIpAddress}", Request.HttpContext.TraceIdentifier, action, Request.HttpContext.Connection.RemoteIpAddress);
 
         var abacRequest = HttpContext.Items.TryGetValue("accessRequest", out var accessRequest) ? accessRequest as AbacRequest: null;
 
@@ -90,9 +90,9 @@ public class XdsRepositoryController : ControllerBase
                     var streamResult = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
 
                     requestTimer.Stop();
-                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
-                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + streamResult.ContentType);
-                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - " + Encoding.UTF8.GetString(streamResult.FileContents));
+                    _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
+                    _logger.LogInformation("{traceIdentifier} - {contentType}", Request.HttpContext.TraceIdentifier, streamResult.ContentType);
+                    _logger.LogInformation("{traceIdentifier} - {fileContents}", Request.HttpContext.TraceIdentifier, Encoding.UTF8.GetString(streamResult.FileContents));
 
                     return streamResult;
                 }
@@ -142,7 +142,7 @@ public class XdsRepositoryController : ControllerBase
                     
                     if (registryError != null)
                     {
-                        _logger.LogError($"Error while updating Registry:\n\tError: {registryError.ErrorCode}\n\tCodeContext: {registryError.CodeContext}\n\tLocation: {registryError.Location}");
+                        _logger.LogError("{traceIdentifier} - Error while updating Registry:\n\tError: {errorCode}\n\tCodeContext: {codeContext}\n\tLocation: {location}", Request.HttpContext.TraceIdentifier, registryError.ErrorCode, registryError.CodeContext, registryError.Location);
                     }
 
                     responseEnvelope = repositoryDocumentExists.Value;
@@ -199,14 +199,14 @@ public class XdsRepositoryController : ControllerBase
                 break;
 
             default:
-                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+                _logger.LogInformation("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", Request.HttpContext.TraceIdentifier, action, Request.HttpContext.Connection.RemoteIpAddress);
                 requestTimer.Stop();
-                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
 
         requestTimer.Stop();
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
 
         return Ok(responseEnvelope);
     }

@@ -53,7 +53,7 @@ public class SessionIdTraceMiddleware
                 break;
         }
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Trace identifier set: {httpContext.TraceIdentifier}");
+        _logger.LogInformation("{traceIdentifier} - Trace identifier set: {traceIdentifier}", httpContext.TraceIdentifier, httpContext.TraceIdentifier);
         await _next(httpContext);
     }
 }

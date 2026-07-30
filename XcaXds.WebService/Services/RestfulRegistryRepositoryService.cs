@@ -21,7 +21,7 @@ namespace XcaXds.WebService.Services;
 
 public class RestfulRegistryRepositoryService
 {
-    private readonly ILogger<XdsRegistryService> _logger;
+    private readonly ILogger<RestfulRegistryRepositoryService> _logger;
     private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
@@ -31,7 +31,7 @@ public class RestfulRegistryRepositoryService
     public RestfulRegistryRepositoryService(
         ApplicationConfig appConfig,
         RegistryWrapper registryWrapper,
-        ILogger<XdsRegistryService> logger,
+        ILogger<RestfulRegistryRepositoryService> logger,
         RepositoryWrapper repositoryWrapper,
         TerminologyService terminologyService,
         NinParserFactory ninParserFactory)
@@ -326,12 +326,12 @@ public class RestfulRegistryRepositoryService
         {
             // Create new identifiers
             var documentEntryId = Guid.NewGuid().ToString();
-            _logger.LogInformation($"REPLACE: \nDocumentEntry new ID: {documentEntryId} \nPrevious: {inputDocumentReference.DocumentEntry?.Id}");
+            _logger.LogInformation("REPLACE: \nDocumentEntry new ID: {documentEntryId} \nPrevious: {previousDocumentEntryId}", documentEntryId, inputDocumentReference.DocumentEntry?.Id);
             inputDocumentReference.DocumentEntry?.Id = documentEntryId;
 
 
             var submissionSetId = Guid.NewGuid().ToString();
-            _logger.LogInformation($"REPLACE: \nSubmissionSet new ID: {submissionSetId} \nPrevious: {inputDocumentReference.SubmissionSet?.Id}");
+            _logger.LogInformation("REPLACE: \nSubmissionSet new ID: {submissionSetId} \nPrevious: {previousSubmissionSetId}", submissionSetId, inputDocumentReference.SubmissionSet?.Id);
             inputDocumentReference.SubmissionSet?.Id = submissionSetId;
 
             // Deprecate the old DocumentEntry
@@ -346,7 +346,7 @@ public class RestfulRegistryRepositoryService
             if (replaceAssociation == null) throw new InvalidOperationException($"Cannot create association between {inputDocumentReference.DocumentEntry?.Id} and {documentEntryToBeReplaced.Id}");
             if (inputDocumentReference.DocumentEntry == null) throw new InvalidOperationException($"DocumentEntry cannot be null");
 
-            _logger.LogInformation($"REPLACE: \nReplace Association: {replaceAssociation.Id} Created between {inputDocumentReference.DocumentEntry.Id} and {documentEntryToBeReplaced.Id}");
+            _logger.LogInformation("REPLACE: \nReplace Association: {replaceAssociationId} Created between {newDocumentEntryId} and {oldDocumentEntryId}", replaceAssociation.Id, inputDocumentReference.DocumentEntry.Id, documentEntryToBeReplaced.Id);
 
             // Recreate association with new identifiers
             inputDocumentReference.Association = CreateAssociationBetweenObjects(
@@ -381,19 +381,19 @@ public class RestfulRegistryRepositoryService
 
         if (documentEntryToPatch != null)
         {
-            _logger.LogInformation($"Updating documentEntry {documentEntryToPatch.Id} with values:\n {JsonSerializer.Serialize(value.DocumentEntry, logSerializerOptions)}");
+            _logger.LogInformation("Updating documentEntry {documentEntryId} with values:\n {documentEntryValues}", documentEntryToPatch.Id, JsonSerializer.Serialize(value.DocumentEntry, logSerializerOptions));
             ObjectMerger.MergeObjects(documentEntryToPatch, value.DocumentEntry);
         }
 
         if (submissionSetToPatch != null)
         {
-            _logger.LogInformation($"Updating submissionSet {submissionSetToPatch.Id} with values:\n {JsonSerializer.Serialize(value.SubmissionSet, logSerializerOptions)}");
+            _logger.LogInformation("Updating submissionSet {submissionSetId} with values:\n {submissionSetValues}", submissionSetToPatch.Id, JsonSerializer.Serialize(value.SubmissionSet, logSerializerOptions));
             ObjectMerger.MergeObjects(submissionSetToPatch, value.SubmissionSet);
         }
 
         if (associationToPatch != null)
         {
-            _logger.LogInformation($"Updating association {associationToPatch.Id} with values:\n {JsonSerializer.Serialize(value.Association, logSerializerOptions)}");
+            _logger.LogInformation("Updating association {associationId} with values:\n {associationValues}", associationToPatch.Id, JsonSerializer.Serialize(value.Association, logSerializerOptions));
             ObjectMerger.MergeObjects(associationToPatch, value.Association);
         }
 
@@ -426,7 +426,7 @@ public class RestfulRegistryRepositoryService
 
         if (documentEntryForDocument == null)
         {
-            _logger.LogWarning($"Error while deleting document");
+            _logger.LogWarning("Error while deleting document");
             apiResponse.AddError("DeleteError", $"RegistryObject {idOrUniqueId} not found");
         }
 
@@ -442,7 +442,7 @@ public class RestfulRegistryRepositoryService
             if (documentDeleteResponse.IsSuccess == false)
             {
                 apiResponse.AddError("DeleteError", documentDeleteResponse.Message ?? $"Error while deleting document {idOrUniqueId}");
-                _logger.LogWarning(apiResponse.Errors?.FirstOrDefault()?.Message);
+                _logger.LogWarning("Error while deleting document: {message}", apiResponse.Errors?.FirstOrDefault()?.Message);
 
                 return apiResponse;
             }
@@ -592,7 +592,7 @@ public class RestfulRegistryRepositoryService
 
         var registry = _registryWrapper.GetDocumentRegistryContentAsDtos();
 
-        var dateInstant = DateTime.Now.AddDays(-days.Value);
+        var dateInstant = DateTime.UtcNow.AddDays(-days.Value);
 
         var oldDocumentEntries = registry.OfType<DocumentEntryDto>().Where(de => de.ServiceStopTime < dateInstant).ToArray();
 

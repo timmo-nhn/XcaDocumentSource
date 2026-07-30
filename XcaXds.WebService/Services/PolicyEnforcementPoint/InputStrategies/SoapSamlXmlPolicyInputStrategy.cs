@@ -42,7 +42,7 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 
         requestBody = await HttpRequestResponseExtensions.GetStreamAsStringAsync(context.Request.Body);
 
-        _logger.LogDebug($"{context.TraceIdentifier} - SOAP Envelope body: {requestBody}");
+        _logger.LogDebug("{traceIdentifier} - SOAP Envelope body: {requestBody}", context.TraceIdentifier, requestBody);
 
         if (context.Request.ContentType?.Split(";").FirstOrDefault() == Constants.MimeTypes.MultipartRelated)
         {
@@ -78,7 +78,7 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 
         if (!shouldBypassTokenValidation)
         {
-            _logger.LogInformation($"{context.TraceIdentifier} - {nameof(appConfig.SamlValidateSamlTokenIntegrity)} Is true, validating SAML-token");
+            _logger.LogInformation("{traceIdentifier} - {samlValidateSamlTokenIntegrity} Is true, validating SAML-token", context.TraceIdentifier, nameof(appConfig.SamlValidateSamlTokenIntegrity));
             var validations = new Saml2SecurityTokenHandler();
 
             var samlTokenString = _policyRequestMapperSamlService.GetSamlTokenFromSoapEnvelope(requestBody);
@@ -93,24 +93,24 @@ public class SoapSamlXmlPolicyInputStrategy : IPolicyInputStrategy
 
             if (success == false)
             {
-                _logger.LogInformation($"{context.TraceIdentifier} - Fail! Invalid SAML-token!\nError: {validationMessage}!");
+                _logger.LogInformation("{traceIdentifier} - Fail! Invalid SAML-token!\nError: {validationMessage}!", context.TraceIdentifier, validationMessage);
                 return PolicyInputResult.Fail($"Invalid SAML-token!\nError: {validationMessage}");
             }
 
-            _logger.LogInformation($"{context.TraceIdentifier} - SAML-token is valid");
+            _logger.LogInformation("{traceIdentifier} - SAML-token is valid", context.TraceIdentifier);
         }
 
         var soapEnvelope = new SoapXmlSerializer().DeserializeXmlString<SoapEnvelope>(requestBody);
 
         if (string.IsNullOrEmpty(soapEnvelope.Header.Security?.Assertion?.OuterXml))
         {
-            _logger.LogInformation($"{context.TraceIdentifier} - Fail! No SAML-token in request!");
+            _logger.LogInformation("{traceIdentifier} - Fail! No SAML-token in request!", context.TraceIdentifier);
             return PolicyInputResult.Fail($"No SAML-token in request!");
         }
         
         var abacRequest = _policyRequestMapperSamlService.MapToAbacRequest(soapEnvelope);
 
-        _logger.LogDebug($"{context.TraceIdentifier} - Generated ABAC Request - JSON representation: {JsonSerializer.Serialize(abacRequest)}");
+        _logger.LogDebug("{traceIdentifier} - Generated ABAC Request - JSON representation: {abacRequest}", context.TraceIdentifier, JsonSerializer.Serialize(abacRequest));
 
         if (abacRequest == null)
         {

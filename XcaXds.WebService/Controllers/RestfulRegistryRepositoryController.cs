@@ -78,15 +78,15 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-list");
+        _logger.LogInformation("{traceIdentifier} - Completed action: document-list", Request.HttpContext.TraceIdentifier);
 
         if (entries.Success)
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {entries.DocumentListEntries?.Count ?? 0} entries in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation("{traceIdentifier} - Successfully retrieved {entryCount} entries in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, entries.DocumentListEntries?.Count ?? 0, requestTimer.ElapsedMilliseconds);
             return Ok(entries);
         }
 
-        for (int i = 0; i < entries.Errors?.Count; i++) _logger.LogError($"{Request.HttpContext.TraceIdentifier}\n######## Error #{i} ########\n ErrorCode: {entries.Errors[i].Code}\n Message: {entries.Errors[i].Message}");
+        for (int i = 0; i < entries.Errors?.Count; i++) _logger.LogError("{traceIdentifier}\n######## Error #{errorIndex} ########\n ErrorCode: {errorCode}\n Message: {errorMessage}", Request.HttpContext.TraceIdentifier, i, entries.Errors[i].Code, entries.Errors[i].Message);
 
         return BadRequest(entries);
     }
@@ -95,7 +95,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
     [HttpGet("document-history")]
     public async Task<IActionResult> GetDocumentHistory(string? id, bool minimal)
     {
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-history");
+        _logger.LogInformation("{traceIdentifier} - Received request for action: document-history", Request.HttpContext.TraceIdentifier);
 
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
@@ -182,8 +182,8 @@ public class RestfulRegistryRepositoryController : ControllerBase
                     visitedDocs.Contains(a.SourceObject) &&
                     a.SourceObject == ss.Id)));
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry");
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved {result.Count} items in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation("{traceIdentifier} - Completed action: document-entry", Request.HttpContext.TraceIdentifier);
+        _logger.LogInformation("{traceIdentifier} - Successfully retrieved {itemCount} items in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, result.Count, requestTimer.ElapsedMilliseconds);
         requestTimer.Stop();
 
         if (minimal)
@@ -218,7 +218,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: document-entry. Return type: {returnType.ToString()}");
+        _logger.LogInformation("{traceIdentifier} - Received request for action: document-entry. Return type: {returnType}", Request.HttpContext.TraceIdentifier, returnType.ToString());
 
         if (string.IsNullOrWhiteSpace(id) && Request.Headers.TryGetValue("X-Patient-Id", out var patientId))
         {
@@ -264,7 +264,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
                 requestTimer.Stop();
 
-                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: document-entry. Id: '{documentEntry?.Id}' Time: '{requestTimer.ElapsedMilliseconds}' ms");
+                _logger.LogInformation("{traceIdentifier} - Completed action: document-entry. Id: '{documentId}' Time: '{elapsedMilliseconds}' ms", Request.HttpContext.TraceIdentifier, documentEntry?.Id, requestTimer.ElapsedMilliseconds);
 
                 if (documentEntry != null)
                 {
@@ -320,16 +320,16 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: get-document");
+        _logger.LogInformation("{traceIdentifier} - Completed action: get-document", Request.HttpContext.TraceIdentifier);
 
         if (entries.Document != null)
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved document with id: {entries.Document.DocumentId} in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation("{traceIdentifier} - Successfully retrieved document with id: {documentId} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, entries.Document.DocumentId, requestTimer.ElapsedMilliseconds);
             return Ok(entries);
         }
         else
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully retrieved 0 documents in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation("{traceIdentifier} - Successfully retrieved 0 documents in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, requestTimer.ElapsedMilliseconds);
             return Ok(entries);
         }
     }
@@ -346,7 +346,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: get-document-status");
+        _logger.LogInformation("{traceIdentifier} - Completed action: get-document-status in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, requestTimer.ElapsedMilliseconds);
 
         return Ok(documentStatus);
     }
@@ -366,7 +366,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         if (uploadResponse.Success)
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully uploaded document and metadata in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation("{traceIdentifier} - Successfully uploaded document and metadata in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, requestTimer.ElapsedMilliseconds);
             return Ok(uploadResponse);
         }
 
@@ -388,7 +388,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
         if (updateResponse.Success)
         {
-            _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully updated document and metadata in {requestTimer.ElapsedMilliseconds} ms");
+            _logger.LogInformation("{traceIdentifier} - Successfully updated document and metadata in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, requestTimer.ElapsedMilliseconds);
             return Ok(updateResponse);
         }
 
@@ -423,7 +423,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id);
 
         requestTimer.Stop();
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Successfully deleted document: {id}, and metadata in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation("{traceIdentifier} - Successfully deleted document: {documentId}, and metadata in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, id, requestTimer.ElapsedMilliseconds);
         return Ok(deleteResponse);
     }
 

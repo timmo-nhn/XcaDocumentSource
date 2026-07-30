@@ -57,7 +57,7 @@ public class XdsRegistryController : ControllerBase
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: {action}");
+        _logger.LogInformation("{traceIdentifier} - Received request for action: {action}", Request.HttpContext.TraceIdentifier, action);
 
         var abacRequest = HttpContext.Items.TryGetValue("accessRequest", out var accessRequest) ? accessRequest as AbacRequest: null;
 
@@ -99,7 +99,7 @@ public class XdsRegistryController : ControllerBase
 
                 if (registryUploadResponse.IsSuccess)
                 {
-                    _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Registry updated successfully");
+                    _logger.LogInformation("{traceIdentifier} - Registry updated successfully", Request.HttpContext.TraceIdentifier);
 
                     responseEnvelope.Header = new()
                     {
@@ -114,7 +114,7 @@ public class XdsRegistryController : ControllerBase
                 }
                 else
                 {
-                    _logger.LogError($"{Request.HttpContext.TraceIdentifier} - Error while updating registry", registryUploadResponse.Value?.Body.Fault);
+                    _logger.LogError("{traceIdentifier} - Error while updating registry: {Fault}", Request.HttpContext.TraceIdentifier, registryUploadResponse.Value?.Body.Fault);
                     registryResponse.AddError(XdsErrorCodes.XDSRegistryError, "Error while updating registry", "XDS Registry");
 
                     registryResponse.RegistryErrorList ??= new();
@@ -148,14 +148,14 @@ public class XdsRegistryController : ControllerBase
                 break;
 
             default:
-                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+                _logger.LogInformation("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", Request.HttpContext.TraceIdentifier, action, Request.HttpContext.Connection.RemoteIpAddress);
                 requestTimer.Stop();
-                _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
 
         requestTimer.Stop();
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
         registryResponse.EvaluateStatusCode();
         return Ok(responseEnvelope);
     }

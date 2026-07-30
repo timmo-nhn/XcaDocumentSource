@@ -10,10 +10,10 @@ using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
-using XcaXds.Source.Source;
 using XcaXds.Source.Source.PolicyRepository.FileBased;
 using XcaXds.Source.Source.RegistryRepository.FileBased;
 using XcaXds.Source.Source.RegistryRepository.PostGreSql;
+using XcaXds.Source.Source.RegistryRepository.S3;
 using XcaXds.Source.Source.RegistryRepository.SqLite;
 using XcaXds.Terminology.Services;
 using XcaXds.Terminology.Sources;
@@ -138,13 +138,23 @@ public static class WebApplicationBuilderExtensions
 
     public static void RegisterXdsRegistryRepositoryServices(this WebApplicationBuilder builder)
     {
+        var runningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inContainer) && inContainer;
+        var configuredRegistryBackend = builder.Configuration["XdsConfiguration:RegistryBackend"];
+        var configuredRepositoryBackend = builder.Configuration["XdsConfiguration:RepositoryBackend"];
+
         var postgreSqlConnectionString = builder.Configuration.GetPostgreSqlConnectionString();
-        var usePostgreSql = string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
+        var usePostgreSqlRegistry = ShouldUsePostgreSqlRegistry(runningInContainer, configuredRegistryBackend, postgreSqlConnectionString);
+        var useS3Repository = ShouldUseS3Repository(runningInContainer, configuredRepositoryBackend);
+
+        if (usePostgreSqlRegistry && string.IsNullOrWhiteSpace(postgreSqlConnectionString))
+        {
+            throw new InvalidOperationException("PostgreSQL registry backend is selected, but no connection string was configured. Set ConnectionStrings__DefaultConnection.");
+        }
 
         // Registry
         builder.Services.AddScoped<XdsRegistryService>();
         builder.Services.AddSingleton<RegistryWrapper>();
-        if (usePostgreSql)
+        if (usePostgreSqlRegistry)
         {
             builder.Services.AddSingleton<IRegistry, PostGreSqlBasedRegistry>();
         }
@@ -156,9 +166,9 @@ public static class WebApplicationBuilderExtensions
         // Repository
         builder.Services.AddScoped<XdsRepositoryService>();
         builder.Services.AddSingleton<RepositoryWrapper>();
-        if (usePostgreSql)
+        if (useS3Repository)
         {
-            builder.Services.AddSingleton<IRepository, PostGreSqlBasedRepository>();
+            builder.Services.AddSingleton<IRepository, S3BasedRepository>();
         }
         else
         {
@@ -182,5 +192,27 @@ public static class WebApplicationBuilderExtensions
     public static string? GetPostgreSqlConnectionString()
     {
         return Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+    }
+
+    private static bool ShouldUsePostgreSqlRegistry(bool runningInContainer, string? configuredRegistryBackend, string? postgreSqlConnectionString)
+    {
+        if (string.Equals(configuredRegistryBackend, "postgresql", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(configuredRegistryBackend, "sqlite", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return runningInContainer || string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
+    }
+
+    private static bool ShouldUseS3Repository(bool runningInContainer, string? configuredRepositoryBackend)
+    {
+        if (string.Equals(configuredRepositoryBackend, "s3", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(configuredRepositoryBackend, "file", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return runningInContainer;
     }
 }

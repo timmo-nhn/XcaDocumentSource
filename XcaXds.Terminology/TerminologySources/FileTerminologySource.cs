@@ -36,7 +36,7 @@ public class FileTerminologySource : ITerminologySource
         }
         else
         {
-            _logger.LogInformation($"OfflineCodeSystems repository path: {_basePath}");
+            _logger.LogInformation("OfflineCodeSystems repository path: {basePath}", _basePath);
         }
     }
 
@@ -45,7 +45,7 @@ public class FileTerminologySource : ITerminologySource
         var filePath = Path.Combine(_basePath, terminologySource.SourcePath);
         var content = await File.ReadAllTextAsync(filePath);
 
-        _logger.LogDebug($"Read content from file {filePath}. Mapping to ComprehensiveCodesystem");
+        _logger.LogDebug("Read content from file {filePath}. Mapping to ComprehensiveCodesystem", filePath);
 
         return terminologySource.MapperToUse.MapToComprehensiveCodeSystem(content);
     }

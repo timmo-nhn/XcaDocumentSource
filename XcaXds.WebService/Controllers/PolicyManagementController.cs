@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using XcaXds.Commons.Attributes;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.DataManipulators;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
-using XcaXds.Commons.Models.Soap;
-using XcaXds.Commons.Serializers;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy.RequestMappers;
 using XcaXds.WebService.Services.XdsRegistry;
@@ -37,8 +32,8 @@ public class PolicyManagementController : ControllerBase
     {
         var policySet = _policyRepositoryService.GetPoliciesAsPolicySetDto();
 
-        _logger.LogInformation($"Returned PolicySet with {policySet.Policies?.Count ?? 0} Policies");
-        
+        _logger.LogInformation("Returned PolicySet with {policyCount} Policies", policySet.Policies?.Count ?? 0);
+
         return Ok(policySet);
     }
 
@@ -47,7 +42,7 @@ public class PolicyManagementController : ControllerBase
     public IActionResult GetSinglePolicy(string id)
     {
         var policySet = _policyRepositoryService.GetSinglePolicy(id);
-        
+
         return Ok(policySet);
     }
 

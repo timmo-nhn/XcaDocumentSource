@@ -3,7 +3,6 @@ using Hl7.Fhir.Support;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
@@ -94,8 +93,8 @@ public class AtnaLogGeneratorService
             .TransformDocumentReferenceDtoListToRegistryObjectsStateless(deletedEntry);
 
         var soapEnvelope = _atnaLogEnricherService.GetMockSoapEnvelopeFromJwtAndBundle(
-            additionalParameters, 
-            token?.RawData, 
+            additionalParameters,
+            token?.RawData,
             null,
             null);
 
@@ -302,7 +301,7 @@ public class AtnaLogGeneratorService
 
         var adhocQueryType = requestEnvelope?.Body.AdhocQueryRequest?.AdhocQuery?.Id;
         var docRequest = requestEnvelope?.Body.ProvideAndRegisterDocumentSetRequest;
-        var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList ?? 
+        var rol = docRequest?.SubmitObjectsRequest?.RegistryObjectList ??
             RegistryMetadataTransformerService.TransformDocumentReferenceDtoListToRegistryObjectsStateless(additionalParameters.DeletedRegistryObjects);
         var soapAction = requestEnvelope?.Header.Action;
 
@@ -928,7 +927,7 @@ public class AtnaLogGeneratorService
             .DistinctBy(pid => new { pid?.PatientIdentifier?.IdNumber, pid?.PatientIdentifier?.AssigningAuthority?.UniversalId })
             .ToList();
 
-        _logger.LogDebug($"AtnaLogGenerator resolved {allSubjectPatientIdentifiers.Count} resource identifiers from request");
+        _logger.LogDebug("{traceIdentifier} - AtnaLogGenerator resolved {count} resource identifiers from request", additionalParameters.TraceIdentifier, allSubjectPatientIdentifiers.Count);
 
         if (!(allSubjectPatientIdentifiers.Count > 0)) return resourcePatientResource;
 
@@ -937,7 +936,7 @@ public class AtnaLogGeneratorService
             if (string.IsNullOrWhiteSpace(identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId) ||
                 string.IsNullOrWhiteSpace(identifier.PatientIdentifier?.IdNumber)) continue;
 
-            _logger.LogDebug($"AtnaLogGenerator found subject patient identifier: {identifier?.Serialize()}");
+            _logger.LogDebug("{traceIdentifier} - AtnaLogGenerator found subject patient identifier: {identifier}", additionalParameters.TraceIdentifier, identifier?.Serialize());
 
             resourcePatientResource.Identifier.Add(new Identifier(
                 identifier?.PatientIdentifier?.AssigningAuthority?.UniversalId.WithUrnOid(),

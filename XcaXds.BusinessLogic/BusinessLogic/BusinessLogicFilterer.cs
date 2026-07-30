@@ -103,11 +103,11 @@ public class DocumentListFiltererService
         {
             List<IdentifiableType> enumeratedEntriesResult = soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList?.ToList() ?? [];
 
-            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Applying business logic, current XDSEntries count: {enumeratedEntriesResult.Count}");
+            _logger.LogInformation("{traceIdentifier} - Applying business logic, current XDSEntries count: {count}", soapEnvelope.Header.MessageId, enumeratedEntriesResult.Count);
 
             var businessLogic = _businessLogicMapperService.MapFromAbacRequestToBusinessLogic(abacRequest);
 
-            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic: {JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings)}");
+            _logger.LogInformation("{traceIdentifier} - Business logic: {businessLogic}", soapEnvelope.Header.MessageId, JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings));
 
             enumeratedEntriesResult = FilterRegistryObjectListBasedOnBusinessLogic(enumeratedEntriesResult, businessLogic, out filterResults).ToList();
 
@@ -115,17 +115,17 @@ public class DocumentListFiltererService
 
             if (filterResults.Count > 0)
             {
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Business logic applied: {JsonSerializer.Serialize(filterResults)}");
+                _logger.LogInformation("{traceIdentifier} - Business logic applied: {filterResults}", soapEnvelope.Header.MessageId, JsonSerializer.Serialize(filterResults));
             }
             else
             {
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - No business logic applied, XDSEntries count: {enumeratedEntriesResult.Count}");
+                _logger.LogInformation("{traceIdentifier} - No business logic applied, XDSEntries count: {count}", soapEnvelope.Header.MessageId, enumeratedEntriesResult.Count);
             }
 
             enumeratedEntriesResult = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
             var sxmls = new SoapXmlSerializer();
             var content = sxmls.SerializeSoapMessageToXmlString(enumeratedEntriesResult).Content;
-            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - {obfuscateCount} XDSEntries obfuscated");
+            _logger.LogInformation("{traceIdentifier} - {obfuscateCount} XDSEntries obfuscated", soapEnvelope.Header.MessageId, obfuscateCount);
 
             soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = [.. enumeratedEntriesResult];
         }

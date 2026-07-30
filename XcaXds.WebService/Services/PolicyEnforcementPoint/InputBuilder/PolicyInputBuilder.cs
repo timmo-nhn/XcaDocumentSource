@@ -27,18 +27,18 @@ public class PolicyInputBuilder
 
         if (RequestMethodRequiresContentType(method) && string.IsNullOrWhiteSpace(contentType))
         {
-            _logger.LogError($"{ctx.TraceIdentifier} - Missing content type");
+            _logger.LogError("{traceIdentifier} - Missing content type", ctx.TraceIdentifier);
             return PolicyInputResult.Fail($"{ctx.TraceIdentifier} - Missing content type");
         }
 
         var strategy = _strategies.FirstOrDefault(s => s.CanHandle(contentType));
         if (strategy == null)
         {
-            _logger.LogError($"{ctx.TraceIdentifier} - Unknown content type: {contentType}");
+            _logger.LogError("{traceIdentifier} - Unknown content type: {contentType}", ctx.TraceIdentifier, contentType);
             return PolicyInputResult.Fail($"{ctx.TraceIdentifier} - Unknown content type: {contentType}");
         }
 
-        _logger.LogInformation($"{ctx.TraceIdentifier} - Content type: {contentType}");
+        _logger.LogInformation("{traceIdentifier} - Content type: {contentType}", ctx.TraceIdentifier, contentType);
         return await strategy.BuildAsync(ctx, appConfig);
     }
 

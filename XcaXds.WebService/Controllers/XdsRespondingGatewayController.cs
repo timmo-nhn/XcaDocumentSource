@@ -74,7 +74,7 @@ public class XdsRespondingGatewayController : ControllerBase
 
         var responseEnvelope = new SoapEnvelope();
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Received request for action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("{traceIdentifier} - Received request for action: {action} from {remoteIpAddress}", soapEnvelope.Header.MessageId, action, Request.HttpContext.Connection.RemoteIpAddress);
 
         var accessControlRequest = HttpContext.Items.TryGetValue("accessRequest", out var arqst) ? arqst as AbacRequest : null;
 
@@ -138,30 +138,30 @@ public class XdsRespondingGatewayController : ControllerBase
                     };
 
                     requestTimer.Stop();
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                    _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", soapEnvelope.Header.MessageId, action, requestTimer.ElapsedMilliseconds);
                     _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
                     multipartResponse = new FileContentResult(bytes, $"multipart/related; type=\"{Constants.MimeTypes.XopXml}\"; boundary=\"{boundary}\"; start=\"{contentId}\"; start-info=\"{Constants.MimeTypes.SoapXml}\"");
 
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - " + multipartResponse.ContentType);
+                    _logger.LogInformation("{traceIdentifier} - {contentType}", soapEnvelope.Header.MessageId, multipartResponse.ContentType);
 
-                    _logger.LogInformation($"{soapEnvelope.Header.MessageId} - " + Encoding.UTF8.GetString(bytes));
+                    _logger.LogInformation("{traceIdentifier} - {content}", soapEnvelope.Header.MessageId, Encoding.UTF8.GetString(bytes));
                 }
 
                 responseEnvelope = iti39Response.Value;
                 break;
 
             default:
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Unknown action: {action} from {Request.HttpContext.Connection.RemoteIpAddress}");
+                _logger.LogInformation("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", soapEnvelope.Header.MessageId, action, Request.HttpContext.Connection.RemoteIpAddress);
                 requestTimer.Stop();
-                _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+                _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", soapEnvelope.Header.MessageId, action, requestTimer.ElapsedMilliseconds);
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
         }
 
         requestTimer.Stop();
-        _logger.LogInformation($"{soapEnvelope.Header.MessageId} -  Completed action: {action} in {requestTimer.ElapsedMilliseconds} ms");
+        _logger.LogInformation("{traceIdentifier} -  Completed action: {action} in {elapsedMilliseconds} ms", soapEnvelope.Header.MessageId, action, requestTimer.ElapsedMilliseconds);
 
         _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 

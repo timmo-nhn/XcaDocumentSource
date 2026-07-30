@@ -65,31 +65,31 @@ public class PolicyEnforcementPointMiddleware
     {
         var sw = Stopwatch.StartNew();
 
-        ThrottleRequestIfRequestThrottlingEnabled(out var millis);
+        var millis = await ThrottleRequestIfRequestThrottlingEnabled();
 
         if (millis > 0)
         {
-            _logger.LogWarning($"Requesth throttling enabled: {millis} ms");
+            _logger.LogWarning("{traceIdentifier} - Requesth throttling enabled: {millis} ms", httpContext.TraceIdentifier, millis);
         }
 
         var requestUrl = httpContext.Request.GetDisplayUrl();
         var requestMethod = httpContext.Request.Method;
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - {requestMethod} Request to endpoint: {requestUrl}");
+        _logger.LogInformation("{traceIdentifier} - {requestMethod} Request to endpoint: {requestUrl}", httpContext.TraceIdentifier, requestMethod, requestUrl);
 
         if (!PolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
         {
             sw.Stop();
-            _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point not enabled for this endpoint");
+            _logger.LogWarning("{traceIdentifier} - Policy Enforcement Point not enabled for this endpoint", httpContext.TraceIdentifier);
             await _next(httpContext);
             return;
         }
 
         using var activity = StartPepActivity(httpContext);
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Beginning policy input builder...");
+        _logger.LogInformation("{traceIdentifier} - Beginning policy input builder...", httpContext.TraceIdentifier);
         var policyInput = await policyInputBuilder.BuildAsync(httpContext, _xdsConfig);
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy input builder complete. Success: {policyInput.IsSuccess}, Message: {policyInput.ErrorMessage}");
+        _logger.LogInformation("{traceIdentifier} - Policy input builder complete. Success: {isSuccess}, Message: {errorMessage}", httpContext.TraceIdentifier, policyInput.IsSuccess, policyInput.ErrorMessage);
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         {
@@ -97,7 +97,7 @@ public class PolicyEnforcementPointMiddleware
             var policies = _policyRepositoryService.GetPoliciesAsPolicySetDto();
             var policySet = JsonSerializer.Serialize(policies, Constants.JsonDefaultOptions.DefaultSettings);
             var accessControlRequestString = JsonSerializer.Serialize(policyInput.AccessRequest, Constants.JsonDefaultOptions.DefaultSettings);
-            _logger.LogDebug($"{httpContext.TraceIdentifier} - ABAC request:\n{accessControlRequestString}");
+            _logger.LogDebug("{traceIdentifier} - ABAC request:\n{accessControlRequestString}", httpContext.TraceIdentifier, accessControlRequestString);
         }
 
         AttachPepContext(httpContext, policyInput.AccessRequest, sw.ElapsedMilliseconds);
@@ -106,12 +106,12 @@ public class PolicyEnforcementPointMiddleware
         {
             if (_xdsConfig.BypassPolicyEnforcementPoint)
             {
-                _logger.LogWarning($"{httpContext.TraceIdentifier} - BypassPolicyEnforcementPoint is true!");
+                _logger.LogWarning("{traceIdentifier} - BypassPolicyEnforcementPoint is true!", httpContext.TraceIdentifier);
             }
 
             sw.Stop();
-            _logger.LogWarning($"{httpContext.TraceIdentifier} - Policy Enforcement Point middleware was bypassed");
-            _logger.LogInformation($"{httpContext.TraceIdentifier} - Bypassed PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+            _logger.LogWarning("{traceIdentifier} - Policy Enforcement Point middleware was bypassed", httpContext.TraceIdentifier);
+            _logger.LogInformation("{traceIdentifier} - Bypassed PolicyEnforcementPoint-middleware in {elapsedMilliseconds} ms", httpContext.TraceIdentifier, sw.ElapsedMilliseconds);
 
             await _next(httpContext);
             return;
@@ -122,7 +122,7 @@ public class PolicyEnforcementPointMiddleware
         if (policyInput.IsSuccess == false)
         {
             sw.Stop();
-            _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+            _logger.LogInformation("{traceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {elapsedMilliseconds} ms", httpContext.TraceIdentifier, sw.ElapsedMilliseconds);
 
             _monitoringService.ResponseTimes.Add(Constants.Urn.Custom.PepTokenInvalid, sw.ElapsedMilliseconds);
             await policyDenyResponseBuilder.WriteAsync(httpContext, policyInput, _xdsConfig, policyInput.ErrorMessage);
@@ -130,16 +130,15 @@ public class PolicyEnforcementPointMiddleware
         }
 
         var decision = _policyDecisionPointService.Evaluate(policyInput.AccessRequest!);
-        _logger.LogInformation(JsonSerializer.Serialize(decision, Constants.JsonDefaultOptions.DefaultSettings));
 
         AttachPepDecisionResponse(httpContext, decision);
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point result: {decision.Decision.ToString()}");
+        _logger.LogInformation("{traceIdentifier} - Policy Enforcement Point result: {decision}", httpContext.TraceIdentifier, decision.Decision.ToString());
 
         if (decision.Permit)
         {
             sw.Stop();
-            _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+            _logger.LogInformation("{traceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {elapsedMilliseconds} ms", httpContext.TraceIdentifier, sw.ElapsedMilliseconds);
 
             _monitoringService.ResponseTimes.Add(Constants.Urn.Custom.PepPermit, sw.ElapsedMilliseconds);
             activity?.SetTag("PolicyEnforcementPoint.Status", "permit");
@@ -149,9 +148,9 @@ public class PolicyEnforcementPointMiddleware
         }
 
         sw.Stop();
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Policy Enforcement Point has denied the request");
+        _logger.LogInformation("{traceIdentifier} - Policy Enforcement Point has denied the request", httpContext.TraceIdentifier);
 
-        _logger.LogInformation($"{httpContext.TraceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {sw.ElapsedMilliseconds} ms");
+        _logger.LogInformation("{traceIdentifier} - Ran through PolicyEnforcementPoint-middleware in {elapsedMilliseconds} ms", httpContext.TraceIdentifier, sw.ElapsedMilliseconds);
         await policyDenyResponseBuilder.WriteAsync(httpContext, policyInput, _xdsConfig, "Access denied");
         _monitoringService.ResponseTimes.Add(Constants.Urn.Custom.PepDeny, sw.ElapsedMilliseconds);
         activity?.SetTag("PolicyEnforcementPoint.Status", "deny");
@@ -174,18 +173,19 @@ public class PolicyEnforcementPointMiddleware
         httpContext.Items.Add("pepElapsedTime", elapsedMillis);
     }
 
-    private void ThrottleRequestIfRequestThrottlingEnabled(out int millis)
+    private async Task<int> ThrottleRequestIfRequestThrottlingEnabled()
     {
-        millis = 0;
+        int millis = 0;
 
         if (!_requestThrottlingService.IsThrottleTimeSet())
         {
-            return;
+            return millis;
         }
 
         var throttleTime = _requestThrottlingService.GetThrottleTime();
         millis = throttleTime;
-        Thread.Sleep(throttleTime);
+        await Task.Delay(throttleTime);
+        return millis;
     }
 
     private Activity? StartPepActivity(HttpContext ctx)
@@ -243,6 +243,6 @@ public class PolicyEnforcementPointMiddleware
             WriteIndented = true
         });
 
-        _logger.LogInformation("JWT Content:\n{JwtJson}", json);
+        _logger.LogInformation("{traceIdentifier} - JWT Content:\n{JwtJson}", context.TraceIdentifier, json);
     }
 }

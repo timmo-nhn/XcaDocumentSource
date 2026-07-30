@@ -151,7 +151,7 @@ public class PolicyRepositoryWrapper
             try
             {
                 _policySet = _policyRepository.GetAllPolicies();
-                _logger.LogInformation($"{Path.GetFileName(_policyRepositoryPath)} reloaded successfully.");
+                _logger.LogInformation("{fileName} reloaded successfully.", Path.GetFileName(_policyRepositoryPath));
             }
             catch (Exception ex)
             {

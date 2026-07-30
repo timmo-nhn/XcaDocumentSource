@@ -20,14 +20,14 @@ public class ApplicationMetaService
 
     public string GetNukeKeyForRegistryRepository()
     {
-        return DateTime.Now.ToString("ddMMyyhhMM");
+        return DateTime.UtcNow.ToString("ddMMyyhhMM");
     }
 
     public RestfulApiResponse NukeRegistryRepository(string nukeKey)
     {
         var apiResponse = new RestfulApiResponse();
 
-        var datetime = DateTime.Now.ToString("ddMMyyhhMM");
+        var datetime = DateTime.UtcNow.ToString("ddMMyyhhMM");
         if (datetime != nukeKey)
         {
             apiResponse.AddError("InvalidKey", "Invalid Nuke key, get nuke key from the 'get-nuke-key'-endpoint");
@@ -38,7 +38,7 @@ public class ApplicationMetaService
         var documentIds = documentEntries.OfType<DocumentEntryDto>().Select(dent => dent.UniqueId).ToList();
 
         var amount = documentIds.Count;
-        _logger.LogInformation($"Fetched {amount} for nuking");
+        _logger.LogInformation("{traceIdentifier} - Fetched {amount} for nuking", Guid.NewGuid().ToString(), amount);
 
         if (amount == 0)
         {

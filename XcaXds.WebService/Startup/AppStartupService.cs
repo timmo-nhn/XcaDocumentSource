@@ -59,8 +59,9 @@ public class AppStartupService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var startupTime = DateTime.Now;
-        _logger.LogInformation($"Startup Time (UTC): {startupTime.ToString("O")}");
+        var startupTime = DateTime.UtcNow;
+        _logger.LogInformation("Starting XcaDocumentSource...");
+        _logger.LogInformation("Startup Time (UTC): {startupTime}", startupTime.ToString("O"));
 
         _monitoringService.StartupTime = startupTime;
 
@@ -68,36 +69,31 @@ public class AppStartupService : IHostedService
         {
             if (_appConfig.HomeCommunityId == "2.16.578.1.12.4.5.100.1.1")
             {
-                _logger.LogCritical($"\n\n========  Fatal! Default HomeCommunityId in production =======\nDefault HomeCommunity Id {_appConfig.HomeCommunityId}! \nWhen deploying the application, please change this to an unique OID\n\n");
+                _logger.LogCritical("\n\n========  Fatal! Default HomeCommunityId in production =======\nDefault HomeCommunity Id {homeCommunityId}! \nWhen deploying the application, please change this to an unique OID\n\n", _appConfig.HomeCommunityId);
                 throw new InvalidOperationException("Default HomeCommunityId used in production environment.");
             }
 
             if (_appConfig.RepositoryUniqueId == "2.16.578.1.12.4.5.100.1.1.2")
             {
-                _logger.LogCritical($"\n\n========  Fatal! Default RepositoryUniqueId in production =======\nUsing default Repository Unique Id {_appConfig.RepositoryUniqueId}!\nWhen deploying the application, please change this to an unique OID\n\n");
-                throw new InvalidOperationException("Default HomeCommunityId used in production environment.");
+                _logger.LogCritical("\n\n========  Fatal! Default RepositoryUniqueId in production =======\nUsing default Repository Unique Id {repositoryUniqueId}!\nWhen deploying the application, please change this to an unique OID\n\n", _appConfig.RepositoryUniqueId);
+                throw new InvalidOperationException("Default RepositoryUniqueId used in production environment.");
             }
         }
 
-        _logger.LogInformation("Starting XcaDocumentSource...");
 
         if (_appConfig.HomeCommunityId == "2.16.578.1.12.4.5.100.1.1")
         {
-            _logger.LogWarning($"\n\n========  Warning! Default HomeCommunityId =======\nUsing default HomeCommunity Id {_appConfig.HomeCommunityId}! \nWhen deploying the application, please change this to an unique OID\n\n");
+            _logger.LogWarning("\n\n========  Warning! Default HomeCommunityId =======\nUsing default HomeCommunity Id {homeCommunityId}! \nWhen deploying the application, please change this to an unique OID\n\n", _appConfig.HomeCommunityId);
         }
 
         if (_appConfig.RepositoryUniqueId == "2.16.578.1.12.4.5.100.1.1.2")
         {
-            _logger.LogWarning($"\n\n========  Warning! Default RepositoryUniqueId =======\nUsing default Repository Unique Id {_appConfig.RepositoryUniqueId}!\nWhen deploying the application, please change this to an unique OID\n\n");
+            _logger.LogWarning("\n\n========  Warning! Default RepositoryUniqueId =======\nUsing default Repository Unique Id {repositoryUniqueId}!\nWhen deploying the application, please change this to an unique OID\n\n", _appConfig.RepositoryUniqueId);
         }
-
-        await MigrateSqliteRegistryDbToPostgreSqlIfPresent(cancellationToken);
 
         NormalizeAppconfigOidsWithRegistryRepositoryContent();
 
         FindDudsInRepository();
-
-        //MigrateFromJsonRegistryToDatabase();
 
         await AddDefaultAccessControlPolicies();
     }
@@ -119,7 +115,7 @@ public class AppStartupService : IHostedService
 
         foreach (var dud in duds)
         {
-            _logger.LogWarning($"Registry contains stale entry (No Repository metadata associated with it): {dud}. Removing...");
+            _logger.LogWarning("Registry contains stale entry (No Repository metadata associated with it): {dud}. Removing...", dud);
             var registryObjectsForDud = _registryWrapper.GetRegistryItemAndRelated(dud)?.ToArray() ?? [];
 
             foreach (var registryObjectDud in registryObjectsForDud)
@@ -128,61 +124,16 @@ public class AppStartupService : IHostedService
             }
         }
 
-        _logger.LogInformation($"Removed {duds.Count} stale entries from Registry");
-    }
-
-    private async Task MigrateSqliteRegistryDbToPostgreSqlIfPresent(CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(Extensions.WebApplicationBuilderExtensions.GetPostgreSqlConnectionString()))
-        {
-            return;
-        }
-
-        var sqliteRegistryPath = DatabasePathFinder.FindDatabasePath();
-        if (File.Exists(sqliteRegistryPath) == false)
-        {
-            return;
-        }
-
-        await using var sqliteDb = await _sqliteRegistryContextFactory.CreateDbContextAsync(cancellationToken);
-        var sqliteRegistryObjects = await sqliteDb.RegistryObjects.AsNoTracking().ToListAsync(cancellationToken);
-
-        if (sqliteRegistryObjects.Count == 0)
-        {
-            return;
-        }
-
-        var existingPostgreSqlItems = _registryWrapper.GetDocumentRegistryContentAsDtos().ToList();
-        if (existingPostgreSqlItems.Count > 0)
-        {
-            _logger.LogInformation(
-                "Skipping SQLite registry migration to PostgreSQL because PostgreSQL already contains {Count} registry object(s)",
-                existingPostgreSqlItems.Count);
-            return;
-        }
-
-        _logger.LogInformation("Migrating {Count} registry object(s) from SQLite registry file '{RegistryPath}' to PostgreSQL",
-            sqliteRegistryObjects.Count, sqliteRegistryPath);
-
-        var registryDtos = DatabaseMapper.MapFromDatabaseEntityToDto(sqliteRegistryObjects).ToList();
-        var writeResponse = _registryWrapper.SetDocumentRegistryContentWithDtos(registryDtos);
-
-        if (!writeResponse.IsSuccess)
-        {
-            throw new InvalidOperationException(
-                $"Failed to migrate SQLite registry data to PostgreSQL. Error: {writeResponse.Message}");
-        }
-
-        _logger.LogInformation("Migrated {Count} registry object(s) from SQLite to PostgreSQL", registryDtos.Count);
+        _logger.LogInformation("Removed {dudCount} stale entries from Registry", duds.Count);
     }
 
     private async Task AddDefaultAccessControlPolicies()
     {
-        while (_terminologyUpdaterService.ServiceStatus != ServiceState.Ready &&
-            _terminologyUpdaterService.ServiceStatus != ServiceState.Crashed)
+        while (_terminologyUpdaterService.GetServiceState() != ServiceState.Ready &&
+            _terminologyUpdaterService.GetServiceState() != ServiceState.Crashed)
         {
-            _logger.LogInformation($"Waiting for terminology service to initialize... (State: {_terminologyUpdaterService.ServiceStatus})");
-            Thread.Sleep(1000);
+            _logger.LogInformation("Waiting for terminology service to initialize... (State: {state})", _terminologyUpdaterService.GetServiceState());
+            await Task.Delay(1000);
         }
 
         var acpNullValue = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
@@ -196,7 +147,7 @@ public class AppStartupService : IHostedService
             [
                 new(
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
-                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue!)
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue ?? "Unknown")
                 )
             ],
             Actions = ["ReadDocumentList"],
@@ -220,7 +171,7 @@ public class AppStartupService : IHostedService
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":code", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":code"),
                     new(Constants.Urn.Custom.AdhocQueryPatientIdentifier + ":codeSystem", AttributeCompareRule.NotEquals, Constants.Saml.Attribute.ResourceId20 + ":codeSystem"),
 
-                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue!)
+                    new(Constants.Saml.Attribute.XuaAcp + ":code", acpNullValue ?? "Unknown")
                 )
             ],
             Actions = ["ReadDocumentList", "ReadDocuments"],
@@ -382,7 +333,7 @@ public class AppStartupService : IHostedService
                     if (string.IsNullOrWhiteSpace(doc.SourcePatientInfo?.PatientId?.System) ||
                         doc.SourcePatientInfo?.PatientId?.System == oldHomeCommunityId)
                     {
-                        _logger.LogInformation($"Fixing stale patient identifier System, new OID: {_appConfig.HomeCommunityId}");
+                        _logger.LogInformation("Fixing stale patient identifier System, new OID: {newOid}", _appConfig.HomeCommunityId);
 
                         doc.SourcePatientInfo!.PatientId!.System = _appConfig.HomeCommunityId;
                     }
@@ -400,36 +351,18 @@ public class AppStartupService : IHostedService
 
         if (response.IsSuccess)
         {
-            _logger.LogInformation($"Normalized {registryContent.Count} registry entries");
+            _logger.LogInformation("Normalized {registryCount} registry entries", registryContent.Count);
         }
         else
         {
-            _logger.LogError($"Failed to normalize registry entries. Error: {response.Message}");
+            _logger.LogError("Failed to normalize registry entries. Error: {errorMessage}", response.Message);
         }
 
         var newIdSet = _repositoryWrapper.SetNewRepositoryOid(_appConfig.RepositoryUniqueId, out var oldId);
 
         if (newIdSet)
         {
-            _logger.LogInformation($"New Repository Unique Id set: '{_appConfig.RepositoryUniqueId}' (old: '{oldId}')");
+            _logger.LogInformation("New Repository Unique Id set: '{newRepositoryUniqueId}' (old: '{oldRepositoryUniqueId}')", _appConfig.RepositoryUniqueId, oldId);
         }
     }
-
-    //private void MigrateFromJsonRegistryToDatabase()
-    //{
-    //    // If registry doesn't exist yet, no need to migrate
-    //    if (fileBasedRegistry.RegistryExists() == false) return;
-
-    //    // If already migrated, no need to migrate again :P
-    //    if (fileBasedRegistry.IsFileRegistryAsMigrated()) return;
-
-    //    _logger.LogInformation("File based registry found. Migrating RegistryObjects to database");
-
-    //    var jsonRegistryObjects = fileBasedRegistry.ReadRegistry();
-
-    //    _logger.LogInformation($"Migrating {jsonRegistryObjects.Count()} RegistryObjects");
-
-    //    _registryWrapper.SetDocumentRegistryContentWithDtos(jsonRegistryObjects.ToList());
-    //    fileBasedRegistry.MarkFileRegistryAsMigrated();
-    //}
 }

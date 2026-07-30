@@ -165,8 +165,8 @@ public class XdsRepositoryService
             }
         }
 
-        _logger.LogInformation($"Document validation completed for {documentsToUpload.Count} document(s) ready for upload to repository");
-        _logger.LogInformation($"RegistryErrorList contains {registryResponse.RegistryErrorList?.RegistryError.Length} entries");
+        _logger.LogInformation("Document validation completed for {documentsToUploadCount} document(s) ready for upload to repository", documentsToUpload.Count);
+        _logger.LogInformation("RegistryErrorList contains {registryErrorListCount} entries", registryResponse.RegistryErrorList?.RegistryError.Length);
 
         // We should not break the loop if any errors are found, but also never store any documents to maintain submission atomicity
         if ((registryResponse.RegistryErrorList?.RegistryError.Length > 0) == false)
@@ -326,14 +326,14 @@ public class XdsRepositoryService
         registryResponse.EvaluateStatusCode();
         retrieveResponse.RegistryResponse = registryResponse;
 
-        _logger.LogInformation($"{iti43Envelope.Header.MessageId} - Retrieved {retrieveResponse?.DocumentResponse?.Length ?? 0} document(s)");
+        _logger.LogInformation("{traceIdentifier} - Retrieved {documentCount} document(s)", iti43Envelope.Header.MessageId, retrieveResponse?.DocumentResponse?.Length ?? 0);
 
         for (int i = 0; i < retrieveResponse?.RegistryResponse?.RegistryErrorList?.RegistryError?.Length; i++)
         {
             var error = retrieveResponse.RegistryResponse.RegistryErrorList?.RegistryError[i];
             if (error == null) continue;
 
-            _logger.LogWarning($"{iti43Envelope.Header.MessageId} - ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+            _logger.LogWarning("{traceIdentifier} - ERROR #{errorIndex}: Severity:{severity}\n\t \n\t Code:{errorCode}\n\tCodeContext: {codeContext}\n\tLocation: {location}", iti43Envelope.Header.MessageId, i + 1, error.Severity, error.ErrorCode, error.CodeContext, error.Location);
         }
 
         var resultEnvelope = new SoapRequestResult<SoapEnvelope>()
@@ -426,7 +426,7 @@ public class XdsRepositoryService
 
         if (registryResponse.Status == Constants.Xds.ResponseStatusTypes.Success)
         {
-            _logger.LogInformation($"{soapEnvelope.Header.MessageId} - Deleted {removeDocuments.Length} document(s)");
+            _logger.LogInformation("{traceIdentifier} - Deleted {documentCount} document(s)", soapEnvelope.Header.MessageId, removeDocuments.Length);
         }
 
         for (int i = 0; i < registryResponse.RegistryErrorList?.RegistryError.Length; i++)
@@ -434,7 +434,7 @@ public class XdsRepositoryService
             var error = registryResponse.RegistryErrorList?.RegistryError[i];
             if (error == null) continue;
 
-            _logger.LogWarning($"{soapEnvelope.Header.MessageId} - ERROR #{i + 1}: Severity:{error.Severity}\n\t \n\t Code:{error.ErrorCode}\n\tCodeContext: {error.CodeContext}\n\tLocation: {error.Location}");
+            _logger.LogWarning("{traceIdentifier} - ERROR #{errorIndex}: Severity:{severity}\n\t \n\t Code:{errorCode}\n\tCodeContext: {codeContext}\n\tLocation: {location}", soapEnvelope.Header.MessageId, i + 1, error.Severity, error.ErrorCode, error.CodeContext, error.Location);
         }
 
         return SoapExtensions.CreateSoapResultRegistryResponse(registryResponse);

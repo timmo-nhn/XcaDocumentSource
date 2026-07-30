@@ -30,30 +30,30 @@ public class AtnaLogExporterService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        try
+        await foreach (var auditEventFunction in _atnaLogQueue.DequeueAllAsync(stoppingToken).WithCancellation(stoppingToken))
         {
-            await foreach (var auditEventFunction in _atnaLogQueue.DequeueAllAsync(stoppingToken).WithCancellation(stoppingToken))
+            try
             {
                 var auditEvent = auditEventFunction();
                 await ExportAtnaLog(auditEvent);
             }
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-            _logger.LogInformation("AuditLogExporterService is stopping.");
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogInformation(ex, "AuditLogExporterService is stopping.");
-        }
-        catch (HttpRequestException ex)
-        {
-            _logger.LogError(ex, $"Unable to connect to ATNA log exporter endpoint {_appConfig.AtnaLogExporterEndpoint}. Audit log is not being exported!");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unhandled exception in AuditLogExporterService. Audit log is not being exported!");
-            throw;
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("AuditLogExporterService is stopping.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogInformation(ex, "AuditLogExporterService is stopping.");
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Unable to connect to ATNA log exporter endpoint {atnaLogExporterEndpoint}. Audit log is not being exported!", _appConfig.AtnaLogExporterEndpoint);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception in AuditLogExporterService. Audit log is not being exported!");
+                throw;
+            }
         }
     }
 
@@ -74,12 +74,12 @@ public class AtnaLogExporterService : BackgroundService
 
         if (response.IsSuccessStatusCode)
         {
-            _logger.LogInformation($"Successfully exported AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}");
+            _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint);
             _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
         }
         else
         {
-            _logger.LogError($"Failed to export AuditEvent {auditEvent.Id} to {_appConfig.AtnaLogExporterEndpoint}. Status Code: {response.StatusCode}, Response: {await response.Content.ReadAsStringAsync()}");
+            _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {responseBody}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint, response.StatusCode, responseBody);
         }
     }
 }

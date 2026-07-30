@@ -21,7 +21,7 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var patientId = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var patientId = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -45,9 +45,9 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     public async Task Citizen_2_12To16_ShouldGetEmptyDocumentList()
     {
         SetupTests();
-        var patientId12To16Years = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-13):yy}79740";
+        var patientId12To16Years = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-13):yy}79740";
 
-        var yearPart = DateTime.Now.AddYears(-13).Year.ToString().Substring(2, 2);
+        var yearPart = DateTime.UtcNow.AddYears(-13).Year.ToString().Substring(2, 2);
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -72,7 +72,7 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var patientId16To18Years = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-17):yy}79740";
+        var patientId16To18Years = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-17):yy}79740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -97,8 +97,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resourceBelow12Years = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-6):yy}79740";
-        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var resourceBelow12Years = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-6):yy}79740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -124,8 +124,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
-        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var resource = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -151,8 +151,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
-        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var resource = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -178,8 +178,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-13):yy}39740";
-        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-42):yy}39740";
+        var resource = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-13):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-42):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -205,7 +205,7 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var subject = $"{DateTime.Now.AddDays(-1):dd}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1):dd}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -231,8 +231,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var resource = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -259,8 +259,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var resource = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -286,8 +286,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var resource = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {
@@ -314,8 +314,8 @@ public class UnitTests_BusinessLogic_UseCases : IntegrationTests_DefaultFixture,
     {
         SetupTests();
 
-        var resource = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-70):yy}39740";
-        var subject = $"{DateTime.Now.AddDays(-1).Day}{DateTime.Now:MM}{DateTime.Now.AddYears(-30):yy}39740";
+        var resource = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-70):yy}39740";
+        var subject = $"{DateTime.UtcNow.AddDays(-1).Day}{DateTime.UtcNow:MM}{DateTime.UtcNow.AddYears(-30):yy}39740";
 
         var businessLogic = new BusinessLogicParameters()
         {

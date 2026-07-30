@@ -40,19 +40,19 @@ public partial class RepositoryWrapper
 
         if (_appConfig.HomeCommunityId != homeCommunityId)
         {
-            _logger.LogInformation($"{messageId} - Got document request with invalid HomeCommunityId {homeCommunityId}, Expected: {_appConfig.HomeCommunityId} ".TrimStart([' ', '-']));
+            _logger.LogInformation("{messageId} - Got document request with invalid HomeCommunityId {homeCommunityId}, Expected: {expectedHomeCommunityId}", messageId, homeCommunityId, _appConfig.HomeCommunityId);
             return null;
         }
 
         if (repositoryUniqueId?.Substring(repositoryUniqueId.LastIndexOf('/') + 1) != _appConfig.RepositoryUniqueId)
         {
-            _logger.LogInformation($"{messageId} - Got document request with invalid RepositoryUniqueId {repositoryUniqueId}, Expected: {_appConfig.RepositoryUniqueId}".TrimStart([' ', '-']));
+            _logger.LogInformation("{messageId} - Got document request with invalid RepositoryUniqueId {repositoryUniqueId}, Expected: {expectedRepositoryUniqueId}", messageId, repositoryUniqueId, _appConfig.RepositoryUniqueId);
             return null;
         }
 
         if (documentUniqueId == null)
         {
-            _logger.LogInformation($"{messageId} - No documentUniqueId specified");
+            _logger.LogInformation("{messageId} - No documentUniqueId specified", messageId);
             return null;
         }
 
@@ -61,7 +61,7 @@ public partial class RepositoryWrapper
             return _repository.Read(documentUniqueId);
         }
 
-        _logger.LogDebug($"{messageId} - {nameof(_appConfig.WrapRetrievedDocumentInCda)} Enabled".TrimStart([' ', '-']));
+        _logger.LogDebug("{messageId} - {wrapRetrievedDocumentInCda} Enabled", messageId, nameof(_appConfig.WrapRetrievedDocumentInCda));
 
 
         var sxmls = new SoapXmlSerializer(Constants.XmlDefaultOptions.DefaultXmlWriterSettings);
@@ -77,11 +77,11 @@ public partial class RepositoryWrapper
 
         documentKind = DocumentSniffer.DetectKind(documentDto.Data);
 
-        _logger.LogDebug($"{messageId} - Document kind {documentKind.ToString()}");
+        _logger.LogDebug("{messageId} - Document kind {documentKind}", messageId, documentKind.ToString()   );
 
         if (documentKind == DocumentSniffer.DocumentKind.ClinicalDocumentXml)
         {
-            _logger.LogInformation($"{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format".TrimStart([' ', '-']));
+            _logger.LogInformation("{messageId} - CDA-wrapping skipped.. Document already in ClinicalDocument XML format", messageId);
             cdaXml = Encoding.UTF8.GetString(documentDto.Data ?? []);
         }
         else

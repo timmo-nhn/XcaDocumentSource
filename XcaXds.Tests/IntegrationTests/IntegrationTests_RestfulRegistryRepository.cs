@@ -27,8 +27,8 @@ public partial class IntegrationTests_RestfulRegistryRepository_CRUD : Integrati
 
         var documentEntries = (await EnsureRegistryAndRepositoryHasContent(patientIdentifier: PatientIdentifier.IdNumber)).AsRegistryObjectDtos().OfType<DocumentEntryDto>().ToArray();
 
-        var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.Now.AddDays(-days)).ToArray();
-
+        var oldDocumentEntries = documentEntries.Where(de => de.ServiceStopTime < DateTime.UtcNow.AddDays(-days)).ToArray();
+        
         var url = QueryHelpers.AddQueryString("/api/rest/delete-older-than", "days", string.Empty + days);
         var firstResponse = await _client.DeleteAsync(url, TestContext.Current.CancellationToken);
 

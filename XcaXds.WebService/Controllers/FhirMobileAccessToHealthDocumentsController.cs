@@ -1,9 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Hl7.Fhir.Support;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Web;
@@ -12,14 +10,11 @@ using XcaXds.Commons.Attributes;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
-using XcaXds.Commons.Models.Custom.DomainResults;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.Actions;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared;
-using XcaXds.Shared.Extensions;
-using XcaXds.Shared.Models.Custom;
 using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.AtnaAuditLogging;
@@ -34,7 +29,7 @@ namespace XcaXds.WebService.Controllers;
 [Tags("FHIR Endpoints")]
 [UsePolicyEnforcementPoint]
 [ExportsStatistics]
-public class FhirMobileAccessToHealthDocumentsController : Controller
+public class FhirMobileAccessToHealthDocumentsController : ControllerBase
 {
     private readonly ILogger<FhirMobileAccessToHealthDocumentsController> _logger;
     private readonly MonitoringStatusService _monitoringStatusService;
@@ -109,7 +104,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         if (!await _featureManager.IsEnabledAsync("Fhir_DocumentReference")) return NotFound();
 
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"Received request for action: ITI-67 from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("Received request for action: ITI-67 from {remoteIpAddress}", Request.HttpContext.Connection.RemoteIpAddress);
 
         var prettyprint = string.IsNullOrWhiteSpace(Request.Headers["compact"].ToString())
             ? "true"
@@ -147,7 +142,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 Diagnostics = "The 'status' field is required."
             });
 
-            _logger.LogInformation($"Missing required field 'status'");
+            _logger.LogInformation("Missing required field 'status'");
         }
 
         if (string.IsNullOrWhiteSpace(patient))
@@ -159,13 +154,13 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
                 Diagnostics = "The 'patient' field is required."
             });
 
-            _logger.LogInformation($"Missing required field 'patient'");
+            _logger.LogInformation("Missing required field 'patient'");
         }
 
         if (operationOutcome.Issue.Count > 0)
         {
             requestTimer.Stop();
-            _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
+            _logger.LogInformation("Completed action: ITI-67 in {elapsedMilliseconds} ms with {errorCount} errors", requestTimer.ElapsedMilliseconds, operationOutcome.Issue.Count);
             return BadRequest(fhirJsonSerializer.SerializeToString(operationOutcome));
         }
 
@@ -195,17 +190,17 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"Number of Bundle.Entries {bundle?.Entry?.Count ?? 0}");
+        _logger.LogInformation("Number of Bundle.Entries {count}", bundle?.Entry?.Count ?? 0);
 
         if (bundle != null)
         {
             var jsonOutput = fhirJsonSerializer.SerializeToString(bundle);
 
-            _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
+            _logger.LogInformation("Completed action: ITI-67 in {elapsedMilliseconds} ms with {errorCount} errors", requestTimer.ElapsedMilliseconds, operationOutcome.Issue.Count);
             return Content(jsonOutput);
         }
 
-        _logger.LogInformation($"Completed action: ITI-67 in {requestTimer.ElapsedMilliseconds} ms with {operationOutcome.Issue.Count} errors");
+        _logger.LogInformation("Completed action: ITI-67 in {elapsedMilliseconds} ms with {errorCount} errors", requestTimer.ElapsedMilliseconds, operationOutcome.Issue.Count);
         return BadRequestOperationOutcome.Create(operationOutcome);
     }
 
@@ -220,7 +215,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
         if (!await _featureManager.IsEnabledAsync("Fhir_ReadDocument")) return NotFound();
 
         var requestTimer = Stopwatch.StartNew();
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request for action: ITI-68 from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("{traceIdentifier} - Received request for action: ITI-68 from {remoteIpAddress}", HttpContext.TraceIdentifier, Request.HttpContext.Connection.RemoteIpAddress);
 
         var registryObjectForDocument = _registryWrapper.GetDocumentRegistryContentAsDtos().OfType<DocumentEntryDto>().FirstOrDefault(ro => ro.Id == documentUniqueId);
 
@@ -235,12 +230,12 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         if (document == null)
         {
-            _logger.LogInformation($"No document with id {documentUniqueId} found");
+            _logger.LogInformation("No document with id {documentUniqueId} found", documentUniqueId);
             return NotFound();
         }
 
-        _logger.LogInformation($"Returned document. MimeType {mimetype ?? registryObjectForDocument?.MimeType ?? "unknown"}");
-        _logger.LogInformation($"Completed action: ITI-68 in {requestTimer.ElapsedMilliseconds} ms with 0 errors");
+        _logger.LogInformation("Returned document. MimeType {mimeType}", mimetype ?? registryObjectForDocument?.MimeType ?? "unknown");
+        _logger.LogInformation("Completed action: ITI-68 in {elapsedMilliseconds} ms with 0 errors", requestTimer.ElapsedMilliseconds);
 
 
         var fileResponse = File(document, mimetype ?? registryObjectForDocument?.MimeType ?? "Unknown");
@@ -266,7 +261,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         requestTimer.Stop();
 
-        _logger.LogInformation($"Completed action: GetDocumentReference in {requestTimer.ElapsedMilliseconds}ms");
+        _logger.LogInformation("Completed action: GetDocumentReference in {elapsedMilliseconds}ms", requestTimer.ElapsedMilliseconds);
 
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
@@ -282,7 +277,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var requestTimer = Stopwatch.StartNew();
 
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to delete document with id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("{traceIdentifier} - Received request to delete document with id {documentId} from {remoteIpAddress}", HttpContext.TraceIdentifier, id, Request.HttpContext.Connection.RemoteIpAddress);
         var operationOutcome = new OperationOutcome();
 
         var deleteResponse = _restfulRegistryService.DeleteDocumentAndMetadata(id, out var deletedEntry);
@@ -319,7 +314,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.DocumentReferenceDelete, requestTimer.ElapsedMilliseconds);
 
-        _logger.LogInformation($"Completed action: Delete DocumentReference in {requestTimer.ElapsedMilliseconds}ms with {operationOutcome.Issue.Count} issues");
+        _logger.LogInformation("Completed action: Delete DocumentReference in {elapsedMilliseconds}ms with {issueCount} issues", requestTimer.ElapsedMilliseconds, operationOutcome.Issue.Count);
 
         var anyErrors = operationOutcome.IssuesOfSeverity(OperationOutcome.IssueSeverity.Error, OperationOutcome.IssueSeverity.Fatal);
 
@@ -343,7 +338,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var requestTimer = Stopwatch.StartNew();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received request for action: ITI-65 ProvideBundle from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("{traceIdentifier} - Received request for action: ITI-65 ProvideBundle from {remoteIpAddress}", HttpContext.TraceIdentifier, Request.HttpContext.Connection.RemoteIpAddress);
 
         var fhirJsonDeserializer = new FhirJsonDeserializer();
 
@@ -351,7 +346,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var rawJsonBundle = json.GetRawText();
 
-        _logger.LogDebug($"{HttpContext.TraceIdentifier} - FHIR-Bundle:\n" + rawJsonBundle);
+        _logger.LogDebug("{traceIdentifier} - FHIR-Bundle:\n{fhirBundle}", HttpContext.TraceIdentifier, rawJsonBundle);
 
         var resource = fhirParser.DeserializeResource(rawJsonBundle);
 
@@ -412,7 +407,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
 
-        _logger.LogInformation($"Completed action: ITI-65 ProvideBundle in {requestTimer.ElapsedMilliseconds}ms with {provideBundleResult.Outcome?.Issue?.Count ?? 0} issues");
+        _logger.LogInformation("Completed action: ITI-65 ProvideBundle in {elapsedMilliseconds}ms with {issueCount} issues", requestTimer.ElapsedMilliseconds, provideBundleResult.Outcome?.Issue?.Count ?? 0);
 
         return Content(jsonResult, Constants.MimeTypes.FhirJson);
     }
@@ -430,7 +425,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var operationOutcome = new OperationOutcome();
 
-        _logger.LogInformation($"{Request.HttpContext.TraceIdentifier} - Received $validate request for ResourceType {resource} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("{traceIdentifier} - Received $validate request for ResourceType {resourceType} from {remoteIpAddress}", HttpContext.TraceIdentifier, resource, Request.HttpContext.Connection.RemoteIpAddress);
 
         var fhirJsonDeserializer = new FhirJsonDeserializer();
 
@@ -473,7 +468,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65ValidateAction, requestTimer.ElapsedMilliseconds);
 
-        _logger.LogInformation($"Completed action: ITI-65 ValidateBundle in {requestTimer.ElapsedMilliseconds}ms with {provideBundleResult.Outcome?.Issue?.Count ?? 0} issues{((provideBundleResult.Outcome?.Issue?.Count ?? 0) == 0 ? ". Bundle is good to go!" : "")}");
+        _logger.LogInformation("Completed action: ITI-65 ValidateBundle in {elapsedMilliseconds}ms with {issueCount} issues{bundleStatus}", requestTimer.ElapsedMilliseconds, provideBundleResult.Outcome?.Issue?.Count ?? 0, ((provideBundleResult.Outcome?.Issue?.Count ?? 0) == 0 ? ". Bundle is good to go!" : ""));
 
         return new CustomContentResult(
             fhirSerializer.SerializeToString(operationOutcome),
@@ -550,7 +545,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         var requestTimer = Stopwatch.StartNew();
 
-        _logger.LogInformation($"{HttpContext.TraceIdentifier} - Received request to patch DocumentReference.securityLabel for id {id} from {Request.HttpContext.Connection.RemoteIpAddress}");
+        _logger.LogInformation("{traceIdentifier} - Received request to patch DocumentReference.securityLabel for id {documentId} from {remoteIpAddress}", HttpContext.TraceIdentifier, id, Request.HttpContext.Connection.RemoteIpAddress);
         var operationOutcome = _fhirService.PatchBundle(id, json, out var documentEntry, out var oldSecurityLabel);
 
         // Atna log generation
@@ -563,7 +558,7 @@ public class FhirMobileAccessToHealthDocumentsController : Controller
 
         _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65PatchAction, requestTimer.ElapsedMilliseconds);
 
-        _logger.LogInformation($"Completed action: ITI-65 PatchBundle in {requestTimer.ElapsedMilliseconds}ms with {operationOutcome.Issue.Count} issues");
+        _logger.LogInformation("Completed action: ITI-65 PatchBundle in {elapsedMilliseconds}ms with {issueCount} issues", requestTimer.ElapsedMilliseconds, operationOutcome.Issue.Count);
 
         var extrinsicObject = _registryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObject(documentEntry);
 

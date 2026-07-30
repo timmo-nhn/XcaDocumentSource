@@ -21,7 +21,8 @@ public class PostGreSqlBasedRegistry : IRegistry
         _contextFactory = contextFactory;
 
         using var context = _contextFactory.CreateDbContext();
-        context.Database.EnsureCreated();
+        EnsureBaselineMigrationRecordedIfPreMigrationDatabase(context);
+        context.Database.Migrate();
         EnsureDateTimeColumnsAreTimestampWithTimeZone(context);
     }
 
@@ -230,6 +231,50 @@ public class PostGreSqlBasedRegistry : IRegistry
             or PostgresErrorCodes.ConnectionFailure
             or PostgresErrorCodes.SqlClientUnableToEstablishSqlConnection
             or PostgresErrorCodes.SqlServerRejectedEstablishmentOfSqlConnection;
+    }
+
+    /// <summary>
+    /// Databases created before EF Core migrations were introduced have tables but no
+    /// __EFMigrationsHistory table or entries. Migrate() would fail with "relation already exists".
+    /// Detect this case and mark the baseline migration as already applied so Migrate()
+    /// becomes a no-op for the initial schema and only applies future deltas.
+    ///
+    /// Uses a standalone connection that is fully closed before Migrate() runs — if we
+    /// leave EF Core's own connection open, Migrate() treats it as externally owned and
+    /// the freshly inserted history row may not be visible to its internal lookup.
+    /// </summary>
+    private static void EnsureBaselineMigrationRecordedIfPreMigrationDatabase(PostGreSqlRegistryDbContext context)
+    {
+        var connectionString = context.Database.GetConnectionString()!;
+        var baselineMigrationId = context.Database.GetMigrations().First();
+
+        using var connection = new NpgsqlConnection(connectionString);
+        connection.Open();
+
+        // If the main schema tables don't exist yet, this is a fresh database — let Migrate() handle it.
+        using var existsCmd = connection.CreateCommand();
+        existsCmd.CommandText = "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'RegistryObjects')";
+        if (!(bool)existsCmd.ExecuteScalar()!)
+            return;
+
+        // Tables exist. Ensure __EFMigrationsHistory exists and contains the baseline entry.
+        // This is safe to run on any database state: already-migrated DBs hit ON CONFLICT DO NOTHING.
+        var efCoreVersion = typeof(DbContext).Assembly.GetName().Version?.ToString(3) ?? "10.0.0";
+
+        using var upsertCmd = connection.CreateCommand();
+        upsertCmd.CommandText = $"""
+            CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+                "MigrationId" character varying(150) NOT NULL,
+                "ProductVersion" character varying(32) NOT NULL,
+                CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+            );
+            INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+            VALUES ('{baselineMigrationId}', '{efCoreVersion}')
+            ON CONFLICT DO NOTHING;
+            """;
+        upsertCmd.ExecuteNonQuery();
+
+        // Connection disposed here — Migrate() opens a fresh connection and sees the history row.
     }
 
     private static void EnsureDateTimeColumnsAreTimestampWithTimeZone(PostGreSqlRegistryDbContext context)

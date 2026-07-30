@@ -20,7 +20,7 @@ public class NinParserFactory
         var strategy = _ninParsers?.FirstOrDefault(s => s.CanHandle(nin));
 
         if (strategy == null)
-            _logger.LogInformation($"No suitable Nin Parser found for NIN: {nin}");
+            _logger.LogInformation("No suitable Nin Parser found for NIN: {nin}", nin);
 
         return strategy;
     }

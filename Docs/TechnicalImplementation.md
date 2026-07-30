@@ -142,3 +142,22 @@ repw-->regrepdb
 ## Appsettings.json-file
 The **XcaXds.WebService**-solution has an **appsettings.json**-file (found in `<solution>/XcaXds.WebService/appsettings.json`). The section `XdsConfiguration` defines parameters which are used by the XcaDocumentSource solution as a whole. This also hosts global parameters and settings such as Document size limit and whether to include multipart response when retreiving document.
 The **OIDs** for the **HomecommunityId** and **RepositoryId** is also defined there and can be changed if nescesarry.
+
+### Backend selection for local vs container
+`XdsConfiguration` now supports selecting registry/repository backends:
+
+- `RegistryBackend`: `Auto` (default), `Sqlite`, `PostgreSql`
+- `RepositoryBackend`: `Auto` (default), `File`, `S3`
+
+`Auto` behavior:
+- Local (not running in container): `Sqlite` registry + `File` repository
+- Container (`DOTNET_RUNNING_IN_CONTAINER=true`): `PostgreSql` registry + `S3` repository
+
+When `RepositoryBackend` is `S3`, configure S3 through environment variables:
+
+- `XdsConfiguration__S3__Bucket` (or `S3_BUCKET`) **required**
+- `XdsConfiguration__S3__Endpoint` (or `S3_ENDPOINT`) optional (for custom S3/MinIO endpoint)
+- `XdsConfiguration__S3__Region` (or `S3_REGION`) optional (`eu-west-1` default)
+- `XdsConfiguration__S3__AccessKey` (or `S3_ACCESS_KEY`) optional (defaults to IAM/default credential chain if omitted)
+- `XdsConfiguration__S3__SecretKey` (or `S3_SECRET_KEY`) optional
+- `XdsConfiguration__S3__ForcePathStyle` (or `S3_FORCE_PATH_STYLE`) optional (`false` default)

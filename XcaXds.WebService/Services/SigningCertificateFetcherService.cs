@@ -26,7 +26,7 @@ public class SigningCertificateFetcherService
 
         var fallbackDefinedCertificates = _applicationConfig.SamlValidationCertificatesRaw;
 
-        _logger.LogDebug($"Found {urls.Length} URLs to get certificates from: " + string.Join(", ",_applicationConfig.SamlValidationSigningCertificateUrls));
+        _logger.LogDebug("Found {urlsLength} URLs to get certificates from: {urls}", urls.Length, string.Join(", ", urls));
 
         try
         {

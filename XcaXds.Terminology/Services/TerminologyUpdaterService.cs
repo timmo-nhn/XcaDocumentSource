@@ -1,17 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
 using XcaXds.Shared.Enums;
+using XcaXds.Shared.Interfaces;
 using XcaXds.Shared.Models.Custom;
 using XcaXds.Terminology.Sources;
 
 namespace XcaXds.Terminology.Services;
 
-public class TerminologyUpdaterService
+public class TerminologyUpdaterService : IStatefulService
 {
     private readonly ILogger<TerminologyUpdaterService> _logger;
     private readonly TerminologyService _terminologyService;
     private readonly TerminologySourcesRegistryService _terminologySourcesRegistryService;
 
-    public ServiceState ServiceStatus;
+    public ServiceState ServiceStatus { get; private set; }
 
     public TerminologyUpdaterService(
     ILogger<TerminologyUpdaterService> logger,
@@ -23,13 +24,13 @@ public class TerminologyUpdaterService
         _terminologySourcesRegistryService = terminologySourcesRegistryService;
     }
 
-    public async Task InitializeTerminologyServiceAsync(CancellationToken cancellationToken)
+    public async Task InitializeAsync(CancellationToken cancellationToken)
     {
         var allCodeSystems = new Dictionary<string, ComprehensiveCodeSystem[]>();
 
         var terminologySources = _terminologySourcesRegistryService.GetAllDefinitions();
 
-        _logger.LogDebug($"Found {terminologySources.Count} terminology source definitions");
+        _logger.LogDebug("Found {count} terminology source definitions", terminologySources.Count);
 
         foreach (var sources in terminologySources)
         {
@@ -40,12 +41,12 @@ public class TerminologyUpdaterService
 
                 try
                 {
-                    _logger.LogInformation($"Fetching terminology from {source.SourcePath} using handler {sourceHandler.GetType().Name}");
+                    _logger.LogInformation("Fetching terminology from {sourcePath} using handler {handler}", source.SourcePath, sourceHandler.GetType().Name);
                     var codeSystem = await sourceHandler.FetchAsync(source);
 
                     if (codeSystem == null) continue;
 
-                    _logger.LogInformation($"Successfully fetched terminology from {source.SourcePath}. CodeSystem {sources.Name}, Values: {codeSystem.Values?.Length ?? 0}");
+                    _logger.LogInformation("Successfully fetched terminology from {sourcePath}. CodeSystem {codeSystemName}, Values: {valuesCount}", source.SourcePath, sources.Name, codeSystem.Values?.Length ?? 0);
 
                     codeSystems.Add(codeSystem);
                 }
@@ -59,6 +60,17 @@ public class TerminologyUpdaterService
 
             _terminologyService.AddOrUpdateCodeSystem(sources.Name, [.. codeSystems]);
         }
-        ServiceStatus = ServiceState.Ready;
+
+        SetServiceState(ServiceState.Ready);
+    }
+
+    public ServiceState GetServiceState()
+    {
+        return ServiceStatus;
+    }
+
+    public void SetServiceState(ServiceState newState)
+    {
+        ServiceStatus = newState;
     }
 }

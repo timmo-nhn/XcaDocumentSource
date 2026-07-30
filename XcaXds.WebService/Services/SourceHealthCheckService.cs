@@ -62,13 +62,13 @@ public class SourceHealthCheckService
             var updateResponse = _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry([documentEntry]);
             if (!updateResponse.IsSuccess)
             {
-                _logger.LogError($"Failed to update document registry content. Error: {updateResponse.Message}");
+                _logger.LogError("Failed to update document registry content. Error: {updateResponseMessage}", updateResponse.Message);
             }
 
             var storeResponse = _repositoryWrapper.StoreDocument(documentEntry.UniqueId, [0x00], "test");
             if (!storeResponse.IsSuccess)
             {
-                _logger.LogError($"Failed to store document in repository. Error: {storeResponse.Message}");
+                _logger.LogError("Failed to store document in repository. Error: {storeResponseMessage}", storeResponse.Message);
             }
 
             if (!storeResponse.IsSuccess || !updateResponse.IsSuccess)
@@ -87,7 +87,7 @@ public class SourceHealthCheckService
         }
         catch (Exception e)
         {
-            _logger.LogError(e.ToString());
+            _logger.LogError("Error while checking registry and repository status: {exception}", e.ToString());
         }
 
         return new SourceStatus(registryOk, repositoryOk);

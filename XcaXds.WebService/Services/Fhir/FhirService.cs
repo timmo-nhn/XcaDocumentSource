@@ -10,7 +10,6 @@ using XcaXds.Commons.Models.Soap;
 using XcaXds.Commons.Models.Soap.XdsTypes;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
-using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
 
@@ -137,10 +136,10 @@ public class FhirService
             });
         }
 
-        _logger.LogInformation($"{sessionId} Converting FHIR bundle to XDS RegistryObjectList...");
+        _logger.LogInformation("{traceIdentifier} Converting FHIR bundle to XDS RegistryObjectList...", sessionId);
         var provideAndRegisterResult = _fhirToXdsTransformerService.CreateSoapObjectFromComprehensiveBundle(fhirBundle, patient, documentReferences, submissionSetList, fhirBinaries, homeCommunityId?.NoUrn());
 
-        _logger.LogInformation($"{sessionId} RegistryObjectList conversion success: {provideAndRegisterResult.Success}\nErrors: {provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0}");
+        _logger.LogInformation("{traceIdentifier} RegistryObjectList conversion success: {success}\nErrors: {errorCount}", sessionId, provideAndRegisterResult.Success, provideAndRegisterResult.OperationOutcome?.Issue.Count ?? 0);
 
         var provideAndRegisterRequest = provideAndRegisterResult.Value;
 
@@ -202,7 +201,7 @@ public class FhirService
         {
             foreach (var error in errors)
             {
-                _logger.LogError($"{sessionId}Error while converting to Bundle\n\tError: {error.ErrorCode}\n\tErrorCode: {error.CodeContext}");
+                _logger.LogError("{traceIdentifier} Error while converting to Bundle\n\tError: {errorCode}\n\tErrorCode: {codeContext}", sessionId, error.ErrorCode, error.CodeContext);
 
                 operationOutcome.Issue.Add(new OperationOutcome.IssueComponent
                 {
@@ -301,10 +300,10 @@ public class FhirService
             }).ToList();
 
 
-        fetchedDocumentEntry.ConfidentialityCode = codings.Count == 0 ? null : codings;
+        fetchedDocumentEntry.ConfidentialityCode = codings;
 
         var response = _registryWrapper.InsertOrUpdateDocumentRegistryContentWithDtos(fetchedDocumentEntry);
-        
+
         documentEntry = fetchedDocumentEntry;
         oldCodes = [.. oldSecurityLabel ?? []];
 
