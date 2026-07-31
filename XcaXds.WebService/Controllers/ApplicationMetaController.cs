@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Hl7.Fhir.Specification.Terminology;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using XcaInteropService.Commons.Enums;
 using XcaInteropService.Commons.Models.Custom;
@@ -11,6 +14,7 @@ using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators.Tests;
 using XcaXds.Commons.Extensions;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RegistryDtos.TestData;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
@@ -20,6 +24,7 @@ using XcaXds.Shared;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.Tests.Helpers;
+using XcaXds.WebService.Extensions;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
@@ -38,6 +43,7 @@ public class ApplicationMetaController : ControllerBase
     private readonly MonitoringStatusService _monitoringService;
     private readonly RequestThrottlingService _requestThrottlingService;
     private readonly ApplicationMetaService _applicationMetaService;
+    private readonly ImplementationInformerService _implementationInformerService;
     private readonly TerminologyService _terminologyService;
     private readonly DocumentListFiltererService _documentListFiltererService;
     private readonly BusinessRulesDescriptorService _businessRulesDescriptorService;
@@ -55,6 +61,7 @@ public class ApplicationMetaController : ControllerBase
         MonitoringStatusService monitoringService,
         RequestThrottlingService requestThrottlingService,
         ApplicationMetaService applicationMetaService,
+        ImplementationInformerService implementationInformerService,
         TerminologyService terminologyService,
         IVariantFeatureManager featureManager,
         DocumentListFiltererService documentListFiltererService,
@@ -69,6 +76,7 @@ public class ApplicationMetaController : ControllerBase
         _monitoringService = monitoringService;
         _requestThrottlingService = requestThrottlingService;
         _applicationMetaService = applicationMetaService;
+        _implementationInformerService = implementationInformerService;
         _featureManager = featureManager;
         _terminologyService = terminologyService;
         _documentListFiltererService = documentListFiltererService;
@@ -117,6 +125,12 @@ public class ApplicationMetaController : ControllerBase
         }
 
         return StatusCode(200, healthCheckJson);
+    }
+
+    [HttpGet("implementations")]
+    public async Task<IActionResult> Implementations()
+    {
+        return Ok(_implementationInformerService.GetImplementations());
     }
 
     [RequiresApiKey]

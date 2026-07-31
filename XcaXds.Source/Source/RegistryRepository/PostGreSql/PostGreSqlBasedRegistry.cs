@@ -249,7 +249,15 @@ public class PostGreSqlBasedRegistry : IRegistry
         var baselineMigrationId = context.Database.GetMigrations().First();
 
         using var connection = new NpgsqlConnection(connectionString);
-        connection.Open();
+        try
+        {
+            connection.Open();
+        }
+        catch (PostgresException ex) when (ex.SqlState == "3D000")
+        {
+            // Database doesn't exist yet. Let Migrate() handle first-time database creation.
+            return;
+        }
 
         // If the main schema tables don't exist yet, this is a fresh database — let Migrate() handle it.
         using var existsCmd = connection.CreateCommand();

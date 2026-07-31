@@ -65,6 +65,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddSingleton<RequestThrottlingService>();
         builder.Services.AddSingleton<SourceHealthCheckService>();
         builder.Services.AddSingleton<BusinessRulesDescriptorService>();
+        builder.Services.AddSingleton<ImplementationInformerService>();
     }
 
     public static void RegisterFhirServices(this WebApplicationBuilder builder)

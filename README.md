@@ -128,6 +128,17 @@ Describes the REST-endpoints of the solution, allowing for quick and easy CRUD-o
 ### [🔥 FHIR/MHD-endpoints](Docs/MhdTransactions.md)
 Describes the RESTful FHIR and MHD-endpoints (Mobile access to Health Documents) of the solution, accesing the registry and repository in a standards-based format (XDS on FHIR).
 
+## Running database migrations in Kubernetes
+
+The application supports a migration-only startup mode for Kubernetes Jobs:
+
+```bash
+dotnet XcaXds.WebService.dll --migrate-only
+```
+
+Use this in a dedicated migration Job in your manifest repository before deploying/rolling the web pods.
+The process applies migrations for the active registry backend (`PostgreSql` or `Sqlite`) and exits without starting the web server.
+
 ## Governing the solution
 
 ### [💠 OIDs (Object Identifiers)](Docs/Oids.md)

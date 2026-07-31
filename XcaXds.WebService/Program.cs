@@ -30,6 +30,7 @@ public class Program
 
     public static async Task Main(string[] args)
     {
+        var runMigrationsOnly = args.Any(arg => string.Equals(arg, "--migrate-only", StringComparison.OrdinalIgnoreCase));
         var builder = WebApplication.CreateBuilder(args);
 
         builder.WebHost.ConfigureKestrel(options =>
@@ -88,6 +89,13 @@ public class Program
         });
 
         var app = builder.Build();
+
+        if (runMigrationsOnly)
+        {
+            await RunMigrationsOnlyAsync(app);
+            return;
+        }
+
         app.UseExceptionHandler("/error");
         app.MapHealthChecks("/healthz");
 
@@ -107,10 +115,57 @@ public class Program
 
         app.MapControllers();
 
-        var terminologyUpdater = app.Services.GetRequiredService<TerminologyUpdaterService>();
-        await terminologyUpdater.InitializeAsync(CancellationToken.None);
+        await InitializeServicesBeforeAppRunAsync(builder, app);
 
         app.Run();
+    }
+
+    private static async Task InitializeServicesBeforeAppRunAsync(WebApplicationBuilder builder, WebApplication app)
+    {
+        var implementationInformer = app.Services.GetRequiredService<ImplementationInformerService>();
+        implementationInformer.Initialize(builder);
+
+        var terminologyUpdater = app.Services.GetRequiredService<TerminologyUpdaterService>();
+        await terminologyUpdater.InitializeAsync(CancellationToken.None);
+    }
+
+    private static async Task RunMigrationsOnlyAsync(WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("MigrationRunner");
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        var configuredRegistryBackend = configuration["XdsConfiguration:RegistryBackend"];
+        var postgreSqlConnectionString = configuration.GetPostgreSqlConnectionString();
+        var usePostgreSqlRegistry = ShouldUsePostgreSqlRegistryForMigration(configuredRegistryBackend, postgreSqlConnectionString);
+
+        if (usePostgreSqlRegistry)
+        {
+            var postgreSqlFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<PostGreSqlRegistryDbContext>>();
+            await using var context = await postgreSqlFactory.CreateDbContextAsync();
+            logger.LogInformation("Applying PostgreSQL registry migrations...");
+            await context.Database.MigrateAsync();
+            logger.LogInformation("PostgreSQL registry migrations applied successfully.");
+        }
+        else
+        {
+            var sqliteFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<SqliteRegistryDbContext>>();
+            await using var sqliteContext = await sqliteFactory.CreateDbContextAsync();
+            logger.LogInformation("Applying SQLite registry migrations...");
+            await sqliteContext.Database.MigrateAsync();
+            logger.LogInformation("SQLite registry migrations applied successfully.");
+        }
+    }
+
+    private static bool ShouldUsePostgreSqlRegistryForMigration(string? configuredRegistryBackend, string? postgreSqlConnectionString)
+    {
+        if (string.Equals(configuredRegistryBackend, "postgresql", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(configuredRegistryBackend, "sqlite", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return RunningInContainer || string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
     }
 
     private static void AddDatabaseConfiguration(WebApplicationBuilder builder)

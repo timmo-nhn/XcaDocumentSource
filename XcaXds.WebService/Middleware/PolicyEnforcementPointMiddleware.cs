@@ -79,7 +79,7 @@ public class PolicyEnforcementPointMiddleware
         if (!PolicyEnforcementPointEnabledForRequestEndpoint(httpContext))
         {
             sw.Stop();
-            _logger.LogWarning("{traceIdentifier} - Policy Enforcement Point not enabled for this endpoint", httpContext.TraceIdentifier);
+            _logger.LogInformation("{traceIdentifier} - Policy Enforcement Point not enabled for this endpoint", httpContext.TraceIdentifier);
             await _next(httpContext);
             return;
         }
