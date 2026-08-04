@@ -31,6 +31,7 @@ public class SqliteBasedRegistry : IRegistry
         _logger.LogDebug("Database connection string: {connectionString}", _connectionString);
         using var context = _contextFactory.CreateDbContext();
 
+        EnsureBaselineMigrationRecordedIfPreMigrationDatabase(context);
         context.Database.Migrate();
         context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
         context.Database.ExecuteSqlRaw("PRAGMA synchronous=NORMAL;");
@@ -269,6 +270,57 @@ public class SqliteBasedRegistry : IRegistry
         {
             return ex.SqliteErrorCode is 5 or 6 or 10;
         }
+    }
+
+    private static void EnsureBaselineMigrationRecordedIfPreMigrationDatabase(SqliteRegistryDbContext context)
+    {
+        var connectionString = context.Database.GetConnectionString()!;
+        var baselineMigrationId = context.Database.GetMigrations().First();
+        var efCoreVersion = typeof(DbContext).Assembly.GetName().Version?.ToString(3) ?? "10.0.0";
+
+        using var connection = new SqliteConnection(connectionString);
+        connection.Open();
+
+        using var existsCmd = connection.CreateCommand();
+        existsCmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='RegistryObjects'";
+        var registryObjectsExists = Convert.ToInt32(existsCmd.ExecuteScalar()) > 0;
+        if (!registryObjectsExists)
+            return;
+
+        using var idTypeCmd = connection.CreateCommand();
+        idTypeCmd.CommandText = "PRAGMA table_info('RegistryObjects')";
+        using (var reader = idTypeCmd.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                var columnName = reader.GetString(1);
+                if (!string.Equals(columnName, "Id", StringComparison.Ordinal))
+                    continue;
+
+                var columnType = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
+                if (!string.Equals(columnType, "TEXT", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException(
+                        $"Detected incompatible legacy SQLite schema in table 'RegistryObjects': column 'Id' has type '{columnType}', expected 'TEXT'. " +
+                        "This database cannot be baseline-marked automatically. Migrate the schema manually (or recreate the database) before starting the service.");
+                }
+
+                break;
+            }
+        }
+
+        using var upsertCmd = connection.CreateCommand();
+        upsertCmd.CommandText = """
+            CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+                "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+                "ProductVersion" TEXT NOT NULL
+            );
+            INSERT OR IGNORE INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+            VALUES ($migrationId, $productVersion);
+            """;
+        upsertCmd.Parameters.AddWithValue("$migrationId", baselineMigrationId);
+        upsertCmd.Parameters.AddWithValue("$productVersion", efCoreVersion);
+        upsertCmd.ExecuteNonQuery();
     }
 
     private static void InsertInBatches<T>(DbContext db, List<T> items) where T : class
