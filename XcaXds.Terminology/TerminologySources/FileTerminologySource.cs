@@ -42,11 +42,19 @@ public class FileTerminologySource : ITerminologySource
 
     public async Task<ComprehensiveCodeSystem?> FetchAsync(TerminologySource<ITerminologySource, ICodeSystemMapper> terminologySource)
     {
-        var filePath = Path.Combine(_basePath, terminologySource.SourcePath);
-        var content = await File.ReadAllTextAsync(filePath);
+        try
+        {
+            var filePath = Path.Combine(_basePath, terminologySource.SourcePath);
+            var content = await File.ReadAllTextAsync(filePath);
 
-        _logger.LogDebug("Read content from file {filePath}. Mapping to ComprehensiveCodesystem", filePath);
+            _logger.LogDebug("Read content from file {filePath}. Mapping to ComprehensiveCodesystem", filePath);
 
-        return terminologySource.MapperToUse.MapToComprehensiveCodeSystem(content);
+            return terminologySource.MapperToUse.MapToComprehensiveCodeSystem(content);
+        }
+        catch (FileNotFoundException ex)
+        {
+            _logger.LogError(ex, "Error fetching terminology source {SourcePath}", terminologySource.SourcePath);
+            return null;
+        }
     }
 }

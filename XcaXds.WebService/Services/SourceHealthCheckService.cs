@@ -43,8 +43,10 @@ public class SourceHealthCheckService
 
     public async Task<SourceStatus> GetRegistryRepositoryStatus()
     {
-        var registryOk = false;
-        var repositoryOk = false;
+        var registryReadOk = false;
+        var registryWriteOk = false;
+        var repositoryReadOk = false;
+        var repositoryWriteOk = false;
 
         try
         {
@@ -60,27 +62,24 @@ public class SourceHealthCheckService
             };
 
             var updateResponse = _registryWrapper.AddDocumentReferenceDtosToDocumentRegistry([documentEntry]);
+            registryWriteOk = updateResponse.IsSuccess;
             if (!updateResponse.IsSuccess)
             {
                 _logger.LogError("Failed to update document registry content. Error: {updateResponseMessage}", updateResponse.Message);
             }
 
             var storeResponse = _repositoryWrapper.StoreDocument(documentEntry.UniqueId, [0x00], "test");
+            repositoryWriteOk = storeResponse.IsSuccess;
             if (!storeResponse.IsSuccess)
             {
                 _logger.LogError("Failed to store document in repository. Error: {storeResponseMessage}", storeResponse.Message);
             }
 
-            if (!storeResponse.IsSuccess || !updateResponse.IsSuccess)
-            {
-                return new SourceStatus(storeResponse.IsSuccess, updateResponse.IsSuccess);
-            }
-
             var randomEntry = _registryWrapper.GetRegistryItemAndRelated(documentEntry.Id)?.OfType<DocumentEntryDto>().FirstOrDefault();
             var document = _repositoryWrapper.GetDocumentFromRepository(randomEntry?.HomeCommunityId, randomEntry?.RepositoryUniqueId, randomEntry?.UniqueId);
 
-            registryOk = randomEntry != null;
-            repositoryOk = document != null;
+            registryReadOk = randomEntry != null;
+            repositoryReadOk = document != null;
 
             _registryWrapper.DeleteRegistryObjectFromRegistry(documentEntry);
             _repositoryWrapper.DeleteSingleDocument(documentEntry.UniqueId);
@@ -90,18 +89,22 @@ public class SourceHealthCheckService
             _logger.LogError("Error while checking registry and repository status: {exception}", e.ToString());
         }
 
-        return new SourceStatus(registryOk, repositoryOk);
+        return new SourceStatus(registryReadOk, registryWriteOk, repositoryReadOk, repositoryWriteOk);
     }
 }
 
 public class SourceStatus
 {
-    public SourceStatus(bool registryOk, bool repositoryOk)
+    public SourceStatus(bool registryReadOk, bool registryWriteOk, bool repositoryReadOk, bool repositoryWriteOk)
     {
-        RegistryOk = registryOk;
-        RepositoryOk = repositoryOk;
+        RegistryReadOk = registryReadOk;
+        RegistryWriteOk = registryWriteOk;
+        RepositoryReadOk = repositoryReadOk;
+        RepositoryWriteOk = repositoryWriteOk;
     }
 
-    public bool RegistryOk { get; set; }
-    public bool RepositoryOk { get; set; }
+    public bool RegistryReadOk { get; set; }
+    public bool RegistryWriteOk { get; set; }
+    public bool RepositoryReadOk { get; set; }
+    public bool RepositoryWriteOk { get; set; }
 }

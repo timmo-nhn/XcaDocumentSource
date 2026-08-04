@@ -115,16 +115,16 @@ public class AppStartupService : IHostedService
 
         foreach (var dud in duds)
         {
-            _logger.LogWarning("Registry contains stale entry (No Repository metadata associated with it): {dud}. Removing...", dud);
-            var registryObjectsForDud = _registryWrapper.GetRegistryItemAndRelated(dud)?.ToArray() ?? [];
+            _logger.LogWarning("Registry contains stale entry (No Repository data associated with it): {dud}. Removing...", dud);
+            //var registryObjectsForDud = _registryWrapper.GetRegistryItemAndRelated(dud)?.ToArray() ?? [];
 
-            foreach (var registryObjectDud in registryObjectsForDud)
-            {
-                _registryWrapper.DeleteRegistryObjectFromRegistry(registryObjectDud);
-            }
+            //foreach (var registryObjectDud in registryObjectsForDud)
+            //{
+            //    _registryWrapper.DeleteRegistryObjectFromRegistry(registryObjectDud);
+            //}
         }
 
-        _logger.LogInformation("Removed {dudCount} stale entries from Registry", duds.Count);
+        //_logger.LogInformation("Removed {dudCount} stale entries from Registry", duds.Count);
     }
 
     private async Task AddDefaultAccessControlPolicies()

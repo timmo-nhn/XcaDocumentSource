@@ -5,19 +5,22 @@ namespace XcaXds.Terminology.ValueSetMappers.XcaDocumentSource;
 
 public class StringBasedMapper : ICodeSystemMapper
 {
-    private string? _separator;
     private string _system;
 
-    public StringBasedMapper(string? separator, string system)
+    private string[]? _values;
+
+    public StringBasedMapper(string[] values, string system)
     {
-        _separator = separator;
+        _values = values;
         _system = system;
     }
 
-    public ComprehensiveCodeSystem? MapToComprehensiveCodeSystem(string rawInput)
+    public ComprehensiveCodeSystem? MapToComprehensiveCodeSystem(string _)
     {
-        var values = _separator == null ? new[] { rawInput } : rawInput.Split(_separator);
+        // The codesystem is predefined in the constructor, so we just
+        // ignore the input parameter and use the predefined values and system.
+        var values = _values?.Select(v => new CodeSystemValue(v)) ?? throw new InvalidOperationException("Values cannot be null");
 
-        return new(_system, [new(rawInput)]);
+        return new(_system, [.. values]);
     }
 }

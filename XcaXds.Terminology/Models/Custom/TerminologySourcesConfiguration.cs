@@ -23,5 +23,6 @@ public class TerminologyMapperOptions
 {
     public string? Separator { get; set; }
     public string? System { get; set; }
+    public string[]? Values { get; set; }
     public string? DisplayDiscriminator { get; set; }
 }

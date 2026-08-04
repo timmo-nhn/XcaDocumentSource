@@ -1,5 +1,4 @@
-﻿using Hl7.Fhir.Specification.Terminology;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using XcaXds.Shared.Extensions;
 using XcaXds.Shared.Models.Custom;
 

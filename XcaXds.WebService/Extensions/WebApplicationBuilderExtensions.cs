@@ -142,10 +142,11 @@ public static class WebApplicationBuilderExtensions
         var runningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inContainer) && inContainer;
         var configuredRegistryBackend = builder.Configuration["XdsConfiguration:RegistryBackend"];
         var configuredRepositoryBackend = builder.Configuration["XdsConfiguration:RepositoryBackend"];
+        var s3Endpoint = builder.Configuration["S3:Endpoint"];
 
         var postgreSqlConnectionString = builder.Configuration.GetPostgreSqlConnectionString();
         var usePostgreSqlRegistry = ShouldUsePostgreSqlRegistry(runningInContainer, configuredRegistryBackend, postgreSqlConnectionString);
-        var useS3Repository = ShouldUseS3Repository(runningInContainer, configuredRepositoryBackend);
+        var useS3Repository = ShouldUseS3Repository(runningInContainer, configuredRepositoryBackend, s3Endpoint);
 
         if (usePostgreSqlRegistry && string.IsNullOrWhiteSpace(postgreSqlConnectionString))
         {
@@ -206,7 +207,7 @@ public static class WebApplicationBuilderExtensions
         return runningInContainer || string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
     }
 
-    private static bool ShouldUseS3Repository(bool runningInContainer, string? configuredRepositoryBackend)
+    private static bool ShouldUseS3Repository(bool runningInContainer, string? configuredRepositoryBackend, string? s3Endpoint)
     {
         if (string.Equals(configuredRepositoryBackend, "s3", StringComparison.OrdinalIgnoreCase))
             return true;
@@ -214,6 +215,6 @@ public static class WebApplicationBuilderExtensions
         if (string.Equals(configuredRepositoryBackend, "file", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return runningInContainer;
+        return runningInContainer || string.IsNullOrWhiteSpace(s3Endpoint) == false;
     }
 }

@@ -3,6 +3,7 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Microsoft.Extensions.Configuration;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Shared.Extensions;
@@ -18,18 +19,18 @@ public class S3BasedRepository : IRepository
     private static readonly Regex SafeFileNameRegex = new(@"^[a-zA-Z0-9\-_\.^]+$", RegexOptions.Compiled);
     private static readonly Regex SafeCharacters = new(@"[^a-zA-Z0-9\-_\.^]+", RegexOptions.Compiled);
 
-    public S3BasedRepository(ApplicationConfig appConfig)
+    public S3BasedRepository(ApplicationConfig appConfig, IConfiguration configuration)
     {
         _appConfig = appConfig;
-        _bucketName = GetRequiredConfigurationValue("XdsConfiguration__S3__Bucket", "S3_BUCKET");
+        _bucketName = GetRequiredConfigurationValue(configuration, "S3:Bucket", "S3__Bucket", "S3_BUCKET");
 
-        var endpoint = GetOptionalConfigurationValue("XdsConfiguration__S3__Endpoint", "S3_ENDPOINT");
-        var region = GetOptionalConfigurationValue("XdsConfiguration__S3__Region", "S3_REGION") ?? "eu-west-1";
-        var accessKey = GetOptionalConfigurationValue("XdsConfiguration__S3__AccessKey", "S3_ACCESS_KEY");
-        var secretKey = GetOptionalConfigurationValue("XdsConfiguration__S3__SecretKey", "S3_SECRET_KEY");
-        var forcePathStyle = bool.TryParse(GetOptionalConfigurationValue("XdsConfiguration__S3__ForcePathStyle", "S3_FORCE_PATH_STYLE"), out var parsedForcePathStyle) && parsedForcePathStyle;
+        var endpoint = GetOptionalConfigurationValue(configuration, "S3:Endpoint", "S3__Endpoint", "S3_ENDPOINT");
+        var region = GetOptionalConfigurationValue(configuration, "S3:Region", "S3__Region", "S3_REGION") ?? "eu-west-1";
+        var accessKey = GetOptionalConfigurationValue(configuration, "S3:AccessKey", "S3__AccessKey", "S3_ACCESS_KEY");
+        var secretKey = GetOptionalConfigurationValue(configuration, "S3:SecretKey", "S3__SecretKey", "S3_SECRET_KEY");
+        var forcePathStyle = bool.TryParse(GetOptionalConfigurationValue(configuration, "S3:ForcePathStyle", "S3__ForcePathStyle", "S3_FORCE_PATH_STYLE"), out var parsedForcePathStyle) && parsedForcePathStyle;
 
-        var s3Config = new AmazonS3Config
+        var s3Config = new AmazonS3Config()
         {
             ForcePathStyle = forcePathStyle
         };
@@ -151,7 +152,7 @@ public class S3BasedRepository : IRepository
                 ContinuationToken = continuationToken
             }).GetAwaiter().GetResult();
 
-            var key = listResponse.S3Objects
+            var key = listResponse.S3Objects?
                 .Select(obj => obj.Key)
                 .FirstOrDefault(existingKey => Path.GetFileName(existingKey) == normalizedDocumentId);
 
@@ -165,19 +166,28 @@ public class S3BasedRepository : IRepository
         return null;
     }
 
-    private static string GetRequiredConfigurationValue(string firstKey, string secondKey)
+    private static string GetRequiredConfigurationValue(
+        IConfiguration configuration,
+        string configKey,
+        string firstEnvironmentKey,
+        string secondEnvironmentKey)
     {
-        var value = GetOptionalConfigurationValue(firstKey, secondKey);
+        var value = GetOptionalConfigurationValue(configuration, configKey, firstEnvironmentKey, secondEnvironmentKey);
         if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidOperationException($"Missing S3 configuration. Set either '{firstKey}' or '{secondKey}'.");
+            throw new InvalidOperationException($"Missing S3 configuration. Set '{configKey}' in configuration or environment variable '{firstEnvironmentKey}'/'{secondEnvironmentKey}'.");
 
         return value;
     }
 
-    private static string? GetOptionalConfigurationValue(string firstKey, string secondKey)
+    private static string? GetOptionalConfigurationValue(
+        IConfiguration configuration,
+        string configKey,
+        string firstEnvironmentKey,
+        string secondEnvironmentKey)
     {
-        return Environment.GetEnvironmentVariable(firstKey)
-               ?? Environment.GetEnvironmentVariable(secondKey);
+        return configuration[configKey]
+               ?? Environment.GetEnvironmentVariable(firstEnvironmentKey)
+               ?? Environment.GetEnvironmentVariable(secondEnvironmentKey);
     }
 
     private static bool IsValidIdentifier(string input, out string invalidCharacters)

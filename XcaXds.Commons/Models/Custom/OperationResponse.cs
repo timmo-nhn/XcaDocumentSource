@@ -3,7 +3,6 @@
 /// <summary>
 /// Represents a response from an operation, typically used to encapsulate the result of a service call or method execution.
 /// (ie. Database operations)
-/// This class can be extended to include additional properties such as status codes, messages, or data payloads as needed.
 /// </summary>
 public class OperationResponse
 {
@@ -29,16 +28,13 @@ public class OperationResponse<TResult> : OperationResponse
     {
         return new OperationResponse<TResult> { IsSuccess = true, Message = message, Value = result };
     }
-}
 
-public static class OperationResponseExtensions
-{
-    public static OperationResponse<TResult> SetResultObject<TResult>(this OperationResponse response, TResult result)
+    public OperationResponse<TResult> SetResultObject<TResult>(TResult result)
     {
         return new()
         {
-            IsSuccess = response.IsSuccess,
-            Message = response.Message,
+            IsSuccess = IsSuccess,
+            Message = Message,
             Value = result
         };
     }

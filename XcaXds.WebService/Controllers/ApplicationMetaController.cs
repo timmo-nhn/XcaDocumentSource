@@ -119,7 +119,7 @@ public class ApplicationMetaController : ControllerBase
         };
 
         var healthCheckJson = JsonSerializer.Serialize(healthCheck, Constants.JsonDefaultOptions.DefaultSettings);
-        if (!regRepoReport.RegistryOk || !regRepoReport.RepositoryOk)
+        if (!regRepoReport.RegistryReadOk || !regRepoReport.RegistryWriteOk || !regRepoReport.RepositoryReadOk || !regRepoReport.RepositoryWriteOk)
         {
             return StatusCode(500, healthCheckJson);
         }

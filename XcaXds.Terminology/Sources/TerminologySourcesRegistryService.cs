@@ -85,16 +85,16 @@ public class TerminologySourcesRegistryService
             throw new InvalidOperationException("Terminology source is missing required 'Mapper'.");
         }
 
-        if (string.IsNullOrWhiteSpace(configSource.SourcePath))
-        {
-            throw new InvalidOperationException("Terminology source is missing required 'SourcePath'.");
-        }
-
         var source = ResolveSource(configSource.Type);
         var mapper = ResolveMapper(configSource.Mapper, configSource.MapperOptions);
-        var sourcePath = ResolveSourcePath(configSource.SourcePath);
 
-        return new(source, sourcePath, mapper);
+        if (configSource.MapperOptions?.Values?.Length > 0)
+        {
+            var sourcePath = MapFromConfigValues(configSource.MapperOptions?.Values);
+            return new(source, sourcePath, mapper);
+        }
+
+        return new(source, configSource.SourcePath, mapper);
     }
 
     private ITerminologySource ResolveSource(string sourceType)
@@ -119,16 +119,18 @@ public class TerminologySourcesRegistryService
             nameof(Hl7FhirCodeSystemMapper) => string.IsNullOrWhiteSpace(options?.DisplayDiscriminator)
                 ? new Hl7FhirCodeSystemMapper()
                 : new Hl7FhirCodeSystemMapper(options.DisplayDiscriminator),
-            nameof(StringBasedMapper) => new StringBasedMapper(options?.Separator, options?.System ??
+            nameof(StringBasedMapper) => new StringBasedMapper(options?.Values, options?.System ??
                 throw new InvalidOperationException("StringBasedMapper requires MapperOptions.System")),
+
             _ => throw new InvalidOperationException($"Unsupported terminology mapper '{mapperName}'")
         };
     }
 
-    private string ResolveSourcePath(string sourcePath)
+    private string[] MapFromConfigValues(string[]? values)
     {
-        return sourcePath
+        return values?.Select(v => v
             .Replace("{HomeCommunityId}", _applicationConfig.HomeCommunityId, StringComparison.Ordinal)
-            .Replace("{RepositoryUniqueId}", _applicationConfig.RepositoryUniqueId, StringComparison.Ordinal);
+            .Replace("{RepositoryUniqueId}", _applicationConfig.RepositoryUniqueId, StringComparison.Ordinal))
+        .ToArray() ?? [];
     }
 }
