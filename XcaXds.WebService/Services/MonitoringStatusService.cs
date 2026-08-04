@@ -12,9 +12,9 @@ public class MonitoringStatusService
 
     private BoundedDictionary<string, long>? _responseTimes;
 
-    public BoundedDictionary<string, long> ResponseTimes 
+    public BoundedDictionary<string, long>? ResponseTimes 
     { 
-        get { return _responseTimes!; }
+        get { return _responseTimes; }
         set
         {
             ArgumentNullException.ThrowIfNull(value);
