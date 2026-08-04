@@ -1608,7 +1608,7 @@ public class FhirToXdsTransformerService
 
         var deptIdentifier = authorDept.Identifier.FirstOrDefault();
 
-        if (deptIdentifier?.System.IsAnyOf(department, departmentAlternate) == true)
+        if (deptIdentifier?.System?.NoUrn().IsAnyOf(department, departmentAlternate) == true)
         {
             deptOid = deptIdentifier.System;
             deptName = deptIdentifier.Value;
@@ -1619,7 +1619,7 @@ public class FhirToXdsTransformerService
             OrganizationName = deptName,
             AssigningAuthority = new HD()
             {
-                UniversalId = deptOid,
+                UniversalId = deptOid.NoUrn(),
                 UniversalIdType = "ISO"
             },
             OrganizationIdentifier = authorDept.Identifier.FirstOrDefault()?.Value ?? $"name-only:{deptName}"

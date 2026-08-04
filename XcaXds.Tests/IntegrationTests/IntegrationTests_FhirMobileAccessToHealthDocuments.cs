@@ -161,6 +161,13 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
     }
 
     [Fact]
+    [Trait("Fetch", "Provide bundle with department then cross gateway query")]
+    public async Task ProvideBundle_With_Department_OID_Then_CrossGatewayQuery()
+    {
+        await ProvideBundle_With_Department_Then_CrossGatewayQuery_Core("IT_iti-65_ProvideBundle02_dept_oid_without_reference_in_authors.json");
+    }
+
+    [Fact]
     [Trait("Fetch", "Provide bundle with department without direct child author reference then cross gateway query")]
     public async Task ProvideBundle_With_Department_Without_Child_Organization_Author_Reference_Then_CrossGatewayQuery()
     {

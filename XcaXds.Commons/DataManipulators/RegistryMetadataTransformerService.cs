@@ -1149,7 +1149,7 @@ public class RegistryMetadataTransformerService
             }
         }
 
-        if (author.Department != null)
+        if (author.Department is { Id: not null, AssigningAuthority: not null, OrganizationName: not null})
         {
             var dpt = new XON()
             {

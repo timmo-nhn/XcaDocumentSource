@@ -1,0 +1,370 @@
+{
+	"id": "00136637-d4a1-4dab-8460-994dd2a82aa4",
+	"meta": {
+		"profile": [
+			"https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.ProvideBundle"
+		],
+		"security": [
+			{
+				"system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+				"code": "HTEST",
+				"display": "test health data"
+			}
+		]
+	},
+	"type": "transaction",
+	"timestamp": "2026-04-21T10:41:50.973968993Z",
+	"resourceType": "Bundle",
+	"entry": [
+		{
+			"fullUrl": "urn:uuid:30f336ba-c6c6-4afe-8b14-09b0379bc7eb",
+			"resource": {
+				"resourceType": "List",
+				"id": "30f336ba-c6c6-4afe-8b14-09b0379bc7eb",
+				"meta": {
+					"profile": [
+						"https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.SubmissionSet"
+					]
+				},
+				"contained": [
+					{
+						"resourceType": "Practitioner",
+						"id": "85c8fd14-4080-4cda-ab4d-2b1d02561318",
+						"identifier": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.1.4.4",
+								"value": "11847696046"
+							}
+						],
+						"name": [
+							{
+								"family": "FATTIGDOM",
+								"given": [
+									"SIGEN"
+								]
+							}
+						]
+					},
+					{
+						"resourceType": "Organization",
+						"id": "122f497b-491a-4cb9-96e2-7be14754879f",
+						"identifier": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.1.4.101",
+								"value": "984630492"
+							}
+						],
+						"name": "OSLO KOMMUNE HELSEETATEN LEGEVAKTEN I OSLO"
+					},
+					{
+						"resourceType": "Organization",
+						"id": "6d923e37-e7fe-4e88-92ea-9c6b238bbca1",
+						"name": "Allmenlegevakten",
+						"type": [
+							{
+								"coding": [
+									{
+										"system": "http://terminology.hl7.org/CodeSystem/organization-type",
+										"code": "dept"
+									}
+								]
+							}
+						],
+						"partOf": {
+							"reference": "#122f497b-491a-4cb9-96e2-7be14754879f"
+						}
+					}
+				],
+				"extension": [
+					{
+						"url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-designationType",
+						"valueCodeableConcept": {
+							"coding": [
+								{
+									"system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+									"code": "A03-2",
+									"display": "Epikrise"
+								}
+							]
+						}
+					},
+					{
+						"url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-sourceId",
+						"valueIdentifier": {
+							"value": "urn:oid:2.16.578.1.12.4.5.480.1.2"
+						}
+					}
+				],
+				"identifier": [
+					{
+						"use": "usual",
+						"system": "urn:ietf:rfc:3986",
+						"value": "urn:oid:29946a9c-e77c-4c19-bc05-324d87605646"
+					},
+					{
+						"use": "official",
+						"system": "urn:ietf:rfc:3986",
+						"value": "urn:uuid:00136637-d4a1-4dab-8460-994dd2a82aa4"
+					}
+				],
+				"status": "current",
+				"mode": "working",
+				"code": {
+					"coding": [
+						{
+							"system": "https://profiles.ihe.net/ITI/MHD/CodeSystem/MHDlistTypes",
+							"code": "submissionset"
+						}
+					]
+				},
+				"subject": {
+					"reference": "urn:uuid:853ebcab-09fa-46d4-bb01-02d5321fb360"
+				},
+				"date": "2026-04-21T10:41:50.973968993Z",
+				"source": {
+					"reference": "#85c8fd14-4080-4cda-ab4d-2b1d02561318"
+				},
+				"entry": [
+					{
+						"item": {
+							"reference": "urn:uuid:00136637-d4a1-4dab-8460-994dd2a82aa4"
+						}
+					}
+				]
+			},
+			"request": {
+				"method": "POST",
+				"url": "List"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:853ebcab-09fa-46d4-bb01-02d5321fb360",
+			"resource": {
+				"resourceType": "Patient",
+				"id": "853ebcab-09fa-46d4-bb01-02d5321fb360",
+				"identifier": [
+					{
+						"system": "urn:oid:2.16.578.1.12.4.1.4.1",
+						"value": "17855599120"
+					}
+				],
+				"name": [
+					{
+						"family": "KLOKKE",
+						"given": [
+							"USNOBBET"
+						]
+					}
+				],
+				"gender": "female",
+				"birthDate": "2001-07-03"
+			},
+			"request": {
+				"method": "POST",
+				"url": "Patient"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:00136637-d4a1-4dab-8460-994dd2a82aa4",
+			"resource": {
+				"resourceType": "DocumentReference",
+				"id": "00136637-d4a1-4dab-8460-994dd2a82aa4",
+				"meta": {
+					"profile": [
+						"https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.Comprehensive.DocumentReference"
+					]
+				},
+				"contained": [
+					{
+						"resourceType": "Practitioner",
+						"id": "c6d2d6bc-3733-42d9-92b8-2b5b9db3965c",
+						"identifier": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.1.4.1",
+								"value": "01834898124"
+							}
+						],
+						"name": [
+							{
+								"family": "PLASSERING",
+								"given": [
+									"SKJØR"
+								]
+							}
+						]
+					},
+					{
+						"resourceType": "PractitionerRole",
+						"id": "be87172c-bbfb-4c99-ba40-7b829653df8c",
+						"practitioner": {
+							"reference": "#c6d2d6bc-3733-42d9-92b8-2b5b9db3965c",
+							"type": "Practitioner"
+						},
+						"organization": {
+							"reference": "#3ae94be8-d67a-42b8-9711-6865a8d35712",
+							"type": "Organization"
+						}
+					},
+					{
+						"resourceType": "Organization",
+						"id": "3ae94be8-d67a-42b8-9711-6865a8d35712",
+						"identifier": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.1.4.101",
+								"value": "984630492"
+							}
+						],
+						"name": "OSLO KOMMUNE HELSEETATEN LEGEVAKTEN I OSLO"
+					},
+					{
+						"resourceType": "Organization",
+						"id": "b6d21163-3a20-4b9d-915e-21d37fd11854",
+						"name": "Allmenlegevakten",
+						"identifier": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.5.390",
+								"value": "Allmennlegevakten"
+							}
+						],
+						"partOf": {
+							"reference": "#3ae94be8-d67a-42b8-9711-6865a8d35712"
+						}
+					}
+				],
+				"masterIdentifier": {
+					"use": "usual",
+					"system": "urn:ietf:rfc:3986",
+					"value": "urn:uuid:29946a9c-e77c-4c19-bc05-324d87605646"
+				},
+				"identifier": [
+					{
+						"use": "official",
+						"system": "urn:ietf:rfc:3986",
+						"value": "urn:uuid:00136637-d4a1-4dab-8460-994dd2a82aa4"
+					}
+				],
+				"status": "current",
+				"type": {
+					"coding": [
+						{
+							"system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+							"code": "A03-2",
+							"display": "Epikrise"
+						}
+					]
+				},
+				"category": [
+					{
+						"coding": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.1.1.9602",
+								"code": "A00-1",
+								"display": "Epikrise og sammenfatninger"
+							}
+						]
+					}
+				],
+				"subject": {
+					"reference": "urn:uuid:853ebcab-09fa-46d4-bb01-02d5321fb360"
+				},
+				"date": "2026-04-21T10:41:50.973968993Z",
+				"author": [
+					{
+						"reference": "#c6d2d6bc-3733-42d9-92b8-2b5b9db3965c",
+						"type": "Practitioner"
+					},
+					{
+						"reference": "#be87172c-bbfb-4c99-ba40-7b829653df8c",
+						"type": "PractitionerRole"
+					},
+					{
+						"reference": "#3ae94be8-d67a-42b8-9711-6865a8d35712",
+						"type": "Organization"
+					}					
+				],
+				"securityLabel": [
+					{
+						"coding": [
+							{
+								"system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+								"code": "N",
+								"display": "normal"
+							}
+						]
+					}
+				],
+				"content": [
+					{
+						"attachment": {
+							"contentType": "application/xml",
+							"url": "urn:uuid:ed7f038f-91a7-4de0-b594-fe33a2e3018c",
+							"size": 3225,
+							"hash": "Ji7z7S6GHBz9aeT5t3dX+4XrS1A=",
+							"title": "Behandlingsnotat",
+							"creation": "2026-04-21T10:41:50.973968993Z",
+							"extension": [
+								{
+									"url": "https://profiles.ihe.net/ITI/MHD/StructureDefinition/ihe-homeCommunityId",
+									"valueUri": "urn:oid:2.16.578.1.12.4.5.100.3.19"
+								}
+							]
+						},
+						"format": {
+							"system": "FormatCodes",
+							"code": "http://www.kith.no/xmlstds/epikrise/2012-02-15",
+							"display": "Epikrise v1.2 (XML)"
+						}
+					}
+				],
+				"context": {
+					"period": {
+						"start": "2026-04-21T08:53:50.973968993Z"
+					},
+					"facilityType": {
+						"coding": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.1.1.1305",
+								"code": "86.210",
+								"display": "Allmennlegetjenester"
+							}
+						]
+					},
+					"practiceSetting": {
+						"coding": [
+							{
+								"system": "urn:oid:2.16.578.1.12.4.1.1.8663",
+								"code": "KA02",
+								"display": "Legevakt"
+							}
+						]
+					},
+					"sourcePatientInfo": {
+						"reference": "urn:uuid:853ebcab-09fa-46d4-bb01-02d5321fb360"
+					}
+				}
+			},
+			"request": {
+				"method": "POST",
+				"url": "DocumentReference"
+			}
+		},
+		{
+			"fullUrl": "urn:uuid:ed7f038f-91a7-4de0-b594-fe33a2e3018c",
+			"resource": {
+				"resourceType": "Binary",
+				"id": "ed7f038f-91a7-4de0-b594-fe33a2e3018c",
+				"meta": {
+					"profile": [
+						"http://hl7.org/fhir/StructureDefinition/Binary"
+					]
+				},
+				"contentType": "application/xml",
+				"data": "PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxNZXNzYWdlIHhtbG5zPSJodHRwOi8vd3d3LmtpdGgubm8veG1sc3Rkcy9lcGlrcmlzZS8yMDEyLTAyLTE1IiB4bWxuczpwPSJodHRwOi8vd3d3LmtpdGgubm8veG1sc3Rkcy9wby9wb0tvbXBvbmVudC8yMDA5LTA2LTMwIiB4bWxuczpmazE9Imh0dHA6Ly93d3cua2l0aC5uby94bWxzdGRzL2ZlbGxlc2tvbXBvbmVudDEiIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhzaTpzY2hlbWFMb2NhdGlvbj0iaHR0cDovL3d3dy5raXRoLm5vL3htbHN0ZHMvZXBpa3Jpc2UvMjAxMi0wMi0xNSBFcGlrcmlzZS12MS4yLnhzZCI+PFR5cGUgVj0iRVBJS1JJU0UiIEROPSJFcGlrcmlzZSIvPjxNSUd2ZXJzaW9uPnYxLjIgMjAxMi0wMi0xNTwvTUlHdmVyc2lvbj48R2VuRGF0ZSBWPSIyMDI2LTA0LTIxVDEwOjQxOjUwIi8+PE1zZ0lkPjg4QjI0RkI5LUY2QzEtNEQ0Mi04MkUxLTkzNUIzQkVGNDRENjwvTXNnSWQ+PFNlcnZScHJ0PjxTZXJ2VHlwZSBWPSJOIiBETj0iTnkiLz48SXNzdWVEYXRlIFY9IjIwMjYtMDQtMjFUMTA6NDE6NTAiLz48U3RhdHVzIFY9IkYiIEROPSJFbmRlbGlnIHJhcHBvcnQiLz48QWNrIFY9IkoiIEROPSJKYSIvPjxNc2dEZXNjcj5FcGlrcmlzZTwvTXNnRGVzY3I+PFNlcnZQcm92SWQ+ODhCMjRGQjktRjZDMS00RDQyLTgyRTEtOTM1QjNCRUY0NEQ2PC9TZXJ2UHJvdklkPjxFdmVudD48UmVwb3J0ZWRFdmVudD48U3RhcnREYXRlVGltZSBWPSIyMDI2LTA0LTIxVDA4OjUzOjUwIi8+PEVuZERhdGVUaW1lIFY9IjIwMjYtMDQtMjFUMTA6NDE6NTAiLz48L1JlcG9ydGVkRXZlbnQ+PFNlcnZUeXBlIFY9Ik4iIEROPSJOeSIvPjxBZG1PdXRjb21lIFY9IjEiIEROPSJVdCB0aWwgaGplbW1ldCIvPjxTZXJ2aWNlPjxBZG1DYXQgVj0iNSIgRE49IktvbnN1bHRhc2pvbiIvPjwvU2VydmljZT48SW5mSXRlbT48T2JzZXJ2YXRpb24+PENvZGVkRGVzY3I+PENvbmNlcHQgVj0iSzI5LjEiIFM9IjIuMTYuNTc4LjEuMTIuNC4xLjEuNzExMCIgRE49IkFuZHJlIGFrdXR0ZSBnYXN0cml0dGVyIi8+PE1vZGlmaWVyPjxOYW1lIFY9IlMiIEROPSJJQ0QxMCBzdGplcm5la29kZSIvPjxWYWx1ZSBWPSJLMjkuMSIgRE49IkFuZHJlIGFrdXR0ZSBnYXN0cml0dGVyIiBTPSIyLjE2LjU3OC4xLjEyLjQuMS4xLjcxMTAiLz48L01vZGlmaWVyPjwvQ29kZWREZXNjcj48L09ic2VydmF0aW9uPjxUeXBlIFY9IkgiIEROPSJIb3ZlZGRpYWdub3NlIi8+PC9JbmZJdGVtPjxDb21tZW50PjxIZWFkaW5nIFY9IlRCIiBETj0iVGlsYmFrZW1lbGRpbmcgKHVzcGVzLikiLz48VGV4dFJlc3VsdFZhbHVlPioqKiBURVNURE9LVU1FTlQgLSBHRU5FUkVSVCBBViBNSUdSRVJJTkdTVEVTVFNLUklQVCAqKioKCkRldHRlIGVyIGV0IHN5bnRldGlzayB0ZXN0ZG9rdW1lbnQgZ2VuZXJlcnQgYXV0b21hdGlzayBmb3IgbWlncmVyaW5nc3Rlc3RpbmcuCkRva3VtZW50ZXQgYnJ1a2VyIHJlZWxsZSB0ZXN0ZGF0YSBmcmEgU3ludHBvcCBBUEkuCkdlbmVyZXJ0IGF2OiBHZW5lcmF0ZU1pZ3JhdGlvblRlc3REYXRhLmt0CkdlbmVyZXJ0OiAyMDI2LTA2LTI1VDEyOjQxOjUwLjk0NTEwMjI0NVoKCi0tLQoKUGFzaWVudGVuIGVyIGkgZ29kIGFsbG1lbm50aWxzdGFuZCB2ZWQgdXRza3Jpdm5pbmcuPC9UZXh0UmVzdWx0VmFsdWU+PC9Db21tZW50PjwvRXZlbnQ+PFBhdGllbnQ+PFNleCBWPSIyIi8+PERhdGVPZkJpcnRoIFY9IjIwMDEtMDctMDMiLz48TmFtZT5PVkVSR0FORywgTU9UVklMTElHPC9OYW1lPjxJZEJ5UmVxdWVzdGVyPjMyMzg4MjU8L0lkQnlSZXF1ZXN0ZXI+PE9mZklkPjAzODcwMTk5ODU1PC9PZmZJZD48VHlwZU9mZklkIFY9IkZOUl9UZXN0IiBETj0iVGVzdHZlcnNqb24gYXYgRk5SIi8+PFBhdFJlbEhDUD48UmVsYXRpb24gVj0iRkxFIiBETj0iRmFzdGxlZ2UiLz48SENQPjxIQ1Byb2Y+PE5hbWU+KioqVGVzdHRqZW5lc3RlKioqIC0gTkhOIEpvdXJuYWxsYWIgLSBDR00gVGVzdCBMZWdla29udG88L05hbWU+PElkPjwvSWQ+PFR5cGVJZCBWPSJIUFIiIEROPSJIUFItbnVtbWVyIi8+PC9IQ1Byb2Y+PEFkZHJlc3M+PFR5cGUgVj0iV1AiIEROPSJBcmJlaWRzYWRyZXNzZSIvPjxUZWxlQWRkcmVzcyBWPSJ0ZWw6MjQyMDAwMDAiLz48L0FkZHJlc3M+PC9IQ1A+PC9QYXRSZWxIQ1A+PC9QYXRpZW50PjxTZXJ2UHJvdmlkZXI+PFJvbGUgVj0iU1BSIi8+PEhDUD48SW5zdD48TmFtZT5Pc2xvIGtvbW11bmU8L05hbWU+PElkPjUwMDg3PC9JZD48VHlwZUlkIFY9IkhFUiIgRE49IkhFUi1pZCIvPjxEZXB0PjxOYW1lPkFsbG1lbmxlZ2V2YWt0ZW48L05hbWU+PElkPjgwOTM4Nzk8L0lkPjxUeXBlSWQgVj0iSEVSIiBETj0iSEVSLWlkIi8+PC9EZXB0PjxBZGRpdGlvbmFsSWQ+PElkPjk5NzUwNjQ5OTwvSWQ+PFR5cGUgVj0iRU5IIiBETj0iT3JnYW5pc2Fzam9uc251bW1lcmV0IGkgRW5oZXRzcmVnaXN0ZXIiLz48L0FkZGl0aW9uYWxJZD48L0luc3Q+PC9IQ1A+PC9TZXJ2UHJvdmlkZXI+PFJlcXVlc3Rlcj48Um9sZSBWPSJSRVEiLz48SENQPjxJbnN0PjxOYW1lPk5vcnNrIEhlbHNlbmV0dCBTRjwvTmFtZT48SWQ+MTEyMzc0PC9JZD48VHlwZUlkIFY9IkhFUiIgRE49IkhFUi1pZCIvPjxEZXB0PjxOYW1lPioqKlRlc3R0amVuZXN0ZSoqKiAtIE5ITiBKb3VybmFsbGFiIC0gQ0dNIFRlc3QgTGVnZWtvbnRvPC9OYW1lPjxJZD4xMjU0OTY8L0lkPjxUeXBlSWQgVj0iSEVSIiBETj0iSEVSLWlkIi8+PC9EZXB0PjxBZGRpdGlvbmFsSWQ+PElkPjk5NDU5ODc1OTwvSWQ+PFR5cGUgVj0iRU5IIiBETj0iT3JnYW5pc2Fzam9uc251bW1lcmV0IGkgRW5oZXRzcmVnaXN0ZXIiLz48L0FkZGl0aW9uYWxJZD48L0luc3Q+PC9IQ1A+PC9SZXF1ZXN0ZXI+PFJlbFNlcnZQcm92aWRlcj48UmVsYXRpb24gVj0iQUhQIiBETj0iQW5zdmFybGlnIGhlbHNlcGVyc29uZWxsIi8+PEhDUD48SW5zdD48TmFtZT5BbGxtZW5sZWdldmFrdGVuPC9OYW1lPjxIQ1BlcnNvbj48TmFtZT5TS0rDmFIgUExBU1NFUklORzwvTmFtZT48SWQ+NTY1NTAxODc8L0lkPjxUeXBlSWQgVj0iSFBSIiBETj0iSFBSLW51bW1lciIvPjwvSENQZXJzb24+PC9JbnN0PjxBZGRyZXNzPjxUeXBlIFY9IlBTVCIgRE49IlBvc3RhZHJlc3NlIi8+PFRlbGVBZGRyZXNzIFY9InRlbDoyMjg5NDAwMCIvPjwvQWRkcmVzcz48L0hDUD48L1JlbFNlcnZQcm92aWRlcj48L1NlcnZScHJ0PjwvTWVzc2FnZT4K"
+			},
+			"request": {
+				"method": "POST",
+				"url": "Binary"
+			}
+		}
+	]
+}
