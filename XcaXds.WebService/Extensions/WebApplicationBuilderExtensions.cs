@@ -204,7 +204,7 @@ public static class WebApplicationBuilderExtensions
         if (string.Equals(configuredRegistryBackend, "sqlite", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return runningInContainer || string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
+        return string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
     }
 
     private static bool ShouldUseS3Repository(bool runningInContainer, string? configuredRepositoryBackend, string? s3Endpoint)
@@ -215,6 +215,6 @@ public static class WebApplicationBuilderExtensions
         if (string.Equals(configuredRepositoryBackend, "file", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return runningInContainer || string.IsNullOrWhiteSpace(s3Endpoint) == false;
+        return string.IsNullOrWhiteSpace(s3Endpoint) == false;
     }
 }

@@ -1,9 +1,9 @@
-using System.Text.RegularExpressions;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Shared.Extensions;
@@ -166,11 +166,7 @@ public class S3BasedRepository : IRepository
         return null;
     }
 
-    private static string GetRequiredConfigurationValue(
-        IConfiguration configuration,
-        string configKey,
-        string firstEnvironmentKey,
-        string secondEnvironmentKey)
+    private static string GetRequiredConfigurationValue(IConfiguration configuration, string configKey, string firstEnvironmentKey, string secondEnvironmentKey)
     {
         var value = GetOptionalConfigurationValue(configuration, configKey, firstEnvironmentKey, secondEnvironmentKey);
         if (string.IsNullOrWhiteSpace(value))
@@ -179,11 +175,7 @@ public class S3BasedRepository : IRepository
         return value;
     }
 
-    private static string? GetOptionalConfigurationValue(
-        IConfiguration configuration,
-        string configKey,
-        string firstEnvironmentKey,
-        string secondEnvironmentKey)
+    private static string? GetOptionalConfigurationValue(IConfiguration configuration, string configKey, string firstEnvironmentKey, string secondEnvironmentKey)
     {
         return configuration[configKey]
                ?? Environment.GetEnvironmentVariable(firstEnvironmentKey)
