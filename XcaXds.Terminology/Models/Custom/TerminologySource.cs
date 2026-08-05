@@ -2,7 +2,7 @@
 
 namespace XcaXds.Terminology.Models.Custom;
 
-public class TerminologySource<ITerminologySource, ICodeSystemMapper>
+public class TerminologySource
 {
     /// <summary>
     /// Defines a source for a code system, including the path to the source and the mapper to use for converting the raw content to a ComprehensiveCodeSystem.
@@ -30,5 +30,4 @@ public class TerminologySource<ITerminologySource, ICodeSystemMapper>
     public string[]? Values { get; set; }
     // The implementation of ICodeSystemMapper to use
     public ICodeSystemMapper MapperToUse { get; set; }
-
 }

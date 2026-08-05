@@ -618,7 +618,7 @@ public class FhirToXdsTransformerService
                 GivenName = patientIdentifierFromDocRef.GivenName,
             };
 
-            var patientFromContained = documentReference.Contained.OfType<Patient>().Where(p => p.Identifier.FirstOrDefault()?.Value == patientIdentifierFromDocRef.PersonIdentifier).FirstOrDefault() ?? bundlePatient;
+            var patientFromContained = documentReference.Contained.OfType<Patient>().FirstOrDefault(p => p.Identifier.FirstOrDefault()?.Value == patientIdentifierFromDocRef.PersonIdentifier) ?? bundlePatient;
 
             var patientGender = patientFromContained?.Gender switch
             {
@@ -1100,38 +1100,10 @@ public class FhirToXdsTransformerService
 
     private ClassificationType[] GetDocumentReferenceAuthors(DocumentReference documentReference, out OperationOutcome operationOutcome)
     {
-        operationOutcome = new();
+        operationOutcome = new OperationOutcome();
         var classificationList = new List<ClassificationType>();
 
-        // Build list of resource references for each category 
-        var listOrganization = new List<ResourceReference>();
-        var listPractitioner = new List<ResourceReference>();
-        var listPractitionerRole = new List<ResourceReference>();
-
-        foreach (var authorReference in documentReference.Author)
-        {
-            switch (GetAuthorReferenceTarget(documentReference, authorReference))
-            {
-                case "Organization":
-                    listOrganization.Add(authorReference);
-                    break;
-                case "Practitioner":
-                    listPractitioner.Add(authorReference);
-                    break;
-                case "PractitionerRole":
-                    listPractitionerRole.Add(authorReference);
-                    break;
-                default:
-                    operationOutcome.AddIssue(new OperationOutcome.IssueComponent
-                    {
-                        Severity = OperationOutcome.IssueSeverity.Error,
-                        Code = OperationOutcome.IssueType.Unknown,
-                        Diagnostics = "Unexpected identifier type found. Not any of Organization, Practitioner or PractitionerRole",
-                        Location = ["DocumentReference.Author"]
-                    });
-                    break;
-            }
-        }
+        BuildResourceReferenceLists(documentReference, operationOutcome, out var listOrganization, out var listPractitioner, out var listPractitionerRole);
 
         /*- Special case => just 1 practitioner and 1 organization provided in DocumentReference - without any practitionerRole -*/
         if (listPractitioner.Count == 1 && listOrganization.Count == 1 && listPractitionerRole.Count == 0)
@@ -1173,14 +1145,14 @@ public class FhirToXdsTransformerService
             var listProcessedOrganization = new List<ResourceReference>();
             foreach (var practitionerReference in listPractitioner)
             {
-                // Slots for each author
-                var listAuthorSlots = new List<SlotType>();
-
-                // Practitioner
-                AddAuthorPersonSlot(documentReference, practitionerReference, ref listAuthorSlots, ref operationOutcome);
-
                 foreach (var roleReference in listPractitionerRole)
                 {
+                    // Slots for each author classification
+                    var listAuthorSlots = new List<SlotType>();
+
+                    // Practitioner
+                    AddAuthorPersonSlot(documentReference, practitionerReference, ref listAuthorSlots, ref operationOutcome);
+
                     GetAuthorRefsAndRoleAndSpecialty(documentReference, roleReference, practitionerReference,
                         out var orgReference,
                         out var authorRole,
@@ -1256,11 +1228,11 @@ public class FhirToXdsTransformerService
             // Just in case there is no Practitioner present at all
             if (listPractitionerRole.Count > 0)
             {
-                // Slots for each author
-                var listAuthorSlots = new List<SlotType>();
-
                 foreach (var roleReference in listPractitionerRole)
                 {
+                    // Slots for each author classification
+                    var listAuthorSlots = new List<SlotType>();
+
                     // Build organization slots for PractitionerRole
                     GetAuthorRefsAndRoleAndSpecialty(documentReference, roleReference,
                             out var orgReference,
@@ -1362,7 +1334,40 @@ public class FhirToXdsTransformerService
 
         return classificationList.ToArray();
     }
-        
+
+    private static void BuildResourceReferenceLists(DocumentReference documentReference, OperationOutcome operationOutcome, out List<ResourceReference> listOrganization, out List<ResourceReference> listPractitioner, out List<ResourceReference> listPractitionerRole)
+    {
+        // Build list of resource references for each category 
+        listOrganization = [];
+        listPractitioner = [];
+        listPractitionerRole = [];
+
+        foreach (var authorReference in documentReference.Author)
+        {
+            switch (GetAuthorReferenceTarget(documentReference, authorReference))
+            {
+                case "Organization":
+                    listOrganization.Add(authorReference);
+                    break;
+                case "Practitioner":
+                    listPractitioner.Add(authorReference);
+                    break;
+                case "PractitionerRole":
+                    listPractitionerRole.Add(authorReference);
+                    break;
+                default:
+                    operationOutcome.AddIssue(new OperationOutcome.IssueComponent
+                    {
+                        Severity = OperationOutcome.IssueSeverity.Error,
+                        Code = OperationOutcome.IssueType.Unknown,
+                        Diagnostics = "Unexpected identifier type found. Not any of Organization, Practitioner or PractitionerRole",
+                        Location = ["DocumentReference.Author"]
+                    });
+                    break;
+            }
+        }
+    }
+
     private static void AddAuthorPersonSlot(DocumentReference documentReference, ResourceReference? practitionerReference, ref List<SlotType> listAuthorSlots, ref OperationOutcome operationOutcome)
     {
         var refAuthorPerson = GetAuthorPerson(documentReference, practitionerReference);
@@ -1826,7 +1831,12 @@ public class FhirToXdsTransformerService
         var authorDocRef = documentReference.Contained.OfType<PractitionerRole>()
             .FirstOrDefault(x => (x.Id == roleReference.Reference?.Trim('#')) && (x.Practitioner?.Reference == practitionerReference.Reference));
 
-        if (authorDocRef == null || authorDocRef.Practitioner?.Url != practitionerReference!.Url) return;
+        if (authorDocRef == null) return;
+
+        var expectedPractitionerReference = practitionerReference.Reference?.Trim();
+        var actualPractitionerReference = authorDocRef.Practitioner?.Reference?.Trim();
+        if (!string.Equals(actualPractitionerReference, expectedPractitionerReference, StringComparison.Ordinal))
+            return;
 
         // List of roles if declared
         if (authorDocRef.Code.Count > 0)

@@ -1,7 +1,10 @@
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using XcaXds.Commons.DataManipulators;
+using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Soap.XdsTypes;
@@ -114,4 +117,80 @@ public class UnitTests_Fhir(WebApplicationFactory<WebService.Program> factory, I
 
         jsonResponse = fhirJsonSerializer.SerializeToString(validationResult01);
     }
+
+    [Fact]
+    public void GetDocumentReferenceAuthors_WithMultipleRoles_DoesNotAccumulateRoleSlots()
+    {
+        var transformer = _scope.ServiceProvider.GetRequiredService<FhirToXdsTransformerService>();
+        var additionalRoleDisplay = "AdditionalRoleForTest";
+        var documentReference = LoadDocumentReferenceWithSecondAuthorRole(additionalRoleDisplay);
+
+        var classifications = InvokeGetDocumentReferenceAuthors(transformer, documentReference, out _);
+
+        Assert.Equal(2, classifications.Length);
+
+        var roleValues = classifications
+            .Select(classification => classification.Slot
+                .Where(slot => slot.Name == Constants.Xds.SlotNames.AuthorRole)
+                .SelectMany(slot => slot.GetValues(codeMultipleValues: false) ?? [])
+                .ToArray())
+            .Select(values => values ?? [])
+            .ToList();
+
+        var additionalRoleClassificationValues = roleValues.Single(values => values.Contains(additionalRoleDisplay));
+        Assert.Single(additionalRoleClassificationValues);
+    }
+
+    private static ClassificationType[] InvokeGetDocumentReferenceAuthors(
+        FhirToXdsTransformerService transformer,
+        DocumentReference documentReference,
+        out OperationOutcome operationOutcome)
+    {
+        var method = typeof(FhirToXdsTransformerService)
+            .GetMethod("GetDocumentReferenceAuthors", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        Assert.NotNull(method);
+
+        var arguments = new object?[] { documentReference, null };
+        var result = method!.Invoke(transformer, arguments) as ClassificationType[];
+
+        operationOutcome = arguments[1] as OperationOutcome ?? new OperationOutcome();
+        return result ?? [];
+    }
+
+    private static DocumentReference LoadDocumentReferenceWithSecondAuthorRole(string additionalRoleDisplay)
+    {
+        var testDataPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "TestData");
+        var fhirFiles = Directory.GetFiles(Path.Combine(testDataPath, "Fhir"));
+        var bundleJson = File.ReadAllText(fhirFiles.First(file => file.Contains("ProvideBundle02_dept_with_reference_in_authors.json")));
+
+        var parser = new FhirJsonParser();
+        var bundle = parser.Parse<Bundle>(bundleJson);
+        var documentReference = bundle.Entry.Select(entry => entry.Resource).OfType<DocumentReference>().First();
+
+        var existingRole = documentReference.Contained.OfType<PractitionerRole>().First();
+        var additionalRole = (PractitionerRole)existingRole.DeepCopy();
+        additionalRole.Id = $"{existingRole.Id}-additional";
+        additionalRole.Code =
+        [
+            new CodeableConcept
+            {
+                Coding =
+                [
+                    new Coding
+                    {
+                        System = "urn:oid:2.16.578.1.12.4.1.1.9060",
+                        Code = "ADDITIONAL-ROLE",
+                        Display = additionalRoleDisplay
+                    }
+                ]
+            }
+        ];
+
+        documentReference.Contained.Add(additionalRole);
+        documentReference.Author.Add(new ResourceReference($"#{additionalRole.Id}"));
+
+        return documentReference;
+    }
+
 }

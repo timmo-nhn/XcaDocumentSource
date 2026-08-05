@@ -9,8 +9,9 @@ public class StringBasedMapper : ICodeSystemMapper
 
     private string[]? _values;
 
-    public StringBasedMapper(string[] values, string system)
+    public StringBasedMapper(string[]? values, string system)
     {
+        ArgumentNullException.ThrowIfNull(values, nameof(values));
         _values = values;
         _system = system;
     }
