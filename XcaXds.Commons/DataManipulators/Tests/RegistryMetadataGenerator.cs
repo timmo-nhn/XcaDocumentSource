@@ -49,12 +49,12 @@ public static class RegistryMetadataGenerator
             jsonTestData.PossibleDocumentEntryValues.SourcePatientInfos = [new SourcePatientInfo()
             {
                 PatientId = new(
-                    patientIdentifierCx?.IdNumber ?? patientIdentifierPid?.PatientId?.IdNumber,
-                    patientIdentifierCx?.AssigningAuthority?.UniversalId ?? patientIdentifierPid?.PatientId?.IdNumber
+                    patientIdentifierPid?.PatientId?.IdNumber ?? patientIdentifierCx?.IdNumber,
+                    patientIdentifierPid?.PatientId?.AssigningAuthority?.UniversalId ?? patientIdentifierCx?.AssigningAuthority?.UniversalId
                 ),
-                FirstName = "Generated",
-                LastName = "Patient",
-                BirthTime = DateTime.UtcNow
+                FirstName = patientIdentifierPid?.PatientName?.GivenName ?? "Generated",
+                LastName = patientIdentifierPid?.PatientName?.FamilyName ?? "Patient",
+                BirthTime = patientIdentifierPid?.BirthDate ?? DateTime.UtcNow
             }];
         }
 
