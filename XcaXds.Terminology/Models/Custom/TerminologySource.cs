@@ -2,7 +2,9 @@
 
 namespace XcaXds.Terminology.Models.Custom;
 
-public class TerminologySource
+public class TerminologySource<TSource, TMapper>
+    where TSource : ITerminologySource
+    where TMapper : ICodeSystemMapper
 {
     /// <summary>
     /// Defines a source for a code system, including the path to the source and the mapper to use for converting the raw content to a ComprehensiveCodeSystem.
