@@ -5,8 +5,8 @@ using XcaXds.Commons.Models.Custom.PolicyEnforcementPoint;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Shared;
 using XcaXds.Shared.Enums;
-using XcaXds.Source.Source;
-using XcaXds.Source.Source.RegistryRepository.SqLite;
+using XcaXds.Source.Implementations;
+using XcaXds.Source.Implementations.RegistryRepository.SqLite;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.Services;
@@ -318,7 +318,7 @@ public class AppStartupService : IHostedService
             return;
         }
 
-        _logger.LogInformation("New OID Detected! Normalizing registry entries");
+        _logger.LogInformation("New Repository Unique Id Detected! Normalizing registry entries");
 
         foreach (var registryObject in registryContent)
         {
@@ -326,14 +326,14 @@ public class AppStartupService : IHostedService
             {
                 case DocumentEntryDto doc:
                     var oldHomeCommunityId = doc.HomeCommunityId;
+                    var oldRepositoryUniqueId = doc.RepositoryUniqueId;
 
                     doc.HomeCommunityId = _appConfig.HomeCommunityId;
                     doc.RepositoryUniqueId = _appConfig.RepositoryUniqueId;
 
-                    if (string.IsNullOrWhiteSpace(doc.SourcePatientInfo?.PatientId?.System) ||
-                        doc.SourcePatientInfo?.PatientId?.System == oldHomeCommunityId)
+                    if (doc.SourcePatientInfo?.PatientId?.System == oldHomeCommunityId)
                     {
-                        _logger.LogInformation("Fixing stale patient identifier System, new OID: {newOid}", _appConfig.HomeCommunityId);
+                        _logger.LogInformation("Fixing stale patient identifier System, new HomeCommunityId: {newOid}", _appConfig.HomeCommunityId);
 
                         doc.SourcePatientInfo!.PatientId!.System = _appConfig.HomeCommunityId;
                     }
@@ -342,7 +342,6 @@ public class AppStartupService : IHostedService
 
                 case SubmissionSetDto sub:
                     sub.HomeCommunityId = _appConfig.HomeCommunityId;
-                    sub.SourceId = _appConfig.RepositoryUniqueId;
                     break;
             }
         }

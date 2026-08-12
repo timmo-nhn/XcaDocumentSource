@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using XcaXds.Source.DatabaseRelations;
 using XcaXds.Source.Models.DatabaseDtos;
 
-namespace XcaXds.Source.Source.RegistryRepository.PostGreSql;
+namespace XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
 
 public class PostGreSqlRegistryDbContext : DbContext
 {

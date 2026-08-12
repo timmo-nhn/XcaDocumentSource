@@ -32,9 +32,9 @@ public class ClamAvFileScanner : IVirusScanner
 
         VirusScanResult<ClamScanResult> result = clamResult.Result switch
         {
-            ClamScanResults.Clean         => VirusScanResult<ClamScanResult>.Success("Document is clean", clamResult),
+            ClamScanResults.Clean => VirusScanResult<ClamScanResult>.Success("Document is clean", clamResult),
             ClamScanResults.VirusDetected => VirusScanResult<ClamScanResult>.Failure($"Document contains virus: {clamResult.RawResult}", clamResult),
-            _                             => VirusScanResult<ClamScanResult>.Failure("Error while scanning for virus", clamResult)
+            _ => VirusScanResult<ClamScanResult>.Failure("Error while scanning for virus", clamResult)
         };
 
         _logger.LogInformation(result.Message);

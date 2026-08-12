@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace XcaXds.Source.Source.RegistryRepository.PostGreSql;
+namespace XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
 
 public class PostGreSqlRegistryDbContextFactory : IDesignTimeDbContextFactory<PostGreSqlRegistryDbContext>
 {

@@ -51,8 +51,8 @@ public class  MockStatisticsProcessorService : BackgroundService
 
     private void ExportStatistics(UserAccessEntry userAccessEntry)
     {
-        _logger.LogInformation("User Access Entry");
-        _logger.LogInformation("{@UserAccessEntry}", userAccessEntry);
+        _logger.LogDebug("User Access Entry");
+        _logger.LogDebug("{@UserAccessEntry}", userAccessEntry);
         UserAccessEntryJson = JsonSerializer.Serialize(userAccessEntry, Constants.JsonDefaultOptions.DefaultSettingsInline);
     }
 }

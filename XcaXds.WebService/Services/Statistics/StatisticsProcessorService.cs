@@ -44,6 +44,6 @@ public class StatisticsProcessorService : BackgroundService
     private void ExportStatistics(UserAccessEntry userAccessEntry)
     {
         var jsonAccessEntry = JsonSerializer.Serialize(userAccessEntry, Constants.JsonDefaultOptions.DefaultSettings);
-        _logger.LogInformation("User Access Entry:\n" + jsonAccessEntry);
+        _logger.LogDebug("User Access Entry:\n" + jsonAccessEntry);
     }
 }

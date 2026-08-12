@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using XcaXds.Source.Source.RegistryRepository.SqLite;
+using XcaXds.Source.Implementations.RegistryRepository.SqLite;
 
 #nullable disable
 

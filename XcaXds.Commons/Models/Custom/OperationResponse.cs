@@ -29,9 +29,9 @@ public class OperationResponse<TResult> : OperationResponse
         return new OperationResponse<TResult> { IsSuccess = true, Message = message, Value = result };
     }
 
-    public OperationResponse<TResult> SetResultObject<TResult>(TResult result)
+    public OperationResponse<TResult> SetResultObject(TResult result)
     {
-        return new()
+        return new OperationResponse<TResult>
         {
             IsSuccess = IsSuccess,
             Message = Message,

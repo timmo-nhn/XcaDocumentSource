@@ -562,7 +562,7 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
 
         var extrinsicObject = _registryMetadataTransformerService.TransformRegistryObjectDtoToRegistryObject(documentEntry);
 
-        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle([extrinsicObject]);
+        var bundle = _xdsOnFhirTransformerService.TransformRegistryObjectsToFhirBundle([extrinsicObject!]);
         var updatedDocRef = bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault(dr => string.Equals(dr.Id, id, StringComparison.OrdinalIgnoreCase))
                             ?? bundle?.Entry?.Select(e => e.Resource).OfType<DocumentReference>().FirstOrDefault();
 

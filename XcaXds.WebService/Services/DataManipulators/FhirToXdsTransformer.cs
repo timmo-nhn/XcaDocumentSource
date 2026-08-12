@@ -1624,7 +1624,7 @@ public class FhirToXdsTransformerService
             OrganizationName = deptName,
             AssigningAuthority = new HD()
             {
-                UniversalId = deptOid.NoUrn(),
+                UniversalId = deptOid?.NoUrn(),
                 UniversalIdType = "ISO"
             },
             OrganizationIdentifier = authorDept.Identifier.FirstOrDefault()?.Value ?? $"name-only:{deptName}"

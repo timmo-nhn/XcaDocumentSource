@@ -8,7 +8,7 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Shared.Extensions;
 
-namespace XcaXds.Source.Source.RegistryRepository.S3;
+namespace XcaXds.Source.Implementations.Repository.S3;
 
 public class S3BasedRepository : IRepository
 {

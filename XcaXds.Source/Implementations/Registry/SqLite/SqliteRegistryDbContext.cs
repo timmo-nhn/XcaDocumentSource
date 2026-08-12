@@ -2,7 +2,7 @@
 using XcaXds.Source.DatabaseRelations;
 using XcaXds.Source.Models.DatabaseDtos;
 
-namespace XcaXds.Source.Source.RegistryRepository.SqLite;
+namespace XcaXds.Source.Implementations.RegistryRepository.SqLite;
 
 public class SqliteRegistryDbContext : DbContext
 {

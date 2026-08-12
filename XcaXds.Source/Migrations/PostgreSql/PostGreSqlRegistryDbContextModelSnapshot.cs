@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using XcaXds.Source.Source.RegistryRepository.PostGreSql;
+using XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
 
 #nullable disable
 

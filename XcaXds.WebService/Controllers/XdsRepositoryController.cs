@@ -92,7 +92,7 @@ public class XdsRepositoryController : ControllerBase
                     requestTimer.Stop();
                     _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
                     _logger.LogInformation("{traceIdentifier} - {contentType}", Request.HttpContext.TraceIdentifier, streamResult.ContentType);
-                    _logger.LogInformation("{traceIdentifier} - {fileContents}", Request.HttpContext.TraceIdentifier, Encoding.UTF8.GetString(streamResult.FileContents));
+                    _logger.LogDebug("{traceIdentifier} - {fileContents}", Request.HttpContext.TraceIdentifier, Encoding.UTF8.GetString(streamResult.FileContents));
 
                     return streamResult;
                 }
@@ -199,7 +199,7 @@ public class XdsRepositoryController : ControllerBase
                 break;
 
             default:
-                _logger.LogInformation("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", Request.HttpContext.TraceIdentifier, action, Request.HttpContext.Connection.RemoteIpAddress);
+                _logger.LogWarning("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", Request.HttpContext.TraceIdentifier, action, Request.HttpContext.Connection.RemoteIpAddress);
                 requestTimer.Stop();
                 _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);

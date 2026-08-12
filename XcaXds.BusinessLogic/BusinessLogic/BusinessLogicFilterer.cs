@@ -107,15 +107,13 @@ public class DocumentListFiltererService
 
             var businessLogic = _businessLogicMapperService.MapFromAbacRequestToBusinessLogic(abacRequest);
 
-            _logger.LogInformation("{traceIdentifier} - Business logic: {businessLogic}", soapEnvelope.Header.MessageId, JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings));
+            _logger.LogDebug("{traceIdentifier} - Business logic: {businessLogic}", soapEnvelope.Header.MessageId, JsonSerializer.Serialize(businessLogic, Constants.JsonDefaultOptions.DefaultSettings));
 
             enumeratedEntriesResult = FilterRegistryObjectListBasedOnBusinessLogic(enumeratedEntriesResult, businessLogic, out filterResults).ToList();
 
-            var gobb = JsonSerializer.Serialize(businessLogic);
-
             if (filterResults.Count > 0)
             {
-                _logger.LogInformation("{traceIdentifier} - Business logic applied: {filterResults}", soapEnvelope.Header.MessageId, JsonSerializer.Serialize(filterResults));
+                _logger.LogInformation("{traceIdentifier} - Business logic applied: {filterResults}, current XDSEntries count: {count}", soapEnvelope.Header.MessageId, JsonSerializer.Serialize(filterResults), enumeratedEntriesResult.Count);
             }
             else
             {
@@ -125,7 +123,7 @@ public class DocumentListFiltererService
             enumeratedEntriesResult = _documentObfuscationService.ObfuscateRestrictedDocumentEntries(enumeratedEntriesResult, businessLogic, out var obfuscateCount);
             var sxmls = new SoapXmlSerializer();
             var content = sxmls.SerializeSoapMessageToXmlString(enumeratedEntriesResult).Content;
-            _logger.LogInformation("{traceIdentifier} - {obfuscateCount} XDSEntries obfuscated", soapEnvelope.Header.MessageId, obfuscateCount);
+            _logger.LogInformation("{traceIdentifier} - {obfuscateCount} XDSEntries obfuscated, visible XDSEntries count: {count}", soapEnvelope.Header.MessageId, obfuscateCount, enumeratedEntriesResult.Count - obfuscateCount);
 
             soapEnvelope.Body.AdhocQueryResponse?.RegistryObjectList = [.. enumeratedEntriesResult];
         }

@@ -27,7 +27,7 @@ public class AtnaLogBuilder
         var method = context.Request.Method;
 
         var combination = $"Path: {path}, Content-Type: {contentType}, Method: {method}";
-        _logger.LogInformation(combination);
+        _logger.LogInformation("Request {combination}", combination);
 
         var strategy = _strategies.FirstOrDefault(s => s.CanHandle(path, contentType, method));
 

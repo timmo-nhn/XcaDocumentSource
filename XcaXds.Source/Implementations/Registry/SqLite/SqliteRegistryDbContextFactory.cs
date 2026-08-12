@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace XcaXds.Source.Source.RegistryRepository.SqLite;
+namespace XcaXds.Source.Implementations.RegistryRepository.SqLite;
 
 public class SqliteRegistryDbContextFactory : IDesignTimeDbContextFactory<SqliteRegistryDbContext>
 {

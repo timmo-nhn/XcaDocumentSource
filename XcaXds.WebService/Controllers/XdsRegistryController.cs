@@ -148,7 +148,7 @@ public class XdsRegistryController : ControllerBase
                 break;
 
             default:
-                _logger.LogInformation("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", Request.HttpContext.TraceIdentifier, action, Request.HttpContext.Connection.RemoteIpAddress);
+                _logger.LogWarning("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", Request.HttpContext.TraceIdentifier, action, Request.HttpContext.Connection.RemoteIpAddress);
                 requestTimer.Stop();
                 _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, action, requestTimer.ElapsedMilliseconds);
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);

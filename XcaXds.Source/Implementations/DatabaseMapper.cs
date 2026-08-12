@@ -3,7 +3,7 @@ using XcaXds.Shared.Models.Custom;
 using XcaXds.Source.Models.DatabaseDtos;
 using XcaXds.Source.Models.DatabaseDtos.Types;
 
-namespace XcaXds.Source.Source;
+namespace XcaXds.Source.Implementations;
 
 public static class DatabaseMapper
 {

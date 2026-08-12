@@ -329,7 +329,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
         }
         else
         {
-            _logger.LogInformation("{traceIdentifier} - Successfully retrieved 0 documents in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, requestTimer.ElapsedMilliseconds);
+            _logger.LogInformation("{traceIdentifier} - Retrieved 0 documents in {elapsedMilliseconds} ms", Request.HttpContext.TraceIdentifier, requestTimer.ElapsedMilliseconds);
             return Ok(entries);
         }
     }

@@ -90,8 +90,8 @@ public class PolicyEnforcementPointMiddleware
         var policyInput = await policyInputBuilder.BuildAsync(httpContext, _xdsConfig);
 
         _logger.LogInformation("{traceIdentifier} - Policy input builder complete. Success: {isSuccess}, Message: {errorMessage}", httpContext.TraceIdentifier, policyInput.IsSuccess, policyInput.ErrorMessage);
-
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+        
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
             LogJwt(httpContext);
             var policies = _policyRepositoryService.GetPoliciesAsPolicySetDto();
@@ -243,6 +243,6 @@ public class PolicyEnforcementPointMiddleware
             WriteIndented = true
         });
 
-        _logger.LogInformation("{traceIdentifier} - JWT Content:\n{JwtJson}", context.TraceIdentifier, json);
+        _logger.LogDebug("{traceIdentifier} - JWT Content:\n{JwtJson}", context.TraceIdentifier, json);
     }
 }

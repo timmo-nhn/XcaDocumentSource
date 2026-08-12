@@ -4,7 +4,7 @@ using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
 using XcaXds.Shared;
 
-namespace XcaXds.Source.Source.PolicyRepository.FileBased;
+namespace XcaXds.Source.Implementations.PolicyRepository.FileBased;
 
 public class FileBasedPolicyRepository : IPolicyRepository
 {
@@ -32,7 +32,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
 
         Directory.CreateDirectory(_policyRepositoryPath);
 
-        _logger.LogInformation("Policy repository path: {_policyRepositoryPath}", _policyRepositoryPath);
+        _logger.LogDebug("Policy repository path: {_policyRepositoryPath}", _policyRepositoryPath);
     }
 
     public string GetPolicyRepositoryPath()
@@ -155,7 +155,7 @@ public class FileBasedPolicyRepository : IPolicyRepository
         {
             try
             {
-                _logger.LogInformation("Attempt {att}/{max}", i, retries);
+                _logger.LogInformation("RetryLogic Attempt {att}/{max}", i, retries);
                 action();
                 return;
             }

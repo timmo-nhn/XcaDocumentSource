@@ -147,14 +147,14 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     _logger.LogInformation("{traceIdentifier} - {contentType}", soapEnvelope.Header.MessageId, multipartResponse.ContentType);
 
-                    _logger.LogInformation("{traceIdentifier} - {content}", soapEnvelope.Header.MessageId, Encoding.UTF8.GetString(bytes));
+                    _logger.LogDebug("{traceIdentifier} - {content}", soapEnvelope.Header.MessageId, Encoding.UTF8.GetString(bytes));
                 }
 
                 responseEnvelope = iti39Response.Value;
                 break;
 
             default:
-                _logger.LogInformation("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", soapEnvelope.Header.MessageId, action, Request.HttpContext.Connection.RemoteIpAddress);
+                _logger.LogWarning("{traceIdentifier} - Unknown action: {action} from {remoteIpAddress}", soapEnvelope.Header.MessageId, action, Request.HttpContext.Connection.RemoteIpAddress);
                 requestTimer.Stop();
                 _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", soapEnvelope.Header.MessageId, action, requestTimer.ElapsedMilliseconds);
                 return BadRequest(SoapExtensions.CreateSoapFault("soapenv:Reciever", detail: action, faultReason: $"The [action] cannot be processed at the receiver").Value);
