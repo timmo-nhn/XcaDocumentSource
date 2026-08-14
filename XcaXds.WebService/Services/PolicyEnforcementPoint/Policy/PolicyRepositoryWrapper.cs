@@ -1,18 +1,11 @@
-﻿using System.Linq.Expressions;
-using XcaXds.Commons.Commons;
-using XcaXds.Commons.Interfaces;
+﻿using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom.PolicyDtos;
-using XcaXds.WebService.Services.PolicyEnforcementPoint;
 
 namespace XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 
 public class PolicyRepositoryWrapper
 {
-    private readonly FileSystemWatcher _watcher;
-    private readonly string _policyRepositoryPath;
-
     private PolicySet _policySet;
-
 
     private readonly IPolicyRepository _policyRepository;
     private readonly ILogger<PolicyRepositoryWrapper> _logger;
@@ -23,17 +16,6 @@ public class PolicyRepositoryWrapper
         _policyRepository = policyRepository;
 
         _policySet = _policyRepository.GetAllPolicies();
-
-        _policyRepositoryPath = _policyRepository.GetPolicyRepositoryPath();
-
-        if (string.IsNullOrWhiteSpace(_policyRepositoryPath)) throw new InvalidOperationException("No PolicyRepository Path found!");
-
-        _watcher = new FileSystemWatcher(_policyRepositoryPath)
-        {
-            NotifyFilter = NotifyFilters.LastWrite
-        };
-        _watcher.Changed += OnFileChanged;
-        _watcher.EnableRaisingEvents = true;
     }
 
     public PolicySet GetPoliciesAsPolicySet()
@@ -114,49 +96,5 @@ public class PolicyRepositoryWrapper
         _policySet = _policyRepository.GetAllPolicies();
 
         return deleteAllResult;
-    }
-
-    private void OnFileChanged(object sender, FileSystemEventArgs e)
-    {
-        ExecuteWithRetry(() => ReloadPolicies());
-    }
-
-    private void ExecuteWithRetry(Action action, int retries = 3)
-    {
-        for (int i = 1; i <= retries; i++)
-        {
-            try
-            {
-                _logger.LogInformation("Attempt {att}/{max}", i, retries);
-                action();
-                return;
-            }
-            catch (IOException ioEx)
-            {
-                _logger.LogError(ioEx.ToString());
-                continue;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.ToString());
-                throw;
-            }
-        }
-    }
-
-    private void ReloadPolicies()
-    {
-        Task.Delay(500).ContinueWith(_ =>
-        {
-            try
-            {
-                _policySet = _policyRepository.GetAllPolicies();
-                _logger.LogInformation("{fileName} reloaded successfully.", Path.GetFileName(_policyRepositoryPath));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error reloading policy repository.");
-            }
-        });
     }
 }

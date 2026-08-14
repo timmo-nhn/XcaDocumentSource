@@ -11,6 +11,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Source.Implementations.PolicyRepository.FileBased;
+using XcaXds.Source.Implementations.PolicyRepository.S3;
 using XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
 using XcaXds.Source.Implementations.RegistryRepository.SqLite;
 using XcaXds.Source.Implementations.Repository.FileBased;
@@ -84,6 +85,11 @@ public static class WebApplicationBuilderExtensions
 
     public static void RegisterPolicyEnforcementPointServices(this WebApplicationBuilder builder)
     {
+        var runningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inContainer) && inContainer;
+        var configuredRepositoryBackend = builder.Configuration["XdsConfiguration:RepositoryBackend"];
+        var s3Endpoint = builder.Configuration["S3:Endpoint"];
+        var useS3PolicyRepository = ShouldUseS3Repository(runningInContainer, configuredRepositoryBackend, s3Endpoint);
+
         // Policy input builder and strategies
         builder.Services.AddScoped<PolicyInputBuilder>();
         builder.Services.AddScoped<IPolicyInputStrategy, FhirJsonPolicyInputStrategy>();
@@ -100,7 +106,14 @@ public static class WebApplicationBuilderExtensions
         // PDP services
         builder.Services.AddSingleton<PolicyRepositoryService>();
         builder.Services.AddSingleton<PolicyRepositoryWrapper>();
-        builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
+        if (useS3PolicyRepository)
+        {
+            builder.Services.AddSingleton<IPolicyRepository, S3BasedPolicyRepository>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IPolicyRepository, FileBasedPolicyRepository>();
+        }
 
         builder.Services.AddSingleton<PolicyDecisionPointService>();
 

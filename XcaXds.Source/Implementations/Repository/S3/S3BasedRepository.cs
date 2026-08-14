@@ -1,5 +1,3 @@
-using Amazon;
-using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Configuration;
@@ -22,32 +20,10 @@ public class S3BasedRepository : IRepository
     public S3BasedRepository(ApplicationConfig appConfig, IConfiguration configuration)
     {
         _appConfig = appConfig;
-        _bucketName = GetRequiredConfigurationValue(configuration, "S3:Bucket", "S3__Bucket", "S3_BUCKET");
-
-        var endpoint = GetOptionalConfigurationValue(configuration, "S3:Endpoint", "S3__Endpoint", "S3_ENDPOINT");
-        var region = GetOptionalConfigurationValue(configuration, "S3:Region", "S3__Region", "S3_REGION") ?? "eu-west-1";
-        var accessKey = GetOptionalConfigurationValue(configuration, "S3:AccessKey", "S3__AccessKey", "S3_ACCESS_KEY");
-        var secretKey = GetOptionalConfigurationValue(configuration, "S3:SecretKey", "S3__SecretKey", "S3_SECRET_KEY");
-        var forcePathStyle = bool.TryParse(GetOptionalConfigurationValue(configuration, "S3:ForcePathStyle", "S3__ForcePathStyle", "S3_FORCE_PATH_STYLE"), out var parsedForcePathStyle) && parsedForcePathStyle;
-
-        var s3Config = new AmazonS3Config()
-        {
-            ForcePathStyle = forcePathStyle
-        };
-
-        if (string.IsNullOrWhiteSpace(endpoint))
-        {
-            s3Config.RegionEndpoint = RegionEndpoint.GetBySystemName(region);
-        }
-        else
-        {
-            s3Config.ServiceURL = endpoint;
-            s3Config.AuthenticationRegion = region;
-        }
-
-        _s3Client = string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(secretKey)
-            ? new AmazonS3Client(s3Config)
-            : new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey), s3Config);
+        var s3Configuration = S3StorageConfiguration.FromConfiguration(configuration);
+        _bucketName = s3Configuration.RepositoryBucket;
+        _s3Client = s3Configuration.CreateClient();
+        S3StorageConfiguration.EnsureBucketExists(_s3Client, _bucketName);
     }
 
     public byte[]? Read(string documentUniqueId)
@@ -59,7 +35,7 @@ public class S3BasedRepository : IRepository
         if (string.IsNullOrWhiteSpace(key))
             return null;
 
-        using var getResponse = _s3Client.GetObjectAsync(new GetObjectRequest
+        using var getResponse = _s3Client.GetObjectAsync(new GetObjectRequest()
         {
             BucketName = _bucketName,
             Key = key
@@ -164,22 +140,6 @@ public class S3BasedRepository : IRepository
         while (!string.IsNullOrWhiteSpace(continuationToken));
 
         return null;
-    }
-
-    private static string GetRequiredConfigurationValue(IConfiguration configuration, string configKey, string firstEnvironmentKey, string secondEnvironmentKey)
-    {
-        var value = GetOptionalConfigurationValue(configuration, configKey, firstEnvironmentKey, secondEnvironmentKey);
-        if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidOperationException($"Missing S3 configuration. Set '{configKey}' in configuration or environment variable '{firstEnvironmentKey}'/'{secondEnvironmentKey}'.");
-
-        return value;
-    }
-
-    private static string? GetOptionalConfigurationValue(IConfiguration configuration, string configKey, string firstEnvironmentKey, string secondEnvironmentKey)
-    {
-        return configuration[configKey]
-               ?? Environment.GetEnvironmentVariable(firstEnvironmentKey)
-               ?? Environment.GetEnvironmentVariable(secondEnvironmentKey);
     }
 
     private static bool IsValidIdentifier(string input, out string invalidCharacters)
