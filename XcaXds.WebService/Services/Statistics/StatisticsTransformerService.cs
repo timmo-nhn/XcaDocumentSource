@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Helpers;
@@ -95,40 +94,65 @@ public class StatisticsTransformerService
 
     private async Task<UserAccessEntry> GetUserAccessEntryFromFhirUrlBasedRequest(StatisticsRequestAndFields inputFields, Resource? fhirBundleResponse = null)
     {
+        string? samlTokenIssuer = null;
+        string? subjectIdHash = null;
+        string? resourceIdHash = null;
+
+        CodedValue? subjectOrganization = null;
+        string? subjectOrganizationName = null;
+
+        CodedValue? subjectChildOrganization = null;
+        string? subjectChildOrganizationName = null;
+        string? accessBasis = null;
+
         var jwt = JwtExtractor.ExtractJwt(inputFields.JwtToken, out _);
 
-        if (jwt == null) throw new InvalidOperationException("JWT cannot be null.");
+        if (jwt == null)
+        {
+            _logger.LogWarning("JWT is null.");
+        }
+        else
+        {
+            var samlToken = _jwtToSamlTransformerService.MapJsonWebTokenToSamlToken(jwt);
 
-        var samlToken = _jwtToSamlTransformerService.MapJsonWebTokenToSamlToken(jwt);
+            fhirBundleResponse ??= Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody);
 
-        fhirBundleResponse ??= Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody);
+            var statements = samlToken?.GetAllStatements();
 
-        var statements = samlToken?.GetAllStatements();
+            var organization = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.FirstOrDefault();
+            var department = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.FirstOrDefault();
+            var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
 
-        var organization = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Organization")?.FirstOrDefault();
-        var department = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Other.OrganizationAssigningAuthorities, "Department")?.FirstOrDefault();
-        var acp = _terminologyService.GetValueFromCodeSystemByName(CodeSystemNames.Authentication.Acp, "NullValue")?.FirstOrDefault();
+            samlTokenIssuer = samlToken?.Assertion.Issuer.Value;
 
-        var subjectOrganization = GetSamlAttributeAsCodedValue(statements, "helseid://claims/client/claims/orgnr_parent");
-        subjectOrganization?.CodeSystem ??= organization;
+            subjectIdHash = GetSamlAttributeAsHashedString(statements, "helseid://claims/hpr/hpr_number");
+            resourceIdHash = GetSamlAttributeAsHashedString(statements, "helseid://claims/identity/pid");
 
-        var subjectChildOrganization = GetSamlAttributeAsCodedValue(statements, "urn:oasis:names:tc:xspa:1.0:subject:child-organization");
-        subjectChildOrganization?.CodeSystem ??= organization;
+            subjectOrganization = GetSamlAttributeAsCodedValue(statements, "helseid://claims/client/claims/orgnr_parent");
+            subjectOrganization?.CodeSystem ??= organization;
+            subjectOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.Organization);
+
+            subjectChildOrganization = GetSamlAttributeAsCodedValue(statements, Constants.Saml.Attribute.ChildOrganization);
+            subjectChildOrganization?.CodeSystem ??= department;
+            subjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName);
+
+            accessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? acp;
+        }
 
         return new UserAccessEntry()
         {
             SessionId = inputFields.SessionId,
-            Issuer = samlToken?.Assertion.Issuer.Value,
-            SubjectIdHash = GetSamlAttributeAsHashedString(statements, "helseid://claims/hpr/hpr_number"),
-            ResourceIdHash = GetSamlAttributeAsHashedString(statements, "helseid://claims/identity/pid"),
+            Issuer = samlTokenIssuer,
+            SubjectIdHash = subjectIdHash,
+            ResourceIdHash = resourceIdHash,
             Action = AccessControlExtensions.MapXacmlActionFromUrlPath(inputFields.Path, inputFields.Method),
             SubjectOrganization = subjectOrganization,
-            SubjectOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.Organization),
+            SubjectOrganizationName = subjectOrganizationName,
 
             SubjectChildOrganization = subjectChildOrganization,
-            SubjectChildOrganizationName = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.TrustChildOrgName),
+            SubjectChildOrganizationName = subjectChildOrganizationName,
 
-            AccessBasis = GetSamlAttributeAsString(statements, Constants.Saml.Attribute.XuaAcp) ?? acp,
+            AccessBasis = accessBasis,
 
             SourceHomeCommunityId = _appConfig.HomeCommunityId,
             SourceRepositoryUniqueId = _appConfig.RepositoryUniqueId,

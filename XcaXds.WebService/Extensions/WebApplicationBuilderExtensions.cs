@@ -10,6 +10,7 @@ using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
+using XcaXds.Source.Implementations.AtnaLogDLQ.FileBased;
 using XcaXds.Source.Implementations.PolicyRepository.FileBased;
 using XcaXds.Source.Implementations.PolicyRepository.S3;
 using XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
@@ -51,6 +52,9 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
         builder.Services.AddScoped<AtnaLogGeneratorService>();
         builder.Services.AddSingleton<AtnaLogEnricherService>();
+
+        builder.Services.AddSingleton<IAtnaLogDLQStore, FileBasedAtnaLogDLQStore>();
+        builder.Services.AddSingleton<AtnaAuditLogDLQService>();
     }
 
     public static void RegisterBusinessLogicServices(this WebApplicationBuilder builder)

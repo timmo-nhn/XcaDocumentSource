@@ -378,19 +378,17 @@ public class AtnaLogGeneratorService
                 Detail = detail,
             });
         }
-        else
+
+        auditEvent.Agent.Add(new AuditEvent.AgentComponent()
         {
-            auditEvent.Agent.Add(new AuditEvent.AgentComponent()
-            {
-                Requestor = true,
-                Network = string.IsNullOrWhiteSpace(_appConfig.IpAddress)
-                    ? null
-                    : new AuditEvent.NetworkComponent()
-                    {
-                        Address = _appConfig.IpAddress
-                    }
-            });
-        }
+            Requestor = true,
+            Network = string.IsNullOrWhiteSpace(_appConfig.IpAddress)
+                ? null
+                : new AuditEvent.NetworkComponent()
+                {
+                    Address = _appConfig.IpAddress
+                }
+        });
 
         var device = new Device
         {

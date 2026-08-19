@@ -28,4 +28,8 @@
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AtnaLogDLQ\" />
+  </ItemGroup>
+
 </Project>

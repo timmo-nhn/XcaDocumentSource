@@ -28,7 +28,6 @@ public class AppStartupService : IHostedService
     private readonly PolicyRepositoryWrapper _policyRepositoryWrapper;
     private readonly TerminologyService _terminologyService;
     private readonly TerminologyUpdaterService _terminologyUpdaterService;
-    private readonly IDbContextFactory<SqliteRegistryDbContext> _sqliteRegistryContextFactory;
 
     public AppStartupService(
         ILogger<AppStartupService> logger,
@@ -40,8 +39,7 @@ public class AppStartupService : IHostedService
         RepositoryWrapper repositoryWrapper,
         PolicyRepositoryWrapper policyRepositoryWrapper,
         TerminologyService terminologyService,
-        TerminologyUpdaterService terminologyUpdaterService,
-        IDbContextFactory<SqliteRegistryDbContext> sqliteRegistryContextFactory
+        TerminologyUpdaterService terminologyUpdaterService
         )
     {
         _logger = logger;
@@ -54,7 +52,6 @@ public class AppStartupService : IHostedService
         _policyRepositoryWrapper = policyRepositoryWrapper;
         _terminologyService = terminologyService;
         _terminologyUpdaterService = terminologyUpdaterService;
-        _sqliteRegistryContextFactory = sqliteRegistryContextFactory;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -97,7 +94,6 @@ public class AppStartupService : IHostedService
 
         await AddDefaultAccessControlPolicies();
     }
-
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
