@@ -138,7 +138,6 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
         _businessLogicMapperService = _scope.ServiceProvider.GetRequiredService<BusinessLogicMapperService>();
         _ninParserFactory = _scope.ServiceProvider.GetRequiredService<NinParserFactory>();
 
-
         _client.DefaultRequestHeaders.Add("X-API-Key", _apiKeyHolder.ApiKey);
     }
 

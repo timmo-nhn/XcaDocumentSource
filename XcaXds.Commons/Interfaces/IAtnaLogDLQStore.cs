@@ -11,7 +11,6 @@ namespace XcaXds.Commons.Interfaces;
 public interface IAtnaLogDLQStore
 {
     OperationResponse StoreAuditEvent(AuditEvent auditEvent);
-    AuditEvent[] GetAllEventsInQueue();
     AuditEvent? GetLatestEvent();
     void DeleteLatestEvent();
 }

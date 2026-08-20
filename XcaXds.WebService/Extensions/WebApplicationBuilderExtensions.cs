@@ -11,6 +11,7 @@ using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Models.PolicyEnforcementPoint.DenyStrategies;
 using XcaXds.Source.Implementations.AtnaLogDLQ.FileBased;
+using XcaXds.Source.Implementations.AtnaLogDLQ.S3;
 using XcaXds.Source.Implementations.PolicyRepository.FileBased;
 using XcaXds.Source.Implementations.PolicyRepository.S3;
 using XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
@@ -41,6 +42,18 @@ public static class WebApplicationBuilderExtensions
 {
     public static void RegisterAuditLoggingServices(this WebApplicationBuilder builder)
     {
+        var useS3Repository = ShouldUseS3StorageBackend(builder);
+
+        if (useS3Repository)
+        {
+            builder.Services.AddSingleton<IAtnaLogDLQStore, S3BasedAtnaLogDLQStore>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IAtnaLogDLQStore, FileBasedAtnaLogDLQStore>();
+        }
+
+
         // Atna log builder and strategies
         builder.Services.AddScoped<AtnaLogBuilder>();
         builder.Services.AddScoped<IAtnaLogStrategy, SoapEnvelopeAtnaLogStrategy>();
@@ -53,7 +66,6 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddScoped<AtnaLogGeneratorService>();
         builder.Services.AddSingleton<AtnaLogEnricherService>();
 
-        builder.Services.AddSingleton<IAtnaLogDLQStore, FileBasedAtnaLogDLQStore>();
         builder.Services.AddSingleton<AtnaAuditLogDLQService>();
     }
 
@@ -89,10 +101,7 @@ public static class WebApplicationBuilderExtensions
 
     public static void RegisterPolicyEnforcementPointServices(this WebApplicationBuilder builder)
     {
-        var runningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inContainer) && inContainer;
-        var configuredRepositoryBackend = builder.Configuration["XdsConfiguration:RepositoryBackend"];
-        var s3Endpoint = builder.Configuration["S3:Endpoint"];
-        var useS3PolicyRepository = ShouldUseS3Repository(runningInContainer, configuredRepositoryBackend, s3Endpoint);
+        var useS3PolicyRepository = ShouldUseS3StorageBackend(builder);
 
         // Policy input builder and strategies
         builder.Services.AddScoped<PolicyInputBuilder>();
@@ -163,7 +172,7 @@ public static class WebApplicationBuilderExtensions
 
         var postgreSqlConnectionString = builder.Configuration.GetPostgreSqlConnectionString();
         var usePostgreSqlRegistry = ShouldUsePostgreSqlRegistry(runningInContainer, configuredRegistryBackend, postgreSqlConnectionString);
-        var useS3Repository = ShouldUseS3Repository(runningInContainer, configuredRepositoryBackend, s3Endpoint);
+        var useS3Repository = ShouldUseS3StorageBackend(builder);
 
         if (usePostgreSqlRegistry && string.IsNullOrWhiteSpace(postgreSqlConnectionString))
         {
@@ -224,8 +233,12 @@ public static class WebApplicationBuilderExtensions
         return string.IsNullOrWhiteSpace(postgreSqlConnectionString) == false;
     }
 
-    private static bool ShouldUseS3Repository(bool runningInContainer, string? configuredRepositoryBackend, string? s3Endpoint)
+    private static bool ShouldUseS3StorageBackend(WebApplicationBuilder builder)
     {
+        var runningInContainer = bool.TryParse(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"), out var inContainer) && inContainer;
+        var configuredRepositoryBackend = builder.Configuration["XdsConfiguration:RepositoryBackend"];
+        var s3Endpoint = builder.Configuration["S3:Endpoint"];
+
         if (string.Equals(configuredRepositoryBackend, "s3", StringComparison.OrdinalIgnoreCase))
             return true;
 

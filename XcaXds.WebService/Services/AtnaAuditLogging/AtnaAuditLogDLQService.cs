@@ -28,11 +28,11 @@ public class AtnaAuditLogDLQService
     public AuditEvent? GetLatestEvent()
     {
         var auditEvent = _atnaLogDLQStore.GetLatestEvent();
+        _hasItemsInQueue = true;
         if (auditEvent == null)
         {
             _hasItemsInQueue = false;
         }
-        _hasItemsInQueue = true;
         return auditEvent;
     }
 

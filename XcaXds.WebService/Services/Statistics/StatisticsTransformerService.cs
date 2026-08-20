@@ -59,17 +59,14 @@ public class StatisticsTransformerService
     {
         var jwt = JwtExtractor.ExtractJwt(inputFields.JwtToken, out _);
 
-        var fhirBundleRequest = Hl7FhirExtensions.GetResourceFromStream(inputFields.RequestBody) as Bundle;
-        var fhirBundleResponse = Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody) as Bundle;
+        var fhirBundleRequest = Hl7FhirExtensions.GetResourceFromStream(inputFields.RequestBody, out var requestIssues) as Bundle;
+        var fhirResourceResponse = Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody, out var responseIssues);
 
         var uploadedEntries = fhirBundleRequest?.Entry.Select(res => res.Resource).OfType<Binary>().ToList();
         var documentReference = fhirBundleRequest?.Entry.Select(res => res.Resource).OfType<DocumentReference>().ToList();
         var confidentialityCodes = documentReference?.SelectMany(dr => dr.SecurityLabel).SelectMany(sl => sl.Coding).Select(cd => new CodedValue(cd.Code, cd.System, cd.Display)).ToArray();
 
-        if (jwt == null && fhirBundleRequest == null)
-            throw new InvalidOperationException("JWT or Fhir Bundle cannot be null.");
-
-        var userAccessEntry = await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields, fhirBundleResponse);
+        var userAccessEntry = await GetUserAccessEntryFromFhirUrlBasedRequest(inputFields, fhirResourceResponse);
         userAccessEntry.UploadedEntries = uploadedEntries?.Count;
         userAccessEntry.DocumentConfidentialityCodes = confidentialityCodes;
 
@@ -92,7 +89,7 @@ public class StatisticsTransformerService
             .ToArrayOrNull();
     }
 
-    private async Task<UserAccessEntry> GetUserAccessEntryFromFhirUrlBasedRequest(StatisticsRequestAndFields inputFields, Resource? fhirBundleResponse = null)
+    private async Task<UserAccessEntry> GetUserAccessEntryFromFhirUrlBasedRequest(StatisticsRequestAndFields inputFields, Resource? fhirResourceResponse = null)
     {
         string? samlTokenIssuer = null;
         string? subjectIdHash = null;
@@ -115,7 +112,7 @@ public class StatisticsTransformerService
         {
             var samlToken = _jwtToSamlTransformerService.MapJsonWebTokenToSamlToken(jwt);
 
-            fhirBundleResponse ??= Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody);
+            fhirResourceResponse ??= Hl7FhirExtensions.GetResourceFromStream(inputFields.ResponseBody, out _);
 
             var statements = samlToken?.GetAllStatements();
 
@@ -160,16 +157,18 @@ public class StatisticsTransformerService
 
             DocumentConfidentialityCodes = inputFields.RelatedDocumentEntries?.SelectMany(d => d.ConfidentialityCode ?? []).ToArray(),
             Endpoint = inputFields.Path,
-            Success = GetSuccessTypeFromFhirResponse(fhirBundleResponse),
+            Success = GetSuccessTypeFromFhirResponse(fhirResourceResponse),
             ResponseStatusCode = inputFields.StatusCode,
             AccessTime = inputFields.AccessTime,
             ElapsedTimeMillis = inputFields.ElapsedMilliseconds,
-            Issues = GetIssuesFromFhirResponse(fhirBundleResponse)
+            Issues = GetIssuesFromFhirResponse(fhirResourceResponse)
         };
     }
 
     private static SuccessType GetSuccessTypeFromFhirResponse(Resource? resourceResponse)
     {
+        if (resourceResponse == null) return SuccessType.Failure;
+
         List<OperationOutcome> bundleOutcomes = resourceResponse is Bundle bundle
             ? bundle.Entry
                 .Select(ent => ent.Resource)

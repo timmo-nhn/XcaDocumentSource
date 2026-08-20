@@ -38,56 +38,48 @@ public class S3BasedPolicyRepository : IPolicyRepository
         _policyPrefix = _policyPrefix.Trim().Trim('/');
     }
 
-    public string GetPolicyRepositoryPath()
-    {
-        return $"s3://{_bucketName}/{_policyPrefix}";
-    }
-
     public PolicySet GetAllPolicies()
     {
         var policySet = new PolicySet();
         var policies = new List<AbacPolicy>();
 
-        lock (_lock)
+        ExecuteWithRetry(() =>
         {
-            ExecuteWithRetry(() =>
+            string? continuationToken = null;
+            do
             {
-                string? continuationToken = null;
-                do
+                var listResponse = _s3Client.ListObjectsV2Async(new ListObjectsV2Request()
                 {
-                    var listResponse = _s3Client.ListObjectsV2Async(new ListObjectsV2Request
+                    BucketName = _bucketName,
+                    Prefix = $"{_policyPrefix}/",
+                    ContinuationToken = continuationToken
+                }).GetAwaiter().GetResult();
+
+                foreach (var item in listResponse.S3Objects ?? [])
+                {
+                    if (string.IsNullOrWhiteSpace(item.Key) || item.Key.EndsWith("/", StringComparison.Ordinal))
+                        continue;
+
+                    using var getResponse = _s3Client.GetObjectAsync(new GetObjectRequest
                     {
                         BucketName = _bucketName,
-                        Prefix = $"{_policyPrefix}/",
-                        ContinuationToken = continuationToken
+                        Key = item.Key
                     }).GetAwaiter().GetResult();
 
-                    foreach (var item in listResponse.S3Objects ?? [])
+                    using var reader = new StreamReader(getResponse.ResponseStream);
+                    var json = reader.ReadToEnd();
+                    var policy = JsonSerializer.Deserialize<AbacPolicy>(json, Constants.JsonDefaultOptions.DefaultSettings);
+
+                    if (policy?.Id != null)
                     {
-                        if (string.IsNullOrWhiteSpace(item.Key) || item.Key.EndsWith("/", StringComparison.Ordinal))
-                            continue;
-
-                        using var getResponse = _s3Client.GetObjectAsync(new GetObjectRequest
-                        {
-                            BucketName = _bucketName,
-                            Key = item.Key
-                        }).GetAwaiter().GetResult();
-
-                        using var reader = new StreamReader(getResponse.ResponseStream);
-                        var json = reader.ReadToEnd();
-                        var policy = JsonSerializer.Deserialize<AbacPolicy>(json, Constants.JsonDefaultOptions.DefaultSettings);
-
-                        if (policy?.Id != null)
-                        {
-                            policies.Add(policy);
-                        }
+                        policies.Add(policy);
                     }
-
-                    continuationToken = listResponse.IsTruncated == true ? listResponse.NextContinuationToken : null;
                 }
-                while (!string.IsNullOrWhiteSpace(continuationToken));
-            });
-        }
+
+                continuationToken = listResponse.IsTruncated == true ? listResponse.NextContinuationToken : null;
+            }
+            while (!string.IsNullOrWhiteSpace(continuationToken));
+        });
 
         policySet.Policies = policies;
         _logger.LogInformation("Successfully read {count} policies from S3 policy repository", policies.Count);
@@ -106,19 +98,16 @@ public class S3BasedPolicyRepository : IPolicyRepository
         var key = BuildPolicyKey(sanitizedPolicyId);
         var payload = JsonSerializer.Serialize(policyDto, Constants.JsonDefaultOptions.DefaultSettings);
 
-        lock (_lock)
+        ExecuteWithRetry(() =>
         {
-            ExecuteWithRetry(() =>
+            _s3Client.PutObjectAsync(new PutObjectRequest
             {
-                _s3Client.PutObjectAsync(new PutObjectRequest
-                {
-                    BucketName = _bucketName,
-                    Key = key,
-                    ContentBody = payload,
-                    ContentType = "application/json"
-                }).GetAwaiter().GetResult();
-            });
-        }
+                BucketName = _bucketName,
+                Key = key,
+                ContentBody = payload,
+                ContentType = "application/json"
+            }).GetAwaiter().GetResult();
+        });
 
         return true;
     }
@@ -134,43 +123,37 @@ public class S3BasedPolicyRepository : IPolicyRepository
 
         var key = BuildPolicyKey(sanitizedPolicyId);
 
-        lock (_lock)
+        ExecuteWithRetry(() =>
         {
-            ExecuteWithRetry(() =>
+            _s3Client.DeleteObjectAsync(new DeleteObjectRequest
             {
-                _s3Client.DeleteObjectAsync(new DeleteObjectRequest
-                {
-                    BucketName = _bucketName,
-                    Key = key
-                }).GetAwaiter().GetResult();
-            });
-        }
+                BucketName = _bucketName,
+                Key = key
+            }).GetAwaiter().GetResult();
+        });
 
         return true;
     }
 
     public bool DeleteAllPolicies()
     {
-        lock (_lock)
+        ExecuteWithRetry(() =>
         {
-            ExecuteWithRetry(() =>
+            var keysToDelete = ListAllPolicyKeys();
+            if (keysToDelete.Count == 0)
+                return;
+
+            foreach (var chunk in keysToDelete.Chunk(1000))
             {
-                var keysToDelete = ListAllPolicyKeys();
-                if (keysToDelete.Count == 0)
-                    return;
-
-                foreach (var chunk in keysToDelete.Chunk(1000))
+                var deleteRequest = new DeleteObjectsRequest
                 {
-                    var deleteRequest = new DeleteObjectsRequest
-                    {
-                        BucketName = _bucketName,
-                        Objects = chunk.Select(key => new KeyVersion { Key = key }).ToList()
-                    };
+                    BucketName = _bucketName,
+                    Objects = chunk.Select(key => new KeyVersion { Key = key }).ToList()
+                };
 
-                    _s3Client.DeleteObjectsAsync(deleteRequest).GetAwaiter().GetResult();
-                }
-            });
-        }
+                _s3Client.DeleteObjectsAsync(deleteRequest).GetAwaiter().GetResult();
+            }
+        });
 
         return true;
     }
@@ -202,9 +185,9 @@ public class S3BasedPolicyRepository : IPolicyRepository
                 ContinuationToken = continuationToken
             }).GetAwaiter().GetResult();
 
-            keys.AddRange(listResponse.S3Objects
+            keys.AddRange(listResponse.S3Objects?
                 .Where(item => !string.IsNullOrWhiteSpace(item.Key) && !item.Key.EndsWith("/", StringComparison.Ordinal))
-                .Select(item => item.Key));
+                .Select(item => item.Key) ?? []);
 
             continuationToken = listResponse.IsTruncated == true ? listResponse.NextContinuationToken : null;
         }
@@ -225,23 +208,26 @@ public class S3BasedPolicyRepository : IPolicyRepository
 
     private void ExecuteWithRetry(Action action, int retries = 3)
     {
-        for (var attempt = 1; attempt <= retries; attempt++)
+        lock (_lock)
         {
-            try
+            for (var attempt = 1; attempt <= retries; attempt++)
             {
-                _logger.LogInformation("RetryLogic Attempt {attempt}/{maxAttempts}", attempt, retries);
-                action();
-                return;
-            }
-            catch (AmazonS3Exception ex) when (IsNoSuchBucket(ex))
-            {
-                _logger.LogWarning("S3 policy bucket '{bucketName}' does not exist. Continuing with an empty policy set.", _bucketName);
-            }
-            catch (AmazonS3Exception ex)
-            {
-                _logger.LogError(ex, "S3 policy repository operation failed on attempt {attempt}/{maxAttempts}", attempt, retries);
-                if (attempt == retries) throw;
-                Thread.Sleep(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
+                try
+                {
+                    _logger.LogInformation("RetryLogic Attempt {attempt}/{maxAttempts}", attempt, retries);
+                    action();
+                    return;
+                }
+                catch (AmazonS3Exception ex) when (IsNoSuchBucket(ex))
+                {
+                    _logger.LogWarning("S3 policy bucket '{bucketName}' does not exist. Continuing with an empty policy set.", _bucketName);
+                }
+                catch (AmazonS3Exception ex)
+                {
+                    _logger.LogError(ex, "S3 policy repository operation failed on attempt {attempt}/{maxAttempts}", attempt, retries);
+                    if (attempt == retries) throw;
+                    Thread.Sleep(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
+                }
             }
         }
     }

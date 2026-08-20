@@ -1,6 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using XcaXds.Commons.Commons;
+using System.Text;
 using XcaXds.Commons.DataManipulators.Fhir;
 using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom;
@@ -35,11 +35,45 @@ public class FhirProvideBundleAtnaLogStrategy : IAtnaLogStrategy
 
         var requestString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(requestBody) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Request stream is null!");
         var responseString = await HttpRequestResponseExtensions.GetStreamAsStringAsync(responseBody) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Response stream is null!");
-        
+
         var fhirParser = new FhirJsonDeserializer();
 
-        var fhirBundle = fhirParser.Deserialize<Bundle>(requestString) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Input is not valid FHIR Bundle");
-        var fhirResponse = fhirParser.Deserialize<Resource>(responseString) ?? throw new InvalidOperationException($"{context.TraceIdentifier} - Input is not valid FHIR Bundle");
+        var fhirBundle = fhirParser.TryTryDeserializeResource(requestString, out var bundle, out var requestIssues) ? bundle as Bundle : null;
+        var fhirResponse = fhirParser.TryTryDeserializeResource(responseString, out var response, out var responseIssues) ? response : null;
+
+        if (requestIssues.Any())
+        {
+            var allErrors = requestIssues.Concat(responseIssues).Select(iss => iss.Message);
+            var operationOutcome = fhirResponse as OperationOutcome;
+
+            if (operationOutcome != null)
+            {
+                foreach (var item in allErrors)
+                {
+                    operationOutcome.Issue.Add(new()
+                    {
+                        Severity = OperationOutcome.IssueSeverity.Error,
+                        Code = OperationOutcome.IssueType.Invalid,
+                        Diagnostics = item
+                    });
+                }
+
+                // Write the updated OperationOutcome back to the buffered response body
+                // so the enriched issues are included in the response sent to the client
+                var updatedResponseBytes = new FhirJsonSerializer().SerializeToBytes(operationOutcome);
+
+                responseBody.SetLength(0);
+                await responseBody.WriteAsync(updatedResponseBytes);
+                responseBody.Seek(0, SeekOrigin.Begin);
+
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.ContentLength = updatedResponseBytes.Length;
+                }
+            }
+
+            return AtnaLogBuilderResult.Fail($"{context.TraceIdentifier} - error while parsing fhir request or response\n {string.Join('\n', allErrors)}");
+        }
 
         // HttpContext-Items returned from FhirMobileAccessToHealthDocumentsController is almost a complete ITI-41 request,
         // since it uses the same services as Xds Registry/Repository based stuff,

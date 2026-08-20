@@ -62,12 +62,17 @@ public class AtnaLogExporterService : BackgroundService
             {
                 _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint);
                 _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
+
                 await HandleDlq(auditEvent, fromDlq);
+
                 return true;
             }
             else
             {
-                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {responseBody}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint, response.StatusCode, responseBody);
+                var deserializer = new FhirJsonDeserializer();
+                var operationOutcome = deserializer.Deserialize<OperationOutcome>(responseBody);
+                
+                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -84,13 +89,14 @@ public class AtnaLogExporterService : BackgroundService
             if (_lastAuditEvent != null)
             {
                 var response = _auditLogDLQService.StoreAuditEvent(_lastAuditEvent);
-            }   
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception in AuditLogExporterService. Audit log is not being exported!");
             throw;
         }
+
         return false;
     }
 
@@ -98,14 +104,14 @@ public class AtnaLogExporterService : BackgroundService
     {
         var processingQueue = _auditLogDLQService.HasItemsInQueue() && fromDlq == false;
 
-        if (_auditLogDLQService.HasItemsInQueue() && fromDlq == false)
+        if (processingQueue)
         {
             _logger.LogInformation("There are items in the DLQ. Releasing events for export.");
 
             while (_auditLogDLQService.GetLatestEvent() is { } dlqEvent)
             {
                 var exportSuccess = await ExportAuditEvent(dlqEvent, CancellationToken.None, true);
-                if(exportSuccess) _auditLogDLQService.DeleteLatestEvent();
+                if (exportSuccess) _auditLogDLQService.DeleteLatestEvent();
             }
         }
     }

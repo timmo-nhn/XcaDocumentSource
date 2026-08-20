@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Hl7.Fhir.Utility;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Hl7.DataType;
@@ -8,8 +9,9 @@ namespace XcaXds.Commons.Extensions;
 
 public static class Hl7FhirExtensions
 {
-    public static Resource? GetResourceFromStream(Stream? requestBody)
+    public static Resource? GetResourceFromStream(Stream? requestBody, out IEnumerable<CodedException> issues)
     {
+        issues = [];
         if (requestBody == null) return null;
 
         var fhirparser = new FhirJsonDeserializer();
@@ -17,7 +19,7 @@ public static class Hl7FhirExtensions
         using var reader = new StreamReader(requestBody, leaveOpen: true);
         var json = reader.ReadToEnd();
         requestBody.Seek(0, SeekOrigin.Begin);
-        return fhirparser.TryDeserializeResource(json, out var instance, out _) ? instance : null;
+        return fhirparser.TryTryDeserializeResource(json, out var instance, out issues) ? instance : null;
     }
 
     public static DateRange GetDateTimeRangeFromDateParameters(string timingAndDate)
@@ -96,5 +98,23 @@ public static class Hl7FhirExtensions
             PatientName = new XPN(patientInfo.FirstName, patientInfo.LastName),
             BirthDate = patientInfo.BirthTime.HasValue ? patientInfo.BirthTime.Value : DateTime.MinValue,
         };
+    }
+
+    /// <summary>
+    /// Actual Try-catch overload for deserialization
+    /// </summary>
+    public static bool TryTryDeserializeResource(this FhirJsonDeserializer fhirJsonDeserializer, string json, out Resource? instance, out IEnumerable<CodedException> issues)
+    {
+        instance = null;
+        issues = new List<CodedException>();
+        try
+        {
+            return fhirJsonDeserializer.TryDeserializeResource(json, out instance, out issues);
+        }
+        catch (Exception ex)
+        {
+            issues = [.. issues, new(ex.GetType().Name ?? "Exception", ex.Message + "\nSource: " + ex.Source)];
+            return false;
+        }
     }
 }

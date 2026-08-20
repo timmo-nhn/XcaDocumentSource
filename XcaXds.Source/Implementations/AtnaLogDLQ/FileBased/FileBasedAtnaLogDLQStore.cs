@@ -52,16 +52,6 @@ public class FileBasedAtnaLogDLQStore : IAtnaLogDLQStore
         return serializer.Deserialize<AuditEvent>(firstFileContent);
     }
 
-    public AuditEvent[] GetAllEventsInQueue()
-    {
-        var events = new List<AuditEvent>();
-        while (GetLatestEvent() is { } auditEvent)
-        {
-            events.Add(auditEvent);
-        }
-        return events.ToArray();
-    }
-
     public OperationResponse StoreAuditEvent(AuditEvent auditEvent)
     {
         var fileName = auditEvent.Id + "__" + DateTime.UtcNow.ToString("ddMMyyHHmmss");

@@ -136,7 +136,7 @@ public class RequestStatisticsMiddleware
 
     private DocumentEntryDto[]? GetDocumentEntriesRelatedToRequest(HttpContext context, Stream? requestBody, RequestAndFieldRequestType requestType)
     {
-        var fhirBundle = requestType == RequestAndFieldRequestType.FhirProvideBundle ? Hl7FhirExtensions.GetResourceFromStream(requestBody) as Bundle : null;
+        var fhirBundle = requestType == RequestAndFieldRequestType.FhirProvideBundle ? Hl7FhirExtensions.GetResourceFromStream(requestBody, out var issues) as Bundle : null;
         var documentEntriesFromBundle = GetDocumentEntriesFromBundle(fhirBundle);
 
         var deletedRegistryObjects = (context.Items.TryGetValue("deletedRegistryObjects", out var entry) ? entry as List<DocumentEntryDto> : []) ?? [];

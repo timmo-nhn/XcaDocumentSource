@@ -1,28 +1,149 @@
-﻿using Hl7.Fhir.Model;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Source.Implementations.Repository.S3;
 
 namespace XcaXds.Source.Implementations.AtnaLogDLQ.S3;
 
 public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
 {
-    public void DeleteLatestEvent()
+    private readonly ILogger<S3BasedAtnaLogDLQStore> _logger;
+    private readonly IAmazonS3 _s3Client;
+    private readonly string _bucketName;
+
+    private readonly object _lock = new object();
+
+    public S3BasedAtnaLogDLQStore(ILogger<S3BasedAtnaLogDLQStore> logger, IConfiguration configuration)
     {
-        throw new NotImplementedException();
+        _logger = logger;
+        var s3Configuration = S3StorageConfiguration.FromConfiguration(configuration);
+        _bucketName = s3Configuration.AuditLogDlqBucket;
+        _s3Client = s3Configuration.CreateClient();
+        S3StorageConfiguration.EnsureBucketExists(_s3Client, _bucketName);
     }
 
-    public AuditEvent[] GetAllEventsInQueue()
+    public void DeleteLatestEvent()
     {
-        throw new NotImplementedException();
+        using var getResponse = GetLatestObject();
+
+        if (getResponse == null) return;
+
+        ExecuteWithRetry(() =>
+        {
+            _s3Client.DeleteObjectAsync(new DeleteObjectRequest
+            {
+                BucketName = _bucketName,
+                Key = getResponse.Key
+            }).GetAwaiter().GetResult();
+        });
     }
 
     public AuditEvent? GetLatestEvent()
     {
-        throw new NotImplementedException();
+        using var getResponse = GetLatestObject();
+
+        if (getResponse == null || getResponse.ResponseStream == null) return null;
+
+        using var reader = new StreamReader(getResponse.ResponseStream);
+        var json = Regex.Unescape(reader.ReadToEnd()).Trim('"'); // Unescape unicode encoding from S3 storage (/u0022 and such)
+        var deserializer = new FhirJsonDeserializer();
+        return deserializer.Deserialize<AuditEvent>(json);
     }
 
     public OperationResponse StoreAuditEvent(AuditEvent auditEvent)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(auditEvent, nameof(auditEvent));
+        var serializer = new FhirJsonSerializer();
+
+        var key = auditEvent.Id;
+        var payload = JsonSerializer.Serialize(serializer.SerializeToString(auditEvent));
+
+        ExecuteWithRetry(() =>
+        {
+            _s3Client.PutObjectAsync(new PutObjectRequest()
+            {
+                BucketName = _bucketName,
+                Key = key,
+                ContentBody = payload,
+                ContentType = "application/json"
+            }).GetAwaiter().GetResult();
+        });
+
+        return OperationResponse.Success("Successfully stored AuditEvent");
     }
+
+    public GetObjectResponse? GetLatestObject()
+    {
+        GetObjectResponse? getResponse = null;
+        string? continuationToken = null;
+
+        do
+        {
+            var listResponse = _s3Client.ListObjectsV2Async(new ListObjectsV2Request()
+            {
+                BucketName = _bucketName,
+                ContinuationToken = continuationToken
+
+            }).GetAwaiter().GetResult();
+
+            var firstItem = listResponse.S3Objects?.FirstOrDefault();
+
+            if (firstItem == null) return null;
+
+            // Dispose the response from the previous page before fetching the next one.
+            // The final response is returned undisposed - the caller owns it.
+            getResponse?.Dispose();
+
+            getResponse = _s3Client.GetObjectAsync(new GetObjectRequest()
+            {
+                BucketName = _bucketName,
+                Key = firstItem.Key
+            }).GetAwaiter().GetResult();
+
+            continuationToken = listResponse.IsTruncated == true ? listResponse.NextContinuationToken : null;
+
+        } while (!string.IsNullOrWhiteSpace(continuationToken));
+
+        return getResponse;
+    }
+
+    private void ExecuteWithRetry(Action action, int retries = 3)
+    {
+        lock (_lock)
+        {
+            for (var attempt = 1; attempt <= retries; attempt++)
+            {
+                try
+                {
+                    _logger.LogInformation("RetryLogic Attempt {attempt}/{maxAttempts}", attempt, retries);
+                    action();
+                    return;
+                }
+                catch (AmazonS3Exception ex) when (IsNoSuchBucket(ex))
+                {
+                    _logger.LogWarning("S3 policy bucket '{bucketName}' does not exist. Continuing with an empty policy set.", _bucketName);
+                }
+                catch (AmazonS3Exception ex)
+                {
+                    _logger.LogError(ex, "S3 policy repository operation failed on attempt {attempt}/{maxAttempts}", attempt, retries);
+                    if (attempt == retries) throw;
+                    Thread.Sleep(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
+                }
+            }
+        }
+    }
+
+    private static bool IsNoSuchBucket(AmazonS3Exception ex)
+    {
+        return string.Equals(ex.ErrorCode, "NoSuchBucket", StringComparison.OrdinalIgnoreCase)
+               || ex.StatusCode == System.Net.HttpStatusCode.NotFound;
+    }
+
 }

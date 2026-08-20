@@ -279,7 +279,7 @@ public class IntegrationTests_FhirMobileAccessToHealthDocuments : IntegrationTes
         Assert.Equal(1, CountOccurrences(responseGatewayContent, "<Slot name=\"authorPerson\">"));
         Assert.Equal(1, CountOccurrences(responseGatewayContent, "<Slot name=\"authorInstitution\">"));
         Assert.Contains("OSLO KOMMUNE HELSEETATEN LEGEVAKTEN I", responseGatewayContent);
-        Assert.Contains("Allmennlegevakten", responseGatewayContent);
+        Assert.Contains("Allmenlegevakten", responseGatewayContent);
 
         //var expectedRegistryObjects = BusinessLogicFiltersRegistry.FilterByConfidentiality(RegistryContent.AsRegistryObjectList(), [Normal, Restricted, VeryRestricted]).ToArray();
 

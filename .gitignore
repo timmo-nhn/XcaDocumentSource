@@ -10,6 +10,8 @@
 *.userosscache
 *.sln.docstates
 XcaXds.Source/Registry/Registry.db
+XcaXds.Source/AtnaLogDLQ/*
+!XcaXds.Source/AtnaLogDLQ/.gitkeep
 XcaXds.Source/Repository/*
 !XcaXds.Source/Repository/.gitkeep
 XcaXds.Source/PolicyRepository/*
