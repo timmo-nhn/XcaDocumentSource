@@ -147,7 +147,7 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
     private string BuildKey(string? id)
     {
         // Id will probably never be null, but we also dont care because this is a FIFO queue
-        return $"_atnalogPrefix/{id ?? Guid.NewGuid().ToString()}";
+        return $"{_atnalogPrefix}/{id ?? Guid.NewGuid().ToString()}";
     }
 
     private static bool IsNoSuchBucket(AmazonS3Exception ex)
