@@ -133,7 +133,6 @@ public static class MultipartExtensions
         return await ReadMultipartSoapMessage(stream, contentTypeHeader);
     }
 
-
     private static async Task<SoapEnvelopeMultipartResponse> GetSoapEnvelopeMultipartSections(MultipartReader multipartReader)
     {
         var sxmls = new SoapXmlSerializer();
