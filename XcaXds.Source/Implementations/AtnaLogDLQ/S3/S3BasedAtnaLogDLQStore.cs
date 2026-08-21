@@ -19,7 +19,6 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
     private readonly IAmazonS3 _s3Client;
     private readonly string _bucketName;
     private readonly string _atnalogPrefix = "atnaLogDlq";
-
     private readonly object _lock = new object();
 
     public S3BasedAtnaLogDLQStore(ILogger<S3BasedAtnaLogDLQStore> logger, IConfiguration configuration)
