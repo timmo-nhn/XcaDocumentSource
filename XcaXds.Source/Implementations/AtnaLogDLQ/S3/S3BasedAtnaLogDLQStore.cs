@@ -24,7 +24,7 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
     {
         _logger = logger;
         var s3Configuration = S3StorageConfiguration.FromConfiguration(configuration);
-        _bucketName = s3Configuration.AuditLogDlqBucket;
+        _bucketName = s3Configuration.AtnaLogDlqBucket;
         _s3Client = s3Configuration.CreateClient();
         S3StorageConfiguration.EnsureBucketExists(_s3Client, _bucketName);
     }

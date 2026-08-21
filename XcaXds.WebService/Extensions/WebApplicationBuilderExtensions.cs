@@ -42,9 +42,9 @@ public static class WebApplicationBuilderExtensions
 {
     public static void RegisterAuditLoggingServices(this WebApplicationBuilder builder)
     {
-        var useS3Repository = ShouldUseS3StorageBackend(builder);
+        var useS3DlqStore = ShouldUseS3StorageBackend(builder);
 
-        if (useS3Repository)
+        if (useS3DlqStore)
         {
             builder.Services.AddSingleton<IAtnaLogDLQStore, S3BasedAtnaLogDLQStore>();
         }

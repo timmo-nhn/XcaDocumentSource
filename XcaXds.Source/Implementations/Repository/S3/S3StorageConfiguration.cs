@@ -10,7 +10,7 @@ namespace XcaXds.Source.Implementations.Repository.S3;
 internal sealed class S3StorageConfiguration
 {
     public required string RepositoryBucket { get; init; }
-    public required string AuditLogDlqBucket { get; init; }
+    public required string AtnaLogDlqBucket { get; init; }
     public required string PolicyBucket { get; init; }
     public required string Region { get; init; }
     public string? Endpoint { get; init; }
@@ -21,7 +21,7 @@ internal sealed class S3StorageConfiguration
     public static S3StorageConfiguration FromConfiguration(IConfiguration configuration)
     {
         var repositoryBucket = GetRequiredConfigurationValue(configuration, "S3:RepositoryBucket", "S3__RepositoryBucket", "S3_REPOSITORY_BUCKET");
-        var auditLogDlqBucket = GetRequiredConfigurationValue(configuration, "S3:AuditlogDlqBucket", "S3__AuditlogDlqBucket", "S3_AUDITLOGDLQ_BUCKET");
+        var atnaLogDlqBucket = GetRequiredConfigurationValue(configuration, "S3:AtnalogDlqBucket", "S3__AtnalogDlqBucket", "S3_ATNALOGDLQ_BUCKET");
         var policyBucket = GetRequiredConfigurationValue(configuration, "S3:PolicyBucket", "S3__PolicyBucket", "S3_POLICY_BUCKET");
         var region = GetOptionalConfigurationValue(configuration, "S3:Region", "S3__Region", "S3_REGION") ?? "eu-west-1";
         var endpoint = GetOptionalConfigurationValue(configuration, "S3:Endpoint", "S3__Endpoint", "S3_ENDPOINT");
@@ -35,7 +35,7 @@ internal sealed class S3StorageConfiguration
         {
             RepositoryBucket = repositoryBucket,
             PolicyBucket = policyBucket,
-            AuditLogDlqBucket = auditLogDlqBucket,
+            AtnaLogDlqBucket = atnaLogDlqBucket,
             Region = region,
             Endpoint = endpoint,
             AccessKey = accessKey,
