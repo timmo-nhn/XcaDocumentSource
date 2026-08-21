@@ -43,6 +43,9 @@ jobs:
         env:
           TRIVY_USERNAME: ${{ secrets.HARBOR_USER }}
           TRIVY_PASSWORD: ${{ secrets.HARBOR_TOKEN }}
+          # Fallback chain for the vulnerability DB; public.ecr.aws first since
+          # mirror.gcr.io can serve stale blobs and ghcr.io denies the Harbor credentials above
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2,mirror.gcr.io/aquasec/trivy-db:2,ghcr.io/aquasecurity/trivy-db:2
         run: |
           trivy image \
             --severity CRITICAL \
