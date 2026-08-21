@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Source.Implementations.Repository.S3;
@@ -57,7 +58,15 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
         _logger.LogInformation("Got item {key} from DLQ", getResponse.Key);
         
         using var reader = new StreamReader(getResponse.ResponseStream);
-        var json = Regex.Unescape(reader.ReadToEnd()).Trim('"'); // Unescape unicode encoding from S3 storage (/u0022 and such)
+        string? json = null;
+        
+        // Unescape unicode encoding from S3 storage (/u0022 and such)
+        if (!GlobalExtensions.TryThis(() => json = Regex.Unescape(reader.ReadToEnd()).Trim('"'), out var exception) && exception != null) 
+        {
+            _logger.LogError("Error while unescaping event with Id: {id}, deleting\nexception: {ex}",getResponse.Key, exception.ToString());
+            DeleteLatestEvent();
+        }
+
         var deserializer = new FhirJsonDeserializer();
         return deserializer.Deserialize<AuditEvent>(json);
     }
