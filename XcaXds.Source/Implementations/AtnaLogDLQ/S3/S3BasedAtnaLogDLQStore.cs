@@ -36,8 +36,8 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
 
         if (getResponse == null) return;
 
-        var key = BuildKey(getResponse.Key);
-        
+        var key = getResponse.Key;
+
         ExecuteWithRetry(() =>
         {
             _s3Client.DeleteObjectAsync(new DeleteObjectRequest
