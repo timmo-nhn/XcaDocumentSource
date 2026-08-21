@@ -17,6 +17,7 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
     private readonly ILogger<S3BasedAtnaLogDLQStore> _logger;
     private readonly IAmazonS3 _s3Client;
     private readonly string _bucketName;
+    private readonly string _atnalogPrefix = "atnaLogDlq";
 
     private readonly object _lock = new object();
 
@@ -35,12 +36,14 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
 
         if (getResponse == null) return;
 
+        var key = BuildKey(getResponse.Key);
+        
         ExecuteWithRetry(() =>
         {
             _s3Client.DeleteObjectAsync(new DeleteObjectRequest
             {
                 BucketName = _bucketName,
-                Key = getResponse.Key
+                Key = key
             }).GetAwaiter().GetResult();
         });
     }
@@ -62,7 +65,7 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
         ArgumentNullException.ThrowIfNull(auditEvent, nameof(auditEvent));
         var serializer = new FhirJsonSerializer();
 
-        var key = auditEvent.Id;
+        var key = BuildKey(auditEvent.Id);
         var payload = JsonSerializer.Serialize(serializer.SerializeToString(auditEvent));
 
         ExecuteWithRetry(() =>
@@ -84,11 +87,12 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
         GetObjectResponse? getResponse = null;
         string? continuationToken = null;
 
-        do
+        do 
         {
             var listResponse = _s3Client.ListObjectsV2Async(new ListObjectsV2Request()
             {
                 BucketName = _bucketName,
+                Prefix = $"{_atnalogPrefix}/",
                 ContinuationToken = continuationToken
 
             }).GetAwaiter().GetResult();
@@ -138,6 +142,12 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
                 }
             }
         }
+    }
+
+    private string BuildKey(string? id)
+    {
+        // Id will probably never be null, but we also dont care because this is a FIFO queue
+        return $"_atnalogPrefix/{id ?? Guid.NewGuid().ToString()}";
     }
 
     private static bool IsNoSuchBucket(AmazonS3Exception ex)
