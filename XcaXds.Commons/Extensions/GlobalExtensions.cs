@@ -2,18 +2,21 @@
 
 public static class GlobalExtensions
 {
-    public static bool TryThis(Action action, out Exception? exception)
+    public static TResult? TryThis<TResult>(Func<TResult?> action, out bool success, out Exception? exception)
     {
+        success = false;
         exception = null;
         try
         {
-            action();
-            return true;
+            var result = action();
+            success = true;
+            return result;
         }
         catch (Exception ex)
         {
             exception = ex;
-            return false;
+            success = false;
+            return default;
         }
     }
 

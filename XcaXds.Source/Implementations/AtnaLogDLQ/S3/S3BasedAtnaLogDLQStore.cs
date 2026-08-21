@@ -51,23 +51,30 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
     public AuditEvent? GetLatestEvent()
     {
         using var getResponse = GetLatestObject();
-        
+
         if (getResponse == null || getResponse.ResponseStream == null) return null;
 
         _logger.LogInformation("Got item {key} from DLQ", getResponse.Key);
-        
+
         using var reader = new StreamReader(getResponse.ResponseStream);
         string? json = null;
-        
+
         // Unescape unicode encoding from S3 storage (/u0022 and such)
-        if (!GlobalExtensions.TryThis(() => json = Regex.Unescape(reader.ReadToEnd()).Trim('"'), out var exception) && exception != null) 
+        var auditEvent = GlobalExtensions.TryThis(() =>
         {
-            _logger.LogError("Error while unescaping event with Id: {id}, deleting\nexception: {ex}",getResponse.Key, exception.ToString());
+            var deserializer = new FhirJsonDeserializer();
+            var jsonUnescaped = Regex.Unescape(reader.ReadToEnd()).Trim('"');
+            return deserializer.Deserialize<AuditEvent>(jsonUnescaped);
+        }, out var success, out var exception);
+
+        if (!success && exception != null)
+        {
+            _logger.LogError("Error while unescaping event with Id: {id}, deleting\nExceptionType (Debug log will show full exception): {ex}", getResponse.Key, exception.GetType().Name);
+            _logger.LogDebug("Full exception\n {ex}", exception.ToString());
             DeleteLatestEvent();
         }
-
-        var deserializer = new FhirJsonDeserializer();
-        return deserializer.Deserialize<AuditEvent>(json);
+     
+        return auditEvent;
     }
 
     public OperationResponse StoreAuditEvent(AuditEvent auditEvent)
@@ -97,7 +104,7 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
         GetObjectResponse? getResponse = null;
         string? continuationToken = null;
 
-        do 
+        do
         {
             var listResponse = _s3Client.ListObjectsV2Async(new ListObjectsV2Request()
             {
