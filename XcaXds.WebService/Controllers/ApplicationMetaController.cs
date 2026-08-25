@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using XcaInteropService.Commons.Enums;
 using XcaInteropService.Commons.Models.Custom;
@@ -216,7 +217,7 @@ public class ApplicationMetaController : ControllerBase
 
     [RequiresApiKey]
     [HttpGet("generate-random-test-data")]
-    public async Task<IActionResult> GenerateRandomTestData([FromQuery] int entriesToGenerate, [FromQuery] string? patientIdentifier, [FromQuery] bool association = true, [FromQuery] bool submissionSet = true, [FromQuery] bool documentEntry = true, [FromQuery] bool document = true)
+    public async Task<IActionResult> GenerateRandomTestData([FromQuery] int entriesToGenerate, [FromQuery] string? patientIdentifier, [FromQuery] bool includeAssociation = true, [FromQuery] bool includeSubmissionSet = true, [FromQuery] bool includeDocumentEntry = true, [FromQuery] bool includeDocument = true)
     {
         if (!await _featureManager.IsEnabledAsync("ApplicationMetaEndpoints_Debug")) return NotFound();
         var response = new RestfulApiResponse();
@@ -230,15 +231,25 @@ public class ApplicationMetaController : ControllerBase
             .AsHl7Pid().Serialize();
 
         var generatedRegistryObjects = TestHelpers.GenerateComprehensiveRegistryMetadata(entriesToGenerate, existingPatientPidObject ?? patientIdentifierCx?.Serialize() ?? patientIdentifier, false);
+
+        // Normalize generated entries with application config
+        generatedRegistryObjects.ForEach(gro => 
+        {
+            if (gro.DocumentEntry == null || gro.SubmissionSet == null) return;
+            gro.DocumentEntry.HomeCommunityId = _appConfig.HomeCommunityId;
+            gro.DocumentEntry.RepositoryUniqueId = _appConfig.RepositoryUniqueId;
+            gro.SubmissionSet.HomeCommunityId = _appConfig.HomeCommunityId;
+        });
+
         _logger.LogInformation("Generated {count} registry objects", generatedRegistryObjects.Count());
 
         generatedRegistryObjects = generatedRegistryObjects.Select(ro =>
         new DocumentReferenceDto()
         {
-            Association = association ? ro.Association : null,
-            DocumentEntry = documentEntry ? ro.DocumentEntry : null,
-            Document = document ? ro.Document : null,
-            SubmissionSet = submissionSet ? ro.SubmissionSet : null
+            Association = includeAssociation ? ro.Association : null,
+            DocumentEntry = includeDocumentEntry ? ro.DocumentEntry : null,
+            Document = includeDocument ? ro.Document : null,
+            SubmissionSet = includeSubmissionSet ? ro.SubmissionSet : null
         }).ToList();
 
         return Ok(RegistryJsonSerializer.Serialize(generatedRegistryObjects));
