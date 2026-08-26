@@ -6,7 +6,6 @@ using System.Diagnostics;
 using XcaXds.Commons.Attributes;
 using XcaXds.Commons.Commons;
 using XcaXds.Commons.DataManipulators;
-using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
@@ -214,7 +213,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json", "application/xml")]
     [HttpGet("document-entry")]
-    public async Task<IActionResult> GetDocumentEntry(string? id, RestfulDocumentEntryReturnType returnType)
+    public async Task<IActionResult> GetDocumentEntry(string? id, RestfulDocumentEntryReturnType returnType, bool includeDocument)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
@@ -249,11 +248,11 @@ public class RestfulRegistryRepositoryController : ControllerBase
             Association = association,
             DocumentEntry = documentEntry,
             SubmissionSet = submissionSet,
-            Document = new()
+            Document = includeDocument ? new()
             {
                 Data = _repositoryWrapper.GetDocumentFromRepository(documentEntry?.HomeCommunityId, documentEntry?.RepositoryUniqueId, documentEntry?.UniqueId, out _),
                 DocumentId = documentEntry?.UniqueId
-            }
+            } : null
         };
         var registryObjectList = RegistryMetadataTransformerService.TransformDocumentReferenceDtoToRegistryObjectsStateless(documentReference);
 
@@ -273,7 +272,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
                 break;
 
             case RestfulDocumentEntryReturnType.EbRim:
-                
+
                 var sxmls = new SoapXmlSerializer();
                 var content = sxmls.SerializeSoapMessageToXmlString(registryObjectList).Content;
 
@@ -286,12 +285,12 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
             case RestfulDocumentEntryReturnType.Fhir:
                 var documentReferenceList = _xdsOnFhirTransformerService.GetFhirDocumentReferencesFromRegistryObjects(registryObjectList);
-                
+
                 var bundle = new Bundle();
 
                 foreach (var abbe in documentReferenceList)
                 {
-                    bundle.Entry.Add(new() { Resource = abbe});
+                    bundle.Entry.Add(new() { Resource = abbe });
                 }
 
                 var fhirParser = new FhirJsonSerializer();
