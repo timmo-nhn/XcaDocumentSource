@@ -18,6 +18,7 @@ using XcaXds.Tests.FakesAndDoubles;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService;
 using XcaXds.WebService.Services;
+using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.Fhir;
 using XcaXds.WebService.Services.PolicyEnforcementPoint.Policy;
 using XcaXds.WebService.Services.XdsRegistry;

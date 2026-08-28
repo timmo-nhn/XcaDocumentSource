@@ -73,7 +73,7 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
             _logger.LogDebug("Full exception\n {ex}", exception.ToString());
             DeleteLatestEvent();
         }
-     
+
         return auditEvent;
     }
 
@@ -96,6 +96,7 @@ public class S3BasedAtnaLogDLQStore : IAtnaLogDLQStore
             }).GetAwaiter().GetResult();
         });
 
+        _logger.LogInformation("Successfully stored AuditEvent in DLQ");
         return OperationResponse.Success("Successfully stored AuditEvent");
     }
 
