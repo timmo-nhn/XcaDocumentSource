@@ -46,34 +46,40 @@ public class AtnaLogExporterService : BackgroundService
     {
         try
         {
-            var serializer = new FhirJsonSerializer();
-            var auditEventJson = serializer.SerializeToString(auditEvent, true);
-            _logger.LogDebug("Created FHIR AuditEvent: \n" + auditEventJson);
-
-            var client = _httpClientFactory.CreateClient();
-
-            var endpointUrl = $"{_appConfig.AtnaLogExporterEndpoint}";
-
-            var response = await client.PostAsync(endpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
-
-            var responseBody = await response.Content.ReadAsStringAsync(CancellationToken.None);
-
-            if (response.IsSuccessStatusCode)
+            bool result = false;
+            ExecuteWithRetry(async () =>
             {
-                _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint);
-                _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
+                var serializer = new FhirJsonSerializer();
+                var auditEventJson = serializer.SerializeToString(auditEvent, true);
+                _logger.LogDebug("Created FHIR AuditEvent: \n" + auditEventJson);
 
-                await HandleDlq(auditEvent, fromDlq);
+                var client = _httpClientFactory.CreateClient();
 
-                return true;
-            }
-            else
-            {
-                var deserializer = new FhirJsonDeserializer();
-                var operationOutcome = deserializer.Deserialize<OperationOutcome>(responseBody);
-                
-                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
-            }
+                var endpointUrl = $"{_appConfig.AtnaLogExporterEndpoint}";
+
+                var response = await client.PostAsync(endpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
+
+                var responseBody = await response.Content.ReadAsStringAsync(CancellationToken.None);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint);
+                    _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
+
+                    await HandleDlq(auditEvent, fromDlq);
+
+                    result = true;
+                }
+                else
+                {
+                    var deserializer = new FhirJsonDeserializer();
+                    var operationOutcome = deserializer.Deserialize<OperationOutcome>(responseBody);
+
+                    _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
+                }
+            });
+
+            return result;
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
@@ -94,10 +100,28 @@ public class AtnaLogExporterService : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception in AuditLogExporterService. Audit log is not being exported!");
-            throw;
         }
 
         return false;
+    }
+
+    private void ExecuteWithRetry(Action action, int retries = 3)
+    {
+        for (var attempt = 1; attempt <= retries; attempt++)
+        {
+            try
+            {
+                _logger.LogInformation("RetryLogic Attempt {attempt}/{maxAttempts}", attempt, retries);
+                action();
+                return;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Audit event export failed on attempt {attempt}/{maxAttempts}", attempt, retries);
+                if (attempt == retries) return;
+                Thread.Sleep(TimeSpan.FromMilliseconds(100 * Math.Pow(2, attempt)));
+            }
+        }
     }
 
     private async Task HandleDlq(AuditEvent auditEvent, bool fromDlq)

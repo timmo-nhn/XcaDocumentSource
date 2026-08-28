@@ -213,7 +213,7 @@ public class RestfulRegistryRepositoryController : ControllerBase
 
     [Produces("application/json", "application/xml")]
     [HttpGet("document-entry")]
-    public async Task<IActionResult> GetDocumentEntry(string? id, RestfulDocumentEntryReturnType returnType, bool includeDocument)
+    public async Task<IActionResult> GetDocumentEntry(string? id, RestfulDocumentEntryReturnType returnType, bool includeDocument = true)
     {
         if (!await _featureManager.IsEnabledAsync("RestfulRegistryRepository_Read")) return NotFound();
 
