@@ -18,10 +18,12 @@ using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Commons.Models.Hl7.DataType;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared;
+using XcaXds.Shared.Extensions;
 using XcaXds.Terminology;
 using XcaXds.Terminology.Services;
 using XcaXds.Tests.Helpers;
 using XcaXds.WebService.Extensions;
+using XcaXds.WebService.Models.Custom;
 using XcaXds.WebService.Services;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
@@ -46,6 +48,7 @@ public class ApplicationMetaController : ControllerBase
     private readonly BusinessRulesDescriptorService _businessRulesDescriptorService;
     private readonly IVariantFeatureManager _featureManager;
     private readonly SamlValidatorService _samlValidatorService;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
 
@@ -63,7 +66,9 @@ public class ApplicationMetaController : ControllerBase
         IVariantFeatureManager featureManager,
         DocumentListFiltererService documentListFiltererService,
         BusinessRulesDescriptorService businessRulesDescriptorService,
-        SamlValidatorService samlValidatorService)
+        SamlValidatorService samlValidatorService,
+        IHttpClientFactory httpClientFactory
+        )
     {
         _logger = logger;
         _appConfig = xdsConfig;
@@ -79,6 +84,7 @@ public class ApplicationMetaController : ControllerBase
         _documentListFiltererService = documentListFiltererService;
         _businessRulesDescriptorService = businessRulesDescriptorService;
         _samlValidatorService = samlValidatorService;
+        _httpClientFactory = httpClientFactory;
     }
 
     [HttpGet("health-check")]
@@ -170,6 +176,18 @@ public class ApplicationMetaController : ControllerBase
         var associations = objects.OfType<AssociationDto>().Count();
 
         return Ok(new { documentEntries, submissionSets, associations });
+    }
+
+
+    [Produces("application/json")]
+    [HttpGet("ping/atnalogexporter")]
+    public async Task<IActionResult> TryConnectAtnalogExporter()
+    {
+        var client = _httpClientFactory.CreateClient();
+
+        var response = await client.GetAsync($"{StringExtensions.GetHostFromUrl(_appConfig.AtnaLogExporterEndpoint)}/healthz");
+        var content = await response.Content.ReadAsStringAsync();
+        return new CustomContentResult(content, (int)response.StatusCode, response.Content.Headers.ContentType?.MediaType ?? "text/plain");
     }
 
     [Produces("application/json")]

@@ -46,6 +46,13 @@ public static class StringExtensions
 		return input;
     }
 
+    public static string GetHostFromUrl(string? atnaLogExporterEndpoint)
+    {
+        var endpoint = new Uri(atnaLogExporterEndpoint!);
+
+        return $"{endpoint.Scheme}://{endpoint.Authority}";
+    }
+
     /// <summary>
     /// Prepend "urn:uuid:" on the string
     /// </summary>

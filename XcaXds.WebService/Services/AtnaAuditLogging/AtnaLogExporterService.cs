@@ -1,6 +1,8 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using Microsoft.AspNetCore.Mvc.Routing;
 using XcaXds.Commons.Models.Custom;
+using XcaXds.Shared.Extensions;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.WebService.Services.AtnaAuditLogging;
@@ -15,6 +17,8 @@ public class AtnaLogExporterService : BackgroundService
     private readonly IHttpClientFactory _httpClientFactory;
 
     private AuditEvent? _lastAuditEvent;
+    private string _endpointUrl;
+
 
     public AtnaLogExporterService(
         ILogger<AtnaLogExporterService> logger,
@@ -31,6 +35,7 @@ public class AtnaLogExporterService : BackgroundService
         _appConfig = appConfig;
         _monitoringStatusService = monitoringStatusService;
         _auditLogDLQService = auditLogDLQService;
+        _endpointUrl = $"{StringExtensions.GetHostFromUrl(_appConfig.AtnaLogExporterEndpoint)}/R4/fhir/AuditEvent";
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -54,15 +59,14 @@ public class AtnaLogExporterService : BackgroundService
 
             var client = _httpClientFactory.CreateClient();
 
-            var endpointUrl = $"{_appConfig.AtnaLogExporterEndpoint}";
 
-            var response = await client.PostAsync(endpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
+            var response = await client.PostAsync(_endpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
 
             var responseBody = await response.Content.ReadAsStringAsync(CancellationToken.None);
 
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint);
+                _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _endpointUrl);
                 _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
 
                 await HandleDlq(auditEvent, fromDlq);
@@ -74,7 +78,7 @@ public class AtnaLogExporterService : BackgroundService
                 var deserializer = new FhirJsonDeserializer();
                 var operationOutcome = deserializer.Deserialize<OperationOutcome>(responseBody);
 
-                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _appConfig.AtnaLogExporterEndpoint, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
+                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _endpointUrl, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
             }
         }, stoppingToken);
 
@@ -101,7 +105,7 @@ public class AtnaLogExporterService : BackgroundService
                 _logger.LogError(ex, "Audit event export failed on attempt {attempt}/{maxAttempts} (connection error)", attempt, retries);
                 if (attempt == retries)
                 {
-                    _logger.LogError(ex, "Unable to connect to ATNA log exporter endpoint {atnaLogExporterEndpoint}. Storing in DLQ", _appConfig.AtnaLogExporterEndpoint);
+                    _logger.LogError(ex, "Unable to connect to ATNA log exporter endpoint {atnaLogExporterEndpoint}. Storing in DLQ", _endpointUrl);
                     if (_lastAuditEvent != null)
                         _auditLogDLQService.StoreAuditEvent(_lastAuditEvent);
                     return;
