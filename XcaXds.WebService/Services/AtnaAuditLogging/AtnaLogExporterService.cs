@@ -1,6 +1,8 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Diagnostics.Metrics;
+using System.Text.Json;
 using XcaXds.Commons.Models.Custom;
 using XcaXds.Shared.Extensions;
 using Task = System.Threading.Tasks.Task;
@@ -17,8 +19,12 @@ public class AtnaLogExporterService : BackgroundService
     private readonly IHttpClientFactory _httpClientFactory;
 
     private AuditEvent? _lastAuditEvent;
-    private string _endpointUrl;
+    private string _atnaLogBaseUrl;
+    private string _atnaLogEndpointUrl;
+    private string _atnaLogHealthUrl;
 
+    private static readonly Meter _meter = new("XcaXds.AtnaLog");
+    private static readonly ObservableGauge<int> _dlqGauge;
 
     public AtnaLogExporterService(
         ILogger<AtnaLogExporterService> logger,
@@ -35,7 +41,12 @@ public class AtnaLogExporterService : BackgroundService
         _appConfig = appConfig;
         _monitoringStatusService = monitoringStatusService;
         _auditLogDLQService = auditLogDLQService;
-        _endpointUrl = $"{StringExtensions.GetHostFromUrl(_appConfig.AtnaLogExporterEndpoint)}/R4/fhir/AuditEvent";
+
+        _atnaLogBaseUrl = StringExtensions.GetHostFromUrl(_appConfig.AtnaLogExporterEndpoint);
+        _atnaLogEndpointUrl = $"{_atnaLogBaseUrl}/R4/fhir/AuditEvent";
+        _atnaLogHealthUrl = $"{_atnaLogBaseUrl}/healthz";
+
+        _meter.CreateObservableGauge("atna_dlq_count", () => _auditLogDLQService.GetDlqItemCount(), description: "Number of audit events currently in the dead letter queue");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -45,6 +56,19 @@ public class AtnaLogExporterService : BackgroundService
             _lastAuditEvent = auditEventFunction();
             await ExportAuditEvent(_lastAuditEvent, false, stoppingToken);
         }
+    }
+
+    public async Task<HealthCheckResult> CheckHealth()
+    {
+        var client = _httpClientFactory.CreateClient();
+
+        var response = await client.GetAsync(_atnaLogHealthUrl, CancellationToken.None);
+        return JsonSerializer.Deserialize<HealthCheckResult>(await response.Content.ReadAsStringAsync());
+    }
+
+    public int GetDlqItems()
+    {
+        return _auditLogDLQService.GetDlqItemCount();
     }
 
     private async Task<bool> ExportAuditEvent(AuditEvent auditEvent, bool fromDlq, CancellationToken stoppingToken)
@@ -60,15 +84,17 @@ public class AtnaLogExporterService : BackgroundService
             var client = _httpClientFactory.CreateClient();
 
 
-            var response = await client.PostAsync(_endpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
+            var response = await client.PostAsync(_atnaLogEndpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
 
             var responseBody = await response.Content.ReadAsStringAsync(CancellationToken.None);
 
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _endpointUrl);
+                _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _atnaLogEndpointUrl);
                 _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
 
+                // If success, it means the atnalogexporter is up and running, which also means we are most likely good to handle the DLQ events
+                // ExportAsync runs 
                 await HandleDlq(auditEvent, fromDlq);
 
                 result = true;
@@ -78,7 +104,7 @@ public class AtnaLogExporterService : BackgroundService
                 var deserializer = new FhirJsonDeserializer();
                 var operationOutcome = deserializer.Deserialize<OperationOutcome>(responseBody);
 
-                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _endpointUrl, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
+                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _atnaLogEndpointUrl, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
             }
         }, stoppingToken);
 
@@ -105,7 +131,7 @@ public class AtnaLogExporterService : BackgroundService
                 _logger.LogError(ex, "Audit event export failed on attempt {attempt}/{maxAttempts} (connection error)", attempt, retries);
                 if (attempt == retries)
                 {
-                    _logger.LogError(ex, "Unable to connect to ATNA log exporter endpoint {atnaLogExporterEndpoint}. Storing in DLQ", _endpointUrl);
+                    _logger.LogError(ex, "Unable to connect to ATNA log exporter endpoint {atnaLogExporterEndpoint}. Storing in DLQ", _atnaLogEndpointUrl);
                     if (_lastAuditEvent != null)
                         _auditLogDLQService.StoreAuditEvent(_lastAuditEvent);
                     return;
@@ -116,7 +142,7 @@ public class AtnaLogExporterService : BackgroundService
                 _logger.LogError(ex, "Audit event export failed on attempt {attempt}/{maxAttempts}", attempt, retries);
                 if (attempt == retries)
                 {
-                    _logger.LogError(ex, "Unhandled exception in AuditLogExporterService. Audit log is not being exported!");
+                    _logger.LogCritical(ex, "Unhandled exception in AuditLogExporterService. Audit log is not being exported! {dlqCount}", _auditLogDLQService.GetDlqItemCount());
                     if (_lastAuditEvent != null)
                         _auditLogDLQService.StoreAuditEvent(_lastAuditEvent);
                     return;

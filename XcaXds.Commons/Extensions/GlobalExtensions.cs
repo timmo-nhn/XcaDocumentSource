@@ -20,6 +20,11 @@ public static class GlobalExtensions
         }
     }
 
+    public static int TicksToSeconds(this long value)
+    {
+        return (int)value / 10_000_000;
+    }
+
     public static bool IsNullOrZero(this int? value)
     {
         return value is null or 0;

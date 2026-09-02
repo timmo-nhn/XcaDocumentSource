@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using XcaXds.Commons.Commons;
+using XcaXds.Commons.Interfaces;
 using XcaXds.Commons.Interfaces.Statistics;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Shared;
@@ -12,13 +13,15 @@ public class StatisticsProcessorService : BackgroundService
     private readonly ApplicationConfig _appConfig;
     private readonly StatisticsTransformerService _statisticsTransformerService;
     private readonly IStatisticsQueue _statisticsQueue;
+    private readonly IStatisticsExporter _statisticsExporter;
 
-    public StatisticsProcessorService(ILogger<StatisticsProcessorService> logger, ApplicationConfig appConfig, StatisticsTransformerService statisticsTransformerService, IStatisticsQueue statisticsQueue)
+    public StatisticsProcessorService(ILogger<StatisticsProcessorService> logger, ApplicationConfig appConfig, StatisticsTransformerService statisticsTransformerService, IStatisticsQueue statisticsQueue, IStatisticsExporter statisticsExporter)
     {
         _logger = logger;
         _appConfig = appConfig;
         _statisticsTransformerService = statisticsTransformerService;
         _statisticsQueue = statisticsQueue;
+        _statisticsExporter = statisticsExporter;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,7 +35,7 @@ public class StatisticsProcessorService : BackgroundService
                 _logger.LogInformation("Received statistics item");
 
                 var userAccessEntry = await _statisticsTransformerService.TransformToUserAccessEntry(requestAndFields);
-                ExportStatistics(userAccessEntry);
+                await ExportStatistics(userAccessEntry, stoppingToken);
             }
         }
         catch (Exception ex)
@@ -41,9 +44,19 @@ public class StatisticsProcessorService : BackgroundService
             throw;
         }
     }
-    private void ExportStatistics(UserAccessEntry userAccessEntry)
+
+    private async Task ExportStatistics(UserAccessEntry userAccessEntry, CancellationToken cancellationToken)
     {
         var jsonAccessEntry = JsonSerializer.Serialize(userAccessEntry, Constants.JsonDefaultOptions.DefaultSettings);
         _logger.LogDebug("User Access Entry:\n" + jsonAccessEntry);
+
+        try
+        {
+            await _statisticsExporter.ExportAsync(userAccessEntry, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to export UserAccessEntry to statistics store");
+        }
     }
 }

@@ -59,7 +59,7 @@
 					{
 						"resourceType": "Organization",
 						"id": "6d923e37-e7fe-4e88-92ea-9c6b238bbca1",
-						"name": "Allmenlegevakten",
+						"name": "Allmennlegevakten",
 						"type": [
 							{
 								"coding": [
@@ -219,7 +219,7 @@
 					{
 						"resourceType": "Organization",
 						"id": "b6d21163-3a20-4b9d-915e-21d37fd11854",
-						"name": "Allmenlegevakten",
+						"name": "Allmennlegevakten",
 						"type": [
 							{
 								"coding": [

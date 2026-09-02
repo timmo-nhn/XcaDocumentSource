@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XcaXds.Commons.Extensions;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
+using XcaXds.WebService.Services.AtnaAuditLogging;
 using XcaXds.WebService.Services.XdsRegistry;
 using XcaXds.WebService.Services.XdsRepository;
 
@@ -13,6 +15,7 @@ public class SourceHealthCheckService
     private readonly HealthCheckService _healthCheckService;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
+    private readonly AtnaLogExporterService _atnaLogExporterService;
 
     public SourceHealthCheckService(
         ILogger<SourceHealthCheckService> logger,
@@ -20,7 +23,8 @@ public class SourceHealthCheckService
         MonitoringStatusService monitoringStatusService,
         HealthCheckService healthCheckService,
         RegistryWrapper registryWrapper,
-        RepositoryWrapper repositoryWrapper)
+        RepositoryWrapper repositoryWrapper,
+        AtnaLogExporterService atnaLogExporterService)
     {
         _logger = logger;
         _appConfig = appConfig;
@@ -28,6 +32,7 @@ public class SourceHealthCheckService
         _healthCheckService = healthCheckService;
         _registryWrapper = registryWrapper;
         _repositoryWrapper = repositoryWrapper;
+        _atnaLogExporterService = atnaLogExporterService;
     }
 
     public async Task<HealthReport> CheckHealthAsync()
@@ -35,10 +40,14 @@ public class SourceHealthCheckService
         return await _healthCheckService.CheckHealthAsync();
     }
 
-    public async Task CheckAtnaLogExport()
+    public async Task<AtnaLogStatus> CheckAtnaLogExport()
     {
         var lastRequest = _monitoringStatusService.LastRequest;
         var lastAtnalogExport = _monitoringStatusService.LastAtnaLogExported;
+        var dlqCount = _atnaLogExporterService.GetDlqItems();
+        var atnalogHealth = await _atnaLogExporterService.CheckHealth();
+
+        return new(lastRequest, lastAtnalogExport, dlqCount, atnalogHealth);
     }
 
     public async Task<SourceStatus> GetRegistryRepositoryStatus()
@@ -107,4 +116,21 @@ public class SourceStatus
     public bool RegistryWriteOk { get; set; }
     public bool RepositoryReadOk { get; set; }
     public bool RepositoryWriteOk { get; set; }
+}
+
+public sealed class AtnaLogStatus
+{
+    public AtnaLogStatus(DateTimeOffset lastRequest, DateTimeOffset lastAtnalogExported, int itemsInDlq, HealthCheckResult healthCheckResult)
+    {
+        LastRequest = lastRequest;
+        LastAtnalogExported = lastAtnalogExported;
+        ItemsInDlq = itemsInDlq;
+        HealthCheckResult = healthCheckResult;
+    }
+
+    public DateTimeOffset LastRequest { get; set; }
+    public DateTimeOffset LastAtnalogExported { get; set; }
+    public int DifferenceBetweenRequestAndExportSeconds => (LastRequest.Ticks - LastAtnalogExported.Ticks).TicksToSeconds();
+    public int ItemsInDlq { get; set; }
+    public HealthCheckResult HealthCheckResult { get; set; }
 }

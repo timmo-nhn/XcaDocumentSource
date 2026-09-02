@@ -8,7 +8,9 @@ public class AtnaAuditLogDLQService
 {
     private readonly ILogger<AtnaAuditLogDLQService> _logger;
     private readonly IAtnaLogDLQStore _atnaLogDLQStore;
+ 
     private bool _hasItemsInQueue = false;
+    private int _dlqCount = 0;
 
     public AtnaAuditLogDLQService(ILogger<AtnaAuditLogDLQService> logger, IAtnaLogDLQStore atnaLogDLQStore)
     {
@@ -21,6 +23,7 @@ public class AtnaAuditLogDLQService
 
     public OperationResponse StoreAuditEvent(AuditEvent auditEvent)
     {
+        _dlqCount++;
         _hasItemsInQueue = true;
         return _atnaLogDLQStore.StoreAuditEvent(auditEvent);
     }
@@ -38,11 +41,17 @@ public class AtnaAuditLogDLQService
 
     public void DeleteLatestEvent()
     {
+        _dlqCount--;
         _atnaLogDLQStore.DeleteLatestEvent();
     }
 
     public bool HasItemsInQueue()
     {
         return _hasItemsInQueue;
+    }
+
+    public int GetDlqItemCount()
+    {
+        return _dlqCount;
     }
 }

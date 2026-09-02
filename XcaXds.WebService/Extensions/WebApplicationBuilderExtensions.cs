@@ -18,6 +18,8 @@ using XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
 using XcaXds.Source.Implementations.RegistryRepository.SqLite;
 using XcaXds.Source.Implementations.Repository.FileBased;
 using XcaXds.Source.Implementations.Repository.S3;
+using XcaXds.Source.Implementations.Statistics;
+using XcaXds.Source.Implementations.Statistics.PostGreSql;
 using XcaXds.Terminology.Services;
 using XcaXds.Terminology.Sources;
 using XcaXds.Terminology.TerminologySources;
@@ -63,6 +65,7 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddScoped<IAtnaLogStrategy, FhirProvideBundleAtnaLogStrategy>();
 
         builder.Services.AddSingleton<IAtnaLogQueue, AtnaLogQueue>();
+        builder.Services.AddSingleton<AtnaLogExporterService>();
         builder.Services.AddScoped<AtnaLogGeneratorService>();
         builder.Services.AddSingleton<AtnaLogEnricherService>();
 
@@ -142,6 +145,16 @@ public static class WebApplicationBuilderExtensions
     {
         builder.Services.AddSingleton<StatisticsTransformerService>();
         builder.Services.AddSingleton<IStatisticsQueue, StatisticsQueue>();
+
+        var postgreSqlConnectionString = builder.Configuration.GetPostgreSqlConnectionString();
+        if (string.IsNullOrWhiteSpace(postgreSqlConnectionString))
+        {
+            builder.Services.AddSingleton<IStatisticsExporter, NullStatisticsExporter>();
+        }
+        else
+        {
+            builder.Services.AddSingleton<IStatisticsExporter, PostGreSqlStatisticsExporter>();
+        }
     }
 
     public static void RegisterTerminologyServices(this WebApplicationBuilder builder)

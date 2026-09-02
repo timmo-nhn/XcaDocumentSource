@@ -11,6 +11,7 @@ using XcaXds.Shared;
 using XcaXds.Shared.ConfigBinder;
 using XcaXds.Source.Implementations.RegistryRepository.PostGreSql;
 using XcaXds.Source.Implementations.RegistryRepository.SqLite;
+using XcaXds.Source.Implementations.Statistics.PostGreSql;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.Extensions;
@@ -146,6 +147,13 @@ public class Program
             logger.LogInformation("Applying PostgreSQL registry migrations...");
             await context.Database.MigrateAsync();
             logger.LogInformation("PostgreSQL registry migrations applied successfully.");
+
+            var statisticsFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<StatisticsDbContext>>();
+            await using var statisticsContext = await statisticsFactory.CreateDbContextAsync();
+            logger.LogInformation("Applying PostgreSQL statistics migrations...");
+            await statisticsContext.Database.MigrateAsync();
+            logger.LogInformation("PostgreSQL statistics migrations applied successfully.");
+
         }
         else
         {
@@ -183,12 +191,16 @@ public class Program
         builder.Services.AddDbContextFactory<PostGreSqlRegistryDbContext>(options =>
             options.UseNpgsql(postgreSqlConnectionString,
                 npgsqlOptions => npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
+        builder.Services.AddDbContextFactory<StatisticsDbContext>(options =>
+            options.UseNpgsql(postgreSqlConnectionString,
+                npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory_Statistics")));
     }
 
     private static void RegisterHostedServices(WebApplicationBuilder builder)
     {
         builder.Services.AddHostedService<AppStartupService>();
-        builder.Services.AddHostedService<AtnaLogExporterService>();
+        builder.Services.AddHostedService(sp => sp.GetRequiredService<AtnaLogExporterService>());
         builder.Services.AddHostedService<StatisticsProcessorService>();
     }
 

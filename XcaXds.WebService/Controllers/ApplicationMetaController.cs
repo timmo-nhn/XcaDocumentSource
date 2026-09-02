@@ -94,6 +94,7 @@ public class ApplicationMetaController : ControllerBase
 
         var healthReport = await _healthCheckService.CheckHealthAsync();
         var regRepoReport = await _healthCheckService.GetRegistryRepositoryStatus();
+        var atnaReport = await _healthCheckService.CheckAtnaLogExport();
 
         var uptimeInSeconds = double.Round((DateTimeOffset.Now - _monitoringService.StartupTime).TotalSeconds);
 
@@ -114,6 +115,7 @@ public class ApplicationMetaController : ControllerBase
             HealthReport = healthReport,
             usageStatistics,
             uptimeInSeconds,
+            atnaReport,
             _monitoringService.StartupTime,
             _monitoringService.LastRequest,
             _monitoringService.LastAtnaLogExported,

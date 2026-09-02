@@ -95,6 +95,7 @@ public class IntegrationTests_DefaultFixture : IAsyncDisposable
                 services.Configure<HostOptions>(o => { o.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore; });
 
                 services.RemoveAll<IHostedService>();
+                //services.AddHostedService<AtnaLogExporterService>();
                 services.AddHostedService<NonRequestingAtnaLogExporter>();
                 services.AddHostedService<IntegrationTestCleanupService>();
                 services.AddHostedService<MockStatisticsProcessorService>();
