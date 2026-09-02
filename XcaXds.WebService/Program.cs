@@ -14,6 +14,7 @@ using XcaXds.Source.Implementations.RegistryRepository.SqLite;
 using XcaXds.Terminology.Services;
 using XcaXds.WebService.AuthenticationHandler;
 using XcaXds.WebService.Extensions;
+using XcaXds.WebService.HealthChecks;
 using XcaXds.WebService.InputFormatters;
 using XcaXds.WebService.Middleware;
 using XcaXds.WebService.Services;
@@ -252,7 +253,10 @@ public class Program
 
 
         // Health check
-        builder.Services.AddHealthChecks();
+        builder.Services.AddHealthChecks()
+            .AddCheck<RegistryHealthCheck>("registry", tags: ["registry", "ready"])
+            .AddCheck<RepositoryHealthCheck>("repository", tags: ["repository", "ready"])
+            .AddCheck<AtnaLogExportHealthCheck>("atnalogexport", tags: ["atna", "ready"]);
 
         var xdsConfig = new ApplicationConfig();
         var apiKey = new ApiKeyHolder();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
 using System.Diagnostics;
 using System.Reflection.Metadata.Ecma335;
@@ -38,7 +39,7 @@ public class ApplicationMetaController : ControllerBase
     private readonly ApplicationConfig _appConfig;
     private readonly RegistryWrapper _registryWrapper;
     private readonly RepositoryWrapper _repositoryWrapper;
-    private readonly SourceHealthCheckService _healthCheckService;
+    private readonly HealthCheckService _healthCheckService;
     private readonly MonitoringStatusService _monitoringService;
     private readonly RequestThrottlingService _requestThrottlingService;
     private readonly ApplicationMetaService _applicationMetaService;
@@ -57,7 +58,7 @@ public class ApplicationMetaController : ControllerBase
         ApplicationConfig xdsConfig,
         RegistryWrapper registryWrapper,
         RepositoryWrapper repositoryWrapper,
-        SourceHealthCheckService healthCheckService,
+        HealthCheckService healthCheckService,
         MonitoringStatusService monitoringService,
         RequestThrottlingService requestThrottlingService,
         ApplicationMetaService applicationMetaService,
@@ -93,7 +94,6 @@ public class ApplicationMetaController : ControllerBase
         using var activity = ActivitySource.StartActivity("healthz");
 
         var healthReport = await _healthCheckService.CheckHealthAsync();
-        var regRepoReport = await _healthCheckService.GetRegistryRepositoryStatus();
 
         var uptimeInSeconds = double.Round((DateTimeOffset.Now - _monitoringService.StartupTime).TotalSeconds);
 
@@ -116,13 +116,12 @@ public class ApplicationMetaController : ControllerBase
             uptimeInSeconds,
             _monitoringService.StartupTime,
             _monitoringService.LastRequest,
-            _monitoringService.LastAtnaLogExported,
-
-            RegistryRepository = regRepoReport
+            _monitoringService.LastAtnaLogExported
         };
 
         var healthCheckJson = JsonSerializer.Serialize(healthCheck, Constants.JsonDefaultOptions.DefaultSettings);
-        if (!regRepoReport.RegistryReadOk || !regRepoReport.RegistryWriteOk || !regRepoReport.RepositoryReadOk || !regRepoReport.RepositoryWriteOk)
+
+        if (healthReport.Status != HealthStatus.Healthy)
         {
             return StatusCode(500, healthCheckJson);
         }

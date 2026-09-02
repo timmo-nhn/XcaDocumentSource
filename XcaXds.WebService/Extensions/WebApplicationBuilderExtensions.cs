@@ -80,7 +80,6 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddSingleton<ApplicationMetaService>();
         builder.Services.AddSingleton<MonitoringStatusService>();
         builder.Services.AddSingleton<RequestThrottlingService>();
-        builder.Services.AddSingleton<SourceHealthCheckService>();
         builder.Services.AddSingleton<BusinessRulesDescriptorService>();
         builder.Services.AddSingleton<ImplementationInformerService>();
     }
