@@ -179,8 +179,9 @@ public class ApplicationMetaController : ControllerBase
     [HttpGet("/atnalogexporter/healthz")]
     public async Task<IActionResult> TryConnectAtnalogExporter()
     {
-       var result = await _applicationMetaService.AtnaLogHealthCheck();
-       return StatusCode(result.StatusCode, result.Content);
+        var result = await _applicationMetaService.AtnaLogHealthCheck();
+        var statusCode = result.Status == HealthStatus.Healthy ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable;
+        return StatusCode(statusCode, result);
     }
 
     [Produces("application/json")]

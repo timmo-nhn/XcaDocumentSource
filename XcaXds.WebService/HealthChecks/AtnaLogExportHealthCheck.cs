@@ -10,13 +10,11 @@ public class AtnaLogExportHealthCheck : IHealthCheck
 
     private readonly MonitoringStatusService _monitoringStatusService;
     private readonly ApplicationMetaService _applicationMetaService;
-    private readonly ApplicationConfig _applicationConfig;
 
-    public AtnaLogExportHealthCheck(MonitoringStatusService monitoringStatusService, ApplicationMetaService applicationMetaService, ApplicationConfig applicationConfig)
+    public AtnaLogExportHealthCheck(MonitoringStatusService monitoringStatusService, ApplicationMetaService applicationMetaService)
     {
         _monitoringStatusService = monitoringStatusService;
         _applicationMetaService = applicationMetaService;
-        _applicationConfig = applicationConfig;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -32,15 +30,14 @@ public class AtnaLogExportHealthCheck : IHealthCheck
 
         var atnaLogExporterHealth = await _applicationMetaService.AtnaLogHealthCheck();
 
-        data["AtnaLogExporterHealthCheck__ConnectSuccess"] = atnaLogExporterHealth.HealthCheckSuccess;
-        data["AtnaLogExporterHealthCheck__StatusCode"] = atnaLogExporterHealth.StatusCode;
-        data["AtnaLogExporterHealthCheck__Content"] = atnaLogExporterHealth.Content;
+        data["AtnaLogExporter"] = atnaLogExporterHealth;
 
-        if (atnaLogExporterHealth.HealthCheckSuccess == false)
+        if (atnaLogExporterHealth.Status != HealthStatus.Healthy)
         {
             return new HealthCheckResult(
                 context.Registration.FailureStatus,
-                $"Failed to get health-check from AtnalogExporter endpoint. Configured Endpoint: {AtnaLogExporterService.AtnaLogEndpointUrl}. Health endpoint: {AtnaLogExporterService.AtnaLogHealthUrl}",
+                $"Error from AtnalogExporter HealthCheck-endpoint. Configured Endpoint: {AtnaLogExporterService.AtnaLogEndpointUrl}. Health endpoint: {AtnaLogExporterService.AtnaLogHealthUrl}",
+                exception: atnaLogExporterHealth.Exception,
                 data: data);
         }
 

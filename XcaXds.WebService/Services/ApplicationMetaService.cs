@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.RestfulRegistry;
 using XcaXds.Shared.Extensions;
@@ -17,6 +20,12 @@ public class ApplicationMetaService
     private readonly RepositoryWrapper _repositoryWrapper;
     private readonly RegistryWrapper _registryWrapper;
     private readonly IHttpClientFactory _httpClientFactory;
+
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public ApplicationMetaService(
         ILogger<ApplicationMetaService> logger,
@@ -67,7 +76,7 @@ public class ApplicationMetaService
         return apiResponse;
     }
 
-    public async Task<AtnaLogExporterHealthResult> AtnaLogHealthCheck()
+    public async Task<HealthCheckResult> AtnaLogHealthCheck()
     {
         try
         {
@@ -75,14 +84,31 @@ public class ApplicationMetaService
             var response = await client.GetAsync($"{StringExtensions.GetHostFromUrl(_applicationConfig.AtnaLogExporterEndpoint)}/healthz");
             var content = await response.Content.ReadAsStringAsync();
 
-            return new AtnaLogExporterHealthResult(true, (int)response.StatusCode, content);
+            var report = JsonSerializer.Deserialize<AtnaLogExporterHealthReport>(content, _jsonSerializerOptions);
+
+            var status = report?.Status ?? HealthStatus.Unhealthy;
+            var data = new Dictionary<string, object> { ["StatusCode"] = (int)response.StatusCode };
+
+            if (report?.Entries is { } entries)
+            {
+                data["Entries"] = entries;
+            }
+
+            return new HealthCheckResult(status, description: $"AtnaLogExporter reported status: {status}", data: data);
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex.ToString());
-            return new AtnaLogExporterHealthResult(false, StatusCodes.Status503ServiceUnavailable, ex.Message);
+            return new HealthCheckResult(HealthStatus.Unhealthy, description: "AtnaLogExporter did not respond to the health check request", exception: ex);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex.ToString());
+            return new HealthCheckResult(HealthStatus.Unhealthy, description: "AtnaLogExporter returned a health check response that could not be parsed", exception: ex);
         }
     }
 }
 
-public record AtnaLogExporterHealthResult(bool HealthCheckSuccess, int StatusCode, string Content);
+file record AtnaLogExporterHealthReport(HealthStatus Status, TimeSpan TotalDuration, Dictionary<string, AtnaLogExporterHealthReportEntry> Entries);
+
+file record AtnaLogExporterHealthReportEntry(HealthStatus Status, string Description, TimeSpan Duration, string Exception, object Data);
