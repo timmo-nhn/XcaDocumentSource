@@ -38,7 +38,10 @@ public class AtnaLogExportHealthCheck : IHealthCheck
 
         if (atnaLogExporterHealth.HealthCheckSuccess == false)
         {
-            return HealthCheckResult.Unhealthy($"Failed to get health-check from AtnalogExporter endpoint. Configured Endpoint: {AtnaLogExporterService.AtnaLogEndpointUrl}. Health endpoint: {AtnaLogExporterService.AtnaLogHealthUrl}", data);
+            return new HealthCheckResult(
+                context.Registration.FailureStatus,
+                $"Failed to get health-check from AtnalogExporter endpoint. Configured Endpoint: {AtnaLogExporterService.AtnaLogEndpointUrl}. Health endpoint: {AtnaLogExporterService.AtnaLogHealthUrl}",
+                data: data);
         }
 
         if (lastRequest == default)
