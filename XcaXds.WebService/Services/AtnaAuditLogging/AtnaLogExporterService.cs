@@ -20,8 +20,8 @@ public class AtnaLogExporterService : BackgroundService
 
     private AuditEvent? _lastAuditEvent;
     private string _atnaLogBaseUrl;
-    private string _atnaLogEndpointUrl;
-    private string _atnaLogHealthUrl;
+    public static string? AtnaLogEndpointUrl;
+    public static string? AtnaLogHealthUrl;
 
     private static readonly Meter _meter = new("XcaXds.AtnaLog");
     private static readonly ObservableGauge<int> _dlqGauge;
@@ -43,8 +43,8 @@ public class AtnaLogExporterService : BackgroundService
         _auditLogDLQService = auditLogDLQService;
 
         _atnaLogBaseUrl = StringExtensions.GetHostFromUrl(_appConfig.AtnaLogExporterEndpoint);
-        _atnaLogEndpointUrl = $"{_atnaLogBaseUrl}/R4/fhir/AuditEvent";
-        _atnaLogHealthUrl = $"{_atnaLogBaseUrl}/healthz";
+        AtnaLogEndpointUrl = $"{_atnaLogBaseUrl}/R4/fhir/AuditEvent";
+        AtnaLogHealthUrl = $"{_atnaLogBaseUrl}/healthz";
 
         _meter.CreateObservableGauge("atna_dlq_count", () => _auditLogDLQService.GetDlqItemCount(), description: "Number of audit events currently in the dead letter queue");
     }
@@ -62,7 +62,7 @@ public class AtnaLogExporterService : BackgroundService
     {
         var client = _httpClientFactory.CreateClient();
 
-        var response = await client.GetAsync(_atnaLogHealthUrl, CancellationToken.None);
+        var response = await client.GetAsync(AtnaLogHealthUrl, CancellationToken.None);
         return JsonSerializer.Deserialize<HealthCheckResult>(await response.Content.ReadAsStringAsync());
     }
 
@@ -84,13 +84,13 @@ public class AtnaLogExporterService : BackgroundService
             var client = _httpClientFactory.CreateClient();
 
 
-            var response = await client.PostAsync(_atnaLogEndpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
+            var response = await client.PostAsync(AtnaLogEndpointUrl, new StringContent(auditEventJson, System.Text.Encoding.UTF8, "application/fhir+json"), CancellationToken.None);
 
             var responseBody = await response.Content.ReadAsStringAsync(CancellationToken.None);
 
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, _atnaLogEndpointUrl);
+                _logger.LogInformation("Successfully exported AuditEvent {auditEventId} to {atnaLogExporterEndpoint}", auditEvent.Id, AtnaLogEndpointUrl);
                 _monitoringStatusService.LastAtnaLogExported = DateTimeOffset.UtcNow;
 
                 // If success, it means the atnalogexporter is up and running, which also means we are most likely good to handle the DLQ events
@@ -104,7 +104,7 @@ public class AtnaLogExporterService : BackgroundService
                 var deserializer = new FhirJsonDeserializer();
                 var operationOutcome = deserializer.Deserialize<OperationOutcome>(responseBody);
 
-                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, _atnaLogEndpointUrl, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
+                _logger.LogError("Failed to export AuditEvent {auditEventId} to {atnaLogExporterEndpoint}. Status Code: {statusCode}, Response: {issues}", auditEvent.Id, AtnaLogEndpointUrl, response.StatusCode, string.Join(", ", operationOutcome.Issue.Select(iss => iss.Severity + " " + iss.Details?.Text)));
             }
         }, stoppingToken);
 
@@ -131,7 +131,7 @@ public class AtnaLogExporterService : BackgroundService
                 _logger.LogError(ex, "Audit event export failed on attempt {attempt}/{maxAttempts} (connection error)", attempt, retries);
                 if (attempt == retries)
                 {
-                    _logger.LogError(ex, "Unable to connect to ATNA log exporter endpoint {atnaLogExporterEndpoint}. Storing in DLQ", _atnaLogEndpointUrl);
+                    _logger.LogError(ex, "Unable to connect to ATNA log exporter endpoint {atnaLogExporterEndpoint}. Storing in DLQ", AtnaLogEndpointUrl);
                     if (_lastAuditEvent != null)
                         _auditLogDLQService.StoreAuditEvent(_lastAuditEvent);
                     return;

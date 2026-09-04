@@ -312,7 +312,6 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
 
         requestTimer.Stop();
 
-        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.DocumentReferenceDelete, requestTimer.ElapsedMilliseconds);
 
         _logger.LogInformation("Completed action: Delete DocumentReference in {elapsedMilliseconds}ms with {issueCount} issues", requestTimer.ElapsedMilliseconds, operationOutcome.Issue.Count);
 
@@ -354,8 +353,6 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
         {
             requestTimer.Stop();
 
-            _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
-
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Request body does not contain a well formatted FHIR bundle",
                 OperationOutcome.IssueType.Invalid,
                 OperationOutcome.IssueSeverity.Fatal));
@@ -389,8 +386,6 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
         {
             requestTimer.Stop();
 
-            _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
-
             return BadRequestOperationOutcome.Create(provideBundleResult.Outcome);
         }
 
@@ -404,8 +399,6 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
         var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector).Pretty();
         var jsonResult = JsonSerializer.Serialize(transactionBundle, options);
         requestTimer.Stop();
-
-        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
 
         _logger.LogInformation("Completed action: ITI-65 ProvideBundle in {elapsedMilliseconds}ms with {issueCount} issues", requestTimer.ElapsedMilliseconds, provideBundleResult.Outcome?.Issue?.Count ?? 0);
 
@@ -436,8 +429,6 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
         {
             requestTimer.Stop();
 
-            _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65Action, requestTimer.ElapsedMilliseconds);
-
             return BadRequestOperationOutcome.Create(OperationOutcome.ForMessage($"Endpoint only supports validating FHIR bundles for now",
                 OperationOutcome.IssueType.Invalid,
                 OperationOutcome.IssueSeverity.Fatal));
@@ -465,8 +456,6 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
         }
 
         requestTimer.Stop();
-
-        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65ValidateAction, requestTimer.ElapsedMilliseconds);
 
         _logger.LogInformation("Completed action: ITI-65 ValidateBundle in {elapsedMilliseconds}ms with {issueCount} issues{bundleStatus}", requestTimer.ElapsedMilliseconds, provideBundleResult.Outcome?.Issue?.Count ?? 0, ((provideBundleResult.Outcome?.Issue?.Count ?? 0) == 0 ? ". Bundle is good to go!" : ""));
 
@@ -555,8 +544,6 @@ public class FhirMobileAccessToHealthDocumentsController : ControllerBase
         // Return the updated DocumentReference
 
         requestTimer.Stop();
-
-        _monitoringStatusService.ResponseTimes.Add(Constants.Xds.OperationContract.Iti65PatchAction, requestTimer.ElapsedMilliseconds);
 
         _logger.LogInformation("Completed action: ITI-65 PatchBundle in {elapsedMilliseconds}ms with {issueCount} issues", requestTimer.ElapsedMilliseconds, operationOutcome.Issue.Count);
 

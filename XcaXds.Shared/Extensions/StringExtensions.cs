@@ -48,7 +48,9 @@ public static class StringExtensions
 
     public static string GetHostFromUrl(string? atnaLogExporterEndpoint)
     {
-        var endpoint = new Uri(atnaLogExporterEndpoint!);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(atnaLogExporterEndpoint);
+
+        var endpoint = new Uri(atnaLogExporterEndpoint);
 
         return $"{endpoint.Scheme}://{endpoint.Authority}";
     }

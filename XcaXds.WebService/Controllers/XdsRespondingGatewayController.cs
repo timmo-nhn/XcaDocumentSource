@@ -139,7 +139,6 @@ public class XdsRespondingGatewayController : ControllerBase
 
                     requestTimer.Stop();
                     _logger.LogInformation("{traceIdentifier} - Completed action: {action} in {elapsedMilliseconds} ms", soapEnvelope.Header.MessageId, action, requestTimer.ElapsedMilliseconds);
-                    _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 
                     var bytes = await responseMessage.Content.ReadAsByteArrayAsync();
 
@@ -162,8 +161,6 @@ public class XdsRespondingGatewayController : ControllerBase
 
         requestTimer.Stop();
         _logger.LogInformation("{traceIdentifier} -  Completed action: {action} in {elapsedMilliseconds} ms", soapEnvelope.Header.MessageId, action, requestTimer.ElapsedMilliseconds);
-
-        _monitoringService.ResponseTimes.Add(action, requestTimer.ElapsedMilliseconds);
 
         // multipart RetrieveDocumentSet needs to be returned as its own object
         if (multipartResponse != null)

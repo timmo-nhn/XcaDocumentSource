@@ -7,7 +7,7 @@ namespace XcaXds.WebService.Services;
 public class MonitoringStatusService
 {
     public DateTimeOffset StartupTime { get; set; }
-    public DateTimeOffset LastRequest { get; set; }
+    public DateTimeOffset LastAtnalogEligibleRequest { get; set; }
     public DateTimeOffset LastAtnaLogExported { get; set; }
 
     private BoundedDictionary<string, long>? _responseTimes;
@@ -26,7 +26,6 @@ public class MonitoringStatusService
 
             _responseTimes = value;
             _responseTimes.Updated += OnResponseTimesUpdated;
-            LastRequest = DateTimeOffset.UtcNow;
         }
     }
 
@@ -39,9 +38,8 @@ public class MonitoringStatusService
     {
         if (eventArgs.Item.Key.IsAnyOf(
             Constants.Urn.Custom.PepDeny,
-            Constants.Urn.Custom.PepPermit,
-            Constants.Urn.Custom.PepTokenInvalid)) return;
+            Constants.Urn.Custom.PepPermit)) return;
 
-        LastRequest = DateTimeOffset.UtcNow;
+        LastAtnalogEligibleRequest = DateTimeOffset.UtcNow;
     }
 }

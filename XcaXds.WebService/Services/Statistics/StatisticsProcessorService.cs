@@ -48,7 +48,8 @@ public class StatisticsProcessorService : BackgroundService
     private async Task ExportStatistics(UserAccessEntry userAccessEntry, CancellationToken cancellationToken)
     {
         var jsonAccessEntry = JsonSerializer.Serialize(userAccessEntry, Constants.JsonDefaultOptions.DefaultSettings);
-        _logger.LogDebug("User Access Entry:\n" + jsonAccessEntry);
+        _logger.LogInformation("User Access Entry generated. Exporting...");
+        _logger.LogDebug("User Access Entry: \n{json}", jsonAccessEntry);
 
         try
         {

@@ -9,6 +9,7 @@ using XcaXds.Commons.Models.Custom.RegistryDtos;
 using XcaXds.Commons.Models.Custom.Statistics;
 using XcaXds.Commons.Serializers;
 using XcaXds.Shared.Enums;
+using XcaXds.WebService.Services;
 using Task = System.Threading.Tasks.Task;
 
 namespace XcaXds.WebService.Middleware;
@@ -20,18 +21,22 @@ public class RequestStatisticsMiddleware
     private readonly IStatisticsQueue _statisticsQueue;
     private readonly FhirToXdsTransformerService _fhirToXdsTransformerService;
     private readonly RegistryMetadataTransformerService _registryMetadataTransformerService;
+    private readonly MonitoringStatusService _monitoringStatusService;
+
     public RequestStatisticsMiddleware(
         RequestDelegate next,
         ILogger<RequestStatisticsMiddleware> logger,
         IStatisticsQueue statisticsQueue,
         FhirToXdsTransformerService fhirToXdsTransformerService,
-        RegistryMetadataTransformerService registryMetadataTransformerService)
+        RegistryMetadataTransformerService registryMetadataTransformerService,
+        MonitoringStatusService monitoringStatusService)
     {
         _next = next;
         _logger = logger;
         _statisticsQueue = statisticsQueue;
         _fhirToXdsTransformerService = fhirToXdsTransformerService;
         _registryMetadataTransformerService = registryMetadataTransformerService;
+        _monitoringStatusService = monitoringStatusService;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
@@ -62,6 +67,8 @@ public class RequestStatisticsMiddleware
         if (!IsMiddlewareEnabledForRequestEndpoint(httpContext)) return;
 
         var requestAndFields = GetRequestAndFieldsFromRequestResponse(sw, httpContext, requestBody, responseBody, httpContext.Request.Headers.Authorization);
+
+        _monitoringStatusService.ResponseTimes.Add($"{httpContext.Request.Method}__{httpContext.Request.Path.Value}__{httpContext.Response.StatusCode}", sw.ElapsedMilliseconds);
 
         if (!_statisticsQueue.Channel.Writer.TryWrite(requestAndFields))
             throw new InvalidOperationException("statistics was not exported");

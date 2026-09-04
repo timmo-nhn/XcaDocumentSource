@@ -49,7 +49,6 @@ public class ApplicationMetaController : ControllerBase
     private readonly BusinessRulesDescriptorService _businessRulesDescriptorService;
     private readonly IVariantFeatureManager _featureManager;
     private readonly SamlValidatorService _samlValidatorService;
-    private readonly IHttpClientFactory _httpClientFactory;
 
     private static readonly ActivitySource ActivitySource = new("nhn.xcads.healthz");
 
@@ -67,8 +66,7 @@ public class ApplicationMetaController : ControllerBase
         IVariantFeatureManager featureManager,
         DocumentListFiltererService documentListFiltererService,
         BusinessRulesDescriptorService businessRulesDescriptorService,
-        SamlValidatorService samlValidatorService,
-        IHttpClientFactory httpClientFactory
+        SamlValidatorService samlValidatorService
         )
     {
         _logger = logger;
@@ -85,7 +83,6 @@ public class ApplicationMetaController : ControllerBase
         _documentListFiltererService = documentListFiltererService;
         _businessRulesDescriptorService = businessRulesDescriptorService;
         _samlValidatorService = samlValidatorService;
-        _httpClientFactory = httpClientFactory;
     }
 
     [HttpGet("health-check")]
@@ -115,7 +112,7 @@ public class ApplicationMetaController : ControllerBase
             usageStatistics,
             uptimeInSeconds,
             _monitoringService.StartupTime,
-            _monitoringService.LastRequest,
+            _monitoringService.LastAtnalogEligibleRequest,
             _monitoringService.LastAtnaLogExported
         };
 
@@ -179,14 +176,11 @@ public class ApplicationMetaController : ControllerBase
 
 
     [Produces("application/json")]
-    [HttpGet("ping/atnalogexporter")]
+    [HttpGet("/atnalogexporter/healthz")]
     public async Task<IActionResult> TryConnectAtnalogExporter()
     {
-        var client = _httpClientFactory.CreateClient();
-
-        var response = await client.GetAsync($"{StringExtensions.GetHostFromUrl(_appConfig.AtnaLogExporterEndpoint)}/healthz");
-        var content = await response.Content.ReadAsStringAsync();
-        return new CustomContentResult(content, (int)response.StatusCode, response.Content.Headers.ContentType?.MediaType ?? "text/plain");
+       var result = await _applicationMetaService.AtnaLogHealthCheck();
+       return StatusCode(result.StatusCode, result.Content);
     }
 
     [Produces("application/json")]
