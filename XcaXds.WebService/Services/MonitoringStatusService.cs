@@ -36,10 +36,6 @@ public class MonitoringStatusService
 
     private void OnResponseTimesUpdated(object? sender, BoundedDictionaryItemAddedEventArgs<string, long> eventArgs)
     {
-        if (eventArgs.Item.Key.IsAnyOf(
-            Constants.Urn.Custom.PepDeny,
-            Constants.Urn.Custom.PepPermit)) return;
-
         LastAtnalogEligibleRequest = DateTimeOffset.UtcNow;
     }
 }

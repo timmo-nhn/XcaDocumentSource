@@ -108,7 +108,21 @@ public class ApplicationMetaController : ControllerBase
 
         var healthCheck = new
         {
-            HealthReport = healthReport,
+            HealthReport = new
+            {
+                healthReport.Status,
+                healthReport.TotalDuration,
+                Entries = healthReport.Entries.ToDictionary(
+                    e => e.Key,
+                    e => new
+                    {
+                        e.Value.Status,
+                        e.Value.Description,
+                        e.Value.Duration,
+                        Exception = e.Value.Exception?.Message,
+                        e.Value.Data
+                    })
+            },
             usageStatistics,
             uptimeInSeconds,
             _monitoringService.StartupTime,
@@ -181,7 +195,14 @@ public class ApplicationMetaController : ControllerBase
     {
         var result = await _applicationMetaService.AtnaLogHealthCheck();
         var statusCode = result.Status == HealthStatus.Healthy ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable;
-        return StatusCode(statusCode, result);
+
+        return StatusCode(statusCode, new
+        {
+            result.Status,
+            result.Description,
+            Exception = result.Exception?.Message,
+            result.Data
+        });
     }
 
     [Produces("application/json")]

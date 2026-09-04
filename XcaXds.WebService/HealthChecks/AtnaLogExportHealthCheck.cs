@@ -30,14 +30,19 @@ public class AtnaLogExportHealthCheck : IHealthCheck
 
         var atnaLogExporterHealth = await _applicationMetaService.AtnaLogHealthCheck();
 
-        data["AtnaLogExporter"] = atnaLogExporterHealth;
+        data["AtnaLogExporter"] = new
+        {
+            atnaLogExporterHealth.Status,
+            atnaLogExporterHealth.Description,
+            Exception = atnaLogExporterHealth.Exception?.Message,
+            atnaLogExporterHealth.Data
+        };
 
         if (atnaLogExporterHealth.Status != HealthStatus.Healthy)
         {
             return new HealthCheckResult(
                 context.Registration.FailureStatus,
                 $"Error from AtnalogExporter HealthCheck-endpoint. Configured Endpoint: {AtnaLogExporterService.AtnaLogEndpointUrl}. Health endpoint: {AtnaLogExporterService.AtnaLogHealthUrl}",
-                exception: atnaLogExporterHealth.Exception,
                 data: data);
         }
 
